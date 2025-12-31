@@ -1,0 +1,51 @@
+# Bytecode und Caches
+__pycache__/
+*.py[cod]
+*$py.class
+.mypy_cache/
+.pytest_cache/
+
+# Virtuelle Umgebungen
+venv/
+env/
+.venv/
+
+# Distribution / Packaging
+.Python
+build/
+develop-eggs/
+dist/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Logs und Datenbanken
+*.log
+local.sqlite
+local.db
+.DS_Store
+
+# IDE/Editor
+.vscode/
+.idea/
+*.swp
+*.sublime-*
+
+# Umgebungsvariablen
+.env
+.env.local
+
+# Tests/Coverage
+htmlcov/
+.tox/
+.coverage
+.coverage.*
+.hypothesis/
