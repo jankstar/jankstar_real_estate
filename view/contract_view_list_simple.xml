@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<tree>
+    <field name="company"/>
+    <field name="id"/>
+    <!--field name="property_id"/-->
+    <!--field name='description'/-->
+    <field name="start_date"/>
+    <field name="end_date"/>
+</tree>

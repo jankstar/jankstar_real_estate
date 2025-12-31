@@ -1,0 +1,149 @@
+
+<tryton>
+
+    <data>
+
+        <record model="ir.ui.view" id="base_object_view_list_measurement">
+            <field name="model">real_estate.measurement</field>
+            <field name="type">tree</field>
+            <field name="name">base_object_list_measurement</field>
+        </record>
+
+        <record model="ir.ui.view" id="measurement_view_form">
+            <field name="model">real_estate.measurement</field>
+            <field name="type">form</field>
+            <field name="name">measurement_form</field>
+        </record>
+
+        <record model="ir.ui.view" id="measurement_view_tree">
+            <field name="model">real_estate.measurement</field>
+            <field name="type">tree</field>
+            <field name="priority" eval="20"/>
+            <field name="name">measurement_tree</field>
+        </record>
+        <record model="ir.ui.view" id="measurement_view_tree_simple">
+            <field name="model">real_estate.measurement</field>
+            <field name="type">tree</field>
+            <field name="priority" eval="20"/>
+            <field name="name">measurement_tree_simple</field>
+        </record>
+
+
+        <record model="ir.action.act_window" id="act_measurement_tree">
+            <field name="name">Measurement</field>
+            <field name="res_model">real_estate.measurement</field>
+        </record>
+
+        <record model="ir.action.act_window.view" id="act_measurement_tree_view1">
+            <field name="sequence" eval="10"/>
+            <field name="view" ref="measurement_view_tree"/>
+            <field name="act_window" ref="act_measurement_tree"/>
+        </record>
+        <record model="ir.action.act_window.view" id="act_measurement_tree_view2">
+            <field name="sequence" eval="20"/>
+            <field name="view" ref="measurement_view_form"/>
+            <field name="act_window" ref="act_measurement_tree"/>
+        </record>
+
+        <record model="ir.ui.view" id="measurement_type_view_list">
+            <field name="model">real_estate.measurement.type</field>
+            <field name="type">tree</field>
+            <field name="name">measurement_type_list</field>
+        </record>
+        <record model="ir.ui.view" id="measurement_type_view_form">
+            <field name="model">real_estate.measurement.type</field>
+            <field name="type">form</field>
+            <field name="name">measurement_type_form</field>
+        </record>
+
+      <menuitem
+         name="Real Estate"
+         sequence="50"
+         id="menu_real_estate"/>
+
+      <menuitem
+         parent="menu_real_estate"
+         name="Configuration"
+         sequence="90"
+         id="menu_real_estate_configuration"
+         icon="tryton-settings"/>
+
+        <record model="ir.action.act_window" id="act_measurement_type">
+            <field name="name">Measurement Types</field>
+            <field name="res_model">real_estate.measurement.type</field>
+        </record>
+        <record model="ir.action.act_window.view" id="act_measurement_type_view1">
+            <field name="sequence" eval="10"/>
+            <field name="view" ref="measurement_type_view_list"/>
+            <field name="act_window" ref="act_measurement_type"/>
+        </record>
+        <record model="ir.action.act_window.view" id="act_measurement_type_view2">
+            <field name="sequence" eval="20"/>
+            <field name="view" ref="measurement_type_view_form"/>
+            <field name="act_window" ref="act_measurement_type"/>
+        </record>
+        
+        <menuitem
+            parent="menu_real_estate_configuration"
+            sequence="30"
+            action="act_measurement_type"
+            id="menu_measurement_type"/>
+
+    </data>
+
+    <data noupdate="1">
+
+        <record model="product.uom" id="uom_re_euro_unit">
+            <field name="name">Euro</field>
+            <field name="symbol">EUR</field>
+            <field name="category" ref="product.uom_cat_unit"/>
+            <field name="rate" eval="1."/>
+            <field name="factor" eval="1."/>
+            <field name="rounding" eval="1."/>
+            <field name="digits" eval="0"/>
+        </record>
+
+        <record model="real_estate.measurement.type" id="measurement_living_space_type">
+            <field name="name">Living Space</field>
+            <field name="unit" ref="product.uom_square_meter"/>
+            <field name="sequence">10</field>
+            <field name="types" eval="['object']"/>
+        </record>
+        <record model="real_estate.measurement.type" id="measurement_number_of_rooms_type">
+            <field name="name">Number of rooms</field>
+            <field name="unit" ref="product.uom_unit" />
+            <field name="sequence">20</field>
+            <field name="types" eval="['object']"/>
+        </record>
+
+        <record model="real_estate.measurement.type" id="measurement_gross_floor_area_type">
+            <field name="name">Gross floor area</field>
+            <field name="unit" ref="product.uom_square_meter"/>
+            <field name="sequence">30</field>
+            <field name="types" eval="['building']"/>
+        </record>
+
+        <record model="real_estate.measurement.type" id="measurement_land_area_area_type">
+            <field name="name">Land area</field>
+            <field name="unit" ref="product.uom_square_meter"/>
+            <field name="sequence">40</field>
+            <field name="types" eval="['land']"/>
+        </record>
+
+        <record model="real_estate.measurement.type" id="measurement_re_number_of_items_type">
+            <field name="name">Number of items</field>
+            <field name="unit" ref="product.uom_unit"/>
+            <field name="sequence">50</field>
+            <field name="types" eval="['equipment']"/>
+        </record>
+
+        <record model="real_estate.measurement.type" id="measurement_property_value_type">
+            <field name="name">Property value</field>
+            <field name="unit" ref="uom_re_euro_unit" />
+            <field name="sequence">60</field>
+            <field name="types" eval="['property']"/>
+        </record>
+
+   </data>
+
+</tryton>

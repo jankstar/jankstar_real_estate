@@ -1,0 +1,49 @@
+<?xml version="1.0"?>
+<form col="6">
+    <label name="compute_name"/><field name="compute_name" colspan="3" readonly="1"/>
+    <label name="c_type"/><field name="c_type"/>
+    <newline/>   
+
+    <label name="company"/><field name="company"/>
+    <label name="property"/><field name="property"/>
+    <newline/>   
+
+    <label name="id"/><field name="id" readonly="1"/>
+    <label name="sequence"/><field name="sequence"/>
+    <label name="contract_number"/><field name="contract_number" readonly="1"/>
+    <newline/>   
+
+    <label name="type_of_use"/><field name="type_of_use"/>
+    <label name="currency"/><field name="currency"/>
+    <newline/>   
+
+    <label name="start_date"/><field name="start_date"/>
+    <label name="end_date"/><field name="end_date"/>
+    <group colspan="2" col="-1" id="checkboxes">
+        <label name="active"/><field name="active" xexpand="0" width="25"/>
+        <label name="state"/><field name="state" widget="selection"/>
+    </group>  
+
+    <newline/>   
+    <notebook colspan="8">
+        <page string="General" id="general" col="6">
+            <label name="contractual_partner"/><field name="contractual_partner"/>
+            <label name="payment_term"/><field name="payment_term"/>
+            <newline/>   
+            <label name="invoice_address"/><field name="invoice_address"/>
+            <label name="phone_partner"/><field name="phone_partner" readonly="1"/>
+            <newline/>   
+            <label name="date_of_signature"/><field name="date_of_signature"/>
+
+            <separator name="comment" colspan="6"/>
+            <field name="comment" colspan="6"/>
+        </page>
+        <page string="Items" id="items" col="6">
+            <field name="items" 
+                view_ids="real_estate.contract_view_list_object_item"/>        
+        </page>
+        <page string="Terms" id="terms">
+            <field name="terms" colspan="6" mode="tree,form"/>
+        </page>
+    </notebook>
+</form>

@@ -1,0 +1,514 @@
+#
+msgid ""
+msgstr "Content-Type: text/plain; charset=utf-8\n"
+
+msgctxt "field:real_estate.address,building_name:"
+msgid "Building Name"
+msgstr "Name Gebäude"
+
+msgctxt "field:real_estate.address,building_number:"
+msgid "Building Number"
+msgstr "Gebäudenummer"
+
+msgctxt "field:real_estate.address,city:"
+msgid "City"
+msgstr "Stadt"
+
+msgctxt "field:real_estate.address,country:"
+msgid "Country"
+msgstr "Land"
+
+msgctxt "field:real_estate.address,floor_number:"
+msgid "Floor Number"
+msgstr "Etage"
+
+msgctxt "field:real_estate.address,full_address:"
+msgid "Full Address"
+msgstr "vollständige Adresse"
+
+msgctxt "field:real_estate.address,post_box:"
+msgid "Post Box"
+msgstr "Schließfach"
+
+msgctxt "field:real_estate.address,post_office:"
+msgid "Post Office"
+msgstr "Büro"
+
+msgctxt "field:real_estate.address,postal_code:"
+msgid "Postal Code"
+msgstr "PLZ"
+
+msgctxt "field:real_estate.address,private_bag:"
+msgid "Private Bag"
+msgstr "Privatbrief"
+
+msgctxt "field:real_estate.address,room_number:"
+msgid "Room Number"
+msgstr "Raumnummer"
+
+msgctxt "field:real_estate.address,street:"
+msgid "Street"
+msgstr "Straße"
+
+msgctxt "field:real_estate.address,street_name:"
+msgid "Street Name"
+msgstr "Straßenname"
+
+msgctxt "field:real_estate.address,street_single_line:"
+msgid "Street"
+msgstr "Straße"
+
+msgctxt "field:real_estate.address,street_unstructured:"
+msgid "Street"
+msgstr "Straße"
+
+msgctxt "field:real_estate.address,subdivision:"
+msgid "Subdivision"
+msgstr "Unterabteilung"
+
+msgctxt "field:real_estate.address,subdivision_types:"
+msgid "Subdivision Types"
+msgstr "Typ Unterabteilung"
+
+msgctxt "field:real_estate.address,unit_number:"
+msgid "Unit Number"
+msgstr "Nummer der Einheit"
+
+msgctxt "field:real_estate.base_object,address:"
+msgid "Address"
+msgstr "Adresse"
+
+msgctxt "field:real_estate.base_object,basement_nr:"
+msgid "Basement Number"
+msgstr "Keller-Nr."
+
+msgctxt "field:real_estate.base_object,children:"
+msgid "Children"
+msgstr "Unterobjekte"
+
+msgctxt "field:real_estate.base_object,comment:"
+msgid "Comment"
+msgstr "Bemerkung"
+
+msgctxt "field:real_estate.base_object,company:"
+msgid "Company"
+msgstr "Gesellschaft"
+
+msgctxt "field:real_estate.base_object,compute_name:"
+msgid "Name"
+msgstr "Name"
+
+msgctxt "field:real_estate.base_object,compute_property:"
+msgid "Property"
+msgstr "Wirtschaftseinheit"
+
+msgctxt "field:real_estate.base_object,end_date:"
+msgid "End Date"
+msgstr "Endedatum"
+
+msgctxt "field:real_estate.base_object,floor:"
+msgid "Floor"
+msgstr "Etage"
+
+msgctxt "field:real_estate.base_object,location:"
+msgid "Location ID"
+msgstr "Standort ID"
+
+msgctxt "field:real_estate.base_object,measurements:"
+msgid "Measurements"
+msgstr "Bemessungen"
+
+msgctxt "field:real_estate.base_object,name:"
+msgid "Description"
+msgstr "Beschreibung"
+
+msgctxt "field:real_estate.base_object,number_of_floors:"
+msgid "Number of Floors"
+msgstr "Anzahl Etagen"
+
+msgctxt "field:real_estate.base_object,number_of_objects:"
+msgid "Number of Sub-Objects"
+msgstr "Anzahl Unterobjekte"
+
+msgctxt "field:real_estate.base_object,object_number:"
+msgid "No"
+msgstr "Nr."
+
+msgctxt "field:real_estate.base_object,parent:"
+msgid "Parent"
+msgstr "Übergeordnetes Objekt"
+
+msgctxt "field:real_estate.base_object,parties:"
+msgid "Parties"
+msgstr "Partner"
+
+msgctxt "field:real_estate.base_object,path:"
+msgid "Path"
+msgstr "Pfad"
+
+msgctxt "field:real_estate.base_object,property:"
+msgid "Property"
+msgstr "Wirtschaftseinheit"
+
+msgctxt "field:real_estate.base_object,start_date:"
+msgid "Start Date"
+msgstr "Startdatum"
+
+msgctxt "field:real_estate.base_object,state:"
+msgid "State"
+msgstr "Status"
+
+msgctxt "field:real_estate.base_object,state:"
+msgid "Status"
+msgstr "Status"
+
+msgctxt "field:real_estate.base_object,status:"
+msgid "Status"
+msgstr "Status"
+
+msgctxt "field:real_estate.base_object,type:"
+msgid "Type"
+msgstr "Typ"
+
+msgctxt "field:real_estate.base_object,type_of_use:"
+msgid "Type of Use"
+msgstr "Nutzungsart"
+
+msgctxt "field:real_estate.base_object,use_class:"
+msgid "Use"
+msgstr "Nutzung"
+
+msgctxt "field:real_estate.base_object,year_of_construction:"
+msgid "Year of Construction"
+msgstr "Baujahr"
+
+msgctxt "field:real_estate.contract,address_partner:"
+msgid "Address Partner"
+msgstr "Adresse Partner"
+
+msgctxt "field:real_estate.contract,c_type:"
+msgid "Contract Type"
+msgstr "Vertragsart"
+
+msgctxt "field:real_estate.contract,comment:"
+msgid "Comment"
+msgstr "Bemerkung"
+
+msgctxt "field:real_estate.contract,company:"
+msgid "Company"
+msgstr "Gesellschaft"
+
+msgctxt "field:real_estate.contract,compute_name:"
+msgid "Name"
+msgstr "Name"
+
+msgctxt "field:real_estate.contract,contract_number:"
+msgid "No"
+msgstr "Nr."
+
+msgctxt "field:real_estate.contract,contractual_partner:"
+msgid "Contractual Partner"
+msgstr "Vertragspartner"
+
+msgctxt "field:real_estate.contract,currency:"
+msgid "Currency"
+msgstr "Währung"
+
+msgctxt "field:real_estate.contract,date_of_signature:"
+msgid "Date of Signature"
+msgstr "Unterschrieben am"
+
+msgctxt "field:real_estate.contract,end_date:"
+msgid "End Date"
+msgstr "Endedatum"
+
+msgctxt "field:real_estate.contract,items:"
+msgid "Items"
+msgstr "Vertargspositionen"
+
+msgctxt "field:real_estate.contract,phone_partner:"
+msgid "Phone Partner"
+msgstr "Telefon Partner"
+
+msgctxt "field:real_estate.contract,property:"
+msgid "Property"
+msgstr "Wirtschaftseinheit"
+
+msgctxt "field:real_estate.contract,start_date:"
+msgid "Start Date"
+msgstr "Startdatum"
+
+msgctxt "field:real_estate.contract,state:"
+msgid "State"
+msgstr "Status"
+
+msgctxt "field:real_estate.contract,type_of_use:"
+msgid "Type of Use"
+msgstr "Nutzungsart"
+
+msgctxt "field:real_estate.contract.type,types_of_use:"
+msgid "Types"
+msgstr "Typen"
+
+msgctxt "field:real_estate.measurement,base_object:"
+msgid "Base Object"
+msgstr "Immobilienobjekt"
+
+msgctxt "field:real_estate.measurement,m_type:"
+msgid "Measurement Type"
+msgstr "Bemessungstype"
+
+msgctxt "field:real_estate.measurement,no_print:"
+msgid "No Print"
+msgstr "kein Ausdruck"
+
+msgctxt "field:real_estate.measurement,type:"
+msgid "Object Type"
+msgstr "Objekttyp"
+
+msgctxt "field:real_estate.measurement,valid_from:"
+msgid "From"
+msgstr "von"
+
+msgctxt "field:real_estate.measurement,value:"
+msgid "Value"
+msgstr "Wert"
+
+msgctxt "field:real_estate.measurement.type,no_print:"
+msgid "No Print"
+msgstr "kein Ausdruck"
+
+msgctxt "field:real_estate.measurement.type,types:"
+msgid "Types"
+msgstr "Typen"
+
+msgctxt "field:real_estate.measurement.type,unit:"
+msgid "Unit"
+msgstr "Einheit"
+
+msgctxt "field:real_estate.object_party,base_object:"
+msgid "Object"
+msgstr "Objekt"
+
+msgctxt "field:real_estate.object_party,party:"
+msgid "Party"
+msgstr "Partei"
+
+msgctxt "field:real_estate.object_party,role:"
+msgid "Role"
+msgstr "Rolle"
+
+msgctxt "field:real_estate.object_party,type:"
+msgid "Object Type"
+msgstr "Objekttyp"
+
+msgctxt "field:real_estate.object_party,valid_from:"
+msgid "Valid from"
+msgstr "gültig ab"
+
+msgctxt "field:real_estate.object_party,valid_to:"
+msgid "Valid to"
+msgstr "gültig bis"
+
+msgctxt "field:real_estate.object_party.role,types:"
+msgid "Types"
+msgstr "Typen"
+
+msgctxt "help:real_estate.contract.type,types_of_use:"
+msgid "The type of object which can use this measurement."
+msgstr "Objekttypen, die die Bemessung nutzen können."
+
+msgctxt "help:real_estate.measurement.type,default:"
+msgid "Check to use as default status for the type."
+msgstr "Wählen, wenn als default gewählt."
+
+msgctxt "help:real_estate.measurement.type,types:"
+msgid "The type of object which can use this measurement."
+msgstr "Diese Objekttypen können die Bemessung nutzen."
+
+msgctxt "help:real_estate.object_party.role,default:"
+msgid "Check to use as default status for the type."
+msgstr "Wählen, wenn als default gewählt."
+
+msgctxt "help:real_estate.object_party.role,types:"
+msgid "The type of object which can use this role."
+msgstr "Diese Objekttypen können die Rolle nutzen."
+
+msgctxt "model:ir.action,name:act_building_form"
+msgid "Building"
+msgstr "Gebäude"
+
+msgctxt "model:ir.action.act_window.domain,name:act_property_form_domain_all"
+msgid "All"
+msgstr "Alle"
+
+msgctxt ""
+"model:ir.action.act_window.domain,name:act_property_form_domain_approved"
+msgid "Approved"
+msgstr "Aktiv"
+
+msgctxt ""
+"model:ir.action.act_window.domain,name:act_property_form_domain_draft"
+msgid "Draft"
+msgstr "Entwurf"
+
+msgctxt ""
+"model:ir.action.act_window.domain,name:act_property_form_domain_locked"
+msgid "Locked"
+msgstr "Gesperrt"
+
+msgctxt "model:ir.ui.menu,name:menu_building_form"
+msgid "Building"
+msgstr "Gebäude"
+
+msgctxt "model:ir.ui.menu,name:menu_real_estate_form"
+msgid "Property"
+msgstr "Wirtschaftseinheit"
+
+msgctxt "model:real_estate.address,string:"
+msgid "Real Estate Address"
+msgstr "Immobilien Adresse"
+
+msgctxt "model:real_estate.base_object,string:"
+msgid "Real Estate Base Object"
+msgstr "Immobilienobjekt"
+
+msgctxt "model:real_estate.contract,string:"
+msgid "Real Estate Contract"
+msgstr "Immobilienvertrag"
+
+msgctxt "model:real_estate.contract.type,string:"
+msgid "Real Estate Contract Type"
+msgstr "Vertragstyp"
+
+msgctxt "model:real_estate.measurement,string:"
+msgid "Real Estate Measurement"
+msgstr "Immobilienbemessung"
+
+msgctxt "model:real_estate.measurement.type,string:"
+msgid "Real Estate Measurement Type"
+msgstr "Immobilien Bemessungstyp"
+
+msgctxt "model:real_estate.object_party,string:"
+msgid "Real Estate Object Party"
+msgstr "Immobilienpartner"
+
+msgctxt "selection:real_estate.base_object,state:"
+msgid "Approved"
+msgstr "Aktiv"
+
+msgctxt "selection:real_estate.base_object,state:"
+msgid "Deactivated"
+msgstr "Deaktiviert"
+
+msgctxt "selection:real_estate.base_object,state:"
+msgid "Draft"
+msgstr "Entwurf"
+
+msgctxt "selection:real_estate.base_object,state:"
+msgid "Locked"
+msgstr "gesperrt"
+
+msgctxt "selection:real_estate.base_object,status:"
+msgid "Approved"
+msgstr "Aktiv"
+
+msgctxt "selection:real_estate.base_object,status:"
+msgid "Deactivated"
+msgstr "Deaktiviert"
+
+msgctxt "selection:real_estate.base_object,status:"
+msgid "Draft"
+msgstr "Entwurf"
+
+msgctxt "selection:real_estate.base_object,status:"
+msgid "Locked"
+msgstr "gesperrt"
+
+msgctxt "selection:real_estate.base_object,type:"
+msgid "Building"
+msgstr "Gebäude"
+
+msgctxt "selection:real_estate.base_object,type:"
+msgid "Equipment"
+msgstr "Equipment"
+
+msgctxt "selection:real_estate.base_object,type:"
+msgid "Land"
+msgstr "Grundstück"
+
+msgctxt "selection:real_estate.base_object,type:"
+msgid "Property"
+msgstr "Wirtschaftseinheit"
+
+msgctxt "selection:real_estate.base_object,type:"
+msgid "Rental Object"
+msgstr "Immobilienobjekt"
+
+msgctxt "selection:real_estate.base_object,type_of_use:"
+msgid "None"
+msgstr "keine"
+
+msgctxt "selection:real_estate.base_object,type_of_use:"
+msgid "Residential"
+msgstr "Mietobjekt"
+
+msgctxt "selection:real_estate.base_object,type_of_use:"
+msgid "Residential property"
+msgstr "Wohneigentum"
+
+msgctxt "selection:real_estate.base_object,use_class:"
+msgid "Apartment"
+msgstr "Wohnung"
+
+msgctxt "selection:real_estate.base_object,use_class:"
+msgid "Garage"
+msgstr "Garage"
+
+msgctxt "selection:real_estate.base_object,use_class:"
+msgid "None"
+msgstr "keine"
+
+msgctxt "selection:real_estate.base_object,use_class:"
+msgid "Office"
+msgstr "Büro"
+
+msgctxt "selection:real_estate.base_object,use_class:"
+msgid "Parking"
+msgstr "Stellplatz"
+
+msgctxt "selection:real_estate.base_object,use_class:"
+msgid "Retail"
+msgstr "Verkauf"
+
+msgctxt "selection:real_estate.base_object,use_class:"
+msgid "Warehouse"
+msgstr "Lager"
+
+msgctxt "selection:real_estate.contract,state:"
+msgid "Draft"
+msgstr "Entwurf"
+
+msgctxt "selection:real_estate.contract,state:"
+msgid "Running"
+msgstr "Aktiv"
+
+msgctxt "selection:real_estate.contract,state:"
+msgid "Terminated"
+msgstr "Beendet"
+
+msgctxt "selection:real_estate.contract,type_of_use:"
+msgid "Commercial"
+msgstr "Gewerbeobjekt"
+
+msgctxt "selection:real_estate.contract,type_of_use:"
+msgid "Internal Use"
+msgstr "Interne Nutzung"
+
+msgctxt "selection:real_estate.contract,type_of_use:"
+msgid "Residential"
+msgstr "Mietobjekt"
+
+msgctxt "selection:real_estate.contract,type_of_use:"
+msgid "Residential property"
+msgstr "Wohneigentum"

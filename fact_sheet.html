@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html xmlns:py="http://genshi.edgewall.org/" xmlns:i18n="http://genshi.edgewall.org/i18n">
+
+<head>
+    <meta charset="utf-8" />
+
+    <title>Fact Sheet</title>
+    <meta content="width=device-width, initial-scale=1" name="viewport" />
+    <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900|Material+Icons" rel="stylesheet"
+        type="text/css" />
+    <script src="https://cdn.jsdelivr.net/npm/pagedjs@0.2.0/dist/paged.polyfill.js" defer="true"> </script>
+
+    <style type="text/css">
+        @page {
+            size: A4;
+            margin-left: 25mm;
+            margin-right: 10mm;
+            margin-top: 17mm;
+            margin-bottom: 17mm;
+
+            @top-center {
+                content: '  ${record.company.header}  ';
+                font-size: 10px;
+            }
+
+            @bottom-center {
+                content: '  ${record.company.footer}  ';
+                font-size: 12px;
+            }
+
+            @bottom-right {
+                content: 'Page ' counter(page) ' of ' counter(pages);
+            }
+
+            @bottom-left {
+                content: '©tryton - 2025/09/24';
+                font-size: 6px;
+            }
+        }
+
+        body {
+            font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+        }
+
+        table {
+            margin-top: 5mm;
+            border-collapse: collapse;
+            border-spacing: 0;
+            table-layout: fixed;
+            width: 100%;
+        }
+
+        td {
+            border: 1px solid black;
+            padding: 10px;
+            text-align: inherit;
+            vertical-align: top;
+            word-break: break-word;
+            word-wrap: break-word;
+        }
+
+        th {
+            border: 1px solid black;
+            padding: 10px;
+            text-align: inherit;
+            vertical-align: top;
+            word-break: break-word;
+            word-wrap: break-word;
+            text-align: left;
+        }
+
+        table,
+        th,
+        td {
+            border: none;
+            /* Kein Rahmen an Tabelle, Kopf- und Datenzellen */
+        }
+
+        h7 {
+            font-size: 8px;
+        }
+
+        .datum {
+            text-align: right;
+        }
+
+        .briefkopf {
+            font-size: 21px;
+            font-weight: bold;
+        }
+
+        .anschrift {
+            margin-top: 12px;
+        }
+
+        .betreff {
+            margin-top: 8.4mm;
+            font-weight: bold;
+            text-decoration: underline;
+        }
+
+        .kopf {
+            margin: 0%;
+            padding: 0%;
+            border: unset
+        }
+
+        .fuss {
+            margin: 0%;
+            padding: 0%;
+            border: unset
+        }
+    </style>
+</head>
+
+<body>
+
+    <h3>Fact Sheet</h3>
+
+    <table>
+        <tbody>
+            <tr>
+                <td>
+                    Company:
+                </td>
+                <td>
+                    ${record.company.get_rec_name("")} (${record.company.id})
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    ID:
+                </td>
+                <td>
+                    ${record.id}
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    Type:
+                </td>
+                <td>
+                    ${record.type}
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    Sequence:
+                </td>
+                <td>
+                    ${record.sequence}
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    No:
+                </td>
+                <td>
+                    ${record.object_number}
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    Name:
+                </td>
+                <td>
+                    ${record.name}
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    Start/End Date:
+                </td>
+                <td>
+                    ${record.start_date} / ${record.end_date}
+                </td>
+            </tr>
+            <tr py:if="record.address != None">
+                <td>
+                    Address:
+                </td>
+                <td>
+                    ${record.address.street_name} <br/> ${record.address.country.code}-${record.address.postal_code} ${record.address.city} 
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h3 py:if="len(record.measurements) > 0">Measurement</h3>
+
+    <table style="margin-left: 10px;" py:if="len(record.measurements) > 0">
+        <tbody>
+            <p py:for="obj in record.measurements">
+                <tr>
+
+                    <td>${obj.valid_from}</td>
+                    <td>${obj.m_type.name}</td>
+                    <td style="text-align:right;">${obj.value}</td>
+                    <td style="text-align:right;">${obj.symbol}</td>
+
+                </tr>
+            </p>
+        </tbody>
+    </table>
+
+
+    <h3 py:if="len(record.parties) > 0">Parties</h3>
+
+    <table style="margin-left: 10px;" py:if="len(record.parties) > 0">
+        <tbody>
+            <p py:for="obj in record.parties">
+                <tr>
+
+                    <td>${obj.valid_from}</td>
+                    <td>${obj.party.name}</td>
+                    <td>${obj.role.name}</td>
+                    <td>${obj.valid_to}</td>
+
+                </tr>
+            </p>
+        </tbody>
+    </table>
+
+    <h3 py:if="record.number_of_objects > 0">Children</h3>
+
+    <table style="margin-left: 10px;" py:if="record.number_of_objects > 0">
+        <tbody>
+            <p py:for="obj in record.children">
+                <tr>
+                    <div py:choose="obj.type">
+                        <span py:when="'building'">
+                            <td>${obj.object_number} ${obj.compute_name}</td>
+                        </span>
+                        <span py:when="'land'">
+                            <td>${obj.object_number} ${obj.compute_name}</td>
+                        </span>
+                        <span py:otherwise="">
+                            <td>${obj.object_number} ${obj.compute_name}</td>
+                        </span>
+                    </div>
+                </tr>
+            </p>
+        </tbody>
+    </table>
+
+</body>
+
+</html>

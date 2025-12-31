@@ -1,0 +1,117 @@
+
+<tryton>
+
+    <data>
+
+      <menuitem
+         parent="menu_real_estate_masta_data"
+         name="Parties"
+         sequence="110"
+         id="menu_real_estate_parties"/>
+
+        <record model="ir.ui.view" id="base_object_view_list_object_party">
+            <field name="model">real_estate.object_party</field>
+            <field name="type">tree</field>
+            <field name="name">base_object_list_object_party</field>
+        </record>
+
+        <record model="ir.ui.view" id="object_party_view_form">
+            <field name="model">real_estate.object_party</field>
+            <field name="type">form</field>
+            <field name="name">object_party_form</field>
+        </record>
+
+        <record model="ir.ui.view" id="object_party_view_tree">
+            <field name="model">real_estate.object_party</field>
+            <field name="type">tree</field>
+            <field name="priority" eval="20"/>
+            <field name="name">object_party_tree</field>
+        </record>
+        <record model="ir.ui.view" id="object_party_view_tree_simple">
+            <field name="model">real_estate.object_party</field>
+            <field name="type">tree</field>
+            <field name="priority" eval="20"/>
+            <field name="name">object_party_tree_simple</field>
+        </record>
+
+
+        <record model="ir.action.act_window" id="act_object_party_tree">
+            <field name="name">Object Parties</field>
+            <field name="res_model">real_estate.object_party</field>
+        </record>
+
+        <record model="ir.action.act_window.view" id="act_object_party_tree_view1">
+            <field name="sequence" eval="10"/>
+            <field name="view" ref="object_party_view_tree"/>
+            <field name="act_window" ref="act_object_party_tree"/>
+        </record>
+        <record model="ir.action.act_window.view" id="act_object_party_tree_view2">
+            <field name="sequence" eval="20"/>
+            <field name="view" ref="object_party_view_form"/>
+            <field name="act_window" ref="act_object_party_tree"/>
+        </record>
+
+        <record model="ir.ui.view" id="object_party_role_view_list">
+            <field name="model">real_estate.object_party.role</field>
+            <field name="type">tree</field>
+            <field name="name">object_party_role_list</field>
+        </record>
+        <record model="ir.ui.view" id="object_party_role_view_form">
+            <field name="model">real_estate.object_party.role</field>
+            <field name="type">form</field>
+            <field name="name">object_party_role_form</field>
+        </record>
+        <record model="ir.action.act_window" id="act_object_party_role">
+            <field name="name">Object Party Roles</field>
+            <field name="res_model">real_estate.object_party.role</field>
+        </record>
+        <record model="ir.action.act_window.view" id="act_object_party_role_view1">
+            <field name="sequence" eval="10"/>
+            <field name="view" ref="object_party_role_view_list"/>
+            <field name="act_window" ref="act_object_party_role"/>
+        </record>
+        <record model="ir.action.act_window.view" id="act_object_party_role_view2">
+            <field name="sequence" eval="20"/>
+            <field name="view" ref="object_party_role_view_form"/>
+            <field name="act_window" ref="act_object_party_role"/>
+        </record>
+
+        <menuitem
+            parent="menu_real_estate_configuration"
+            sequence="30"
+            action="act_object_party_role"
+            id="menu_object_party_role"/>
+
+        <menuitem
+            parent="menu_real_estate_parties"
+            action="act_object_party_tree"
+            sequence="20"
+            id="menu_object_parties_form"/>
+
+    </data>
+
+    <data noupdate="1">
+
+        <record model="real_estate.object_party.role" id="object_party_caretaker_role">
+            <field name="name">Caretaker</field>
+            <field name="sequence">10</field>
+            <field name="default" eval="True"/>
+            <field name="types" eval="['property']"/>
+        </record>
+        <record model="real_estate.object_party.role" id="object_party_administrator_role">
+            <field name="name">Administrator</field>
+            <field name="sequence">20</field>
+            <field name="default" eval="False"/>
+            <field name="types" eval="['property']"/>
+        </record>
+
+        <record model="real_estate.object_party.role" id="object_party_owner_role">
+            <field name="name">Owner</field>
+            <field name="sequence">30</field>
+            <field name="default" eval="False"/>
+            <field name="types" eval="['property', 'object']"/>
+        </record>
+
+   </data>
+
+</tryton>

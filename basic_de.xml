@@ -1,0 +1,826 @@
+<tryton>
+
+    <data noupdate="1">
+
+<!-- iso_3166 Länder https://www.laenderdaten.de/kuerzel/iso_3166-1.aspx -->    
+        <record model="country.country" id="country_be">
+            <field name="code">BE</field>
+            <field name="code3">BEL</field>
+            <field name="code_numeric">056</field>
+            <field name="name">Belgien</field>
+            <field name="region" ref="country.region_europe"/>
+        </record>
+
+        <record model="country.country" id="country_bg">
+            <field name="code">BG</field>
+            <field name="code3">BGR</field>
+            <field name="code_numeric">100</field>
+            <field name="name">Bulgarien</field>
+            <field name="region" ref="country.region_europe"/>
+        </record>
+
+        <record model="country.country" id="country_dk">
+            <field name="code">DK</field>
+            <field name="code3">DNK</field>
+            <field name="code_numeric">208</field>
+            <field name="name">Dänemark</field>
+            <field name="region" ref="country.region_europe"/>
+        </record>
+
+        <record model="country.country" id="country_de">
+            <field name="code">DE</field>
+            <field name="code3">DEU</field>
+            <field name="code_numeric">276</field>
+            <field name="name">Deutschland</field>
+            <field name="region" ref="country.region_europe"/>
+        </record>
+
+        <record model="country.country" id="country_ee">
+            <field name="code">EE</field>
+            <field name="code3">EST</field>
+            <field name="code_numeric">233</field>
+            <field name="name">Estland</field>
+            <field name="region" ref="country.region_europe"/>
+        </record>
+
+        <record model="country.country" id="country_fo">
+            <field name="code">FO</field>
+            <field name="code3">FRO</field>
+            <field name="code_numeric">234</field>
+            <field name="name">Färör</field>
+            <field name="region" ref="country.region_europe"/>
+        </record>                
+        
+        <record model="country.country" id="country_fi">
+            <field name="code">FI</field>
+            <field name="code3">FIN</field>
+            <field name="code_numeric">246</field>
+            <field name="name">Finnland</field>
+            <field name="region" ref="country.region_europe"/>
+        </record>  
+
+        <record model="country.country" id="country_fr">
+            <field name="code">FR</field>
+            <field name="code3">FRA</field>
+            <field name="code_numeric">250</field>
+            <field name="name">Frankreich</field>
+            <field name="region" ref="country.region_europe"/>
+        </record>  
+
+        <record model="country.country" id="country_gi">
+            <field name="code">GI</field>
+            <field name="code3">GIB</field>
+            <field name="code_numeric">292</field>
+            <field name="name">Gibraltar</field>
+            <field name="region" ref="country.region_europe"/>
+        </record>  
+
+        <record model="country.country" id="country_gr">
+            <field name="code">GR</field>
+            <field name="code3">GRC</field>
+            <field name="code_numeric">300</field>
+            <field name="name">Griechenland</field>
+            <field name="region" ref="country.region_europe"/>
+        </record>  
+
+        <record model="country.country" id="country_gb">
+            <field name="code">GB</field>
+            <field name="code3">GBR</field>
+            <field name="code_numeric">826</field>
+            <field name="name">Großbritannien</field>
+            <field name="region" ref="country.region_europe"/>
+        </record>  
+
+        <record model="country.country" id="country_ie">
+            <field name="code">IE</field>
+            <field name="code3">IRL</field>
+            <field name="code_numeric">372</field>
+            <field name="name">Irland</field>
+            <field name="region" ref="country.region_europe"/>
+        </record>  
+
+        <record model="country.country" id="country_is">
+            <field name="code">IS</field>
+            <field name="code3">ISL</field>
+            <field name="code_numeric">352</field>
+            <field name="name">Island</field>
+            <field name="region" ref="country.region_europe"/>
+        </record>  
+
+        <record model="country.country" id="country_it">
+            <field name="code">IT</field>
+            <field name="code3">ITA</field>
+            <field name="code_numeric">380</field>
+            <field name="name">Italien</field>
+            <field name="region" ref="country.region_europe"/>
+        </record> 
+
+        <record model="country.country" id="country_hr">
+            <field name="code">HR</field>
+            <field name="code3">HRV</field>
+            <field name="code_numeric">191</field>
+            <field name="name">Kroatien</field>
+            <field name="region" ref="country.region_europe"/>
+        </record> 
+
+        <record model="country.country" id="country_lv">
+            <field name="code">LV</field>
+            <field name="code3">LVA</field>
+            <field name="code_numeric">428</field>
+            <field name="name">Lettland</field>
+            <field name="region" ref="country.region_europe"/>
+        </record> 
+
+        <record model="country.country" id="country_lt">
+            <field name="code">LT</field>
+            <field name="code3">LTU</field>
+            <field name="code_numeric">440</field>
+            <field name="name">Litauen</field>
+            <field name="region" ref="country.region_europe"/>
+        </record> 
+
+        <record model="country.country" id="country_li">
+            <field name="code">LI</field>
+            <field name="code3">LIE</field>
+            <field name="code_numeric">438</field>
+            <field name="name">Liechenstein</field>
+            <field name="region" ref="country.region_europe"/>
+        </record> 
+
+        <record model="country.country" id="country_lu">
+            <field name="code">LU</field>
+            <field name="code3">LUX</field>
+            <field name="code_numeric">442</field>
+            <field name="name">Luxemburg</field>
+            <field name="region" ref="country.region_europe"/>
+        </record> 
+
+        <record model="country.country" id="country_mt">
+            <field name="code">MT</field>
+            <field name="code3">MLT</field>
+            <field name="code_numeric">470</field>
+            <field name="name">Malta</field>
+            <field name="region" ref="country.region_europe"/>
+        </record> 
+
+        <record model="country.country" id="country_md">
+            <field name="code">MD</field>
+            <field name="code3">MDA</field>
+            <field name="code_numeric">498</field>
+            <field name="name">Moldau</field>
+            <field name="region" ref="country.region_europe"/>
+        </record> 
+
+        <record model="country.country" id="country_mc">
+            <field name="code">MC</field>
+            <field name="code3">MCO</field>
+            <field name="code_numeric">492</field>
+            <field name="name">Monaco</field>
+            <field name="region" ref="country.region_europe"/>
+        </record> 
+
+        <record model="country.country" id="country_me">
+            <field name="code">ME</field>
+            <field name="code3">MNE</field>
+            <field name="code_numeric">499</field>
+            <field name="name">Montenegro</field>
+            <field name="region" ref="country.region_europe"/>
+        </record> 
+
+        <record model="country.country" id="country_nl">
+            <field name="code">NL</field>
+            <field name="code3">NLD</field>
+            <field name="code_numeric">528</field>
+            <field name="name">Niederlande</field>
+            <field name="region" ref="country.region_europe"/>
+        </record> 
+
+        <record model="country.country" id="country_mk">
+            <field name="code">MK</field>
+            <field name="code3">MKD</field>
+            <field name="code_numeric">807</field>
+            <field name="name">Nordmazedonien</field>
+            <field name="region" ref="country.region_europe"/>
+        </record> 
+
+        <record model="country.country" id="country_no">
+            <field name="code">NO</field>
+            <field name="code3">NOR</field>
+            <field name="code_numeric">578</field>
+            <field name="name">Norwegen</field>
+            <field name="region" ref="country.region_europe"/>
+        </record> 
+
+        <record model="country.country" id="country_at">
+            <field name="code">AT</field>
+            <field name="code3">AUT</field>
+            <field name="code_numeric">040</field>
+            <field name="name">Österreich</field>
+            <field name="region" ref="country.region_europe"/>
+        </record> 
+
+        <record model="country.country" id="country_pl">
+            <field name="code">PL</field>
+            <field name="code3">POL</field>
+            <field name="code_numeric">616</field>
+            <field name="name">Polen</field>
+            <field name="region" ref="country.region_europe"/>
+        </record> 
+
+        <record model="country.country" id="country_pt">
+            <field name="code">PT</field>
+            <field name="code3">PRT</field>
+            <field name="code_numeric">620</field>
+            <field name="name">Portugal</field>
+            <field name="region" ref="country.region_europe"/>
+        </record> 
+
+        <record model="country.country" id="country_ro">
+            <field name="code">RO</field>
+            <field name="code3">ROU</field>
+            <field name="code_numeric">642</field>
+            <field name="name">Rumänien</field>
+            <field name="region" ref="country.region_europe"/>
+        </record> 
+
+        <record model="country.country" id="country_ru">
+            <field name="code">RU</field>
+            <field name="code3">RUS</field>
+            <field name="code_numeric">643</field>
+            <field name="name">Russische Föderation</field>
+            <field name="region" ref="country.region_europe"/>
+        </record> 
+
+        <record model="country.country" id="country_se">
+            <field name="code">SE</field>
+            <field name="code3">SWE</field>
+            <field name="code_numeric">752</field>
+            <field name="name">Schweden</field>
+            <field name="region" ref="country.region_europe"/>
+        </record> 
+
+        <record model="country.country" id="country_ch">
+            <field name="code">CH</field>
+            <field name="code3">CHE</field>
+            <field name="code_numeric">756</field>
+            <field name="name">Schweiz</field>
+            <field name="region" ref="country.region_europe"/>
+        </record> 
+
+        <record model="country.country" id="country_rs">
+            <field name="code">RS</field>
+            <field name="code3">SRB</field>
+            <field name="code_numeric">688</field>
+            <field name="name">Serbien</field>
+            <field name="region" ref="country.region_europe"/>
+        </record> 
+
+        <record model="country.country" id="country_sk">
+            <field name="code">SK</field>
+            <field name="code3">SVK</field>
+            <field name="code_numeric">703</field>
+            <field name="name">Slovakei</field>
+            <field name="region" ref="country.region_europe"/>
+        </record> 
+
+        <record model="country.country" id="country_si">
+            <field name="code">SI</field>
+            <field name="code3">SVN</field>
+            <field name="code_numeric">705</field>
+            <field name="name">Slowenien</field>
+            <field name="region" ref="country.region_europe"/>
+        </record> 
+
+        <record model="country.country" id="country_es">
+            <field name="code">ES</field>
+            <field name="code3">ESP</field>
+            <field name="code_numeric">724</field>
+            <field name="name">Spanien</field>
+            <field name="region" ref="country.region_europe"/>
+        </record> 
+
+        <record model="country.country" id="country_cz">
+            <field name="code">CZ</field>
+            <field name="code3">CZE</field>
+            <field name="code_numeric">203</field>
+            <field name="name">Tschechische Republik</field>
+            <field name="region" ref="country.region_europe"/>
+        </record> 
+
+        <record model="country.country" id="country_ua">
+            <field name="code">UA</field>
+            <field name="code3">UKR</field>
+            <field name="code_numeric">804</field>
+            <field name="name">Ukraine</field>
+            <field name="region" ref="country.region_europe"/>
+        </record> 
+
+        <record model="country.country" id="country_hu">
+            <field name="code">HU</field>
+            <field name="code3">HUN</field>
+            <field name="code_numeric">348</field>
+            <field name="name">Ungarn</field>
+            <field name="region" ref="country.region_europe"/>
+        </record> 
+
+        <record model="country.country" id="country_cy">
+            <field name="code">CY</field>
+            <field name="code3">CYP</field>
+            <field name="code_numeric">196</field>
+            <field name="name">Zypern</field>
+            <field name="region" ref="country.region_europe"/>
+        </record> 
+
+        <record model="country.country" id="country_by">
+            <field name="code">BY</field>
+            <field name="code3">BLR</field>
+            <field name="code_numeric">112</field>
+            <field name="name">Belarus</field>
+            <field name="region" ref="country.region_europe"/>
+        </record> 
+
+        <record model="country.country" id="country_il">
+            <field name="code">IL</field>
+            <field name="code3">ISR</field>
+            <field name="code_numeric">376</field>
+            <field name="name">Israel</field>
+            <field name="region" ref="country.region_asia"/>
+        </record>  
+
+        <record model="country.country" id="country_us">
+            <field name="code">US</field>
+            <field name="code3">USA</field>
+            <field name="code_numeric">840</field>
+            <field name="name">Vereinigte Staaten</field>
+            <field name="region" ref="country.region_americas"/>
+        </record>  
+
+        <record model="country.country" id="country_ca">
+            <field name="code">CA</field>
+            <field name="code3">CAN</field>
+            <field name="code_numeric">124</field>
+            <field name="name">Canada</field>
+            <field name="region" ref="country.region_americas"/>
+        </record>  
+
+        <record model="country.country" id="country_za">
+            <field name="code">ZA</field>
+            <field name="code3">ZAF</field>
+            <field name="code_numeric">710</field>
+            <field name="name">Südafrika</field>
+            <field name="region" ref="country.region_africa"/>
+        </record>  
+
+        <record model="country.country" id="country_au">
+            <field name="code">AU</field>
+            <field name="code3">AUS</field>
+            <field name="code_numeric">036</field>
+            <field name="name">Australien</field>
+            <field name="region" ref="country.region_oceania"/>
+        </record>  
+
+        <record model="country.country" id="country_nz">
+            <field name="code">NZ</field>
+            <field name="code3">NZL</field>
+            <field name="code_numeric">554</field>
+            <field name="name">Neuseeland</field>
+            <field name="region" ref="country.region_oceania"/>
+        </record>  
+
+        <record model="country.country" id="country_tr">
+            <field name="code">TR</field>
+            <field name="code3">TUR</field>
+            <field name="code_numeric">792</field>
+            <field name="name">Türkei</field>
+            <field name="region" ref="country.region_asia"/>
+        </record>  
+
+        <record model="country.country" id="country_in">
+            <field name="code">IN</field>
+            <field name="code3">IND</field>
+            <field name="code_numeric">356</field>
+            <field name="name">Indien</field>
+            <field name="region" ref="country.region_asia"/>
+        </record> 
+
+        <record model="country.country" id="country_cn">
+            <field name="code">CN</field>
+            <field name="code3">CHN</field>
+            <field name="code_numeric">156</field>
+            <field name="name">China</field>
+            <field name="region" ref="country.region_asia"/>
+        </record> 
+
+        <record model="country.country" id="country_jp">
+            <field name="code">JP</field>
+            <field name="code3">JPN</field>
+            <field name="code_numeric">392</field>
+            <field name="name">Japan</field>
+            <field name="region" ref="country.region_asia"/>
+        </record> 
+
+        <record model="country.organization.member" id="country_de_eu_member">
+            <field name="country" ref="country_de" />
+            <field name="from_date">1958-01-01</field>
+            <field name="organization" ref="country.organization_eu"/>
+        </record>
+
+        <record model="country.organization.member" id="country_be_eu_member">
+            <field name="country" ref="country_be" />
+            <field name="from_date">1958-01-01</field>
+            <field name="organization" ref="country.organization_eu"/>
+        </record>
+
+        <record model="country.organization.member" id="country_fr_eu_member">
+            <field name="country" ref="country_fr" />
+            <field name="from_date">1958-01-01</field>
+            <field name="organization" ref="country.organization_eu"/>
+        </record>
+
+        <record model="country.organization.member" id="country_it_eu_member">
+            <field name="country" ref="country_it" />
+            <field name="from_date">1958-01-01</field>
+            <field name="organization" ref="country.organization_eu"/>
+        </record>
+
+        <record model="country.organization.member" id="country_lu_eu_member">
+            <field name="country" ref="country_lu" />
+            <field name="from_date">1958-01-01</field>
+            <field name="organization" ref="country.organization_eu"/>
+        </record>
+
+        <record model="country.organization.member" id="country_nl_eu_member">
+            <field name="country" ref="country_nl" />
+            <field name="from_date">1958-01-01</field>
+            <field name="organization" ref="country.organization_eu"/>
+        </record>
+
+        <record model="country.organization.member" id="country_dk_eu_member">
+            <field name="country" ref="country_dk" />
+            <field name="from_date">1973-01-01</field>
+            <field name="organization" ref="country.organization_eu"/>
+        </record>
+
+        <record model="country.organization.member" id="country_ie_eu_member">
+            <field name="country" ref="country_ie" />
+            <field name="from_date">1973-01-01</field>
+            <field name="organization" ref="country.organization_eu"/>
+        </record>
+
+        <record model="country.organization.member" id="country_gr_eu_member">
+            <field name="country" ref="country_gr" />
+            <field name="from_date">1981-01-01</field>
+            <field name="organization" ref="country.organization_eu"/>
+        </record>
+
+       <record model="country.organization.member" id="country_es_eu_member">
+            <field name="country" ref="country_es" />
+            <field name="from_date">1986-01-01</field>
+            <field name="organization" ref="country.organization_eu"/>
+        </record>
+
+       <record model="country.organization.member" id="country_pt_eu_member">
+            <field name="country" ref="country_pt" />
+            <field name="from_date">1986-01-01</field>
+            <field name="organization" ref="country.organization_eu"/>
+        </record>
+
+       <record model="country.organization.member" id="country_fi_eu_member">
+            <field name="country" ref="country_fi" />
+            <field name="from_date">1995-01-01</field>
+            <field name="organization" ref="country.organization_eu"/>
+        </record>
+
+       <record model="country.organization.member" id="country_at_eu_member">
+            <field name="country" ref="country_at" />
+            <field name="from_date">1995-01-01</field>
+            <field name="organization" ref="country.organization_eu"/>
+        </record>
+
+       <record model="country.organization.member" id="country_se_eu_member">
+            <field name="country" ref="country_se" />
+            <field name="from_date">1995-01-01</field>
+            <field name="organization" ref="country.organization_eu"/>
+        </record>
+
+       <record model="country.organization.member" id="country_ee_eu_member">
+            <field name="country" ref="country_ee" />
+            <field name="from_date">2004-05-01</field>
+            <field name="organization" ref="country.organization_eu"/>
+        </record>
+
+       <record model="country.organization.member" id="country_lv_eu_member">
+            <field name="country" ref="country_lv" />
+            <field name="from_date">2004-05-01</field>
+            <field name="organization" ref="country.organization_eu"/>
+        </record>
+
+       <record model="country.organization.member" id="country_lt_eu_member">
+            <field name="country" ref="country_lt" />
+            <field name="from_date">2004-05-01</field>
+            <field name="organization" ref="country.organization_eu"/>
+        </record>
+
+       <record model="country.organization.member" id="country_mt_eu_member">
+            <field name="country" ref="country_mt" />
+            <field name="from_date">2004-05-01</field>
+            <field name="organization" ref="country.organization_eu"/>
+        </record>
+
+       <record model="country.organization.member" id="country_pl_eu_member">
+            <field name="country" ref="country_pl" />
+            <field name="from_date">2004-05-01</field>
+            <field name="organization" ref="country.organization_eu"/>
+        </record>
+
+       <record model="country.organization.member" id="country_sk_eu_member">
+            <field name="country" ref="country_sk" />
+            <field name="from_date">2004-05-01</field>
+            <field name="organization" ref="country.organization_eu"/>
+        </record>
+
+       <record model="country.organization.member" id="country_si_eu_member">
+            <field name="country" ref="country_si" />
+            <field name="from_date">2004-05-01</field>
+            <field name="organization" ref="country.organization_eu"/>
+        </record>
+
+       <record model="country.organization.member" id="country_cz_eu_member">
+            <field name="country" ref="country_cz" />
+            <field name="from_date">2004-05-01</field>
+            <field name="organization" ref="country.organization_eu"/>
+        </record>
+
+       <record model="country.organization.member" id="country_hu_eu_member">
+            <field name="country" ref="country_hu" />
+            <field name="from_date">2004-05-01</field>
+            <field name="organization" ref="country.organization_eu"/>
+        </record>
+
+       <record model="country.organization.member" id="country_cy_eu_member">
+            <field name="country" ref="country_cy" />
+            <field name="from_date">2004-05-01</field>
+            <field name="organization" ref="country.organization_eu"/>
+        </record>        
+
+       <record model="country.organization.member" id="country_bg_eu_member">
+            <field name="country" ref="country_bg" />
+            <field name="from_date">2007-01-01</field>
+            <field name="organization" ref="country.organization_eu"/>
+        </record>
+
+       <record model="country.organization.member" id="country_ro_eu_member">
+            <field name="country" ref="country_ro" />
+            <field name="from_date">2007-01-01</field>
+            <field name="organization" ref="country.organization_eu"/>
+        </record>
+
+       <record model="country.organization.member" id="country_hr_eu_member">
+            <field name="country" ref="country_hr" />
+            <field name="from_date">2013-01-01</field>
+            <field name="organization" ref="country.organization_eu"/>
+        </record>        
+
+<!--  ISO_4217 Währungen https://de.wikipedia.org/wiki/ISO_4217 -->
+        <record model="currency.currency" id="currency_euro">
+            <field name="code">EUR</field>
+            <field name="numeric_code" >978</field>
+            <field name="symbol">€</field>
+            <field name="name">Euro</field>
+            <field name="digits">2</field>
+            <field name="rounding">0.01</field>
+        </record>
+
+        <record model="currency.currency" id="currency_franken">
+            <field name="code">CHF</field>
+            <field name="numeric_code" >756</field>
+            <field name="symbol">CHF</field>
+            <field name="name">Franken</field>
+            <field name="digits">2</field>
+            <field name="rounding">0.01</field>
+        </record>
+
+        <record model="currency.currency" id="currency_pfund">
+            <field name="code">GBP</field>
+            <field name="numeric_code" >826</field>
+            <field name="symbol">GBP</field>
+            <field name="name">Pfund</field>
+            <field name="digits">2</field>
+            <field name="rounding">0.01</field>
+        </record>
+
+        <record model="currency.currency" id="currency_usd">
+            <field name="code">USD</field>
+            <field name="numeric_code" >840</field>
+            <field name="symbol">USD</field>
+            <field name="name">Dollar</field>
+            <field name="digits">2</field>
+            <field name="rounding">0.01</field>
+        </record>
+
+        <record model="currency.currency" id="currency_cad">
+            <field name="code">CAD</field>
+            <field name="numeric_code" >124</field>
+            <field name="symbol">CAD</field>
+            <field name="name">Kanadischer Dollar</field>
+            <field name="digits">2</field>
+            <field name="rounding">0.01</field>
+        </record>
+
+        <record model="currency.currency" id="currency_aud">
+            <field name="code">AUD</field>
+            <field name="numeric_code" >036</field>
+            <field name="symbol">AUD</field>
+            <field name="name">Australischer Dollar</field>
+            <field name="digits">2</field>
+            <field name="rounding">0.01</field>
+        </record>
+
+        <record model="currency.currency" id="currency_nzd">
+            <field name="code">NZD</field>
+            <field name="numeric_code" >554</field>
+            <field name="symbol">NZD</field>
+            <field name="name">Neuseeland Dollar</field>
+            <field name="digits">2</field>
+            <field name="rounding">0.01</field>
+        </record>
+
+        <record model="currency.currency" id="currency_bgn">
+            <field name="code">BGN</field>
+            <field name="numeric_code" >975</field>
+            <field name="symbol">BGN</field>
+            <field name="name">Lew</field>
+            <field name="digits">2</field>
+            <field name="rounding">0.01</field>
+        </record>
+
+        <record model="currency.currency" id="currency_huf">
+            <field name="code">HUF</field>
+            <field name="numeric_code" >348</field>
+            <field name="symbol">HUF</field>
+            <field name="name">Forint</field>
+            <field name="digits">2</field>
+            <field name="rounding">0.01</field>
+        </record>
+
+        <record model="currency.currency" id="currency_dkk">
+            <field name="code">DKK</field>
+            <field name="numeric_code" >208</field>
+            <field name="symbol">DKK</field>
+            <field name="name">Krone</field>
+            <field name="digits">2</field>
+            <field name="rounding">0.01</field>
+        </record>
+
+        <record model="currency.currency" id="currency_nok">
+            <field name="code">NOK</field>
+            <field name="numeric_code" >578</field>
+            <field name="symbol">NOK</field>
+            <field name="name">Krone</field>
+            <field name="digits">2</field>
+            <field name="rounding">0.01</field>
+        </record>
+
+        <record model="currency.currency" id="currency_sek">
+            <field name="code">SEK</field>
+            <field name="numeric_code" >752</field>
+            <field name="symbol">SEK</field>
+            <field name="name">Krone</field>
+            <field name="digits">2</field>
+            <field name="rounding">0.01</field>
+        </record>
+
+        <record model="currency.currency" id="currency_czk">
+            <field name="code">CZK</field>
+            <field name="numeric_code" >203</field>
+            <field name="symbol">CZK</field>
+            <field name="name">Krone</field>
+            <field name="digits">2</field>
+            <field name="rounding">0.01</field>
+        </record>
+
+        <record model="currency.currency" id="currency_all">
+            <field name="code">ALL</field>
+            <field name="numeric_code" >008</field>
+            <field name="symbol">ALL</field>
+            <field name="name">Lek</field>
+            <field name="digits">2</field>
+            <field name="rounding">0.01</field>
+        </record>
+
+        <record model="currency.currency" id="currency_mdl">
+            <field name="code">MDL</field>
+            <field name="numeric_code" >498</field>
+            <field name="symbol">MDL</field>
+            <field name="name">Leu (Moldau)</field>
+            <field name="digits">2</field>
+            <field name="rounding">0.01</field>
+        </record>
+
+        <record model="currency.currency" id="currency_ron">
+            <field name="code">RON</field>
+            <field name="numeric_code" >498</field>
+            <field name="symbol">RON</field>
+            <field name="name">Leu (Rumänien)</field>
+            <field name="digits">2</field>
+            <field name="rounding">0.01</field>
+        </record>
+
+        <record model="currency.currency" id="currency_pln">
+            <field name="code">PLN</field>
+            <field name="numeric_code" >985</field>
+            <field name="symbol">PLN</field>
+            <field name="name">Złoty</field>
+            <field name="digits">2</field>
+            <field name="rounding">0.01</field>
+        </record>
+
+        <!--record id="type_1200" model="account.account.type.template">
+            <field name="name">Grundstücke, grundstücksgleiche Rechte und Bauten einschließlich der Bauten auf fremden Grundstücken</field>
+            <field name="parent" ref="type_1180"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+            <field name="assets" eval="True"/>
+            <field name="fixed_assets" eval="True"/>
+        </record>
+
+        <record id="type_1210" model="account.account.type.template">
+            <field name="name">technische Anlagen und Maschinen</field>
+            <field name="parent" ref="type_1180"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+            <field name="assets" eval="True"/>
+            <field name="fixed_assets" eval="True"/>
+        </record>
+
+        <record id="type_1220" model="account.account.type.template">
+            <field name="name">andere Anlagen, Betriebs- und Geschäftsausstattung</field>
+            <field name="parent" ref="type_1180"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+            <field name="assets" eval="True"/>
+            <field name="fixed_assets" eval="True"/>
+        </record>
+
+        <record id="type_1230" model="account.account.type.template">
+            <field name="name">geleistete Anzahlungen und Anlagen im Bau</field>
+            <field name="parent" ref="type_1180"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+            <field name="assets" eval="True"/>
+            <field name="fixed_assets" eval="True"/>
+        </record!-->
+
+
+        <record id="sequence_strict_10" model="ir.sequence.strict" >
+            <field name="name">10 - Buchungssatz</field>
+            <field name="number_increment">1</field>
+            <field name="number_next_internal">1</field>
+            <field name="padding">8</field>
+            <field name="prefix">10</field>
+            <field name="sequence_type" ref="account.sequence_type_account_move"/>
+            <field name="type">incremental</field>
+        </record>
+
+        <record id="sequence_strict_20" model="ir.sequence.strict">
+            <field name="name">20 - Lieferantenrechnung</field>
+            <field name="number_increment">1</field>
+            <field name="number_next_internal">1</field>
+            <field name="padding">8</field>
+            <field name="prefix">20</field>
+            <field name="sequence_type" ref="account_invoice.sequence_type_account_invoice"/>
+            <field name="type">incremental</field>
+        </record>
+
+        <record id="sequence_strict_30" model="ir.sequence.strict">
+            <field name="name">30 - Kundenrechnung</field>
+            <field name="number_increment">1</field>
+            <field name="number_next_internal">1</field>
+            <field name="padding">8</field>
+            <field name="prefix">30</field>
+            <field name="sequence_type" ref="account_invoice.sequence_type_account_invoice"/>
+            <field name="type">incremental</field>
+        </record>
+
+        <record id="sequence_strict_29" model="ir.sequence.strict">
+            <field name="name">29 - Lieferantenrechnung Storno</field>
+            <field name="number_increment">1</field>
+            <field name="number_next_internal">1</field>
+            <field name="padding">8</field>
+            <field name="prefix">29</field>
+            <field name="sequence_type" ref="account_invoice.sequence_type_account_invoice"/>
+            <field name="type">incremental</field>
+        </record>
+
+        <record id="sequence_strict_39" model="ir.sequence.strict">
+            <field name="name">39 - Kundenrechnung Storno</field>
+            <field name="number_increment">1</field>
+            <field name="number_next_internal">1</field>
+            <field name="padding">8</field>
+            <field name="prefix">39</field>
+            <field name="sequence_type" ref="account_invoice.sequence_type_account_invoice"/>
+            <field name="type">incremental</field>
+        </record>
+
+    </data>
+</tryton>

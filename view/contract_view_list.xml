@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<tree>
+    <field name="company"  optional="1"/>
+    <field name="id" optional="1" />
+    <field name="property" optional="1"/>
+    <field name="type_of_use"  optional="1"/>
+    <field name="c_type"  optional="1"/>
+    <field name='contract_number'/>
+    <field name="contractual_partner"/>
+    <field name="start_date"/>
+    <field name="end_date"/>
+</tree>

@@ -1,0 +1,258 @@
+<tryton>
+   <data>
+
+      
+      <menuitem
+        parent="menu_real_estate"
+        name="Contracts"
+        sequence="20"
+        id="menu_real_estate_contracts"/>
+
+        <record model="ir.action.act_window" id="act_contract_form">
+            <field name="name">Contract</field>
+            <field name="res_model">real_estate.contract</field>
+            <!--field name="domain" eval="[('type', '=', 'property')]" pyson="1"/-->
+            <field name="context"></field>
+        </record>
+
+        <record model="ir.ui.view" id="contract_view_list">
+            <field name="model">real_estate.contract</field>
+            <field name="type">tree</field>
+            <field name="priority" eval="20"/>
+            <field name="name">contract_view_list</field>
+        </record>
+        <record model="ir.ui.view" id="contract_view_list_simple">
+            <field name="model">real_estate.contract</field>
+            <field name="type">tree</field>
+            <field name="priority" eval="10"/>
+            <field name="name">contract_view_list_simple</field>
+        </record>
+
+        <record model="ir.ui.view" id="contract_view_form">
+            <field name="model">real_estate.contract</field>
+            <field name="type">form</field>
+            <field name="name">contract_view_form</field>
+        </record>
+
+        <record model="ir.action.act_window.view" id="act_contract_tree_view1">
+            <field name="sequence" eval="10"/>
+            <field name="view" ref="contract_view_list"/>
+            <field name="act_window" ref="act_contract_form"/>
+        </record>
+        <record model="ir.action.act_window.view" id="act_contract_tree_view2">
+            <field name="sequence" eval="20"/>
+            <field name="view" ref="contract_view_form"/>
+            <field name="act_window" ref="act_contract_form"/>
+        </record>
+
+
+        <record model="ir.action.act_window.domain"
+            id="act_contract_form_domain_draft">
+            <field name="name">Draft</field>
+            <field name="sequence" eval="10"/>
+            <field name="domain" eval="[('state', '=', 'draft')]" pyson="1"/>
+            <field name="count" eval="True"/>
+            <field name="act_window" ref="act_contract_form"/>
+        </record>
+        <record model="ir.action.act_window.domain"
+            id="act_contract_form_domain_running">
+            <field name="name">Running</field>
+            <field name="sequence" eval="20"/>
+            <field name="domain" eval="[('state', '=', 'running')]" pyson="1"/>
+            <field name="count" eval="True"/>
+            <field name="act_window" ref="act_contract_form"/>
+        </record>
+        <record model="ir.action.act_window.domain"
+            id="act_contract_form_domain_terminated">
+            <field name="name">Terminated</field>
+            <field name="sequence" eval="30"/>
+            <field name="domain" eval="[('state', '=', 'terminated')]" pyson="1"/>
+            <field name="act_window" ref="act_contract_form"/>
+        </record>
+
+        <record model="ir.action.act_window.domain"
+            id="act_contract_form_domain_all">
+            <field name="name">All</field>
+            <field name="sequence" eval="90"/>
+            <field name="domain"></field>
+            <field name="act_window" ref="act_contract_form"/>
+        </record>
+
+
+        <menuitem
+            parent="menu_real_estate_contracts"
+            action="act_contract_form"
+            sequence="10"
+            id="menu_contract_form"
+            icon="property_icon"/>     
+
+
+        <record model="ir.ui.view" id="contract_type_view_list">
+            <field name="model">real_estate.contract.type</field>
+            <field name="type">tree</field>
+            <field name="name">contract_type_list</field>
+        </record>
+        <record model="ir.ui.view" id="contract_type_view_form">
+            <field name="model">real_estate.contract.type</field>
+            <field name="type">form</field>
+            <field name="name">contract_type_form</field>
+        </record>
+
+        <record model="ir.action.act_window" id="act_contract_type">
+            <field name="name">Contract Types</field>
+            <field name="res_model">real_estate.contract.type</field>
+        </record>
+        <record model="ir.action.act_window.view" id="act_contract_type_view1">
+            <field name="sequence" eval="10"/>
+            <field name="view" ref="contract_type_view_list"/>
+            <field name="act_window" ref="act_contract_type"/>
+        </record>
+        <record model="ir.action.act_window.view" id="act_contract_type_view2">
+            <field name="sequence" eval="20"/>
+            <field name="view" ref="contract_type_view_form"/>
+            <field name="act_window" ref="act_contract_type"/>
+        </record>
+        
+        <menuitem
+            parent="menu_real_estate_configuration"
+            sequence="30"
+            action="act_contract_type"
+            id="menu_contract_type"/>
+
+
+        <!--  -->    
+
+        <record model="ir.ui.view" id="contract_term_type_view_list">
+            <field name="model">real_estate.contract.term.type</field>
+            <field name="type">tree</field>
+            <field name="name">contract_term_type_list</field>
+        </record>
+        <record model="ir.ui.view" id="contract_term_type_view_form">
+            <field name="model">real_estate.contract.term.type</field>
+            <field name="type">form</field>
+            <field name="name">contract_term_type_form</field>
+        </record>
+
+        <record model="ir.action.act_window" id="act_contract_term_type">
+            <field name="name">Contract Term Types</field>
+            <field name="res_model">real_estate.contract.term.type</field>
+        </record>
+        <record model="ir.action.act_window.view" id="act_contract_term_type_view1">
+            <field name="sequence" eval="10"/>
+            <field name="view" ref="contract_term_type_view_list"/>
+            <field name="act_window" ref="act_contract_term_type"/>
+        </record>
+        <record model="ir.action.act_window.view" id="act_contract_term_type_view2">
+            <field name="sequence" eval="20"/>
+            <field name="view" ref="contract_term_type_view_form"/>
+            <field name="act_window" ref="act_contract_term_type"/>
+        </record>
+        
+        <menuitem
+            parent="menu_real_estate_configuration"
+            sequence="30"
+            action="act_contract_term_type"
+            id="menu_contract_term_type"/>
+
+        <!--  -->
+        <record model="ir.ui.view" id="contract_view_list_object_item">
+            <field name="model">real_estate.contract.item</field>
+            <field name="type">tree</field>
+            <field name="name">contract_view_list_object_item</field>
+        </record>
+
+        <record model="ir.ui.view" id="contract_view_list_object_item_form">
+            <field name="model">real_estate.contract.item</field>
+            <field name="type">form</field>
+            <field name="name">base_object_item</field>
+        </record>
+
+        <record model="ir.ui.view" id="contract_view_object_item_tree">
+            <field name="model">real_estate.contract.item</field>
+            <field name="type">tree</field>
+            <field name="priority" eval="20"/>
+            <field name="name">base_object_item_tree</field>
+        </record>
+
+        <record model="ir.action.act_window" id="act_object_item_tree">
+            <field name="name">Contract Items</field>
+            <field name="res_model">real_estate.contract.item</field>
+        </record>
+
+        <record model="ir.action.act_window.view" id="act_object_item_tree_view1">
+            <field name="sequence" eval="10"/>
+            <field name="view" ref="contract_view_object_item_tree"/>
+            <field name="act_window" ref="act_object_item_tree"/>
+        </record>
+        <record model="ir.action.act_window.view" id="act_object_item_tree_view2">
+            <field name="sequence" eval="20"/>
+            <field name="view" ref="contract_view_list_object_item_form"/>
+            <field name="act_window" ref="act_object_item_tree"/>
+        </record>
+
+   </data>
+
+    <data noupdate="1">
+
+        <record model="account.journal" id="journal_rental_book">
+            <field name="name">Rental Book</field>
+            <field name="code">RE</field>
+            <field name="type">revenue</field>
+        </record>
+
+        <record model="real_estate.contract.type" id="contract_rental_agreement_type">
+            <field name="name">Rental agreement</field>
+            <field name="prefix" >1</field>
+            <field name="sequence">10</field>
+            <field name="account_journal" ref="journal_rental_book"/> 
+            <field name="invoice_type">out</field>
+            <field name="types_of_use" eval="['residential']"/>
+        </record>
+
+        <record model="real_estate.contract.type" id="contract_parking_space_lease_agreement_type">
+            <field name="name">Parking Space Lease Agreement</field>
+            <field name="prefix" >2</field>
+            <field name="sequence">10</field>
+            <field name="account_journal" ref="journal_rental_book"/> 
+            <field name="invoice_type">out</field>
+            <field name="types_of_use" eval="['residential']"/>
+        </record>
+
+        <record model="real_estate.contract.type" id="contract_debit_costs_agreement_type">
+            <field name="name">Debit Costs Agreement</field>
+            <field name="prefix" >3</field>
+            <field name="sequence">10</field>
+            <field name="account_journal" ref="journal_rental_book"/>
+            <field name="invoice_type">out</field>
+            <field name="types_of_use" eval="['residential', 'commercial', 'property', 'internal']"/>
+        </record>
+
+        <record model="real_estate.contract.type" id="contract_credit_costs_agreement_type">
+            <field name="name">Credit Costs Agreement</field>
+            <field name="prefix" >4</field>
+            <field name="sequence">10</field>
+            <field name="account_journal" ref="journal_rental_book"/> 
+            <field name="invoice_type">in</field>
+            <field name="types_of_use" eval="['residential', 'commercial', 'property', 'internal']"/>
+        </record>
+
+        <record model="real_estate.contract.type" id="contract_commercial_lease_agreement_type">
+            <field name="name">Commercial lease agreement</field>
+            <field name="prefix" >5</field>
+            <field name="sequence">50</field>
+            <field name="account_journal" ref="journal_rental_book"/> 
+            <field name="invoice_type">out</field>
+            <field name="types_of_use" eval="['commercial']"/>
+        </record>
+
+        <record model="real_estate.contract.type" id="contract_condominium_fee_agreement_type">
+            <field name="name">Condominium fee agreement</field>
+            <field name="prefix" >8</field>
+            <field name="sequence">80</field>
+            <field name="account_journal" ref="journal_rental_book"/> 
+            <field name="invoice_type">out</field>
+            <field name="types_of_use" eval="['property']"/>
+        </record>
+
+   </data>
+</tryton>

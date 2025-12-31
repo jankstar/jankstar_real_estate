@@ -1,0 +1,9 @@
+trytond_company<7.7,>=7.6
+trytond_party<7.7,>=7.6
+trytond_product<7.7,>=7.6
+trytond_currency<7.7,>=7.6
+trytond_country<7.7,>=7.6
+trytond_account<7.7,>=7.6
+trytond<7.7,>=7.6
+
+[test]

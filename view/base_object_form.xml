@@ -1,0 +1,70 @@
+<?xml version="1.0"?>
+<!-- This file is part of Tryton.  The COPYRIGHT file at the top level of
+this repository contains the full copyright notices and license terms. -->
+<form col="6">
+    <label name="name"/><field name="name" colspan="3"/>
+    <label name="type"/><field name="type" />
+    <newline/>   
+
+    <label name="company"/><field name="company"/>
+    <label name="property"/><field name="property" readonly="1"/>
+    <label name="parent"/><field name="parent"/>
+    <newline/>   
+
+    <label name="id"/><field name="id" readonly="1"/>
+    <label name="sequence"/><field name="sequence" colspan="1"/>
+    <label name="object_number"/><field name="object_number" readonly="1"/>
+    <newline/>   
+
+
+    <label name="type_of_use"/><field name="type_of_use" widget="selection"/>
+    <label name="use_class"/><field name="use_class" widget="selection"/>
+
+    <group colspan="2" col="-1" id="checkboxes">
+        <label name="active"/><field name="active" xexpand="0" width="25"/>
+        <label name="state"/><field name="state" widget="selection"/>
+    </group>
+
+    <notebook colspan="8">
+        <page string="General" id="general" col="6">
+            <label name="start_date"/><field name="start_date"/>
+            <label name="end_date"/><field name="end_date"/>
+            <newline/>   
+
+            <label name="address"/><field name="address"/>
+            <label name="number_of_objects"/><field name="number_of_objects" readonly="1"/>
+
+            <separator name="comment" colspan="6"/>
+            <field name="comment" colspan="6"/>
+
+        </page>
+        
+        <page string="Rental Object" id="page_object" col="6">
+            <label name="floor"/><field name="floor"/>
+            <label name="basement_nr"/><field name="basement_nr"/>
+
+        </page>
+
+        <page string="Building" id="page_building" col="6">
+            <label name="year_of_construction"/><field name="year_of_construction"/>
+            <label name="number_of_floors"/><field name="number_of_floors"/>
+
+
+        </page>
+
+        <page name="measurements" col="1">
+            <field name="measurements"
+                view_ids="real_estate.base_object_view_list_measurement"/>
+        </page>
+
+        <page name="parties" col="1">
+            <field name="parties" 
+                view_ids="real_estate.base_object_view_list_object_party"/>
+        </page>
+
+        <page name="children" col="1">
+            <field name="children"
+                view_ids="real_estate.base_object_view_list_children"/>
+        </page>
+    </notebook>
+</form>

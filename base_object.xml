@@ -1,0 +1,564 @@
+<tryton>
+   <data>
+
+        <record model="ir.ui.icon" id="building_icon">
+            <field name="name">building_icon</field>
+            <field name="path">icons/building.svg</field>
+        </record>
+        
+        <record model="ir.ui.icon" id="land_icon">
+            <field name="name">land_icon</field>
+            <field name="path">icons/land.svg</field>
+        </record>
+
+        <record model="ir.ui.icon" id="property_icon">
+            <field name="name">property_icon</field>
+            <field name="path">icons/property.svg</field>
+        </record>
+
+        <record model="ir.ui.icon" id="rental_object_icon">
+            <field name="name">rental_object_icon</field>
+            <field name="path">icons/rental_object.svg</field>
+        </record>
+
+        <record model="ir.ui.icon" id="equipment_icon">
+            <field name="name">equipment_icon</field>
+            <field name="path">icons/equipment.svg</field>
+        </record>
+
+        <record model="ir.ui.icon" id="real_estate_icon">
+            <field name="name">real_estate_icon</field>
+            <field name="path">icons/real_estate.svg</field>
+        </record>
+
+      <menuitem
+        name="Real Estate"
+        sequence="50"
+        id="menu_real_estate"
+        icon="real_estate_icon"/>
+      
+      <menuitem
+        parent="menu_real_estate"
+        name="Masta Date"
+        sequence="12"
+        id="menu_real_estate_masta_data"/>
+
+      <menuitem
+        parent="menu_real_estate"
+        name="Configuration"
+        sequence="10"
+        id="menu_real_estate_configuration"
+        icon="tryton-settings"/>
+
+
+         <record model="res.group" id="group_real_estate_admin">
+            <field name="name">Real Estate Administration</field>
+        </record>
+        <record model="res.user-res.group" id="user_admin_group_real_estate_admin">
+            <field name="user" ref="res.user_admin"/>
+            <field name="group" ref="group_real_estate_admin"/>
+        </record>
+
+        <record model="ir.rule.group" id="rule_group_base_object_companies">
+            <field name="name">User in companies</field>
+            <field name="model">real_estate.base_object</field>
+            <field name="global_p" eval="True"/>
+        </record>
+        <record model="ir.rule" id="rule_base_object_companies">
+            <field name="domain"
+                eval="[('company', 'in', Eval('companies', []))]"
+                pyson="1"/>
+            <field name="rule_group" ref="rule_group_base_object_companies"/>
+        </record>
+
+        <record model="ir.ui.view" id="base_object_view_list_children">
+            <field name="model">real_estate.base_object</field>
+            <field name="type">tree</field>
+            <field name="name">base_object_list_children</field>
+        </record>
+
+        <record model="ir.ui.view" id="base_object_view_tree">
+            <field name="model">real_estate.base_object</field>
+            <field name="type">tree</field>
+            <field name="priority" eval="20"/>
+            <field name="field_childs">children</field>
+            <field name="name">base_object_tree</field>
+        </record>
+        <record model="ir.ui.view" id="base_object_view_tree_simple">
+            <field name="model">real_estate.base_object</field>
+            <field name="type">tree</field>
+            <field name="priority" eval="20"/>
+            <field name="field_childs">children</field>
+            <field name="name">base_object_tree_simple</field>
+        </record>
+
+
+        <!--record model="ir.ui.view" id="measurement_view_tree">
+            <field name="model">real_estate.base_object</field>
+            <field name="type">tree</field>
+            <field name="priority" eval="20"/>
+            <field name="field_childs">measurements</field>
+            <field name="name">measurement_tree</field>
+        </record>
+        <record model="ir.ui.view" id="measurement_view_tree_simple">
+            <field name="model">real_estate.base_object</field>
+            <field name="type">tree</field>
+            <field name="priority" eval="20"/>
+            <field name="field_childs">measurements</field>
+            <field name="name">measurement_tree_simple</field>
+        </record-->
+
+
+        <record model="ir.ui.view" id="base_object_view_list">
+            <field name="model">real_estate.base_object</field>
+            <field name="type">tree</field>
+            <field name="priority" eval="20"/>
+            <field name="name">base_object_list</field>
+        </record>
+        <record model="ir.ui.view" id="base_object_view_list_simple">
+            <field name="model">real_estate.base_object</field>
+            <field name="type">tree</field>
+            <field name="priority" eval="10"/>
+            <field name="name">base_object_list_simple</field>
+        </record>
+
+        <record model="ir.ui.view" id="base_object_view_form">
+            <field name="model">real_estate.base_object</field>
+            <field name="type">form</field>
+            <field name="name">base_object_form</field>
+        </record>
+
+        <!--record model="ir.action.act_window" id="act_base_object_tree">
+            <field name="name">Real Estate Efforts</field>
+            <field name="res_model">real_estate.base_object</field>
+            <field name="domain" eval="[('parent', '=', None)]" pyson="1"/>
+        </record>
+        <record model="ir.action.act_window.view" id="act_base_object_tree_view1">
+            <field name="sequence" eval="10"/>
+            <field name="view" ref="base_object_view_tree_simple"/>
+            <field name="act_window" ref="act_base_object_tree"/>
+        </record>
+        <record model="ir.action.act_window.view" id="act_base_object_tree_view2">
+            <field name="sequence" eval="20"/>
+            <field name="view" ref="base_object_view_form"/>
+            <field name="act_window" ref="act_base_object_tree"/>
+        </record-->
+        <!--menuitem
+            parent="menu_real_estate_configuration"
+            action="act_base_object_tree"
+            sequence="10"
+            id="menu_base_object_tree"/-->
+
+        <!--record model="ir.action.act_window" id="act_base_object_list">
+            <field name="name">Real Estate Efforts</field>
+            <field name="res_model">real_estate.base_object</field>
+        </record>
+        <record model="ir.action.act_window.view" id="act_base_object_list_view1">
+            <field name="sequence" eval="10"/>
+            <field name="view" ref="base_object_view_list_simple"/>
+            <field name="act_window" ref="act_base_object_list"/>
+        </record>
+        <record model="ir.action.act_window.view" id="act_base_object_list_view2">
+            <field name="sequence" eval="20"/>
+            <field name="view" ref="base_object_view_form"/>
+            <field name="act_window" ref="act_base_object_list"/>
+        </record>
+        <menuitem
+            parent="menu_base_object_tree"
+            action="act_base_object_list"
+            sequence="10"
+            id="menu_base_object_list"/-->
+
+        <record model="ir.action.act_window" id="act_real_estate_tree">
+            <field name="name">Real Estate Object</field>
+            <field name="res_model">real_estate.base_object</field>
+            <field name="domain" eval="[('parent', '=', None)]" pyson="1"/>
+        </record>
+        <record model="ir.action.act_window.view" id="act_real_estate_tree_view1">
+            <field name="sequence" eval="10"/>
+            <field name="view" ref="base_object_view_tree"/>
+            <field name="act_window" ref="act_real_estate_tree"/>
+        </record>
+        <record model="ir.action.act_window.view" id="act_real_estate_tree_view2">
+            <field name="sequence" eval="20"/>
+            <field name="view" ref="base_object_view_form"/>
+            <field name="act_window" ref="act_real_estate_tree"/>
+        </record>
+
+        <menuitem
+            name="Reporting"
+            parent="menu_real_estate"
+            sequence="80"
+            id="menu_reporting"/>
+
+        <menuitem
+            parent="menu_reporting"
+            action="act_real_estate_tree"
+            sequence="10"
+            id="menu_real_estate_tree"/>
+
+        <record model="ir.action.act_window" id="act_property_form">
+            <field name="name">Property</field>
+            <field name="res_model">real_estate.base_object</field>
+            <field name="domain" eval="[('type', '=', 'property')]" pyson="1"/>
+            <field name="context"></field>
+        </record>
+        <record model="ir.action.act_window.view" id="act_property_form_view1">
+            <field name="sequence" eval="10"/>
+            <field name="view" ref="base_object_view_list"/>
+            <field name="act_window" ref="act_property_form"/>
+        </record>
+        <record model="ir.action.act_window.view" id="act_property_form_view2">
+            <field name="sequence" eval="20"/>
+            <field name="view" ref="base_object_view_form"/>
+            <field name="act_window" ref="act_property_form"/>
+        </record>
+
+        <record model="ir.action.act_window.domain"
+            id="act_property_form_domain_draft">
+            <field name="name">Draft</field>
+            <field name="sequence" eval="10"/>
+            <field name="domain" eval="[('state', '=', 'draft')]" pyson="1"/>
+            <field name="count" eval="True"/>
+            <field name="act_window" ref="act_property_form"/>
+        </record>
+        <record model="ir.action.act_window.domain"
+            id="act_property_form_domain_approved">
+            <field name="name">Approved</field>
+            <field name="sequence" eval="20"/>
+            <field name="domain" eval="[('state', '=', 'approved')]" pyson="1"/>
+            <field name="count" eval="True"/>
+            <field name="act_window" ref="act_property_form"/>
+        </record>
+        <record model="ir.action.act_window.domain"
+            id="act_property_form_domain_locked">
+            <field name="name">Locked</field>
+            <field name="sequence" eval="30"/>
+            <field name="domain" eval="[('state', '=', 'locked')]" pyson="1"/>
+            <field name="act_window" ref="act_property_form"/>
+        </record>
+
+        <record model="ir.action.act_window.domain"
+            id="act_property_form_domain_all">
+            <field name="name">All</field>
+            <field name="sequence" eval="90"/>
+            <field name="domain"></field>
+            <field name="act_window" ref="act_property_form"/>
+        </record>
+
+        <menuitem
+            parent="menu_real_estate_masta_data"
+            action="act_property_form"
+            sequence="10"
+            id="menu_real_estate_form"
+            icon="property_icon"/>
+
+        <record model="ir.action.act_window" id="act_building_form">
+            <field name="name">Building</field>
+            <field name="res_model">real_estate.base_object</field>
+            <field name="domain" eval="[('type', '=', 'building')]" pyson="1"/>
+            <field name="context"></field>
+        </record>
+        <record model="ir.action.act_window.view" id="act_building_form_view1">
+            <field name="sequence" eval="10"/>
+            <field name="view" ref="base_object_view_list"/>
+            <field name="act_window" ref="act_building_form"/>
+        </record>
+        <record model="ir.action.act_window.view" id="act_building_form_view2">
+            <field name="sequence" eval="20"/>
+            <field name="view" ref="base_object_view_form"/>
+            <field name="act_window" ref="act_building_form"/>
+        </record>
+        <menuitem
+            parent="menu_real_estate_masta_data"
+            action="act_building_form"
+            sequence="20"
+            id="menu_building_form"
+            icon="building_icon"/>
+
+
+        <record model="ir.action.act_window.domain"
+            id="act_building_form_domain_draft">
+            <field name="name">Draft</field>
+            <field name="sequence" eval="10"/>
+            <field name="domain" eval="[('state', '=', 'draft')]" pyson="1"/>
+            <field name="count" eval="True"/>
+            <field name="act_window" ref="act_building_form"/>
+        </record>
+        <record model="ir.action.act_window.domain"
+            id="act_building_form_domain_approved">
+            <field name="name">Approved</field>
+            <field name="sequence" eval="20"/>
+            <field name="domain" eval="[('state', '=', 'approved')]" pyson="1"/>
+            <field name="count" eval="True"/>
+            <field name="act_window" ref="act_building_form"/>
+        </record>
+        <record model="ir.action.act_window.domain"
+            id="act_building_form_domain_locked">
+            <field name="name">Locked</field>
+            <field name="sequence" eval="30"/>
+            <field name="domain" eval="[('state', '=', 'locked')]" pyson="1"/>
+            <field name="act_window" ref="act_building_form"/>
+        </record>
+        <record model="ir.action.act_window.domain"
+            id="act_building_form_domain_all">
+            <field name="name">All</field>
+            <field name="sequence" eval="9999"/>
+            <field name="domain"></field>
+            <field name="act_window" ref="act_building_form"/>
+        </record>
+
+
+        <record model="ir.action.act_window" id="act_land_form">
+            <field name="name">Land</field>
+            <field name="res_model">real_estate.base_object</field>
+            <field name="domain" eval="[('type', '=', 'land')]" pyson="1"/>
+            <field name="context"></field>
+        </record>
+        <record model="ir.action.act_window.view" id="act_land_form_view1">
+            <field name="sequence" eval="10"/>
+            <field name="view" ref="base_object_view_list"/>
+            <field name="act_window" ref="act_land_form"/>
+        </record>
+        <record model="ir.action.act_window.view" id="act_land_form_view2">
+            <field name="sequence" eval="20"/>
+            <field name="view" ref="base_object_view_form"/>
+            <field name="act_window" ref="act_land_form"/>
+        </record>
+        <menuitem
+            parent="menu_real_estate_masta_data"
+            action="act_land_form"
+            sequence="30"
+            id="menu_land_form"
+            icon="land_icon"/>
+
+
+        <record model="ir.action.act_window.domain"
+            id="act_land_form_domain_draft">
+            <field name="name">Draft</field>
+            <field name="sequence" eval="10"/>
+            <field name="domain" eval="[('state', '=', 'draft')]" pyson="1"/>
+            <field name="count" eval="True"/>
+            <field name="act_window" ref="act_land_form"/>
+        </record>
+        <record model="ir.action.act_window.domain"
+            id="act_land_form_domain_approved">
+            <field name="name">Approved</field>
+            <field name="sequence" eval="20"/>
+            <field name="domain" eval="[('state', '=', 'approved')]" pyson="1"/>
+            <field name="count" eval="True"/>
+            <field name="act_window" ref="act_land_form"/>
+        </record>
+        <record model="ir.action.act_window.domain"
+            id="act_land_form_domain_locked">
+            <field name="name">Locked</field>
+            <field name="sequence" eval="30"/>
+            <field name="domain" eval="[('state', '=', 'locked')]" pyson="1"/>
+            <field name="act_window" ref="act_land_form"/>
+        </record>
+        <record model="ir.action.act_window.domain"
+            id="act_land_form_domain_all">
+            <field name="name">All</field>
+            <field name="sequence" eval="9999"/>
+            <field name="domain"></field>
+            <field name="act_window" ref="act_land_form"/>
+        </record>
+
+
+        <record model="ir.action.act_window" id="act_object_form">
+            <field name="name">Rental Object</field>
+            <field name="res_model">real_estate.base_object</field>
+            <field name="domain" eval="[('type', '=', 'object')]" pyson="1"/>
+            <field name="context"></field>
+        </record>
+        <record model="ir.action.act_window.view" id="act_object_form_view1">
+            <field name="sequence" eval="10"/>
+            <field name="view" ref="base_object_view_list"/>
+            <field name="act_window" ref="act_object_form"/>
+        </record>
+        <record model="ir.action.act_window.view" id="act_object_form_view2">
+            <field name="sequence" eval="20"/>
+            <field name="view" ref="base_object_view_form"/>
+            <field name="act_window" ref="act_object_form"/>
+        </record>
+        <menuitem
+            parent="menu_real_estate_masta_data"
+            action="act_object_form"
+            sequence="40"
+            id="menu_object_form"
+            icon="rental_object_icon"/>
+
+        <record model="ir.action.act_window.domain"
+            id="act_object_form_domain_draft">
+            <field name="name">Draft</field>
+            <field name="sequence" eval="10"/>
+            <field name="domain" eval="[('state', '=', 'draft')]" pyson="1"/>
+            <field name="count" eval="True"/>
+            <field name="act_window" ref="act_object_form"/>
+        </record>
+        <record model="ir.action.act_window.domain"
+            id="act_object_form_domain_approved">
+            <field name="name">Approved</field>
+            <field name="sequence" eval="20"/>
+            <field name="domain" eval="[('state', '=', 'approved')]" pyson="1"/>
+            <field name="count" eval="True"/>
+            <field name="act_window" ref="act_object_form"/>
+        </record>
+        <record model="ir.action.act_window.domain"
+            id="act_object_form_domain_locked">
+            <field name="name">Locked</field>
+            <field name="sequence" eval="30"/>
+            <field name="domain" eval="[('state', '=', 'locked')]" pyson="1"/>
+            <field name="act_window" ref="act_object_form"/>
+        </record>
+        <record model="ir.action.act_window.domain"
+            id="act_object_form_domain_all">
+            <field name="name">All</field>
+            <field name="sequence" eval="9999"/>
+            <field name="domain"></field>
+            <field name="act_window" ref="act_object_form"/>
+        </record>
+
+        <!-- Equipment -->
+
+        <record model="ir.action.act_window" id="act_equipment_form">
+            <field name="name">Equipment</field>
+            <field name="res_model">real_estate.base_object</field>
+            <field name="domain" eval="[('type', '=', 'equipment')]" pyson="1"/>
+            <field name="context"></field>
+        </record>
+        <record model="ir.action.act_window.view" id="act_equipment_form_view1">
+            <field name="sequence" eval="10"/>
+            <field name="view" ref="base_object_view_list"/>
+            <field name="act_window" ref="act_equipment_form"/>
+        </record>
+        <record model="ir.action.act_window.view" id="act_equipment_form_view2">
+            <field name="sequence" eval="20"/>
+            <field name="view" ref="base_object_view_form"/>
+            <field name="act_window" ref="act_equipment_form"/>
+        </record>
+        <menuitem
+            parent="menu_real_estate_masta_data"
+            action="act_equipment_form"
+            sequence="50"
+            id="menu_equipment_form"
+            icon="equipment_icon"/>
+
+
+        <record model="ir.action.act_window.domain"
+            id="act_equipment_form_domain_draft">
+            <field name="name">Draft</field>
+            <field name="sequence" eval="10"/>
+            <field name="domain" eval="[('state', '=', 'draft')]" pyson="1"/>
+            <field name="count" eval="True"/>
+            <field name="act_window" ref="act_equipment_form"/>
+        </record>
+        <record model="ir.action.act_window.domain"
+            id="act_equipment_form_domain_approved">
+            <field name="name">Approved</field>
+            <field name="sequence" eval="20"/>
+            <field name="domain" eval="[('state', '=', 'approved')]" pyson="1"/>
+            <field name="count" eval="True"/>
+            <field name="act_window" ref="act_equipment_form"/>
+        </record>
+        <record model="ir.action.act_window.domain"
+            id="act_equipment_form_domain_locked">
+            <field name="name">Locked</field>
+            <field name="sequence" eval="30"/>
+            <field name="domain" eval="[('state', '=', 'locked')]" pyson="1"/>
+            <field name="act_window" ref="act_equipment_form"/>
+        </record>
+        <record model="ir.action.act_window.domain"
+            id="act_equipment_form_domain_all">
+            <field name="name">All</field>
+            <field name="sequence" eval="9999"/>
+            <field name="domain"></field>
+            <field name="act_window" ref="act_equipment_form"/>
+        </record>
+
+        <record model="ir.action.act_window" id="act_open_child_base_object">
+            <field name="name">Object</field>
+            <field name="res_model">real_estate.base_object</field>
+            <field name="context"></field>
+            <field name="domain"
+                eval="[('type', '!=', 'property'), If(Eval('active_ids', []) == [Eval('active_id')], ('parent', '=', Eval('active_id')), ('parent', 'in', Eval('active_ids')))]"
+                pyson="1"/>
+        </record>
+        <record model="ir.action.keyword" id="act_open_real_estate_base_object_keyword1">
+            <field name="keyword">form_relate</field>
+            <field name="model">real_estate.base_object,-1</field>
+            <field name="action" ref="act_open_child_base_object"/>
+        </record>
+        <record model="ir.action.act_window.view" id="act_open_real_estate_view1">
+            <field name="sequence" eval="10"/>
+            <field name="view" ref="base_object_view_list"/>
+            <field name="act_window" ref="act_open_child_base_object"/>
+        </record>
+        <record model="ir.action.act_window.view" id="act_open_real_estate_view2">
+            <field name="sequence" eval="20"/>
+            <field name="view" ref="base_object_view_form"/>
+            <field name="act_window" ref="act_open_child_base_object"/>
+        </record>
+
+        <record model="ir.model.access" id="access_base_object">
+            <field name="model">real_estate.base_object</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_base_object_admin">
+            <field name="model">real_estate.base_object</field>
+            <field name="group" ref="group_real_estate_admin"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+
+        <!--record model="ir.ui.icon" id="project_icon">
+            <field name="name">tryton-project</field>
+            <field name="path">icons/tryton-project.svg</field>
+        </record>
+        
+        <menuitem
+            name="Projects"
+            sequence="100"
+            parent="menu_real_estate"
+            icon="tryton-project"
+            id="menu_projects"/>
+        
+        <menuitem
+            name="Configuration"
+            parent="menu_real_estate"
+            sequence="0"
+            id="menu_configuration"
+            icon="tryton-settings"/-->
+
+        <!--record model="ir.ui.menu-res.group" id="menu_configuration_group_real_estate_admin">
+            <field name="menu" ref="menu_real_estate_configuration"/>
+            <field name="group" ref="group_real_estate_admin"/>
+        </record-->
+
+
+      <record model="ir.action.report" id="report_base_object">
+         <field name="name">Fact Sheet</field>
+         <field name="report_name">real_estate.base_object.report</field>
+         <field name="model">real_estate.base_object</field>
+         <field name="report">real_estate/fact_sheet.html</field>
+         <field name="template_extension">html</field>
+      </record>
+
+      <record model="ir.action.keyword" id="report_proprty_keyword">
+         <field name="keyword">form_print</field>
+         <field name="model">real_estate.base_object,-1</field>
+         <field name="action" ref="report_base_object"/>
+      </record>
+
+    </data>
+
+    <data noupdate="1">
+
+   </data>
+
+</tryton>
