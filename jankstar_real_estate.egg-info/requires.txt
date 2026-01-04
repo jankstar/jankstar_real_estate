@@ -1,9 +1,10 @@
-trytond_company<7.7,>=7.6
-trytond_party<7.7,>=7.6
-trytond_product<7.7,>=7.6
-trytond_currency<7.7,>=7.6
-trytond_country<7.7,>=7.6
-trytond_account<7.7,>=7.6
-trytond<7.7,>=7.6
+trytond_company<7.1,>=7.0
+trytond_party<7.1,>=7.0
+trytond_product<7.1,>=7.0
+trytond_currency<7.1,>=7.0
+trytond_country<7.1,>=7.0
+trytond_account<7.1,>=7.0
+trytond_account_invoice<7.1,>=7.0
+trytond<7.1,>=7.0
 
 [test]

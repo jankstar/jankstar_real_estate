@@ -1,40 +1,21 @@
 Metadata-Version: 2.4
 Name: jankstar_real_estate
-Version: 7.6.6
+Version: 7.0.1
 Summary: Real Estate Management
 Home-page: www.jankstar.de
 Author: jankstar
 Author-email: jankstar.berlin@gmail.com
 License: GPL-3
 Keywords: Tryton
-Classifier: Development Status :: 5 - Production/Stable
+Classifier: Development Status :: 3 - Alpha
 Classifier: Environment :: Plugins
 Classifier: Framework :: Tryton
 Classifier: Intended Audience :: Developers
 Classifier: Intended Audience :: Financial and Insurance Industry
 Classifier: Intended Audience :: Legal Industry
 Classifier: License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)
-Classifier: Natural Language :: Bulgarian
-Classifier: Natural Language :: Catalan
-Classifier: Natural Language :: Chinese (Simplified)
-Classifier: Natural Language :: Czech
-Classifier: Natural Language :: Dutch
 Classifier: Natural Language :: English
-Classifier: Natural Language :: Finnish
-Classifier: Natural Language :: French
 Classifier: Natural Language :: German
-Classifier: Natural Language :: Hungarian
-Classifier: Natural Language :: Indonesian
-Classifier: Natural Language :: Italian
-Classifier: Natural Language :: Persian
-Classifier: Natural Language :: Polish
-Classifier: Natural Language :: Portuguese (Brazilian)
-Classifier: Natural Language :: Romanian
-Classifier: Natural Language :: Russian
-Classifier: Natural Language :: Slovenian
-Classifier: Natural Language :: Spanish
-Classifier: Natural Language :: Turkish
-Classifier: Natural Language :: Ukrainian
 Classifier: Operating System :: OS Independent
 Classifier: Programming Language :: Python :: 3
 Classifier: Programming Language :: Python :: 3.9
@@ -46,13 +27,14 @@ Classifier: Programming Language :: Python :: Implementation :: CPython
 Classifier: Topic :: Office/Business
 Requires-Python: >=3.9
 License-File: LICENSE
-Requires-Dist: trytond_company<7.7,>=7.6
-Requires-Dist: trytond_party<7.7,>=7.6
-Requires-Dist: trytond_product<7.7,>=7.6
-Requires-Dist: trytond_currency<7.7,>=7.6
-Requires-Dist: trytond_country<7.7,>=7.6
-Requires-Dist: trytond_account<7.7,>=7.6
-Requires-Dist: trytond<7.7,>=7.6
+Requires-Dist: trytond_company<7.1,>=7.0
+Requires-Dist: trytond_party<7.1,>=7.0
+Requires-Dist: trytond_product<7.1,>=7.0
+Requires-Dist: trytond_currency<7.1,>=7.0
+Requires-Dist: trytond_country<7.1,>=7.0
+Requires-Dist: trytond_account<7.1,>=7.0
+Requires-Dist: trytond_account_invoice<7.1,>=7.0
+Requires-Dist: trytond<7.1,>=7.0
 Provides-Extra: test
 Dynamic: author
 Dynamic: author-email
@@ -68,26 +50,59 @@ Dynamic: requires-python
 Dynamic: summary
 
 ##################
-Real Estate Module
+Real Estate Module for tryton
 ##################
 
 
 # setup
 
-   Dieses Modul benutzt folgende Bibliotheken:
+   This module uses the following libraries:
       ir
       company
       party
+      product
+      currency
+      country
+      account
+      account_invoice
 
-# usage
+# basic (basic_de.xml)
+
+   This module provides the following countries according to
+   iso_3166 Country Codes
+   <https://www.laenderdaten.de/kuerzel/iso_3166-1.aspx>
 
 
-
+   This module provides the following currencies according to
+   SO_4217 Currency Codes for EU 28 Countries 
+   <https://de.wikipedia.org/wiki/ISO_4217>
 
 # configuration
-   Folgende Configuration kann vorgegeben/angepasst werden:
-      'real_estate.object_party.role' : Partner Rollen in Kombination zum Typ der Immobilie (base_object.type)
-      'real_estate.measurement.type'  : Bemessungen in Kombination zum Typ der Immobilie (base_object.type)
+   The following configuration can be specified/adjusted:
+      'real_estate.object_party.role' : Partner roles in combination with the type of property (base_object.type)
+      'real_estate.measurement.type'  : Measurements in combination with the type of property (base_object.type)
+      'real_estate.contract.type'     : Contract types 
+
+
+# 1. Property Management
+   - manage properties (buildings, apartments, parking lots, etc.)
+   - manage leases and sales contracts
+   - manage tenants and owners
+   - equipment and messurements
+   - address management (properties, tenants, owners)
+   - track maintenance and repairs
+   - handle rent payments and invoicing
+   - generate reports and analytics
+
+# 2. Features
+   - Customizable property types and attributes
+   - Customizable contract types
+   - Integration with accounting and invoicing modules
+   - User-friendly interface for property managers and tenants
+   - Support for multiple currencies and languages
+   - Role-based access control for different user types
+
+
 
    design
    reference
