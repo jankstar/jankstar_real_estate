@@ -250,7 +250,7 @@ class ContractTermType(DeactivableMixin, base_object.re_sequence_ordered(), Mode
         return BaseObject.fields_get(['type_of_use'])['type_of_use']['selection']
 
 #**********************************************************************
-class ContractTerm(DeactivableMixin, ModelSQL, ModelView, metaclass=PoolMeta):
+class ContractTerm(DeactivableMixin, ModelSQL, ModelView):
     "Contract Term"
     __name__ = 'real_estate.contract.term'
     __rec_name__ = 'name'
@@ -264,11 +264,15 @@ class ContractTerm(DeactivableMixin, ModelSQL, ModelView, metaclass=PoolMeta):
             'readonly': ((Eval('monthly_rhythm', -1) == 0)),
             })
     
-    last_posting_date = fields.Date('Last Posting Date', readonly=True)
-    last_document_date = fields.Date('Last Document Date', readonly=True)
+    last_posting_date = fields.Date('Last Posting Date', 
+        states={'readonly': True,})
+    last_document_date = fields.Date('Last Document Date', 
+        states={'readonly': True,})
 
-    next_document_date = fields.Date('Next Document Date', readonly=True)
-    next_due_date = fields.Date('Next Due Date', readonly=True)
+    next_document_date = fields.Date('Next Document Date', 
+        states={'readonly': True,})
+    next_due_date = fields.Date('Next Due Date', 
+        states={'readonly': True,})
 
     term_type = fields.Many2One(
         'real_estate.contract.term.type', "Term Type", required=True,
@@ -278,7 +282,11 @@ class ContractTerm(DeactivableMixin, ModelSQL, ModelView, metaclass=PoolMeta):
                                 'on_change_with_name', 
                                 searcher='compute_name_search')   
     
-    monthly_rhythm = fields.Integer("Monthly Rhythm", required=True)
+    monthly_rhythm = fields.Integer("Monthly Rhythm", required=True,
+        states={
+            'invisible': (Eval('term_type', None) == None),
+            },
+        )
 
 
     compute_property = fields.Function(fields.Many2One('real_estate.base_object','Property'),
@@ -305,6 +313,10 @@ class ContractTerm(DeactivableMixin, ModelSQL, ModelView, metaclass=PoolMeta):
 
     lines = fields.One2Many(
         'real_estate.contract.term.line', 'term', 'Lines',
+        states={
+            'readonly': True,
+            'invisible': (Eval('len(lines)', 0) == 0),
+            }
     )
 
     @fields.depends('next_document_date', 'contract', 'monthly_rhythm',
@@ -340,7 +352,10 @@ class ContractTerm(DeactivableMixin, ModelSQL, ModelView, metaclass=PoolMeta):
     @fields.depends('term_type')
     def on_change_with_name(self, name=None):
         if self.term_type:
-            return self.term_type.name + ' / ' + self.term_type.m_type.name
+            if self.term_type.m_type:
+                return f'{self.term_type.sequence} - {self.term_type.name}  ( {self.term_type.m_type.name} )'
+            else:
+                return f'{self.term_type.sequence} - {self.term_type.name}  ( - )'
         return f" - "
 
     @fields.depends('contract', 'valid_from', 
@@ -486,7 +501,8 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
             ('draft', 'Draft'),
             ('running', 'Running'),
             ('terminated', 'Terminated'),
-            ], "State", readonly=True, sort=False)
+            ], "State", sort=False,
+            states={ 'readonly': True, },)
     
     items = fields.One2Many('real_estate.contract.item', 'contract', 'Items',
         states={

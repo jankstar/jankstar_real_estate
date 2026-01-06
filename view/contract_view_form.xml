@@ -43,7 +43,8 @@
                 view_ids="real_estate.contract_view_list_object_item"/>        
         </page>
         <page string="Terms" id="terms">
-            <field name="terms" colspan="6" mode="tree,form"/>
+            <field name="terms" 
+                view_ids="real_estate.contract_view_list_object_term"/>        
         </page>
     </notebook>
 </form>

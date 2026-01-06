@@ -190,6 +190,42 @@
             <field name="act_window" ref="act_object_item_tree"/>
         </record>
 
+        <!--  -->
+        <record model="ir.ui.view" id="contract_view_list_object_term">
+            <field name="model">real_estate.contract.term</field>
+            <field name="type">tree</field>
+            <field name="name">contract_view_list_object_term</field>
+        </record>
+
+        <record model="ir.ui.view" id="contract_view_list_term_form">
+            <field name="model">real_estate.contract.term</field>
+            <field name="type">form</field>
+            <field name="name">contract_term_form</field>
+        </record>
+
+        <record model="ir.ui.view" id="contract_view_term_tree">
+            <field name="model">real_estate.contract.term</field>
+            <field name="type">tree</field>
+            <field name="priority" eval="20"/>
+            <field name="name">contract_term_list</field>
+        </record>
+
+        <record model="ir.action.act_window" id="act_contract_term_tree">
+            <field name="name">Contract Terms</field>
+            <field name="res_model">real_estate.contract.term</field>
+        </record>
+
+        <record model="ir.action.act_window.view" id="act_contract_term_tree_view1">
+            <field name="sequence" eval="10"/>
+            <field name="view" ref="contract_view_term_tree"/>
+            <field name="act_window" ref="act_contract_term_tree"/>
+        </record>
+        <record model="ir.action.act_window.view" id="act_contract_term_tree_view2">
+            <field name="sequence" eval="20"/>
+            <field name="view" ref="contract_view_list_term_form"/>
+            <field name="act_window" ref="act_contract_term_tree"/>
+        </record>
+
    </data>
 
     <data noupdate="1">
