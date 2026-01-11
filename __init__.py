@@ -21,6 +21,7 @@ def register():
         contract.ContractType,
         contract.ContractTypeTax,
         contract.ContractTerm,
+        contract.ContractTermTax,
         contract.ContractTermLine,
         contract.ContractTermType,
         contract.ContractItem,

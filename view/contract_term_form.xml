@@ -2,27 +2,58 @@
 <!-- This file is part of Tryton.  The COPYRIGHT file at the top level of
 this repository contains the full copyright notices and license terms. -->
 <form col="6">
-    <!--label name="sequence"/><field name="sequence" colspan="1"/-->
-    <label name="name"/><field name="name" colspan="2"/>
+      <label name="name"/><field name="name" colspan="1"/>
+    <label name="term_type"/><field name="term_type"/>
+    <!--group colspan="2" col="-1" id="checkboxes">
+        <label name="active"/>
+        <field name="active" xexpand="0" width="25"/>
+    </group-->  
     <label name="contract"/><field name="contract" />
+
+    <newline/>   
+    <label name="referenc_property"/><field name="referenc_property"/>
+    <label name="sequence"/><field name="sequence" colspan="1"/>
+
     <newline/>   
     <label name="valid_from"/><field name="valid_from"/>
     <label name="valid_to"/><field name="valid_to"/>
-    <group colspan="2" col="-1" id="checkboxes">
-        <label name="active"/>
-        <field name="active" xexpand="0" width="25"/>
-    </group>    <newline/>   
-    <label name="term_type"/><field name="term_type"/>
-    <label name="monthly_rhythm"/><field name="monthly_rhythm" />
-    <newline/>   
-    <label name="unit_price"/><field name="unit_price"/>
-    <label name="compute_currency"/><field name="compute_currency"/>
-    <newline/>   
-    <label name="last_posting_date"/><field name="last_posting_date"/>
-    <label name="last_document_date"/><field name="last_document_date"/>
-    <newline/>   
-    <label name="next_document_date"/><field name="next_document_date"/>
-    <label name="next_due_date"/><field name="next_due_date"/>
+  
+    <newline/> 
+        <notebook colspan="8">
+        <page string="General" id="general" col="6">  
+        <label name="rhythm"/><field name="rhythm" />
+        <label name="rhythm_type"/><field name="rhythm_type" />
 
+        <newline/>   
+        <label name="quantity"/><field name="quantity"/>
+        <label name="unit_price"/><field name="unit_price"/>
+        <label name="amount"/><field name="amount"/>
+        <newline/>   
+        <!--label name="unit"/><field name="unit"/-->
+        <!--label name="currency"/><field name="currency"/-->
+
+        <newline/>   
+        <label name="last_posting_date"/><field name="last_posting_date"/>
+        <label name="last_document_date"/><field name="last_document_date"/>
+
+        <newline/>   
+        <label name="next_document_date"/><field name="next_document_date"/>
+        <label name="next_due_date"/><field name="next_due_date"/>
+    </page>
+    <page string="Accounting" id="accounting">  
+        <label name="account"/><field name="account"/>
+        <label name="taxes_date"/><field name="taxes_date"/>
+        <newline/>   
+        <label name="taxes"/><field name="taxes"/>
+        <group colspan="1" id="taxaccounts">
+            <label name="untaxed_amount"/><field name="untaxed_amount" />
+            <newline/>   
+            <label name="tax_amount"/><field name="tax_amount" />
+            <newline/>   
+            <label name="total_amount"/><field name="total_amount" />
+        </group>
+
+    </page>
+    </notebook>
 
 </form>

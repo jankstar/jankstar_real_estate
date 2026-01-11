@@ -43,6 +43,10 @@
                 view_ids="real_estate.contract_view_list_object_item"/>        
         </page>
         <page string="Terms" id="terms">
+            <!--group colspan="2" col="-1" id="next_term_sequence_group">
+                <label name="next_term_sequence"/><field name="next_term_sequence"/>
+            </group-->
+            <newline/>
             <field name="terms" 
                 view_ids="real_estate.contract_view_list_object_term"/>        
         </page>
