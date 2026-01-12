@@ -27,6 +27,7 @@
     <newline/>   
     <notebook colspan="8">
         <page string="General" id="general" col="6">
+            <newline/>
             <label name="contractual_partner"/><field name="contractual_partner"/>
             <label name="payment_term"/><field name="payment_term"/>
             <newline/>   
@@ -39,6 +40,7 @@
             <field name="comment" colspan="6"/>
         </page>
         <page string="Items" id="items" col="6">
+            <newline/>
             <field name="items" 
                 view_ids="real_estate.contract_view_list_object_item"/>        
         </page>

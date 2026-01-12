@@ -5,13 +5,18 @@ this repository contains the full copyright notices and license terms. -->
     <group colspan="2" col="-1" id="name_sequence">
         <label name="sequence"/><field name="sequence"/>
         <newline/>
-        <label name="prefix"/><field name="prefix"/>
         <label name="name"/><field name="name"/>
     </group>
     <group colspan="2" col="-1" id="checkboxes">
         <label name="active"/>
         <field name="active" xexpand="0" width="25"/>
     </group>
+    <newline/>
+    <label name="prefix"/><field name="prefix" />
+    <label name="start_number"/><field name="start_number"/>
+    <newline/>
+    <label name="step_item"/><field name="step_item"/>
+    <label name="step_term"/><field name="step_term"/>
     <newline/>
     <label name="types_of_use"/><field name="types_of_use" yexpand="0"/>
     <newline/>

@@ -163,7 +163,6 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
             states={ 'readonly': True, },)
     
     items = fields.One2Many('real_estate.contract.item', 'contract', 'Items',
-        context={'parent_id': Eval('id', -1)},
         order=[
             ('valid_from', 'ASC'),           # Primärsortierung
             ('valid_to', 'ASC NULLS LAST'),  # Sekundärsortierung
@@ -173,35 +172,21 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
             },
         )
 
+    next_item_sequence = fields.Function(fields.Integer("Next Item Sequence",),
+                                         'on_change_with_next_item_sequence',)
+
     terms = fields.One2Many('real_estate.contract.term', 'contract', 'Terms',
         order=[
             ('valid_from', 'ASC'),           # Primärsortierung
             ('sequence', 'ASC NULLS FIRST'),  # Sekundärsortierung
         ],
-        )
+        states={            
+            'readonly': ((Eval('items', []) == []) | (Eval('state') != 'draft')),
+        },)
     
     next_term_sequence = fields.Function(fields.Integer("Next Term Sequence",),
                                          'on_change_with_next_term_sequence',)
 
-
-    @fields.depends('terms')
-    def on_change_with_next_term_sequence(self, name=None):
-        print("on_change_with_next_term_sequence called")
-        if self.terms:
-            return max(term.sequence for term in self.terms) + 1
-        return 1
-
-    # @fields.depends('items')
-    # def on_change_items(self):
-    #     # Neu sortieren und nummerieren
-    #     for i, item in enumerate(self.items or []):
-    #         item.sequence = i + 1
-
-    # @fields.depends('terms')
-    # def on_change_terms(self):
-    #     # Neu sortieren und nummerieren
-    #     for i, term in enumerate(self.terms or []):
-    #         term.sequence = i + 1
 
     @classmethod
     def get_term_types_of_use(cls):
@@ -219,7 +204,20 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
     
     @staticmethod
     def default_start_date():
+        #first day of the current month
         return Pool().get('ir.date').today().replace(day=1)    
+
+    @fields.depends('terms')
+    def on_change_with_next_term_sequence(self, name=None):
+        if self.terms and self.c_type:
+            return (max(term.sequence for term in self.terms) % self.c_type.step_term ) + self.c_type.step_term
+        return self.c_type.step_term if self.c_type else 1
+
+    @fields.depends('items', 'c_type')
+    def on_change_with_next_item_sequence(self, name=None):
+        if self.items and self.c_type:
+            return (max(item.sequence for item in self.items) % self.c_type.step_item ) + self.c_type.step_item
+        return self.c_type.step_item if self.c_type else 1
 
     @fields.depends('contractual_partner', 'c_type')
     def on_change_contractual_partner(self, name=None):
@@ -243,9 +241,27 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
     def on_change_with_currency(self, name=None):
         return self.company.currency if self.company else None
 
+
+    @fields.depends('c_type', 'property', 'company')
+    def on_change_with_sequence(self, name=None):
+        if (self.sequence != None and self.sequence != 0):
+            return self.sequence
+        # Höchste Nummer + 1 für Vertragsart und Property
+        if self.c_type != None and self.property != None and self.company != None:
+            contracts = Pool().get('real_estate.contract').search([
+                ('company', '=', self.company.id),
+                ('c_type', '=', self.c_type.id),
+                ('property', '=', self.property.id),
+            ], order=[('sequence', 'DESC')], limit=1)
+
+            return (contracts[0].sequence + 1 if contracts else 1)
+        
+        return 0
+
     @fields.depends('c_type', 'property', 'sequence')
     def on_change_with_contract_number(self, name=None):
-        if  self.c_type == None or self.property == None:
+        self.sequence = self.on_change_with_sequence() # ensure sequence is set
+        if  self.c_type == None or self.property == None or not self.sequence:
             return f" - "        
         return f"{self.c_type.prefix}-{self.property.sequence}-{self.sequence}"
     
@@ -310,13 +326,13 @@ class ContractTypeTax(ModelSQL):
             'contrac_type_tax', cls._table)
         super().__register__(module)
 
-
+#**********************************************************************
 class ContractType(DeactivableMixin, base_object.re_sequence_ordered(), ModelSQL, ModelView):
     __name__ = 'real_estate.contract.type'
 
     name = fields.Char("Name", required=True, translate=True)
     types_of_use = fields.MultiSelection(
-            'geterm_types_of_use', "Types",
+            'get_term_types_of_use', "Types",
             help="The type of object which can use this contract type.")    
     
     invoice_type = fields.Selection('get_invoice_types', 
@@ -352,8 +368,21 @@ class ContractType(DeactivableMixin, base_object.re_sequence_ordered(), ModelSQL
     
     prefix = fields.Char("Prefix", required=True)
 
+    start_number = fields.Integer("Start Number", help='start contract number',required=True)
+
+    step_item = fields.Integer("Step Item", help='step for item sequence',required=True)
+    step_term = fields.Integer("Step Term", help='step for term sequence',required=True)
+
     @classmethod
-    def geterm_types_of_use(cls):
+    def default_step_item(cls):
+        return 10
+    
+    @classmethod
+    def default_step_term(cls):
+        return 10
+
+    @classmethod
+    def get_term_types_of_use(cls):
         pool = Pool()
         BaseObject = pool.get('real_estate.base_object')
         return BaseObject.fields_get(['type_of_use'])['type_of_use']['selection']
@@ -434,17 +463,17 @@ class ContractItem(sequence_ordered(), ModelSQL, ModelView, metaclass=PoolMeta):
     currency = fields.Function(fields.Many2One('currency.currency',
         'Currency'), 'on_change_with_currency')
 
-    @classmethod
-    def default_sequence(cls):
-        # Höchste Nummer + 1 für diesen Contract-Eintrag
-        if Transaction().context.get('parent_id'):
-            items = cls.search([
-                ('contract', '=', Transaction().context['parent_id'])
-            ], order=[('sequence', 'DESC')], limit=1)
-            return (items[0].sequence + 1 if items else 1)
-        return 0
 
-
+    @fields.depends('contract', 'sequence')
+    def on_change_with_sequence(self, name=None):
+        if (self.sequence != None and self.sequence != 0):
+            return self.sequence
+        
+        if self.contract != None and self.contract.next_item_sequence:
+            return self.contract.next_item_sequence
+        
+        return self.contract.c_type.step_item if self.contract and self.contract.c_type else 1
+    
     @fields.depends('object')
     def on_change_with_name(self, name=None):
         if self.object:
@@ -824,7 +853,8 @@ class ContractTerm(sequence_ordered(), ModelSQL, ModelView, TaxableMixin):
         if self.contract != None and self.contract.next_term_sequence:
             return self.contract.next_term_sequence
         
-        return 1
+        return self.contract.c_type.step_term if self.contract and self.contract.c_type else 1
+
 
     @fields.depends('taxes', 'unit_price', 'quantity', 'currency', 'taxes_date')
     def on_change_with_untexed_amount(self, name=None):
