@@ -1,0 +1,8 @@
+<data>
+  <xpath expr="/form/notebook/page/separator[@name='signature']" position="before">
+      <newline/>
+      <label name="phone"/><field name="phone"/>
+      <label name="mobile"/><field name="mobile"/>
+
+  </xpath>
+</data>

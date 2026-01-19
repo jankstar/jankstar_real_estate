@@ -226,6 +226,35 @@
             <field name="act_window" ref="act_contract_term_tree"/>
         </record>
 
+
+      <record model="ir.action.report" id="report_contract_en">
+        <field name="name">Contract Fact Sheet (en)</field>
+        <field name="report_name">real_estate.contract.report</field>
+        <field name="model">real_estate.contract</field>
+        <field name="report">real_estate/contract_en.html</field>
+        <field name="template_extension">html</field>
+      </record>
+
+      <record model="ir.action.keyword" id="report_contract_keyword">
+        <field name="keyword">form_print</field>
+        <field name="model">real_estate.contract,-1</field>
+        <field name="action" ref="report_contract_en"/>
+      </record>
+
+      <record model="ir.action.report" id="report_contract_letter_de">
+        <field name="name">Contract Letter (de) </field>
+        <field name="report_name">real_estate.contract.report</field>
+        <field name="model">real_estate.contract</field>
+        <field name="report">real_estate/contract_letter_de.html</field>
+        <field name="template_extension">html</field>
+      </record>
+
+      <record model="ir.action.keyword" id="report_contract_letter_keyword">
+        <field name="keyword">form_print</field>
+        <field name="model">real_estate.contract,-1</field>
+        <field name="action" ref="report_contract_letter_de"/>
+      </record>
+
    </data>
 
     <data noupdate="1">
@@ -239,6 +268,9 @@
         <record model="real_estate.contract.type" id="contract_rental_agreement_type">
             <field name="name">Rental agreement</field>
             <field name="prefix" >1</field>
+            <field name='start_number'>1000</field>
+            <field name="step_term">10</field>
+            <field name="step_item">10</field>
             <field name="sequence">10</field>
             <field name="account_journal" ref="journal_rental_book"/> 
             <field name="invoice_type">out</field>
@@ -248,6 +280,9 @@
         <record model="real_estate.contract.type" id="contract_parking_space_lease_agreement_type">
             <field name="name">Parking Space Lease Agreement</field>
             <field name="prefix" >2</field>
+            <field name='start_number'>2000</field>
+            <field name="step_term">10</field>
+            <field name="step_item">10</field>
             <field name="sequence">10</field>
             <field name="account_journal" ref="journal_rental_book"/> 
             <field name="invoice_type">out</field>
@@ -257,6 +292,9 @@
         <record model="real_estate.contract.type" id="contract_debit_costs_agreement_type">
             <field name="name">Debit Costs Agreement</field>
             <field name="prefix" >3</field>
+            <field name='start_number'>3000</field>
+            <field name="step_term">10</field>
+            <field name="step_item">10</field>
             <field name="sequence">10</field>
             <field name="account_journal" ref="journal_rental_book"/>
             <field name="invoice_type">out</field>
@@ -266,6 +304,9 @@
         <record model="real_estate.contract.type" id="contract_credit_costs_agreement_type">
             <field name="name">Credit Costs Agreement</field>
             <field name="prefix" >4</field>
+            <field name='start_number'>4000</field>
+            <field name="step_term">10</field>
+            <field name="step_item">10</field>
             <field name="sequence">10</field>
             <field name="account_journal" ref="journal_rental_book"/> 
             <field name="invoice_type">in</field>
@@ -275,6 +316,9 @@
         <record model="real_estate.contract.type" id="contract_commercial_lease_agreement_type">
             <field name="name">Commercial lease agreement</field>
             <field name="prefix" >5</field>
+            <field name='start_number'>5000</field>
+            <field name="step_term">10</field>
+            <field name="step_item">10</field>
             <field name="sequence">50</field>
             <field name="account_journal" ref="journal_rental_book"/> 
             <field name="invoice_type">out</field>
@@ -284,6 +328,9 @@
         <record model="real_estate.contract.type" id="contract_condominium_fee_agreement_type">
             <field name="name">Condominium fee agreement</field>
             <field name="prefix" >8</field>
+            <field name='start_number'>8000</field>
+            <field name="step_term">10</field>
+            <field name="step_item">10</field>
             <field name="sequence">80</field>
             <field name="account_journal" ref="journal_rental_book"/> 
             <field name="invoice_type">out</field>

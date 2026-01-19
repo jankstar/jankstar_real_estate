@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:py="http://genshi.edgewall.org/" 
+      xmlns:i18n="http://genshi.edgewall.org/i18n"
+      lang="en">
+    <?python 
+        from genshi import XML, HTML
+    ?>
+<head>
+    <meta charset="utf-8" />
+
+    <title>Mietvertrag</title>
+    <meta content="width=device-width, initial-scale=1" name="viewport" />
+    <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400..700;1,400..700" rel="stylesheet"
+        type="text/css" />
+    <script src="https://unpkg.com/pagedjs/dist/paged.polyfill.js" defer="true"> </script>
+
+    <style type="text/css">
+        
+        @page {
+            size: A4;
+            margin-left: 25mm;
+            margin-right: 10mm;
+            margin-top: 17mm;
+            margin-bottom: 17mm;
+
+            @top-left {
+                content: ' ';
+            }   
+
+            @top-center {
+                content: ' ${HTML(record.company.header.replace("\n", "\A "))} ';
+                white-space: pre;
+                font-size: 10px;
+            }
+
+            @top-right {
+                content: url("https://discuss-cdn.tryton.org/uploads/default/original/1X/e3125c305e2d732f316c836d9397d8a61079406c.png");
+            }  
+
+            @bottom-center {
+                content: '${record.company.footer.replace("\n", "\A ")}';
+                white-space: pre;
+                font-size: 10px;
+            }
+
+            @bottom-right {
+                content: 'Seite ' counter(page) ' von ' counter(pages);
+            }
+
+            @bottom-left {
+                content: '©tryton - 2025/09/24';
+                font-size: 6px;
+            }
+        }
+
+        body {
+            font-family: "Libre Baskerville", serif;
+            font-size: 12px;
+
+        }
+
+        table {
+            margin-top: 5mm;
+            border-collapse: collapse;
+            border-spacing: 0;
+            table-layout: fixed;
+            width: 100%;
+        }
+
+        td {
+            border: 1px solid black;
+            padding: 10px;
+            text-align: inherit;
+            vertical-align: top;
+            overflow-wrap: break-word;  /* Besser als word-wrap (veraltet) */
+            hyphens: auto;              /* Silbentrennung falls möglich */
+        }
+
+        th {
+            border: 1px solid black;
+            padding: 10px;
+            text-align: inherit;
+            vertical-align: top;
+            overflow-wrap: break-word;  /* Besser als word-wrap (veraltet) */
+            hyphens: auto;              /* Silbentrennung falls möglich */
+            text-align: left;
+        }
+
+        table,
+        th,
+        td {
+            border: none;
+        }
+
+        h7 {
+            font-size: 8px;
+        }
+
+        .datum {
+            text-align: right;
+        }
+
+        .briefkopf {
+            font-size: 21px;
+            font-weight: bold;
+        }
+
+        .anschrift {
+            margin-top: 12px;
+        }
+
+        .betreff {
+            margin-top: 8.4mm;
+            font-weight: bold;
+            text-decoration: underline;
+        }
+
+        .kopf {
+            margin: 0%;
+            padding: 0%;
+            border: unset
+        }
+
+        .signature {
+            margin: 0%;
+            padding: 0%;
+            border: unset;            
+            line-height: 1.2;          /* Sehr eng für Adressen */
+        }
+
+        .fuss {
+            margin: 0%;
+            padding: 0%;
+            border: unset
+        }
+    </style>
+</head>
+
+
+<body>
+    <?python 
+        from genshi import XML, HTML
+    ?>
+
+    <section>
+        <table class="kopf" style="width: 100%; ">
+        <tbody>
+        <tr class="kopf">
+            <td class="kopf">        
+                <div class="briefkopf">
+                ${record.company.get_rec_name("")}<br />
+                ${record.company.party.addresses[0].street_single_line}<br />
+                ${record.company.party.addresses[0].postal_code} ${record.company.party.addresses[0].city}<br />
+                <br />
+                </div>
+            </td>
+        <td class="kopf"></td>
+        
+        </tr>
+        <tr class="kopf">
+            <td class="kopf" style="width: 85mm;">
+                <div class="anschrift">
+                <h7> ${record.company.get_rec_name("")} * ${record.invoice_address.street_single_line} * ${record.company.party.addresses[0].postal_code} ${record.company.party.addresses[0].city} </h7> <br />
+                <br />
+                ${ record.contractual_partner.name }<br />
+                ${ record.invoice_address.street_single_line }<br />
+                ${ record.invoice_address.postal_code} ${ record.invoice_address.city}<br />
+                <br />
+                <br />
+                <br />
+                </div>
+            </td>
+            <td class="kopf" style="width: 85mm;">
+                <br />
+                <b>Name</b>: ${user.name}<br />
+                <b>Tel.</b>: ${user.phone}<br />
+                <b>Email</b>: ${user.email}<br />
+                <br />
+                <br />
+                <div class="datum">Datum: ${ datetime.datetime.now().strftime('%d.%m.%Y') }<br /></div> 
+            </td>
+        </tr>
+        </tbody>
+        </table>
+
+        <div class="betreff">Mietvertrag Nr. ${ record.contract_number } - ${ record.items[0].name }<br /></div><br />
+        
+        Sehr geehrte Damen und Herren,<br />
+        <p>wenn Sie sofort anfangen möchten, tippen Sie auf einen 
+            Platzhaltertext (wie diesen), und beginnen Sie mit der
+            Eingabe.</p>
+    </section>
+
+    <table>
+        <tbody>
+            <tr>
+                <th style="width: 20mm;">Nr.</th>
+                <th>Konditionen</th>
+                <th style="text-align: right;">Preis</th>
+            </tr>
+            <p py:for="obj in record.terms">
+                <tr>
+                    <td>${ obj.sequence }</td>
+                    <td>${ obj.name }</td>
+                    <td style="text-align: right;">${_format(obj.total_amount)} ${obj.currency.symbol} </td>
+                </tr>
+            </p>
+                <tr>
+                    <td></td>
+                    <td><i>Summe</i></td>
+                    <td style="text-align: right;"><i>${ _format(sum(term.total_amount for term in record.terms)) } ${record.currency.symbol} </i> </td>
+                </tr>            
+        </tbody>
+    </table>
+    <section>
+        <p>Fragen Sie sich vielleicht, was Sie in das Anschreiben aufnehmen sollen? Gut geeignet sind wichtige Punkte
+            dazu,
+            welche Vorteile Sie dem Unternehmen bieten können und warum Sie für diese bestimmte Stelle besonders
+            geeignet
+            sind. Denken Sie auch daran, um ein Vorstellungsgespräch zu bitten. Halten Sie den Text aber insgesamt kurz.
+            Ein
+            Anschreiben sollte kein Roman sein, auch wenn Sie Seiten füllen könnten.</p>
+        Mit freundlichen Grüßen, <br />
+        <br />
+        <p class="signature"> ${HTML(user.signature)} </p>
+        <br />
+
+    </section>
+</body>
+
+</html>

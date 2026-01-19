@@ -6,6 +6,7 @@ from . import address
 from . import object_party
 from . import contract
 from . import sequence
+from . import res
 
 __all__ = ['register']
 
@@ -27,6 +28,7 @@ def register():
         contract.ContractItem,
         contract.Contract,
         #sequence.Sequence,
+        res.User,
         module='real_estate', type_='model')
     Pool.register(
         module='real_estate', type_='wizard')

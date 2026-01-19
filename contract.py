@@ -29,7 +29,7 @@ from dateutil.relativedelta import relativedelta
 from . import base_object
 import logging
 from decimal import Decimal
-
+import datetime
 
 logger = logging.getLogger(__name__)
 
@@ -69,7 +69,7 @@ class Quantitative(fields.Numeric):
 class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), ModelSQL, ModelView):
     "Base Object - base class for contracts"
     __name__ = 'real_estate.contract'
-    __rec_name__ = 'compute_name'
+    __rec_name__ = 'name'
 
     company = fields.Many2One('company.company', "Company", required=True, ondelete='CASCADE',)
     property = fields.Many2One('real_estate.base_object', "Property", required=True, ondelete='CASCADE',
@@ -150,9 +150,9 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
     phone_partner = fields.Function(fields.Char("Phone Partner"),
         'get_phone_partner')
 
-    compute_name = fields.Function(fields.Char("Name"), 
-                                    'on_change_with_compute_name', 
-                                    searcher='compute_name_search'
+    name = fields.Function(fields.Char("Name"), 
+                                    'on_change_with_name', 
+                                    searcher='name_search'
                                     )    
 
     state = fields.Selection([
@@ -210,13 +210,13 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
     @fields.depends('terms')
     def on_change_with_next_term_sequence(self, name=None):
         if self.terms and self.c_type:
-            return (max(term.sequence for term in self.terms) % self.c_type.step_term ) + self.c_type.step_term
+            return max(term.sequence for term in self.terms) + self.c_type.step_term
         return self.c_type.step_term if self.c_type else 1
 
     @fields.depends('items', 'c_type')
     def on_change_with_next_item_sequence(self, name=None):
         if self.items and self.c_type:
-            return (max(item.sequence for item in self.items) % self.c_type.step_item ) + self.c_type.step_item
+            return max(item.sequence for item in self.items) + self.c_type.step_item
         return self.c_type.step_item if self.c_type else 1
 
     @fields.depends('contractual_partner', 'c_type')
@@ -266,7 +266,7 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
         return f"{self.c_type.prefix}-{self.property.sequence}-{self.sequence}"
     
     @fields.depends('contract_number', 'contractual_partner')
-    def on_change_with_compute_name(self, name=None):
+    def on_change_with_name(self, name=None):
         if not self.contract_number or not self.contractual_partner:
             return f" - "        
         return f"{self.contract_number} / {self.contractual_partner.name}"
@@ -289,7 +289,7 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
         return ''
 
     @classmethod
-    def compute_name_search(cls, name, clause):
+    def name_search(cls, name, clause):
         if clause[1].startswith('!') or clause[1].startswith('not '):
             bool_op = 'AND'
         else:
@@ -477,7 +477,7 @@ class ContractItem(sequence_ordered(), ModelSQL, ModelView, metaclass=PoolMeta):
     @fields.depends('object')
     def on_change_with_name(self, name=None):
         if self.object:
-            return self.object.name + ' / ' + self.object.object_number
+            return self.object.name + ' ( ' + self.object.object_number + ' )'
         return f" - "
 
     @fields.depends('contract', 'valid_from')
@@ -1103,8 +1103,33 @@ class ContractTerm(sequence_ordered(), ModelSQL, ModelView, TaxableMixin):
 
     
 #**********************************************************************
-class ContractReport(CompanyReport):
+class ContractReport(Report):
     "Contract Context"
     __name__ = 'real_estate.contract.report'
 
 
+    @classmethod
+    def _format(cls,value):
+        if value is None:
+            return ''
+        if type(value) == str:
+            return value
+        if type(value) ==bool:
+            return str(value)
+        if type(value) ==int:
+            return str(value)
+        if type(value) ==float:
+            return cls.format_number(value, None)
+        if type(value) == datetime.date:
+            return cls.format_date(value)
+        if type(value) == datetime.datetime:
+            return cls.format_datetime(value)
+        return value
+
+    @classmethod
+    def get_context(cls, records, header, data):
+        context = super().get_context(records, header, data)
+        #context['footer'] =  context['record'].company.footer.split('\n') if context['record'] else []
+        context['_format'] = cls._format
+        return context
+    
