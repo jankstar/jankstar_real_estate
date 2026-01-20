@@ -11,7 +11,7 @@
 
     <title>Mietvertrag</title>
     <meta content="width=device-width, initial-scale=1" name="viewport" />
-    <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400..700;1,400..700" rel="stylesheet"
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Infant:ital,wght@0,300..700;1,300..700" rel="stylesheet"
         type="text/css" />
     <script src="https://unpkg.com/pagedjs/dist/paged.polyfill.js" defer="true"> </script>
 
@@ -30,6 +30,7 @@
 
             @top-center {
                 content: ' ${HTML(record.company.header.replace("\n", "\A "))} ';
+                font-family: "Cormorant Infant", serif;
                 white-space: pre;
                 font-size: 10px;
             }
@@ -40,23 +41,27 @@
 
             @bottom-center {
                 content: '${record.company.footer.replace("\n", "\A ")}';
+                font-family: "Cormorant Infant", serif;
                 white-space: pre;
                 font-size: 10px;
             }
 
             @bottom-right {
                 content: 'Seite ' counter(page) ' von ' counter(pages);
+                font-family: "Cormorant Infant", serif;
+                font-size: 14px;
             }
 
             @bottom-left {
                 content: '©tryton - 2025/09/24';
+                font-family: "Cormorant Infant", serif;
                 font-size: 6px;
             }
         }
 
         body {
-            font-family: "Libre Baskerville", serif;
-            font-size: 12px;
+            font-family: "Cormorant Infant", serif;
+            font-size: 14px;
 
         }
 
@@ -186,7 +191,7 @@
 
         <div class="betreff">Mietvertrag Nr. ${ record.contract_number } - ${ record.items[0].name }<br /></div><br />
         
-        Sehr geehrte Damen und Herren,<br />
+        ${ record.contractual_partner.salutation },<br />
         <p>wenn Sie sofort anfangen möchten, tippen Sie auf einen 
             Platzhaltertext (wie diesen), und beginnen Sie mit der
             Eingabe.</p>
