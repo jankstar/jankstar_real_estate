@@ -113,6 +113,15 @@
             <field name="act_window" ref="act_contract_type"/>
         </record>
         
+       <record model="ir.model.access" id="access_contract_type_admin">
+            <field name="model">real_estate.contract.type</field>
+            <field name="group" ref="group_real_estate_admin"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+
         <menuitem
             parent="menu_real_estate_configuration"
             sequence="30"
@@ -148,6 +157,15 @@
             <field name="act_window" ref="act_contract_term_type"/>
         </record>
         
+       <record model="ir.model.access" id="access_contract_term_type_admin">
+            <field name="model">real_estate.contract.term.type</field>
+            <field name="group" ref="group_real_estate_admin"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+
         <menuitem
             parent="menu_real_estate_configuration"
             sequence="30"
@@ -255,6 +273,37 @@
         <field name="action" ref="report_contract_letter_de"/>
       </record>
 
+        <record model="ir.model.access" id="access_contract_user">
+            <field name="model">real_estate.contract</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_contract_admin">
+            <field name="model">real_estate.contract</field>
+            <field name="group" ref="group_real_estate_admin"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+
+        <record model="ir.ui.view" id="contract_create_moves_start_view_form">
+            <field name="model">real_estate.contract.create_moves.start</field>
+            <field name="type">form</field>
+            <field name="name">contract_create_moves_start_form</field>
+        </record>
+
+        <record model="ir.action.wizard" id="wizard_create_moves">
+            <field name="name">Create Contract Moves</field>
+            <field name="wiz_name">real_estate.contract.create_moves</field>
+        </record>
+        <menuitem
+            parent="menu_real_estate_contracts"
+            sequence="20"
+            action="wizard_create_moves"
+            id="menu_create_moves"/>
    </data>
 
     <data noupdate="1">

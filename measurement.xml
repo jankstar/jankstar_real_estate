@@ -56,6 +56,15 @@
             <field name="name">measurement_type_form</field>
         </record>
 
+        <record model="ir.model.access" id="access_measurement_type_admin">
+            <field name="model">real_estate.measurement.type</field>
+            <field name="group" ref="group_real_estate_admin"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+
       <menuitem
          name="Real Estate"
          sequence="50"

@@ -28,11 +28,13 @@ def register():
         contract.ContractTermType,
         contract.ContractItem,
         contract.Contract,
+        contract.CreateMovesStart,
         #sequence.Sequence,
         res.User,
         party.Party,
         module='real_estate', type_='model')
     Pool.register(
+        contract.CreateMoves,
         module='real_estate', type_='wizard')
     Pool.register(
         base_object.BaseObjectReport,

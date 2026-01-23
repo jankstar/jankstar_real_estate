@@ -19,6 +19,9 @@ from trytond.modules.account.tax import TaxableMixin
 from trytond.tools import (
     cached_property, firstline, grouped_slice, reduce_ids, slugify,
     sqlite_apply_types)
+from trytond.wizard import (
+    Button, StateReport, StateTransition, StateView, Wizard)
+from trytond.transaction import Transaction, check_access, without_check_access
 
 from sql import Null
 from sql.aggregate import Sum
@@ -299,6 +302,13 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
             ('contract_number',) + tuple(clause[1:]),
             ('contractual_partner.name',) + tuple(clause[1:]),
         ]   
+
+    @classmethod
+    def create_moves(cls, contracts, date):
+        """
+        Creates all account move on contract before a date.
+        """
+        pass
 
 #**********************************************************************
 class ContractTypeTax(ModelSQL):
@@ -1100,6 +1110,45 @@ class ContractTerm(sequence_ordered(), ModelSQL, ModelView, TaxableMixin):
             ]  
         return []
 
+
+#**************************************************************
+class CreateMovesStart(ModelView):
+    __name__ = 'real_estate.contract.create_moves.start'
+    date = fields.Date('Date')
+    company = fields.Many2One('company.company', "Company", required=True, )
+    
+    @staticmethod
+    def default_date():
+        Date = Pool().get('ir.date')
+        return Date.today()
+    
+    @staticmethod
+    def default_company():
+        User = Pool().get('res.user')
+        user = User(Transaction().user)
+        return user.company.id if user.company else None
+
+
+class CreateMoves(Wizard):
+    __name__ = 'real_estate.contract.create_moves'
+    start = StateView('real_estate.contract.create_moves.start',
+        'real_estate.contract_create_moves_start_view_form', [
+            Button('Cancel', 'end', 'tryton-cancel'),
+            Button('OK', 'create_moves', 'tryton-ok', True),
+            ])
+    create_moves = StateTransition()
+
+    @without_check_access
+    def transition_create_moves(self):
+        pool = Pool()
+        with check_access():
+            Contract = pool.get('real_estate.contract')
+            contracts = Contract.search([
+                    ('state', '=', 'running'),
+                    ])
+        contracts = Contract.browse(contracts)
+        Contract.create_moves(contracts, self.start.date)
+        return 'end'
 
     
 #**********************************************************************

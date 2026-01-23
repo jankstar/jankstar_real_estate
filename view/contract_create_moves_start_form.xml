@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<!-- This file is part of Tryton.  The COPYRIGHT file at the top level of this
+     repository contains the full copyright notices and license terms. -->
+<form col="2">
+    <image name="tryton-question" xexpand="0" xfill="0"/>
+    <group col="3" id="label_date" yalign="0.5">
+        <label string="Create Contract Moves up to" id="create"
+            xalign="0.0"/>
+        <newline/>    
+        <separator colspan="3"/>
+        <label name="company"/><field name="company"/>
+        <newline/>         
+        <label name="date"/><field name="date"/>
+    </group>
+</form>
