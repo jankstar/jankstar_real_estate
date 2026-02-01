@@ -6,6 +6,8 @@ this repository contains the full copyright notices and license terms. -->
         <label name="sequence"/><field name="sequence"/>
         <newline/>
         <label name="name"/><field name="name"/>
+        <newline/>
+        <label name="mark"/><field name="mark"/>    
     </group>
     <group colspan="2" col="-1" id="checkboxes">
         <label name="active"/>

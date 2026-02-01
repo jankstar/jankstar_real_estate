@@ -48,6 +48,7 @@ class BaseObject(Workflow,DeactivableMixin, re_sequence_ordered(), tree(separato
     "Base Object - base class for real estate objects"
     __name__ = 'real_estate.base_object'
     __rec_name__ = 'compute_name'
+    __history__ = True
 
     name = fields.Char("Description", required=True)
     type = fields.Selection([

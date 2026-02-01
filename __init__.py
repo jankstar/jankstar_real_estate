@@ -27,6 +27,7 @@ def register():
         contract.ContractTermLine,
         contract.ContractTermType,
         contract.ContractItem,
+        contract.ContractLog,
         contract.Contract,
         contract.CreateMovesStart,
         #sequence.Sequence,

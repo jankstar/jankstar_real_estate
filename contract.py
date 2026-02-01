@@ -33,6 +33,9 @@ from . import base_object
 import logging
 from decimal import Decimal
 import datetime
+import calendar
+
+import pdb
 
 logger = logging.getLogger(__name__)
 
@@ -67,12 +70,23 @@ class Quantitative(fields.Numeric):
         definition['quantitative'] = True
         return definition
 
+#**********************************************************************
+class ContractLog(ModelSQL, ModelView):
+    "Contract log obj"
+    __name__ = 'real_estate.contract.log'
+
+    contract = fields.Many2One('real_estate.contract', 'Contract', required=True, ondelete='CASCADE')
+    event = fields.Char('Event', required=True)
+    description = fields.Text('Description')
+    create_date = fields.DateTime('Create Date', readonly=True)
+    create_uid = fields.Many2One('res.user', 'User', readonly=True)
 
 #**********************************************************************
 class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), ModelSQL, ModelView):
     "Base Object - base class for contracts"
     __name__ = 'real_estate.contract'
     __rec_name__ = 'name'
+    __history__ = True
 
     company = fields.Many2One('company.company', "Company", required=True, ondelete='CASCADE',)
     property = fields.Many2One('real_estate.base_object', "Property", required=True, ondelete='CASCADE',
@@ -163,7 +177,8 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
             ('running', 'Running'),
             ('terminated', 'Terminated'),
             ], "State", sort=False,
-            states={ 'readonly': True, },)
+            #states={ 'readonly': True, },
+            )
     
     items = fields.One2Many('real_estate.contract.item', 'contract', 'Items',
         order=[
@@ -200,6 +215,17 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
     @classmethod
     def default_company(cls):
         return Transaction().context.get('company')
+
+
+    def add_log(self, event, description=None):
+        pool = Pool()
+        ContractLog = pool.get('real_estate.contract.log')
+        ContractLog.create([{
+            'contract': self.id,
+            'event': event,
+            'description': description or '',
+        }])
+        print(f'contract {self.id}, event {event}, description {description}')
 
     @staticmethod
     def default_state():
@@ -303,12 +329,132 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
             ('contractual_partner.name',) + tuple(clause[1:]),
         ]   
 
+    def _create_moves(self, terms, date):
+        pdb.set_trace()  # Breakpoint
+
+        self.add_log('process', f'start quere contract {self.id} at {date}')
+        if not terms:
+            self.add_log('process', f'stop quere contract {self.id} at {date} - no terms')
+            return
+        
+        pool = Pool()
+        Invoice = pool.get('account.invoice')
+        InvoiceLine = pool.get('account.invoice.line')
+
+        line_vals = []
+        for term_id in terms:
+
+            term = next(
+                    (obj for obj in self.terms if obj.id == term_id),
+                    None,)
+            if term :
+                taxes = set()
+                for tax in term.taxes:
+                    taxes.add(tax)
+                
+                lCount = 0 #maximum 12 x term per loop
+                while lCount < 12 \
+                  and term.valid_from <= date \
+                  and term.last_document_date != term.next_document_date \
+                  and term.next_document_date <= date:
+                    #only valid next document date calulate by rhythm
+
+                    lCount += 1
+                    line_vals.append(
+                        InvoiceLine(
+                            type='line',
+                            company=self.company.id,                        
+                            description=f'{term.next_document_date:%Y/%m/%d} / {term.name}',
+                            quantity=term.quantity,
+                            unit=term.unit,
+                            unit_price=term.unit_price,
+                            account=term.account.id,
+                            taxes=list(taxes)
+                        )
+                    )
+
+                    term.last_posting_date = date
+                    term.last_document_date = term.next_document_date
+                    term.next_document_date = term.on_change_with_next_document_date()
+                    term.next_due_date = term.on_change_with_next_due_date()
+                    term.save()
+
+
+        line_vals.sort(key=lambda ele: ele.description)
+
+        #pdb.set_trace()  # Breakpoint
+        if len(line_vals) > 0:
+            invoice = Invoice(
+                company=self.company.id,
+                type=self.c_type.invoice_type,
+                party=self.contractual_partner.id,
+                invoice_date=date,
+                accounting_date=date,
+                payment_term_date=date,
+                invoice_address=self.invoice_address,
+                currency=self.currency.id,
+                journal=self.c_type.account_journal.id,
+                account=self.contractual_partner.account_receivable.id,
+                payment_term=self.payment_term.id,
+                description=self.c_type.mark if self.c_type.mark else self.c_type.name,
+                reference=self.contract_number,
+                lines=line_vals
+            )
+            
+
+            pdb.set_trace()  # Breakpoint
+
+            #invoices = Invoice.create([invoice_vals])
+            #invoice, = invoices
+            Invoice.save([invoice])
+            self.add_log('process',f'contract {self.id} / invouce {invoice.id} posted.')
+
+        else:
+            self.add_log('process',f'contract {self.id} - no term computed')
+
+
+
     @classmethod
     def create_moves(cls, contracts, date):
         """
         Creates all account move on contract before a date.
         """
-        pass
+
+        transaction = Transaction()
+        context = transaction.context
+        pdb.set_trace()  # Breakpoint
+
+        for contract in contracts:
+            contract.add_log('process',f'start "create_moves" with date {date}')
+            if contract.state != 'running':
+                contract.add_log('process',f'contract state {contract.state} - finished')
+                exit
+            if contract.start_date > date:
+                contract.add_log('process',f'contract start_date {contract.start_date} - finished')
+                exit                
+
+            process_terms = []
+            for term in contract.terms:
+                # calculate doc and due date for constrains
+                term.next_document_date = term.on_change_with_next_document_date()
+                term.next_due_date = term.on_change_with_next_due_date()
+                term.save()
+
+                if term.next_document_date <= date \
+                    and term.next_document_date  != term.last_document_date \
+                    and term.total_amount != 0:
+                    contract.add_log('process',f'term {term.name} with total amount {term.total_amount}')
+
+                    process_terms.append(term.id)
+
+            if len(process_terms) > 0:
+                with transaction.set_context(
+                    queue_batch=context.get('queue_batch', True)):
+                    cls.__queue__._create_moves(contract, process_terms, date)
+
+            contract.add_log('process',f'"create_moves" finished')
+            contract.save()
+
 
 #**********************************************************************
 class ContractTypeTax(ModelSQL):
@@ -382,6 +528,9 @@ class ContractType(DeactivableMixin, base_object.re_sequence_ordered(), ModelSQL
 
     step_item = fields.Integer("Step Item", help='step for item sequence',required=True)
     step_term = fields.Integer("Step Term", help='step for term sequence',required=True)
+
+    mark = fields.Char("Mark", help='Periodic posting Mark')
+
 
     @classmethod
     def default_step_item(cls):
@@ -867,18 +1016,18 @@ class ContractTerm(sequence_ordered(), ModelSQL, ModelView, TaxableMixin):
 
 
     @fields.depends('taxes', 'unit_price', 'quantity', 'currency', 'taxes_date')
-    def on_change_with_untexed_amount(self, name=None):
+    def on_change_with_untaxed_amount(self, name=None):
         result = self._get_taxes()
-        print("on_change_with_untexed_amount:", result)
-        return result['untexed_amount'] or Decimal(0)
+        print("on_change_with_untaxed_amount:", result)
+        return result['untaxed_amount'] or Decimal(0)
 
 
-    @fields.depends(methods=['on_change_with_untexed_amount'])
+    @fields.depends(methods=['on_change_with_untaxed_amount'])
     def on_change_with_tax_amount(self, name=None):
         result = self._get_taxes()
         return result['tax_amount'] or Decimal(0)
     
-    @fields.depends(methods=['on_change_with_untexed_amount'])
+    @fields.depends(methods=['on_change_with_untaxed_amount'])
     def on_change_with_total_amount(self, name=None):
         result = self._get_taxes()
         print("on_change_with_total_amount:", result)
@@ -933,28 +1082,37 @@ class ContractTerm(sequence_ordered(), ModelSQL, ModelView, TaxableMixin):
     @fields.depends('rhythm','valid_from', 'last_document_date', 'rhythm_type',
                     'unit_price')
     def on_change_with_next_document_date(self):
+
+        def _check_valid_to(i_date):
+            """ next doc date must between valid_fromn/valid_to"""
+            if ( self.valid_to != None and self.valid_to > i_date ) \
+                or (self.contract.end_date != None and self.contract.end_date > i_date ):
+                return self.last_document_date
+            else: 
+                return i_date
+
         if self.last_document_date != None:
             if self.rhythm_type == 'monthly':
-                return self.last_document_date + relativedelta(months=self.rhythm)
+                return _check_valid_to(self.last_document_date + relativedelta(months=self.rhythm))
             
             elif self.rhythm_type == 'weekly':
-                return self.last_document_date + relativedelta(weeks=self.rhythm)
+                return _check_valid_to(self.last_document_date + relativedelta(weeks=self.rhythm))
 
             elif self.rhythm_type == 'daily':
                 if self.rhythm % 365 == 0:
                     # for full years
-                    return self.last_document_date + relativedelta(year=int(self.rhythm / 365))
+                    return _check_valid_to(self.last_document_date + relativedelta(year=int(self.rhythm / 365)))
                 if self.rhythm % 30 == 0:
                     # for full months
-                    return self.last_document_date + relativedelta(months=int(self.rhythm / 30))
+                    return _check_valid_to(self.last_document_date + relativedelta(months=int(self.rhythm / 30)))
                 # else for days exactly
-                return self.last_document_date + relativedelta(days=self.rhythm) 
+                return _check_valid_to(self.last_document_date + relativedelta(days=self.rhythm)) 
             
             elif self.rhythm_type == 'quarterly':
-                return self.last_document_date + relativedelta(months=self.rhythm * 3)
+                return _check_valid_to(self.last_document_date + relativedelta(months=self.rhythm * 3))
             
             elif self.rhythm_type == 'annually':
-                return self.last_document_date + relativedelta(years= self.rhythm)
+                return _check_valid_to(self.last_document_date + relativedelta(years= self.rhythm))
         
         return self.valid_from
 
@@ -1120,7 +1278,9 @@ class CreateMovesStart(ModelView):
     @staticmethod
     def default_date():
         Date = Pool().get('ir.date')
-        return Date.today()
+        today = Date.today()
+        last_day_month = calendar.monthrange(today.year, today.month)[1]
+        return datetime.date(today.year, today.month, last_day_month)
     
     @staticmethod
     def default_company():
@@ -1145,6 +1305,7 @@ class CreateMoves(Wizard):
             Contract = pool.get('real_estate.contract')
             contracts = Contract.search([
                     ('state', '=', 'running'),
+                    ('start_date', '<=', self.start.date)
                     ])
         contracts = Contract.browse(contracts)
         Contract.create_moves(contracts, self.start.date)
