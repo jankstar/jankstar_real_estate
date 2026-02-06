@@ -4,6 +4,7 @@
     <label name="c_type"/><field name="c_type"/>
     <newline/>   
 
+    <label name="contractual_partner"/><field name="contractual_partner"/>
     <label name="company"/><field name="company"/>
     <label name="property"/><field name="property"/>
     <newline/>   
@@ -28,7 +29,7 @@
     <notebook colspan="8">
         <page string="General" id="general" col="6">
             <newline/>
-            <label name="contractual_partner"/><field name="contractual_partner"/>
+            
             <label name="payment_term"/><field name="payment_term"/>
             <newline/>   
             <label name="invoice_address"/><field name="invoice_address"/>
@@ -51,6 +52,11 @@
             <newline/>
             <field name="terms" 
                 view_ids="real_estate.contract_view_list_object_term"/>        
+        </page>
+        <page string="Cash Flow" id="cash_flow">
+            <newline/>
+            <field name="cash_flow"
+                view_ids="real_estate.contract_view_list_cash_flow" />
         </page>
     </notebook>
 </form>

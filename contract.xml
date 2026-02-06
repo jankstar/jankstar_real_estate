@@ -209,6 +209,13 @@
         </record>
 
         <!--  -->
+        <record model="ir.ui.view" id="contract_view_list_cash_flow">
+            <field name="model">real_estate.contract</field>
+            <field name="type">tree</field>
+            <field name="name">contract_view_list_cash_flow</field>
+        </record>
+
+        <!--  -->
         <record model="ir.ui.view" id="contract_view_list_object_term">
             <field name="model">real_estate.contract.term</field>
             <field name="type">tree</field>

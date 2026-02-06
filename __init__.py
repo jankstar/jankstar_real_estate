@@ -8,6 +8,7 @@ from . import contract
 from . import sequence
 from . import res
 from . import party
+from . import invoice
 
 __all__ = ['register']
 
@@ -24,15 +25,17 @@ def register():
         contract.ContractTypeTax,
         contract.ContractTerm,
         contract.ContractTermTax,
-        contract.ContractTermLine,
         contract.ContractTermType,
         contract.ContractItem,
         contract.ContractLog,
+        contract.ContractTermCashFlow,
         contract.Contract,
         contract.CreateMovesStart,
         #sequence.Sequence,
         res.User,
         party.Party,
+        invoice.Invoice,
+        invoice.InvoiceLine,
         module='real_estate', type_='model')
     Pool.register(
         contract.CreateMoves,

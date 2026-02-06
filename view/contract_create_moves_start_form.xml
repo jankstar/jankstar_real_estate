@@ -11,5 +11,9 @@
         <label name="company"/><field name="company"/>
         <newline/>         
         <label name="date"/><field name="date"/>
+        <newline/>
+         <group id="checkboxes">
+            <label name="re_calc"/><field name="re_calc" xexpand="0" width="25"/>
+         </group>
     </group>
 </form>

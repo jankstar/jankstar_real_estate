@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<!-- This file is part of Tryton.  The COPYRIGHT file at the top level of
+this repository contains the full copyright notices and license terms. -->
+<tree string="Cash Flow" col="8">
+    <field name="document_date" width="110"/>
+    <field name="posting_date" width="110"/>
+    <field name="name"/>
+    <field name="status" width="60" readonly="1"/>
+    <field name="term" readonly="1" />
+    <field name="invoice" />
+    <field name="invoice_line" readonly="1" />
+    <field name="amount"/>
+    <field name="tax_amount" />
+    <field name="total_amount" />
+    <!--field name="currency" optional="0" /-->
+</tree>

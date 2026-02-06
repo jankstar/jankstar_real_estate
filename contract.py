@@ -205,6 +205,12 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
     next_term_sequence = fields.Function(fields.Integer("Next Term Sequence",),
                                          'on_change_with_next_term_sequence',)
 
+    cash_flow = fields.Function(
+        fields.One2Many('real_estate.contract.term.cash_flow', 'contract',
+                        'Cash Flow',)
+        ,'on_change_with_cash_flow',)
+
+
 
     @classmethod
     def get_term_types_of_use(cls):
@@ -215,6 +221,11 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
     @classmethod
     def default_company(cls):
         return Transaction().context.get('company')
+
+    @fields.depends('terms')
+    def on_change_with_cash_flow(self,name=None):
+        return sorted([cash_flow_line for term in self.terms for cash_flow_line in term.cash_flow],
+                        key=lambda line: (line.document_date, line.posting_date, line.name))
 
 
     def add_log(self, event, description=None):
@@ -330,7 +341,7 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
         ]   
 
     def _create_moves(self, terms, date):
-        pdb.set_trace()  # Breakpoint
+        #pdb.set_trace()  # Breakpoint
 
         self.add_log('process', f'start quere contract {self.id} at {date}')
         if not terms:
@@ -340,6 +351,7 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
         pool = Pool()
         Invoice = pool.get('account.invoice')
         InvoiceLine = pool.get('account.invoice.line')
+
 
         line_vals = []
         for term_id in terms:
@@ -354,9 +366,9 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
                 
                 lCount = 0 #maximum 12 x term per loop
                 while lCount < 12 \
-                  and term.valid_from <= date \
-                  and term.last_document_date != term.next_document_date \
-                  and term.next_document_date <= date:
+                and term.valid_from <= date \
+                and term.last_document_date != term.next_document_date \
+                and term.next_document_date <= date:
                     #only valid next document date calulate by rhythm
 
                     lCount += 1
@@ -369,7 +381,9 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
                             unit=term.unit,
                             unit_price=term.unit_price,
                             account=term.account.id,
-                            taxes=list(taxes)
+                            taxes=list(taxes),
+                            contract=self,
+                            term=term    
                         )
                     )
 
@@ -398,16 +412,17 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
                 payment_term=self.payment_term.id,
                 description=self.c_type.mark if self.c_type.mark else self.c_type.name,
                 reference=self.contract_number,
-                lines=line_vals
+                lines=line_vals,
+                contract=self
             )
             
 
-            pdb.set_trace()  # Breakpoint
+            #pdb.set_trace()  # Breakpoint
 
             #invoices = Invoice.create([invoice_vals])
             #invoice, = invoices
             Invoice.save([invoice])
-            self.add_log('process',f'contract {self.id} / invouce {invoice.id} posted.')
+            self.add_log('process',f'contract {self.id} / invoice {invoice.id} posted.')
 
         else:
             self.add_log('process',f'contract {self.id} - no term computed')
@@ -415,14 +430,14 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
 
 
     @classmethod
-    def create_moves(cls, contracts, date):
+    def create_moves(cls, contracts, date, re_calc=False):
         """
         Creates all account move on contract before a date.
         """
 
         transaction = Transaction()
         context = transaction.context
-        pdb.set_trace()  # Breakpoint
+        #pdb.set_trace()  # Breakpoint
 
         for contract in contracts:
             contract.add_log('process',f'start "create_moves" with date {date}')
@@ -438,6 +453,9 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
                 # calculate doc and due date for constrains
                 term.next_document_date = term.on_change_with_next_document_date()
                 term.next_due_date = term.on_change_with_next_due_date()
+                if re_calc:
+                    contract.add_log('process',f'term {term.name} with re-calc')
+                    term.re_calc()
                 term.save()
 
                 if term.next_document_date <= date \
@@ -450,15 +468,16 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
             if len(process_terms) > 0:
                 with transaction.set_context(
                     queue_batch=context.get('queue_batch', True)):
-                    cls.__queue__._create_moves(contract, process_terms, date)
+                    #cls.__queue__._create_moves(contract, process_terms, date)
+                    pass
 
             contract.add_log('process',f'"create_moves" finished')
             contract.save()
 
-
 #**********************************************************************
 class ContractTypeTax(ModelSQL):
     __name__ = 'real_estate.contract.type.tax'
+
     c_type = fields.Many2One(
         'real_estate.contract.type', "Contract Type",
         ondelete='CASCADE', required=True)
@@ -481,6 +500,216 @@ class ContractTypeTax(ModelSQL):
         backend.TableHandler.table_rename(
             'contrac_type_tax', cls._table)
         super().__register__(module)
+
+#**********************************************************************
+class ContractTermCashFlow( ModelView, ModelSQL, metaclass=PoolMeta):
+    __name__ = 'real_estate.contract.term.cash_flow'
+
+
+    status = fields.Selection(
+        [('draft', 'Draft'),
+         ('done','Done')], 
+         "Status", sort=False, required=True, 
+         states={'readonly': True,})
+
+    name = fields.Function(fields.Char("Name"), 
+                                    'on_change_with_name', 
+                                    #searcher='name_search'
+                                    )    
+
+
+    posting_date = fields.Date('Posting Date', 
+        states={'readonly': True,})
+    document_date = fields.Date('Document Date', 
+        states={'readonly': True,})
+    due_date = fields.Date('Due Date', 
+        states={'readonly': True,})    
+
+    contract = fields.Function(fields.Many2One(
+        'real_estate.contract', 'Contract',
+        ), 'on_change_with_contract')
+
+    invoice = fields.Function(fields.Many2One(
+        'account.invoice', "Invoice",
+        ), 'on_change_with_invoice')
+
+    term = fields.Many2One(
+        'real_estate.contract.term', 'Term',required=True,
+        states={'readonly': True,})
+
+    invoice_line = fields.Many2One(
+        'account.invoice.line', 'Invoice Line',
+        states={'readonly': True,})
+
+
+    property = fields.Function(fields.Many2One('real_estate.base_object','Property'),
+        'on_change_with_property')
+
+    company = fields.Function(fields.Many2One('company.company','Company'),
+        'on_change_with_company')
+
+    quantity = fields.Function(fields.Float(
+        "Quantity", digits='unit',
+        ), 'on_change_with_quantity')
+
+    unit = fields.Function(fields.Many2One('product.uom', 'Unit',
+            ), 'on_change_with_unit')
+    
+    unit_price = fields.Function(Monetary(
+        "Unit Price", currency='currency', digits=price_digits,
+        ), 'on_change_with_unit_price')
+
+    amount = fields.Function(Monetary(
+        "Amount", currency='currency', digits='currency',
+        ), 'on_change_with_amount')
+
+    tax_amount = fields.Function(Monetary(
+            "Tax", currency='currency', digits='currency'),
+        'get_amount_and_tax', )
+
+    total_amount = fields.Function(Monetary(
+            "Total", currency='currency', digits='currency'),
+        'get_amount_and_tax', )    
+
+    currency = fields.Function(fields.Many2One(
+        'currency.currency', "Currency", 
+        # states={'readonly': True,},
+        ), 'on_change_with_currency')
+
+
+    @classmethod
+    def __setup__(cls):
+        super().__setup__()
+        cls._order = [('document_date','ASC'),('posting_date', 'ASC')] + cls._order
+
+    @classmethod
+    def default_status(cls):
+        return 'draft'
+
+    @fields.depends('term')
+    def on_change_with_contract(self, name=None):
+        if self.term:
+            return self.term.contract
+        return None
+
+    @fields.depends('term')
+    def on_change_with_property(self, name=None):
+        if self.term and self.term.contract:
+            return self.term.contract.property
+        return None
+    
+    @fields.depends('term')
+    def on_change_with_company(self, name=None):
+        if self.term and self.term.contract:
+            return self.term.contract.company
+        return None
+
+    @fields.depends('invoice_line')
+    def on_change_with_invoice(self, name=None):
+        if self.invoice_line:
+            return self.invoice_line.invoice
+        return None
+
+    @fields.depends('term', 'invoice_line')
+    def on_change_with_name(self, name=None):
+        if self.invoice_line:
+            return f"{self.invoice_line.description}"
+        elif self.term:
+            return f'{self.term.next_document_date:%Y/%m/%d} / {self.term.name}'
+        return f" - "   
+
+    @fields.depends('term', 'invoice_line')
+    def on_change_with_quantity(self, name=None):
+        if self.invoice_line:
+            return self.invoice_line.quantity
+        elif self.term:
+            return self.term.quantity
+        return 0
+    
+    @fields.depends('term', 'invoice_line')
+    def on_change_with_unit(self, name=None):
+        if self.invoice_line:
+            return self.invoice_line.unit
+        elif self.term:
+            return self.term.unit
+        return None
+    
+    @fields.depends('term', 'invoice_line')
+    def on_change_with_unit_price(self, name=None):
+        if self.invoice_line:
+            return self.invoice_line.unit_price
+        elif self.term:
+            return self.term.unit_price
+        return Decimal(0)
+
+    @fields.depends('quantity', 'unit_price', 'currency' )
+    def on_change_with_amount(self, name=None):
+        amount = (Decimal(str(self.quantity or 0))
+            * (self.unit_price or Decimal(0)))
+        if self.currency:
+            return self.currency.round(amount)
+        return amount
+
+
+    def _get_invouce_line_taxes(self)-> dict:
+        """ Return the taxes applied on taxes from invoice line"""
+        pool = Pool()
+        Tax = pool.get('account.tax')
+        Date = pool.get('ir.date')
+        
+        # Compute untaxed amount
+        amount = (Decimal(str(self.quantity or 0))
+            * (self.unit_price or Decimal(0)))
+        untaxed_amount = self.currency.round(amount)
+        tax_amount = untaxed_amount
+        total_amount = untaxed_amount
+
+        # Compute taxes
+        if self.invoice_line:
+            tax_lines = Tax.compute(
+                self.invoice_line.taxes,
+                self.unit_price or 0,
+                self.quantity or Decimal(0),
+                self.invoice_line.taxes_date or Date.today(),
+                )
+            tax_amt = sum(line['amount'] for line in tax_lines)
+            tax_amount = self.currency.round(tax_amt)
+            total_amount = self.currency.round(amount + tax_amt)
+        return {
+            'untaxed_amount': untaxed_amount,
+            'tax_amount': tax_amount,
+            'total_amount': total_amount,
+            }
+
+    @fields.depends('term', 'invoice_line', 'amount')
+    def get_amount_and_tax(self, names=None):
+        total_amount = Decimal(0)
+        tax_amount = Decimal(0)
+        if self.invoice_line:
+            my_tax = self._get_invouce_line_taxes()
+            tax_amount = my_tax['tax_amount'] or Decimal(0)
+            total_amount = self.amount + tax_amount
+
+        elif self.term:
+            total_amount = self.term.total_amount
+            tax_amount = self.term.tax_amount
+
+        result =  {
+            'tax_amount': tax_amount,
+            'total_amount': total_amount,
+            }
+        for key in list(result.keys()):
+            if key not in names:
+                del result[key]
+        return result
+
+    @fields.depends('term', 'invoice_line')
+    def on_change_with_currency(self, name=None):
+        if self.invoice_line and self.invoice_line.currency:
+            return self.invoice_line.currency
+        elif self.term and self.term.contract and self.term.contract.currency:
+            return self.term.contract.currency
+        return None
 
 #**********************************************************************
 class ContractType(DeactivableMixin, base_object.re_sequence_ordered(), ModelSQL, ModelView):
@@ -552,41 +781,7 @@ class ContractType(DeactivableMixin, base_object.re_sequence_ordered(), ModelSQL
         AccountInvoice = pool.get('account.invoice')
         return AccountInvoice.fields_get(['type'])['type']['selection']
 
-#**********************************************************************
-class ContractTermLine(ModelSQL, ModelView):
-    __name__ = 'real_estate.contract.term.line'
-    
-    term = fields.Many2One('real_estate.contract.term', 'Term', required=True,
-        ondelete='CASCADE', readonly=True)
-    date = fields.Date('Date', readonly=True)
-    depreciation = Monetary(
-        "Depreciation", currency='currency', digits='currency',
-        required=True, readonly=True)
-    acquired_value = Monetary(
-        "Acquired Value", currency='currency', digits='currency',
-        readonly=True)
-    depreciable_basis = Monetary(
-        "Depreciable Basis", currency='currency', digits='currency',
-        readonly=True)
-    actual_value = Monetary(
-        "Actual Value", currency='currency', digits='currency', readonly=True)
-    accumulated_depreciation = Monetary(
-        "Accumulated Depreciation", currency='currency', digits='currency',
-        readonly=True)
-    move = fields.Many2One('account.move', 'Account Move', readonly=True)
-    currency = fields.Function(fields.Many2One('currency.currency',
-        'Currency'), 'on_change_with_currency')
 
-    @classmethod
-    def __setup__(cls):
-        super().__setup__()
-        cls.__access__.add('term')
-        cls._order.insert(0, ('date', 'ASC'))
-
-    @fields.depends('term')
-    def on_change_with_currency(self, name=None):
-        return self.term.contract.currency if self.term else None
-    
     
 
 #**********************************************************************
@@ -803,7 +998,7 @@ class ContractTerm(sequence_ordered(), ModelSQL, ModelView, TaxableMixin):
         'real_estate.contract.term.type', "Term Type", required=True,
        )
 
-    referenc_property = fields.Many2One('real_estate.contract.item', 'Reference Property',
+    reference_item = fields.Many2One('real_estate.contract.item', 'Reference Item',
             domain=[ ('contract', '=', Eval('contract', -1)),
                     ],)
                                         
@@ -814,15 +1009,21 @@ class ContractTerm(sequence_ordered(), ModelSQL, ModelView, TaxableMixin):
             'readonly': ((Eval('rhythm', -1) == 0)),
             })
     
-    last_posting_date = fields.Date('Last Posting Date', 
+    last_posting_date = fields.Function(fields.Date('Last Posting Date', 
         states={'readonly': True,})
-    last_document_date = fields.Date('Last Document Date', 
+        ,'on_change_with_last_posting_date')
+    last_document_date = fields.Function(fields.Date('Last Document Date', 
         states={'readonly': True,})
+        ,'on_change_with_last_document_date')
 
-    next_document_date = fields.Date('Next Document Date', 
+    next_document_date = fields.Function(fields.Date('Next Document Date', 
         states={'readonly': True,})
-    next_due_date = fields.Date('Next Due Date', 
+        ,'on_change_with_next_document_date')
+    
+    next_due_date = fields.Function(fields.Date('Next Due Date', 
         states={'readonly': True,})
+        , 'on_change_with_next_due_date'
+        )
 
    
     rhythm = fields.Integer("Rhythm (count)",
@@ -937,13 +1138,16 @@ class ContractTerm(sequence_ordered(), ModelSQL, ModelView, TaxableMixin):
         help="The date at which the taxes are computed.\n"
         "Leave empty for the accounting date.")
 
-    lines = fields.One2Many(
-        'real_estate.contract.term.line', 'term', 'Lines',
-        states={
-            'readonly': True,
-            'invisible': (Eval('len(lines)', 0) == 0),
-            }
-    )
+    cash_flow = fields.One2Many('real_estate.contract.term.cash_flow', 'term',
+            'Cash Flow',
+        order=[
+            ('posting_date', 'ASC NULLS FIRST'),   # Primärsortierung
+            ('document_date', 'ASC NULLS FIRST'),  # Sekundärsortierung
+        ],            
+            states={
+                'readonly': True,
+                'invisible': (Eval('len(lines)', 0) == 0),
+            })
 
 
     @classmethod
@@ -951,6 +1155,81 @@ class ContractTerm(sequence_ordered(), ModelSQL, ModelView, TaxableMixin):
         pool = Pool()
         Object = pool.get('real_estate.contract.term.type')
         return Object.fields_get(['rhythm_type'])['rhythm_type']['selection']
+
+    def re_calc(self):
+        """ Re-calculate next document/due date by rhythm and last posting date """
+
+        # def _finde_invoice_line(line_id):
+        #     for e in self.cash_flow:
+        #         if e.invoice_line == line_id:
+        #             return e.invoice_line
+        #     return None
+
+        pool = Pool()
+        # first add missing cash flow entries for existing invoice lines
+        InvoiceLine = pool.get('account.invoice.line')
+        CashFlow = pool.get('real_estate.contract.term.cash_flow')
+        invoice_lines = InvoiceLine.search([('term', '=', self.id)])
+        for invoice_line in invoice_lines:
+            #pdb.set_trace()  # Breakpoint
+            is_found = next((True for e in self.cash_flow if e.invoice_line == invoice_line.id), None)
+            #is_found = _finde_invoice_line(invoice_line.id)
+            if not is_found:
+                cash_flow = CashFlow(
+                    status='done',
+                    posting_date=invoice_line.invoice.accounting_date,
+                    document_date=invoice_line.invoice.invoice_date,
+                    due_date=invoice_line.invoice.payment_term_date,
+                    contract=self.contract.id,
+                    invoice=invoice_line.invoice.id,
+                    term=self.id,
+                    invoice_line=invoice_line.id,
+                    property=self.contract.property.id if self.contract else None,
+                    company=self.contract.company.id if self.contract else None,
+                    quantity=invoice_line.quantity,
+                    unit=invoice_line.unit.id if invoice_line.unit else None,
+                    unit_price=invoice_line.unit_price,
+                    )
+                cash_flow.save()
+                #self.cash_flow = self.on_change_with_cash_flow() # ensure term cash flow is up to date
+
+        # then remove draft cash flow entries
+        for cash_flow in self.cash_flow:
+            if cash_flow.status == 'draft':
+                CashFlow.delete([cash_flow])
+
+        # finally recalculate next document/due date
+        today = datetime.date.today()
+        today_plus_year = today.replace(year=today.year + 1)        
+        my_last_document_date = self.last_document_date
+        my_next_document_date = self._next_document_date(calc_document_date=my_last_document_date)
+        while my_last_document_date != my_next_document_date and self.total_amount != 0 \
+            and (not self.valid_from or my_next_document_date >= self.valid_from) \
+            and (not self.valid_to or my_next_document_date <= self.valid_to) \
+            and my_next_document_date <= today_plus_year:
+                
+                cash_flow = ContractTermCashFlow(
+                    status='draft',
+                    #posting_date=invoice_line.accounting_date,
+                    document_date=my_next_document_date,
+                    #due_date=invoice_line.payment_term_date,
+                    contract=self.contract.id,
+                    #invoice=invoice_line.invoice.id,
+                    term=self.id,
+                    #invoice_line=invoice_line.id,
+                    property=self.contract.property.id if self.contract else None,
+                    company=self.contract.company.id if self.contract else None,
+                    quantity=invoice_line.quantity,
+                    unit=invoice_line.unit.id if invoice_line.unit else None,
+                    unit_price=invoice_line.unit_price,
+                    )
+                cash_flow.save()     
+
+                my_last_document_date = my_next_document_date
+                my_next_document_date = self._next_document_date(calc_document_date=my_last_document_date)                
+
+
+
 
     def _get_taxes(self)-> dict:
         """ Return the taxes applied on this term """
@@ -994,7 +1273,7 @@ class ContractTerm(sequence_ordered(), ModelSQL, ModelView, TaxableMixin):
                 tax_amount[term.id] = result['tax_amount'] or Decimal(0)
                 total_amount[term.id] = result['total_amount'] or Decimal(0)
 
-        result = {
+        result =  {
             'untaxed_amount': untaxed_amount,
             'tax_amount': tax_amount,
             'total_amount': total_amount,
@@ -1003,6 +1282,22 @@ class ContractTerm(sequence_ordered(), ModelSQL, ModelView, TaxableMixin):
             if key not in names:
                 del result[key]
         return result
+    
+    @fields.depends('cash_flow')
+    def on_change_with_last_document_date(self, name=None):
+        if self.cash_flow:
+            done_cash_flows = [cf for cf in self.cash_flow if cf.status == 'done' and cf.document_date is not None]
+            if done_cash_flows:
+                return max(cf.document_date for cf in done_cash_flows)
+        return None
+    
+    @fields.depends('cash_flow')
+    def on_change_with_last_posting_date(self, name=None):
+        if self.cash_flow:
+            done_cash_flows = [cf for cf in self.cash_flow if cf.status == 'done' and cf.posting_date is not None]
+            if done_cash_flows:
+                return max(cf.posting_date for cf in done_cash_flows)
+        return None
 
     @fields.depends('contract', 'sequence')
     def on_change_with_sequence(self, name=None):
@@ -1068,7 +1363,7 @@ class ContractTerm(sequence_ordered(), ModelSQL, ModelView, TaxableMixin):
 
     @fields.depends('next_document_date', 'contract', 'rhythm','rhythm_type',
                     'unit_price')
-    def on_change_with_next_due_date(self):
+    def on_change_with_next_due_date(self, name=None):
         if self.contract and self.contract.payment_term \
             and self.next_document_date and self.unit_price:
             payment_term = Pool().get('account.invoice.payment_term')
@@ -1080,9 +1375,8 @@ class ContractTerm(sequence_ordered(), ModelSQL, ModelView, TaxableMixin):
             return self.next_document_date
         
     @fields.depends('rhythm','valid_from', 'last_document_date', 'rhythm_type',
-                    'unit_price')
-    def on_change_with_next_document_date(self):
-
+                    'unit_price')        
+    def _next_document_date(self, calc_document_date=None):
         def _check_valid_to(i_date):
             """ next doc date must between valid_fromn/valid_to"""
             if ( self.valid_to != None and self.valid_to > i_date ) \
@@ -1091,30 +1385,38 @@ class ContractTerm(sequence_ordered(), ModelSQL, ModelView, TaxableMixin):
             else: 
                 return i_date
 
-        if self.last_document_date != None:
+        my_document_Date = calc_document_date if calc_document_date != None else self.last_document_date
+
+        if my_document_Date != None:
             if self.rhythm_type == 'monthly':
-                return _check_valid_to(self.last_document_date + relativedelta(months=self.rhythm))
+                return _check_valid_to(my_document_Date + relativedelta(months=self.rhythm))
             
             elif self.rhythm_type == 'weekly':
-                return _check_valid_to(self.last_document_date + relativedelta(weeks=self.rhythm))
+                return _check_valid_to(my_document_Date + relativedelta(weeks=self.rhythm))
 
             elif self.rhythm_type == 'daily':
                 if self.rhythm % 365 == 0:
                     # for full years
-                    return _check_valid_to(self.last_document_date + relativedelta(year=int(self.rhythm / 365)))
+                    return _check_valid_to(my_document_Date + relativedelta(year=int(self.rhythm / 365)))
                 if self.rhythm % 30 == 0:
                     # for full months
-                    return _check_valid_to(self.last_document_date + relativedelta(months=int(self.rhythm / 30)))
+                    return _check_valid_to(my_document_Date+ relativedelta(months=int(self.rhythm / 30)))
                 # else for days exactly
-                return _check_valid_to(self.last_document_date + relativedelta(days=self.rhythm)) 
+                return _check_valid_to(my_document_Date + relativedelta(days=self.rhythm)) 
             
             elif self.rhythm_type == 'quarterly':
-                return _check_valid_to(self.last_document_date + relativedelta(months=self.rhythm * 3))
+                return _check_valid_to(my_document_Date + relativedelta(months=self.rhythm * 3))
             
             elif self.rhythm_type == 'annually':
-                return _check_valid_to(self.last_document_date + relativedelta(years= self.rhythm))
+                return _check_valid_to(my_document_Date + relativedelta(years= self.rhythm))
         
         return self.valid_from
+    
+
+    @fields.depends('rhythm','valid_from', 'last_document_date', 'rhythm_type',
+                    'unit_price')
+    def on_change_with_next_document_date(self, name=None):
+        return self._next_document_date()
 
     @fields.depends('term_type')
     def on_change_with_rhythm(self, name=None):
@@ -1150,10 +1452,10 @@ class ContractTerm(sequence_ordered(), ModelSQL, ModelView, TaxableMixin):
         return None
     
     def _calc_quantity(self):
-        """ Set the quantity from the latest measurement of the referenced property 
+        """ Set the quantity from the latest measurement of the referenced item 
             per next_document_date"""
-        if self.term_type and self.term_type.m_type and self.referenc_property:
-            ref_item = Pool().get('real_estate.contract.item')(self.referenc_property)
+        if self.term_type and self.term_type.m_type and self.reference_item:
+            ref_item = Pool().get('real_estate.contract.item')(self.reference_item)
             if ref_item.object and ref_item.object.measurements:
                 # Get the latest measurement before or on the valid_from date
                 meas_sorted = sorted(ref_item.object.measurements, key=lambda x: x['valid_from'], reverse=True)
@@ -1163,10 +1465,10 @@ class ContractTerm(sequence_ordered(), ModelSQL, ModelView, TaxableMixin):
                         self.quantity = meas.value
 
 
-    @fields.depends('term_type', 'referenc_property', 'next_document_date', 'valid_from')
+    @fields.depends('term_type', 'reference_item', 'next_document_date', 'valid_from')
     def on_change_with_quantity(self, name=None):
-        if self.term_type and self.term_type.m_type and self.referenc_property:
-            ref_item = Pool().get('real_estate.contract.item')(self.referenc_property)
+        if self.term_type and self.term_type.m_type and self.reference_item:
+            ref_item = Pool().get('real_estate.contract.item')(self.reference_item)
             if ref_item.object and ref_item.object.measurements:
                 # Get the latest measurement before or on the valid_from date
                 meas_sorted = sorted(ref_item.object.measurements, key=lambda x: x['valid_from'], reverse=True)
@@ -1214,15 +1516,15 @@ class ContractTerm(sequence_ordered(), ModelSQL, ModelView, TaxableMixin):
         return None
     
     @fields.depends('contract', 'valid_from', 'valid_to')
-    def on_change_with_referenc_property(self, name=None):
-        if self.referenc_property == None \
+    def on_change_with_reference_item(self, name=None):
+        if self.reference_item == None \
           and self.contract and len(self.contract.items) > 0:
             sorted_items = sorted(self.contract.items, key=lambda x: ( x.valid_from ), reverse=True)
 
             for item in sorted_items:
                 if item.valid_from <= self.valid_from and (item.valid_to == None or item.valid_to >= self.valid_from):
                     return item
-        return self.referenc_property
+        return self.reference_item
 
     @fields.depends('contract')
     def on_change_with_invoice_type(self, name=None):
@@ -1274,6 +1576,8 @@ class CreateMovesStart(ModelView):
     __name__ = 'real_estate.contract.create_moves.start'
     date = fields.Date('Date')
     company = fields.Many2One('company.company', "Company", required=True, )
+    re_calc = fields.Boolean('Re-calculate', 
+        help="If checked, the moves will be re-created even if they already exist for the given date.")
     
     @staticmethod
     def default_date():
@@ -1288,7 +1592,7 @@ class CreateMovesStart(ModelView):
         user = User(Transaction().user)
         return user.company.id if user.company else None
 
-
+#**********************************************************************
 class CreateMoves(Wizard):
     __name__ = 'real_estate.contract.create_moves'
     start = StateView('real_estate.contract.create_moves.start',
@@ -1308,7 +1612,8 @@ class CreateMoves(Wizard):
                     ('start_date', '<=', self.start.date)
                     ])
         contracts = Contract.browse(contracts)
-        Contract.create_moves(contracts, self.start.date)
+        
+        Contract.create_moves(contracts, self.start.date, self.start.re_calc)
         return 'end'
 
     

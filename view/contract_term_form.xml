@@ -11,7 +11,7 @@ this repository contains the full copyright notices and license terms. -->
     <label name="contract"/><field name="contract" />
 
     <newline/>   
-    <label name="referenc_property"/><field name="referenc_property"/>
+    <label name="reference_item"/><field name="reference_item"/>
     <label name="sequence"/><field name="sequence" colspan="1"/>
 
     <newline/>   
@@ -33,12 +33,12 @@ this repository contains the full copyright notices and license terms. -->
         <!--label name="currency"/><field name="currency"/-->
 
         <newline/>   
-        <label name="last_posting_date"/><field name="last_posting_date"/>
-        <label name="last_document_date"/><field name="last_document_date"/>
-
-        <newline/>   
         <label name="next_document_date"/><field name="next_document_date"/>
         <label name="next_due_date"/><field name="next_due_date"/>
+        
+        <newline/>   
+        <label name="last_document_date"/><field name="last_document_date"/>
+        <label name="last_posting_date"/><field name="last_posting_date"/>
     </page>
     <page string="Accounting" id="accounting">  
         <label name="account"/><field name="account"/>
