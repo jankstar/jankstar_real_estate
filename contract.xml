@@ -210,7 +210,7 @@
 
         <!--  -->
         <record model="ir.ui.view" id="contract_view_list_cash_flow">
-            <field name="model">real_estate.contract</field>
+            <field name="model">real_estate.contract.term.cash_flow</field>
             <field name="type">tree</field>
             <field name="name">contract_view_list_cash_flow</field>
         </record>

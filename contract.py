@@ -502,7 +502,7 @@ class ContractTypeTax(ModelSQL):
         super().__register__(module)
 
 #**********************************************************************
-class ContractTermCashFlow( ModelView, ModelSQL, metaclass=PoolMeta):
+class ContractTermCashFlow( ModelView, ModelSQL):
     __name__ = 'real_estate.contract.term.cash_flow'
 
 
