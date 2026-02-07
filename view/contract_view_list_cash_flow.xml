@@ -6,6 +6,7 @@ this repository contains the full copyright notices and license terms. -->
     <field name="posting_date" width="110" optional="1"/>
     <field name="name"/>
     <field name="status" width="60" readonly="1"/>
+    <field name="invoice_state" width="60" readonly="1"/>
     <field name="term" readonly="1" optional="1"/>
     <field name="invoice" optional="1"/>
     <field name="invoice_line" readonly="1" optional="1"/>

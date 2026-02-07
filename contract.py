@@ -364,35 +364,40 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
                 for tax in term.taxes:
                     taxes.add(tax)
                 
-                lCount = 0 #maximum 12 x term per loop
-                while lCount < 12 \
-                and term.valid_from <= date \
-                and term.last_document_date != term.next_document_date \
-                and term.next_document_date <= date:
-                    #only valid next document date calulate by rhythm
 
-                    lCount += 1
-                    line_vals.append(
-                        InvoiceLine(
+                for cash_flow in term.cash_flow:
+
+                    if cash_flow.document_date <= date and cash_flow.status == 'draft':
+                        # if there is already a draft cash flow entry for the term and 
+                        # the document date is due, use it to create invoice line
+                        new_invoice_line = InvoiceLine(
                             type='line',
-                            company=self.company.id,                        
-                            description=f'{term.next_document_date:%Y/%m/%d} / {term.name}',
+                            company=self.company.id,
+                            party=self.contractual_partner.id,
+                            invoice_type=self.c_type.invoice_type,                        
+                            description=cash_flow.name,
                             quantity=term.quantity,
                             unit=term.unit,
                             unit_price=term.unit_price,
                             account=term.account.id,
+                            currency=self.currency.id,
                             taxes=list(taxes),
                             contract=self,
                             term=term    
-                        )
-                    )
+                            )
+                        new_invoice_line.save() # to get the id for cash flow relation
+                        line_vals.append(new_invoice_line)
 
-                    term.last_posting_date = date
-                    term.last_document_date = term.next_document_date
-                    term.next_document_date = term.on_change_with_next_document_date()
-                    term.next_due_date = term.on_change_with_next_due_date()
-                    term.save()
+                        cash_flow.status = 'done'
+                        cash_flow.posting_date = date
+                        cash_flow.invoice_line = new_invoice_line
+                        cash_flow.save()
 
+                        term.last_posting_date = date
+                        term.last_document_date = term.next_document_date
+                        term.next_document_date = term.on_change_with_next_document_date()
+                        term.next_due_date = term.on_change_with_next_due_date()
+                        term.save()
 
         line_vals.sort(key=lambda ele: ele.description)
 
@@ -468,7 +473,7 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
             if len(process_terms) > 0:
                 with transaction.set_context(
                     queue_batch=context.get('queue_batch', True)):
-                    #cls.__queue__._create_moves(contract, process_terms, date)
+                    cls.__queue__._create_moves(contract, process_terms, date)
                     pass
 
             contract.add_log('process',f'"create_moves" finished')
@@ -532,6 +537,10 @@ class ContractTermCashFlow( ModelView, ModelSQL):
     invoice = fields.Function(fields.Many2One(
         'account.invoice', "Invoice",
         ), 'on_change_with_invoice')
+    
+    invoice_state = fields.Function(
+        fields.Selection('get_invoice_states', "Invoice State"),
+        'on_change_with_invoice_state')
 
     term = fields.Many2One(
         'real_estate.contract.term', 'Term',required=True,
@@ -586,6 +595,12 @@ class ContractTermCashFlow( ModelView, ModelSQL):
     def default_status(cls):
         return 'draft'
 
+    @classmethod
+    def get_invoice_states(cls):
+        pool = Pool()
+        Invoice = pool.get('account.invoice')
+        return Invoice.fields_get(['state'])['state']['selection']
+
     @fields.depends('term')
     def on_change_with_contract(self, name=None):
         if self.term:
@@ -609,6 +624,16 @@ class ContractTermCashFlow( ModelView, ModelSQL):
         if self.invoice_line:
             return self.invoice_line.invoice
         return None
+    
+    @fields.depends('invoice')
+    def on_change_with_invoice_state(self, name=None):
+        if self.invoice:
+            state = self.invoice.state
+            if state == 'cancelled' and self.invoice.cancel_move:
+                state = 'paid'
+        else:
+            state = 'draft'
+        return state    
 
     @fields.depends('term', 'invoice_line')
     def on_change_with_name(self, name=None):
@@ -1158,23 +1183,15 @@ class ContractTerm(sequence_ordered(), ModelSQL, ModelView, TaxableMixin):
 
     def re_calc(self):
         """ Re-calculate next document/due date by rhythm and last posting date """
-
-        # def _finde_invoice_line(line_id):
-        #     for e in self.cash_flow:
-        #         if e.invoice_line == line_id:
-        #             return e.invoice_line
-        #     return None
-
         pool = Pool()
         # first add missing cash flow entries for existing invoice lines
         InvoiceLine = pool.get('account.invoice.line')
         CashFlow = pool.get('real_estate.contract.term.cash_flow')
         invoice_lines = InvoiceLine.search([('term', '=', self.id)])
+
         for invoice_line in invoice_lines:
-            #pdb.set_trace()  # Breakpoint
-            is_found = next((True for e in self.cash_flow if e.invoice_line == invoice_line.id), None)
-            #is_found = _finde_invoice_line(invoice_line.id)
-            if not is_found:
+            is_found = next((e for e in self.cash_flow if e.invoice_line == invoice_line.id), None)
+            if is_found == None and invoice_line.invoice.state != 'cancelled':
                 cash_flow = CashFlow(
                     status='done',
                     posting_date=invoice_line.invoice.accounting_date,
@@ -1193,6 +1210,10 @@ class ContractTerm(sequence_ordered(), ModelSQL, ModelView, TaxableMixin):
                 cash_flow.save()
                 #self.cash_flow = self.on_change_with_cash_flow() # ensure term cash flow is up to date
 
+            elif is_found != None and invoice_line.invoice.state == 'cancelled':
+                    # if invoice line is cancelled but cash flow entry is not in draft status, set it to draft
+                    CashFlow.delete([is_found])
+
         # then remove draft cash flow entries
         for cash_flow in self.cash_flow:
             if cash_flow.status == 'draft':
@@ -1200,7 +1221,10 @@ class ContractTerm(sequence_ordered(), ModelSQL, ModelView, TaxableMixin):
 
         # finally recalculate next document/due date
         today = datetime.date.today()
-        today_plus_year = today.replace(year=today.year + 1)        
+        today_plus_year = today.replace(year=today.year + 1)
+    
+        self.last_document_date = self.on_change_with_last_document_date() # ensure term last document date is up to date
+        
         my_last_document_date = self.last_document_date
         my_next_document_date = self._next_document_date(calc_document_date=my_last_document_date)
         while my_last_document_date != my_next_document_date and self.total_amount != 0 \
