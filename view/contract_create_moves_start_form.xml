@@ -1,19 +1,21 @@
 <?xml version="1.0"?>
 <!-- This file is part of Tryton.  The COPYRIGHT file at the top level of this
      repository contains the full copyright notices and license terms. -->
-<form col="2">
-    <image name="tryton-question" xexpand="0" xfill="0"/>
-    <group col="3" id="label_date" yalign="0.5">
-        <label string="Create Contract Moves up to" id="create"
-            xalign="0.0"/>
-        <newline/>    
-        <separator colspan="3"/>
-        <label name="company"/><field name="company"/>
-        <newline/>         
+<form col="10" width="450" xexpand="0">
+    <!--image name="tryton-question" xexpand="0" xfill="0"/-->
+    <group col="4" id="gr01" homogeneous="1" string="Selection">
+        <label name="company"/><field name="company" colspan="1"/>
+        <newline/>
+        <label string=" " /><field name="propertys" colspan="1" width="200"/>
+        <newline/>
+        <label string=" " /><field name="contracts" colspan="1" width="200"/>
+    </group>
+    <newline/>    
+    <group col="4" id="gr02" homogeneous="1" string="Execution">
         <label name="date"/><field name="date"/>
         <newline/>
-         <group id="checkboxes">
-            <label name="re_calc"/><field name="re_calc" xexpand="0" width="25"/>
-         </group>
+        <label name="action"/><field name="action" colspan="1"/>
+        <newline/>
+        <label name="execute_in_queue"/><field name="execute_in_queue" colspan="1"/>
     </group>
 </form>
