@@ -52,6 +52,36 @@ this repository contains the full copyright notices and license terms. -->
 
         </page>
 
+        <page string="Equipment" id="page_equipment" col="6">
+            <label name="e_type"/><field name="e_type"/>
+            <label name="no_print"/><field name="no_print"/>
+            <newline/>
+            <label name="product"/><field name="product" />
+            <newline/>     
+
+
+        </page>
+
+        <page string='Meter' id="page_meter" col="6">
+                <label name="meter_unit"/><field name="meter_unit"/>
+                <newline/>
+                <label name="meter_factor"/><field name="meter_factor"/>
+                <label name="meter_is_counter"/><field name="meter_is_counter"/>
+                <newline/>
+                <label name="meter_id"/><field name="meter_id" />
+                <newline/>
+                <label name="meter_last_reading_date"/><field name="meter_last_reading_date" />
+                <label name="meter_last_reading_user"/><field name="meter_last_reading_user" />
+                <newline/>
+                <label name="meter_last_value"/><field name="meter_last_value" />
+                <label name="meter_last_consumption"/><field name="meter_last_consumption" />
+                <newline/>
+                <group colspan="6" id="group_meter">
+                    <field name="meter_readings" />
+                </group>
+
+        </page>
+
         <page name="measurements" col="1">
             <field name="measurements"
                 view_ids="real_estate.base_object_view_list_measurement"/>

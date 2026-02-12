@@ -19,6 +19,7 @@ def register():
         measurement.MeasurementType,
         measurement.Measurement,
         base_object.BaseObject,
+        base_object.MeterReading,
         object_party.ObjectPartyRole,
         object_party.ObjectParty,
         contract.ContractType,

@@ -15,8 +15,10 @@ from trytond.i18n import lazy_gettext
 from trytond.modules.company import CompanyReport
 
 from sql import Column
+from decimal import Decimal
 
 import logging
+
 
 logger = logging.getLogger(__name__)
 
@@ -44,6 +46,38 @@ def re_sequence_ordered(
     setattr(SequenceOrderedMixin, field_name, fields.Integer(field_label, required=True))
     return SequenceOrderedMixin
 
+
+class Quantitative(fields.Numeric):
+    """
+    Define a numeric field with unit (``decimal``).
+    """
+    def __init__(self, string='', unit=None, digits=None, help='',
+            required=False, readonly=False, domain=None, states=None,
+            on_change=None, on_change_with=None, depends=None, context=None,
+            loading='eager'):
+        '''
+        :param unit: the name of the Many2One field which stores
+            the unit
+        '''
+        if unit:
+            if depends is None:
+                depends = set()
+            else:
+                depends = set(depends)
+            depends.add(unit)
+        super().__init__(string=string, digits=digits, help=help,
+            required=required, readonly=readonly, domain=domain, states=states,
+            on_change=on_change, on_change_with=on_change_with,
+            depends=depends, context=context, loading=loading)
+        self.unit = unit
+
+    def definition(self, model, language):
+        definition = super().definition(model, language)
+        definition['symbol'] = self.unit
+        definition['quantitative'] = True
+        return definition
+
+#**************************************************************************
 class BaseObject(Workflow,DeactivableMixin, re_sequence_ordered(), tree(separator='\\'), ModelSQL, ModelView):
     "Base Object - base class for real estate objects"
     __name__ = 'real_estate.base_object'
@@ -160,32 +194,102 @@ class BaseObject(Workflow,DeactivableMixin, re_sequence_ordered(), tree(separato
             }
     
     year_of_construction = fields.Char("Year of Construction", size=4,
-        states={
-            'invisible': Eval('type') != 'building',
-            })
+        states=_states_only_building)
     
     number_of_floors = fields.Integer("Number of Floors",
-        states={
-            'invisible': Eval('type') != 'building',
-            })
+        states=_states_only_building)
     
     ## special data rental object
     _states_only_object= {
             'invisible': Eval('type') != 'object',
             }
     floor = fields.Integer("Floor",
-        states={
-            'invisible': Eval('type') != 'object',
-            })
+        states=_states_only_object)
     basement_nr = fields.Char("Basement Number", size=10,
+        states=_states_only_object)
+
+    ## special equipment data
+    _states_only_equipment = {
+            'invisible': Eval('type') != 'equipment',
+            }
+    
+    e_type = fields.Selection([
+            ('technical_building_equipment,', 'Technical Building Equipment'),
+            ('structure', 'Structures, e.g., masonry, windows, doors'),
+            ('installation', 'Installation, e.g., furniture'),
+            ('meters', 'Meters'),
+            ], "Equipment Type", sort=False,
         states={
-            'invisible': Eval('type') != 'object',
+            'invisible': Eval('type') != 'equipment',
+            'required': Eval('type') == 'equipment',
             })
+
+    no_print = fields.Boolean("Do not print this equipment in reports",
+        states=_states_only_equipment)
+    
+    product = fields.Many2One('product.product', 'Product', 
+        states=_states_only_equipment,
+        context={
+            'company': Eval('company', None),
+            },
+        depends={'company'},
+        #domain=[
+        #    ('type', '=', 'assets'),
+        #    ('depreciable', '=', True),
+        #    ]
+        )
+    
+    ## special equipment meter data
+    _states_only_equipment_meter = {
+            'invisible': ((Eval('type') != 'equipment') | (Eval('e_type') != 'meters')),
+            }
+
+    meter_unit = fields.Many2One('product.uom', "Unit",
+        states={
+            'invisible': ((Eval('type') != 'equipment') | (Eval('e_type') != 'meters')),
+            'required':  ((Eval('type') == 'equipment') & (Eval('e_type') == 'meters')),
+            },
+        )
+    
+    meter_is_counter = fields.Boolean("Is Counter",
+        states=_states_only_equipment_meter,
+        help="Check if the meter is a counter (i.e., values are increasing over time).\n" 
+        "If not checked, the meter values are considered as absolute values (e.g., fuel level in a tank)."
+        )
+    
+    meter_factor = fields.Float("Factor", digits=(8, 2),
+        help="Factor to apply to the meter values (e.g., \n"
+        "a bridge on an electricity meter, so that the factor must be multiplied for display purposes).",
+        states={
+            'invisible': ((Eval('type') != 'equipment') | (Eval('e_type') != 'meters')),
+            'required':  ((Eval('type') == 'equipment') & (Eval('e_type') == 'meters')),
+            })
+
+
+    meter_id = fields.Function(fields.Char("Meter ID"), 
+        'on_change_with_meter_id')
+    meter_last_value = fields.Function(Quantitative ("Last Value", unit='meter_unit',digits='meter_unit',), 
+        'on_change_with_last_meter_value')
+    meter_last_reading_date = fields.Function(fields.Date("Last Reading Date"), 
+        'on_change_with_last_meter_reading_date')
+    meter_last_reading_user = fields.Function(fields.Many2One('res.user', "Last Reading User"), 
+        'on_change_with_last_meter_reading_user')
+    meter_last_consumption = fields.Function(Quantitative("Last Consumption", unit='meter_unit',digits='meter_unit',), 
+        'on_change_with_last_meter_consumption')
+    
+    meter_readings = fields.One2Many('real_estate.meter_reading', 'base_object', 'Meter Readings',
+        domain=[('base_object', '=', Eval('id', -1))],
+        states=_states_only_equipment_meter,
+        )
 
     @classmethod
     def view_attributes(cls):
-        return super().view_attributes() + [('/form/notebook/page[@id="page_building"]', 'states', cls._states_only_building),
-               ('/form/notebook/page[@id="page_object"]', 'states', cls._states_only_object)]
+        return super().view_attributes() + [
+            ('/form/notebook/page[@id="page_building"]', 'states', cls._states_only_building),
+            ('/form/notebook/page[@id="page_object"]', 'states', cls._states_only_object),
+            ('/form/notebook/page[@id="page_equipment"]', 'states', cls._states_only_equipment),
+            ('/form/notebook/page[@id="page_meter"]', 'states', cls._states_only_equipment_meter),
+            ]
 
 
     @classmethod
@@ -233,7 +337,16 @@ class BaseObject(Workflow,DeactivableMixin, re_sequence_ordered(), tree(separato
     @staticmethod
     def default_state():
         return 'draft'
+    
+    @classmethod
+    def default_meter_factor(cls):
+        return 1
 
+    @classmethod
+    def default_meter_is_counter(cls):
+        return True
+
+    
     @classmethod
     def date2string(cls, date):
         User = Pool().get('res.user')
@@ -286,6 +399,52 @@ class BaseObject(Workflow,DeactivableMixin, re_sequence_ordered(), tree(separato
     def get_number_of_objects(self, name=None):
         return len(self.children)   
     
+    def on_change_with_meter_id(self, name=None):
+        # get last meter id
+        MeterReading = Pool().get('real_estate.meter_reading')
+        last_reading = MeterReading.search([
+            ('base_object', '=', self.id),
+            ], order=[('reading_date', 'DESC')], limit=1)
+        if last_reading:
+            return last_reading[0].meter_id  
+            
+    def on_change_with_last_meter_value(self, name=None):
+        # get last meter id
+        MeterReading = Pool().get('real_estate.meter_reading')
+        last_reading = MeterReading.search([
+            ('base_object', '=', self.id),
+            ], order=[('reading_date', 'DESC')], limit=1)
+        if last_reading:
+            return last_reading[0].value  
+    
+    def on_change_with_last_meter_reading_date(self, name=None):
+        # get last meter id
+        MeterReading = Pool().get('real_estate.meter_reading')
+        last_reading = MeterReading.search([
+            ('base_object', '=', self.id),
+            ], order=[('reading_date', 'DESC')], limit=1)
+        if last_reading:
+            return last_reading[0].reading_date  
+    
+    def on_change_with_last_meter_reading_user(self, name=None):
+        # get last meter id
+        MeterReading = Pool().get('real_estate.meter_reading')
+        last_reading = MeterReading.search([
+            ('base_object', '=', self.id),
+            ], order=[('reading_date', 'DESC')], limit=1)
+        if last_reading:
+            return last_reading[0].reading_user
+    
+    def on_change_with_last_meter_consumption(self, name=None):
+        # get last meter id
+        MeterReading = Pool().get('real_estate.meter_reading')
+        last_reading = MeterReading.search([
+            ('base_object', '=', self.id),
+            ], order=[('reading_date', 'DESC')], limit=1)
+        if last_reading:
+            return last_reading[0].consumption  
+
+
     @fields.depends('object_number', 'name', 'id', 'type')
     def on_change_with_compute_name(self, name=None):
         return f"{self.object_number} - {self.name} ({self.id})"
@@ -376,7 +535,128 @@ class BaseObject(Workflow,DeactivableMixin, re_sequence_ordered(), tree(separato
             ('object_number',) + tuple(clause[1:]),                    
             ('name',) + tuple(clause[1:]),
             ]
-   
+
+#**************************************************************************   
+class MeterReading(ModelSQL, ModelView):
+    "Meter Reading"
+    __name__ = 'real_estate.meter_reading'
+
+
+    name  = fields.Function(fields.Char("Name"), 'on_change_with_name')
+
+    m_type = fields.Selection([
+            ('initial', 'initial, installation'),
+            ('reading', 'reading'),
+            ('estimate', 'estimate'),
+            ('final', 'final reading, removal'),
+            ], "Reading Type", required=True, sort=False)
+
+    base_object = fields.Many2One('real_estate.base_object', 'Base Object', required=True, ondelete='CASCADE',
+        domain=[('type', '=', 'equipment'), ('e_type', '=', 'meters')],
+        )
+    meter_id = fields.Char("Meter ID", required=True)
+    reading_date = fields.Date("Reading Date", required=True)
+    reading_user = fields.Many2One('res.user', "Reading User", required=True)
+    value = Quantitative("Value", required=True, unit='unit',digits='unit')
+    unit = fields.Function(fields.Many2One('product.uom', "Unit", 
+            readonly=True,),'on_change_with_unit')
+    consumption = fields.Function(Quantitative("Consumption", unit='unit',digits='unit',), 
+        'on_change_with_consumption')
+
+    @classmethod
+    def default_reading_user(cls):
+        return  Transaction().user
+    
+    @classmethod
+    def default_reading_date(cls):
+        return Pool().get('ir.date').today()
+    
+    @classmethod
+    def default_m_type(cls):
+        return 'reading'
+
+    @fields.depends('base_object')
+    def on_change_with_unit(self, name=None):
+        if self.base_object and self.base_object.meter_unit:
+            return self.base_object.meter_unit.id
+        return None
+    
+    @fields.depends('base_object', 'reading_date', 'value', 'unit')
+    def on_change_with_name(self, name=None):
+        return f"{self.base_object.compute_name} - {self.reading_date}: {self.value} {self.unit.symbol if self.unit else ''}"
+
+    @fields.depends('base_object', 'reading_date','meter_id')
+    def on_change_with_meter_id(self, name=None):
+        if self.meter_id:
+             return self.meter_id
+        if self.base_object:
+            # get last meter id
+            MeterReading = Pool().get('real_estate.meter_reading')
+            last_reading = MeterReading.search([
+                ('base_object', '=', self.base_object.id),
+                ('reading_date', '<', self.reading_date),
+                ], order=[('reading_date', 'DESC')], limit=1)
+            if last_reading:
+                return last_reading[0].meter_id         
+        return None
+    
+    @fields.depends('base_object', 'reading_date', 'value')
+    def on_change_with_consumption(self, name=None):
+        if self.base_object and self.base_object.meter_is_counter:
+            # get last reading
+            MeterReading = Pool().get('real_estate.meter_reading')
+            last_reading = MeterReading.search([
+                ('base_object', '=', self.base_object.id),
+                ('reading_date', '<', self.reading_date),
+                ], order=[('reading_date', 'DESC')], limit=1)
+            if last_reading and last_reading[0].value != None and self.value != None:
+                last_value = last_reading[0].value
+                return self.value - last_value
+        return self.value 
+
+
+    @classmethod
+    def validate(cls, records):
+        super().validate(records)  # Standard-Validierungen
+        
+        for record in records:
+            # Validierung: reading_date muss groesser als letzte reading_date sein
+            MeterReading = Pool().get('real_estate.meter_reading')
+            last_reading = MeterReading.search([
+                ('base_object', '=', record.base_object.id),
+                ('reading_date', '<', record.reading_date),
+                ], order=[('reading_date', 'DESC')], limit=1)
+            if last_reading:
+                # meter reading value must be greater than last reading value in case of counter, 
+                if ( record.m_type == 'reading' or record.m_type == 'estimate') \
+                    and record.value < last_reading[0].value and record.base_object.meter_is_counter:
+                    raise ValidationError(
+                        gettext("real_estate", 
+                            "Meter reading value {} must be greater than last reading value {} for base object {}!").format(
+                            record.value,
+                            last_reading[0].value,
+                            record.base_object.compute_name,
+                        )
+                    )
+                if record.m_type == 'final' and record.mater_id == last_reading[0].mater_id:
+                    raise ValidationError(
+                        gettext("real_estate", 
+                            "Final meter reading value {} must be greater than last reading value {} for base object {}!").format(
+                            record.value,
+                            last_reading[0].value,
+                            record.base_object.compute_name,
+                        )
+                    )
+            else:
+                if record.m_type != 'initial':
+                    raise ValidationError(
+                        gettext("real_estate", 
+                            "First meter reading for base object {} must be of type 'initial'!").format(
+                            record.base_object.compute_name,
+                        )
+                    )
+
+#**************************************************************************   
 class BaseObjectReport(Report):
     __name__ = 'real_estate.base_object.report'    
 

@@ -1726,3 +1726,4 @@ class ContractReport(Report):
         context['_format'] = cls._format
         return context
     
+    

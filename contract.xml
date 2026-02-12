@@ -311,6 +311,8 @@
             sequence="20"
             action="wizard_create_moves"
             id="menu_create_moves"/>
+
+
    </data>
 
     <data noupdate="1">
