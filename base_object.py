@@ -18,6 +18,7 @@ from sql import Column
 from decimal import Decimal
 
 import logging
+import pdb
 
 
 logger = logging.getLogger(__name__)
@@ -404,7 +405,7 @@ class BaseObject(Workflow,DeactivableMixin, re_sequence_ordered(), tree(separato
         MeterReading = Pool().get('real_estate.meter_reading')
         last_reading = MeterReading.search([
             ('base_object', '=', self.id),
-            ], order=[('reading_date', 'DESC')], limit=1)
+            ], order=[('reading_date', 'DESC'),('m_type', 'ASC')], limit=1)
         if last_reading:
             return last_reading[0].meter_id  
             
@@ -413,7 +414,7 @@ class BaseObject(Workflow,DeactivableMixin, re_sequence_ordered(), tree(separato
         MeterReading = Pool().get('real_estate.meter_reading')
         last_reading = MeterReading.search([
             ('base_object', '=', self.id),
-            ], order=[('reading_date', 'DESC')], limit=1)
+            ], order=[('reading_date', 'DESC'),('m_type', 'ASC')], limit=1)
         if last_reading:
             return last_reading[0].value  
     
@@ -422,7 +423,7 @@ class BaseObject(Workflow,DeactivableMixin, re_sequence_ordered(), tree(separato
         MeterReading = Pool().get('real_estate.meter_reading')
         last_reading = MeterReading.search([
             ('base_object', '=', self.id),
-            ], order=[('reading_date', 'DESC')], limit=1)
+            ], order=[('reading_date', 'DESC'),('m_type', 'ASC')], limit=1)
         if last_reading:
             return last_reading[0].reading_date  
     
@@ -431,7 +432,7 @@ class BaseObject(Workflow,DeactivableMixin, re_sequence_ordered(), tree(separato
         MeterReading = Pool().get('real_estate.meter_reading')
         last_reading = MeterReading.search([
             ('base_object', '=', self.id),
-            ], order=[('reading_date', 'DESC')], limit=1)
+            ], order=[('reading_date', 'DESC'),('m_type', 'ASC')], limit=1)
         if last_reading:
             return last_reading[0].reading_user
     
@@ -440,7 +441,7 @@ class BaseObject(Workflow,DeactivableMixin, re_sequence_ordered(), tree(separato
         MeterReading = Pool().get('real_estate.meter_reading')
         last_reading = MeterReading.search([
             ('base_object', '=', self.id),
-            ], order=[('reading_date', 'DESC')], limit=1)
+            ], order=[('reading_date', 'DESC'),('m_type', 'ASC')], limit=1)
         if last_reading:
             return last_reading[0].consumption  
 
@@ -595,7 +596,7 @@ class MeterReading(ModelSQL, ModelView):
             last_reading = MeterReading.search([
                 ('base_object', '=', self.base_object.id),
                 ('reading_date', '<', self.reading_date),
-                ], order=[('reading_date', 'DESC')], limit=1)
+                ], order=[('reading_date', 'DESC'), ('m_type', 'DESC')], limit=1)
             if last_reading:
                 return last_reading[0].meter_id         
         return None
@@ -607,12 +608,14 @@ class MeterReading(ModelSQL, ModelView):
             MeterReading = Pool().get('real_estate.meter_reading')
             last_reading = MeterReading.search([
                 ('base_object', '=', self.base_object.id),
+                ('meter_id', '=', self.meter_id),
                 ('reading_date', '<', self.reading_date),
-                ], order=[('reading_date', 'DESC')], limit=1)
+                ], order=[('reading_date', 'DESC'), ('m_type', 'DESC')], limit=1)
             if last_reading and last_reading[0].value != None and self.value != None:
                 last_value = last_reading[0].value
                 return self.value - last_value
-        return self.value 
+        
+        return 0
 
 
     @classmethod
@@ -620,6 +623,7 @@ class MeterReading(ModelSQL, ModelView):
         super().validate(records)  # Standard-Validierungen
         
         for record in records:
+            #pdb.set_trace()
             # Validierung: reading_date muss groesser als letzte reading_date sein
             MeterReading = Pool().get('real_estate.meter_reading')
             last_reading = MeterReading.search([
@@ -627,34 +631,68 @@ class MeterReading(ModelSQL, ModelView):
                 ('reading_date', '<', record.reading_date),
                 ], order=[('reading_date', 'DESC')], limit=1)
             if last_reading:
-                # meter reading value must be greater than last reading value in case of counter, 
+                if ( record.m_type == 'reading' or record.m_type == 'estimate') \
+                    and record.meter_id != last_reading[0].meter_id:
+                    raise ValidationError(
+                        gettext("real_estate.msg_meter_id_must_be_same_as_last_reading",).format( 
+                            #"Meter ID {} must be the same as last reading for point {}!").format(
+                            record.meter_id,
+                            record.base_object.compute_name,
+                        )
+                    )
+                # meter reading value must be greater/equal than last reading value in case of counter, 
                 if ( record.m_type == 'reading' or record.m_type == 'estimate') \
                     and record.value < last_reading[0].value and record.base_object.meter_is_counter:
                     raise ValidationError(
-                        gettext("real_estate", 
-                            "Meter reading value {} must be greater than last reading value {} for base object {}!").format(
+                        gettext("real_estate.msg_meter_reading_value_must_be_greater_than_last_reading",).format( 
+                            #"Meter reading value {} must be greater than last reading value {} for point {}!").format(
                             record.value,
                             last_reading[0].value,
                             record.base_object.compute_name,
                         )
                     )
-                if record.m_type == 'final' and record.mater_id == last_reading[0].mater_id:
+                if record.m_type == 'final' and ( record.meter_id != last_reading[0].meter_id \
+                    or ( record.value < last_reading[0].value and record.base_object.meter_is_counter ) ):
                     raise ValidationError(
-                        gettext("real_estate", 
-                            "Final meter reading value {} must be greater than last reading value {} for base object {}!").format(
+                        gettext("real_estate.msg_final_meter_reading_greater_and_have_same_id",).format( 
+                            #"Final meter reading value {} must be greater than last reading value {} for point {} and have the same meter ID!").format(
                             record.value,
                             last_reading[0].value,
+                            record.base_object.compute_name,
+                        )
+                    )
+                if record.m_type == 'initial' and record.meter_id == last_reading[0].meter_id:
+                    raise ValidationError(
+                        gettext("real_estate.msg_initial_meter_id_must_not_be_same_as_last_reading",).format( 
+                            #"Meter ID {} must not be the same as last reading for final reading for point {}!").format(
+                            record.meter_id,
                             record.base_object.compute_name,
                         )
                     )
             else:
                 if record.m_type != 'initial':
                     raise ValidationError(
-                        gettext("real_estate", 
-                            "First meter reading for base object {} must be of type 'initial'!").format(
+                        gettext("real_estate.msg_first_meter_reading_must_be_initial",).format( 
+                            #"First meter reading for point {} must be of type 'initial'!").format(
                             record.base_object.compute_name,
                         )
                     )
+
+            # Validierung: no duplicate reading for same date and meter id
+            # change meter-id: 1x final old mater_id and 1x initial new meter_id
+            dubble_reading = MeterReading.search([
+                ('base_object', '=', record.base_object.id),
+                ('reading_date', '=', record.reading_date),
+                ('meter_id', '=', record.meter_id),
+                ], order=[('reading_date', 'DESC')], limit=1)
+            if dubble_reading and dubble_reading[0].id != record.id:
+                raise ValidationError(
+                    gettext("real_estate.msg_duplicate_meter_reading_for_same_date_and_meter_id",).format( 
+                        #"There is already a meter reading for point {} with reading date {}!").format(
+                        record.base_object.compute_name,
+                        record.reading_date,
+                    )
+                )
 
 #**************************************************************************   
 class BaseObjectReport(Report):

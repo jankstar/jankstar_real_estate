@@ -6,5 +6,23 @@ this repository contains the full copyright notices and license terms. -->
         <record model="ir.message" id="msg_salutation">
             <field name="text">Dear Sir or Madam</field>
         </record>
+        <record model="ir.message" id="msg_meter_reading_value_must_be_greater_than_last_reading">
+            <field name="text">Meter reading value {} must be greater than last reading value {} for point {}!</field>
+        </record>    
+        <record model="ir.message" id="msg_meter_id_must_be_same_as_last_reading">
+            <field name="text">Meter ID {} must be the same as last reading for point {}!</field>
+        </record>            
+        <record model="ir.message" id="msg_final_meter_reading_greater_and_have_same_id">
+            <field name="text">Final meter reading value {} must be greater than last reading value {} for point {} and have the same meter ID!</field>
+        </record>   
+        <record model="ir.message" id="msg_initial_meter_id_must_not_be_same_as_last_reading">
+            <field name="text">Meter ID {} must not be the same as last reading for final reading for point {}!</field>
+        </record> 
+        <record model="ir.message" id="msg_first_meter_reading_must_be_initial">
+            <field name="text">First meter reading for point {} must be of type 'initial'!</field>
+        </record>           
+        <record model="ir.message" id="msg_duplicate_meter_reading_for_same_date_and_meter_id">
+            <field name="text">There is already a meter reading for point {} with reading date {}!</field>
+        </record>         
     </data>
 </tryton>
