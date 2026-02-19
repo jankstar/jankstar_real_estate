@@ -226,7 +226,7 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
 
     @fields.depends('terms')
     def on_change_with_cash_flow(self,name=None):
-        return sorted([cash_flow_line for term in self.terms for cash_flow_line in term.cash_flow],
+        return sorted([cash_flow_line for term in self.terms for cash_flow_line in term.cash_flow if cash_flow_line.invoice.state != 'cancelled'],
                         key=lambda line: (line.document_date, line.posting_date, line.name))
 
 
@@ -1180,7 +1180,7 @@ class ContractTerm(sequence_ordered(), ModelSQL, ModelView, TaxableMixin):
             ('posting_date', 'ASC NULLS FIRST'),   # Primärsortierung
             ('document_date', 'ASC NULLS FIRST'),  # Sekundärsortierung
         ],            
-            states={
+        states={
                 'readonly': True,
                 'invisible': (Eval('len(lines)', 0) == 0),
             })
@@ -1321,7 +1321,7 @@ class ContractTerm(sequence_ordered(), ModelSQL, ModelView, TaxableMixin):
     @fields.depends('cash_flow')
     def on_change_with_last_document_date(self, name=None):
         if self.cash_flow:
-            done_cash_flows = [cf for cf in self.cash_flow if cf.status == 'done' and cf.document_date is not None]
+            done_cash_flows = [cf for cf in self.cash_flow if cf.status == 'done' and cf.invoice.state != 'cancelled' and cf.document_date is not None]
             if done_cash_flows:
                 return max(cf.document_date for cf in done_cash_flows)
         return None
@@ -1329,7 +1329,7 @@ class ContractTerm(sequence_ordered(), ModelSQL, ModelView, TaxableMixin):
     @fields.depends('cash_flow')
     def on_change_with_last_posting_date(self, name=None):
         if self.cash_flow:
-            done_cash_flows = [cf for cf in self.cash_flow if cf.status == 'done' and cf.posting_date is not None]
+            done_cash_flows = [cf for cf in self.cash_flow if cf.status == 'done' and cf.invoice.state != 'cancelled' and cf.posting_date is not None]
             if done_cash_flows:
                 return max(cf.posting_date for cf in done_cash_flows)
         return None

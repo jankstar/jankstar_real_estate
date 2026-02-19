@@ -385,14 +385,21 @@ class BaseObject(Workflow,DeactivableMixin, re_sequence_ordered(), tree(separato
 
             if 'end_date' in fields and self.parent:
                 if self.end_date != None and self.parent.end_date != None and self.end_date > self.parent.end_date :
-                    raise ValidationError(self.name + ": "+
-                                            "End date (" + self.date2string(self.end_date) + ") must be less or equal than parent end date (" + 
-                                            self.date2string(self.parent.end_date) + ")!")
+                    raise ValidationError(
+                        gettext("real_estate.msg_end_date_must_be_less_or_equal_than_parent_end_date",).format(
+                            self.name,
+                            self.date2string(self.end_date),
+                            self.date2string(self.parent.end_date),)
+                        )
                 
             if 'year_of_construction' in fields:
-                if self.type == 'building' and self.year_of_construction != None and ( not self.year_of_construction.isdigit() or len(self.year_of_construction) != 4 ):
-                    raise ValidationError(self.name + ": "+
-                                            "Year of construction (" + self.year_of_construction + ") must be a number with 4 digits!")
+                if self.type == 'building' and self.year_of_construction != None and \
+                    ( not self.year_of_construction.isdigit() or len(self.year_of_construction) != 4 ):
+                    raise ValidationError(
+                        gettext("real_estate.msg_year_of_construction_must_be_4_digits",).format(
+                            self.name,
+                            self.year_of_construction,)
+                        )
             
 
 

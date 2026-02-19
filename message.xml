@@ -24,5 +24,11 @@ this repository contains the full copyright notices and license terms. -->
         <record model="ir.message" id="msg_duplicate_meter_reading_for_same_date_and_meter_id">
             <field name="text">There is already a meter reading for point {} with reading date {}!</field>
         </record>         
+        <record model="ir.message" id="msg_year_of_construction_must_be_4_digits">
+            <field name="text">{}: Year of construction ({}) must be a number with 4 digits!</field>
+        </record>   
+        <record model="ir.message" id="msg_end_date_must_be_less_or_equal_than_parent_end_date">
+            <field name="text">{}: End date ({}) must be less or equal than parent end date ({})!</field>
+        </record>   
     </data>
 </tryton>
