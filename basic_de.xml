@@ -776,7 +776,7 @@
             <field name="name">10 - Buchungssatz</field>
             <field name="number_increment">1</field>
             <field name="number_next_internal">1</field>
-            <field name="padding">8</field>
+            <field name="padding">6</field>
             <field name="prefix">10</field>
             <field name="sequence_type" ref="account.sequence_type_account_move"/>
             <field name="type">incremental</field>
@@ -786,7 +786,7 @@
             <field name="name">20 - Lieferantenrechnung</field>
             <field name="number_increment">1</field>
             <field name="number_next_internal">1</field>
-            <field name="padding">8</field>
+            <field name="padding">6</field>
             <field name="prefix">20</field>
             <field name="sequence_type" ref="account_invoice.sequence_type_account_invoice"/>
             <field name="type">incremental</field>
@@ -796,7 +796,7 @@
             <field name="name">30 - Kundenrechnung</field>
             <field name="number_increment">1</field>
             <field name="number_next_internal">1</field>
-            <field name="padding">8</field>
+            <field name="padding">6</field>
             <field name="prefix">30</field>
             <field name="sequence_type" ref="account_invoice.sequence_type_account_invoice"/>
             <field name="type">incremental</field>
@@ -806,7 +806,7 @@
             <field name="name">29 - Lieferantenrechnung Storno</field>
             <field name="number_increment">1</field>
             <field name="number_next_internal">1</field>
-            <field name="padding">8</field>
+            <field name="padding">6</field>
             <field name="prefix">29</field>
             <field name="sequence_type" ref="account_invoice.sequence_type_account_invoice"/>
             <field name="type">incremental</field>
@@ -816,7 +816,7 @@
             <field name="name">39 - Kundenrechnung Storno</field>
             <field name="number_increment">1</field>
             <field name="number_next_internal">1</field>
-            <field name="padding">8</field>
+            <field name="padding">6</field>
             <field name="prefix">39</field>
             <field name="sequence_type" ref="account_invoice.sequence_type_account_invoice"/>
             <field name="type">incremental</field>
