@@ -606,7 +606,7 @@ class ContractItem(sequence_ordered(), ModelSQL, ModelView, metaclass=PoolMeta):
                     ('property', '=', Eval('property', -1)),
                     ('company', '=', Eval('company', -1)),
                     ],)
-    valid_from = fields.Date('Valide from', required=True)
+    valid_from = fields.Date('Valid from', required=True)
     valid_to = fields.Date('Valid to')
 
     name = fields.Function(fields.Char("Name"), 
@@ -1040,7 +1040,7 @@ class ContractTerm(sequence_ordered(), ModelSQL, ModelView, TaxableMixin):
                     ],)
                                         
 
-    valid_from = fields.Date('Valide from', required=True)
+    valid_from = fields.Date('Valid from', required=True)
     valid_to = fields.Date('Valid to',
          states={
             'readonly': ((Eval('rhythm', -1) == 0)),

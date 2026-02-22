@@ -2,9 +2,41 @@
 msgid ""
 msgstr "Content-Type: text/plain; charset=utf-8\n"
 
+msgctxt "field:account.invoice,contract:"
+msgid "Contract"
+msgstr "Vertrag"
+
+msgctxt "field:account.invoice.line,contract:"
+msgid "Contract"
+msgstr "Vertrag"
+
+msgctxt "field:account.invoice.line,term:"
+msgid "Term"
+msgstr "Kondition"
+
+msgctxt "field:account.invoice.line-account.tax,c_type:"
+msgid "Contract Type"
+msgstr "Vertragsart"
+
+msgctxt "field:party.party,Salutation:"
+msgid "Salutation"
+msgstr "Anrede"
+
+msgctxt "field:party.party,salutation:"
+msgid "Salutation"
+msgstr "Anrede"
+
 msgctxt "field:real_estate.address,building_name:"
 msgid "Building Name"
 msgstr "Name Gebäude"
+
+msgctxt "field:real_estate.address,building_name:"
+msgid "Building Name"
+msgstr "Name Gebäude"
+
+msgctxt "field:real_estate.address,building_number:"
+msgid "Building Number"
+msgstr "Gebäudenummer"
 
 msgctxt "field:real_estate.address,building_number:"
 msgid "Building Number"
@@ -14,13 +46,29 @@ msgctxt "field:real_estate.address,city:"
 msgid "City"
 msgstr "Stadt"
 
+msgctxt "field:real_estate.address,city:"
+msgid "City"
+msgstr "Stadt"
+
+msgctxt "field:real_estate.address,country:"
+msgid "Country"
+msgstr "Land"
+
 msgctxt "field:real_estate.address,country:"
 msgid "Country"
 msgstr "Land"
 
 msgctxt "field:real_estate.address,floor_number:"
 msgid "Floor Number"
-msgstr "Etage"
+msgstr "Anzahl Etage"
+
+msgctxt "field:real_estate.address,floor_number:"
+msgid "Floor Number"
+msgstr "Anzahl Etage"
+
+msgctxt "field:real_estate.address,full_address:"
+msgid "Full Address"
+msgstr "vollständige Adresse"
 
 msgctxt "field:real_estate.address,full_address:"
 msgid "Full Address"
@@ -30,6 +78,14 @@ msgctxt "field:real_estate.address,post_box:"
 msgid "Post Box"
 msgstr "Schließfach"
 
+msgctxt "field:real_estate.address,post_box:"
+msgid "Post Box"
+msgstr "Schließfach"
+
+msgctxt "field:real_estate.address,post_office:"
+msgid "Post Office"
+msgstr "Büro"
+
 msgctxt "field:real_estate.address,post_office:"
 msgid "Post Office"
 msgstr "Büro"
@@ -38,9 +94,21 @@ msgctxt "field:real_estate.address,postal_code:"
 msgid "Postal Code"
 msgstr "PLZ"
 
+msgctxt "field:real_estate.address,postal_code:"
+msgid "Postal Code"
+msgstr "PLZ"
+
 msgctxt "field:real_estate.address,private_bag:"
 msgid "Private Bag"
-msgstr "Privatbrief"
+msgstr "Privater Briefsack"
+
+msgctxt "field:real_estate.address,private_bag:"
+msgid "Private Bag"
+msgstr "Privater Briefsack"
+
+msgctxt "field:real_estate.address,room_number:"
+msgid "Room Number"
+msgstr "Raumnummer"
 
 msgctxt "field:real_estate.address,room_number:"
 msgid "Room Number"
@@ -50,11 +118,27 @@ msgctxt "field:real_estate.address,street:"
 msgid "Street"
 msgstr "Straße"
 
+msgctxt "field:real_estate.address,street:"
+msgid "Street"
+msgstr "Straße"
+
+msgctxt "field:real_estate.address,street_name:"
+msgid "Street Name"
+msgstr "Straßenname"
+
 msgctxt "field:real_estate.address,street_name:"
 msgid "Street Name"
 msgstr "Straßenname"
 
 msgctxt "field:real_estate.address,street_single_line:"
+msgid "Street"
+msgstr "Straße"
+
+msgctxt "field:real_estate.address,street_single_line:"
+msgid "Street"
+msgstr "Straße"
+
+msgctxt "field:real_estate.address,street_unstructured:"
 msgid "Street"
 msgstr "Straße"
 
@@ -66,6 +150,14 @@ msgctxt "field:real_estate.address,subdivision:"
 msgid "Subdivision"
 msgstr "Unterabteilung"
 
+msgctxt "field:real_estate.address,subdivision:"
+msgid "Subdivision"
+msgstr "Unterabteilung"
+
+msgctxt "field:real_estate.address,subdivision_types:"
+msgid "Subdivision Types"
+msgstr "Typ Unterabteilung"
+
 msgctxt "field:real_estate.address,subdivision_types:"
 msgid "Subdivision Types"
 msgstr "Typ Unterabteilung"
@@ -73,6 +165,14 @@ msgstr "Typ Unterabteilung"
 msgctxt "field:real_estate.address,unit_number:"
 msgid "Unit Number"
 msgstr "Nummer der Einheit"
+
+msgctxt "field:real_estate.address,unit_number:"
+msgid "Unit Number"
+msgstr "Nummer der Einheit"
+
+msgctxt "field:real_estate.base_object,address:"
+msgid "Address"
+msgstr "Adresse"
 
 msgctxt "field:real_estate.base_object,address:"
 msgid "Address"
@@ -88,11 +188,19 @@ msgstr "Keller Nr."
 
 msgctxt "field:real_estate.base_object,basement_nr:"
 msgid "Basement Number"
+msgstr "Keller Nr."
+
+msgctxt "field:real_estate.base_object,basement_nr:"
+msgid "Basement Number"
 msgstr "Keller-Nr."
 
 msgctxt "field:real_estate.base_object,children:"
 msgid "Children"
-msgstr "Unter-Objekt"
+msgstr "Unterobjekte"
+
+msgctxt "field:real_estate.base_object,children:"
+msgid "Children"
+msgstr "Unterobjekte"
 
 msgctxt "field:real_estate.base_object,children:"
 msgid "Children"
@@ -109,6 +217,14 @@ msgstr "Bemerkung"
 msgctxt "field:real_estate.base_object,comment:"
 msgid "Comment"
 msgstr "Bemerkung"
+
+msgctxt "field:real_estate.base_object,comment:"
+msgid "Comment"
+msgstr "Bemerkung"
+
+msgctxt "field:real_estate.base_object,company:"
+msgid "Company"
+msgstr "Gesellschaft"
 
 msgctxt "field:real_estate.base_object,company:"
 msgid "Company"
@@ -140,7 +256,15 @@ msgstr "Ende Datum"
 
 msgctxt "field:real_estate.base_object,end_date:"
 msgid "End Date"
-msgstr "Endedatum"
+msgstr "Ende Datum"
+
+msgctxt "field:real_estate.base_object,end_date:"
+msgid "End Date"
+msgstr "Ende Datum"
+
+msgctxt "field:real_estate.base_object,floor:"
+msgid "Floor"
+msgstr "Etage"
 
 msgctxt "field:real_estate.base_object,floor:"
 msgid "Floor"
@@ -156,11 +280,71 @@ msgstr "Standort ID"
 
 msgctxt "field:real_estate.base_object,measurements:"
 msgid "Measurements"
-msgstr "Bemessung"
+msgstr "Bemessungen"
 
 msgctxt "field:real_estate.base_object,measurements:"
 msgid "Measurements"
 msgstr "Bemessungen"
+
+msgctxt "field:real_estate.base_object,measurements:"
+msgid "Measurements"
+msgstr "Bemessungen"
+
+msgctxt "field:real_estate.base_object,meter_factor:"
+msgid "Factor"
+msgstr "Faktor"
+
+msgctxt "field:real_estate.base_object,meter_id:"
+msgid "Meter ID"
+msgstr "Zähler ID"
+
+msgctxt "field:real_estate.base_object,meter_is_counter:"
+msgid "Is Counter"
+msgstr "kumulativer Zähler"
+
+msgctxt "field:real_estate.base_object,meter_last_consumption:"
+msgid "Last Consumption"
+msgstr "letzter Verbrauch"
+
+msgctxt "field:real_estate.base_object,meter_last_consumption:"
+msgid "Last Meter Consumption"
+msgstr "letzter Verbrauch"
+
+msgctxt "field:real_estate.base_object,meter_last_reading_date:"
+msgid "Last Meter Reading Date"
+msgstr "letzte Ablesung"
+
+msgctxt "field:real_estate.base_object,meter_last_reading_date:"
+msgid "Last Reading Date"
+msgstr "letztes Datum der Ablesung"
+
+msgctxt "field:real_estate.base_object,meter_last_reading_user:"
+msgid "Last Meter Reading User"
+msgstr "Benutzer letzte Ablesung"
+
+msgctxt "field:real_estate.base_object,meter_last_reading_user:"
+msgid "Last Reading User"
+msgstr "Benutzer letzte Ablesung"
+
+msgctxt "field:real_estate.base_object,meter_last_value:"
+msgid "Last Meter Value"
+msgstr "letzter Messwert"
+
+msgctxt "field:real_estate.base_object,meter_last_value:"
+msgid "Last Value"
+msgstr "letzter Messwert"
+
+msgctxt "field:real_estate.base_object,meter_readings:"
+msgid "Meter Readings"
+msgstr "Zähler Ablesungen "
+
+msgctxt "field:real_estate.base_object,meter_unit:"
+msgid "Unit"
+msgstr "Einheit"
+
+msgctxt "field:real_estate.base_object,name:"
+msgid "Description"
+msgstr "Abschreibung"
 
 msgctxt "field:real_estate.base_object,name:"
 msgid "Description"
@@ -174,6 +358,14 @@ msgctxt "field:real_estate.base_object,name:"
 msgid "Name"
 msgstr "Name"
 
+msgctxt "field:real_estate.base_object,no_print:"
+msgid "Do not print this equipment in reports"
+msgstr "Dieses Gerät nicht in Berichten ausdrucken"
+
+msgctxt "field:real_estate.base_object,number_of_floors:"
+msgid "Number of Floors"
+msgstr "Anzahl Etagen"
+
 msgctxt "field:real_estate.base_object,number_of_floors:"
 msgid "Number of Floors"
 msgstr "Anzahl Etagen"
@@ -181,14 +373,22 @@ msgstr "Anzahl Etagen"
 msgctxt "field:real_estate.base_object,number_of_floors:"
 msgid "Number of Floors"
 msgstr "Anzahl Etagen"
-
-msgctxt "field:real_estate.base_object,number_of_objects:"
-msgid "Number of Sub-Objects"
-msgstr "Anzahl Unter-Objekte"
 
 msgctxt "field:real_estate.base_object,number_of_objects:"
 msgid "Number of Sub-Objects"
 msgstr "Anzahl Unterobjekte"
+
+msgctxt "field:real_estate.base_object,number_of_objects:"
+msgid "Number of Sub-Objects"
+msgstr "Anzahl Unterobjekte"
+
+msgctxt "field:real_estate.base_object,number_of_objects:"
+msgid "Number of Sub-Objects"
+msgstr "Anzahl Unterobjekte"
+
+msgctxt "field:real_estate.base_object,object_number:"
+msgid "No"
+msgstr "Nr"
 
 msgctxt "field:real_estate.base_object,object_number:"
 msgid "No"
@@ -202,6 +402,14 @@ msgctxt "field:real_estate.base_object,parent:"
 msgid "Parent"
 msgstr "Übergeordnetes Objekt"
 
+msgctxt "field:real_estate.base_object,parent:"
+msgid "Parent"
+msgstr "Übergeordnetes Objekt"
+
+msgctxt "field:real_estate.base_object,parties:"
+msgid "Parties"
+msgstr "Partner"
+
 msgctxt "field:real_estate.base_object,parties:"
 msgid "Parties"
 msgstr "Partner"
@@ -210,13 +418,33 @@ msgctxt "field:real_estate.base_object,path:"
 msgid "Path"
 msgstr "Pfad"
 
+msgctxt "field:real_estate.base_object,path:"
+msgid "Path"
+msgstr "Pfad"
+
+msgctxt "field:real_estate.base_object,product:"
+msgid "Product"
+msgstr "Produkt"
+
+msgctxt "field:real_estate.base_object,property:"
+msgid "Property"
+msgstr "Wirtschaftseinheit"
+
 msgctxt "field:real_estate.base_object,property:"
 msgid "Property"
 msgstr "Wirtschaftseinheit"
 
 msgctxt "field:real_estate.base_object,start_date:"
 msgid "Start Date"
-msgstr "Startdatum"
+msgstr "Start Datum"
+
+msgctxt "field:real_estate.base_object,start_date:"
+msgid "Start Date"
+msgstr "Start Datum"
+
+msgctxt "field:real_estate.base_object,state:"
+msgid "State"
+msgstr "Status"
 
 msgctxt "field:real_estate.base_object,state:"
 msgid "State"
@@ -234,6 +462,14 @@ msgctxt "field:real_estate.base_object,type:"
 msgid "Type"
 msgstr "Typ"
 
+msgctxt "field:real_estate.base_object,type:"
+msgid "Type"
+msgstr "Typ"
+
+msgctxt "field:real_estate.base_object,type_of_use:"
+msgid "Type of Use"
+msgstr "Nutzungsart"
+
 msgctxt "field:real_estate.base_object,type_of_use:"
 msgid "Type of Use"
 msgstr "Nutzungsart"
@@ -241,6 +477,14 @@ msgstr "Nutzungsart"
 msgctxt "field:real_estate.base_object,use_class:"
 msgid "Use"
 msgstr "Nutzung"
+
+msgctxt "field:real_estate.base_object,use_class:"
+msgid "Use"
+msgstr "Nutzung"
+
+msgctxt "field:real_estate.base_object,year_of_construction:"
+msgid "Year of Construction"
+msgstr "Baujahr"
 
 msgctxt "field:real_estate.base_object,year_of_construction:"
 msgid "Year of Construction"
@@ -262,6 +506,14 @@ msgctxt "field:real_estate.contract,c_type:"
 msgid "Contract Type"
 msgstr "Vertragsart"
 
+msgctxt "field:real_estate.contract,c_type:"
+msgid "Contract Type"
+msgstr "Vertragsart"
+
+msgctxt "field:real_estate.contract,cash_flow:"
+msgid "Cash Flow"
+msgstr "Finanzstrom"
+
 msgctxt "field:real_estate.contract,cash_flow:"
 msgid "Cash Flow"
 msgstr "Finanzstrom"
@@ -273,6 +525,14 @@ msgstr "Bemerkung"
 msgctxt "field:real_estate.contract,comment:"
 msgid "Comment"
 msgstr "Bemerkung"
+
+msgctxt "field:real_estate.contract,comment:"
+msgid "Comment"
+msgstr "Bemerkung"
+
+msgctxt "field:real_estate.contract,company:"
+msgid "Company"
+msgstr "Gesellschaft"
 
 msgctxt "field:real_estate.contract,company:"
 msgid "Company"
@@ -294,6 +554,10 @@ msgctxt "field:real_estate.contract,contract_number:"
 msgid "No"
 msgstr "Nr."
 
+msgctxt "field:real_estate.contract,contract_number:"
+msgid "No"
+msgstr "Nr"
+
 msgctxt "field:real_estate.contract,contractual_partner:"
 msgid "Contractual Partner"
 msgstr "Vertragspartner"
@@ -301,6 +565,14 @@ msgstr "Vertragspartner"
 msgctxt "field:real_estate.contract,contractual_partner:"
 msgid "Contractual Partner"
 msgstr "Vertragspartner"
+
+msgctxt "field:real_estate.contract,contractual_partner:"
+msgid "Contractual Partner"
+msgstr "Vertragspartner"
+
+msgctxt "field:real_estate.contract,currency:"
+msgid "Currency"
+msgstr "Währung"
 
 msgctxt "field:real_estate.contract,currency:"
 msgid "Currency"
@@ -312,7 +584,11 @@ msgstr "Währung"
 
 msgctxt "field:real_estate.contract,date_of_signature:"
 msgid "Date of Signature"
-msgstr "Datum Unterschrift"
+msgstr "Unterschrieben am"
+
+msgctxt "field:real_estate.contract,date_of_signature:"
+msgid "Date of Signature"
+msgstr "Unterschrieben am"
 
 msgctxt "field:real_estate.contract,date_of_signature:"
 msgid "Date of Signature"
@@ -324,7 +600,11 @@ msgstr "Ende Datum"
 
 msgctxt "field:real_estate.contract,end_date:"
 msgid "End Date"
-msgstr "Endedatum"
+msgstr "Ende Datum"
+
+msgctxt "field:real_estate.contract,end_date:"
+msgid "End Date"
+msgstr "Ende Datum"
 
 msgctxt "field:real_estate.contract,filter_end:"
 msgid "Filter End Date"
@@ -338,13 +618,21 @@ msgctxt "field:real_estate.contract,invoice_address:"
 msgid "Invoice Address"
 msgstr "Rechnungsadresse"
 
+msgctxt "field:real_estate.contract,invoice_address:"
+msgid "Invoice Address"
+msgstr "Rechnungsadresse"
+
 msgctxt "field:real_estate.contract,items:"
 msgid "Items"
 msgstr "Positionen"
 
 msgctxt "field:real_estate.contract,items:"
 msgid "Items"
-msgstr "Vertargspositionen"
+msgstr "Positionen"
+
+msgctxt "field:real_estate.contract,items:"
+msgid "Items"
+msgstr "Positionen"
 
 msgctxt "field:real_estate.contract,lines:"
 msgid "Lines"
@@ -358,9 +646,21 @@ msgctxt "field:real_estate.contract,next_item_sequence:"
 msgid "Next Item Sequence"
 msgstr "nächste Nr Position"
 
+msgctxt "field:real_estate.contract,next_item_sequence:"
+msgid "Next Item Sequence"
+msgstr "nächste Nr Position"
+
 msgctxt "field:real_estate.contract,next_term_sequence:"
 msgid "Next Term Sequence"
 msgstr "nächste Nr Kondition"
+
+msgctxt "field:real_estate.contract,next_term_sequence:"
+msgid "Next Term Sequence"
+msgstr "nächste Nr Kondition"
+
+msgctxt "field:real_estate.contract,payment_term:"
+msgid "Payment Term"
+msgstr "Zahlungsbedingung"
 
 msgctxt "field:real_estate.contract,payment_term:"
 msgid "Payment Term"
@@ -374,9 +674,17 @@ msgctxt "field:real_estate.contract,phone_partner:"
 msgid "Phone Partner"
 msgstr "Telefon Partner"
 
+msgctxt "field:real_estate.contract,phone_partner:"
+msgid "Phone Partner"
+msgstr "Telefon Partner"
+
 msgctxt "field:real_estate.contract,property:"
 msgid "Property"
-msgstr "Immobilie"
+msgstr "Wirtschaftseinheit"
+
+msgctxt "field:real_estate.contract,property:"
+msgid "Property"
+msgstr "Wirtschaftseinheit"
 
 msgctxt "field:real_estate.contract,property:"
 msgid "Property"
@@ -388,7 +696,15 @@ msgstr "Start Datum"
 
 msgctxt "field:real_estate.contract,start_date:"
 msgid "Start Date"
-msgstr "Startdatum"
+msgstr "Start Datum"
+
+msgctxt "field:real_estate.contract,start_date:"
+msgid "Start Date"
+msgstr "Start Datum"
+
+msgctxt "field:real_estate.contract,state:"
+msgid "State"
+msgstr "Status"
 
 msgctxt "field:real_estate.contract,state:"
 msgid "State"
@@ -402,13 +718,105 @@ msgctxt "field:real_estate.contract,terms:"
 msgid "Terms"
 msgstr "Konditionen"
 
-msgctxt "field:real_estate.contract,type_of_use:"
-msgid "Type of Use"
-msgstr "Nutzung"
+msgctxt "field:real_estate.contract,terms:"
+msgid "Terms"
+msgstr "Konditionen"
 
 msgctxt "field:real_estate.contract,type_of_use:"
 msgid "Type of Use"
 msgstr "Nutzungsart"
+
+msgctxt "field:real_estate.contract,type_of_use:"
+msgid "Type of Use"
+msgstr "Nutzungsart"
+
+msgctxt "field:real_estate.contract,type_of_use:"
+msgid "Type of Use"
+msgstr "Nutzungsart"
+
+msgctxt "field:real_estate.contract.cash_flow,amount:"
+msgid "Amount"
+msgstr "Wert"
+
+msgctxt "field:real_estate.contract.cash_flow,contract:"
+msgid "Contract"
+msgstr "Vertrag"
+
+msgctxt "field:real_estate.contract.cash_flow,currency:"
+msgid "Currency"
+msgstr "Währung"
+
+msgctxt "field:real_estate.contract.cash_flow,description:"
+msgid "Description"
+msgstr "Abschreibung"
+
+msgctxt "field:real_estate.contract.cash_flow,document_date:"
+msgid "Document Date"
+msgstr "Belegdatum"
+
+msgctxt "field:real_estate.contract.cash_flow,due_date:"
+msgid "Due Date"
+msgstr "Fälligkeitsdatum"
+
+msgctxt "field:real_estate.contract.cash_flow,invoice:"
+msgid "Invoice"
+msgstr "Rechnung"
+
+msgctxt "field:real_estate.contract.cash_flow,invoice_line:"
+msgid "Invoice Line"
+msgstr "Rechnungszeile"
+
+msgctxt "field:real_estate.contract.cash_flow,posting_date:"
+msgid "Posting Date"
+msgstr "Buchungsdatum"
+
+msgctxt "field:real_estate.contract.cash_flow,quantity:"
+msgid "Quantity"
+msgstr "Menge"
+
+msgctxt "field:real_estate.contract.cash_flow,term:"
+msgid "Term"
+msgstr "Kondition"
+
+msgctxt "field:real_estate.contract.cash_flow,unit:"
+msgid "Unit"
+msgstr "Einheit"
+
+msgctxt "field:real_estate.contract.cash_flow,unit_price:"
+msgid "Unit Price"
+msgstr "Einheitspreis (EP)"
+
+msgctxt "field:real_estate.contract.create_moves.start,action:"
+msgid "Action"
+msgstr "Aktion"
+
+msgctxt "field:real_estate.contract.create_moves.start,company:"
+msgid "Company"
+msgstr "Gesellschaft"
+
+msgctxt "field:real_estate.contract.create_moves.start,contracts:"
+msgid "Filter Contracts"
+msgstr "Filter Vertrag"
+
+msgctxt "field:real_estate.contract.create_moves.start,date:"
+msgid "Date"
+msgstr "Datum"
+
+msgctxt "field:real_estate.contract.create_moves.start,execute_in_queue:"
+msgid "Execute in queue"
+msgstr "In Warteschlange ausführen"
+
+msgctxt "field:real_estate.contract.create_moves.start,propertys:"
+msgid "Filter Properties"
+msgstr "Filter Wirtschaftseinheit"
+
+msgctxt "field:real_estate.contract.create_moves.start,re_calc:"
+msgid "Re-calculate"
+msgstr "Neu-Berechnung"
+
+msgctxt "field:real_estate.contract.item,company:"
+msgid "Company"
+msgstr "Gesellschaft"
 
 msgctxt "field:real_estate.contract.item,compute_company:"
 msgid "Company"
@@ -420,27 +828,67 @@ msgstr "Wirtschaftseinheit"
 
 msgctxt "field:real_estate.contract.item,compute_type_of_use:"
 msgid "Type of Use"
-msgstr "Nutzung"
+msgstr "Nutzungsart"
 
 msgctxt "field:real_estate.contract.item,contract:"
 msgid "Contract"
 msgstr "Vertrag"
 
+msgctxt "field:real_estate.contract.item,contract:"
+msgid "Contract"
+msgstr "Vertrag"
+
+msgctxt "field:real_estate.contract.item,currency:"
+msgid "Currency"
+msgstr "Währung"
+
 msgctxt "field:real_estate.contract.item,object:"
 msgid "Object"
 msgstr "Objekt"
+
+msgctxt "field:real_estate.contract.item,object:"
+msgid "Object"
+msgstr "Objekt"
+
+msgctxt "field:real_estate.contract.item,property:"
+msgid "Property"
+msgstr "Wirtschaftseinheit"
+
+msgctxt "field:real_estate.contract.item,type_of_use:"
+msgid "Type of Use"
+msgstr "Nutzungsart"
 
 msgctxt "field:real_estate.contract.item,valid_from:"
 msgid "Valid from"
 msgstr "gültig ab"
 
 msgctxt "field:real_estate.contract.item,valid_from:"
-msgid "Valide from"
+msgid "Valid from"
+msgstr "gültig ab"
+
+msgctxt "field:real_estate.contract.item,valid_from:"
+msgid "Valid from"
 msgstr "gültig ab"
 
 msgctxt "field:real_estate.contract.item,valid_to:"
 msgid "Valid to"
 msgstr "gültig bis"
+
+msgctxt "field:real_estate.contract.item,valid_to:"
+msgid "Valid to"
+msgstr "gültig bis"
+
+msgctxt "field:real_estate.contract.line,accumulated_depreciation:"
+msgid "Accumulated Depreciation"
+msgstr "kumulierte Abschreibung"
+
+msgctxt "field:real_estate.contract.line,acquired_value:"
+msgid "Acquired Value"
+msgstr "erfasster Wert"
+
+msgctxt "field:real_estate.contract.line,actual_value:"
+msgid "Actual Value"
+msgstr "aktueller Wert"
 
 msgctxt "field:real_estate.contract.line,contract:"
 msgid "Contract"
@@ -454,9 +902,397 @@ msgctxt "field:real_estate.contract.line,date:"
 msgid "Date"
 msgstr "Datum"
 
+msgctxt "field:real_estate.contract.line,depreciable_basis:"
+msgid "Depreciable Basis"
+msgstr "Basis der Abschreibung"
+
+msgctxt "field:real_estate.contract.line,depreciation:"
+msgid "Depreciation"
+msgstr "Abschreibung"
+
+msgctxt "field:real_estate.contract.line,move:"
+msgid "Account Move"
+msgstr "Buchungszeile"
+
+msgctxt "field:real_estate.contract.log,contract:"
+msgid "Contract"
+msgstr "Vertrag"
+
+msgctxt "field:real_estate.contract.log,description:"
+msgid "Description"
+msgstr "Abschreibung"
+
+msgctxt "field:real_estate.contract.log,event:"
+msgid "Event"
+msgstr "Ereignis"
+
+msgctxt "field:real_estate.contract.term,account:"
+msgid "Account"
+msgstr "Konto"
+
+msgctxt "field:real_estate.contract.term,amount:"
+msgid "Amount"
+msgstr "Wert"
+
+msgctxt "field:real_estate.contract.term,cash_flow:"
+msgid "Cash Flow"
+msgstr "Finanzstrom"
+
+msgctxt "field:real_estate.contract.term,company:"
+msgid "Company"
+msgstr "Gesellschaft"
+
+msgctxt "field:real_estate.contract.term,compute_company:"
+msgid "Company"
+msgstr "Gesellschaft"
+
+msgctxt "field:real_estate.contract.term,compute_currency:"
+msgid "Currency"
+msgstr "Währung"
+
+msgctxt "field:real_estate.contract.term,compute_property:"
+msgid "Property"
+msgstr "Wirtschaftseinheit"
+
+msgctxt "field:real_estate.contract.term,compute_type_of_use:"
+msgid "Type of Use"
+msgstr "Nutzungsart"
+
+msgctxt "field:real_estate.contract.term,contract:"
+msgid "Contract"
+msgstr "Vertrag"
+
+msgctxt "field:real_estate.contract.term,currency:"
+msgid "Currency"
+msgstr "Währung"
+
+msgctxt "field:real_estate.contract.term,invoice_type:"
+msgid "Invoice Type"
+msgstr "Rechnungstyp"
+
+msgctxt "field:real_estate.contract.term,last_document_date:"
+msgid "Last Document Date"
+msgstr "letztes Belegdatum"
+
+msgctxt "field:real_estate.contract.term,last_posting_date:"
+msgid "Last Posting Date"
+msgstr "letztes Buchungsdatum"
+
+msgctxt "field:real_estate.contract.term,lines:"
+msgid "Lines"
+msgstr "Zeilen"
+
+msgctxt "field:real_estate.contract.term,monthly_rhythm:"
+msgid "Monthly Rhythm"
+msgstr "Rhythmus monatlich"
+
+msgctxt "field:real_estate.contract.term,next_document_date:"
+msgid "Next Document Date"
+msgstr "nächstes Belegdatum"
+
+msgctxt "field:real_estate.contract.term,next_due_date:"
+msgid "Next Due Date"
+msgstr "nächstes Fälligkeitsdatum"
+
+msgctxt "field:real_estate.contract.term,next_posting_date:"
+msgid "Next Posting Date"
+msgstr "nächstes Buchungsdatum"
+
+msgctxt "field:real_estate.contract.term,property:"
+msgid "Property"
+msgstr "Wirtschaftseinheit"
+
+msgctxt "field:real_estate.contract.term,quantity:"
+msgid "Quantity"
+msgstr "Menge"
+
+msgctxt "field:real_estate.contract.term,referenc_property:"
+msgid "Reference Property"
+msgstr "Bezugsimmobilie"
+
+msgctxt "field:real_estate.contract.term,reference_item:"
+msgid "Reference Item"
+msgstr "Bezugsobjekt"
+
+msgctxt "field:real_estate.contract.term,rhythm:"
+msgid "Rhythm (count)"
+msgstr "Rhythmus (Anzahl)"
+
+msgctxt "field:real_estate.contract.term,rhythm_type:"
+msgid "Rhythm Type"
+msgstr "Typ Rhythmus"
+
+msgctxt "field:real_estate.contract.term,t_type:"
+msgid "Term Type"
+msgstr "Konditionstyp"
+
+msgctxt "field:real_estate.contract.term,tax_amount:"
+msgid "Tax"
+msgstr "Steuer"
+
+msgctxt "field:real_estate.contract.term,taxes:"
+msgid "Taxes"
+msgstr "Steuern"
+
+msgctxt "field:real_estate.contract.term,taxes_date:"
+msgid "Taxes Date"
+msgstr "Datum Steuerberechnung"
+
+msgctxt "field:real_estate.contract.term,taxes_deductible_rate:"
+msgid "Taxes Deductible Rate"
+msgstr "abzugsfähiger Steuersatz"
+
+msgctxt "field:real_estate.contract.term,term_type:"
+msgid "Term Type"
+msgstr "Konditionstyp"
+
+msgctxt "field:real_estate.contract.term,total_amount:"
+msgid "Total"
+msgstr "gesamt"
+
+msgctxt "field:real_estate.contract.term,total_amount_cache:"
+msgid "Total Cache"
+msgstr "gesamt (Cache)"
+
+msgctxt "field:real_estate.contract.term,type_of_use:"
+msgid "Type of Use"
+msgstr "Nutzungsart"
+
+msgctxt "field:real_estate.contract.term,unit:"
+msgid "Unit"
+msgstr "Einheit"
+
+msgctxt "field:real_estate.contract.term,unit_price:"
+msgid "Unit Price"
+msgstr "Einheitspreis (EP)"
+
+msgctxt "field:real_estate.contract.term,untaxed_amount:"
+msgid "Untaxed"
+msgstr "ohne Steuer"
+
+msgctxt "field:real_estate.contract.term,untaxed_amount_cache:"
+msgid "Untaxed Cache"
+msgstr "ohne Steuer"
+
+msgctxt "field:real_estate.contract.term,valid_from:"
+msgid "Valid from"
+msgstr "gültig ab"
+
+msgctxt "field:real_estate.contract.term,valid_to:"
+msgid "Valid to"
+msgstr "gültig bis"
+
+msgctxt "field:real_estate.contract.term.cash_flow,amount:"
+msgid "Amount"
+msgstr "Wert"
+
+msgctxt "field:real_estate.contract.term.cash_flow,company:"
+msgid "Company"
+msgstr "Gesellschaft"
+
+msgctxt "field:real_estate.contract.term.cash_flow,contract:"
+msgid "Contract"
+msgstr "Vertrag"
+
+msgctxt "field:real_estate.contract.term.cash_flow,currency:"
+msgid "Currency"
+msgstr "Währung"
+
+msgctxt "field:real_estate.contract.term.cash_flow,document_date:"
+msgid "Document Date"
+msgstr "Belegdatum"
+
+msgctxt "field:real_estate.contract.term.cash_flow,due_date:"
+msgid "Due Date"
+msgstr "Fälligkeitsdatum"
+
+msgctxt "field:real_estate.contract.term.cash_flow,invoice:"
+msgid "Invoice"
+msgstr "Rechnung"
+
+msgctxt "field:real_estate.contract.term.cash_flow,invoice_line:"
+msgid "Invoice Line"
+msgstr "Rechnungszeile"
+
+msgctxt "field:real_estate.contract.term.cash_flow,invoice_state:"
+msgid "Invoice State"
+msgstr "Status Rechnung"
+
+msgctxt "field:real_estate.contract.term.cash_flow,posting_date:"
+msgid "Posting Date"
+msgstr "Buchungsdatum"
+
+msgctxt "field:real_estate.contract.term.cash_flow,property:"
+msgid "Property"
+msgstr "Wirtschaftseinheit"
+
+msgctxt "field:real_estate.contract.term.cash_flow,quantity:"
+msgid "Quantity"
+msgstr "Menge"
+
+msgctxt "field:real_estate.contract.term.cash_flow,tax_amount:"
+msgid "Tax"
+msgstr "Steuer"
+
+msgctxt "field:real_estate.contract.term.cash_flow,term:"
+msgid "Term"
+msgstr "Kondition"
+
+msgctxt "field:real_estate.contract.term.cash_flow,total_amount:"
+msgid "Total"
+msgstr "gesamt"
+
+msgctxt "field:real_estate.contract.term.cash_flow,unit:"
+msgid "Unit"
+msgstr "Einheit"
+
+msgctxt "field:real_estate.contract.term.cash_flow,unit_price:"
+msgid "Unit Price"
+msgstr "Einheitspreis (EP)"
+
+msgctxt "field:real_estate.contract.term.line,accumulated_depreciation:"
+msgid "Accumulated Depreciation"
+msgstr "kumulierte Abschreibung"
+
+msgctxt "field:real_estate.contract.term.line,acquired_value:"
+msgid "Acquired Value"
+msgstr "erfasster Wert"
+
+msgctxt "field:real_estate.contract.term.line,actual_value:"
+msgid "Actual Value"
+msgstr "aktueller Wert"
+
+msgctxt "field:real_estate.contract.term.line,currency:"
+msgid "Currency"
+msgstr "Währung"
+
+msgctxt "field:real_estate.contract.term.line,date:"
+msgid "Date"
+msgstr "Datum"
+
+msgctxt "field:real_estate.contract.term.line,depreciable_basis:"
+msgid "Depreciable Basis"
+msgstr "Basis der Abschreibung"
+
+msgctxt "field:real_estate.contract.term.line,depreciation:"
+msgid "Depreciation"
+msgstr "Abschreibung"
+
+msgctxt "field:real_estate.contract.term.line,move:"
+msgid "Account Move"
+msgstr "Buchungszeile"
+
+msgctxt "field:real_estate.contract.term.line,term:"
+msgid "Term"
+msgstr "Kondition"
+
+msgctxt "field:real_estate.contract.term.tax,tax:"
+msgid "Tax"
+msgstr "Steuer"
+
+msgctxt "field:real_estate.contract.term.tax,term:"
+msgid "Contract Term"
+msgstr "Vertragsbedingung"
+
+msgctxt "field:real_estate.contract.term.type,account:"
+msgid "Account"
+msgstr "Konto"
+
+msgctxt "field:real_estate.contract.term.type,compute_name:"
+msgid "Description"
+msgstr "Abschreibung"
+
+msgctxt "field:real_estate.contract.term.type,default_quantity:"
+msgid "Default Quantity"
+msgstr "Default Menge"
+
+msgctxt "field:real_estate.contract.term.type,m_type:"
+msgid "Measurement Type"
+msgstr "Bemessungstype"
+
+msgctxt "field:real_estate.contract.term.type,monthly_rhythm:"
+msgid "Monthly Rhythm"
+msgstr "Rhythmus monatlich"
+
+msgctxt "field:real_estate.contract.term.type,rhythm:"
+msgid "Rhythm (count)"
+msgstr "Rhythmus (Anzahl)"
+
+msgctxt "field:real_estate.contract.term.type,rhythm_type:"
+msgid "Rhythm Type"
+msgstr "Typ Rhythmus"
+
+msgctxt "field:real_estate.contract.term.type,types:"
+msgid "Types"
+msgstr "Typen"
+
+msgctxt "field:real_estate.contract.term.type,types_of_use:"
+msgid "Types"
+msgstr "Typen"
+
+msgctxt "field:real_estate.contract.type,account:"
+msgid "Party Account"
+msgstr "Partner Konto"
+
+msgctxt "field:real_estate.contract.type,account_journal:"
+msgid "Journal"
+msgstr "Journal"
+
+msgctxt "field:real_estate.contract.type,invoice_type:"
+msgid "Invoice Type"
+msgstr "Rechnungstyp"
+
+msgctxt "field:real_estate.contract.type,mark:"
+msgid "Mark"
+msgstr "Mark"
+
+msgctxt "field:real_estate.contract.type,start_number:"
+msgid "Start Number"
+msgstr "Start Nummer"
+
+msgctxt "field:real_estate.contract.type,step_item:"
+msgid "Step Item"
+msgstr "Schritt Position"
+
+msgctxt "field:real_estate.contract.type,step_term:"
+msgid "Step Term"
+msgstr "Schritt Konditionen"
+
+msgctxt "field:real_estate.contract.type,tag:"
+msgid "Tag"
+msgstr "Markierung"
+
+msgctxt "field:real_estate.contract.type,taxes:"
+msgid "Default Term Taxes"
+msgstr "Default Steuer der Kondition"
+
+msgctxt "field:real_estate.contract.type,taxes:"
+msgid "Tax Lines"
+msgstr "Steuerzeile"
+
+msgctxt "field:real_estate.contract.type,taxes:"
+msgid "Taxes"
+msgstr "Steuern"
+
 msgctxt "field:real_estate.contract.type,types_of_use:"
 msgid "Types"
 msgstr "Typen"
+
+msgctxt "field:real_estate.contract.type,types_of_use:"
+msgid "Types"
+msgstr "Typen"
+
+msgctxt "field:real_estate.contract.type.tax,c_type:"
+msgid "Contract Type"
+msgstr "Vertragsart"
+
+msgctxt "field:real_estate.contract.type.tax,tax:"
+msgid "Tax"
+msgstr "Steuer"
+
+msgctxt "field:real_estate.measurement,base_object:"
+msgid "Base Object"
+msgstr "Immobilienobjekt"
 
 msgctxt "field:real_estate.measurement,base_object:"
 msgid "Base Object"
@@ -466,9 +1302,21 @@ msgctxt "field:real_estate.measurement,m_type:"
 msgid "Measurement Type"
 msgstr "Bemessungstype"
 
+msgctxt "field:real_estate.measurement,m_type:"
+msgid "Measurement Type"
+msgstr "Bemessungstype"
+
 msgctxt "field:real_estate.measurement,no_print:"
 msgid "No Print"
 msgstr "kein Ausdruck"
+
+msgctxt "field:real_estate.measurement,no_print:"
+msgid "No Print"
+msgstr "kein Ausdruck"
+
+msgctxt "field:real_estate.measurement,type:"
+msgid "Object Type"
+msgstr "Objekttyp"
 
 msgctxt "field:real_estate.measurement,type:"
 msgid "Object Type"
@@ -478,9 +1326,25 @@ msgctxt "field:real_estate.measurement,valid_from:"
 msgid "From"
 msgstr "von"
 
+msgctxt "field:real_estate.measurement,valid_from:"
+msgid "From"
+msgstr "von"
+
 msgctxt "field:real_estate.measurement,value:"
 msgid "Value"
 msgstr "Wert"
+
+msgctxt "field:real_estate.measurement,value:"
+msgid "Value"
+msgstr "Wert"
+
+msgctxt "field:real_estate.measurement.type,default:"
+msgid "Default"
+msgstr "Default"
+
+msgctxt "field:real_estate.measurement.type,no_print:"
+msgid "No Print"
+msgstr "kein Ausdruck"
 
 msgctxt "field:real_estate.measurement.type,no_print:"
 msgid "No Print"
@@ -490,9 +1354,53 @@ msgctxt "field:real_estate.measurement.type,types:"
 msgid "Types"
 msgstr "Typen"
 
+msgctxt "field:real_estate.measurement.type,types:"
+msgid "Types"
+msgstr "Typen"
+
 msgctxt "field:real_estate.measurement.type,unit:"
 msgid "Unit"
 msgstr "Einheit"
+
+msgctxt "field:real_estate.measurement.type,unit:"
+msgid "Unit"
+msgstr "Einheit"
+
+msgctxt "field:real_estate.meter_reading,base_object:"
+msgid "Base Object"
+msgstr "Immobilienobjekt"
+
+msgctxt "field:real_estate.meter_reading,consumption:"
+msgid "Consumption"
+msgstr "Verbauch"
+
+msgctxt "field:real_estate.meter_reading,m_type:"
+msgid "Reading Type"
+msgstr "Ablese-Typ"
+
+msgctxt "field:real_estate.meter_reading,meter_id:"
+msgid "Meter ID"
+msgstr "Zähler ID"
+
+msgctxt "field:real_estate.meter_reading,reading_date:"
+msgid "Reading Date"
+msgstr "Ablesedatum"
+
+msgctxt "field:real_estate.meter_reading,reading_user:"
+msgid "Reading User"
+msgstr "Benutzer der Ablassung"
+
+msgctxt "field:real_estate.meter_reading,unit:"
+msgid "Unit"
+msgstr "Einheit"
+
+msgctxt "field:real_estate.meter_reading,value:"
+msgid "Value"
+msgstr "Wert"
+
+msgctxt "field:real_estate.object_party,base_object:"
+msgid "Object"
+msgstr "Objekt"
 
 msgctxt "field:real_estate.object_party,base_object:"
 msgid "Object"
@@ -500,7 +1408,15 @@ msgstr "Objekt"
 
 msgctxt "field:real_estate.object_party,party:"
 msgid "Party"
-msgstr "Partei"
+msgstr "Partner"
+
+msgctxt "field:real_estate.object_party,party:"
+msgid "Party"
+msgstr "Partner"
+
+msgctxt "field:real_estate.object_party,role:"
+msgid "Role"
+msgstr "Rolle"
 
 msgctxt "field:real_estate.object_party,role:"
 msgid "Role"
@@ -510,6 +1426,14 @@ msgctxt "field:real_estate.object_party,type:"
 msgid "Object Type"
 msgstr "Objekttyp"
 
+msgctxt "field:real_estate.object_party,type:"
+msgid "Object Type"
+msgstr "Objekttyp"
+
+msgctxt "field:real_estate.object_party,valid_from:"
+msgid "Valid from"
+msgstr "gültig ab"
+
 msgctxt "field:real_estate.object_party,valid_from:"
 msgid "Valid from"
 msgstr "gültig ab"
@@ -518,37 +1442,323 @@ msgctxt "field:real_estate.object_party,valid_to:"
 msgid "Valid to"
 msgstr "gültig bis"
 
+msgctxt "field:real_estate.object_party,valid_to:"
+msgid "Valid to"
+msgstr "gültig bis"
+
+msgctxt "field:real_estate.object_party.role,default:"
+msgid "Default"
+msgstr "Default"
+
 msgctxt "field:real_estate.object_party.role,types:"
 msgid "Types"
 msgstr "Typen"
 
+msgctxt "field:real_estate.object_party.role,types:"
+msgid "Types"
+msgstr "Typen"
+
+msgctxt "field:res.user,phone:"
+msgid "Phone"
+msgstr "Telefon"
+
+msgctxt "help:real_estate.base_object,meter_factor:"
+msgid ""
+"Factor to apply to the meter values (e.g., \n"
+"a bridge on an electricity meter, so that the factor must be multiplied for display purposes)."
+msgstr ""
+"Faktor, der auf die Zählerwerte anzuwenden ist (z. B. eine Brücke an einem "
+"Stromzähler, sodass der Faktor für den Verbrauch multipliziert werden muss)."
+
+msgctxt "help:real_estate.base_object,meter_is_counter:"
+msgid ""
+"Check if the meter is a counter (i.e., values are increasing over time).\n"
+"If not checked, the meter values are considered as absolute values (e.g., fuel level in a tank)."
+msgstr ""
+"Aktivieren Sie as Kennzeichen, wenn es sich bei dem Zähler um einen "
+"fortlaufenden Zähler handelt (d. h. die Werte steigen mit der Zeit). Wenn "
+"nicht, misstt der Zähler absolute Werte (z. B. Kraftstoffstand in einem "
+"Tank)."
+
+msgctxt "help:real_estate.contract.create_moves.start,action:"
+msgid ""
+"Create moves: create moves until date\n"
+"Re-Calculate moves: re-calculate next document/due date by rhythm and last posting date\n"
+"Re-Calculate and Create moves: first sync re-calculate, then async create moves until date"
+msgstr ""
+"Bewegungen erstellen: Bewegungen bis zum Datum erstellen Bewegungen neu "
+"berechnen: Nächstes Dokument/nächstes Fälligkeitsdatum nach Rhythmus und "
+"letztem Buchungsdatum neu berechnen Bewegungen neu berechnen und erstellen: "
+"Zuerst synchron neu berechnen, dann asynchron Bewegungen bis zum Datum "
+"erstellen"
+
+msgctxt "help:real_estate.contract.create_moves.start,execute_in_queue:"
+msgid ""
+"If checked, the moves will be created as quered moves, which can be posted "
+"later. Otherwise, the moves will be posted immediately after creation."
+msgstr ""
+"Wenn diese Option aktiviert ist, werden die Buchungen als Warteschlangen-"
+"Buchungen angelegt, die später gebucht werden können. Andernfalls werden die"
+" Buchungen sofort nach ihrer Erstellung gebucht."
+
+msgctxt "help:real_estate.contract.create_moves.start,re_calc:"
+msgid ""
+"If checked, the moves will be re-created even if they already exist for the "
+"given date."
+msgstr ""
+"Wenn diese Option aktiviert ist, werden die Buchungen auch dann neu "
+"erstellt, wenn sie für das angegebene Datum bereits vorhanden sind."
+
+msgctxt "help:real_estate.contract.term,taxes_date:"
+msgid ""
+"The date at which the taxes are computed.\n"
+"Leave empty for the accounting date."
+msgstr ""
+"Das Datum, an dem die Steuern berechnet werden. Für das Abrechnungsdatum "
+"leer lassen."
+
+msgctxt "help:real_estate.contract.term.type,rhythm_type:"
+msgid ""
+"Defines the frequency of the term. 30 days for monthly, 90 days for "
+"quarterly, 365 days for annually."
+msgstr ""
+"Legt den Rhyythmus der Kondition fest. 30 Tage für monatlich, 90 Tage für "
+"vierteljährlich, 365 Tage für jährlich."
+
+msgctxt "help:real_estate.contract.term.type,types:"
+msgid "The type of object which can use this contract term type."
+msgstr "Der Objekttyp, für den diese Konditionsart verwendet werden kann."
+
+msgctxt "help:real_estate.contract.term.type,types_of_use:"
+msgid "The type of object which can use this contract term type."
+msgstr "Der Objekttyp, für den diese Konditionsart verwendet werden kann."
+
+msgctxt "help:real_estate.contract.type,mark:"
+msgid "Periodic posting Mark"
+msgstr "Markierung periodische Buchung "
+
+msgctxt "help:real_estate.contract.type,start_number:"
+msgid "start contract number"
+msgstr "Start Vertragsnummer"
+
+msgctxt "help:real_estate.contract.type,step_item:"
+msgid "step for item sequence"
+msgstr "Schrittweite Position"
+
+msgctxt "help:real_estate.contract.type,step_term:"
+msgid "step for term sequence"
+msgstr "Schrittweite Konditionen"
+
+msgctxt "help:real_estate.contract.type,tag:"
+msgid "Periodic posting Tag"
+msgstr "Markierung periodische Buchung "
+
+msgctxt "help:real_estate.contract.type,types_of_use:"
+msgid "The type of object which can use this contract type."
+msgstr "Der Objekttyp, für den diese Vertragsart verwendet werden kann."
+
 msgctxt "help:real_estate.contract.type,types_of_use:"
 msgid "The type of object which can use this measurement."
-msgstr "Objekttypen, die die Bemessung nutzen können."
+msgstr "Der Objekttyp, für den diese Bemessung verwendet werden kann."
 
 msgctxt "help:real_estate.measurement.type,default:"
 msgid "Check to use as default status for the type."
-msgstr "Wählen, wenn als default gewählt."
+msgstr "Als Standardstatus für den Typ verwenden."
+
+msgctxt "help:real_estate.measurement.type,default:"
+msgid "Check to use as default status for the type."
+msgstr "Als Standardstatus für den Typ verwenden."
+
+msgctxt "help:real_estate.measurement.type,default:"
+msgid "Check to use as default status for the type."
+msgstr "Als Standardstatus für den Typ verwenden."
 
 msgctxt "help:real_estate.measurement.type,types:"
 msgid "The type of object which can use this measurement."
-msgstr "Diese Objekttypen können die Bemessung nutzen."
+msgstr "Der Objekttyp, für den diese Bemessung verwendet werden kann."
+
+msgctxt "help:real_estate.measurement.type,types:"
+msgid "The type of object which can use this measurement."
+msgstr "Der Objekttyp, für den diese Bemessung verwendet werden kann."
+
+msgctxt "help:real_estate.measurement.type,types:"
+msgid "The type of object which can use this measurement."
+msgstr "Der Objekttyp, für den diese Bemessung verwendet werden kann."
+
+msgctxt "help:real_estate.object_party.role,default:"
+msgid "Check to use as default state for the type."
+msgstr "Als Standardstatus für den Typ verwenden."
 
 msgctxt "help:real_estate.object_party.role,default:"
 msgid "Check to use as default status for the type."
-msgstr "Wählen, wenn als default gewählt."
+msgstr "Als Standardstatus für den Typ verwenden."
 
 msgctxt "help:real_estate.object_party.role,types:"
 msgid "The type of object which can use this role."
-msgstr "Diese Objekttypen können die Rolle nutzen."
+msgstr "Der Objekttyp, für den diese Rolle verwendet werden kann."
+
+msgctxt "help:real_estate.object_party.role,types:"
+msgid "The type of object which can use this role."
+msgstr "Der Objekttyp, für den diese Rolle verwendet werden kann."
+
+msgctxt "model:account.journal,name:journal_rental_book"
+msgid "Rental Book"
+msgstr "Mietenbuchhaltung"
+
+msgctxt "model:country.country,name:country_ca"
+msgid "Canada"
+msgstr "Kanada"
+
+msgctxt "model:country.country,name:country_de"
+msgid "Deutschland"
+msgstr "Deutschland"
+
+msgctxt "model:ir.action,name:act_address_form"
+msgid "Addresses"
+msgstr "Adressen"
 
 msgctxt "model:ir.action,name:act_building_form"
 msgid "Building"
 msgstr "Gebäude"
 
+msgctxt "model:ir.action,name:act_contract_form"
+msgid "Contract"
+msgstr "Vertrag"
+
+msgctxt "model:ir.action,name:act_contract_term_tree"
+msgid "Contract Terms"
+msgstr "Vertragsbedingungen"
+
+msgctxt "model:ir.action,name:act_contract_term_type"
+msgid "Contract Term Types"
+msgstr "Typen Vertragsbedingungen"
+
+msgctxt "model:ir.action,name:act_contract_type"
+msgid "Contract Types"
+msgstr "Vertragsarten"
+
+msgctxt "model:ir.action,name:act_land_form"
+msgid "Land"
+msgstr "Grundstück"
+
+msgctxt "model:ir.action,name:act_measurement_tree"
+msgid "Measurement"
+msgstr "Bemessungen"
+
+msgctxt "model:ir.action,name:act_measurement_type"
+msgid "Measurement Types"
+msgstr "Bemessungstype"
+
+msgctxt "model:ir.action,name:act_object_form"
+msgid "Rental Object"
+msgstr "Immobilienobjekt"
+
+msgctxt "model:ir.action,name:act_object_item_tree"
+msgid "Contract Items"
+msgstr "Vertragspositionen"
+
+msgctxt "model:ir.action,name:act_object_party_role"
+msgid "Object Party Roles"
+msgstr "Partnerrolle"
+
+msgctxt "model:ir.action,name:act_object_party_tree"
+msgid "Object Parties"
+msgstr "Partner zum Objekt"
+
+msgctxt "model:ir.action,name:act_property_form"
+msgid "Property"
+msgstr "Wirtschaftseinheit"
+
 msgctxt "model:ir.action,name:act_real_estate_tree"
 msgid "Real Estate Object"
-msgstr "Real Estate Objekt"
+msgstr "Immobilienobjekt"
+
+msgctxt "model:ir.action,name:report_base_object"
+msgid "Fact Sheet"
+msgstr "Datenblatt"
+
+msgctxt "model:ir.action,name:report_contract_en"
+msgid "Contract Fact Sheet (en)"
+msgstr "Vertrag Datenblatt (en)"
+
+msgctxt "model:ir.action,name:report_contract_letter_de"
+msgid "Contract Letter (de)"
+msgstr "Vertrag Brief  (de)"
+
+msgctxt "model:ir.action,name:wizard_create_moves"
+msgid "Create Contract Moves"
+msgstr "Soll/Habenstellung"
+
+msgctxt "model:ir.action.act_window.domain,name:act_building_form_domain_all"
+msgid "All"
+msgstr "Alle"
+
+msgctxt ""
+"model:ir.action.act_window.domain,name:act_building_form_domain_draft"
+msgid "Draft"
+msgstr "Entwurf"
+
+msgctxt ""
+"model:ir.action.act_window.domain,name:act_building_form_domain_locked"
+msgid "Locked"
+msgstr "Gesperrt"
+
+msgctxt "model:ir.action.act_window.domain,name:act_contract_form_domain_all"
+msgid "All"
+msgstr "Alle"
+
+msgctxt ""
+"model:ir.action.act_window.domain,name:act_contract_form_domain_draft"
+msgid "Draft"
+msgstr "Entwurf"
+
+msgctxt ""
+"model:ir.action.act_window.domain,name:act_contract_form_domain_running"
+msgid "Running"
+msgstr "Aktiv"
+
+msgctxt ""
+"model:ir.action.act_window.domain,name:act_contract_form_domain_terminated"
+msgid "Terminated"
+msgstr "Beendet"
+
+msgctxt "model:ir.action.act_window.domain,name:act_equipment_form_domain_all"
+msgid "All"
+msgstr "Alle"
+
+msgctxt ""
+"model:ir.action.act_window.domain,name:act_equipment_form_domain_draft"
+msgid "Draft"
+msgstr "Entwurf"
+
+msgctxt ""
+"model:ir.action.act_window.domain,name:act_equipment_form_domain_locked"
+msgid "Locked"
+msgstr "Gesperrt"
+
+msgctxt "model:ir.action.act_window.domain,name:act_land_form_domain_all"
+msgid "All"
+msgstr "Alle"
+
+msgctxt "model:ir.action.act_window.domain,name:act_land_form_domain_draft"
+msgid "Draft"
+msgstr "Entwurf"
+
+msgctxt "model:ir.action.act_window.domain,name:act_land_form_domain_locked"
+msgid "Locked"
+msgstr "Gesperrt"
+
+msgctxt "model:ir.action.act_window.domain,name:act_object_form_domain_all"
+msgid "All"
+msgstr "Alle"
+
+msgctxt "model:ir.action.act_window.domain,name:act_object_form_domain_draft"
+msgid "Draft"
+msgstr "Entwurf"
+
+msgctxt "model:ir.action.act_window.domain,name:act_object_form_domain_locked"
+msgid "Locked"
+msgstr "Gesperrt"
 
 msgctxt "model:ir.action.act_window.domain,name:act_property_form_domain_all"
 msgid "All"
@@ -569,21 +1779,142 @@ msgctxt ""
 msgid "Locked"
 msgstr "Gesperrt"
 
+msgctxt ""
+"model:ir.message,text:msg_duplicate_meter_reading_for_same_date_and_meter_id"
+msgid "There is already a meter reading for point {} with reading date {}!"
+msgstr ""
+"Für den Messpunkt {} liegt bereits ein Zählerstand mit dem Ablesedatum {} "
+"vor!"
+
+msgctxt ""
+"model:ir.message,text:msg_final_meter_reading_greater_and_have_same_id"
+msgid ""
+"Final meter reading value {} must be greater than last reading value {} for "
+"point {} and have the same meter ID!"
+msgstr ""
+"Der endgültige Zählerstand {} muss größer sein als der letzte Ablesewert {} "
+"für Messpunkt {} und dieselbe Zähler-ID haben!"
+
+msgctxt "model:ir.message,text:msg_first_meter_reading_must_be_initial"
+msgid "First meter reading for point {} must be of type 'initial'!"
+msgstr ""
+"Die erste Zählerablesung für Messpunkt {} muss vom Typ „initial” sein!"
+
+msgctxt ""
+"model:ir.message,text:msg_initial_meter_id_must_not_be_same_as_last_reading"
+msgid ""
+"Meter ID {} must not be the same as last reading for final reading for point"
+" {}!"
+msgstr ""
+"Die Zähler-ID {} darf nicht mit dem letzten Zählerstand für die "
+"Endabrechnung für den Messpunkt {} übereinstimmen!"
+
+msgctxt "model:ir.message,text:msg_meter_id_must_be_same_as_last_reading"
+msgid "Meter ID {} must be the same as last reading for point {}!"
+msgstr ""
+"Die Zähler-ID {} muss mit dem letzten Ablesewert für den Messpunkt {} "
+"übereinstimmen!"
+
+msgctxt ""
+"model:ir.message,text:msg_meter_reading_value_must_be_greater_than_last_reading"
+msgid ""
+"Meter reading value {} must be greater than last reading value {} for point "
+"{}!"
+msgstr ""
+"Der Zählerstand {} muss für den Messpiunkt {} größer sein als der letzte "
+"Zählerstand {}!"
+
+msgctxt "model:ir.message,text:msg_salutation"
+msgid "Dear Sir or Madam"
+msgstr "Sehr geehrte Damen und Herren"
+
+msgctxt "model:ir.rule.group,name:rule_group_base_object_companies"
+msgid "User in companies"
+msgstr "Benutzer in der Gesellschaft"
+
+msgctxt "model:ir.ui.menu,name:menu_address_form"
+msgid "Addresses"
+msgstr "Adressen"
+
 msgctxt "model:ir.ui.menu,name:menu_building_form"
 msgid "Building"
 msgstr "Gebäude"
 
+msgctxt "model:ir.ui.menu,name:menu_contract_form"
+msgid "Contract"
+msgstr "Vertrag"
+
+msgctxt "model:ir.ui.menu,name:menu_contract_term_type"
+msgid "Contract Term Types"
+msgstr "Typen Vertragsbedingungen"
+
+msgctxt "model:ir.ui.menu,name:menu_contract_type"
+msgid "Contract Types"
+msgstr "Vertragsarten"
+
+msgctxt "model:ir.ui.menu,name:menu_create_moves"
+msgid "Create Contract Moves"
+msgstr "Soll/Habenstellung"
+
+msgctxt "model:ir.ui.menu,name:menu_land_form"
+msgid "Land"
+msgstr "Grundstück"
+
+msgctxt "model:ir.ui.menu,name:menu_measurement_type"
+msgid "Measurement Types"
+msgstr "Bemessungstype"
+
+msgctxt "model:ir.ui.menu,name:menu_object_form"
+msgid "Rental Object"
+msgstr "Immobilienobjekt"
+
+msgctxt "model:ir.ui.menu,name:menu_object_parties_form"
+msgid "Object Parties"
+msgstr "Partner zum Objekt"
+
+msgctxt "model:ir.ui.menu,name:menu_object_party_role"
+msgid "Object Party Roles"
+msgstr "Partnerrolle"
+
 msgctxt "model:ir.ui.menu,name:menu_real_estate"
 msgid "Real Estate"
-msgstr "Immobilienverwaltung"
+msgstr "Immobilien"
+
+msgctxt "model:ir.ui.menu,name:menu_real_estate"
+msgid "Real Estate"
+msgstr "Immobilien"
+
+msgctxt "model:ir.ui.menu,name:menu_real_estate_adresses"
+msgid "Adresses"
+msgstr "Adressen"
+
+msgctxt "model:ir.ui.menu,name:menu_real_estate_configuration"
+msgid "Configuration"
+msgstr "Konfiguration"
+
+msgctxt "model:ir.ui.menu,name:menu_real_estate_contracts"
+msgid "Contracts"
+msgstr "Verträge"
 
 msgctxt "model:ir.ui.menu,name:menu_real_estate_form"
 msgid "Property"
 msgstr "Wirtschaftseinheit"
 
+msgctxt "model:ir.ui.menu,name:menu_real_estate_masta_data"
+msgid "Masta Date"
+msgstr "Stammdaten"
+
+msgctxt "model:ir.ui.menu,name:menu_real_estate_parties"
+msgid "Parties"
+msgstr "Partner"
+
 msgctxt "model:ir.ui.menu,name:menu_real_estate_tree"
 msgid "Real Estate Object"
-msgstr "Real Estate Objekt"
+msgstr "Immobilienobjekt"
+
+msgctxt "model:real_estate.address,string:"
+msgid "Real Estate Address"
+msgstr "Immobilien Adresse"
 
 msgctxt "model:real_estate.address,string:"
 msgid "Real Estate Address"
@@ -597,6 +1928,10 @@ msgctxt "model:real_estate.base_object,string:"
 msgid "Real Estate Base Object"
 msgstr "Immobilienobjekt"
 
+msgctxt "model:real_estate.base_object,string:"
+msgid "Real Estate Base Object"
+msgstr "Immobilienobjekt"
+
 msgctxt "model:real_estate.contract,string:"
 msgid "Real Estate Contract"
 msgstr "Immobilienvertrag"
@@ -604,6 +1939,22 @@ msgstr "Immobilienvertrag"
 msgctxt "model:real_estate.contract,string:"
 msgid "Real Estate Contract"
 msgstr "Immobilienvertrag"
+
+msgctxt "model:real_estate.contract,string:"
+msgid "Real Estate Contract"
+msgstr "Immobilienvertrag"
+
+msgctxt "model:real_estate.contract.cash_flow,string:"
+msgid "Real Estate Contract Cash Flow"
+msgstr "Immobilienvertrag Finanzsstrom"
+
+msgctxt "model:real_estate.contract.create_moves.start,string:"
+msgid "Real Estate Contract Create Moves Start"
+msgstr "Immobilienvertrag Finanzsstrom Start Buchung"
+
+msgctxt "model:real_estate.contract.item,string:"
+msgid "Real Estate Contract Item"
+msgstr "Vertragsposition"
 
 msgctxt "model:real_estate.contract.item,string:"
 msgid "Real Estate Contract Item"
@@ -612,6 +1963,30 @@ msgstr "Vertragsposition"
 msgctxt "model:real_estate.contract.line,string:"
 msgid "Real Estate Contract Line"
 msgstr "Immobilienvertrag Zeile"
+
+msgctxt "model:real_estate.contract.log,string:"
+msgid "Real Estate Contract Log"
+msgstr "Protokoll Vertrag"
+
+msgctxt "model:real_estate.contract.term,string:"
+msgid "Real Estate Contract Term"
+msgstr "Vertragskonditionen"
+
+msgctxt "model:real_estate.contract.term.cash_flow,string:"
+msgid "Real Estate Contract Term Cash Flow"
+msgstr "Vertragskonditionen Finanzstrom"
+
+msgctxt "model:real_estate.contract.term.line,string:"
+msgid "Real Estate Contract Term Line"
+msgstr "Vertragskondition Zeile"
+
+msgctxt "model:real_estate.contract.term.tax,string:"
+msgid "Real Estate Contract Term Tax"
+msgstr "Vertragskonditionen Steuer"
+
+msgctxt "model:real_estate.contract.term.type,string:"
+msgid "Real Estate Contract Term Type"
+msgstr "Typ Vertragskonditionen"
 
 msgctxt ""
 "model:real_estate.contract.type,name:contract_commercial_lease_agreement_type"
@@ -646,6 +2021,18 @@ msgctxt "model:real_estate.contract.type,string:"
 msgid "Real Estate Contract Type"
 msgstr "Vertragstyp"
 
+msgctxt "model:real_estate.contract.type,string:"
+msgid "Real Estate Contract Type"
+msgstr "Vertragstyp"
+
+msgctxt "model:real_estate.contract.type.tax,string:"
+msgid "Real Estate Contract Type Tax"
+msgstr "Steuer Vertragstyp"
+
+msgctxt "model:real_estate.measurement,string:"
+msgid "Real Estate Measurement"
+msgstr "Immobilienbemessung"
+
 msgctxt "model:real_estate.measurement,string:"
 msgid "Real Estate Measurement"
 msgstr "Immobilienbemessung"
@@ -671,6 +2058,11 @@ msgid "Number of rooms"
 msgstr "Anzahl Räume"
 
 msgctxt ""
+"model:real_estate.measurement.type,name:measurement_property_value_type"
+msgid "Property value"
+msgstr "Immobilienwert"
+
+msgctxt ""
 "model:real_estate.measurement.type,name:measurement_re_number_of_items_type"
 msgid "Number of items"
 msgstr "Anzahl Objekte"
@@ -678,6 +2070,18 @@ msgstr "Anzahl Objekte"
 msgctxt "model:real_estate.measurement.type,string:"
 msgid "Real Estate Measurement Type"
 msgstr "Immobilien Bemessungstyp"
+
+msgctxt "model:real_estate.measurement.type,string:"
+msgid "Real Estate Measurement Type"
+msgstr "Immobilien Bemessungstyp"
+
+msgctxt "model:real_estate.meter_reading,string:"
+msgid "Real Estate Meter Reading"
+msgstr "Immobilien Zählerablesung"
+
+msgctxt "model:real_estate.object_party,string:"
+msgid "Real Estate Object Party"
+msgstr "Immobilienpartner"
 
 msgctxt "model:real_estate.object_party,string:"
 msgid "Real Estate Object Party"
@@ -696,9 +2100,41 @@ msgctxt "model:real_estate.object_party.role,name:object_party_owner_role"
 msgid "Owner"
 msgstr "Eigentümer"
 
+msgctxt "model:real_estate.object_party.role,string:"
+msgid "Real Estate Object Party Role"
+msgstr "Rolle Immobilienpartner"
+
+msgctxt "model:res.group,name:group_real_estate_admin"
+msgid "Real Estate Administration"
+msgstr "Immobilien Administration"
+
+msgctxt "selection:real_estate.base_object,e_type:"
+msgid "Installation, e.g., furniture"
+msgstr "Installation, z. B. Möbel"
+
+msgctxt "selection:real_estate.base_object,e_type:"
+msgid "Meters"
+msgstr "Zähler"
+
+msgctxt "selection:real_estate.base_object,e_type:"
+msgid "Structures, e.g., masonry, windows, doors"
+msgstr "Bauwerke, z. B. Mauerwerk, Fenster, Türen"
+
+msgctxt "selection:real_estate.base_object,e_type:"
+msgid "Technical Building Equipment"
+msgstr "Technische Gebäudeausstattung [TGA]"
+
 msgctxt "selection:real_estate.base_object,state:"
 msgid "Approved"
 msgstr "Aktiv"
+
+msgctxt "selection:real_estate.base_object,state:"
+msgid "Approved"
+msgstr "Aktiv"
+
+msgctxt "selection:real_estate.base_object,state:"
+msgid "Deactivated"
+msgstr "Deaktiviert"
 
 msgctxt "selection:real_estate.base_object,state:"
 msgid "Deactivated"
@@ -709,12 +2145,20 @@ msgid "Draft"
 msgstr "Entwurf"
 
 msgctxt "selection:real_estate.base_object,state:"
+msgid "Draft"
+msgstr "Entwurf"
+
+msgctxt "selection:real_estate.base_object,state:"
 msgid "Locked"
-msgstr "gesperrt"
+msgstr "Gesperrt"
+
+msgctxt "selection:real_estate.base_object,state:"
+msgid "Locked"
+msgstr "Gesperrt"
 
 msgctxt "selection:real_estate.base_object,status:"
 msgid "Approved"
-msgstr "aktiv"
+msgstr "Aktiv"
 
 msgctxt "selection:real_estate.base_object,status:"
 msgid "Approved"
@@ -722,7 +2166,7 @@ msgstr "Aktiv"
 
 msgctxt "selection:real_estate.base_object,status:"
 msgid "Deactivated"
-msgstr "deaktiviert"
+msgstr "Deaktiviert"
 
 msgctxt "selection:real_estate.base_object,status:"
 msgid "Deactivated"
@@ -734,11 +2178,15 @@ msgstr "Entwurf"
 
 msgctxt "selection:real_estate.base_object,status:"
 msgid "Locked"
-msgstr "gesperrt"
+msgstr "Gesperrt"
 
 msgctxt "selection:real_estate.base_object,status:"
 msgid "Locked"
-msgstr "gesperrt"
+msgstr "Gesperrt"
+
+msgctxt "selection:real_estate.base_object,type:"
+msgid "Building"
+msgstr "Gebäude"
 
 msgctxt "selection:real_estate.base_object,type:"
 msgid "Building"
@@ -753,8 +2201,20 @@ msgid "Land"
 msgstr "Grundstück"
 
 msgctxt "selection:real_estate.base_object,type:"
+msgid "Land"
+msgstr "Grundstück"
+
+msgctxt "selection:real_estate.base_object,type:"
 msgid "Property"
 msgstr "Wirtschaftseinheit"
+
+msgctxt "selection:real_estate.base_object,type:"
+msgid "Property"
+msgstr "Wirtschaftseinheit"
+
+msgctxt "selection:real_estate.base_object,type:"
+msgid "Rental Object"
+msgstr "Immobilienobjekt"
 
 msgctxt "selection:real_estate.base_object,type:"
 msgid "Rental Object"
@@ -765,8 +2225,20 @@ msgid "Commercial"
 msgstr "Gewerbe"
 
 msgctxt "selection:real_estate.base_object,type_of_use:"
+msgid "Commercial"
+msgstr "Gewerbe"
+
+msgctxt "selection:real_estate.base_object,type_of_use:"
 msgid "Internal Use"
-msgstr "interne Nutzung"
+msgstr "Interne Nutzung"
+
+msgctxt "selection:real_estate.base_object,type_of_use:"
+msgid "Internal Use"
+msgstr "Interne Nutzung"
+
+msgctxt "selection:real_estate.base_object,type_of_use:"
+msgid "None"
+msgstr "keine"
 
 msgctxt "selection:real_estate.base_object,type_of_use:"
 msgid "None"
@@ -774,15 +2246,23 @@ msgstr "keine"
 
 msgctxt "selection:real_estate.base_object,type_of_use:"
 msgid "Residential"
-msgstr "Mieter"
+msgstr "Wohnimmobilie"
 
 msgctxt "selection:real_estate.base_object,type_of_use:"
 msgid "Residential"
-msgstr "Mietobjekt"
+msgstr "Wohnimmobilie"
+
+msgctxt "selection:real_estate.base_object,type_of_use:"
+msgid "Residential"
+msgstr "Wohnimmobilie"
 
 msgctxt "selection:real_estate.base_object,type_of_use:"
 msgid "Residential property"
-msgstr "WEG"
+msgstr "Wohneigentum"
+
+msgctxt "selection:real_estate.base_object,type_of_use:"
+msgid "Residential property"
+msgstr "Wohneigentum"
 
 msgctxt "selection:real_estate.base_object,type_of_use:"
 msgid "Residential property"
@@ -793,8 +2273,20 @@ msgid "Apartment"
 msgstr "Wohnung"
 
 msgctxt "selection:real_estate.base_object,use_class:"
+msgid "Apartment"
+msgstr "Wohnung"
+
+msgctxt "selection:real_estate.base_object,use_class:"
 msgid "Garage"
 msgstr "Garage"
+
+msgctxt "selection:real_estate.base_object,use_class:"
+msgid "Garage"
+msgstr "Garage"
+
+msgctxt "selection:real_estate.base_object,use_class:"
+msgid "None"
+msgstr "keine"
 
 msgctxt "selection:real_estate.base_object,use_class:"
 msgid "None"
@@ -805,12 +2297,28 @@ msgid "Office"
 msgstr "Büro"
 
 msgctxt "selection:real_estate.base_object,use_class:"
+msgid "Office"
+msgstr "Büro"
+
+msgctxt "selection:real_estate.base_object,use_class:"
+msgid "Parking"
+msgstr "Stellplatz"
+
+msgctxt "selection:real_estate.base_object,use_class:"
 msgid "Parking"
 msgstr "Stellplatz"
 
 msgctxt "selection:real_estate.base_object,use_class:"
 msgid "Retail"
 msgstr "Verkauf"
+
+msgctxt "selection:real_estate.base_object,use_class:"
+msgid "Retail"
+msgstr "Verkauf"
+
+msgctxt "selection:real_estate.base_object,use_class:"
+msgid "Warehouse"
+msgstr "Lager"
 
 msgctxt "selection:real_estate.base_object,use_class:"
 msgid "Warehouse"
@@ -829,8 +2337,16 @@ msgid "Draft"
 msgstr "Entwurf"
 
 msgctxt "selection:real_estate.contract,state:"
+msgid "Draft"
+msgstr "Entwurf"
+
+msgctxt "selection:real_estate.contract,state:"
 msgid "Running"
-msgstr "aktiv"
+msgstr "Aktiv"
+
+msgctxt "selection:real_estate.contract,state:"
+msgid "Running"
+msgstr "Aktiv"
 
 msgctxt "selection:real_estate.contract,state:"
 msgid "Running"
@@ -838,7 +2354,11 @@ msgstr "Aktiv"
 
 msgctxt "selection:real_estate.contract,state:"
 msgid "Terminated"
-msgstr "beendet/gekündigt"
+msgstr "Beendet"
+
+msgctxt "selection:real_estate.contract,state:"
+msgid "Terminated"
+msgstr "Beendet"
 
 msgctxt "selection:real_estate.contract,state:"
 msgid "Terminated"
@@ -846,7 +2366,7 @@ msgstr "Beendet"
 
 msgctxt "selection:real_estate.contract,type_of_use:"
 msgid "Commercial"
-msgstr "Gewerbeobjekt"
+msgstr "Gewerbe"
 
 msgctxt "selection:real_estate.contract,type_of_use:"
 msgid "Internal Use"
@@ -854,8 +2374,104 @@ msgstr "Interne Nutzung"
 
 msgctxt "selection:real_estate.contract,type_of_use:"
 msgid "Residential"
-msgstr "Mietobjekt"
+msgstr "Wohnimmobilie"
 
 msgctxt "selection:real_estate.contract,type_of_use:"
 msgid "Residential property"
 msgstr "Wohneigentum"
+
+msgctxt "selection:real_estate.contract.cash_flow,status:"
+msgid "Done"
+msgstr "Beendet"
+
+msgctxt "selection:real_estate.contract.cash_flow,status:"
+msgid "Draft"
+msgstr "Entwurf"
+
+msgctxt "selection:real_estate.contract.create_moves.start,action:"
+msgid "Create moves"
+msgstr "Bewegungen erstellen"
+
+msgctxt "selection:real_estate.contract.create_moves.start,action:"
+msgid "Re-Calculate and Create moves"
+msgstr "Neu-Berechnung und Buchungen erstellen"
+
+msgctxt "selection:real_estate.contract.create_moves.start,action:"
+msgid "Re-Calculate moves"
+msgstr "Neu-Berechnung Buchung"
+
+msgctxt "selection:real_estate.contract.term,rhythm_type:"
+msgid "Annually"
+msgstr "jährlich"
+
+msgctxt "selection:real_estate.contract.term,rhythm_type:"
+msgid "Monthly (30 days)"
+msgstr "monatlich (30 Tage)"
+
+msgctxt "selection:real_estate.contract.term,rhythm_type:"
+msgid "One Time "
+msgstr "einmalig"
+
+msgctxt "selection:real_estate.contract.term,rhythm_type:"
+msgid "Quarterly"
+msgstr "vierteljährlich"
+
+msgctxt "selection:real_estate.contract.term.cash_flow,status:"
+msgid "Done"
+msgstr "Beendet"
+
+msgctxt "selection:real_estate.contract.term.cash_flow,status:"
+msgid "Draft"
+msgstr "Entwurf"
+
+msgctxt "selection:real_estate.contract.term.type,rhythm_type:"
+msgid "Annually"
+msgstr "jährlich"
+
+msgctxt "selection:real_estate.contract.term.type,rhythm_type:"
+msgid "Daily"
+msgstr "täglich"
+
+msgctxt "selection:real_estate.contract.term.type,rhythm_type:"
+msgid "Daily (30 days per month)"
+msgstr "täglich (30 Tage je Monat)"
+
+msgctxt "selection:real_estate.contract.term.type,rhythm_type:"
+msgid "Monthly"
+msgstr "monatlich"
+
+msgctxt "selection:real_estate.contract.term.type,rhythm_type:"
+msgid "Monthly (30 days)"
+msgstr "monatlich (30 Tage)"
+
+msgctxt "selection:real_estate.contract.term.type,rhythm_type:"
+msgid "One Time "
+msgstr "einmalig"
+
+msgctxt "selection:real_estate.contract.term.type,rhythm_type:"
+msgid "Quarterly"
+msgstr "Vierteljährlich"
+
+msgctxt "selection:real_estate.contract.term.type,rhythm_type:"
+msgid "Weekly"
+msgstr "wöchendlich"
+
+msgctxt "selection:real_estate.meter_reading,m_type:"
+msgid "estimate"
+msgstr "geschätzt"
+
+msgctxt "selection:real_estate.meter_reading,m_type:"
+msgid "final reading, removal"
+msgstr "Endablesung vor Ausbau"
+
+msgctxt "selection:real_estate.meter_reading,m_type:"
+msgid "initial, installation"
+msgstr "initial (bei Installation)"
+
+msgctxt "selection:real_estate.meter_reading,m_type:"
+msgid "reading"
+msgstr "Ablesung"
+
+msgctxt "wizard_button:real_estate.contract.create_moves,start,end:"
+msgid "Cancel"
+msgstr "Abbruch"
