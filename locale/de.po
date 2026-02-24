@@ -2475,3 +2475,39 @@ msgstr "Ablesung"
 msgctxt "wizard_button:real_estate.contract.create_moves,start,end:"
 msgid "Cancel"
 msgstr "Abbruch"
+
+msgctxt "view:real_estate.contract:"
+msgid "General"
+msgstr "Allg. Daten"
+
+msgctxt "view:real_estate.contract:"
+msgid "Items"
+msgstr "Positionen"
+
+msgctxt "view:real_estate.contract:"
+msgid "Terms"
+msgstr "Konditionen"
+
+msgctxt "view:real_estate.contract:"
+msgid "Cash Flow"
+msgstr "Finanzstrom"
+
+msgctxt "view:real_estate.base_object:"
+msgid "General"
+msgstr "Allg. Daten"
+
+msgctxt "view:real_estate.base_object:"
+msgid "Rental Object"
+msgstr "Immobilienobjekt"
+
+msgctxt "view:real_estate.base_object:"
+msgid "Building"
+msgstr "Gebäude"
+
+msgctxt "view:real_estate.base_object:"
+msgid "Equipment"
+msgstr "Equipment"
+
+msgctxt "view:real_estate.base_object:"
+msgid "Meter"
+msgstr "Zähler"

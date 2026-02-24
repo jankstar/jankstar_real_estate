@@ -27,7 +27,7 @@
 
     <newline/>   
     <notebook colspan="8">
-        <page string="General" id="general" col="6">
+        <page string="General" id="page_general" col="6">
             <newline/>
             
             <label name="payment_term"/><field name="payment_term"/>
@@ -40,12 +40,12 @@
             <separator name="comment" colspan="6"/>
             <field name="comment" colspan="6"/>
         </page>
-        <page string="Items" id="items" col="6">
+        <page string="Items" id="page_items" col="6">
             <newline/>
             <field name="items" 
                 view_ids="real_estate.contract_view_list_object_item"/>        
         </page>
-        <page string="Terms" id="terms">
+        <page string="Terms" id="page_terms">
             <!--group colspan="2" col="-1" id="next_term_sequence_group">
                 <label name="next_term_sequence"/><field name="next_term_sequence"/>
             </group-->
@@ -53,7 +53,7 @@
             <field name="terms" 
                 view_ids="real_estate.contract_view_list_object_term"/>        
         </page>
-        <page string="Cash Flow" id="cash_flow">
+        <page string="Cash Flow" id="page_cash_flow">
             <newline/>
             <field name="cash_flow"
                 view_ids="real_estate.contract_view_list_cash_flow" />
