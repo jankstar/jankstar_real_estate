@@ -2496,6 +2496,22 @@ msgctxt "view:real_estate.base_object:"
 msgid "General"
 msgstr "Allg. Daten"
 
+msgctxt "view:real_estate.contract.item:"
+msgid "General"
+msgstr "Allg. Daten"
+
+msgctxt "view:real_estate.contract.item:"
+msgid "Children"
+msgstr "Unterobjekte"
+
+msgctxt "view:real_estate.contract.term:"
+msgid "General"
+msgstr "Allg. Daten"
+
+msgctxt "view:real_estate.contract.term:"
+msgid "Accounting"
+msgstr "Buchhaltung"
+
 msgctxt "view:real_estate.base_object:"
 msgid "Rental Object"
 msgstr "Immobilienobjekt"
@@ -2509,5 +2525,21 @@ msgid "Equipment"
 msgstr "Equipment"
 
 msgctxt "view:real_estate.base_object:"
-msgid "Meter"
+msgid "Meters"
 msgstr "Zähler"
+
+msgctxt "view:real_estate.contract:"
+msgid "Meters"
+msgstr "Zähler"
+
+msgctxt "view:real_estate.contract,meters:"
+msgid "Meters"
+msgstr "Zähler"
+
+msgctxt "view:real_estate.contract:"
+msgid "Measurements"
+msgstr "Bemessungen"
+
+msgctxt "view:real_estate.contract,measurements:"
+msgid "Measurements"
+msgstr "Bemessungen"

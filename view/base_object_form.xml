@@ -62,7 +62,7 @@ this repository contains the full copyright notices and license terms. -->
 
         </page>
 
-        <page string='Meter' id="page_meter" col="6">
+        <page string='Meters' id="page_meter" col="6">
                 <label name="meter_unit"/><field name="meter_unit"/>
                 <newline/>
                 <label name="meter_factor"/><field name="meter_factor"/>

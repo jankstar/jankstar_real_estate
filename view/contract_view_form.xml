@@ -43,7 +43,7 @@
         <page string="Items" id="page_items" col="6">
             <newline/>
             <field name="items" 
-                view_ids="real_estate.contract_view_list_object_item"/>        
+                view_ids="real_estate.contract_view_list_object_item"/> 
         </page>
         <page string="Terms" id="page_terms">
             <!--group colspan="2" col="-1" id="next_term_sequence_group">
@@ -58,5 +58,14 @@
             <field name="cash_flow"
                 view_ids="real_estate.contract_view_list_cash_flow" />
         </page>
+        <page string="Measurements" id="page_measurements">
+            <newline/>
+            <field name="measurements"
+                view_ids="real_estate.contract_view_list_measurement"/>
+        </page>          
+        <page string="Meters" id="page_meters">
+            <newline/>
+            <field name="meters"/>
+        </page>        
     </notebook>
 </form>

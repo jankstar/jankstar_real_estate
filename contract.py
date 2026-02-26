@@ -212,7 +212,24 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
                         'Cash Flow',)
         ,'on_change_with_cash_flow',)
 
+    meters = fields.Function(
+        fields.One2Many('real_estate.base_object', 'company',
+                        'Meters',)
+        ,'on_change_with_meters',)
 
+    measurements = fields.Function(
+        fields.One2Many('real_estate.measurement', 'company',
+                        'Measurements',)
+        ,'on_change_with_measurements',)
+
+    @fields.depends('company','items')
+    def on_change_with_meters(self, name=None):
+        return [child for item in self.items for child in item.children if child.e_type == 'meters']
+
+    @fields.depends('company','items')
+    def on_change_with_measurements(self, name=None):
+        return [measurement for item in self.items for measurement in item.object.measurements \
+                  ]
 
     @classmethod
     def get_term_types_of_use(cls):
@@ -625,6 +642,16 @@ class ContractItem(sequence_ordered(), ModelSQL, ModelView, metaclass=PoolMeta):
     currency = fields.Function(fields.Many2One('currency.currency',
         'Currency'), 'on_change_with_currency')
 
+    children = fields.Function(
+        fields.One2Many('real_estate.base_object', 'object',
+                        'children',)
+        ,'on_change_with_children',)
+
+    @fields.depends('object')
+    def on_change_with_children(self, name=None):
+        if self.object:
+            return self.object.children
+        return []
 
     @fields.depends('contract', 'sequence')
     def on_change_with_sequence(self, name=None):
