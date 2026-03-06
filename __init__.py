@@ -32,6 +32,7 @@ def register():
         contract.ContractTermCashFlow,
         contract.Contract,
         contract.CreateMovesStart,
+        contract.TerminateContractStart,
         #sequence.Sequence,
         res.User,
         party.Party,
@@ -40,6 +41,7 @@ def register():
         module='real_estate', type_='model')
     Pool.register(
         contract.CreateMoves,
+        contract.TerminateContractWizard,
         module='real_estate', type_='wizard')
     Pool.register(
         base_object.BaseObjectReport,

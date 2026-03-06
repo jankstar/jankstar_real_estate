@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<form>
+    <label name="contract"/><field name="contract" colspan="3" readonly="1"/>
+    <newline/>
+    <label name="terminated_by"/><field name="terminated_by"/>
+    <newline/>
+    <label name="receipt_of_termination_notice"/><field name="receipt_of_termination_notice"/>
+    <newline/>
+    <label name="reason"/><field name="reason"/>
+    <newline/>
+    <label name="notice_period"/><field name="notice_period" widget="selection"/>
+    <newline/>
+    <label name="termination_date_calc"/><field name="termination_date_calc"/>
+    <newline/>
+    <label name="termination_date"/><field name="termination_date"/>
+</form>

@@ -24,7 +24,6 @@
         <label name="active"/><field name="active" xexpand="0" width="25"/>
         <label name="state"/><field name="state" widget="selection"/>
     </group>  
-
     <newline/>   
     <notebook colspan="8">
         <page string="General" id="page_general" col="6">
@@ -40,6 +39,18 @@
             <separator name="comment" colspan="6"/>
             <field name="comment" colspan="6"/>
         </page>
+        <page string="Termination" id="page_termination" col="6">
+            <newline/>
+            <label name="terminated_by_type"/><field name="terminated_by_type"/>
+            <newline/>
+            <label name="receipt_of_termination_notice"/><field name="receipt_of_termination_notice"/>
+            <newline/>
+            <label name="termination_reason"/><field name="termination_reason"/>
+            <newline/>
+            <label name="termination_notice"/><field name="termination_notice" widget="selection"/>
+            <newline/>
+            <label name="termination_date"/><field name="termination_date"/>
+        </page>
         <page string="Items" id="page_items" col="6">
             <newline/>
             <field name="items" 
@@ -54,6 +65,10 @@
                 view_ids="real_estate.contract_view_list_object_term"/>        
         </page>
         <page string="Cash Flow" id="page_cash_flow">
+            <group string="Filter" col="4" id="cash_flow_dates_group">
+                <label name="cf_start_date"/><field name="cf_start_date"/>
+                <label name="cf_end_date"/><field name="cf_end_date"/>
+            </group>
             <newline/>
             <field name="cash_flow"
                 view_ids="real_estate.contract_view_list_cash_flow" />
@@ -65,7 +80,12 @@
         </page>          
         <page string="Meters" id="page_meters">
             <newline/>
-            <field name="meters"/>
+            <field name="meters" />
         </page>        
     </notebook>
+    <newline/>
+    <button name="running" string="Running"/>
+    <button name="terminate" string="Terminate"/>
+    <button name="cancel" string="Cancel"/>
+    <button name="change_partner" string="Change Partner"/>
 </form>

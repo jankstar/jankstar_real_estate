@@ -1,6 +1,6 @@
 from trytond.model import (sequence_ordered, 
     DeactivableMixin, Index, ModelSQL, ModelView, Workflow, fields, Unique, Check,
-    sum_tree, tree)
+    sum_tree)
 from trytond.model.exceptions import ValidationError
 from trytond.i18n import gettext
 from trytond.cache import Cache
@@ -16,6 +16,8 @@ from trytond.modules.product import price_digits
 from sql import Column
 from trytond.modules.currency.fields import Monetary
 from trytond.modules.account.tax import TaxableMixin
+from trytond.modules.company.model import (
+    employee_field, reset_employee, set_employee)
 from trytond.tools import (
     cached_property, firstline, grouped_slice, reduce_ids, slugify,
     sqlite_apply_types)
@@ -174,12 +176,25 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
                                     searcher='name_search'
                                     )    
 
+    running_by = employee_field(
+        "Running By",
+        states=['running', 'terminated'],)
+
+    terminated_by = employee_field(
+        "Terminated By",
+        states=['terminated'],)
+
+    cancelled_by = employee_field(
+        "Cancelled By",
+        states=['cancelled'],)
+
     state = fields.Selection([
             ('draft', 'Draft'),
             ('running', 'Running'),
             ('terminated', 'Terminated'),
+            ('cancelled', 'Cancelled'),
             ], "State", sort=False,
-            #states={ 'readonly': True, },
+            states={ 'readonly': True, },
             )
     
     items = fields.One2Many('real_estate.contract.item', 'contract', 'Items',
@@ -207,9 +222,16 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
     next_term_sequence = fields.Function(fields.Integer("Next Term Sequence",),
                                          'on_change_with_next_term_sequence',)
 
+    cf_start_date = fields.Function(fields.Date('from', ), 'get_cf_start_date', setter='set_cf_start_date')
+    cf_end_date = fields.Function(fields.Date('to', ), 'get_cf_end_date', setter='set_cf_end_date')
+
+
     cash_flow = fields.Function(
         fields.One2Many('real_estate.contract.term.cash_flow', 'contract',
-                        'Cash Flow',)
+                        'Cash Flow',
+                        #filter=[('document_date', '>=', Eval('cf_start_date', None)), 
+                        #        ('document_date', '<=', Eval('cf_end_date', None))],
+                                )
         ,'on_change_with_cash_flow',)
 
     meters = fields.Function(
@@ -221,6 +243,173 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
         fields.One2Many('real_estate.measurement', 'company',
                         'Measurements',)
         ,'on_change_with_measurements',)
+
+
+
+    #termination
+    _states_termination = {
+            'invisible': ((Eval('state') != 'terminated')),
+            }    
+    terminated_by_type = fields.Selection([
+            ('tenant','Tenant'),
+            ('landlord', 'Landlord')
+        ], 'Terminated by', 
+        states={
+            'invisible': (Eval('state') != 'terminated'),
+            'readonly': (Eval('state') == 'terminated'),
+        })
+
+    receipt_of_termination_notice = fields.Date('Receipt of Termination Notice',
+        states={
+            'invisible': (Eval('state') != 'terminated'),
+            'readonly': (Eval('state') == 'terminated'),
+        })
+
+    termination_notice = fields.Selection([
+            ('', 'manually'),
+            ('3m', '3 Months'),
+            ('6m', '6 Months'),
+            ('9m', '9 Months'),
+            ('12m', '12 Months'),
+        ], 'Notice Period',
+        states={
+            'invisible': (Eval('state') != 'terminated'),
+            'readonly': (Eval('state') == 'terminated'),
+        })
+    
+    termination_date = fields.Date('Termination Date',
+        states={
+            'invisible': (Eval('state') != 'terminated'),
+            'readonly': (Eval('state') == 'terminated'),
+        })
+    
+    termination_reason = fields.Char('Termination Reason',
+        states={
+            'invisible': (Eval('state') != 'terminated'),
+            'readonly': (Eval('state') == 'terminated'),
+        })
+
+    @classmethod
+    def __setup__(cls):
+        super().__setup__()
+        cls._transitions |= set((
+            ('draft', 'running'),
+            ('draft', 'cancelled'),
+            ('running', 'terminated'),
+            ('running', 'cancelled'),
+            ('terminated', 'running'),
+            ))
+        cls._buttons.update({
+            'running': {
+                'invisible': (
+                    ~Eval('state').in_(['draft', 'terminated'])
+                    #| ((Eval('state') == 'cancelled')
+                    #    & Eval('cancel_move', -1))
+                    ),
+                #'icon': If(Eval('state') == 'cancelled', 'tryton-undo',
+                #    'tryton-back'),
+                'depends': ['state'],
+                },
+            'terminate': {
+                'invisible': ~Eval('state').in_(['running']),
+                'depends': ['state'],
+                },
+            'cancel': {
+                'invisible': ~Eval('state').in_(['draft', 'running']),
+                'depends': ['state'],
+                },
+            'change_partner': {
+                'invisible': ~Eval('state').in_(['draft', 'cancelled']),
+                'depends': ['state'],
+                },
+            })
+        
+    @classmethod
+    def view_attributes(cls):
+        return super().view_attributes() + [
+            ('/form/notebook/page[@id="page_termination"]', 'states', cls._states_termination),
+            ]
+
+    @classmethod
+    @ModelView.button
+    @Workflow.transition('running')
+    @set_employee('running_by')
+    @reset_employee('cancelled_by', 'terminated_by')
+    def running(cls, contrats):
+        for contract in contrats:
+            contract.add_log('state_change', f'contract state changed to running')
+            contract.state = 'running'
+            contract.save()
+
+    # @classmethod
+    # @ModelView.button
+    # @Workflow.transition('terminated')
+    # @reset_employee('cancelled_by')
+    # @set_employee('terminated_by')
+    # def terminate(cls, contrats):
+    #     for contract in contrats:
+    #         contract.add_log('state_change', f'contract state changed to terminated')
+    #         contract.state = 'terminated'
+    #         contract.save()
+
+
+    @classmethod
+    #@Workflow.transition('terminated')
+    #@reset_employee('terminated_by')
+    @ModelView.button_action('real_estate.wizard_terminate_contract')
+    def terminate(cls, contrats):
+        pass
+
+    @classmethod
+    @ModelView.button
+    @Workflow.transition('cancelled')
+    @set_employee('cancelled_by')
+    def cancel(cls, contrats):
+        for contract in contrats:
+            contract.add_log('state_change', f'contract state changed to cancelled')
+            contract.state = 'cancelled'
+            contract.save()
+
+    @classmethod
+    @ModelView.button
+    def change_partner(cls, contrats):
+        for contract in contrats:
+            contract.add_log('change_partner', f'contract partner changed from {contract.contractual_partner.name if contract.contractual_partner else "None"} to {contract.contractual_partner.name if contract.contractual_partner else "None"}')
+            contract.save()
+
+
+
+    def get_cf_start_date(self, name=None):
+        if hasattr(self, '_cf_start_date'):
+            return self._cf_start_date
+        else:
+            now = Pool().get('ir.date').today()
+            now = now.replace(day=1) # first day of the current month
+            now = now.replace(month=1) # first day of the current month
+            return now 
+        #return getattr(self, '_cf_start_date', '')
+    
+    @classmethod
+    def set_cf_start_date(cls, records, name, value):
+        for record, val in zip(records, value):
+             record._cf_start_date = val
+
+    def get_cf_end_date(self, name=None):
+        if hasattr(self, '_cf_end_date'):
+            return self._cf_end_date
+        else:
+            now = Pool().get('ir.date').today()
+            now = now + relativedelta(months=2) # first day of the next month
+            now = now.replace(day=1) # first day of the next month
+            now = now - relativedelta(days=1) # last day of the next month
+            return now 
+        #return getattr(self, '_cf_end_date', '')
+    
+    @classmethod
+    def set_cf_end_date(cls, records, name, value):
+        for record, val in zip(records, value):
+            record._cf_end_date = val
+
 
     @fields.depends('company','items')
     def on_change_with_meters(self, name=None):
@@ -241,10 +430,12 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
     def default_company(cls):
         return Transaction().context.get('company')
 
-    @fields.depends('terms')
+    @fields.depends('terms', 'cf_start_date', 'cf_end_date')
     def on_change_with_cash_flow(self,name=None):
         return sorted([cash_flow_line for term in self.terms for cash_flow_line in term.cash_flow \
-                            if ( cash_flow_line.invoice is None or cash_flow_line.invoice.state != 'cancelled' )],
+                            if (( cash_flow_line.invoice is None or cash_flow_line.invoice.state != 'cancelled' )
+                                and (self.cf_start_date is None or cash_flow_line.document_date >= self.cf_start_date)
+                                and (self.cf_end_date is None or cash_flow_line.document_date <= self.cf_end_date) )],
                         key=lambda line: (line.document_date, line.posting_date, line.name))
 
 
@@ -479,12 +670,18 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
         for contract_id in contract_ids:
             contract = cls(contract_id)
             contract.add_log('process',f'start "create_moves" with date {date} and action {action}')
-            if contract.state != 'running':
+            if contract.state != 'running' and contract.state != 'terminated':
                 contract.add_log('process',f'contract state {contract.state} - finished')
                 exit
             if contract.start_date > date:
                 contract.add_log('process',f'contract start_date {contract.start_date} - finished')
-                exit                
+                exit
+            if contract.end_date != None and contract.end_date < date:
+                contract.add_log('process',f'contract end_date {contract.end_date} - finished')
+                exit            
+            if contract.termination_date != None and contract.termination_date < date:
+                contract.add_log('process',f'contract termination_date {contract.termination_date} - finished')
+                exit    
 
             process_terms = []
             for term in contract.terms:
@@ -536,6 +733,95 @@ class ContractTypeTax(ModelSQL):
             'contrac_type_tax', cls._table)
         super().__register__(module)
 
+#************************************************************************
+class TerminateContractWizard(Wizard):
+    __name__ = 'real_estate.terminate_contract.wizard'
+
+    start = StateView('real_estate.terminate_contract.start',
+        'real_estate.terminate_contract_view_form', [
+            Button('Cancel', 'end', 'tryton-cancel'),
+            Button('OK', 'terminate_contract', 'tryton-ok', True),
+            ])
+    terminate_contract = StateTransition()
+
+    @without_check_access
+    def transition_terminate_contract(self):
+        pool = Pool()
+        User = pool.get('res.user')
+        user = User(Transaction().user)
+
+        self.start.contract.state = 'terminated'
+        self.start.contract.terminated_by = user.employee.id  if user.employee else None
+        self.start.contract.terminated_by_type = self.start.terminated_by
+        self.start.contract.receipt_of_termination_notice = self.start.receipt_of_termination_notice
+        self.start.contract.termination_date = self.start.termination_date
+        if self.start.termination_date_calc and not self.start.contract.termination_date:
+            self.start.contract.termination_date = self.start.termination_date_calc
+        self.start.contract.termination_reason = self.start.reason
+        self.start.contract.termination_notice = self.start.notice_period
+        self.start.contract.save()
+        return 'end'
+
+
+class TerminateContractStart(ModelView):
+    __name__ = 'real_estate.terminate_contract.start'
+
+    contract = fields.Many2One('real_estate.contract', 'Contract', required=True)
+    terminated_by = fields.Selection([
+        ('tenant','Tenant'),
+        ('landlord', 'Landlord')
+    ], 'Terminated by', required=True)
+    receipt_of_termination_notice = fields.Date('Receipt of Termination Notice', required=True)
+    reason = fields.Char('Termination Reason')
+    notice_period = fields.Selection([
+        ('', 'manually'),
+        ('3m', '3 Months'),
+        ('6m', '6 Months'),
+        ('9m', '9 Months'),
+    ], 'Notice Period', required=True)
+    termination_date_calc = fields.Function(fields.Date('Termination Date',
+         states={'invisible': (Eval('notice_period') == ''),
+        }),
+        'on_change_with_termination_date_calc',)
+    termination_date = fields.Date('Termination Date',
+        states={
+            'invisible': (Eval('notice_period') != ''),
+        })
+
+
+    @fields.depends('receipt_of_termination_notice', 'notice_period')
+    def on_change_with_termination_date_calc(self, name=None):
+        if self.receipt_of_termination_notice and self.notice_period != '':
+            #letzter des aktuellen Monats
+            t_date = self.receipt_of_termination_notice.replace(day=1) + relativedelta(months=1) - relativedelta(days=1)
+            if self.receipt_of_termination_notice and self.notice_period:
+                if self.notice_period == '3m':
+                    return t_date + relativedelta(months=3)
+                elif self.notice_period == '6m':
+                    return t_date + relativedelta(months=6)
+                elif self.notice_period == '9m':
+                    return t_date + relativedelta(months=9)
+                elif self.notice_period == '12m':
+                    return t_date + relativedelta(months=12)
+        return None
+
+    @classmethod
+    def default_terminated_by(cls):
+        return 'tenant'
+
+    @classmethod
+    def default_receipt_of_termination_notice(cls):
+        return Pool().get('ir.date').today()
+
+    @classmethod
+    def default_notice_period(cls):
+        return '3m'
+
+    @classmethod
+    def default_contract(cls):
+        # Vom Aufrufenden Vertrag übernehmen
+        return Transaction().context.get('active_id')
+ 
 #**********************************************************************
 class ContractType(DeactivableMixin, base_object.re_sequence_ordered(), ModelSQL, ModelView):
     __name__ = 'real_estate.contract.type'
@@ -948,6 +1234,8 @@ class ContractTermCashFlow( ModelView, ModelSQL):
     def on_change_with_name(self, name=None):
         if self.invoice_line:
             return f"{self.invoice_line.description}"
+        elif self.term and self.document_date:
+            return f'{self.document_date:%Y/%m/%d} / {self.term.name}'
         elif self.term:
             return f'{self.term.next_document_date:%Y/%m/%d} / {self.term.name}'
         return f" - "   
@@ -1226,11 +1514,17 @@ class ContractTerm(sequence_ordered(), ModelSQL, ModelView, TaxableMixin):
         # first add missing cash flow entries for existing invoice lines
         InvoiceLine = pool.get('account.invoice.line')
         CashFlow = pool.get('real_estate.contract.term.cash_flow')
-        invoice_lines = InvoiceLine.search([('term', '=', self.id)])
+        invoice_lines = InvoiceLine.search([('term', '=', self.id), ('invoice.state','!=', 'cancelled')])
 
+        # 1. remove cash flow entries
+        for cash_flow in self.cash_flow:
+            #if cash_flow.status == 'draft':
+            CashFlow.delete([cash_flow])
+
+        # 2. check booking moves as done
         for invoice_line in invoice_lines:
             is_found = next((e for e in self.cash_flow if e.invoice_line == invoice_line.id), None)
-            if is_found == None and invoice_line.invoice.state != 'cancelled':
+            if is_found == None: # and invoice_line.invoice.state != 'cancelled':
                 cash_flow = CashFlow(
                     status='done',
                     posting_date=invoice_line.invoice.accounting_date,
@@ -1253,11 +1547,6 @@ class ContractTerm(sequence_ordered(), ModelSQL, ModelView, TaxableMixin):
                     # if invoice line is cancelled but cash flow entry is not in draft status, set it to draft
                     CashFlow.delete([is_found])
 
-        # then remove draft cash flow entries
-        for cash_flow in self.cash_flow:
-            if cash_flow.status == 'draft':
-                CashFlow.delete([cash_flow])
-
         # finally recalculate next document/due date
         today = datetime.date.today()
         today_plus_year = today.replace(year=today.year + _re_calc_year)
@@ -1266,7 +1555,7 @@ class ContractTerm(sequence_ordered(), ModelSQL, ModelView, TaxableMixin):
         
         my_last_document_date = self.last_document_date
         my_next_document_date = self._next_document_date(calc_document_date=my_last_document_date)
-        while my_last_document_date != my_next_document_date and self.total_amount != 0 \
+        while my_last_document_date < my_next_document_date and self.total_amount != 0 \
             and (not self.valid_from or my_next_document_date >= self.valid_from) \
             and (not self.valid_to or my_next_document_date <= self.valid_to) \
             and my_next_document_date <= today_plus_year:
@@ -1442,13 +1731,15 @@ class ContractTerm(sequence_ordered(), ModelSQL, ModelView, TaxableMixin):
     @fields.depends('rhythm','valid_from', 'last_document_date', 'rhythm_type',
                     'unit_price')        
     def _next_document_date(self, calc_document_date=None):
-        def _check_valid_to(i_date):
+        def _check_valid_to(i_date:datetime.date):
             """ next doc date must between valid_fromn/valid_to"""
-            if ( self.valid_to != None and self.valid_to > i_date ) \
-                or (self.contract.end_date != None and self.contract.end_date > i_date ):
+            if ( self.valid_to != None and self.valid_to < i_date ) \
+                or (self.contract.end_date != None and self.contract.end_date < i_date )\
+                or (self.contract.termination_date != None and self.contract.termination_date < i_date ):
                 return self.last_document_date
             else: 
-                return i_date
+                #letzter des Monats 
+                return i_date.replace(day=1) + relativedelta(months=1) - relativedelta(days=1)
 
         my_document_Date = calc_document_date if calc_document_date != None else self.last_document_date
 
@@ -1462,7 +1753,7 @@ class ContractTerm(sequence_ordered(), ModelSQL, ModelView, TaxableMixin):
             elif self.rhythm_type == 'daily':
                 if self.rhythm % 365 == 0:
                     # for full years
-                    return _check_valid_to(my_document_Date + relativedelta(year=int(self.rhythm / 365)))
+                    return _check_valid_to(my_document_Date + relativedelta(years=int(self.rhythm / 365)))
                 if self.rhythm % 30 == 0:
                     # for full months
                     return _check_valid_to(my_document_Date+ relativedelta(months=int(self.rhythm / 30)))
@@ -1706,7 +1997,7 @@ class CreateMoves(Wizard):
         pool = Pool()
         with check_access():
 
-            seach_domain = [('state', '=', 'running'),
+            seach_domain = [('state', 'in', ('running','terminated')),
                             ('start_date', '<=', self.start.date)
                             ]
             if self.start.propertys:
