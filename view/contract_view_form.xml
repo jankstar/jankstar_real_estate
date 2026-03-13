@@ -65,13 +65,24 @@
                 view_ids="real_estate.contract_view_list_object_term"/>        
         </page>
         <page string="Cash Flow" id="page_cash_flow">
-            <group string="Filter" col="4" id="cash_flow_dates_group">
-                <label name="cf_start_date"/><field name="cf_start_date"/>
-                <label name="cf_end_date"/><field name="cf_end_date"/>
-            </group>
             <newline/>
-            <field name="cash_flow"
-                view_ids="real_estate.contract_view_list_cash_flow" />
+            <notebook colspan="8">
+
+                <page string="Draft" id="page_cash_flow_draft">
+                    <field name="cash_flow_draft" 
+                        view_ids="real_estate.contract_view_list_cash_flow" />
+                </page>
+
+                <page string="Posted" id="page_cash_flow_posted">
+                    <field name="cash_flow_posted" />
+                </page>
+                <page string="Paid" id="page_cash_flow_paid">
+                    <field name="cash_flow_paid" />
+                <!-- view_ids="real_estate.contract_view_list_cash_flow"
+                    /-->
+                </page>
+
+            </notebook>
         </page>
         <page string="Measurements" id="page_measurements">
             <newline/>

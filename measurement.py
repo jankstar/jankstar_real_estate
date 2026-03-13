@@ -33,7 +33,7 @@ class MeasurementType(DeactivableMixin, sequence_ordered(), ModelSQL, ModelView)
     unit = fields.Many2One('product.uom', "Unit", required=True)
     default = fields.Boolean(
         "Default",
-        help="Check to use as default status for the type.")
+        help="Check to use as default state for the type.")
     
     no_print = fields.Boolean("No Print")
 
@@ -59,7 +59,7 @@ class MeasurementType(DeactivableMixin, sequence_ordered(), ModelSQL, ModelView)
             myType = records[0].id
         else:
             myType = None
-        cls._get_default_status_cache.set(type, myType)
+        cls._get_default_state_cache.set(type, myType)
         return myType
 
     @classmethod

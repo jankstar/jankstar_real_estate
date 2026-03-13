@@ -13,7 +13,7 @@ from trytond import backend, config
 from trytond.i18n import lazy_gettext
 from trytond.modules.company import CompanyReport
 from trytond.modules.product import price_digits
-from sql import Column
+from sql import Column, Literal, Select
 from trytond.modules.currency.fields import Monetary
 from trytond.modules.account.tax import TaxableMixin
 from trytond.modules.company.model import (
@@ -153,7 +153,7 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
     date_of_signature = fields.Date('Date of Signature',)
 
     contractual_partner = fields.Many2One(
-        'party.party', "Contractual Partner", required=True,
+        'party.party', "Contractual Partner", required=True, 
         states={
             'readonly': (Eval('terms', [0]) | (Eval('state') != 'draft')),
             },)
@@ -222,17 +222,27 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
     next_term_sequence = fields.Function(fields.Integer("Next Term Sequence",),
                                          'on_change_with_next_term_sequence',)
 
-    cf_start_date = fields.Function(fields.Date('from', ), 'get_cf_start_date', setter='set_cf_start_date')
-    cf_end_date = fields.Function(fields.Date('to', ), 'get_cf_end_date', setter='set_cf_end_date')
-
-
-    cash_flow = fields.Function(
-        fields.One2Many('real_estate.contract.term.cash_flow', 'contract',
-                        'Cash Flow',
-                        #filter=[('document_date', '>=', Eval('cf_start_date', None)), 
-                        #        ('document_date', '<=', Eval('cf_end_date', None))],
+    cash_flow_draft = fields.Function(
+        fields.One2Many('real_estate.contract.term.cash_flow', None,
+                        'Cash Flow draft',readonly=True,
                                 )
-        ,'on_change_with_cash_flow',)
+        ,'on_change_with_cash_flow',setter='set_cash_flow')
+
+    cash_flow_posted = fields.One2Many('account.invoice', 'contract', 'Cash Flow open',
+            filter=['AND',[
+                ('state', '!=', 'paid'),
+                ('state', '!=', 'cancelled'),
+                  ]
+            ],
+            order=[('invoice_date', 'ASC')],
+            states={'readonly': True})
+
+    cash_flow_paid = fields.One2Many('account.invoice', 'contract', 'Cash Flow paid',
+            filter=[
+                ('state', '=', 'paid')
+            ],
+            order=[('invoice_date', 'ASC')],
+            states={'readonly': True})
 
     meters = fields.Function(
         fields.One2Many('real_estate.base_object', 'company',
@@ -271,7 +281,7 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
             ('6m', '6 Months'),
             ('9m', '9 Months'),
             ('12m', '12 Months'),
-        ], 'Notice Period',
+        ], 'Notice Period', sort=False,
         states={
             'invisible': (Eval('state') != 'terminated'),
             'readonly': (Eval('state') == 'terminated'),
@@ -378,38 +388,9 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
             contract.save()
 
 
-
-    def get_cf_start_date(self, name=None):
-        if hasattr(self, '_cf_start_date'):
-            return self._cf_start_date
-        else:
-            now = Pool().get('ir.date').today()
-            now = now.replace(day=1) # first day of the current month
-            now = now.replace(month=1) # first day of the current month
-            return now 
-        #return getattr(self, '_cf_start_date', '')
-    
     @classmethod
-    def set_cf_start_date(cls, records, name, value):
-        for record, val in zip(records, value):
-             record._cf_start_date = val
-
-    def get_cf_end_date(self, name=None):
-        if hasattr(self, '_cf_end_date'):
-            return self._cf_end_date
-        else:
-            now = Pool().get('ir.date').today()
-            now = now + relativedelta(months=2) # first day of the next month
-            now = now.replace(day=1) # first day of the next month
-            now = now - relativedelta(days=1) # last day of the next month
-            return now 
-        #return getattr(self, '_cf_end_date', '')
-    
-    @classmethod
-    def set_cf_end_date(cls, records, name, value):
-        for record, val in zip(records, value):
-            record._cf_end_date = val
-
+    def set_cash_flow(cls, record, name, value):
+        pass
 
     @fields.depends('company','items')
     def on_change_with_meters(self, name=None):
@@ -430,13 +411,12 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
     def default_company(cls):
         return Transaction().context.get('company')
 
-    @fields.depends('terms', 'cf_start_date', 'cf_end_date')
+    @fields.depends('terms',)
     def on_change_with_cash_flow(self,name=None):
         return sorted([cash_flow_line for term in self.terms for cash_flow_line in term.cash_flow \
-                            if (( cash_flow_line.invoice is None or cash_flow_line.invoice.state != 'cancelled' )
-                                and (self.cf_start_date is None or cash_flow_line.document_date >= self.cf_start_date)
-                                and (self.cf_end_date is None or cash_flow_line.document_date <= self.cf_end_date) )],
-                        key=lambda line: (line.document_date, line.posting_date, line.name))
+                        if ( cash_flow_line.invoice is None or cash_flow_line.state == 'draft' )],
+                    key=lambda line: (line.document_date, line.posting_date, line.name))
+         
 
 
     def add_log(self, event, description=None):
@@ -578,7 +558,7 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
 
                 for cash_flow in term.cash_flow:
 
-                    if cash_flow.document_date <= date and cash_flow.status == 'draft':
+                    if cash_flow.document_date <= date and cash_flow.state == 'draft':
                         # if there is already a draft cash flow entry for the term and 
                         # the document date is due, use it to create invoice line
                         new_invoice_line = InvoiceLine(
@@ -599,7 +579,7 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
                         new_invoice_line.save() # to get the id for cash flow relation
                         line_vals.append(new_invoice_line)
 
-                        cash_flow.status = 'done'
+                        cash_flow.state = 'done'
                         cash_flow.posting_date = date
                         cash_flow.invoice_line = new_invoice_line
                         cash_flow.save()
@@ -767,18 +747,10 @@ class TerminateContractStart(ModelView):
     __name__ = 'real_estate.terminate_contract.start'
 
     contract = fields.Many2One('real_estate.contract', 'Contract', required=True)
-    terminated_by = fields.Selection([
-        ('tenant','Tenant'),
-        ('landlord', 'Landlord')
-    ], 'Terminated by', required=True)
+    terminated_by = fields.Selection('get_terminated_by_type', 'Terminated by', required=True)
     receipt_of_termination_notice = fields.Date('Receipt of Termination Notice', required=True)
     reason = fields.Char('Termination Reason')
-    notice_period = fields.Selection([
-        ('', 'manually'),
-        ('3m', '3 Months'),
-        ('6m', '6 Months'),
-        ('9m', '9 Months'),
-    ], 'Notice Period', required=True)
+    notice_period = fields.Selection('get_notice_period', 'Notice Period', required=True, sort=False)
     termination_date_calc = fields.Function(fields.Date('Termination Date',
          states={'invisible': (Eval('notice_period') == ''),
         }),
@@ -788,6 +760,18 @@ class TerminateContractStart(ModelView):
             'invisible': (Eval('notice_period') != ''),
         })
 
+
+    @classmethod
+    def get_terminated_by_type(cls):
+        pool = Pool()
+        Contract = pool.get('real_estate.contract')
+        return Contract.fields_get(['terminated_by_type'])['terminated_by_type']['selection']        
+
+    @classmethod
+    def get_notice_period(cls):
+        pool = Pool()
+        Contract = pool.get('real_estate.contract')
+        return Contract.fields_get(['termination_notice'])['termination_notice']['selection']  
 
     @fields.depends('receipt_of_termination_notice', 'notice_period')
     def on_change_with_termination_date_calc(self, name=None):
@@ -1101,15 +1085,18 @@ class ContractTermTax(ModelSQL):
         backend.TableHandler.table_rename(
             'contrac_term_tax', cls._table)
         super().__register__(module)
+
+
+
 #**********************************************************************
 class ContractTermCashFlow( ModelView, ModelSQL):
     __name__ = 'real_estate.contract.term.cash_flow'
 
 
-    status = fields.Selection(
+    state = fields.Selection(
         [('draft', 'Draft'),
          ('done','Done')], 
-         "Status", sort=False, required=True, 
+         "State", sort=False, required=True, 
          states={'readonly': True,})
 
     name = fields.Function(fields.Char("Name"), 
@@ -1187,7 +1174,7 @@ class ContractTermCashFlow( ModelView, ModelSQL):
         cls._order = [('document_date','ASC'),('posting_date', 'ASC')] + cls._order
 
     @classmethod
-    def default_status(cls):
+    def default_state(cls):
         return 'draft'
 
     @classmethod
@@ -1332,6 +1319,8 @@ class ContractTermCashFlow( ModelView, ModelSQL):
         elif self.term and self.term.contract and self.term.contract.currency:
             return self.term.contract.currency
         return None
+
+      
 
 #**********************************************************************
 class ContractTerm(sequence_ordered(), ModelSQL, ModelView, TaxableMixin):
@@ -1498,7 +1487,7 @@ class ContractTerm(sequence_ordered(), ModelSQL, ModelView, TaxableMixin):
         ],            
         states={
                 'readonly': True,
-                'invisible': (Eval('len(lines)', 0) == 0),
+                'invisible': (Eval('len(cash_flow)', 0) == 0),
             })
 
 
@@ -1518,7 +1507,7 @@ class ContractTerm(sequence_ordered(), ModelSQL, ModelView, TaxableMixin):
 
         # 1. remove cash flow entries
         for cash_flow in self.cash_flow:
-            #if cash_flow.status == 'draft':
+            #if cash_flow.state == 'draft':
             CashFlow.delete([cash_flow])
 
         # 2. check booking moves as done
@@ -1526,7 +1515,7 @@ class ContractTerm(sequence_ordered(), ModelSQL, ModelView, TaxableMixin):
             is_found = next((e for e in self.cash_flow if e.invoice_line == invoice_line.id), None)
             if is_found == None: # and invoice_line.invoice.state != 'cancelled':
                 cash_flow = CashFlow(
-                    status='done',
+                    state='done',
                     posting_date=invoice_line.invoice.accounting_date,
                     document_date=invoice_line.invoice.invoice_date,
                     due_date=invoice_line.invoice.payment_term_date,
@@ -1544,7 +1533,7 @@ class ContractTerm(sequence_ordered(), ModelSQL, ModelView, TaxableMixin):
                 #self.cash_flow = self.on_change_with_cash_flow() # ensure term cash flow is up to date
 
             elif is_found != None and invoice_line.invoice.state == 'cancelled':
-                    # if invoice line is cancelled but cash flow entry is not in draft status, set it to draft
+                    # if invoice line is cancelled but cash flow entry is not in draft state, set it to draft
                     CashFlow.delete([is_found])
 
         # finally recalculate next document/due date
@@ -1561,7 +1550,7 @@ class ContractTerm(sequence_ordered(), ModelSQL, ModelView, TaxableMixin):
             and my_next_document_date <= today_plus_year:
                 
                 cash_flow = ContractTermCashFlow(
-                    status='draft',
+                    state='draft',
                     #posting_date=invoice_line.accounting_date,
                     document_date=my_next_document_date,
                     #due_date=invoice_line.payment_term_date,
@@ -1638,7 +1627,7 @@ class ContractTerm(sequence_ordered(), ModelSQL, ModelView, TaxableMixin):
     @fields.depends('cash_flow')
     def on_change_with_last_document_date(self, name=None):
         if self.cash_flow:
-            done_cash_flows = [cf for cf in self.cash_flow if cf.status == 'done' and \
+            done_cash_flows = [cf for cf in self.cash_flow if cf.state == 'done' and \
                                ( cf.invoice is None or cf.invoice.state != 'cancelled' ) and cf.document_date is not None]
             if done_cash_flows:
                 return max(cf.document_date for cf in done_cash_flows)
@@ -1647,7 +1636,7 @@ class ContractTerm(sequence_ordered(), ModelSQL, ModelView, TaxableMixin):
     @fields.depends('cash_flow')
     def on_change_with_last_posting_date(self, name=None):
         if self.cash_flow:
-            done_cash_flows = [cf for cf in self.cash_flow if cf.status == 'done' and \
+            done_cash_flows = [cf for cf in self.cash_flow if cf.state == 'done' and \
                                ( cf.invoice is None or cf.invoice.state != 'cancelled' ) and cf.posting_date is not None]
             if done_cash_flows:
                 return max(cf.posting_date for cf in done_cash_flows)
