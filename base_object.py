@@ -219,6 +219,7 @@ class BaseObject(Workflow,DeactivableMixin, re_sequence_ordered(), tree(separato
             ('structure', 'Structures, e.g., masonry, windows, doors'),
             ('installation', 'Installation, e.g., furniture'),
             ('meters', 'Meters'),
+            (None, 'None'),
             ], "Equipment Type", sort=False,
         states={
             'invisible': Eval('type') != 'equipment',

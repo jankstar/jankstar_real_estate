@@ -338,8 +338,34 @@
         action="wizard_create_moves"
         id="menu_create_moves"/>
 
+    <record model="ir.ui.view" id="general_ledger_account_contract_view_list">
+        <field name="model">real_estate.account_contract</field>
+        <field name="type">tree</field>
+        <field name="name">general_ledger_account_contract_list</field>
+    </record>
+
+    <record model="ir.action.act_window" id="act_general_ledger_account_contract_form_contract">
+        <field name="name">Accounts</field>
+        <field name="res_model">real_estate.account_contract</field>
+        <field name="context_model">account.general_ledger.account.context</field>
+        <field name="domain" eval="[('contract', 'in', Eval('active_ids'))]" pyson="1"/>
+    </record>
+    <record model="ir.action.act_window.view" id="act_general_ledger_account_contract_form_contract_view1">
+        <field name="sequence" eval="10"/>
+        <field name="view" ref="general_ledger_account_contract_view_list"/>
+        <field name="act_window" ref="act_general_ledger_account_contract_form_contract"/>
+    </record>
+    <record model="ir.action.keyword" id="act_general_ledger_account_contract_form_contract_relate_keyword1">
+        <field name="keyword">form_relate</field>
+        <field name="model">real_estate.contract,-1</field>
+        <field name="action" ref="act_general_ledger_account_contract_form_contract"/>
+    </record>
 
    </data>
+
+
+
+
 
     <data noupdate="1">
 

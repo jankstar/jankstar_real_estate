@@ -99,4 +99,6 @@
     <button name="terminate" string="Terminate"/>
     <button name="cancel" string="Cancel"/>
     <button name="change_partner" string="Change Partner"/>
+    <button name="open_party_ledger" string="Party Ledger"/>
+
 </form>

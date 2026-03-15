@@ -1,6 +1,6 @@
 Metadata-Version: 2.4
 Name: jankstar_real_estate
-Version: 7.0.1
+Version: 7.8.1
 Summary: Real Estate Management
 Home-page: www.jankstar.de
 Author: jankstar
@@ -27,14 +27,14 @@ Classifier: Programming Language :: Python :: Implementation :: CPython
 Classifier: Topic :: Office/Business
 Requires-Python: >=3.9
 License-File: LICENSE
-Requires-Dist: trytond_company<7.1,>=7.0
-Requires-Dist: trytond_party<7.1,>=7.0
-Requires-Dist: trytond_product<7.1,>=7.0
-Requires-Dist: trytond_currency<7.1,>=7.0
-Requires-Dist: trytond_country<7.1,>=7.0
-Requires-Dist: trytond_account<7.1,>=7.0
-Requires-Dist: trytond_account_invoice<7.1,>=7.0
-Requires-Dist: trytond<7.1,>=7.0
+Requires-Dist: trytond_company<7.9,>=7.8
+Requires-Dist: trytond_party<7.9,>=7.8
+Requires-Dist: trytond_product<7.9,>=7.8
+Requires-Dist: trytond_currency<7.9,>=7.8
+Requires-Dist: trytond_country<7.9,>=7.8
+Requires-Dist: trytond_account<7.9,>=7.8
+Requires-Dist: trytond_account_invoice<7.9,>=7.8
+Requires-Dist: trytond<7.9,>=7.8
 Provides-Extra: test
 Dynamic: author
 Dynamic: author-email

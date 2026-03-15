@@ -28,6 +28,10 @@ from trytond.transaction import Transaction, check_access, without_check_access
 from sql import Null
 from sql.aggregate import Sum
 from sql.conditionals import Coalesce
+from sql.aggregate import Count, Min, Sum
+from collections import defaultdict
+from itertools import groupby, zip_longest
+
 
 from dateutil.relativedelta import relativedelta
 
@@ -36,6 +40,9 @@ import logging
 from decimal import Decimal
 import datetime
 import calendar
+
+from trytond.modules.account.account import _GeneralLedgerAccount
+from trytond.modules.account.common import ActivePeriodMixin
 
 import pdb
 
@@ -84,6 +91,298 @@ class ContractLog(ModelSQL, ModelView):
     description = fields.Text('Description')
     create_date = fields.DateTime('Create Date', readonly=True)
     create_uid = fields.Many2One('res.user', 'User', readonly=True)
+
+#**********************************************************************
+class AccountContract(ActivePeriodMixin, ModelSQL):
+    __name__ = 'real_estate.contract.account_contract'
+    account = fields.Many2One('account.account', "Account")
+    party = fields.Many2One(
+        'party.party', "Party",
+        context={
+            'company': Eval('company', -1),
+            },
+        depends={'company'})
+    contract = fields.Many2One(
+        'real_estate.contract', "Contract",
+        # domain=[
+        #     ('contractual_partner', '=', Eval('party.id', -1))
+        # ],
+        context={
+            'company': Eval('company', -1),
+            },
+        depends={'company'})    
+    name = fields.Char("Name")
+    code = fields.Char("Code")
+    company = fields.Many2One('company.company', "Company")
+    type = fields.Many2One('account.account.type', "Type")
+    debit_type = fields.Many2One('account.account.type', "Debit Type")
+    credit_type = fields.Many2One('account.account.type', "Credit Type")
+    closed = fields.Boolean("Closed")
+
+    balance = fields.Function(Monetary(
+            "Balance", currency='currency', digits='currency'),
+        'get_balance')
+    credit = fields.Function(Monetary(
+            "Credit", currency='currency', digits='currency'),
+        'get_credit_debit')
+    debit = fields.Function(Monetary(
+            "Debit", currency='currency', digits='currency'),
+        'get_credit_debit')
+    amount_second_currency = fields.Function(Monetary(
+            "Amount Second Currency",
+            currency='second_currency', digits='second_currency',
+            states={
+                'invisible': ~Eval('second_currency'),
+                }),
+        'get_credit_debit')
+    line_count = fields.Function(
+        fields.Integer("Line Count"), 'get_credit_debit')
+    second_currency = fields.Many2One(
+        'currency.currency', "Secondary Currency")
+
+    currency = fields.Function(fields.Many2One(
+            'currency.currency', "Currency"),
+        'get_currency', searcher='search_currency')
+
+    @classmethod
+    def table_query(cls):
+        pool = Pool()
+        Line = pool.get('account.move.line')
+        Account = pool.get('account.account')
+        Contract = pool.get('real_estate.contract')
+        line = Line.__table__()
+        account = Account.__table__()
+        contract = Contract.__table__()
+
+        account_party = line.select(
+                Min(line.id).as_('id'), line.account, line.party,
+                where=line.party != Null,
+                group_by=[line.account, line.party])
+
+        columns = []
+        for fname, field in cls._fields.items():
+            if not hasattr(field, 'set'):
+                if fname in {'id', 'account', 'party'}:
+                    column = Column(account_party, fname)
+                elif  fname in {'contract'}:
+                     column = Column(contract, 'id')                       
+                else:
+                    column = Column(account, fname)
+                columns.append(column.as_(fname))
+        return (
+            account_party.join(
+                account, condition=account_party.account == account.id)
+            .join(
+                contract, condition=account_party.party == contract.contractual_partner)
+            .select(
+                *columns,
+                where=account.party_required))
+
+    @classmethod
+    def get_balance(cls, records, name):
+        pool = Pool()
+        Account = pool.get('account.account')
+        MoveLine = pool.get('account.move.line')
+        FiscalYear = pool.get('account.fiscalyear')
+        transaction = Transaction()
+        cursor = transaction.connection.cursor()
+
+        table_a = Account.__table__()
+        table_c = Account.__table__()
+        line = MoveLine.__table__()
+        balances = defaultdict(Decimal)
+
+        for company, c_records in groupby(records, lambda r: r.company):
+            c_records = list(c_records)
+            account_ids = {a.account.id for a in c_records}
+            party_ids = {a.party.id for a in c_records}
+            account_party2id = {
+                (a.account.id, a.party.id): a.id for a in c_records}
+            with transaction.set_context(company=company.id):
+                line_query, fiscalyear_ids = MoveLine.query_get(line)
+            for sub_account_ids in grouped_slice(account_ids):
+                account_sql = reduce_ids(table_a.id, sub_account_ids)
+                for sub_party_ids in grouped_slice(party_ids):
+                    party_sql = reduce_ids(line.party, sub_party_ids)
+                    query = (table_a.join(table_c,
+                            condition=(table_c.left >= table_a.left)
+                            & (table_c.right <= table_a.right)
+                            ).join(line, condition=line.account == table_c.id
+                            ).select(
+                            table_a.id,
+                            line.party,
+                            Sum(
+                                Coalesce(line.debit, 0)
+                                - Coalesce(line.credit, 0)).as_('balance'),
+                            where=account_sql & party_sql & line_query,
+                            group_by=[table_a.id, line.party]))
+                    if backend.name == 'sqlite':
+                        sqlite_apply_types(query, [None, None, 'NUMERIC'])
+                    cursor.execute(*query)
+                    for account_id, party_id, balance in cursor:
+                        try:
+                            id_ = account_party2id[(account_id, party_id)]
+                        except KeyError:
+                            # There can be more combinations of account-party
+                            # in the database than from records
+                            continue
+                        balances[id_] = balance
+
+            for record in c_records:
+                balances[record.id] = record.currency.round(
+                    balances[record.id])
+
+            fiscalyears = FiscalYear.browse(fiscalyear_ids)
+
+            def func(records, names):
+                return {names[0]: cls.get_balance(records, names[0])}
+            Account._cumulate(
+                fiscalyears, c_records, [name], {name: balances}, func,
+                deferral=None)[name]
+        return balances
+
+    @classmethod
+    def get_credit_debit(cls, records, names):
+        pool = Pool()
+        Account = pool.get('account.account')
+        MoveLine = pool.get('account.move.line')
+        FiscalYear = pool.get('account.fiscalyear')
+        transaction = Transaction()
+        cursor = transaction.connection.cursor()
+
+        result = {}
+        for name in names:
+            if name not in {
+                    'credit', 'debit', 'amount_second_currency', 'line_count'}:
+                raise ValueError('Unknown name: %s' % name)
+            column_type = int if name == 'line_count' else Decimal
+            result[name] = defaultdict(column_type) 
+
+        table = Account.__table__()
+        line = MoveLine.__table__()
+        columns = [table.id, line.party]
+        types = [None, None]
+        for name in names:
+            if name == 'line_count':
+                columns.append(Count(Literal('*')).as_(name))
+                types.append(None)
+            else:
+                columns.append(Sum(Coalesce(Column(line, name), 0)).as_(name))
+                types.append('NUMERIC')
+
+        for company, c_records in groupby(records, key=lambda r: r.company):
+            c_records = list(c_records)
+            account_ids = {a.account.id for a in c_records}
+            party_ids = {a.party.id for a in c_records}
+            account_party2id = {
+                (a.account.id, a.party.id): a.id for a in c_records}
+
+            with transaction.set_context(company=company.id):
+                line_query, fiscalyear_ids = MoveLine.query_get(line)
+
+            for sub_account_ids in grouped_slice(account_ids):
+                account_sql = reduce_ids(table.id, sub_account_ids)
+                for sub_party_ids in grouped_slice(party_ids):
+                    party_sql = reduce_ids(line.party, sub_party_ids)
+                    query = (table.join(line, 'LEFT',
+                            condition=line.account == table.id
+                            ).select(*columns,
+                            where=account_sql & party_sql & line_query,
+                            group_by=[table.id, line.party]))
+                    if backend.name == 'sqlite':
+                        sqlite_apply_types(query, types)
+                    cursor.execute(*query)
+                    for row in cursor:
+                        try:
+                            id_ = account_party2id[tuple(row[0:2])]
+                        except KeyError:
+                            # There can be more combinations of account-party
+                            # in the database than from records
+                            continue
+                        for i, name in enumerate(names, 2):
+                            result[name][id_] = row[i]
+            for record in c_records:
+                for name in names:
+                    if name == 'line_count':
+                        continue
+                    if (name == 'amount_second_currency'
+                            and record.second_currency):
+                        currency = record.second_currency
+                    else:
+                        currency = record.currency
+                    result[name][record.id] = currency.round(
+                        result[name][record.id])
+
+            cumulate_names = []
+            if transaction.context.get('cumulate'):
+                cumulate_names = names
+            elif 'amount_second_currency' in names:
+                cumulate_names = ['amount_second_currency']
+            if cumulate_names:
+                fiscalyears = FiscalYear.browse(fiscalyear_ids)
+                Account._cumulate(
+                    fiscalyears, c_records, cumulate_names, result,
+                    cls.get_credit_debit, deferral=None)
+        return result
+
+    def get_currency(self, name):
+        return self.company.currency.id
+
+    @classmethod
+    def search_currency(cls, name, clause):
+        return [('company.' + clause[0], *clause[1:])]
+
+
+#**********************************************************************
+class GeneralLedgerAccountContract(_GeneralLedgerAccount):
+    __name__ = 'real_estate.account_contract'
+
+    party = fields.Many2One(
+         'party.party', "Party", 
+        context={
+            'company': Eval('company', -1),
+            },
+        depends={'company'})
+
+    contract = fields.Many2One(
+        'real_estate.contract', "Contract",
+        # domain=[
+        #     ('contractual_partner', '=', Eval('party.id', -1))
+        # ],        
+        context={
+            'company': Eval('company', -1),
+            },
+        depends={'company'})
+
+    @classmethod
+    def __setup__(cls):
+        super().__setup__()
+        cls._order.insert(2, ('contract', 'ASC'))
+
+    @classmethod
+    def _get_account(cls):
+        pool = Pool()
+        return pool.get('real_estate.contract.account_contract')
+
+    def get_rec_name(self, name):
+        return ' - '.join((self.account.rec_name, self.contract.rec_name))
+
+    def get_party(self, name):
+        if self.contract:
+            return self.contract.contractual_partner
+        
+
+    @classmethod
+    def search_rec_name(cls, name, clause):
+        if clause[1].startswith('!') or clause[1].startswith('not '):
+            bool_op = 'AND'
+        else:
+            bool_op = 'OR'
+        return [bool_op,
+            ('account.rec_name',) + tuple(clause[1:]),
+            ('party.rec_name',) + tuple(clause[1:]),
+            ('contract.rec_name',) + tuple(clause[1:]),
+            ]
 
 #**********************************************************************
 class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), ModelSQL, ModelView):
@@ -332,8 +631,21 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
                 'invisible': ~Eval('state').in_(['draft', 'cancelled']),
                 'depends': ['state'],
                 },
+            'open_party_ledger': {
+                'invisible': (~Eval('state').in_(['draft']))
+                }
             })
         
+
+    @classmethod
+    @ModelView.button
+    def open_party_ledger(cls, contracts):
+        for contract in contracts:
+            if contract.contractual_partner:
+                return 'act_party_ledger_from_contract', {
+                    'contractual_partner': contract.contractual_partner.id
+                }
+
     @classmethod
     def view_attributes(cls):
         return super().view_attributes() + [
@@ -596,7 +908,7 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
         if len(line_vals) > 0:
             invoice = Invoice(
                 company=self.company.id,
-                type=self.c_type.invoice_type,
+                type=self.c_type.invoice_type, #as debit or credit type
                 party=self.contractual_partner.id,
                 invoice_date=date,
                 accounting_date=date,

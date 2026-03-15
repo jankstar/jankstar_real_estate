@@ -33,6 +33,8 @@ def register():
         contract.Contract,
         contract.CreateMovesStart,
         contract.TerminateContractStart,
+        contract.AccountContract,
+        contract.GeneralLedgerAccountContract,
         #sequence.Sequence,
         res.User,
         party.Party,
