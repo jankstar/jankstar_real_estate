@@ -445,31 +445,27 @@
             icon="equipment_icon"/>
 
 
-        <record model="ir.action.act_window.domain"
-            id="act_equipment_form_domain_draft">
+        <record model="ir.action.act_window.domain"  id="act_equipment_form_domain_draft">
             <field name="name">Draft</field>
             <field name="sequence" eval="10"/>
             <field name="domain" eval="[('state', '=', 'draft')]" pyson="1"/>
             <field name="count" eval="True"/>
             <field name="act_window" ref="act_equipment_form"/>
         </record>
-        <record model="ir.action.act_window.domain"
-            id="act_equipment_form_domain_approved">
+        <record model="ir.action.act_window.domain" id="act_equipment_form_domain_approved">
             <field name="name">Approved</field>
             <field name="sequence" eval="20"/>
             <field name="domain" eval="[('state', '=', 'approved')]" pyson="1"/>
             <field name="count" eval="True"/>
             <field name="act_window" ref="act_equipment_form"/>
         </record>
-        <record model="ir.action.act_window.domain"
-            id="act_equipment_form_domain_locked">
+        <record model="ir.action.act_window.domain" id="act_equipment_form_domain_locked">
             <field name="name">Locked</field>
             <field name="sequence" eval="30"/>
             <field name="domain" eval="[('state', '=', 'locked')]" pyson="1"/>
             <field name="act_window" ref="act_equipment_form"/>
         </record>
-        <record model="ir.action.act_window.domain"
-            id="act_equipment_form_domain_all">
+        <record model="ir.action.act_window.domain"  id="act_equipment_form_domain_all">
             <field name="name">All</field>
             <field name="sequence" eval="9999"/>
             <field name="domain"></field>

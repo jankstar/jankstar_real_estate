@@ -527,7 +527,7 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
                                 )
         ,'on_change_with_cash_flow',setter='set_cash_flow')
 
-    cash_flow_posted = fields.One2Many('account.invoice', 'contract', 'Cash Flow open',
+    cash_flow_pending = fields.One2Many('account.invoice', 'contract', 'Cash Flow Pending',
             filter=['AND',[
                 ('state', '!=', 'paid'),
                 ('state', '!=', 'cancelled'),
@@ -536,7 +536,7 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
             order=[('invoice_date', 'ASC')],
             states={'readonly': True})
 
-    cash_flow_paid = fields.One2Many('account.invoice', 'contract', 'Cash Flow paid',
+    cash_flow_paid = fields.One2Many('account.invoice', 'contract', 'Cash Flow Paid',
             filter=[
                 ('state', '=', 'paid')
             ],

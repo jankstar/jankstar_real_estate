@@ -73,8 +73,8 @@
                         view_ids="real_estate.contract_view_list_cash_flow" />
                 </page>
 
-                <page string="Posted" id="page_cash_flow_posted">
-                    <field name="cash_flow_posted" />
+                <page string="Pending" id="page_cash_flow_pending">
+                    <field name="cash_flow_pending" />
                 </page>
                 <page string="Paid" id="page_cash_flow_paid">
                     <field name="cash_flow_paid" />

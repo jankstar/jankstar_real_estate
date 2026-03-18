@@ -3,8 +3,12 @@
 this repository contains the full copyright notices and license terms. -->
 <tree sequence="sequence">
     <field name="company" expand="1" optional="1"/>
+    <field name="parent" expand="1" optional="1"/>
     <field name="compute_name" expand="1"/>
     <field name="address" expand="1"/>
     <field name="type" optional="1"/>
+    <field name="type_of_use" optional="1"/>
+    <field name="use_class" optional="1"/>
+    <field name="e_type" optional="1"/>
     <field name="state"/>
 </tree>
