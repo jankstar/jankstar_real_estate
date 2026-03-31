@@ -9,6 +9,7 @@ from . import sequence
 from . import res
 from . import party
 from . import invoice
+from . import operation_cost
 
 __all__ = ['register']
 
@@ -40,6 +41,9 @@ def register():
         party.Party,
         invoice.Invoice,
         invoice.InvoiceLine,
+        operation_cost.CostGroup,
+        operation_cost.CostObjectType,
+        operation_cost.CostObject,
         module='real_estate', type_='model')
     Pool.register(
         contract.CreateMoves,

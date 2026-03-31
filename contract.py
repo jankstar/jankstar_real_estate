@@ -1298,7 +1298,7 @@ class ContractTermType(DeactivableMixin, base_object.re_sequence_ordered(), Mode
 
     name = fields.Char("Name", required=True, translate=True)
     types_of_use = fields.MultiSelection(
-            'geterm_types_of_use', "Types",
+            'get_term_types_of_use', "Types",
             help="The type of object which can use this contract term type.")    
     
     m_type = fields.Many2One('real_estate.measurement.type', "Measurement Type", 
@@ -1346,7 +1346,7 @@ class ContractTermType(DeactivableMixin, base_object.re_sequence_ordered(), Mode
         return 'monthly'
 
     @classmethod
-    def geterm_types_of_use(cls):
+    def get_term_types_of_use(cls):
         pool = Pool()
         BaseObject = pool.get('real_estate.base_object')
         return BaseObject.fields_get(['type_of_use'])['type_of_use']['selection']

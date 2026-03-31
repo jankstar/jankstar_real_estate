@@ -79,7 +79,7 @@ class Quantitative(fields.Numeric):
         return definition
 
 #**************************************************************************
-class BaseObject(Workflow,DeactivableMixin, re_sequence_ordered(), tree(separator='\\'), ModelSQL, ModelView):
+class BaseObject(Workflow, DeactivableMixin, re_sequence_ordered(), tree(separator='\\'), ModelSQL, ModelView):
     "Base Object - base class for real estate objects"
     __name__ = 'real_estate.base_object'
     __rec_name__ = 'compute_name'
@@ -189,6 +189,14 @@ class BaseObject(Workflow,DeactivableMixin, re_sequence_ordered(), tree(separato
 
     parties = fields.One2Many('real_estate.object_party', 'base_object', 'Parties',)
 
+    ## special data propperty
+    _states_only_propperty= {
+            'invisible': Eval('type') != 'property',
+            }
+    
+    cost_groups = fields.One2Many('real_estate.cost_group', 'base_object', 'Cost Group',
+        states=_states_only_propperty)
+
     ## special data building
     _states_only_building= {
             'invisible': Eval('type') != 'building',
@@ -291,6 +299,7 @@ class BaseObject(Workflow,DeactivableMixin, re_sequence_ordered(), tree(separato
             ('/form/notebook/page[@id="page_object"]', 'states', cls._states_only_object),
             ('/form/notebook/page[@id="page_equipment"]', 'states', cls._states_only_equipment),
             ('/form/notebook/page[@id="page_meter"]', 'states', cls._states_only_equipment_meter),
+            ('/form/notebook/page[@id="page_cost_group"]', 'states', cls._states_only_propperty),
             ]
 
 
