@@ -83,7 +83,8 @@ this repository contains the full copyright notices and license terms. -->
         </page>
 
         <page string="Cost Groups" id="page_cost_group" col="6">
-            <field name="cost_groups"/>
+            <field name="cost_groups"
+                view_ids="real_estate.base_object_view_list_cost_group"/>
         </page>
         
         <page name="measurements" col="1">

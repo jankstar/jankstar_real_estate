@@ -2,6 +2,55 @@
 
     <data>
 
+    <!-- Cost Group -->
+        <record model="ir.ui.view" id="base_object_view_list_cost_group">
+            <field name="model">real_estate.cost_group</field>
+            <field name="type">tree</field>
+            <field name="name">base_object_list_cost_group</field>
+        </record>
+        <record model="ir.ui.view" id="cost_group_list">
+            <field name="model">real_estate.cost_group</field>
+            <field name="type">tree</field>
+            <field name="name">cost_group_list</field>
+        </record>        
+        <record model="ir.ui.view" id="base_object_view_form_cost_group">
+            <field name="model">real_estate.cost_group</field>
+            <field name="type">form</field>
+            <field name="name">cost_group_form</field>
+        </record>
+
+        <record model="ir.action.act_window" id="act_cost_group_tree">
+            <field name="name">Cost Groups</field>
+            <field name="res_model">real_estate.cost_group</field>
+        </record>
+
+        <record model="ir.action.act_window.view" id="act_cost_group_tree_view1">
+            <field name="sequence" eval="10"/>
+            <field name="view" ref="cost_group_list"/>
+            <field name="act_window" ref="act_cost_group_tree"/>
+        </record>
+        <record model="ir.action.act_window.view" id="act_cost_group_tree_view2">
+            <field name="sequence" eval="20"/>
+            <field name="view" ref="base_object_view_form_cost_group"/>
+            <field name="act_window" ref="act_cost_group_tree"/>
+        </record>
+
+
+        <menuitem
+            parent="menu_real_estate"
+            name="Operation Costs"
+            sequence="30"
+            id="menu_real_estate_operation_costs"/>
+
+        <menuitem
+            parent="menu_real_estate_operation_costs"
+            sequence="10"
+            action="act_cost_group_tree"
+            id="menu_cost_group"/>
+
+
+
+    <!-- Cost Object Type -->
         <record model="ir.ui.view" id="cost_object_type_list">
             <field name="model">real_estate.cost_object.type</field>
             <field name="type">tree</field>

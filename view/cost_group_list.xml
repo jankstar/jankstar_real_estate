@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<tree>
+    <field name="company"/>
+    <field name="property"/>
+    <field name="start_date" width="110"/>
+    <field name="end_date" width="110" optional="1"/>
+    <field name="description"/>
+    <field name="state" width="60" readonly="1"/>
+</tree>

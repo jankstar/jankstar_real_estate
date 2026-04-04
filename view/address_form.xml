@@ -1,6 +1,4 @@
 <?xml version="1.0"?>
-<!-- This file is part of Tryton.  The COPYRIGHT file at the top level of
-this repository contains the full copyright notices and license terms. -->
 <form col="6">
     <group colspan="2" col="-1" id="checkboxes">
         <label name="active"/>
