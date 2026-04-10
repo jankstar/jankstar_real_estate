@@ -21,12 +21,12 @@
             <field name="priority" eval="20"/>
             <field name="name">measurement_tree</field>
         </record>
-        <record model="ir.ui.view" id="measurement_view_tree_simple">
+        <!--record model="ir.ui.view" id="measurement_view_tree_simple">
             <field name="model">real_estate.measurement</field>
             <field name="type">tree</field>
             <field name="priority" eval="20"/>
             <field name="name">measurement_tree_simple</field>
-        </record>
+        </record-->
 
 
         <record model="ir.action.act_window" id="act_measurement_tree">
@@ -45,6 +45,7 @@
             <field name="act_window" ref="act_measurement_tree"/>
         </record>
 
+        <!-- Measurement Type Views -->
         <record model="ir.ui.view" id="measurement_type_view_list">
             <field name="model">real_estate.measurement.type</field>
             <field name="type">tree</field>

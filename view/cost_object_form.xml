@@ -23,12 +23,17 @@
     <newline/>
     <label name="planned_costs"/><field name="planned_costs"/>
     <label name="currency"/><field name="currency"/>
+    <newline/>   
+    <separator name="comment" colspan="4"/><field name="comment" colspan="4"/>
     <newline/>
     <group colspan="8" col="-1" id="cost_object_base_objects">
         <field name="objects"/>
     </group>
      <group colspan="8" col="-1" id="cost_object_base_meters">
         <field name="meters"/>
+    </group>
+    <group colspan="8" col="-1" id="cost_object_base_measurements">
+        <field name="measurements"/>
     </group>
 
 </form>

@@ -257,16 +257,38 @@ class CostObject(DeactivableMixin, base_object.re_sequence_ordered(), ModelSQL, 
                                               readonly=True,
         domain=[('company', '=', Eval('company', -1)),
                 ('property', '=', Eval('property', -1)),
-                ('type', '=', 'object')]
-        ),'on_change_with_objects', setter='set_objects')
+                ('type', '=', 'object')],
+        states={
+            'invisible': Eval('allocation_rule') == 'no_allocation',
+            }
+        ),'on_change_with_objects', 
+        #setter='set_objects',
+        )
     
 
     meters = fields.Function(fields.One2Many('real_estate.base_object', None, 'Meters',
                                               readonly=True,
         domain=[('company', '=', Eval('company', -1)),
                 ('property', '=', Eval('property', -1)),
-                ('type', '=', 'meter')]
-        ),'on_change_with_meters', setter='set_meters')
+                ('type', '=', 'meter')],
+        states={
+            'invisible': Eval('allocation_rule') != 'allocation_by_consumption',
+            }
+        ),'on_change_with_meters', 
+        #setter='set_meters',
+        )
+
+    measurements = fields.Function(fields.One2Many('real_estate.measurement', None, 'Measurements',
+                                              readonly=True,
+        domain=[('company', '=', Eval('company', -1)),
+                ('property', '=', Eval('property', -1)),
+                ('m_type', '=', Eval('m_type', -1))],
+        states={
+            'invisible': Eval('allocation_rule') != 'allocation_by_measurement',
+            }
+        ),'on_change_with_measurements', 
+        #setter='set_measurements',
+        )
 
     @classmethod
     def default_company(cls):
@@ -301,7 +323,8 @@ class CostObject(DeactivableMixin, base_object.re_sequence_ordered(), ModelSQL, 
             objects = Pool().get('real_estate.base_object').search([
                 ('company', '=', self.cost_group.company),
                 ('property', '=', self.cost_group.property),
-                ('type', '=', 'object')
+                ('type', '=', 'object'),
+                ('state', '=', 'approved'), #only search approved objects
             ])
             if self.reg_ex_object:
                 pattern = re.compile(self.reg_ex_object)
@@ -319,11 +342,22 @@ class CostObject(DeactivableMixin, base_object.re_sequence_ordered(), ModelSQL, 
                 ('type', '=', 'equipment'),
                 ('e_type', '=', 'meters'), #only search meters which have measurement type
                 ('meter_unit', '=', self.meter_unit), #only search meters which have the same unit
+                ('state', '=', 'approved'), #only search approved objects
             ])
             if self.reg_ex_meter:
                 pattern = re.compile(self.reg_ex_meter)
                 meters = [item for item in meters if pattern.search(item.name)]
         return meters
+
+    @fields.depends('cost_group', 'm_type', 'allocation_rule', 'objects')
+    def on_change_with_measurements(self, name=None):
+        measurements = []
+        if self.cost_group and self.objects and self.allocation_rule == 'allocation_by_measurement':
+            measurements = Pool().get('real_estate.measurement').search([
+                ('base_object', 'in', [obj.id for obj in self.objects]), #only search measurements which are linked to the objects
+                ('m_type', '=', self.m_type), #only search measurements which have the same measurement type
+            ], order=[('base_object', 'ASC'),('valid_from', 'DESC')]) #order by field_name to make sure the sequence of measurements is correct
+        return measurements
 
     @classmethod
     def set_objects(cls, objects, name, value):
@@ -331,6 +365,14 @@ class CostObject(DeactivableMixin, base_object.re_sequence_ordered(), ModelSQL, 
         # `name` = Feldname ('objects'),
         # `value` = neuer Wert, z.B. Liste von IDs bei Many2Many
         pass   # hier Logik schreiben    
+
+    @classmethod
+    def set_meters(cls, meters, name, value):
+        pass   # hier Logik schreiben
+
+    @classmethod
+    def set_measurements(cls, measurements, name, value):
+        pass   # hier Logik schreiben
 
     @fields.depends('type')
     def on_change_with_sequence(self, name=None):

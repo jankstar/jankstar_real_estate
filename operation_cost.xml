@@ -11,6 +11,7 @@
         <record model="ir.ui.view" id="cost_group_list">
             <field name="model">real_estate.cost_group</field>
             <field name="type">tree</field>
+            <field name="priority" eval="20"/>
             <field name="name">cost_group_list</field>
         </record>        
         <record model="ir.ui.view" id="cost_group_form">
@@ -48,11 +49,11 @@
             action="act_cost_group_tree"
             id="menu_cost_group"/>
 
-    <!-- Cost Group -->
+    <!-- Cost Object -->
         <record model="ir.ui.view" id="base_object_view_list_cost_object">
             <field name="model">real_estate.cost_object</field>
             <field name="type">tree</field>
-            <field name="name">base_object_list_cost_object</field>
+            <field name="name">cost_group_list_cost_object</field>
         </record>
         <record model="ir.ui.view" id="cost_object_list">
             <field name="model">real_estate.cost_object</field>
