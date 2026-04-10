@@ -187,7 +187,7 @@ class CostObject(DeactivableMixin, base_object.re_sequence_ordered(), ModelSQL, 
         'on_change_with_company')
     
     cost_group = fields.Many2One('real_estate.cost_group', 'Cost Group', 
-        required=True, ondelete='RESTRICT',
+        required=True, ondelete='CASCADE',
         # domain=[
         #      ('company', '=', Eval('company', -1)),
         #      ('property', '=', Eval('property', -1)),],

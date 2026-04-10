@@ -157,7 +157,8 @@ class BaseObject(Workflow, DeactivableMixin, re_sequence_ordered(), tree(separat
         states={ 'readonly': True, })
 
     parent = fields.Many2One(
-        'real_estate.base_object', 'Parent', path='path', ondelete='RESTRICT',
+        'real_estate.base_object', 'Parent', path='path', 
+        ondelete='CASCADE',
         domain=[
             ('company', '=', Eval('company', -1)),
             If(Bool(Equal( Eval('type'), 'building')), ('type', 'in', ('property', 'building') ), ()),

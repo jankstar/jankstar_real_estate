@@ -103,7 +103,7 @@ class AccountContract(ActivePeriodMixin, ModelSQL):
             },
         depends={'company'})
     contract = fields.Many2One(
-        'real_estate.contract', "Contract",
+        'real_estate.contract', "Contract", ondelete='CASCADE',
         # domain=[
         #     ('contractual_partner', '=', Eval('party.id', -1))
         # ],
@@ -452,7 +452,7 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
     date_of_signature = fields.Date('Date of Signature',)
 
     contractual_partner = fields.Many2One(
-        'party.party', "Contractual Partner", required=True, 
+        'party.party', "Contractual Partner", required=True, ondelete='CASCADE',
         states={
             'readonly': (Eval('terms', [0]) | (Eval('state') != 'draft')),
             },)
@@ -1004,7 +1004,7 @@ class ContractTypeTax(ModelSQL):
 
     c_type = fields.Many2One(
         'real_estate.contract.type', "Contract Type",
-        ondelete='CASCADE', required=True)
+        ondelete='RESTRICT', required=True)
     
     tax = fields.Many2One('account.tax', 'Tax', ondelete='RESTRICT',
             required=True)
@@ -1200,6 +1200,7 @@ class ContractItem(sequence_ordered(), ModelSQL, ModelView, metaclass=PoolMeta):
     contract = fields.Many2One('real_estate.contract', 'Contract', required=True,
          path='path', ondelete='CASCADE')
     object = fields.Many2One('real_estate.base_object', 'Object', required=True,
+            ondelete='CASCADE',
             domain=[('type', 'in', ('object',)),
                     ('type_of_use', '=', Eval('type_of_use', -1)),
                     ('property', '=', Eval('property', -1)),
@@ -1438,6 +1439,7 @@ class ContractTermCashFlow( ModelView, ModelSQL):
 
     term = fields.Many2One(
         'real_estate.contract.term', 'Term',required=True,
+        ondelete='CASCADE',
         states={'readonly': True,})
 
     invoice_line = fields.Many2One(
@@ -1652,6 +1654,7 @@ class ContractTerm(sequence_ordered(), ModelSQL, ModelView, TaxableMixin):
        )
 
     reference_item = fields.Many2One('real_estate.contract.item', 'Reference Item',
+            ondelete='RESTRICT',
             domain=[ ('contract', '=', Eval('contract', -1)),
                     ],)
                                         
