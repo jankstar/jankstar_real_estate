@@ -1,23 +1,28 @@
 <?xml version="1.0"?>
 <form col="6" >
-    <group col="-1" colspan="6" id="cost_group_active">
+    <group col="-1" id="cost_group_active">
+        <label name="start_date" /><field name="start_date" xexpand="0"/>
         <label name="active"/><field name="active" xexpand="0" width="15"/>
         <label name="id"/><field name="id" readonly="1" xexpand="0" width="15"/>
         <label name="description"/><field name="description"/>
+        <label name="state"/><field name="state" colspan="1"/>
     </group>
-    <newline/>
-    <group col="4" id="cost_group_general">
-        <label name="company"/><field name="company"/>
-        <label name="property"/><field name="property"/>
-        <newline/>
-        <label name="start_date" /><field name="start_date"/>
-        <label name="end_date" /><field name="end_date"/>
-        <newline/>
-        <label name="state"/><field name="state"/>
-    </group>
-    <label name="term_types_of_use"/><field name="term_types_of_use"/>
-    <newline/>
-    <group colspan="8" col="-1" id="cost_groups">
-        <field name="cost_objects"/>
-    </group>
+    <notebook colspan="10">
+        <page string="Cost Objects" id="page_cost_objects" col="-1">
+            <field name="cost_objects"
+                view_ids="real_estate.base_object_view_list_cost_object,real_estate.cost_object_form"/>
+        </page>
+        <page string="Detail" id="page_detail" col="6" translate="1">
+            <group col="-1" id="cost_group_general">
+                <label name="company"/><field name="company"/>
+                <label name="property"/><field name="property"/>
+                <newline/>
+                <label name="end_date" /><field name="end_date"/>
+            </group>
+            <group col="6" colspan="4">
+                <label name="term_types_of_use"/><field name="term_types_of_use"/>
+            </group>
+        </page>
+
+    </notebook>
 </form>

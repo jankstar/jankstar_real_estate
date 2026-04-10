@@ -13,6 +13,8 @@ from trytond.pyson import Bool, Eval, If, PYSONEncoder, TimeDelta, Equal
 from trytond.pool import PoolMeta
 from trytond.i18n import lazy_gettext
 from trytond.modules.company import CompanyReport
+from trytond.modules.product import price_digits
+from trytond.modules.currency.fields import Monetary
 
 from dateutil.relativedelta import relativedelta
 
@@ -49,6 +51,10 @@ class CostGroup(DeactivableMixin, sequence_ordered(), ModelSQL, ModelView):
         )
     
     end_date = fields.Function(fields.Date('End Date'),'on_change_with_end_date')
+
+    planned_costs = fields.Function(Monetary('Planned Costs', currency='currency', digits= 'currency',#(16, 2),
+        ),'on_change_with_planned_costs',
+        )
 
     currency = fields.Function(fields.Many2One('currency.currency', 'Currency',), 'on_change_with_currency') 
 
@@ -124,6 +130,25 @@ class CostGroup(DeactivableMixin, sequence_ordered(), ModelSQL, ModelView):
     def on_change_with_currency(self, name=None):
         return self.company.currency if self.company else None
 
+    @fields.depends('cost_objects')
+    def on_change_with_planned_costs(self, name=None):
+        if self.cost_objects:
+            return sum(cost_object.planned_costs for cost_object in self.cost_objects if cost_object.planned_costs)
+
+        # # here you can implement the logic to calculate the planned costs based on the start and end date
+        # # for example, you can sum up the costs of all cost objects that fall within the date range
+        # if self.start_date and self.end_date:
+        #     pool = Pool()
+        #     CostObject = pool.get('real_estate.cost_object')
+        #     cost_objects = CostObject.search([
+        #         ('cost_group', '=', self.id),
+        #         ('start_date', '>=', self.start_date),
+        #         ('end_date', '<=', self.end_date),
+        #     ])
+        #     total_costs = sum(cost_object.planned_costs for cost_object in cost_objects)
+        #     return total_costs
+        # return None
+
     @fields.depends('property')
     def on_change_with_company(self, name=None):
         return self.property.company if self.property else None
@@ -166,7 +191,13 @@ class CostObject(DeactivableMixin, base_object.re_sequence_ordered(), ModelSQL, 
         # domain=[
         #      ('company', '=', Eval('company', -1)),
         #      ('property', '=', Eval('property', -1)),],
-             )    
+             ) 
+
+    start_date = fields.Function(fields.Date('Start Date',), 'on_change_with_start_date',)
+    
+    end_date = fields.Function(fields.Date('End Date'),'on_change_with_end_date')   
+
+    state = fields.Function(fields.Selection('get_states', "State"), 'on_change_with_state')  
 
     type = fields.Many2One(
         'real_estate.cost_object.type', "Cost Type", required=True,)
@@ -176,6 +207,11 @@ class CostObject(DeactivableMixin, base_object.re_sequence_ordered(), ModelSQL, 
     name = fields.Function(fields.Char("Name"), 'on_change_with_name', 
                 searcher='name_search')  
 
+    planned_costs = Monetary('Planned Costs', currency='currency', digits= 'currency',#(16, 2),
+        states={
+            'readonly': Eval('state') == 'billed',
+            },
+        )
 
     currency = fields.Function(fields.Many2One('currency.currency', 'Currency',), 'on_change_with_currency') 
 
@@ -223,6 +259,14 @@ class CostObject(DeactivableMixin, base_object.re_sequence_ordered(), ModelSQL, 
                 ('property', '=', Eval('property', -1)),
                 ('type', '=', 'object')]
         ),'on_change_with_objects', setter='set_objects')
+    
+
+    meters = fields.Function(fields.One2Many('real_estate.base_object', None, 'Meters',
+                                              readonly=True,
+        domain=[('company', '=', Eval('company', -1)),
+                ('property', '=', Eval('property', -1)),
+                ('type', '=', 'meter')]
+        ),'on_change_with_meters', setter='set_meters')
 
     @classmethod
     def default_company(cls):
@@ -232,6 +276,16 @@ class CostObject(DeactivableMixin, base_object.re_sequence_ordered(), ModelSQL, 
     def default_allocation_rule(cls):
         return 'no_allocation'
     
+    @staticmethod
+    def get_states():
+        pool = Pool()
+        CostGroup = pool.get('real_estate.cost_group')
+        return CostGroup.fields_get(['state'])['state']['selection']     
+
+    @fields.depends('cost_group')
+    def on_change_with_state(self, name=None):
+        return self.cost_group.state if self.cost_group else None     
+
     @fields.depends('cost_group')
     def on_change_with_property(self, name=None):
         return self.cost_group.base_object if self.cost_group else None
@@ -254,6 +308,23 @@ class CostObject(DeactivableMixin, base_object.re_sequence_ordered(), ModelSQL, 
                 objects = [item for item in objects if pattern.search(item.name)]
         return objects
     
+    @fields.depends('cost_group', 'reg_ex_meter', 'allocation_rule', 'objects')
+    def on_change_with_meters(self, name=None):
+        meters = []
+        if self.cost_group and self.objects and self.allocation_rule == 'allocation_by_consumption':
+            meters = Pool().get('real_estate.base_object').search([
+                ('company', '=', self.cost_group.company),
+                ('property', '=', self.cost_group.property),
+                ('parent', 'in', [obj.id for obj in self.objects]), #only search meters which are linked to the objects
+                ('type', '=', 'equipment'),
+                ('e_type', '=', 'meters'), #only search meters which have measurement type
+                ('meter_unit', '=', self.meter_unit), #only search meters which have the same unit
+            ])
+            if self.reg_ex_meter:
+                pattern = re.compile(self.reg_ex_meter)
+                meters = [item for item in meters if pattern.search(item.name)]
+        return meters
+
     @classmethod
     def set_objects(cls, objects, name, value):
         # `objects` = Liste der Instanzen,
@@ -264,6 +335,14 @@ class CostObject(DeactivableMixin, base_object.re_sequence_ordered(), ModelSQL, 
     @fields.depends('type')
     def on_change_with_sequence(self, name=None):
         return self.type.sequence if ( self.type and not self.sequence ) else self.sequence
+
+    @fields.depends('cost_group')
+    def on_change_with_start_date(self, name=None):
+        return self.cost_group.start_date if self.cost_group else None
+    
+    @fields.depends('cost_group')
+    def on_change_with_end_date(self, name=None):
+        return self.cost_group.end_date if self.cost_group else None
 
     @fields.depends('type', 'sequence')
     def on_change_with_name(self, name=None):
