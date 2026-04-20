@@ -220,10 +220,18 @@ class CostObject(DeactivableMixin, base_object.re_sequence_ordered(), ModelSQL, 
             ('no_allocation', 'No allocation'),
             ('allocation_by_measurement', 'Allocation by measurement'),
             ('allocation_by_consumption', 'Allocation by consumption'),
+            ('allocation_per_rental_unit', 'Allocation per rental unit'),
             ], "Allocation Rule", sort=False,
             #states={ 'readonly': True, },
             ) 
 
+    vacancy = fields.Selection([
+        ('no_allocation', 'No allocation (all cost allocated by tenant)'),
+        ('by_owner', 'Allocation by owner'),
+        ], "Allocation During Vacancy", sort=False,
+        states={ 'invisible': Eval('allocation_rule') == 'no_allocation', },
+        )
+    
     m_type = fields.Many2One(
         'real_estate.measurement.type', "Measurement Type",
         domain=[('types', '=', ['object'])], #exact only 'object'
@@ -231,6 +239,7 @@ class CostObject(DeactivableMixin, base_object.re_sequence_ordered(), ModelSQL, 
             'invisible': Eval('allocation_rule') != 'allocation_by_measurement',
             'required': Eval('allocation_rule') == 'allocation_by_measurement',
             },)
+
 
     meter_unit = fields.Many2One('product.uom', "Unit",
         states={
@@ -299,6 +308,10 @@ class CostObject(DeactivableMixin, base_object.re_sequence_ordered(), ModelSQL, 
         return 'no_allocation'
     
     @staticmethod
+    def default_vacancy():
+        return 'no_allocation'
+
+    @staticmethod
     def get_states():
         pool = Pool()
         CostGroup = pool.get('real_estate.cost_group')
@@ -315,7 +328,7 @@ class CostObject(DeactivableMixin, base_object.re_sequence_ordered(), ModelSQL, 
     @fields.depends('cost_group')
     def on_change_with_company(self, name=None):
         return self.cost_group.base_object.company if self.cost_group else None
-    
+
     @fields.depends('cost_group', 'reg_ex_object', 'allocation_rule')
     def on_change_with_objects(self, name=None):
         objects = []

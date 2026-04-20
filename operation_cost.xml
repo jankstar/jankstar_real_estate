@@ -121,4 +121,76 @@
             id="menu_cost_object_type"/>
 
     </data>
+
+    <data noupdate="1">
+        <record model='real_estate.cost_object.type' id="cost_object_type_Grundsteuer">
+            <field name='name'>Grundsteuer</field>
+            <field name='sequence'>100</field>
+        </record>
+        <record model='real_estate.cost_object.type' id="cost_object_type_Wasserversorgung">
+            <field name='name'>Wasserversorgung, Abwasser</field>
+            <field name='sequence'>200</field>
+        </record>
+        <record model='real_estate.cost_object.type' id="cost_object_type_Heizung">
+            <field name='name'>Heizung (Brennstoff)</field>
+            <field name='sequence'>300</field>
+        </record>
+        <record model='real_estate.cost_object.type' id="cost_object_type_Heizung_Wartung">
+            <field name='name'>Heizung (Wartung)</field>
+            <field name='sequence'>310</field>
+        </record>
+        <record model='real_estate.cost_object.type' id="cost_object_type_warmwasser">
+            <field name='name'>Warmwasser</field>
+            <field name='sequence'>320</field>
+        </record>
+        <record model='real_estate.cost_object.type' id="cost_object_type_Aufzug">
+            <field name='name'>Aufzug</field>
+            <field name='sequence'>400</field>
+        </record>
+         <record model='real_estate.cost_object.type' id="cost_object_type_Sraßenreinigung">
+            <field name='name'>Straßenreinigung</field>
+            <field name='sequence'>500</field>
+        </record>
+         <record model='real_estate.cost_object.type' id="cost_object_type_Muellabfuhr">
+            <field name='name'>Müllabfuhr</field>
+            <field name='sequence'>510</field>
+        </record>
+         <record model='real_estate.cost_object.type' id="cost_object_type_Gartenpflege">
+            <field name='name'>Gartenpflege</field>
+            <field name='sequence'>600</field>
+        </record>
+         <record model='real_estate.cost_object.type' id="cost_object_type_Hausreinigung">
+            <field name='name'>Hausreinigung</field>
+            <field name='sequence'>610</field>
+        </record>
+         <record model='real_estate.cost_object.type' id="cost_object_type_Hausmeister">
+            <field name='name'>Hausmeister</field>
+            <field name='sequence'>620</field>
+        </record>
+        <record model='real_estate.cost_object.type' id="cost_object_type_Hausstrom">
+            <field name='name'>Hausstrom</field>
+            <field name='sequence'>700</field>
+        </record>
+         <record model='real_estate.cost_object.type' id="cost_object_type_Gebäudeversicherung">
+            <field name='name'>Gebäudeversicherung</field>
+            <field name='sequence'>800</field>
+        </record>
+        <record model='real_estate.cost_object.type' id="cost_object_type_Schornsteinfeger">
+            <field name='name'>Schornsteinfeger</field>
+            <field name='sequence'>900</field>
+        </record>
+        <record model='real_estate.cost_object.type' id="cost_object_type_Sonstiges">
+            <field name='name'>Sonstiges</field>
+            <field name='sequence'>999</field>
+        </record>
+        <record model='real_estate.cost_object.type' id="cost_object_type_Verwaltungskosten">
+            <field name='name'>Verwaltungskosten</field>
+            <field name='sequence'>10</field>
+        </record>
+         <record model='real_estate.cost_object.type' id="cost_object_type_Instandhaltungsruecklage">
+            <field name='name'>Instandhaltungsrücklage</field>
+            <field name='sequence'>12</field>
+        </record>        
+
+    </data>
 </tryton>

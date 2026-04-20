@@ -16,6 +16,7 @@
     <label name="type"/><field name="type"/>
     <newline/>
     <label name="allocation_rule"/><field name="allocation_rule"/>
+    <label name="vacancy"/><field name="vacancy"/>
     <label name="m_type"/><field name="m_type"/>
     <label name="meter_unit"/><field name="meter_unit"/>
     <label name="reg_ex_object"/><field name="reg_ex_object"/>

@@ -51,9 +51,6 @@
         icon="tryton-settings"/>
 
 
-         <record model="res.group" id="group_real_estate_admin">
-            <field name="name">Real Estate Administration</field>
-        </record>
         <record model="res.user-res.group" id="user_admin_group_real_estate_admin">
             <field name="user" ref="res.user_admin"/>
             <field name="group" ref="group_real_estate_admin"/>

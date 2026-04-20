@@ -854,6 +854,8 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
         pool = Pool()
         Invoice = pool.get('account.invoice')
         InvoiceLine = pool.get('account.invoice.line')
+        Configuration = pool.get('account.configuration')
+        config = Configuration(1)
 
 
         line_vals = []
@@ -882,7 +884,8 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
                             quantity=term.quantity,
                             unit=term.unit,
                             unit_price=term.unit_price,
-                            account=term.account.id,
+                            account=term.account.id if term.account else config.account_revenue.id if self.c_type.invoice_type == 'out' \
+                                else config.account_expense.id,
                             currency=self.currency.id,
                             taxes=list(taxes),
                             contract=self,
@@ -906,6 +909,16 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
 
         #pdb.set_trace()  # Breakpoint
         if len(line_vals) > 0:
+
+            if self.c_type.invoice_type == 'out':
+                # for customer invoice, we can have only one invoice per term and we update the invoice if already exist in draft state
+                l_account = self.contractual_partner.account_receivable.id \
+                    if self.contractual_partner.account_receivable else config.default_account_receivable.id
+            else:
+                # for supplier invoice, we can have only one invoice per term and we update the invoice if already exist in draft state
+                l_account = self.contractual_partner.account_payable.id \
+                    if self.contractual_partner.account_payable else config.default_account_payable.id
+
             invoice = Invoice(
                 company=self.company.id,
                 type=self.c_type.invoice_type, #as debit or credit type
@@ -916,7 +929,7 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
                 invoice_address=self.invoice_address,
                 currency=self.currency.id,
                 journal=self.c_type.account_journal.id,
-                account=self.contractual_partner.account_receivable.id,
+                account=self.c_type.account.id if self.c_type.account else l_account,
                 payment_term=self.payment_term.id,
                 description=self.c_type.mark if self.c_type.mark else self.c_type.name,
                 reference=self.contract_number,
@@ -1130,7 +1143,8 @@ class ContractType(DeactivableMixin, base_object.re_sequence_ordered(), ModelSQL
     invoice_type = fields.Selection('get_invoice_types', 
                                     "Invoice Type", required=True,)
 
-    account = fields.Many2One('account.account', 'Party Account', required=True,
+    account = fields.Many2One('account.account', 'Party Account', 
+        #required=True, # not required as it can be defined on partner, if not defined here
         domain=[
             If(Eval('invoice_type') == 'out',
                 ('type.receivable', '=', True),
@@ -1308,7 +1322,7 @@ class ContractTermType(DeactivableMixin, base_object.re_sequence_ordered(), Mode
     default_quantity = fields.Float('Default Quantity',digits=price_digits,)
 
     account = fields.Many2One('account.account', 'Account',
-        required=True,
+        #required=True,
         domain=['OR',
                 ('type.revenue', '=', True), #Erträge (GuV)
                 ('type.expense', '=', True), #Aufwand (GuV)

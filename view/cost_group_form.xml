@@ -12,14 +12,14 @@
             <field name="cost_objects"
                 view_ids="real_estate.base_object_view_list_cost_object"/>
         </page>
-        <page string="Detail" id="page_detail" col="6" translate="1">
+        <page string="Detail" id="page_detail" col="6">
             <group col="-1" id="cost_group_general">
                 <label name="company"/><field name="company"/>
                 <label name="property"/><field name="property"/>
                 <newline/>
                 <label name="end_date" /><field name="end_date"/>
             </group>
-            <group col="6" colspan="4">
+            <group col="6" colspan="4" id="cost_group_terms">
                 <label name="term_types_of_use"/><field name="term_types_of_use"/>
             </group>
       

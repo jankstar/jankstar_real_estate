@@ -447,5 +447,57 @@
             <field name="types_of_use" eval="['property']"/>
         </record>
 
+        <!-- Term Types -->
+
+        <record model="real_estate.contract.term.type" id="contract_term_type_apartment_rent">
+            <field name="name">Apartment rent (monthly)</field>
+            <field name="sequence" >1000</field>
+            <field name="types_of_use" eval="['residential']" />
+            <field name="m_type" ref="measurement_living_space_type" />
+            <field name="default_quantity">1</field>
+            <field name="rhythm">1</field>
+            <field name="rhythm_type">monthly</field>
+        </record>
+
+        <record model="real_estate.contract.term.type" id="contract_term_type_parking_space_rent">
+            <field name="name">Parking space rent (monthly)</field>
+            <field name="sequence" >1100</field>
+            <field name="types_of_use" eval="['residential', 'commercial', 'internal']" />
+            <field name="default_quantity">1</field>
+            <field name="rhythm">1</field>
+            <field name="rhythm_type">monthly</field>
+        </record>
+
+        <record model="real_estate.contract.term.type" id="contract_term_type_operating_costs">    
+            <field name="name">Operating costs (monthly)</field>
+            <field name="sequence" >2000</field>
+            <field name="types_of_use" eval="['residential', 'commercial', 'internal']" />
+            <field name="m_type" ref="measurement_living_space_type" />
+            <field name="default_quantity">1</field>
+            <field name="rhythm">1</field>
+            <field name="rhythm_type">monthly</field>
+        </record>
+
+        <record model="real_estate.contract.term.type" id="contract_term_type_commercial_rent">
+            <field name="name">Commercial rent (monthly)</field>
+            <field name="sequence" >8000</field>
+            <field name="types_of_use" eval="['commercial']" />
+            <field name="m_type" ref="measurement_living_space_type" />
+            <field name="default_quantity">1</field>
+            <field name="rhythm">1</field>
+            <field name="rhythm_type">monthly</field>
+        </record>
+
+        <record model="real_estate.contract.term.type" id="contract_term_type_service_charge">
+            <field name="name">Service charge (monthly)</field>
+            <field name="sequence" >9000</field>
+            <field name="types_of_use" eval="['property']" />
+            <field name="m_type" ref="measurement_living_space_type" />
+            <field name="default_quantity">1</field>
+            <field name="rhythm">1</field>
+            <field name="rhythm_type">monthly</field>
+        </record>
+
+
    </data>
 </tryton>

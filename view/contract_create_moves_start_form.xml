@@ -1,12 +1,12 @@
 <?xml version="1.0"?>
-<form col="10" width="450" xexpand="0">
+<form col="10" >
     <!--image name="tryton-question" xexpand="0" xfill="0"/-->
     <group col="4" id="gr01" homogeneous="1" string="Selection">
         <label name="company"/><field name="company" colspan="1"/>
         <newline/>
-        <label string=" " /><field name="propertys" colspan="1" width="200"/>
+        <label name="propertys" string=" " /><field name="propertys" colspan="1" width="200"/>
         <newline/>
-        <label string=" " /><field name="contracts" colspan="1" width="200"/>
+        <label name="contracts" string=" " /><field name="contracts" colspan="1" width="200"/>
     </group>
     <newline/>    
     <group col="4" id="gr02" homogeneous="1" string="Execution">
