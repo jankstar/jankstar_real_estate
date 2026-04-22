@@ -33,14 +33,11 @@ class CostGroup(DeactivableMixin, sequence_ordered(), ModelSQL, ModelView):
     __name__ = 'real_estate.cost_group'
     __rec_name__ = 'name'
 
-    property = fields.Function(fields.Many2One('real_estate.base_object','Property'),
-        'on_change_with_property')
-
     company = fields.Function(fields.Many2One('company.company','Company'),
         'on_change_with_company')
     
-    base_object = fields.Many2One('real_estate.base_object', 
-        "Base Object", required=True, path='path', ondelete='CASCADE',)
+    property = fields.Many2One('real_estate.base_object', 
+        "Property", required=True, path='path', ondelete='CASCADE',)
 
     start_date = fields.Date('Start Date', 
         states={
@@ -85,13 +82,9 @@ class CostGroup(DeactivableMixin, sequence_ordered(), ModelSQL, ModelView):
     def default_state():
         return 'draft'
 
-    @fields.depends('base_object')
-    def on_change_with_property(self, name=None):
-        return self.base_object if self.base_object else None
-    
-    @fields.depends('base_object')
+    @fields.depends('property')
     def on_change_with_company(self, name=None):
-        return self.base_object.company if self.base_object else None
+        return self.property.company if self.property else None
 
     @fields.depends('start_date')
     def on_change_with_end_date(self, name=None):
@@ -200,7 +193,7 @@ class CostObject(DeactivableMixin, base_object.re_sequence_ordered(), ModelSQL, 
     state = fields.Function(fields.Selection('get_states', "State"), 'on_change_with_state')  
 
     type = fields.Many2One(
-        'real_estate.cost_object.type', "Cost Type", required=True,)
+        'real_estate.cost_object.type', "Cost Type", required=True, on_change='on_change_type',)
     
     comment = fields.Text("Comment")    
     
@@ -264,9 +257,9 @@ class CostObject(DeactivableMixin, base_object.re_sequence_ordered(), ModelSQL, 
 
     objects = fields.Function(fields.One2Many('real_estate.base_object', None, 'Objects',
                                               readonly=True,
-        domain=[('company', '=', Eval('company', -1)),
-                ('property', '=', Eval('property', -1)),
-                ('type', '=', 'object')],
+        #domain=[('company', '=', Eval('company', -1)),
+        #        ('property', '=', Eval('property', -1)),
+        #        ('type', '=', 'object')],
         states={
             'invisible': Eval('allocation_rule') == 'no_allocation',
             }
@@ -277,9 +270,9 @@ class CostObject(DeactivableMixin, base_object.re_sequence_ordered(), ModelSQL, 
 
     meters = fields.Function(fields.One2Many('real_estate.base_object', None, 'Meters',
                                               readonly=True,
-        domain=[('company', '=', Eval('company', -1)),
-                ('property', '=', Eval('property', -1)),
-                ('type', '=', 'meter')],
+        #domain=[('company', '=', Eval('company', -1)),
+        #        ('property', '=', Eval('property', -1)),
+        #        ('type', '=', 'meter')],
         states={
             'invisible': Eval('allocation_rule') != 'allocation_by_consumption',
             }
@@ -289,9 +282,9 @@ class CostObject(DeactivableMixin, base_object.re_sequence_ordered(), ModelSQL, 
 
     measurements = fields.Function(fields.One2Many('real_estate.measurement', None, 'Measurements',
                                               readonly=True,
-        domain=[('company', '=', Eval('company', -1)),
-                ('property', '=', Eval('property', -1)),
-                ('m_type', '=', Eval('m_type', -1))],
+        #domain=[('company', '=', Eval('company', -1)),
+        #        ('property', '=', Eval('property', -1)),
+        #        ('m_type', '=', Eval('m_type', -1))],
         states={
             'invisible': Eval('allocation_rule') != 'allocation_by_measurement',
             }
@@ -317,17 +310,22 @@ class CostObject(DeactivableMixin, base_object.re_sequence_ordered(), ModelSQL, 
         CostGroup = pool.get('real_estate.cost_group')
         return CostGroup.fields_get(['state'])['state']['selection']     
 
+    @fields.depends('type', 'sequence')
+    def on_change_type(self):
+        if self.type and not self.sequence:
+            self.sequence = self.type.sequence
+
     @fields.depends('cost_group')
     def on_change_with_state(self, name=None):
         return self.cost_group.state if self.cost_group else None     
 
     @fields.depends('cost_group')
     def on_change_with_property(self, name=None):
-        return self.cost_group.base_object if self.cost_group else None
+        return self.cost_group.property if self.cost_group else None
     
     @fields.depends('cost_group')
     def on_change_with_company(self, name=None):
-        return self.cost_group.base_object.company if self.cost_group else None
+        return self.cost_group.property.company if self.cost_group else None
 
     @fields.depends('cost_group', 'reg_ex_object', 'allocation_rule')
     def on_change_with_objects(self, name=None):

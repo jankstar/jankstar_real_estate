@@ -195,7 +195,7 @@ class BaseObject(Workflow, DeactivableMixin, re_sequence_ordered(), tree(separat
             'invisible': Eval('type') != 'property',
             }
     
-    cost_groups = fields.One2Many('real_estate.cost_group', 'base_object', 'Cost Group',
+    cost_groups = fields.One2Many('real_estate.cost_group', 'property', 'Cost Group',
         states=_states_only_propperty)
 
     ## special data building
