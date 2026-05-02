@@ -44,6 +44,8 @@ def register():
         operation_cost.CostGroup,
         operation_cost.CostObjectType,
         operation_cost.CostObject,
+        operation_cost.CostGroupLog,
+        operation_cost.SettlementUnit,
         module='real_estate', type_='model')
     Pool.register(
         contract.CreateMoves,

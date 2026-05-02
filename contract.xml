@@ -489,10 +489,10 @@
         </record>
 
         <record model="real_estate.contract.term.type" id="contract_term_type_service_charge">
-            <field name="name">Service charge (monthly)</field>
+            <field name="name">Condominium fees (monthly)</field>
             <field name="sequence" >9000</field>
             <field name="types_of_use" eval="['property']" />
-            <field name="m_type" ref="measurement_living_space_type" />
+            <!--field name="m_type" ref="measurement_living_space_type" /-->
             <field name="default_quantity">1</field>
             <field name="rhythm">1</field>
             <field name="rhythm_type">monthly</field>

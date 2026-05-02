@@ -1,0 +1,33 @@
+<?xml version="1.0" ?>
+<!-- This file is part of the gt_account-de-skr04-module for Tryton from Gruenfischer Consulting.
+ The COPYRIGHT file at the top level of
+ this repository contains the full copyright notices and license terms.-->
+<tryton>
+    <data>
+        <record id="tax_group_ust_goods" model="account.tax.group">
+            <field name="name">Umsatzsteuer Waren</field>
+            <field name="code">ust_goods</field>
+            <field name="kind">sale</field>
+        </record>
+        <record id="tax_group_ust_service" model="account.tax.group">
+            <field name="name">Umsatzsteuer Sonstige Leistungen</field>
+            <field name="code">ust_service</field>
+            <field name="kind">sale</field>
+        </record>
+        <record id="tax_group_vst_goods" model="account.tax.group">
+            <field name="name">Vorsteuer Waren</field>
+            <field name="code">vst_goods</field>
+            <field name="kind">purchase</field>
+        </record>
+        <record id="tax_group_vst_service" model="account.tax.group">
+            <field name="name">Vorsteuer Sonstige Leistungen</field>
+            <field name="code">vst_service</field>
+            <field name="kind">purchase</field>
+        </record>
+        <record id="tax_group_customs_import" model="account.tax.group">
+            <field name="name">Einfuhrumnsatzsteuer durch Zolldienstleister</field>
+            <field name="code">vst_customs</field>
+            <field name="kind">purchase</field>
+        </record>  
+    </data>
+</tryton>

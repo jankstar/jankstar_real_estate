@@ -1,0 +1,838 @@
+<?xml version="1.0" ?>
+<!-- This file is part of the gt_account-de-skr04-module for Tryton from Gruenfischer Consulting.
+ The COPYRIGHT file at the top level of
+ this repository contains the full copyright notices and license terms.-->
+<tryton>
+  <data>
+    <!-- BG81: Lieferung 19 % Waren, Basisbeträge -->
+    <record model="account.tax.code.line.template" id="tcl_BG81_tax_de_ust_delivery_19_goods_+_base_invoice">
+      <field name="code" ref="new_tax_code_BG81"/>
+      <field name="tax" ref="tax_de_ust_delivery_19_goods"/>
+      <field name="operator">+</field>
+      <field name="amount">base</field>
+      <field name="type">invoice</field>
+    </record>
+    <record model="account.tax.code.line.template" id="tcl_BG81_tax_de_ust_delivery_19_goods_-_base_credit">
+      <field name="code" ref="new_tax_code_BG81"/>
+      <field name="tax" ref="tax_de_ust_delivery_19_goods"/>
+      <field name="operator">-</field>
+      <field name="amount">base</field>
+      <field name="type">credit</field>
+    </record>
+    <!-- BG81: Lieferung 19 % (Dienstleistungen), Basisbeträge -->
+    <record model="account.tax.code.line.template" id="tcl_BG81_tax_de_ust_delivery_19_+_base_invoice">
+      <field name="code" ref="new_tax_code_BG81"/>
+      <field name="tax" ref="tax_de_ust_delivery_19"/>
+      <field name="operator">+</field>
+      <field name="amount">base</field>
+      <field name="type">invoice</field>
+    </record>
+    <record model="account.tax.code.line.template" id="tcl_BG81_tax_de_ust_delivery_19_-_base_credit">
+      <field name="code" ref="new_tax_code_BG81"/>
+      <field name="tax" ref="tax_de_ust_delivery_19"/>
+      <field name="operator">-</field>
+      <field name="amount">base</field>
+      <field name="type">credit</field>
+    </record>
+    <!-- ST81: Lieferung 19 % Waren, Steuerbeträge -->
+    <record model="account.tax.code.line.template" id="tcl_ST81_tax_de_ust_delivery_19_goods_+_tax_invoice">
+      <field name="code" ref="new_tax_code_ST81"/>
+      <field name="tax" ref="tax_de_ust_delivery_19_goods"/>
+      <field name="operator">+</field>
+      <field name="amount">tax</field>
+      <field name="type">invoice</field>
+    </record>
+    <record model="account.tax.code.line.template" id="tcl_ST81_tax_de_ust_delivery_19_goods_-_tax_credit">
+      <field name="code" ref="new_tax_code_ST81"/>
+      <field name="tax" ref="tax_de_ust_delivery_19_goods"/>
+      <field name="operator">-</field>
+      <field name="amount">tax</field>
+      <field name="type">credit</field>
+    </record>
+    <!-- ST81: Lieferung 19 % (Dienstleistungen), Steuerbeträge -->
+    <record model="account.tax.code.line.template" id="tcl_ST81_tax_de_ust_delivery_19_+_tax_invoice">
+      <field name="code" ref="new_tax_code_ST81"/>
+      <field name="tax" ref="tax_de_ust_delivery_19"/>
+      <field name="operator">+</field>
+      <field name="amount">tax</field>
+      <field name="type">invoice</field>
+    </record>
+    <record model="account.tax.code.line.template" id="tcl_ST81_tax_de_ust_delivery_19_-_tax_credit">
+      <field name="code" ref="new_tax_code_ST81"/>
+      <field name="tax" ref="tax_de_ust_delivery_19"/>
+      <field name="operator">-</field>
+      <field name="amount">tax</field>
+      <field name="type">credit</field>
+    </record>
+        <!-- BG86: Lieferung 7 % Waren, Basisbeträge -->
+    <record model="account.tax.code.line.template" id="tcl_BG86_tax_de_ust_delivery_7_goods_+_base_invoice">
+      <field name="code" ref="new_tax_code_BG86"/>
+      <field name="tax" ref="tax_de_ust_delivery_7_goods"/>
+      <field name="operator">+</field>
+      <field name="amount">base</field>
+      <field name="type">invoice</field>
+    </record>
+    <record model="account.tax.code.line.template" id="tcl_BG86_tax_de_ust_delivery_7_goods_-_base_credit">
+      <field name="code" ref="new_tax_code_BG86"/>
+      <field name="tax" ref="tax_de_ust_delivery_7_goods"/>
+      <field name="operator">-</field>
+      <field name="amount">base</field>
+      <field name="type">credit</field>
+    </record>
+    <!-- BG86: Lieferung 7 % Dienstleistungen, Basisbeträge -->
+    <record model="account.tax.code.line.template" id="tcl_BG86_tax_de_ust_delivery_7_+_base_invoice">
+      <field name="code" ref="new_tax_code_BG86"/>
+      <field name="tax" ref="tax_de_ust_delivery_7"/>
+      <field name="operator">+</field>
+      <field name="amount">base</field>
+      <field name="type">invoice</field>
+    </record>
+    <record model="account.tax.code.line.template" id="tcl_BG86_tax_de_ust_delivery_7_-_base_credit">
+      <field name="code" ref="new_tax_code_BG86"/>
+      <field name="tax" ref="tax_de_ust_delivery_7"/>
+      <field name="operator">-</field>
+      <field name="amount">base</field>
+      <field name="type">credit</field>
+    </record>
+    <!-- ST86: Lieferung 7 % Waren, Steuerbeträge -->
+    <record model="account.tax.code.line.template" id="tcl_ST86_tax_de_ust_delivery_7_goods_+_tax_invoice">
+      <field name="code" ref="new_tax_code_ST86"/>
+      <field name="tax" ref="tax_de_ust_delivery_7_goods"/>
+      <field name="operator">+</field>
+      <field name="amount">tax</field>
+      <field name="type">invoice</field>
+    </record>
+    <record model="account.tax.code.line.template" id="tcl_ST86_tax_de_ust_delivery_7_goods_-_tax_credit">
+      <field name="code" ref="new_tax_code_ST86"/>
+      <field name="tax" ref="tax_de_ust_delivery_7_goods"/>
+      <field name="operator">-</field>
+      <field name="amount">tax</field>
+      <field name="type">credit</field>
+    </record>
+    <!-- ST86: Lieferung 7 % Dienstleistungen, Steuerbeträge -->
+    <record model="account.tax.code.line.template" id="tcl_ST86_tax_de_ust_delivery_7_+_tax_invoice">
+      <field name="code" ref="new_tax_code_ST86"/>
+      <field name="tax" ref="tax_de_ust_delivery_7"/>
+      <field name="operator">+</field>
+      <field name="amount">tax</field>
+      <field name="type">invoice</field>
+    </record>
+    <record model="account.tax.code.line.template" id="tcl_ST86_tax_de_ust_delivery_7_-_tax_credit">
+      <field name="code" ref="new_tax_code_ST86"/>
+      <field name="tax" ref="tax_de_ust_delivery_7"/>
+      <field name="operator">-</field>
+      <field name="amount">tax</field>
+      <field name="type">credit</field>
+    </record>
+    <!-- BG87: Lieferung 0 % Waren, Basisbeträge -->
+    <record model="account.tax.code.line.template" id="tcl_BG87_tax_de_ust_delivery_0_goods_+_base_invoice">
+      <field name="code" ref="new_tax_code_BG87"/>
+      <field name="tax" ref="tax_de_ust_delivery_0_goods"/>
+      <field name="operator">+</field>
+      <field name="amount">base</field>
+      <field name="type">invoice</field>
+    </record>
+    <record model="account.tax.code.line.template" id="tcl_BG87_tax_de_ust_delivery_0_goods_-_base_credit">
+      <field name="code" ref="new_tax_code_BG87"/>
+      <field name="tax" ref="tax_de_ust_delivery_0_goods"/>
+      <field name="operator">-</field>
+      <field name="amount">base</field>
+      <field name="type">credit</field>
+    </record>
+    <!-- BG87: Lieferung 0 % Dienstleistungen, Basisbeträge -->
+    <record model="account.tax.code.line.template" id="tcl_BG87_tax_de_ust_delivery_0_+_base_invoice">
+      <field name="code" ref="new_tax_code_BG87"/>
+      <field name="tax" ref="tax_de_ust_delivery_0"/>
+      <field name="operator">+</field>
+      <field name="amount">base</field>
+      <field name="type">invoice</field>
+    </record>
+    <record model="account.tax.code.line.template" id="tcl_BG87_tax_de_ust_delivery_0_-_base_credit">
+      <field name="code" ref="new_tax_code_BG87"/>
+      <field name="tax" ref="tax_de_ust_delivery_0"/>
+      <field name="operator">-</field>
+      <field name="amount">base</field>
+      <field name="type">credit</field>
+    </record>
+        <!-- BG41: Inner-EU nicht steuerbar, Basisbeträge -->
+    <record model="account.tax.code.line.template" id="tcl_BG41_tax_inner_eu_not_taxable_+_base_invoice">
+      <field name="code" ref="new_tax_code_BG41"/>
+      <field name="tax" ref="tax_inner_eu_not_taxable"/>
+      <field name="operator">+</field>
+      <field name="amount">base</field>
+      <field name="type">invoice</field>
+    </record>
+    <record model="account.tax.code.line.template" id="tcl_BG41_tax_inner_eu_not_taxable_-_base_credit">
+      <field name="code" ref="new_tax_code_BG41"/>
+      <field name="tax" ref="tax_inner_eu_not_taxable"/>
+      <field name="operator">-</field>
+      <field name="amount">base</field>
+      <field name="type">credit</field>
+    </record>
+        <!-- BG89: Inner-EU Erwerb 19 %, Basisbeträge -->
+    <record model="account.tax.code.line.template" id="tcl_BG89_tax_eu_inner_erwerb_19_vst_new_+_base_invoice">
+      <field name="code" ref="new_tax_code_BG89"/>
+      <field name="tax" ref="tax_eu_inner_erwerb_19_vst_new"/>
+      <field name="operator">+</field>
+      <field name="amount">base</field>
+      <field name="type">invoice</field>
+    </record>
+    <record model="account.tax.code.line.template" id="tcl_BG89_tax_eu_inner_erwerb_19_vst_new_-_base_credit">
+      <field name="code" ref="new_tax_code_BG89"/>
+      <field name="tax" ref="tax_eu_inner_erwerb_19_vst_new"/>
+      <field name="operator">-</field>
+      <field name="amount">base</field>
+      <field name="type">credit</field>
+    </record>
+
+    <!-- ST89: Inner-EU Erwerb 19 %, Steuerbeträge -->
+    <record model="account.tax.code.line.template" id="tcl_ST89_tax_eu_inner_erwerb_19_vst_new_+_tax_invoice">
+      <field name="code" ref="new_tax_code_ST89"/>
+      <field name="tax" ref="tax_eu_inner_erwerb_19_vst_new"/>
+      <field name="operator">+</field>
+      <field name="amount">tax</field>
+      <field name="type">invoice</field>
+    </record>
+    <record model="account.tax.code.line.template" id="tcl_ST89_tax_eu_inner_erwerb_19_vst_new_-_tax_credit">
+      <field name="code" ref="new_tax_code_ST89"/>
+      <field name="tax" ref="tax_eu_inner_erwerb_19_vst_new"/>
+      <field name="operator">-</field>
+      <field name="amount">tax</field>
+      <field name="type">credit</field>
+    </record>
+        <!-- BG93: Inner-EU Erwerb 7 %, Basisbeträge -->
+    <record model="account.tax.code.line.template" id="tcl_BG93_tax_eu_inner_erwerb_7_vst_new_+_base_invoice">
+      <field name="code" ref="new_tax_code_BG93"/>
+      <field name="tax" ref="tax_eu_inner_erwerb_7_vst_new"/>
+      <field name="operator">+</field>
+      <field name="amount">base</field>
+      <field name="type">invoice</field>
+    </record>
+    <record model="account.tax.code.line.template" id="tcl_BG93_tax_eu_inner_erwerb_7_vst_new_-_base_credit">
+      <field name="code" ref="new_tax_code_BG93"/>
+      <field name="tax" ref="tax_eu_inner_erwerb_7_vst_new"/>
+      <field name="operator">-</field>
+      <field name="amount">base</field>
+      <field name="type">credit</field>
+    </record>
+    <!-- ST93: Inner-EU Erwerb 7 %, Steuerbeträge -->
+    <record model="account.tax.code.line.template" id="tcl_ST93_tax_eu_inner_erwerb_7_vst_new_+_tax_invoice">
+      <field name="code" ref="new_tax_code_ST93"/>
+      <field name="tax" ref="tax_eu_inner_erwerb_7_vst_new"/>
+      <field name="operator">+</field>
+      <field name="amount">tax</field>
+      <field name="type">invoice</field>
+    </record>
+    <record model="account.tax.code.line.template" id="tcl_ST93_tax_eu_inner_erwerb_7_vst_new_-_tax_credit">
+      <field name="code" ref="new_tax_code_ST93"/>
+      <field name="tax" ref="tax_eu_inner_erwerb_7_vst_new"/>
+      <field name="operator">-</field>
+      <field name="amount">tax</field>
+      <field name="type">credit</field>
+    </record>
+    <!-- BG90: Inner-EU Erwerb 0 %, Basisbeträge -->
+    <record model="account.tax.code.line.template" id="tcl_BG90_tax_eu_inner_erwerb_0_vst_new_+_base_invoice">
+      <field name="code" ref="new_tax_code_BG90"/>
+      <field name="tax" ref="tax_eu_inner_erwerb_0_vst_new"/>
+      <field name="operator">+</field>
+      <field name="amount">base</field>
+      <field name="type">invoice</field>
+    </record>
+    <record model="account.tax.code.line.template" id="tcl_BG90_tax_eu_inner_erwerb_0_vst_new_-_base_credit">
+      <field name="code" ref="new_tax_code_BG90"/>
+      <field name="tax" ref="tax_eu_inner_erwerb_0_vst_new"/>
+      <field name="operator">-</field>
+      <field name="amount">base</field>
+      <field name="type">credit</field>
+    </record>
+    <!--
+    Ziffer 46 (BG46) steht für die Zusammenfassung der Basisbeträge (§ 13b Abs. 1 UStG) bei Bau- und
+    Montageleistungen. Hier werden sämtliche Nettowerte (ohne Umsatzsteuer) der drei relevanten
+    Steuersätze (19 %, 7 % und 0 %) gebündelt. Diese Basisbeträge werden im Rahmen der
+    Reverse-Charge-Regelung gegenüber dem Leistungsempfänger ausgewiesen, da dieser die Umsatzsteuer
+    schuldet.
+    -->
+    <!-- BG46: § 13b Abs. 1 – Basisbeträge 19 % -->
+    <record model="account.tax.code.line.template" id="tcl_BG46_tax_eu_s13b_abs1_19_ust_new_+_base_invoice">
+      <field name="code" ref="new_tax_code_BG46"/>
+      <field name="tax" ref="tax_eu_s13b_abs1_19_ust_new"/>
+      <field name="operator">+</field>
+      <field name="amount">base</field>
+      <field name="type">invoice</field>
+    </record>
+    <record model="account.tax.code.line.template" id="tcl_BG46_tax_eu_s13b_abs1_19_ust_new_-_base_credit">
+      <field name="code" ref="new_tax_code_BG46"/>
+      <field name="tax" ref="tax_eu_s13b_abs1_19_ust_new"/>
+      <field name="operator">-</field>
+      <field name="amount">base</field>
+      <field name="type">credit</field>
+    </record>
+    <!-- BG46: § 13b Abs. 1 – Basisbeträge 7 % -->
+    <record model="account.tax.code.line.template" id="tcl_BG46_tax_eu_s13b_abs1_7_ust_new_+_base_invoice">
+      <field name="code" ref="new_tax_code_BG46"/>
+      <field name="tax" ref="tax_eu_s13b_abs1_7_ust_new"/>
+      <field name="operator">+</field>
+      <field name="amount">base</field>
+      <field name="type">invoice</field>
+    </record>
+    <record model="account.tax.code.line.template" id="tcl_BG46_tax_eu_s13b_abs1_7_ust_new_-_base_credit">
+      <field name="code" ref="new_tax_code_BG46"/>
+      <field name="tax" ref="tax_eu_s13b_abs1_7_ust_new"/>
+      <field name="operator">-</field>
+      <field name="amount">base</field>
+      <field name="type">credit</field>
+    </record>
+    <!-- BG46: § 13b Abs. 1 – Basisbeträge 0 % -->
+    <record model="account.tax.code.line.template" id="tcl_BG46_tax_eu_s13b_abs1_0_ust_new_+_base_invoice">
+      <field name="code" ref="new_tax_code_BG46"/>
+      <field name="tax" ref="tax_eu_s13b_abs1_0_ust_new"/>
+      <field name="operator">+</field>
+      <field name="amount">base</field>
+      <field name="type">invoice</field>
+    </record>
+    <record model="account.tax.code.line.template" id="tcl_BG46_tax_eu_s13b_abs1_0_ust_new_-_base_credit">
+      <field name="code" ref="new_tax_code_BG46"/>
+      <field name="tax" ref="tax_eu_s13b_abs1_0_ust_new"/>
+      <field name="operator">-</field>
+      <field name="amount">base</field>
+      <field name="type">credit</field>
+    </record>
+    <!--
+    Ziffer 47 (ST47) beschreibt die Steueranteile (§ 13b Abs. 1 UStG) für Bau- und Montageleistungen.
+    Hier werden die Umsatzsteuerbeträge der drei relevanten Steuersätze (19 %, 7 % und 0 %) ausgewiesen,
+    da der Leistungsempfänger im Reverse-Charge-Verfahren die Steuer schuldet.
+    -->
+    <record model="account.tax.code.line.template" id="tcl_ST47_tax_eu_s13b_abs1_19_ust_new_-_tax_invoice">
+      <field name="code" ref="new_tax_code_ST47"/>
+      <field name="tax" ref="tax_eu_s13b_abs1_19_ust_new"/>
+      <field name="operator">-</field>
+      <field name="amount">tax</field>
+      <field name="type">invoice</field>
+    </record>
+    <record model="account.tax.code.line.template" id="tcl_ST47_tax_eu_s13b_abs1_19_ust_new_+_tax_credit">
+      <field name="code" ref="new_tax_code_ST47"/>
+      <field name="tax" ref="tax_eu_s13b_abs1_19_ust_new"/>
+      <field name="operator">+</field>
+      <field name="amount">tax</field>
+      <field name="type">credit</field>
+    </record>
+    <record model="account.tax.code.line.template" id="tcl_ST47_tax_eu_s13b_abs1_7_ust_new_-_tax_invoice">
+      <field name="code" ref="new_tax_code_ST47"/>
+      <field name="tax" ref="tax_eu_s13b_abs1_7_ust_new"/>
+      <field name="operator">-</field>
+      <field name="amount">tax</field>
+      <field name="type">invoice</field>
+    </record>
+    <record model="account.tax.code.line.template" id="tcl_ST47_tax_eu_s13b_abs1_7_ust_new_+_tax_credit">
+      <field name="code" ref="new_tax_code_ST47"/>
+      <field name="tax" ref="tax_eu_s13b_abs1_7_ust_new"/>
+      <field name="operator">+</field>
+      <field name="amount">tax</field>
+      <field name="type">credit</field>
+    </record>
+<!--
+  Ziffer 84 (BG84) fasst die Basisbeträge für § 13b-Innergemeinschaftsleistungen (Inland § 13b UStG)
+  und für sonstige Leistungen ins Drittland gemäß § 13b Abs. 2 UStG zusammen. Hier werden in der
+  Reverse-Charge-Fall die Nettowerte (ohne Umsatzsteuer) für:
+    • Inland Einkauf Bauleistungen/Dienstleistungen (19 %, 7 %, 0 %)  
+    • Drittland sonstige Leistungen (19 %, 7 %, 0 %)  
+  gebündelt ausgewiesen.
+-->
+    <!-- BG84: Inland §13b – 19 % Basisbeträge -->
+    <record model="account.tax.code.line.template" id="tcl_BG84_tax_de_purchase_19_13b_VST_+_base_invoice">
+      <field name="code" ref="new_tax_code_BG84"/>
+      <field name="tax" ref="tax_de_purchase_19_13b_VST"/>
+      <field name="operator">+</field>
+      <field name="amount">base</field>
+      <field name="type">invoice</field>
+    </record>
+    <record model="account.tax.code.line.template" id="tcl_BG84_tax_de_purchase_19_13b_VST_-_base_credit">
+      <field name="code" ref="new_tax_code_BG84"/>
+      <field name="tax" ref="tax_de_purchase_19_13b_VST"/>
+      <field name="operator">-</field>
+      <field name="amount">base</field>
+      <field name="type">credit</field>
+    </record>
+    <!-- BG84: Inland §13b – 7 % Basisbeträge -->
+    <record model="account.tax.code.line.template" id="tcl_BG84_tax_de_purchase_7_13b_VST_+_base_invoice">
+      <field name="code" ref="new_tax_code_BG84"/>
+      <field name="tax" ref="tax_de_purchase_7_13b_VST"/>
+      <field name="operator">+</field>
+      <field name="amount">base</field>
+      <field name="type">invoice</field>
+    </record>
+    <record model="account.tax.code.line.template" id="tcl_BG84_tax_de_purchase_7_13b_VST_-_base_credit">
+      <field name="code" ref="new_tax_code_BG84"/>
+      <field name="tax" ref="tax_de_purchase_7_13b_VST"/>
+      <field name="operator">-</field>
+      <field name="amount">base</field>
+      <field name="type">credit</field>
+    </record>
+    <!-- BG84: Inland §13b – 0 % Basisbeträge -->
+    <record model="account.tax.code.line.template" id="tcl_BG84_tax_de_purchase_0_13b_VST_+_base_invoice">
+      <field name="code" ref="new_tax_code_BG84"/>
+      <field name="tax" ref="tax_de_purchase_0_13b_VST"/>
+      <field name="operator">+</field>
+      <field name="amount">base</field>
+      <field name="type">invoice</field>
+    </record>
+    <record model="account.tax.code.line.template" id="tcl_BG84_tax_de_purchase_0_13b_VST_-_base_credit">
+      <field name="code" ref="new_tax_code_BG84"/>
+      <field name="tax" ref="tax_de_purchase_0_13b_VST"/>
+      <field name="operator">-</field>
+      <field name="amount">base</field>
+      <field name="type">credit</field>
+    </record>
+    <!-- BG84: Drittland sonstige Leistungen – 19 % Basisbeträge -->
+    <record model="account.tax.code.line.template" id="tcl_BG84_tax_dritt_s13b_abs2_19_vst_new_+_base_invoice">
+      <field name="code" ref="new_tax_code_BG84"/>
+      <field name="tax" ref="tax_dritt_s13b_abs2_19_vst_new"/>
+      <field name="operator">+</field>
+      <field name="amount">base</field>
+      <field name="type">invoice</field>
+    </record>
+    <record model="account.tax.code.line.template" id="tcl_BG84_tax_dritt_s13b_abs2_19_vst_new_-_base_credit">
+      <field name="code" ref="new_tax_code_BG84"/>
+      <field name="tax" ref="tax_dritt_s13b_abs2_19_vst_new"/>
+      <field name="operator">-</field>
+      <field name="amount">base</field>
+      <field name="type">credit</field>
+    </record>
+    <!-- BG84: Drittland sonstige Leistungen – 7 % Basisbeträge -->
+    <record model="account.tax.code.line.template" id="tcl_BG84_tax_dritt_s13b_abs2_7_vst_new_+_base_invoice">
+      <field name="code" ref="new_tax_code_BG84"/>
+      <field name="tax" ref="tax_dritt_s13b_abs2_7_vst_new"/>
+      <field name="operator">+</field>
+      <field name="amount">base</field>
+      <field name="type">invoice</field>
+    </record>
+    <record model="account.tax.code.line.template" id="tcl_BG84_tax_dritt_s13b_abs2_7_vst_new_-_base_credit">
+      <field name="code" ref="new_tax_code_BG84"/>
+      <field name="tax" ref="tax_dritt_s13b_abs2_7_vst_new"/>
+      <field name="operator">-</field>
+      <field name="amount">base</field>
+      <field name="type">credit</field>
+    </record>
+    <!-- BG84: Drittland sonstige Leistungen – 0 % Basisbeträge -->
+    <record model="account.tax.code.line.template" id="tcl_BG84_tax_dritt_s13b_abs2_0_vst_new_+_base_invoice">
+      <field name="code" ref="new_tax_code_BG84"/>
+      <field name="tax" ref="tax_dritt_s13b_abs2_0_vst_new"/>
+      <field name="operator">+</field>
+      <field name="amount">base</field>
+      <field name="type">invoice</field>
+    </record>
+    <record model="account.tax.code.line.template" id="tcl_BG84_tax_dritt_s13b_abs2_0_vst_new_-_base_credit">
+      <field name="code" ref="new_tax_code_BG84"/>
+      <field name="tax" ref="tax_dritt_s13b_abs2_0_vst_new"/>
+      <field name="operator">-</field>
+      <field name="amount">base</field>
+      <field name="type">credit</field>
+    </record>
+    <!--
+    Ziffer 85 (ST85) bildet die Umsatzsteuerbeträge (§ 13b UStG) für:
+        • Inlandige Bau- und Montageleistungen (Reverse-Charge nach § 13b Abs. 1 UStG)  
+        • Sonstige Leistungen ins Drittland (Reverse-Charge nach § 13b Abs. 2 UStG)  
+    ab. Hier werden die Steueranteile der relevanten Sätze (19 % und 7 %) ausgewiesen.
+    -->
+        <!-- ST85: Inland §13b – 19 % Steuerbeträge -->
+    <record model="account.tax.code.line.template" id="tcl_ST85_tax_de_purchase_19_13b_VST_+_tax_invoice">
+        <field name="code" ref="new_tax_code_ST85"/>
+        <field name="tax" ref="tax_de_purchase_19_13b_VST"/>
+        <field name="operator">+</field>
+        <field name="amount">tax</field>
+        <field name="type">invoice</field>
+    </record>
+    <record model="account.tax.code.line.template" id="tcl_ST85_tax_de_purchase_19_13b_VST_-_tax_credit">
+        <field name="code" ref="new_tax_code_ST85"/>
+        <field name="tax" ref="tax_de_purchase_19_13b_VST"/>
+        <field name="operator">-</field>
+        <field name="amount">tax</field>
+        <field name="type">credit</field>
+    </record>
+        <!-- ST85: Inland §13b – 7 % Steuerbeträge -->
+    <record model="account.tax.code.line.template" id="tcl_ST85_tax_de_purchase_7_13b_VST_+_tax_invoice">
+        <field name="code" ref="new_tax_code_ST85"/>
+        <field name="tax" ref="tax_de_purchase_7_13b_VST"/>
+        <field name="operator">+</field>
+        <field name="amount">tax</field>
+        <field name="type">invoice</field>
+    </record>
+    <record model="account.tax.code.line.template" id="tcl_ST85_tax_de_purchase_7_13b_VST_-_tax_credit">
+        <field name="code" ref="new_tax_code_ST85"/>
+        <field name="tax" ref="tax_de_purchase_7_13b_VST"/>
+        <field name="operator">-</field>
+        <field name="amount">tax</field>
+        <field name="type">credit</field>
+    </record>
+        <!-- ST85: Drittland sonstige Leistungen – 19 % Steuerbeträge -->
+    <record model="account.tax.code.line.template" id="tcl_ST85_tax_dritt_s13b_abs2_19_ust_new_+_tax_invoice">
+        <field name="code" ref="new_tax_code_ST85"/>
+        <field name="tax" ref="tax_dritt_s13b_abs2_19_vst_new"/>
+        <field name="operator">+</field>
+        <field name="amount">tax</field>
+        <field name="type">invoice</field>
+    </record>
+    <record model="account.tax.code.line.template" id="tcl_ST85_tax_dritt_s13b_abs2_19_ust_new_-_tax_credit">
+        <field name="code" ref="new_tax_code_ST85"/>
+        <field name="tax" ref="tax_dritt_s13b_abs2_19_vst_new"/>
+        <field name="operator">-</field>
+        <field name="amount">tax</field>
+        <field name="type">credit</field>
+    </record>
+        <!-- ST85: Drittland sonstige Leistungen – 7 % Steuerbeträge -->
+    <record model="account.tax.code.line.template" id="tcl_ST85_tax_dritt_s13b_abs2_7_ust_new_+_tax_invoice">
+        <field name="code" ref="new_tax_code_ST85"/>
+        <field name="tax" ref="tax_dritt_s13b_abs2_7_vst_new"/>
+        <field name="operator">+</field>
+        <field name="amount">tax</field>
+        <field name="type">invoice</field>
+    </record>
+    <record model="account.tax.code.line.template" id="tcl_ST85_tax_dritt_s13b_abs2_7_ust_new_-_tax_credit">
+        <field name="code" ref="new_tax_code_ST85"/>
+        <field name="tax" ref="tax_dritt_s13b_abs2_7_vst_new"/>
+        <field name="operator">-</field>
+        <field name="amount">tax</field>
+        <field name="type">credit</field>
+    </record>
+        <!--
+        Ziffer 60 (BG60) steht für Inlandslieferungen unter Anwendung der § 13b-Umkehrbesteuerung.
+        Hier werden die Nettobeträge (ohne Umsatzsteuer) der entsprechenden Lieferungen gebündelt ausgewiesen.
+        -->
+    <record model="account.tax.code.line.template" id="tcl_BG60_tax_de_delivery_13b_+_base_invoice">
+        <field name="code" ref="new_tax_code_BG60"/>
+        <field name="tax" ref="tax_de_delivery_13b"/>
+        <field name="operator">+</field>
+        <field name="amount">base</field>
+        <field name="type">invoice</field>
+    </record>
+    <record model="account.tax.code.line.template" id="tcl_BG60_tax_de_delivery_13b_-_base_credit">
+        <field name="code" ref="new_tax_code_BG60"/>
+        <field name="tax" ref="tax_de_delivery_13b"/>
+        <field name="operator">-</field>
+        <field name="amount">base</field>
+        <field name="type">credit</field>
+    </record>
+    <!--
+    Ziffer 21 (BG21) erfasst EU-Dienstleistungen (Innergemeinschaftliche Lieferungen von Dienstleistungen).
+    Hier werden die Nettobeträge (ohne Umsatzsteuer) dieser Lieferungen ausgewiesen, da der
+    Leistungsempfänger im Reverse-Charge-Verfahren die Steuer schuldet.
+    -->
+    <record model="account.tax.code.line.template" id="tcl_BG21_tax_de_eu_delivery_service_+_base_invoice">
+        <field name="code" ref="new_tax_code_BG21"/>
+        <field name="tax" ref="tax_de_eu_delivery_service"/>
+        <field name="operator">+</field>
+        <field name="amount">base</field>
+        <field name="type">invoice</field>
+    </record>
+    <record model="account.tax.code.line.template" id="tcl_BG21_tax_de_eu_delivery_service_-_base_credit">
+        <field name="code" ref="new_tax_code_BG21"/>
+        <field name="tax" ref="tax_de_eu_delivery_service"/>
+        <field name="operator">-</field>
+        <field name="amount">base</field>
+        <field name="type">credit</field>
+    </record>
+    <!--
+    Ziffer 45 (BG45) erfasst Auslandslieferungen von Dienstleistungen sowie innergemeinschaftliche
+    (inner-AU) Lieferungen. Hier werden die Nettobeträge (ohne Umsatzsteuer) dieser Leistungen
+    ausgewiesen, da der Leistungsempfänger im Reverse-Charge-Verfahren die Steuer schuldet.
+    -->
+    <record model="account.tax.code.line.template" id="tcl_BG45_tax_de_au_delivery_service_+_base_invoice">
+        <field name="code" ref="new_tax_code_BG45"/>
+        <field name="tax" ref="tax_de_au_delivery_service"/>
+        <field name="operator">+</field>
+        <field name="amount">base</field>
+        <field name="type">invoice</field>
+    </record>
+    <record model="account.tax.code.line.template" id="tcl_BG45_tax_de_au_delivery_service_-_base_credit">
+        <field name="code" ref="new_tax_code_BG45"/>
+        <field name="tax" ref="tax_de_au_delivery_service"/>
+        <field name="operator">-</field>
+        <field name="amount">base</field>
+        <field name="type">credit</field>
+    </record>
+    <!--
+    Ziffer 43 (BG43) erfasst steuerfreie Umsätze mit Vorsteuerabzug, insbesondere
+    Ausfuhrlieferungen in Drittländer (z. B. Schweiz, USA) sowie bestimmte internationale
+    Beförderungs- und sonstige nach § 4 Nr. 1a, 2–7 UStG steuerbefreite Leistungen.
+    Die Nettobeträge (ohne Umsatzsteuer) werden hier ausgewiesen; der Vorsteuerabzug
+    bleibt erhalten.
+    -->
+    <record model="account.tax.code.line.template" id="tcl_BG45_tax_innner_au_delivery_+_base_invoice">
+        <field name="code" ref="new_tax_code_BG43"/>
+        <field name="tax" ref="tax_innner_au_delivery"/>
+        <field name="operator">+</field>
+        <field name="amount">base</field>
+        <field name="type">invoice</field>
+    </record>
+    <record model="account.tax.code.line.template" id="tcl_BG45_tax_innner_au_delivery_-_base_credit">
+        <field name="code" ref="new_tax_code_BG43"/>
+        <field name="tax" ref="tax_innner_au_delivery"/>
+        <field name="operator">-</field>
+        <field name="amount">base</field>
+        <field name="type">credit</field>
+    </record>
+    <!--
+    Ziffer 66 (ST66) erfasst die Vorsteuerbeträge für Inlandseinkäufe von Dienstleistungen und Waren.
+    Hier werden die Umsatzsteuerbeträge (tax) der relevanten Steuersätze (19 %, 7 % und 0 %) sowohl für
+    Dienstleistungen als auch für Waren ausgewiesen. Dabei gilt:
+        • Invoice: operator="-"
+        • Credit:  operator="+"
+    -->
+    <record model="account.tax.code.line.template" id="tcl_ST66_tax_de_vst_purchase_19_service_-_tax_invoice">
+        <field name="code" ref="new_tax_code_ST66"/>
+        <field name="tax" ref="tax_de_vst_purchase_19_service"/>
+        <field name="operator">-</field>
+        <field name="amount">tax</field>
+        <field name="type">invoice</field>
+    </record>
+    <record model="account.tax.code.line.template" id="tcl_ST66_tax_de_vst_purchase_19_service_+_tax_credit">
+        <field name="code" ref="new_tax_code_ST66"/>
+        <field name="tax" ref="tax_de_vst_purchase_19_service"/>
+        <field name="operator">+</field>
+        <field name="amount">tax</field>
+        <field name="type">credit</field>
+    </record>
+    <record model="account.tax.code.line.template" id="tcl_ST66_tax_de_vst_purchase_7_service_-_tax_invoice">
+        <field name="code" ref="new_tax_code_ST66"/>
+        <field name="tax" ref="tax_de_vst_purchase_7_service"/>
+        <field name="operator">-</field>
+        <field name="amount">tax</field>
+        <field name="type">invoice</field>
+    </record>
+    <record model="account.tax.code.line.template" id="tcl_ST66_tax_de_vst_purchase_7_service_+_tax_credit">
+        <field name="code" ref="new_tax_code_ST66"/>
+        <field name="tax" ref="tax_de_vst_purchase_7_service"/>
+        <field name="operator">+</field>
+        <field name="amount">tax</field>
+        <field name="type">credit</field>
+    </record>
+    <record model="account.tax.code.line.template" id="tcl_ST66_tax_de_vst_purchase_0_service_-_tax_invoice">
+        <field name="code" ref="new_tax_code_ST66"/>
+        <field name="tax" ref="tax_de_vst_purchase_0_service"/>
+        <field name="operator">-</field>
+        <field name="amount">tax</field>
+        <field name="type">invoice</field>
+    </record>
+    <record model="account.tax.code.line.template" id="tcl_ST66_tax_de_vst_purchase_0_service_+_tax_credit">
+        <field name="code" ref="new_tax_code_ST66"/>
+        <field name="tax" ref="tax_de_vst_purchase_0_service"/>
+        <field name="operator">+</field>
+        <field name="amount">tax</field>
+        <field name="type">credit</field>
+    </record>
+    <record model="account.tax.code.line.template" id="tcl_ST66_tax_de_vst_purchase_19_goods_-_tax_invoice">
+        <field name="code" ref="new_tax_code_ST66"/>
+        <field name="tax" ref="tax_de_vst_purchase_19_goods"/>
+        <field name="operator">-</field>
+        <field name="amount">tax</field>
+        <field name="type">invoice</field>
+    </record>
+        <record model="account.tax.code.line.template" id="tcl_ST66_tax_de_vst_purchase_19_goods_+_tax_credit">
+        <field name="code" ref="new_tax_code_ST66"/>
+        <field name="tax" ref="tax_de_vst_purchase_19_goods"/>
+        <field name="operator">+</field>
+        <field name="amount">tax</field>
+        <field name="type">credit</field>
+    </record>
+    <record model="account.tax.code.line.template" id="tcl_ST66_tax_de_vst_purchase_7_goods_-_tax_invoice">
+        <field name="code" ref="new_tax_code_ST66"/>
+        <field name="tax" ref="tax_de_vst_purchase_7_goods"/>
+        <field name="operator">-</field>
+        <field name="amount">tax</field>
+        <field name="type">invoice</field>
+    </record>
+    <record model="account.tax.code.line.template" id="tcl_ST66_tax_de_vst_purchase_7_goods_+_tax_credit">
+        <field name="code" ref="new_tax_code_ST66"/>
+        <field name="tax" ref="tax_de_vst_purchase_7_goods"/>
+        <field name="operator">+</field>
+        <field name="amount">tax</field>
+        <field name="type">credit</field>
+    </record>
+    <record model="account.tax.code.line.template" id="tcl_ST66_tax_de_vst_purchase_0_goods_-_tax_invoice">
+        <field name="code" ref="new_tax_code_ST66"/>
+        <field name="tax" ref="tax_de_vst_purchase_0_goods"/>
+        <field name="operator">-</field>
+        <field name="amount">tax</field>
+        <field name="type">invoice</field>
+        </record>
+    <record model="account.tax.code.line.template" id="tcl_ST66_tax_de_vst_purchase_0_goods_+_tax_credit">
+        <field name="code" ref="new_tax_code_ST66"/>
+        <field name="tax" ref="tax_de_vst_purchase_0_goods"/>
+        <field name="operator">+</field>
+        <field name="amount">tax</field>
+        <field name="type">credit</field>
+    </record>
+    <!--
+    Ziffer 61 (ST61) erfasst die Umsatzsteuerbeträge für innergemeinschaftlichen Erwerb (§ 1a UStG),
+    bei dem der Leistungsempfänger im Reverse-Charge-Verfahren die Steuer schuldet. Hier werden die
+    Steuerbeträge der relevanten Sätze (19 %, 7 % und 0 %) ausgewiesen.
+    -->
+    <record model="account.tax.code.line.template" id="tcl_ST61_tax_eu_inner_erwerb_19_ust_new_+_tax_invoice">
+        <field name="code" ref="new_tax_code_ST61"/>
+        <field name="tax" ref="tax_eu_inner_erwerb_19_vst_new"/>
+        <field name="operator">-</field>
+        <field name="amount">tax</field>
+        <field name="type">invoice</field>
+    </record>
+    <record model="account.tax.code.line.template" id="tcl_ST61_tax_eu_inner_erwerb_19_ust_new_-_tax_credit">
+        <field name="code" ref="new_tax_code_ST61"/>
+        <field name="tax" ref="tax_eu_inner_erwerb_19_vst_new"/>
+        <field name="operator">-</field>
+        <field name="amount">tax</field>
+        <field name="type">credit</field>
+    </record>
+    <record model="account.tax.code.line.template" id="tcl_ST61_tax_eu_inner_erwerb_7_ust_new_+_tax_invoice">
+        <field name="code" ref="new_tax_code_ST61"/>
+        <field name="tax" ref="tax_eu_inner_erwerb_7_vst_new"/>
+        <field name="operator">-</field>
+        <field name="amount">tax</field>
+        <field name="type">invoice</field>
+    </record>
+    <record model="account.tax.code.line.template" id="tcl_ST61_tax_eu_inner_erwerb_7_ust_new_-_tax_credit">
+        <field name="code" ref="new_tax_code_ST61"/>
+        <field name="tax" ref="tax_eu_inner_erwerb_7_vst_new"/>
+        <field name="operator">+</field>
+        <field name="amount">tax</field>
+        <field name="type">credit</field>
+    </record>
+
+    <record model="account.tax.code.line.template" id="tcl_ST61_tax_eu_inner_erwerb_0_ust_new_+_tax_invoice">
+        <field name="code" ref="new_tax_code_ST61"/>
+        <field name="tax" ref="tax_eu_inner_erwerb_0_vst_new"/>
+        <field name="operator">-</field>
+        <field name="amount">tax</field>
+        <field name="type">invoice</field>
+    </record>
+    <record model="account.tax.code.line.template" id="tcl_ST61_tax_eu_inner_erwerb_0_ust_new_-_tax_credit">
+        <field name="code" ref="new_tax_code_ST61"/>
+        <field name="tax" ref="tax_eu_inner_erwerb_0_vst_new"/>
+        <field name="operator">+</field>
+        <field name="amount">tax</field>
+        <field name="type">credit</field>
+    </record>
+    <!--
+    Ziffer 62 (ST62) erfasst die Vorsteuerbeträge für Drittlandswaren unter Zollabwicklung.
+    Hier werden die Umsatzsteuerbeträge (tax) für Einfuhren aus Drittstaaten ausgewiesen, die im
+    Rahmen der Zollabfertigung anfallen und als Vorsteuer abziehbar sind.
+    -->
+    <record model="account.tax.code.line.template" id="tcl_ST62_tax_dritt_vst_purchase_19_goods_customs_-_tax_invoice">
+        <field name="code" ref="new_tax_code_ST62"/>
+        <field name="tax" ref="tax_dritt_vst_purchase_19_goods_customs"/>
+        <field name="operator">-</field>
+        <field name="amount">tax</field>
+        <field name="type">invoice</field>
+    </record>
+    <record model="account.tax.code.line.template" id="tcl_ST62_tax_dritt_vst_purchase_19_goods_customs_+_tax_credit">
+        <field name="code" ref="new_tax_code_ST62"/>
+        <field name="tax" ref="tax_dritt_vst_purchase_19_goods_customs"/>
+        <field name="operator">+</field>
+        <field name="amount">tax</field>
+        <field name="type">credit</field>
+    </record>
+    <record model="account.tax.code.line.template" id="tcl_ST62_tax_dritt_vst_purchase_7_goods_customs_-_tax_invoice">
+        <field name="code" ref="new_tax_code_ST62"/>
+        <field name="tax" ref="tax_dritt_vst_purchase_7_goods_customs"/>
+        <field name="operator">-</field>
+        <field name="amount">tax</field>
+        <field name="type">invoice</field>
+    </record>
+    <record model="account.tax.code.line.template" id="tcl_ST62_tax_dritt_vst_purchase_7_goods_customs_+_tax_credit">
+        <field name="code" ref="new_tax_code_ST62"/>
+        <field name="tax" ref="tax_dritt_vst_purchase_7_goods_customs"/>
+        <field name="operator">+</field>
+        <field name="amount">tax</field>
+        <field name="type">credit</field>
+    </record>
+    <!--
+    Ziffer 67 (ST67) erfasst die § 13b-Vorsteuerbeträge für:
+        • Inlandseinkäufe von Bau- und Montageleistungen (§ 13b Abs. 1 UStG)  
+        • Innergemeinschaftliche BauSonstinge leistungen (§ 13b Abs. 1 UStG)  
+        • Drittlandsonstige Leistungen (§ 13b Abs. 2 UStG)  
+    Hier werden die abzugsfähigen Umsatzsteuerbeträge (tax) der relevanten Sätze (19 % und 7 %) ausgewiesen.
+    -->
+    <record model="account.tax.code.line.template" id="tcl_ST67_tax_de_purchase_13b__19_VST_+_tax_invoice">
+        <field name="code" ref="new_tax_code_ST67"/>
+        <field name="tax" ref="tax_de_purchase_19_13b_VST"/>
+        <field name="operator">-</field>
+        <field name="amount">tax</field>
+        <field name="type">invoice</field>
+    </record>
+    <record model="account.tax.code.line.template" id="tcl_ST67_tax_de_purchase_13b_19_VST_-_tax_credit">
+        <field name="code" ref="new_tax_code_ST67"/>
+        <field name="tax" ref="tax_de_purchase_19_13b_VST"/>
+        <field name="operator">+</field>
+        <field name="amount">tax</field>
+        <field name="type">credit</field>
+    </record>
+    <record model="account.tax.code.line.template" id="tcl_ST67_tax_de_purchase_13b_7_VST_+_tax_invoice">
+        <field name="code" ref="new_tax_code_ST67"/>
+        <field name="tax" ref="tax_de_purchase_7_13b_VST"/>
+        <field name="operator">-</field>
+        <field name="amount">tax</field>
+        <field name="type">invoice</field>
+    </record>
+    <record model="account.tax.code.line.template" id="tcl_ST67_tax_de_purchase_13b_7_VST_-_tax_credit">
+        <field name="code" ref="new_tax_code_ST67"/>
+        <field name="tax" ref="tax_de_purchase_7_13b_VST"/>
+        <field name="operator">+</field>
+        <field name="amount">tax</field>
+        <field name="type">credit</field>
+    </record>
+    <record model="account.tax.code.line.template" id="tcl_ST67_tax_eu_s13b_abs1_19_vst_new_+_tax_invoice">
+        <field name="code" ref="new_tax_code_ST67"/>
+        <field name="tax" ref="tax_eu_s13b_abs1_19_vst_new"/>
+        <field name="operator">-</field>
+        <field name="amount">tax</field>
+        <field name="type">invoice</field>
+    </record>
+    <record model="account.tax.code.line.template" id="tcl_ST67_tax_eu_s13b_abs1_19_vst_new_-_tax_credit">
+        <field name="code" ref="new_tax_code_ST67"/>
+        <field name="tax" ref="tax_eu_s13b_abs1_19_vst_new"/>
+        <field name="operator">+</field>
+        <field name="amount">tax</field>
+        <field name="type">credit</field>
+    </record>
+    <record model="account.tax.code.line.template" id="tcl_ST67_tax_eu_s13b_abs1_7_vst_new_+_tax_invoice">
+        <field name="code" ref="new_tax_code_ST67"/>
+        <field name="tax" ref="tax_eu_s13b_abs1_7_vst_new"/>
+        <field name="operator">-</field>
+        <field name="amount">tax</field>
+        <field name="type">invoice</field>
+    </record>
+    <record model="account.tax.code.line.template" id="tcl_ST67_tax_eu_s13b_abs1_7_vst_new_-_tax_credit">
+        <field name="code" ref="new_tax_code_ST67"/>
+        <field name="tax" ref="tax_eu_s13b_abs1_7_vst_new"/>
+        <field name="operator">+</field>
+        <field name="amount">tax</field>
+        <field name="type">credit</field>
+    </record>
+    <record model="account.tax.code.line.template" id="tcl_ST67_tax_dritt_s13b_abs2_19_vst_new_+_tax_invoice">
+        <field name="code" ref="new_tax_code_ST67"/>
+        <field name="tax" ref="tax_dritt_s13b_abs2_19_vst_new"/>
+        <field name="operator">-</field>
+        <field name="amount">tax</field>
+        <field name="type">invoice</field>
+    </record>
+    <record model="account.tax.code.line.template" id="tcl_ST67_tax_dritt_s13b_abs2_19_vst_new_-_tax_credit">
+        <field name="code" ref="new_tax_code_ST67"/>
+        <field name="tax" ref="tax_dritt_s13b_abs2_19_vst_new"/>
+        <field name="operator">+</field>
+        <field name="amount">tax</field>
+        <field name="type">credit</field>
+    </record>
+    <record model="account.tax.code.line.template" id="tcl_ST67_tax_dritt_s13b_abs2_7_vst_new_+_tax_invoice">
+        <field name="code" ref="new_tax_code_ST67"/>
+        <field name="tax" ref="tax_dritt_s13b_abs2_7_vst_new"/>
+        <field name="operator">-</field>
+        <field name="amount">tax</field>
+        <field name="type">invoice</field>
+    </record>
+    <record model="account.tax.code.line.template" id="tcl_ST67_tax_dritt_s13b_abs2_7_vst_new_-_tax_credit">
+        <field name="code" ref="new_tax_code_ST67"/>
+        <field name="tax" ref="tax_dritt_s13b_abs2_7_vst_new"/>
+        <field name="operator">+</field>
+        <field name="amount">tax</field>
+        <field name="type">credit</field>
+    </record>
+  </data>
+</tryton>

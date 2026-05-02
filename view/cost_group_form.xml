@@ -1,11 +1,11 @@
 <?xml version="1.0"?>
 <form col="6" >
-    <group col="-1" id="cost_group_active">
+    <group col="-1" id="cost_group_active" colspan="6">
         <label name="start_date" /><field name="start_date" xexpand="0"/>
         <label name="active"/><field name="active" xexpand="0" width="15"/>
         <label name="id"/><field name="id" readonly="1" xexpand="0" width="15"/>
-        <label name="description"/><field name="description"/>
-        <label name="state"/><field name="state" colspan="1"/>
+        <label name="description"/><field name="description" colspan="2"/>
+        <label name="state"/><field name="state" colspan="2"/>
     </group>
     <newline/>
     <notebook colspan="8">
@@ -19,6 +19,7 @@
                 <label name="property"/><field name="property"/>
                 <newline/>
                 <label name="end_date" /><field name="end_date"/>
+                <label name="calculation_method"/><field name="calculation_method"/>
             </group>
             <group col="6" colspan="4" id="cost_group_term_types">
                 <label name="term_types_of_use"/><field name="term_types_of_use"/>
@@ -27,4 +28,7 @@
         </page>
 
     </notebook>
+    <button name="approved" string="Approved" colspan="1"/>
+    <button name="selection" string="Selection" colspan="1"/>
+
 </form>

@@ -1,0 +1,200 @@
+<?xml version="1.0" ?>
+<!-- This file is part of the gt_account-de-skr04-module for Tryton from Gruenfischer Consulting.
+ The COPYRIGHT file at the top level of
+ this repository contains the full copyright notices and license terms.-->
+<tryton>
+  <data>
+    <record id="new_tax_code_BGSALDOSALE" model="account.tax.code.template">
+      <field name="name">== Bemessungsgrundlagen USt - (Elster Formular) ==</field>
+      <field name="code"> BG USt</field>
+      <field name="account" ref="real_estate.root_de" />
+    </record>
+        <record id="new_tax_code_BG21" model="account.tax.code.template">
+        <field name="name">E: Nicht steuerbare sonstige Leistungen gemäß §18b Satz. 1 Nr. 2 UstG</field>
+        <field name="parent" ref="new_tax_code_BGSALDOSALE"/>
+        <field name="code">21</field>
+        <field name="account" ref="real_estate.root_de" />
+      </record>
+      <record id="new_tax_code_BG35" model="account.tax.code.template">
+        <field name="name">A: Steuerpflichtige Umsätze zu anderen Steuersätzen</field>
+        <field name="parent" ref="new_tax_code_BGSALDOSALE" />
+        <field name="code">35</field>
+        <field name="account" ref="real_estate.root_de" />
+      </record>
+      <record id="new_tax_code_BG41" model="account.tax.code.template">
+        <field name="name">B: Innergemeinschaftliche Lieferungen (§ 4 Nummer 1 Buchstabe b UStG) an Abnehmer mit USt.-ID</field>
+        <field name="parent" ref="new_tax_code_BGSALDOSALE" />
+        <field name="code">41</field>
+        <field name="account" ref="real_estate.root_de" />
+      </record>
+      <record id="new_tax_code_BG43" model="account.tax.code.template">
+        <field name="name">B: Weitere steuerfreie Umsätze mit Vorsteuerabzug(§ 4 Nummer 1 Buchstabe b UStG) an Abnehmer mit USt.-ID</field>
+        <field name="parent" ref="new_tax_code_BGSALDOSALE" />
+        <field name="code">43</field>
+        <field name="account" ref="real_estate.root_de" />
+      </record>
+      <record id="new_tax_code_BG45" model="account.tax.code.template">
+        <field name="name">E: Übrige nicht steuerbare Umsätze (Leistungsort nicht im Inland) </field>
+        <field name="parent" ref="new_tax_code_BGSALDOSALE" />
+        <field name="code">45</field>
+        <field name="account" ref="real_estate.root_de" />
+      </record>
+      <record id="new_tax_code_BG81" model="account.tax.code.template">
+          <field name="name">A: Steuerpflichtige Umsätze zum Steuersatz von 19%</field>
+          <field name="parent" ref="new_tax_code_BGSALDOSALE" />
+          <field name="code">81</field>
+          <field name="account" ref="real_estate.root_de" />
+        </record>
+      <record id="new_tax_code_BG86" model="account.tax.code.template">
+        <field name="name">A: Steuerpflichtige Umsätze zum Steuersatz von 7%</field>
+        <field name="parent" ref="new_tax_code_BGSALDOSALE" />
+        <field name="code">86</field>
+        <field name="account" ref="real_estate.root_de" />
+      </record>
+      <record id="new_tax_code_BG87" model="account.tax.code.template">
+        <field name="name">A: Steuerpflichtige Umsätze zum Steuersatz von 0%</field>
+        <field name="parent" ref="new_tax_code_BGSALDOSALE" />
+        <field name="code">87</field>
+        <field name="account" ref="real_estate.root_de" />
+      </record>
+      <record id="new_tax_code_BG60" model="account.tax.code.template">
+        <field name="name">E: Steuerpflichtige Umsätze  für die der Empfänger die Steuer schuldet §13b Abs.5 UStG, z.B. Handwerker als SUB</field>
+        <field name="parent" ref="new_tax_code_BGSALDOSALE" />
+        <field name="code">60</field>
+        <field name="account" ref="real_estate.root_de" />
+      </record>
+      
+    <record id="new_tax_code_BGSALDOPURCHASE" model="account.tax.code.template">
+      <field name="name">== Bemessungsgrundlagen VSt - (Elster Formular) ==</field>
+      <field name="code"> BG VSt</field>
+      <field name="account" ref="real_estate.root_de" />
+    </record>
+      <record id="new_tax_code_BG89" model="account.tax.code.template">
+        <field name="name">C: Steuerpflichtige innergem. Erwerbe zum Steuersatz von 19%</field>
+        <field name="parent" ref="new_tax_code_BGSALDOPURCHASE" />
+        <field name="code">89</field>
+        <field name="account" ref="real_estate.root_de" />
+      </record>
+      <record id="new_tax_code_BG93" model="account.tax.code.template">
+        <field name="name">C: Steuerpflichtige innergem. Erwerbe zum Steuersatz von 7%</field>
+        <field name="parent" ref="new_tax_code_BGSALDOPURCHASE" />
+        <field name="code">93</field>
+        <field name="account" ref="real_estate.root_de" />
+      </record>
+      <record id="new_tax_code_BG90" model="account.tax.code.template">
+        <field name="name">C: Steuerpflichtige innergem. Erwerbe zum Steuersatz von 0%</field>
+        <field name="parent" ref="new_tax_code_BGSALDOPURCHASE" />
+        <field name="code">90</field>
+        <field name="account" ref="real_estate.root_de" />
+      </record>
+      <record id="new_tax_code_BG95" model="account.tax.code.template">
+        <field name="name">C: Steuerpflichtige innergem. Erwerbe zu anderen Steuersätzen</field>
+        <field name="parent" ref="new_tax_code_BGSALDOPURCHASE" />
+        <field name="code">95</field>
+        <field name="account" ref="real_estate.root_de" />
+      </record>
+      <record id="new_tax_code_BG46" model="account.tax.code.template">
+        <field name="name">D: Sonstige Leistungen nach §3 Abs. 2 UStG eines im übrigen Gemeinschaftsgebiet ansässigen Unternehmens</field>
+        <field name="parent" ref="new_tax_code_BGSALDOPURCHASE" />
+        <field name="code">46</field>
+        <field name="account" ref="real_estate.root_de" />
+      </record>
+      <record id="new_tax_code_BG84" model="account.tax.code.template">
+        <field name="name">D: Andere Leistungen §13b Abs.2 Nr. 1, 2, 4 bis 12 UStG</field>
+        <field name="parent" ref="new_tax_code_BGSALDOPURCHASE" />
+        <field name="code">84</field>
+        <field name="account" ref="real_estate.root_de" />
+      </record>
+
+  <record id="new_tax_code_STSALDO" model="account.tax.code.template">
+    <field name="name">== Umsatzsteuersaldo (+ = Zahllast | - = Erstattungsbetrag) ==</field>
+    <field name="code">USt-Saldo</field>
+    <field name="account" ref="real_estate.root_de" />
+  </record>
+    <record id="new_tax_code_USTSALDO" model="account.tax.code.template">
+      <field name="name">= Summe vereinnahmter Umsatzsteuer =</field>
+      <field name="code">USt</field>
+      <field name="parent" ref="new_tax_code_STSALDO" />
+      <field name="account" ref="real_estate.root_de" />
+    </record>
+        <record id="new_tax_code_ST81" model="account.tax.code.template">
+          <field name="name">A: Umsatzsteuer zum Steuersatz von 19%</field>
+          <field name="parent" ref="new_tax_code_USTSALDO" />
+          <field name="code">81</field>
+          <field name="account" ref="real_estate.root_de" />
+        </record>
+        <record id="new_tax_code_ST86" model="account.tax.code.template">
+          <field name="name">A: Umsatzsteuer zum Steuersatz von 7%</field>
+          <field name="parent" ref="new_tax_code_USTSALDO" />
+          <field name="code">86</field>
+          <field name="account" ref="real_estate.root_de" />
+        </record>
+        <record id="new_tax_code_ST36" model="account.tax.code.template">
+          <field name="name">A: Umsatzsteuer zu anderen Steuersätzen</field>
+          <field name="parent" ref="new_tax_code_USTSALDO" />
+          <field name="code">36</field>
+          <field name="account" ref="real_estate.root_de" />
+        </record>
+        <record id="new_tax_code_ST89" model="account.tax.code.template">
+          <field name="name">C: USt. innergem Erwerb zum Steuersatz von 19%</field>
+          <field name="parent" ref="new_tax_code_USTSALDO" />
+          <field name="code">89</field>
+          <field name="account" ref="real_estate.root_de" />
+        </record>
+        <record id="new_tax_code_ST93" model="account.tax.code.template">
+          <field name="name">C: USt. innergem Erwerb zum Steuersatz von 7%</field>
+          <field name="parent" ref="new_tax_code_USTSALDO" />
+          <field name="code">93</field>
+          <field name="account" ref="real_estate.root_de" />
+        </record>
+        <record id="new_tax_code_ST98" model="account.tax.code.template">
+          <field name="name">C: USt. innergem Erwerb zu anderen Steuersätzen</field>
+          <field name="parent" ref="new_tax_code_USTSALDO" />
+          <field name="code">98</field>
+          <field name="account" ref="real_estate.root_de" />
+        </record>
+        <record id="new_tax_code_ST47" model="account.tax.code.template">
+          <field name="name">D: Sonstige Leistungen naach §3 Abs. 2 UStG eines im übrigen Gemeinschaftsgebiet ansässigen Unternehmens</field>
+          <field name="parent" ref="new_tax_code_USTSALDO" />
+          <field name="code">47</field>
+          <field name="account" ref="real_estate.root_de" />
+        </record>
+        <record id="new_tax_code_ST85" model="account.tax.code.template">
+          <field name="name">D: Andere Leistungen §13b Abs.2 Nr. 1, 2, 4 bis 12 UStG</field>
+          <field name="parent" ref="new_tax_code_USTSALDO" />
+          <field name="code">85</field>
+          <field name="account" ref="real_estate.root_de" />
+        </record>
+
+    <record id="new_tax_code_VSTSALDO" model="account.tax.code.template">
+      <field name="name">= Summe abziehbarer Vorsteuer =</field>
+      <field name="code">VSt</field>
+      <field name="parent" ref="new_tax_code_STSALDO" />
+      <field name="account" ref="real_estate.root_de" />
+    </record>
+        <record id="new_tax_code_ST66" model="account.tax.code.template">
+          <field name="name">F: Vorsteuerbeträge aus Rechnungen anderer Unternehmen</field>
+          <field name="parent" ref="new_tax_code_VSTSALDO" />
+          <field name="code">66</field>
+          <field name="account" ref="real_estate.root_de" />
+        </record>
+        <record id="new_tax_code_ST67" model="account.tax.code.template">
+          <field name="name">F: Vorsteuerbeträge aus Leistungen im Sinne des §13b (§15 Abs. 1 Nr. 4 UStG)</field>
+          <field name="parent" ref="new_tax_code_VSTSALDO" />
+          <field name="code">67</field>
+          <field name="account" ref="real_estate.root_de" />
+        </record>
+        <record id="new_tax_code_ST61" model="account.tax.code.template">
+          <field name="name">F: Vorsteuerbeträge aus innergem. Erwerb (§15 Abs. 1 Nr. 3 UStG)</field>
+          <field name="parent" ref="new_tax_code_VSTSALDO" />
+          <field name="code">61</field>
+          <field name="account" ref="real_estate.root_de" />
+        </record>
+        <record id="new_tax_code_ST62" model="account.tax.code.template">
+          <field name="name">F: Entstandene Einfuhrumsatzsteuer (§15 Abs. 1 Nr. 2 UStG)</field>
+          <field name="parent" ref="new_tax_code_VSTSALDO" />
+          <field name="code">62</field>
+          <field name="account" ref="real_estate.root_de" />
+        </record>
+  </data>
+</tryton>

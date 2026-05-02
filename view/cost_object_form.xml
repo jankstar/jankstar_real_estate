@@ -6,7 +6,12 @@
         <label name="sequence"/><field name="sequence"/>
         <label name="name"/><field name="name"/>
     </group>
-    <label name="state"/><field name="state"/>
+    <group colspan="2" id="cost_object_state">
+        <label name="state"/><field name="state"/>
+        <newline/>
+        <label name="sub_state"/><field name="sub_state"/>
+    </group>
+
     <newline/>
     <label name="company"/><field name="company"/>
     <label name="property"/><field name="property"/>
@@ -36,6 +41,9 @@
     </group>
     <group colspan="8"  id="cost_object_base_measurements">
         <field name="measurements"/>
+    </group>
+        <group colspan="8"  id="cost_object_base_settlement_units">
+        <field name="settlement_units"/>
     </group>
 
 </form>

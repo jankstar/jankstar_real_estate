@@ -1,0 +1,804 @@
+<?xml version="1.0" ?>
+<!-- This file is part of the gt_account-de-skr04-module for Tryton from Gruenfischer Consulting.
+ The COPYRIGHT file at the top level of
+ this repository contains the full copyright notices and license terms.-->
+<tryton>
+    <data>
+    <!-- Bei weiteren Ergänzungen hier fortführen -->
+        <!-- Steuerfrei: Ausfuhrlieferung in Drittländer außerhalb der EU -->
+        <record id="tax_innner_au_delivery" model="account.tax.template">
+            <field name="name">USt. 0% Steuerfreie Lieferung von Waren (§4 Nr. 1a UStG)</field>
+            <field name="account" ref="real_estate.root_de"/>
+            <field name="description">Steuerfreie Lieferung von Waren </field>
+            <field name="legal_notice">Steuerfreie Ausfuhrlieferung (§4 Nr. 1a UStG)</field>
+            <field name="type">percentage</field>
+            <field eval="Decimal('0')" name="rate"/>
+            <field name="invoice_account" ref="real_estate.account_3800"/>
+            <field name="credit_note_account" ref="real_estate.account_3800"/>
+            <field name="group" ref="tax_group_ust_goods"/>
+        </record>   
+        <!-- Parent-Template: voller Satz -->
+        <record id="tax_de_ust_delivery_full_goods" model="account.tax.template">
+            <field name="name">USt. 19% Umsatzsteuer voller Satz Waren Inland</field>
+            <field name="account" ref="real_estate.root_de"/>
+            <field name="description">Umsatzsteuer voller Satz für Waren Inland</field>
+            <field name="type">none</field>
+            <field name="group" ref="tax_group_ust_goods"/>
+        </record>
+            <!-- Child-Template: 19 % – wie vom Kunden ausgewiesen -->
+            <record id="tax_de_ust_delivery_19_goods" model="account.tax.template">
+                <field name="name">USt. 19% Waren</field>
+                <field name="account" ref="real_estate.root_de"/>
+                <field name="description">Umsatzsteuer 19% Waren</field>
+                <field name="type">percentage</field>
+                <field eval="Decimal('0.19')" name="rate"/>
+                <field name="invoice_account" ref="real_estate.account_3806"/>
+                <field name="credit_note_account" ref="real_estate.account_3806"/>
+                <field name="parent" ref="tax_de_ust_delivery_full_goods"/>
+            </record>
+        <!-- Parent-Template: ermäßigter Satz -->
+        <record id="tax_de_ust_delivery_erm_goods" model="account.tax.template">
+            <field name="name">USt. 7% Umsatzsteuer ermäßigter Satz Waren Inland</field>
+            <field name="account" ref="real_estate.root_de"/>
+            <field name="description">Umsatzsteuer ermäßigter Satz für Waren Inland</field>
+            <field name="type">none</field>
+            <field name="group" ref="tax_group_ust_goods"/>
+        </record>
+        <!-- Child-Template: 7 % – wie vom Kunden ausgewiesen -->
+        <record id="tax_de_ust_delivery_7_goods" model="account.tax.template">
+            <field name="name">USt. 7% Waren</field>
+            <field name="account" ref="real_estate.root_de"/>
+            <field name="description">Umsatzsteuer 7% Waren</field>
+            <field name="type">percentage</field>
+            <field eval="Decimal('0.07')" name="rate"/>
+            <field name="invoice_account" ref="real_estate.account_3801"/>
+            <field name="credit_note_account" ref="real_estate.account_3801"/>
+            <field name="group" ref="tax_group_ust_goods"/>
+            <field name="parent" ref="tax_de_ust_delivery_erm_goods"/>
+        </record>
+        <!-- Parent-Template: voller Satz -->
+        <record id="tax_de_ust_delivery_free_goods" model="account.tax.template">
+            <field name="name">USt. 0% Umsatzsteuer steuerfreie Waren Inland</field>
+            <field name="account" ref="real_estate.root_de"/>
+            <field name="description">Umsatzsteuerfreie Waren Inland</field>
+            <field name="type">none</field>
+            <field name="group" ref="tax_group_ust_goods"/>
+        </record>
+        <!-- Child-Template: 0 % – wie auf der Rechnung ausgewiesen -->
+        <record id="tax_de_ust_delivery_0_goods" model="account.tax.template">
+            <field name="name">USt. 0% Waren</field>
+            <field name="account" ref="real_estate.root_de"/>
+            <field name="description">Umsatzsteuer 0% Waren</field>
+            <field name="type">percentage</field>
+            <field eval="Decimal('0.0')" name="rate"/>
+            <field name="invoice_account" ref="real_estate.account_3800"/>
+            <field name="credit_note_account" ref="real_estate.account_3800"/>
+            <field name="group" ref="tax_group_ust_goods"/>
+            <field name="parent" ref="tax_de_ust_delivery_free_goods"/>
+        </record>
+        <!-- Reverse Charge: Inland – Bauleistungen an Unternehmer (Leistungsempfänger schuldet Steuer) -->
+        <record id="tax_de_delivery_13b" model="account.tax.template">
+                <field name="name">USt. 0% (§13b)Umsatzsteuer Werklieferungen §13b Abs. 5 UStG. </field>
+            <field name="account" ref="real_estate.root_de"/>
+            <field name="description">Steuerpflichtig nach §13b UStG</field>
+            <field name="legal_notice">Steuerschuldnerschaft geht nach §13b UStG auf den Leistungsempfänger über</field>
+            <field name="type">percentage</field>
+            <field eval="Decimal('0.0')" name="rate"/>
+            <field name="invoice_account" ref="real_estate.account_3800"/>
+            <field name="credit_note_account" ref="real_estate.account_3800"/>
+            <field name="group" ref="tax_group_ust_service"/>
+        </record>
+        <!-- Steuerfrei: Innergemeinschaftliche Lieferung von Waren (für EU-Warenexport mit gültiger USt-ID) -->
+        <record id="tax_inner_eu_not_taxable" model="account.tax.template">
+            <field name="name">USt. 0% Steuerfreie innergem. Lieferung von Waren (§4 Abs. 1b UStG)</field>
+            <field name="account" ref="real_estate.root_de"/>
+            <field name="description">Innergem. Waren USt-frei</field>
+            <field name="legal_notice">Steuerschuldnerschaft des Leistungsempfängers §4Nr. 1b i.V.m. §6a UStG</field>
+            <field name="type">percentage</field>
+            <field eval="Decimal('0')" name="rate"/>
+            <field name="invoice_account" ref="real_estate.account_3800"/>
+            <field name="credit_note_account" ref="real_estate.account_3800"/>
+            <field name="group" ref="tax_group_ust_goods"/>
+        </record>
+        <!-- Reverse Charge: Innergemeinschaftliche Sonst. Leistungen nach §3a Abs. 2 UStG -->
+        <record id="tax_de_eu_delivery_service" model="account.tax.template">
+            <field name="name">USt. 0% Steuerfreie innergem. sonstige Leistung §3a Absatz 2 UStG </field>
+            <field name="account" ref="real_estate.root_de"/>
+            <field name="description">Innergem. Dienstl. USt-frei</field>
+            <field name="legal_notice">Steuerschuldnerschaft des Leistungsempfängers (§13b UStG)</field>
+            <field name="type">percentage</field>
+            <field eval="Decimal('0.0')" name="rate"/>
+            <field name="invoice_account" ref="real_estate.account_3800"/>
+            <field name="credit_note_account" ref="real_estate.account_3800"/>
+            <field name="group" ref="tax_group_ust_service"/>
+        </record>
+        <!-- Nicht steuerbar: Sonst. Leistungen mit Leistungsort im Drittland -->
+        <record id="tax_de_au_delivery_service" model="account.tax.template">
+            <field name="name">USt. 0% Nicht steuerbare Umsätze (Leistungsort nicht im Inland) </field>
+            <field name="account" ref="real_estate.root_de"/>
+            <field name="description">Sonst. Leistungen in Drittländer</field>
+            <field name="legal_notice">Steuerfreie sonst. Leist. mit Leistungsort im Drittland (§3a Abs.2 UStG)</field>
+            <field name="type">percentage</field>
+            <field eval="Decimal('0.0')" name="rate"/>
+            <field name="invoice_account" ref="real_estate.account_3800"/>
+            <field name="credit_note_account" ref="real_estate.account_3800"/>
+            <field name="group" ref="tax_group_ust_service"/>
+                </record>
+        <!-- Parent-Template: voller Satz für Sonst. Leistungen (ohne Prozent im ID) -->
+        <record id="tax_de_ust_delivery_full_service" model="account.tax.template">
+            <field name="name">USt. 19% Umsatzsteuer voller Satz sonstige Leistungen</field>
+            <field name="account" ref="real_estate.root_de"/>
+            <field name="description">Sonst. Leistungen im Inland voller Satz</field>
+            <field name="type">none</field>
+            <field name="group" ref="tax_group_ust_service"/>
+        </record>
+            <!-- Child-Template: 19 % – wie auf der Rechnung ausgewiesen -->
+            <record id="tax_de_ust_delivery_19" model="account.tax.template">
+                <field name="name">USt. 19% sonst. Leist.</field>
+                <field name="account" ref="real_estate.root_de"/>
+                <field name="description">USt. 19% sonst. Leist.</field>
+                <field name="type">percentage</field>
+                <field eval="Decimal('0.19')" name="rate"/>
+                <field name="invoice_account" ref="real_estate.account_3806"/>
+                <field name="credit_note_account" ref="real_estate.account_3806"/>
+                <field name="group" ref="tax_group_ust_service"/>
+                <field name="parent" ref="tax_de_ust_delivery_full_service"/>
+            </record>
+        <!-- Parent-Template: erm.  Satz für 7 % Sonst. Leistungen -->
+        <record id="tax_de_ust_delivery_erm_service" model="account.tax.template">
+            <field name="name">USt. 7% Umsatzsteuer ermäßigter Satz sonstige Leistungen </field>
+            <field name="account" ref="real_estate.root_de"/>
+            <field name="description">Sonst. Leistungen im Inland erm. Satz</field>
+            <field name="type">none</field>
+            <field name="group" ref="tax_group_ust_service"/>
+        </record>
+            <!-- Child-Template: 7 % – wie auf der Rechnung ausgewiesen -->
+            <record id="tax_de_ust_delivery_7" model="account.tax.template">
+                <field name="name">USt. 7% sonst. Leist.</field>
+                <field name="account" ref="real_estate.root_de"/>
+                <field name="description">USt. 7% sonst. Leist.</field>
+                <field name="type">percentage</field>
+                <field eval="Decimal('0.07')" name="rate"/>
+                <field name="invoice_account" ref="real_estate.account_3801"/>
+                <field name="credit_note_account" ref="real_estate.account_3801"/>
+                <field name="group" ref="tax_group_ust_service"/>
+                <field name="parent" ref="tax_de_ust_delivery_erm_service"/>
+            </record>
+        <!-- Parent-Template: steuerfreie Sonst. Leistungen -->
+        <record id="tax_de_ust_delivery_free_service" model="account.tax.template">
+            <field name="name">USt. 0% Umsatzsteuer steuerfreie sonstige Leistungen</field>
+            <field name="account" ref="real_estate.root_de"/>
+            <field name="description">Sonst. Leistungen im Inland steuerfrei</field>
+            <field name="type">none</field>
+            <field name="group" ref="tax_group_ust_service"/>
+        </record>
+            <!-- Child-Template: 0 % – wie auf der Rechnung ausgewiesen -->
+            <record id="tax_de_ust_delivery_0" model="account.tax.template">
+                <field name="name">USt. 0% sonst. Leist.</field>
+                <field name="account" ref="real_estate.root_de"/>
+                <field name="description">USt. 0% sonst. Leist.</field>
+                <field name="type">percentage</field>
+                <field eval="Decimal('0.0')" name="rate"/>
+                <field name="invoice_account" ref="real_estate.account_3800"/>
+                <field name="credit_note_account" ref="real_estate.account_3800"/>
+                <field name="group" ref="tax_group_ust_service"/>
+                <field name="parent" ref="tax_de_ust_delivery_free_service"/>
+            </record>
+        <!-- §13b UStG: Vorsteuer + Umsatzsteuer für empfangene Leistungen – EU/Drittland -->
+        <record id="tax_eu_s13b_abs1_19_vst_ust_new" model="account.tax.template">
+            <field name="name">VSt. 19%/ USt. 19% Innergem. sonstige Leistung  §13b Abs 1 UStG VSt voll / USt voll </field>
+            <field name="account" ref="real_estate.root_de"/>
+            <field name="description">Steuer für die gleichzeitige Verbuchung von Vor- und Umsatzsteuer</field>
+            <field name="type">none</field>
+            <field name="group" ref="tax_group_vst_service"/>
+        </record>
+            <record id="tax_eu_s13b_abs1_19_vst_new" model="account.tax.template">
+                <field name="name">VSt. 19% volle Vorsteuer erhaltenen EU-Leistungen §13b Abs.1</field>
+                <field name="account" ref="real_estate.root_de"/>
+                <field name="description">voll VSt</field>
+                <field name="type">percentage</field>
+                <field name="rate" eval="Decimal('0.19')"/>
+                <field name="invoice_account" ref="real_estate.account_1404"/>
+                <field name="credit_note_account" ref="real_estate.account_1404"/>
+                <field name="parent" ref="tax_eu_s13b_abs1_19_vst_ust_new"/>
+            </record>
+            <record id="tax_eu_s13b_abs1_19_ust_new" model="account.tax.template">
+                <field name="name">USt. 19% volle Umsatzsteuer erhaltenen EU-Leistungen §13b Abs.1</field>
+                <field name="account" ref="real_estate.root_de"/>
+                <field name="description">voll USt</field>
+                <field name="type">percentage</field>
+                <field name="rate" eval="Decimal('-0.19')"/>
+                <field name="invoice_account" ref="real_estate.account_3804"/>
+                <field name="credit_note_account" ref="real_estate.account_3804"/>
+                <field name="parent" ref="tax_eu_s13b_abs1_19_vst_ust_new"/>
+            </record>
+        <!-- §13b UStG: Vorsteuer + Umsatzsteuer für empfangene Leistungen – EU/Drittland -->
+        <record id="tax_eu_s13b_abs1_7_vst_ust_new" model="account.tax.template">
+            <field name="name">VSt. 7%/ USt. 7% Innergem. sonstige Leistung  §13b Abs 1 UStG VSt erm. / USt erm.</field>
+            <field name="account" ref="real_estate.root_de"/>
+            <field name="description">Steuer für die gleichzeitige Verbuchung von Vor- und Umsatzsteuer</field>
+            <field name="type">none</field>
+            <field name="group" ref="tax_group_vst_service"/>
+        </record>
+            <record id="tax_eu_s13b_abs1_7_vst_new" model="account.tax.template">
+                <field name="name">VSt. 7% erm. Vorsteuer erhaltenen EU-Leistungen §13b Abs.1</field>
+                <field name="account" ref="real_estate.root_de"/>
+                <field name="description">erm. VSt</field>
+                <field name="type">percentage</field>
+                <field name="rate" eval="Decimal('0.07')"/>
+                <field name="invoice_account" ref="real_estate.account_1402"/>
+                <field name="credit_note_account" ref="real_estate.account_1402"/>
+                <field name="parent" ref="tax_eu_s13b_abs1_7_vst_ust_new"/>
+            </record>
+            <record id="tax_eu_s13b_abs1_7_ust_new" model="account.tax.template">
+                <field name="name">USt. 7% erm. Umsatzsteuer erhaltenen EU-Leistungen §13b Abs.1</field>
+                <field name="account" ref="real_estate.root_de"/>
+                <field name="description">erm. USt</field>
+                <field name="type">percentage</field>
+                <field name="rate" eval="Decimal('-0.07')"/>
+                <field name="invoice_account" ref="real_estate.account_3802"/>
+                <field name="credit_note_account" ref="real_estate.account_3802"/>
+                <field name="parent" ref="tax_eu_s13b_abs1_7_vst_ust_new"/>
+            </record>
+        <!-- §13b UStG: Vorsteuer + Umsatzsteuer für empfangene Leistungen – EU/Drittland -->
+        <record id="tax_eu_s13b_abs1_0_vst_ust_new" model="account.tax.template">
+            <field name="name">VSt. 0%/ USt. 0% Innergem. sonstige Leistung  §13b Abs 1 UStG VSt frei / USt frei</field>
+            <field name="account" ref="real_estate.root_de"/>
+            <field name="description">Steuer für die gleichzeitige Verbuchung von Vor- und Umsatzsteuer</field>
+            <field name="type">none</field>
+            <field name="group" ref="tax_group_vst_service"/>
+        </record>
+            <record id="tax_eu_s13b_abs0_vst_new" model="account.tax.template">
+                <field name="name">VSt. 0% frei Vorsteuer erhaltenen EU-Leistungen §13b Abs.1</field>
+                <field name="account" ref="real_estate.root_de"/>
+                <field name="description">frei VSt</field>
+                <field name="type">percentage</field>
+                <field name="rate" eval="Decimal('0.0')"/>
+                <field name="invoice_account" ref="real_estate.account_1402"/>
+                <field name="credit_note_account" ref="real_estate.account_1402"/>
+                <field name="parent" ref="tax_eu_s13b_abs1_0_vst_ust_new"/>
+            </record>
+            <record id="tax_eu_s13b_abs1_0_ust_new" model="account.tax.template">
+                <field name="name">USt. 0% frei Umsatzsteuer  erhaltenen EU-Leistungen §13b Abs.1</field>
+                <field name="account" ref="real_estate.root_de"/>
+                <field name="description">frei USt</field>
+                <field name="type">percentage</field>
+                <field name="rate" eval="Decimal('-0.0')"/>
+                <field name="invoice_account" ref="real_estate.account_3802"/>
+                <field name="credit_note_account" ref="real_estate.account_3802"/>
+                <field name="parent" ref="tax_eu_s13b_abs1_0_vst_ust_new"/>
+            </record>
+        <!-- §13b UStG: Vorsteuer + Umsatzsteuer für empfangene Leistungen – EU/Drittland -->
+        <record id="tax_dritt_s13b_abs2_19_vst_ust_new" model="account.tax.template">
+            <field name="name">VSt. 19%/ USt. 19% sonstige Leistung Drittland §13b Abs 2 UStG VSt voll / USt voll</field>
+            <field name="account" ref="real_estate.root_de"/>
+            <field name="description">Steuer für die gleichzeitige Verbuchung von Vor- und Umsatzsteuer</field>
+            <field name="type">none</field>
+            <field name="group" ref="tax_group_vst_service"/>
+        </record>
+            <record id="tax_dritt_s13b_abs2_19_vst_new" model="account.tax.template">
+                <field name="name">VSt. 19% voll Vorsteuer Drittland Leistungen §13b Abs.2</field>
+                <field name="account" ref="real_estate.root_de"/>
+                <field name="description">voll Einfuhr VSt</field>
+                <field name="type">percentage</field>
+                <field name="rate" eval="Decimal('0.19')"/>
+                <field name="invoice_account" ref="real_estate.account_1406"/>
+                <field name="credit_note_account" ref="real_estate.account_1406"/>
+                <field name="parent" ref="tax_dritt_s13b_abs2_19_vst_ust_new"/>
+            </record>
+            <record id="tax_dritt_s13b_abs2_19_ust_new" model="account.tax.template">
+                <field name="name">USt. 19% voll Umsatzsteuer Drittland Leistungen §13b Abs.2</field>
+                <field name="account" ref="real_estate.root_de"/>
+                <field name="description">voll USt</field>
+                <field name="type">percentage</field>
+                <field name="rate" eval="Decimal('-0.19')"/>
+                <field name="invoice_account" ref="real_estate.account_3806"/>
+                <field name="credit_note_account" ref="real_estate.account_3806"/>
+                <field name="parent" ref="tax_dritt_s13b_abs2_19_vst_ust_new"/>
+            </record>
+        <!-- §13b UStG: Vorsteuer + Umsatzsteuer für empfangene Leistungen – EU/Drittland -->
+        <record id="tax_dritt_s13b_abs2_7_vst_ust_new" model="account.tax.template">
+            <field name="name">VSt. 7%/ USt. 7% sonstige Leistung Drittland §13b Abs 2 UStG VSt erm. / USt erm.</field>
+            <field name="account" ref="real_estate.root_de"/>
+            <field name="description">Steuer für die gleichzeitige Verbuchung von Vor- und Umsatzsteuer</field>
+            <field name="type">none</field>
+            <field name="group" ref="tax_group_vst_service"/>
+        </record>
+            <record id="tax_dritt_s13b_abs2_7_vst_new" model="account.tax.template">
+                <field name="name">VSt. 7% erm. Vorsteuer Drittland Leistungen §13b Abs.2</field>
+                <field name="account" ref="real_estate.root_de"/>
+                <field name="description">erm. Einfuhr VSt</field>
+                <field name="type">percentage</field>
+                <field name="rate" eval="Decimal('0.07')"/>
+                <field name="invoice_account" ref="real_estate.account_1401"/>
+                <field name="credit_note_account" ref="real_estate.account_1401"/>
+                <field name="parent" ref="tax_dritt_s13b_abs2_7_vst_ust_new"/>
+            </record>
+            <record id="tax_dritt_s13b_abs2_7_ust_new" model="account.tax.template">
+                <field name="name">USt. 7% erm. Umsatzsteuer Drittland Leistungen §13b Abs.2</field>
+                <field name="account" ref="real_estate.root_de"/>
+                <field name="description">erm. USt</field>
+                <field name="type">percentage</field>
+                <field name="rate" eval="Decimal('-0.07')"/>
+                <field name="invoice_account" ref="real_estate.account_3801"/>
+                <field name="credit_note_account" ref="real_estate.account_3801"/>
+                <field name="parent" ref="tax_dritt_s13b_abs2_7_vst_ust_new"/>
+            </record>
+        <!-- §13b UStG: Vorsteuer + Umsatzsteuer für empfangene Leistungen – EU/Drittland -->
+        <record id="tax_dritt_s13b_abs2_0_vst_ust_new" model="account.tax.template">
+            <field name="name">VSt. 0%/ USt. 0% sonstige Leistung Drittland §13b Abs 2 UStG VSt frei / USt frei</field>
+            <field name="account" ref="real_estate.root_de"/>
+            <field name="description">Steuer für die gleichzeitige Verbuchung von Vor- und Umsatzsteuer</field>
+            <field name="type">none</field>
+            <field name="group" ref="tax_group_vst_service"/>
+        </record>
+            <record id="tax_dritt_s13b_abs2_0_vst_new" model="account.tax.template">
+                <field name="name">VSt. 0% frei Vorsteuer Drittland Leistungen §13b Abs.2</field>
+                <field name="account" ref="real_estate.root_de"/>
+                <field name="description">frei Einfuhr VSt</field>
+                <field name="type">percentage</field>
+                <field name="rate" eval="Decimal('0.00')"/>
+                <field name="invoice_account" ref="real_estate.account_1400"/>
+                <field name="credit_note_account" ref="real_estate.account_1400"/>
+                <field name="parent" ref="tax_dritt_s13b_abs2_0_vst_ust_new"/>
+            </record>
+            <record id="tax_dritt_s13b_abs2_0_ust_new" model="account.tax.template">
+                <field name="name">USt. 0% frei Umsatzsteuer Drittland Leistungen §13b Abs.2</field>
+                <field name="account" ref="real_estate.root_de"/>
+                <field name="description">frei USt</field>
+                <field name="type">percentage</field>
+                <field name="rate" eval="Decimal('-0.00')"/>
+                <field name="invoice_account" ref="real_estate.account_3800"/>
+                <field name="credit_note_account" ref="real_estate.account_3800"/>
+                <field name="parent" ref="tax_dritt_s13b_abs2_0_vst_ust_new"/>
+            </record>
+        <!-- Parent-Template: Vorsteuer sonstige Leistung voller Satz -->
+        <record id="tax_de_vst_purchase_full_service" model="account.tax.template">
+            <field name="name">VSt. 19% Vorsteuer voll sonstige Leistung</field>
+            <field name="account" ref="real_estate.root_de"/>
+            <field name="description">Sonst. Leistungen im Inland voller Satz</field>
+            <field name="type">none</field>
+            <field name="group" ref="tax_group_vst_service"/>
+        </record>
+            <!-- Child-Template: 19 % – wie auf der Rechnung ausgewiesen -->
+            <record id="tax_de_vst_purchase_19_service" model="account.tax.template">
+                <field name="name">VSt. 19% Vorsteuer voll sonstige Leistung</field>
+                <field name="account" ref="real_estate.root_de"/>
+                <field name="description">Sonst. Leistungen im Inland voller Satz</field>
+                <field name="type">percentage</field>
+                <field eval="Decimal('0.19')" name="rate"/>
+                <field name="invoice_account" ref="real_estate.account_1406"/>
+                <field name="credit_note_account" ref="real_estate.account_1406"/>
+                <field name="group" ref="tax_group_vst_service"/>
+                <field name="parent" ref="tax_de_vst_purchase_full_service"/>
+            </record>
+        <!-- Parent-Template: Vorsteuer sonstige Leistung ermäßigter Satz -->
+        <record id="tax_de_vst_purchase_ermaessigt_service" model="account.tax.template">
+            <field name="name">VSt. 7% Vorsteuer erm. sonstige Leistung</field>
+            <field name="account" ref="real_estate.root_de"/>
+            <field name="description">Sonst. Leistungen im Inland ermäßigter Satz</field>
+            <field name="type">none</field>
+            <field name="group" ref="tax_group_vst_service"/>
+        </record>
+            <!-- Child-Template: 7 % – wie auf der Rechnung ausgewiesen -->
+            <record id="tax_de_vst_purchase_7_service" model="account.tax.template">
+                <field name="name">VSt. 7% Vorsteuer erm. sonstige Leistung</field>
+                <field name="account" ref="real_estate.root_de"/>
+                <field name="description">Sonst. Leistungen im Inland ermäßigter Satz</field>
+                <field name="type">percentage</field>
+                <field eval="Decimal('0.07')" name="rate"/>
+                <field name="invoice_account" ref="real_estate.account_1401"/>
+                <field name="credit_note_account" ref="real_estate.account_1401"/>
+                <field name="group" ref="tax_group_vst_service"/>
+                <field name="parent" ref="tax_de_vst_purchase_ermaessigt_service"/>
+            </record>
+        <!-- Parent-Template: Vorsteuer sonstige Leistung steuerfrei -->
+        <record id="tax_de_vst_purchase_frei_service" model="account.tax.template">
+            <field name="name">VSt. 0% Vorsteuer frei sonstige Leistung</field>
+            <field name="account" ref="real_estate.root_de"/>
+            <field name="description">Sonst. Leistungen im Inland steuerfrei</field>
+            <field name="type">none</field>
+            <field name="group" ref="tax_group_vst_service"/>
+        </record>
+            <!-- Child-Template: 0 % – wie auf der Rechnung ausgewiesen -->
+            <record id="tax_de_vst_purchase_0_service" model="account.tax.template">
+                <field name="name">VSt. 0% Vorsteuer frei sonstige Leistung</field>
+                <field name="account" ref="real_estate.root_de"/>
+                <field name="description">Sonst. Leistungen im Inland steuerfrei, z.b. Solaranlagen Sonst. Leistungen</field>
+                <field name="type">percentage</field>
+                <field eval="Decimal('0.0')" name="rate"/>
+                <field name="invoice_account" ref="real_estate.account_1400"/>
+                <field name="credit_note_account" ref="real_estate.account_1400"/>
+                <field name="group" ref="tax_group_vst_service"/>
+                <field name="parent" ref="tax_de_vst_purchase_frei_service"/>
+            </record>
+        <!-- Parent-Template: Vorsteuer volle Waren -->
+        <record id="tax_de_vst_purchase_full_goods" model="account.tax.template">
+            <field name="name">VSt. 19% Vorsteuer voll Waren Inland</field>
+            <field name="account" ref="real_estate.root_de"/>
+            <field name="description">Waren im Inland voller Satz</field>
+            <field name="type">none</field>
+            <field name="group" ref="tax_group_vst_goods"/>
+        </record>
+        <!-- Child-Template: 19 % – wie auf der Rechnung ausgewiesen -->
+        <record id="tax_de_vst_purchase_19_goods" model="account.tax.template">
+            <field name="name">VSt. 19% Vorsteuer voll Waren Inland</field>
+            <field name="account" ref="real_estate.root_de"/>
+            <field name="description">Waren im Inland voller Satz</field>
+            <field name="type">percentage</field>
+            <field eval="Decimal('0.19')" name="rate"/>
+            <field name="invoice_account" ref="real_estate.account_1406"/>
+            <field name="credit_note_account" ref="real_estate.account_1406"/>
+            <field name="group" ref="tax_group_vst_goods"/>
+            <field name="parent" ref="tax_de_vst_purchase_full_goods"/>
+        </record>
+        <!-- Parent-Template: na.Vorsteuer volle Waren -->
+        <record id="tax_de_na_vst_purchase_full_goods" model="account.tax.template">
+            <field name="name">naVSt. 19% nicht abzugsfähige Vorsteuer voll Waren Inland</field>
+            <field name="account" ref="real_estate.root_de"/>
+            <field name="description">Waren im Inland voller Satz nicht abzugsfähig</field>
+            <field name='non_deductible' eval="True"/>
+            <field name="type">none</field>
+            <field name="group" ref="tax_group_vst_goods"/>
+        </record>
+        <!-- Child-Template: 19 % – wie auf der Rechnung ausgewiesen -->
+        <record id="tax_de_na_vst_purchase_19_goods" model="account.tax.template">
+            <field name="name">naVSt. 19% nicht abzugsfähige Vorsteuer voll Waren Inland</field>
+            <field name="account" ref="real_estate.root_de"/>
+            <field name="description">Waren im Inland voller Satz nicht abzugsfähig</field>
+            <field name="type">percentage</field>
+            <field name='non_deductible' eval="True"/>
+            <field eval="Decimal('0.19')" name="rate"/>
+            <field name="invoice_account" ref="real_estate.account_1406"/>
+            <field name="credit_note_account" ref="real_estate.account_1406"/>
+            <field name="group" ref="tax_group_vst_goods"/>
+            <field name="parent" ref="tax_de_na_vst_purchase_full_goods"/>
+        </record>
+        <!-- Parent-Template: Vorsteuer erm. Waren -->
+        <record id="tax_de_vst_purchase_ermaessigt_goods" model="account.tax.template">
+            <field name="name">VSt. 7% Vorsteuer erm. Waren Inland</field>
+            <field name="account" ref="real_estate.root_de"/>
+            <field name="description">Waren im Inland ermäßigter Satz</field>
+            <field name="type">none</field>
+            <field name="group" ref="tax_group_vst_goods"/>
+        </record>
+            <!-- Child-Template: 7 % – wie auf der Rechnung ausgewiesen -->
+            <record id="tax_de_vst_purchase_7_goods" model="account.tax.template">
+                <field name="name">VSt. 7% Vorsteuer erm. Waren Inland</field>
+                <field name="account" ref="real_estate.root_de"/>
+                <field name="description">Waren im Inland ermäßigter Satz</field>
+                <field name="type">percentage</field>
+                <field eval="Decimal('0.07')" name="rate"/>
+                <field name="invoice_account" ref="real_estate.account_1401"/>
+                <field name="credit_note_account" ref="real_estate.account_1401"/>
+                <field name="group" ref="tax_group_vst_goods"/>
+                <field name="parent" ref="tax_de_vst_purchase_ermaessigt_goods"/>
+            </record>
+
+
+        <!-- Parent-Template: Vorsteuer erm. Waren -->
+        <record id="tax_de_na_vst_purchase_ermaessigt_goods" model="account.tax.template">
+            <field name="name">naVSt. 7% nicht abzugsfähige Vorsteuer erm. Waren Inland</field>
+            <field name="account" ref="real_estate.root_de"/>
+            <field name="description">Waren im Inland ermäßigter Satz nicht abzugsfähig</field>
+            <field name='non_deductible' eval="True"/>
+            <field name="type">none</field>
+            <field name="group" ref="tax_group_vst_goods"/>
+        </record>
+            <!-- Child-Template: 7 % – wie auf der Rechnung ausgewiesen -->
+            <record id="tax_de_na_vst_purchase_7_goods" model="account.tax.template">
+                <field name="name">naVSt. 7% nicht abzugsfähige Vorsteuer erm. Waren Inland</field>
+                <field name="account" ref="real_estate.root_de"/>
+                <field name="description">Waren im Inland ermäßigter Satz nicht abzugsfähig</field>
+                <field name="type">percentage</field>
+                <field name='non_deductible' eval="True"/>
+                <field eval="Decimal('0.07')" name="rate"/>
+                <field name="invoice_account" ref="real_estate.account_1401"/>
+                <field name="credit_note_account" ref="real_estate.account_1401"/>
+                <field name="group" ref="tax_group_vst_goods"/>
+                <field name="parent" ref="tax_de_na_vst_purchase_ermaessigt_goods"/>
+            </record>
+
+        <!-- Parent-Template: Vorsteuer frei Waren -->
+        <record id="tax_de_vst_purchase_free_goods" model="account.tax.template">
+            <field name="name">VSt. 0% Vorsteuer frei Waren Inland</field>
+            <field name="account" ref="real_estate.root_de"/>
+            <field name="description">Waren im Inland steuerfrei</field>
+            <field name="type">none</field>
+            <field name="group" ref="tax_group_vst_goods"/>
+        </record>
+            <!-- Child-Template: 0 % – wie auf der Rechnung ausgewiesen -->
+            <record id="tax_de_vst_purchase_0_goods" model="account.tax.template">
+                <field name="name">VSt. 0% Vorsteuer frei Waren Inland</field>
+                <field name="account" ref="real_estate.root_de"/>
+                <field name="description">Waren im Inland steuerfrei, z.B. Solaranlagen Sonst. Leistungen</field>
+                <field name="type">percentage</field>
+                <field eval="Decimal('0.0')" name="rate"/>
+                <field name="invoice_account" ref="real_estate.account_1400"/>
+                <field name="credit_note_account" ref="real_estate.account_1400"/>
+                <field name="group" ref="tax_group_vst_goods"/>
+                <field name="parent" ref="tax_de_vst_purchase_free_goods"/>
+            </record>
+
+        <!-- Parent-Template: Vorsteuer frei Waren -->
+        <record id="tax_de_na_vst_purchase_free_goods" model="account.tax.template">
+            <field name="name">naVSt. 0% nicht abzugsfähige Vorsteuer frei Waren Inland</field>
+            <field name="account" ref="real_estate.root_de"/>
+            <field name="description">Waren im Inland steuerfrei nicht abzugsfähig</field>
+            <field name='non_deductible' eval="True"/>
+            <field name="type">none</field>
+            <field name="group" ref="tax_group_vst_goods"/>
+        </record>
+            <!-- Child-Template: 0 % – wie auf der Rechnung ausgewiesen -->
+            <record id="tax_de_na_vst_purchase_0_goods" model="account.tax.template">
+                <field name="name">naVSt. 0% nicht abzugsfähige Vorsteuer frei Waren Inland</field>
+                <field name="account" ref="real_estate.root_de"/>
+                <field name="description">Waren im Inland steuerfrei nicht abzugsfähig</field>
+                <field name="type">percentage</field>
+                <field name='non_deductible' eval="True"/>
+                <field eval="Decimal('0.0')" name="rate"/>
+                <field name="invoice_account" ref="real_estate.account_1400"/>
+                <field name="credit_note_account" ref="real_estate.account_1400"/>
+                <field name="group" ref="tax_group_vst_goods"/>
+                <field name="parent" ref="tax_de_na_vst_purchase_free_goods"/>
+            </record>
+
+
+        <!-- §13b UStG: Vorsteuer + Umsatzsteuer für empfangene Leistungen – EU/Drittland -->
+        <record id="tax_eu_inner_erwerb_19_vst_ust_new" model="account.tax.template">
+            <field name="name">VSt. 19%/ USt. 19% Innergemeinschaftlicher Erwerb VSt voll / USt voll </field>
+            <field name="account" ref="real_estate.root_de"/>
+            <field name="description">Steuer für die gleichzeitige Verbuchung von Vor- und Umsatzsteuer</field>
+            <field name="type">none</field>
+            <field name="group" ref="tax_group_vst_goods"/>
+        </record>
+            <!-- Innergemeinschaftlicher Erwerb: EU-Warenbezug mit Erwerbsteuer & Vorsteuer -->
+            <record id="tax_eu_inner_erwerb_19_vst_new" model="account.tax.template">
+                <field name="name">VSt. 19% Vorsteuer Innergemeinschaftlicher Erwerb </field>
+                <field name="account" ref="real_estate.root_de"/>
+                <field name="description">voll VSt</field>
+                <field name="type">percentage</field>
+                <field name="rate" eval="Decimal('0.19')"/>
+                <field name="invoice_account" ref="real_estate.account_1404"/>
+                <field name="credit_note_account" ref="real_estate.account_1404"/>
+                <field name="parent" ref="tax_eu_inner_erwerb_19_vst_ust_new"/>
+            </record>
+            <!-- Innergemeinschaftlicher Erwerb: EU-Warenbezug mit Erwerbsteuer & Vorsteuer -->
+            <record id="tax_eu_inner_erwerb_19_ust_new" model="account.tax.template">
+                <field name="name">USt. 19% Umsatzsteuer Innergemeinschaftlicher Erwerb </field>
+                <field name="account" ref="real_estate.root_de"/>
+                <field name="description">voll USt</field>
+                <field name="type">percentage</field>
+                <field name="rate" eval="Decimal('-0.19')"/>
+                <field name="invoice_account" ref="real_estate.account_3804"/>
+                <field name="credit_note_account" ref="real_estate.account_3804"/>
+                <field name="parent" ref="tax_eu_inner_erwerb_19_vst_ust_new"/>
+            </record>
+        <!-- §13b UStG: Vorsteuer + Umsatzsteuer für empfangene Leistungen – EU/Drittland -->
+        <record id="tax_eu_inner_erwerb_7_vst_ust_new" model="account.tax.template">
+            <field name="name">VSt. 7%/ USt. 7% Innergemeinschaftlicher Erwerb VSt erm. / USt erm.</field>
+            <field name="account" ref="real_estate.root_de"/>
+            <field name="description">Steuer Innergemeinschaftlicher Erwerb Vor- und Umsatzsteuer</field>
+            <field name="type">none</field>
+            <field name="group" ref="tax_group_vst_goods"/>
+        </record>
+            <!-- Innergemeinschaftlicher Erwerb: EU-Warenbezug mit Erwerbsteuer & Vorsteuer -->
+            <record id="tax_eu_inner_erwerb_7_vst_new" model="account.tax.template">
+                <field name="name">VSt. 7% Vorsteuer Innergemeinschaftlicher Erwerb</field>
+                <field name="account" ref="real_estate.root_de"/>
+                <field name="description">erm. VSt</field>
+                <field name="type">percentage</field>
+                <field name="rate" eval="Decimal('0.07')"/>
+                <field name="invoice_account" ref="real_estate.account_1402"/>
+                <field name="credit_note_account" ref="real_estate.account_1402"/>
+                <field name="parent" ref="tax_eu_inner_erwerb_7_vst_ust_new"/>
+            </record>
+            <!-- Innergemeinschaftlicher Erwerb: EU-Warenbezug mit Erwerbsteuer & Vorsteuer -->
+            <record id="tax_eu_inner_erwerb_7_ust_new" model="account.tax.template">
+                <field name="name">USt. 7% Umsatzsteuer Innergemeinschaftlicher Erwerb</field>
+                <field name="account" ref="real_estate.root_de"/>
+                <field name="description">erm. USt</field>
+                <field name="type">percentage</field>
+                <field name="rate" eval="Decimal('-0.07')"/>
+                <field name="invoice_account" ref="real_estate.account_3802"/>
+                <field name="credit_note_account" ref="real_estate.account_3802"/>
+                <field name="parent" ref="tax_eu_inner_erwerb_7_vst_ust_new"/>
+            </record>
+        <!-- §13b UStG: Vorsteuer + Umsatzsteuer für empfangene Leistungen – EU/Drittland -->
+        <record id="tax_eu_inner_erwerb_0_vst_ust_new" model="account.tax.template">
+            <field name="name">VSt. 0%/ USt. 0% Innergemeinschaftlicher Erwerb VSt frei / USt frei</field>
+            <field name="account" ref="real_estate.root_de"/>
+            <field name="description">Steuer für die gleichzeitige Verbuchung von Vor- und Umsatzsteuer</field>
+            <field name="type">none</field>
+            <field name="group" ref="tax_group_vst_goods"/>
+        </record>
+            <!-- Innergemeinschaftlicher Erwerb: EU-Warenbezug mit Erwerbsteuer & Vorsteuer -->
+            <record id="tax_eu_inner_erwerb_0_vst_new" model="account.tax.template">
+                <field name="name">VSt. 0% freie Vorsteuer Innergemeinschaftlicher Erwerb</field>
+                <field name="account" ref="real_estate.root_de"/>
+                <field name="description">frei VSt</field>
+                <field name="type">percentage</field>
+                <field name="rate" eval="Decimal('0.0')"/>
+                <field name="invoice_account" ref="real_estate.account_1402"/>
+                <field name="credit_note_account" ref="real_estate.account_1402"/>
+                <field name="parent" ref="tax_eu_inner_erwerb_0_vst_ust_new"/>
+            </record>
+            <!-- Innergemeinschaftlicher Erwerb: EU-Warenbezug mit Erwerbsteuer & Vorsteuer -->
+            <record id="tax_eu_inner_erwerb_0_ust_new" model="account.tax.template">
+                <field name="name">USt. 0% freie Umsatzsteuer Innergemeinschaftlicher Erwerb</field>
+                <field name="account" ref="real_estate.root_de"/>
+                <field name="description">frei USt</field>
+                <field name="type">percentage</field>
+                <field name="rate" eval="Decimal('-0.0')"/>
+                <field name="invoice_account" ref="real_estate.account_3802"/>
+                <field name="credit_note_account" ref="real_estate.account_3802"/>
+                <field name="parent" ref="tax_eu_inner_erwerb_0_vst_ust_new"/>
+            </record>
+        <!-- Vorsteuer: Bezug von Waren oder Sonst. Leistungen im Inland mit ausgewiesenem Steuerbetrag -->
+        <record id="helper_tax_dritt_vst_purchase_19_goods" model="account.tax.template">
+            <field name="name">VSt. 19% Steuerfiktion, um Kontenregel (nach 5551) auszulösen, Betrag frei; Bezug voll</field>
+            <field name="account" ref="real_estate.root_de"/>
+            <field name="description">Einfuhrumsatzsteuer bei Einfuhr der Ware, wenn VSt vom Zolldienstleister übernommen wird</field>
+            <field name="legal_notice"/>
+            <field name="type">percentage</field>
+            <field eval="Decimal('0.0')" name="rate"/>
+            <field name="invoice_account" ref="real_estate.account_1406"/>
+            <field name="credit_note_account" ref="real_estate.account_1406"/>
+            <field name="group" ref="tax_group_vst_goods"/>
+        </record>
+            <!-- Vorsteuer: Bezug von Waren oder Sonst. Leistungen im Inland mit ausgewiesenem Steuerbetrag -->
+            <record id="helper_tax_dritt_vst_purchase_7_goods" model="account.tax.template">
+                <field name="name">VSt. 7% Steuerfiktion, um Kontenregel (nach 5551) auszulösen, Betrag frei; Bezug erm. </field>
+                <field name="account" ref="real_estate.root_de"/>
+                <field name="description">Einfuhrumsatzsteuer bei Einfuhr der Ware, wenn VSt vom Zolldienstleister übernommen wird/field</field>
+                <field name="legal_notice"/>
+                <field name="type">percentage</field>
+                <field eval="Decimal('0.00')" name="rate"/>
+                <field name="invoice_account" ref="real_estate.account_1401"/>
+                <field name="credit_note_account" ref="real_estate.account_1401"/>
+                <field name="group" ref="tax_group_vst_goods"/>
+            </record>
+            <!-- Vorsteuer: Bezug von Waren oder Sonst. Leistungen im Inland mit ausgewiesenem Steuerbetrag -->
+            <record id="helper_tax_dritt_vst_purchase_0_goods" model="account.tax.template">
+                <field name="name">VSt. 0% Steuerfiktion, um Kontenregel (nach 5551) auszulösen, Betrag frei; Bezug frei </field>
+                <field name="account" ref="real_estate.root_de"/>
+                <field name="description">Einfuhrumsatzsteuer bei Einfuhr der Ware, wenn VSt vom Zolldienstleister übernommen wird</field>
+                <field name="legal_notice"/>
+                <field name="type">percentage</field>
+                <field eval="Decimal('0.0')" name="rate"/>
+                <field name="invoice_account" ref="real_estate.account_1400"/>
+                <field name="credit_note_account" ref="real_estate.account_1433"/>
+                <field name="group" ref="tax_group_vst_goods"/>
+            </record>
+        <!-- Parent-Template: Einfuhrumsatzsteuer voller Satz -->
+        <record id="tax_dritt_vst_purchase_full_goods_customs" model="account.tax.template">
+            <field name="name">VSt. 19% Einfuhrumsatzsteuer voller Satz</field>
+            <field name="account" ref="real_estate.root_de"/>
+            <field name="description">Einfuhrumsatzsteuer bei Einfuhr der Ware, wenn VSt vom Zolldienstleister übernommen wird</field>
+            <field name="type">none</field>
+            <field name="group" ref="tax_group_customs_import"/>
+        </record>
+            <!-- Child-Template: 19 % – wie auf der Rechnung ausgewiesen -->
+            <record id="tax_dritt_vst_purchase_19_goods_customs" model="account.tax.template">
+                <field name="name">VSt. 19% Einfuhrumsatzsteuer voll</field>
+                <field name="account" ref="real_estate.root_de"/>
+                <field name="description">Einfuhrumsatzsteuer bei Einfuhr der Ware, wenn VSt vom Zolldienstleister übernommen wird</field>
+                <field name="type">percentage</field>
+                <field eval="Decimal('0.19')" name="rate"/>
+                <field name="invoice_account" ref="real_estate.account_1433"/>
+                <field name="credit_note_account" ref="real_estate.account_1433"/>
+                <field name="group" ref="tax_group_customs_import"/>
+                <field name="parent" ref="tax_dritt_vst_purchase_full_goods_customs"/>
+            </record>
+        <!-- Parent-Template: Einfuhrumsatzsteuer ermäßigter Satz -->
+        <record id="tax_dritt_vst_purchase_ermaessigt_goods_customs" model="account.tax.template">
+            <field name="name">VSt. 7% Einfuhrumsatzsteuer ermäßigter Satz</field>
+            <field name="account" ref="real_estate.root_de"/>
+            <field name="description">Einfuhrumsatzsteuer bei Einfuhr der Ware, wenn VSt vom Zolldienstleister übernommen wird</field>
+            <field name="type">none</field>
+            <field name="group" ref="tax_group_customs_import"/>
+        </record>
+            <!-- Child-Template: 7 % – wie auf der Rechnung ausgewiesen -->
+            <record id="tax_dritt_vst_purchase_7_goods_customs" model="account.tax.template">
+                <field name="name">VSt. 7% Einfuhrumsatzsteuer erm.</field>
+                <field name="account" ref="real_estate.root_de"/>
+                <field name="description">Einfuhrumsatzsteuer bei Einfuhr der Ware, wenn VSt vom Zolldienstleister übernommen wird</field>
+                <field name="type">percentage</field>
+                <field eval="Decimal('0.07')" name="rate"/>
+                <field name="invoice_account" ref="real_estate.account_1433"/>
+                <field name="credit_note_account" ref="real_estate.account_1433"/>
+                <field name="group" ref="tax_group_customs_import"/>
+                <field name="parent" ref="tax_dritt_vst_purchase_ermaessigt_goods_customs"/>
+            </record>
+        <!-- Vorsteuer: Bezug von Waren oder Sonst. Leistungen im Inland mit ausgewiesenem Steuerbetrag -->
+        <record id="tax_de_purchase_19_13b" model="account.tax.template">
+            <field name="name">VSt. 19%/ USt. 19% Vorsteuer Standard Andere Leistung §13b Abs. 2 1,2,4 - 12</field>
+            <field name="account" ref="real_estate.root_de"/>
+            <field name="description">Voller Satz Steuer für die gleichzeitige Verbuchung von Vor- und Umsatzsteuer bei innerdeutschem Erwerb von 13 b Leistungen</field>
+            <field name="type">none</field>
+            <field name="group" ref="tax_group_vst_service"/>
+        </record>
+            <!-- Vorsteuer: Bezug von Waren oder Sonst. Leistungen im Inland mit ausgewiesenem Steuerbetrag -->
+            <record id="tax_de_purchase_19_13b_VST" model="account.tax.template">
+                <field name="name">VSt. 19% volle Vorsteuer erhaltenen DE-Leistungen §13b Abs.1</field>
+                <field name="account" ref="real_estate.root_de"/>
+                <field name="description">voll VSt</field>
+                <field name="type">percentage</field>
+                <field name="rate" eval="Decimal('0.19')"/>
+                <field name="invoice_account" ref="real_estate.account_1407"/>
+                <field name="credit_note_account" ref="real_estate.account_1407"/>
+                <field name="parent" ref="tax_de_purchase_19_13b"/>
+            </record>
+            <!-- Vorsteuer: Bezug von Waren oder Sonst. Leistungen im Inland mit ausgewiesenem Steuerbetrag -->
+            <record id="tax_de_purchase_19_13b_UST" model="account.tax.template">
+                <field name="name">USt. 19% volle Umsatzsteuer  erhaltenen DE -Leistungen §13b Abs.1</field>
+                <field name="account" ref="real_estate.root_de"/>
+                <field name="description">voll USt</field>
+                <field name="type">percentage</field>
+                <field name="rate" eval="Decimal('-0.19')"/>
+                <field name="invoice_account" ref="real_estate.account_3806"/>
+                <field name="credit_note_account" ref="real_estate.account_3806"/>
+                <field name="parent" ref="tax_de_purchase_19_13b"/>
+            </record>
+        <!-- Vorsteuer: Bezug von Waren oder Sonst. Leistungen im Inland mit ausgewiesenem Steuerbetrag -->
+        <record id="tax_de_purchase_7_13b" model="account.tax.template">
+            <field name="name">VSt. 7%/ USt. 7% Vorsteuer Standard Andere Leistung §13b Abs. 2 1,2,4 - 12</field>
+            <field name="account" ref="real_estate.root_de"/>
+            <field name="description">Ermäßigter Satz Steuer für die gleichzeitige Verbuchung von Vor- und Umsatzsteuer bei innerdeutschem Erwerb von 13 b Leistungen</field>
+            <field name="type">none</field>
+            <field name="group" ref="tax_group_vst_service"/>
+        </record>
+            <!-- Vorsteuer: Bezug von Waren oder Sonst. Leistungen im Inland mit ausgewiesenem Steuerbetrag -->
+            <record id="tax_de_purchase_7_13b_VST" model="account.tax.template">
+                <field name="name">VSt. 7% erm. Vorsteuer erhaltenen DE-Leistungen §13b Abs.1</field>
+                <field name="account" ref="real_estate.root_de"/>
+                <field name="description">erm. VSt</field>
+                <field name="type">percentage</field>
+                <field name="rate" eval="Decimal('0.07')"/>
+                <field name="invoice_account" ref="real_estate.account_1408"/>
+                <field name="credit_note_account" ref="real_estate.account_1408"/>
+                <field name="parent" ref="tax_de_purchase_7_13b"/>
+            </record>
+            <!-- Vorsteuer: Bezug von Waren oder Sonst. Leistungen im Inland mit ausgewiesenem Steuerbetrag -->
+            <record id="tax_de_purchase_7_13b_UST" model="account.tax.template">
+                <field name="name">USt. 7% erm. Umsatzsteuer  erhaltenen DE -Leistungen §13b Abs.1</field>
+                <field name="account" ref="real_estate.root_de"/>
+                <field name="description">erm. USt</field>
+                <field name="type">percentage</field>
+                <field name="rate" eval="Decimal('-0.07')"/>
+                <field name="invoice_account" ref="real_estate.account_3801"/>
+                <field name="credit_note_account" ref="real_estate.account_3801"/>
+                <field name="parent" ref="tax_de_purchase_7_13b"/>
+            </record>
+            <!-- Vorsteuer: Bezug von Waren oder Sonst. Leistungen im Inland mit ausgewiesenem Steuerbetrag -->
+        <record id="tax_de_purchase_0_13b" model="account.tax.template">
+            <field name="name">VSt. 0%/ USt. 0% Vorsteuer Standard Andere Leistung §13b Abs. 2 1,2,4 - 12</field>
+            <field name="account" ref="real_estate.root_de"/>
+            <field name="description">Steuerfreier Satz Steuer für die gleichzeitige Verbuchung von Vor- und Umsatzsteuer bei innerdeutschem Erwerb von 13 b Leistungen</field>
+            <field name="type">none</field>
+            <field name="group" ref="tax_group_vst_service"/>
+        </record>
+            <!-- Vorsteuer: Bezug von Waren oder Sonst. Leistungen im Inland mit ausgewiesenem Steuerbetrag -->
+            <record id="tax_de_purchase_0_13b_VST" model="account.tax.template">
+                <field name="name">VSt. 0% frei Vorsteuer erhaltenen DE-Leistungen §13b Abs.1</field>
+                <field name="account" ref="real_estate.root_de"/>
+                <field name="description">frei VSt</field>
+                <field name="type">percentage</field>
+                <field name="rate" eval="Decimal('0.00')"/>
+                <field name="invoice_account" ref="real_estate.account_1400"/>
+                <field name="credit_note_account" ref="real_estate.account_1400"/>
+                <field name="parent" ref="tax_de_purchase_0_13b"/>
+            </record>
+            <!-- Vorsteuer: Bezug von Waren oder Sonst. Leistungen im Inland mit ausgewiesenem Steuerbetrag -->
+            <record id="tax_de_purchase_0_13b_UST" model="account.tax.template">
+                <field name="name">USt. 0% frei Umsatzsteuer  erhaltenen DE -Leistungen §13b Abs.1</field>
+                <field name="account" ref="real_estate.root_de"/>
+                <field name="description">frei USt</field>
+                <field name="type">percentage</field>
+                <field name="rate" eval="Decimal('-0.00')"/>
+                <field name="invoice_account" ref="real_estate.account_3800"/>
+                <field name="credit_note_account" ref="real_estate.account_3800"/>
+                <field name="parent" ref="tax_de_purchase_0_13b"/>
+            </record>
+    </data>
+</tryton>

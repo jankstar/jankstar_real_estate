@@ -28,5 +28,8 @@
         <record model="ir.message" id="msg_end_date_must_be_less_or_equal_than_parent_end_date">
             <field name="text">{}: End date ({}) must be less or equal than parent end date ({})!</field>
         </record>   
+        <record model="ir.message" id="msg_invalid_calculation_method">
+            <field name="text">For WEG Billing, the start date {} must be the first day of the year.</field>
+        </record>        
     </data>
 </tryton>

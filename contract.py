@@ -476,15 +476,15 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
                                     )    
 
     running_by = employee_field(
-        "Running By",
-        states=['running', 'terminated'],)
+        "Running By User",
+        states=['running'],)
 
     terminated_by = employee_field(
-        "Terminated By",
+        "Terminated By User",
         states=['terminated'],)
 
     cancelled_by = employee_field(
-        "Cancelled By",
+        "Cancelled By User",
         states=['cancelled'],)
 
     state = fields.Selection([
@@ -502,7 +502,7 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
             ('valid_to', 'ASC NULLS LAST'),  # Sekundärsortierung
         ],
         states={
-            'readonly': (Eval('state') != 'draft'),
+            'readonly': (Eval('state') != 'draft') | (Bool(Eval('c_type')) == False) | (Bool(Eval('property')) == False) ,
             },
         )
 
@@ -544,14 +544,16 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
             states={'readonly': True})
 
     meters = fields.Function(
-        fields.One2Many('real_estate.base_object', 'company',
+        fields.One2Many('real_estate.base_object', None,
                         'Meters',)
-        ,'on_change_with_meters',)
+        ,'on_change_with_meters',
+        setter='set_meters',)
 
     measurements = fields.Function(
-        fields.One2Many('real_estate.measurement', 'company',
+        fields.One2Many('real_estate.measurement', None,
                         'Measurements',)
-        ,'on_change_with_measurements',)
+        ,'on_change_with_measurements',
+        setter='set_measurements',)
 
 
 
@@ -560,6 +562,7 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
             'invisible': ((Eval('state') != 'terminated')),
             }    
     terminated_by_type = fields.Selection([
+            (None, 'none'),
             ('tenant','Tenant'),
             ('landlord', 'Landlord')
         ], 'Terminated by', 
@@ -710,7 +713,7 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
 
     @fields.depends('company','items')
     def on_change_with_measurements(self, name=None):
-        return [measurement for item in self.items for measurement in item.object.measurements \
+        return [measurement for item in self.items if item.object for measurement in item.object.measurements \
                   ]
 
     @classmethod
@@ -830,6 +833,14 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
             if phone:
                 return phone.value.replace('\n', ' / ')
         return ''
+
+    @classmethod
+    def set_meters(cls, record, name, value):
+        pass
+
+    @classmethod
+    def set_measurements(cls, record, name, value):
+        pass
 
     @classmethod
     def name_search(cls, name, clause):
@@ -1181,6 +1192,7 @@ class ContractType(DeactivableMixin, base_object.re_sequence_ordered(), ModelSQL
 
     mark = fields.Char("Mark", help='Periodic posting Mark')
 
+    unoccupied = fields.Boolean("Unoccupied", help='Is the property unoccupied?')
 
     @classmethod
     def default_step_item(cls):
@@ -1240,9 +1252,9 @@ class ContractItem(sequence_ordered(), ModelSQL, ModelView, metaclass=PoolMeta):
         'Currency'), 'on_change_with_currency')
 
     children = fields.Function(
-        fields.One2Many('real_estate.base_object', 'object',
-                        'children',)
-        ,'on_change_with_children',)
+        fields.One2Many('real_estate.base_object', None,
+                        'Children',)
+        ,'on_change_with_children',setter='set_children')
 
     @fields.depends('object')
     def on_change_with_children(self, name=None):
@@ -1304,6 +1316,10 @@ class ContractItem(sequence_ordered(), ModelSQL, ModelView, metaclass=PoolMeta):
             ('object.name',) + tuple(clause[1:]),
             ('object.object_number',) + tuple(clause[1:]),
         ]   
+
+    @classmethod
+    def set_children(cls, record, name, value):
+        pass
 
 #**********************************************************************
 class ContractTermType(DeactivableMixin, base_object.re_sequence_ordered(), ModelSQL, ModelView):
@@ -2132,23 +2148,23 @@ class ContractTerm(sequence_ordered(), ModelSQL, ModelView, TaxableMixin):
             ref_item = Pool().get('real_estate.contract.item')(self.reference_item)
             if ref_item.object and ref_item.object.measurements:
                 # Get the latest measurement before or on the valid_from date
-                meas_sorted = sorted(ref_item.object.measurements, key=lambda x: x['valid_from'], reverse=True)
+                meas_sorted = sorted(ref_item.object.measurements, key=lambda x: x.valid_from, reverse=True)
                 for meas in meas_sorted:
                     if meas.m_type == self.term_type.m_type \
-                        and meas.valid_from <= self.next_document_date :
+                        and ( self.next_document_date == None or meas.valid_from <= self.next_document_date ):
                         self.quantity = meas.value
 
 
     @fields.depends('term_type', 'reference_item', 'next_document_date', 'valid_from')
     def on_change_with_quantity(self, name=None):
-        if self.term_type and self.term_type.m_type and self.reference_item:
+        if self.term_type != None and self.term_type.m_type != None and self.reference_item != None:
             ref_item = Pool().get('real_estate.contract.item')(self.reference_item)
-            if ref_item.object and ref_item.object.measurements:
+            if ref_item.object != None and len(ref_item.object.measurements) > 0:
                 # Get the latest measurement before or on the valid_from date
-                meas_sorted = sorted(ref_item.object.measurements, key=lambda x: x['valid_from'], reverse=True)
+                meas_sorted = sorted(ref_item.object.measurements, key=lambda x: x.valid_from, reverse=True)
                 for meas in meas_sorted:
                     if meas.m_type == self.term_type.m_type \
-                        and meas.valid_from <= self.next_document_date :
+                        and ( self.next_document_date == None or meas.valid_from <= self.next_document_date ):
                         return meas.value
         
         if self.term_type and self.term_type.default_quantity:
@@ -2165,6 +2181,7 @@ class ContractTerm(sequence_ordered(), ModelSQL, ModelView, TaxableMixin):
                 ('c_type', '=', self.contract.c_type.id),
                 ])
             print("\n*****\n --> Taxes from contract type:", taxes)
+            return taxes
             #if taxes:
             #    Modell_term_tax= Pool().get('real_estate.contract.term.tax')
             #    new_taxes = [Modell_term_tax.create([{'term': self.id, 'tax': tax.tax.id}]) for tax in taxes]

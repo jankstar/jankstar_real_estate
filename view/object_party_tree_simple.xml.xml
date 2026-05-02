@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<tree>
+    <field name="party" expand="2"/>
+    <field name="role"/>
+    <field name="base_object" />
+    <field name="valid_from" optional="0"/>
+    <field name="valid_to" optional="0"/>
+</tree>
