@@ -26,6 +26,30 @@ msgctxt "field:party.party,salutation:"
 msgid "Salutation"
 msgstr "Anrede"
 
+msgctxt "field:real_estate.account_contract,debit:"
+msgid "Debit"
+msgstr "Soll"
+
+msgctxt "field:real_estate.account_contract,end_balance:"
+msgid "End Balance"
+msgstr "Endbestand"
+
+msgctxt "field:real_estate.account_contract,end_credit:"
+msgid "End Credit"
+msgstr "Endguthaben"
+
+msgctxt "field:real_estate.account_contract,start_balance:"
+msgid "Start Balance"
+msgstr "Anfangsbestand"
+
+msgctxt "field:real_estate.account_contract,start_credit:"
+msgid "Start Credit"
+msgstr "Anfangsguthaben"
+
+msgctxt "field:real_estate.account_contract,start_debit:"
+msgid "Start Debit"
+msgstr "Anfangsforderung"
+
 msgctxt "field:real_estate.address,building_name:"
 msgid "Building Name"
 msgstr "Name Gebäude"
@@ -129,6 +153,10 @@ msgstr "Wirtschaftseinheit"
 msgctxt "field:real_estate.base_object,cost_groups:"
 msgid "Cost Group"
 msgstr "Kostengruppe"
+
+msgctxt "field:real_estate.base_object,e_type:"
+msgid "Equipment Type"
+msgstr "Equipment Typ"
 
 msgctxt "field:real_estate.base_object,end_date:"
 msgid "End Date"
@@ -286,9 +314,25 @@ msgctxt "field:real_estate.contract,c_type:"
 msgid "Contract Type"
 msgstr "Vertragsart"
 
+msgctxt "field:real_estate.contract,cancelled_by:"
+msgid "Cancelled By User"
+msgstr "Kündigung durch Mieter"
+
 msgctxt "field:real_estate.contract,cash_flow:"
 msgid "Cash Flow"
 msgstr "Finanzstrom"
+
+msgctxt "field:real_estate.contract,cash_flow_draft:"
+msgid "Cash Flow draft"
+msgstr "Finanzstrom geplant"
+
+msgctxt "field:real_estate.contract,cash_flow_paid:"
+msgid "Cash Flow Paid"
+msgstr "Finanzstrom gezahlt"
+
+msgctxt "field:real_estate.contract,cash_flow_pending:"
+msgid "Cash Flow Pending"
+msgstr "Finanzstrom offner Posten"
 
 msgctxt "field:real_estate.contract,comment:"
 msgid "Comment"
@@ -366,6 +410,14 @@ msgctxt "field:real_estate.contract,property:"
 msgid "Property"
 msgstr "Wirtschaftseinheit"
 
+msgctxt "field:real_estate.contract,receipt_of_termination_notice:"
+msgid "Receipt of Termination Notice"
+msgstr "Zugang der Kündigung"
+
+msgctxt "field:real_estate.contract,running_by:"
+msgid "Running By User"
+msgstr "Aktiviert durch Benutzer"
+
 msgctxt "field:real_estate.contract,start_date:"
 msgid "Start Date"
 msgstr "Startdatum"
@@ -373,6 +425,18 @@ msgstr "Startdatum"
 msgctxt "field:real_estate.contract,state:"
 msgid "State"
 msgstr "Status"
+
+msgctxt "field:real_estate.contract,terminated_by:"
+msgid "Terminated By User"
+msgstr "Kündigung durch Mieter"
+
+msgctxt "field:real_estate.contract,terminated_by_type:"
+msgid "Terminated by"
+msgstr "Kündigung durch"
+
+msgctxt "field:real_estate.contract,termination_date:"
+msgid "Termination Date"
+msgstr "Kündigungsdatum"
 
 msgctxt "field:real_estate.contract,termination_reason:"
 msgid "Termination Reason"
@@ -920,7 +984,7 @@ msgstr "Steuer"
 
 msgctxt "field:real_estate.cost_group,base_object:"
 msgid "Base Object"
-msgstr "Mietobjekt"
+msgstr "Immobilienobjekt"
 
 msgctxt "field:real_estate.cost_group,company:"
 msgid "Company"
@@ -941,6 +1005,10 @@ msgstr "Beschreibung"
 msgctxt "field:real_estate.cost_group,end_date:"
 msgid "End Date"
 msgstr "Endedatum"
+
+msgctxt "field:real_estate.cost_group,planned_costs:"
+msgid "Planned Costs"
+msgstr "Plankosten"
 
 msgctxt "field:real_estate.cost_group,property:"
 msgid "Property"
@@ -994,6 +1062,10 @@ msgctxt "field:real_estate.cost_object,objects:"
 msgid "Objects"
 msgstr "Objekte"
 
+msgctxt "field:real_estate.cost_object,planned_costs:"
+msgid "Planned Costs"
+msgstr "Plankosten"
+
 msgctxt "field:real_estate.cost_object,property:"
 msgid "Property"
 msgstr "Wirtschaftseinheit"
@@ -1005,6 +1077,10 @@ msgstr "Reg-Ex Zähler"
 msgctxt "field:real_estate.cost_object,reg_ex_object:"
 msgid "Reg. Ex. Object"
 msgstr "Reg-Ex Objekt"
+
+msgctxt "field:real_estate.cost_object,settlement_units:"
+msgid "Settlement Units"
+msgstr "Abrechnungseinheiten"
 
 msgctxt "field:real_estate.cost_object,start_date:"
 msgid "Start Date"
@@ -1018,13 +1094,17 @@ msgctxt "field:real_estate.cost_object,type:"
 msgid "Cost Type"
 msgstr "Kostenart"
 
+msgctxt "field:real_estate.cost_object,vacancy:"
+msgid "Allocation During Vacancy"
+msgstr "Umlage bei Leerstand"
+
 msgctxt "field:real_estate.cost_object.type,comment:"
 msgid "Comment"
 msgstr "Bemerkung"
 
 msgctxt "field:real_estate.cost_object.type,no_print:"
 msgid "No Print"
-msgstr "nicht drucken"
+msgstr "kein Ausdruck"
 
 msgctxt "field:real_estate.measurement,base_object:"
 msgid "Base Object"
@@ -1130,6 +1210,18 @@ msgctxt "field:real_estate.object_party.role,types:"
 msgid "Types"
 msgstr "Typen"
 
+msgctxt "field:real_estate.settlement_unit,error_message:"
+msgid "Error Message"
+msgstr "Fehlermeldung"
+
+msgctxt "field:real_estate.settlement_unit,planned_costs:"
+msgid "Planned Costs"
+msgstr "Plankosten"
+
+msgctxt "field:real_estate.settlement_unit,state:"
+msgid "Settlement Unit"
+msgstr "Abrechnungseinheit"
+
 msgctxt "field:real_estate.terminate_contract,reason:"
 msgid "Termination Reason"
 msgstr "Grund der Kündigung"
@@ -1137,6 +1229,14 @@ msgstr "Grund der Kündigung"
 msgctxt "field:real_estate.terminate_contract.start,reason:"
 msgid "Termination Reason"
 msgstr "Grund der Kündigung"
+
+msgctxt "field:real_estate.terminate_contract.start,termination_date:"
+msgid "Termination Date"
+msgstr "Kündigungsdatum"
+
+msgctxt "field:real_estate.terminate_contract.start,termination_date_calc:"
+msgid "Termination Date"
+msgstr "Kündigungsdatum"
 
 msgctxt "field:res.user,phone:"
 msgid "Phone"
@@ -1240,6 +1340,10 @@ msgstr "Der Objekttyp, für den diese Vertragsart verwendet werden kann."
 msgctxt "help:real_estate.contract.type,types_of_use:"
 msgid "The type of object which can use this measurement."
 msgstr "Der Objekttyp, für den diese Bemessung verwendet werden kann."
+
+msgctxt "help:real_estate.contract.type,unoccupied:"
+msgid "Is the property unoccupied?"
+msgstr "Ist die Immobilie nicht belegt?"
 
 msgctxt "help:real_estate.cost_group,term_types_of_use:"
 msgid "The term type which can use this cost group."
@@ -1345,6 +1449,15 @@ msgstr "Grundstück"
 msgctxt "model:ir.action,name:act_measurement_tree"
 msgid "Measurement"
 msgstr "Bemessungen"
+
+msgctxt "model:ir.ui.menu,name:menu_cost_object_type"
+msgid "Cost Object Types"
+msgstr "Typ Kostensammler"
+
+msgctxt "model:ir.action,name:act_cost_object_type"
+msgid "Cost Object Types"
+msgstr "Typ Kostensammler"
+
 
 msgctxt "model:ir.action,name:act_measurement_type"
 msgid "Measurement Types"
@@ -1590,6 +1703,10 @@ msgctxt "model:ir.ui.menu,name:menu_real_estate_configuration"
 msgid "Configuration"
 msgstr "Konfiguration"
 
+msgctxt "model:ir.ui.menu,name:menu_real_estate_operation_costs"
+msgid "Operation Costs"
+msgstr "Nebenkosten"
+
 msgctxt "model:ir.ui.menu,name:menu_real_estate_contracts"
 msgid "Contracts"
 msgstr "Verträge"
@@ -1658,6 +1775,21 @@ msgctxt "model:real_estate.contract.term.tax,string:"
 msgid "Real Estate Contract Term Tax"
 msgstr "Vertragskonditionen Steuer"
 
+msgctxt ""
+"model:real_estate.contract.term.type,name:contract_term_type_operating_costs"
+msgid "Operating costs (monthly)"
+msgstr "Betriebskosten (monatlich)"
+
+msgctxt ""
+"model:real_estate.contract.term.type,name:contract_term_type_parking_space_rent"
+msgid "Parking space rent (monthly)"
+msgstr "Miete Stellplatz (monatlich)"
+
+msgctxt ""
+"model:real_estate.contract.term.type,name:contract_term_type_service_charge"
+msgid "Condominium fees (monthly)"
+msgstr "Hausgeld (monatlich) WEG"
+
 msgctxt "model:real_estate.contract.term.type,string:"
 msgid "Real Estate Contract Term Type"
 msgstr "Typ Vertragskonditionen"
@@ -1703,9 +1835,53 @@ msgctxt "model:real_estate.cost_group,string:"
 msgid "Real Estate Cost Group"
 msgstr "Kostengruppe"
 
+msgctxt "model:real_estate.cost_group.log,string:"
+msgid "Real Estate Cost Group Log"
+msgstr "Protokoll Kostengruppe"
+
 msgctxt "model:real_estate.cost_object,string:"
 msgid "Real Estate Cost Object"
 msgstr "Kostensammler"
+
+msgctxt "model:real_estate.cost_object.type,name:cost_object_type_Hausmeister"
+msgid "Hausmeister"
+msgstr "Hausmeister"
+
+msgctxt ""
+"model:real_estate.cost_object.type,name:cost_object_type_Hausreinigung"
+msgid "Hausreinigung"
+msgstr "Hausreinigung"
+
+msgctxt "model:real_estate.cost_object.type,name:cost_object_type_Hausstrom"
+msgid "Hausstrom"
+msgstr "Hausstrom"
+
+msgctxt "model:real_estate.cost_object.type,name:cost_object_type_Heizung"
+msgid "Heizung (Brennstoff)"
+msgstr "Heizung (Brennstoff)"
+
+msgctxt ""
+"model:real_estate.cost_object.type,name:cost_object_type_Heizung_Wartung"
+msgid "Heizung (Wartung)"
+msgstr "Heizung (Wartung)"
+
+msgctxt "model:real_estate.cost_object.type,name:cost_object_type_Muellabfuhr"
+msgid "Müllabfuhr"
+msgstr "Müllabfuhr"
+
+msgctxt ""
+"model:real_estate.cost_object.type,name:cost_object_type_Verwaltungskosten"
+msgid "Verwaltungskosten"
+msgstr "Verwaltungskosten"
+
+msgctxt ""
+"model:real_estate.cost_object.type,name:cost_object_type_Wasserversorgung"
+msgid "Wasserversorgung, Abwasser"
+msgstr "Wasserversorgung, Abwasser"
+
+msgctxt "model:real_estate.cost_object.type,name:cost_object_type_warmwasser"
+msgid "Warmwasser"
+msgstr "Warmwasser"
 
 msgctxt "model:real_estate.cost_object.type,string:"
 msgid "Real Estate Cost Object Type"
@@ -1773,6 +1949,10 @@ msgstr "Eigentümer"
 msgctxt "model:real_estate.object_party.role,string:"
 msgid "Real Estate Object Party Role"
 msgstr "Rolle Immobilienpartner"
+
+msgctxt "model:real_estate.settlement_unit,string:"
+msgid "Real Estate Settlement Unit"
+msgstr "Abrechnungseinheit"
 
 msgctxt "model:res.group,name:group_real_estate_admin"
 msgid "Real Estate Administration"
@@ -1995,6 +2175,10 @@ msgid "Warehouse"
 msgstr "Lager"
 
 msgctxt "selection:real_estate.contract,state:"
+msgid "Cancelled"
+msgstr "Kündigung"
+
+msgctxt "selection:real_estate.contract,state:"
 msgid "Draft"
 msgstr "Entwurf"
 
@@ -2037,6 +2221,10 @@ msgstr "Beendet"
 msgctxt "selection:real_estate.contract,terminated_by_type:"
 msgid "Landlord"
 msgstr "Eigentümer"
+
+msgctxt "selection:real_estate.contract,termination_notice:"
+msgid "manually"
+msgstr "manuell"
 
 msgctxt "selection:real_estate.contract,type_of_use:"
 msgid "Commercial"
@@ -2151,8 +2339,20 @@ msgid "Allocation by measurement"
 msgstr "Umlage nach Bemessung"
 
 msgctxt "selection:real_estate.cost_object,allocation_rule:"
+msgid "Allocation per rental unit"
+msgstr "Umlage per Mietobjekt"
+
+msgctxt "selection:real_estate.cost_object,allocation_rule:"
 msgid "No allocation"
 msgstr "keine Umlage"
+
+msgctxt "selection:real_estate.cost_object,vacancy:"
+msgid "Allocation by owner"
+msgstr "Umlage auf Eigentümer"
+
+msgctxt "selection:real_estate.cost_object,vacancy:"
+msgid "No allocation (all cost allocated by tenant)"
+msgstr "Keine Umlage (alle Kosten trägt der Mieter)"
 
 msgctxt "selection:real_estate.meter_reading,m_type:"
 msgid "estimate"
@@ -2169,6 +2369,18 @@ msgstr "initial (bei Installation)"
 msgctxt "selection:real_estate.meter_reading,m_type:"
 msgid "reading"
 msgstr "Ablesung"
+
+msgctxt "selection:real_estate.settlement_unit,state:"
+msgid "Error"
+msgstr "Fehler"
+
+msgctxt "selection:real_estate.settlement_unit,state:"
+msgid "Estimated Value Share"
+msgstr "geschätzter Wertanteil"
+
+msgctxt "selection:real_estate.settlement_unit,state:"
+msgid "Selection"
+msgstr "Auswahl"
 
 msgctxt "selection:real_estate.terminate_contract.start,terminated_by:"
 msgid "Landlord"
@@ -2197,10 +2409,6 @@ msgstr "Zähler"
 msgctxt "view:real_estate.base_object:"
 msgid "Rental Object"
 msgstr "Immobilienobjekt"
-
-msgctxt "view:real_estate.cost_group:"
-msgid "Cost Objects"
-msgstr "Kostensammler"
 
 msgctxt "view:real_estate.contract,measurements:"
 msgid "Measurements"
@@ -2249,6 +2457,10 @@ msgstr "Zähler"
 msgctxt "view:real_estate.contract:"
 msgid "Terms"
 msgstr "Konditionen"
+
+msgctxt "view:real_estate.cost_group:"
+msgid "Cost Objects"
+msgstr "Kostensammler"
 
 msgctxt "wizard_button:real_estate.contract.create_moves,start,end:"
 msgid "Cancel"
