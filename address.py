@@ -310,9 +310,9 @@ class Address(
         return self._strip(numbers, doublespace=True)
 
     @fields.depends(
-        'country', 'street_name', 'building_number', 'unit_number',
-        'floor_number', 'room_number', 'post_box', 'private_bag',
-        'post_office')
+        'country', 'street_name', 'building_name', 'building_number',
+        'unit_number', 'floor_number', 'room_number', 'post_box',
+        'private_bag', 'post_office')
     def _get_street_substitutions(self):
         pool = Pool()
         AddressFormat = pool.get('party.address.format')

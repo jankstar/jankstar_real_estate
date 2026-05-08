@@ -3,5 +3,9 @@
     <field name="sequence" width='100'/>
     <field name="name"/>
     <field name="valid_from"/>
-    <field name="valid_to"/>
+    <field name="valid_to" optional="1"/>
+    <field name="reference_item" optional="1"/>
+    <field name="rhythm" />
+    <field name="rhythm_type" />
+    <field name="total_amount" sum="1"/>
 </tree>

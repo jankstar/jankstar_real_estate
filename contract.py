@@ -386,7 +386,7 @@ class GeneralLedgerAccountContract(_GeneralLedgerAccount):
 
 #**********************************************************************
 class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), ModelSQL, ModelView):
-    "Base Object - base class for contracts"
+    "Contract - base class for contracts"
     __name__ = 'real_estate.contract'
     __rec_name__ = 'name'
     __history__ = True
@@ -430,7 +430,7 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
 
     start_date = fields.Date('Start Date', 
         states={
-            'readonly': (Eval('terms', [0]) | (Eval('state') != 'draft')),
+            'readonly': ( (Eval('state') != 'draft')),
             },
         required=True,
         domain=[If(Bool(Eval('end_date')), ('start_date', '<=', Eval('end_date', None)),())],
@@ -438,12 +438,20 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
     
     end_date = fields.Date('End Date',
         states={
-            'readonly': (Eval('terms', [0]) | (Eval('state') != 'draft')),
+            'readonly': ( (Eval('state') != 'draft')),
             },
         required=False,
         domain=[If(Bool(Eval('end_date')), ('end_date', '>=', Eval('start_date', None)),())],
         )
     
+    start_booking_date = fields.Date('Start Booking Date',
+        states={
+            'readonly': ((Eval('state') != 'draft')),
+            },
+        domain=[If(Bool(Eval('end_date') & Eval('start_booking_date')), ('start_booking_date', '<=', Eval('end_date', None)),()),
+                If(Bool(Eval('start_date') & Eval('start_booking_date')), ('start_booking_date', '>=', Eval('start_date', None)),())],
+        )
+
     contract_number = fields.Char("No",
         states={ 'readonly': True, })
     
@@ -753,7 +761,7 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
         #first day of the current month
         return Pool().get('ir.date').today().replace(day=1)    
 
-    @fields.depends('terms')
+    @fields.depends('terms', 'c_type')
     def on_change_with_next_term_sequence(self, name=None):
         if self.terms and self.c_type:
             return max(term.sequence for term in self.terms) + self.c_type.step_term
@@ -989,8 +997,9 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
             if contract.state != 'running' and contract.state != 'terminated':
                 contract.add_log('process',f'contract state {contract.state} - finished')
                 exit
-            if contract.start_date > date:
-                contract.add_log('process',f'contract start_date {contract.start_date} - finished')
+            effective_start = contract.start_booking_date or contract.start_date
+            if effective_start > date:
+                contract.add_log('process',f'contract booking start {effective_start} - finished')
                 exit
             if contract.end_date != None and contract.end_date < date:
                 contract.add_log('process',f'contract end_date {contract.end_date} - finished')
@@ -1316,6 +1325,28 @@ class ContractItem(sequence_ordered(), ModelSQL, ModelView, metaclass=PoolMeta):
             ('object.name',) + tuple(clause[1:]),
             ('object.object_number',) + tuple(clause[1:]),
         ]   
+
+    @classmethod
+    def validate_fields(cls, instances, fields):
+        # valid_from must be within the contract period (>= start_date, <= end_date if set)
+        super().validate_fields(instances, fields)
+        for item in instances:
+            if 'valid_from' not in fields:
+                continue
+            if item.valid_from is None or item.contract is None:
+                continue
+            if item.contract.start_date and item.valid_from < item.contract.start_date:
+                raise ValidationError(
+                    gettext('real_estate.msg_item_valid_from_before_contract_start',
+                        item.rec_name,
+                        item.valid_from.isoformat(),
+                        item.contract.start_date.isoformat()))
+            if item.contract.end_date and item.valid_from > item.contract.end_date:
+                raise ValidationError(
+                    gettext('real_estate.msg_item_valid_from_after_contract_end',
+                        item.rec_name,
+                        item.valid_from.isoformat(),
+                        item.contract.end_date.isoformat()))
 
     @classmethod
     def set_children(cls, record, name, value):
@@ -1969,6 +2000,28 @@ class ContractTerm(sequence_ordered(), ModelSQL, ModelView, TaxableMixin):
                 del result[key]
         return result
     
+    @classmethod
+    def validate_fields(cls, instances, fields):
+        # valid_from must be within the contract period (>= start_date, <= end_date if set)
+        super().validate_fields(instances, fields)
+        for term in instances:
+            if 'valid_from' not in fields:
+                continue
+            if term.valid_from is None or term.contract is None:
+                continue
+            if term.contract.start_date and term.valid_from < term.contract.start_date:
+                raise ValidationError(
+                    gettext('real_estate.msg_term_valid_from_before_contract_start',
+                        term.rec_name,
+                        term.valid_from.isoformat(),
+                        term.contract.start_date.isoformat()))
+            if term.contract.end_date and term.valid_from > term.contract.end_date:
+                raise ValidationError(
+                    gettext('real_estate.msg_term_valid_from_after_contract_end',
+                        term.rec_name,
+                        term.valid_from.isoformat(),
+                        term.contract.end_date.isoformat()))
+
     @fields.depends('cash_flow')
     def on_change_with_last_document_date(self, name=None):
         if self.cash_flow:
@@ -2062,12 +2115,12 @@ class ContractTerm(sequence_ordered(), ModelSQL, ModelView, TaxableMixin):
         else:
             return self.next_document_date
         
-    @fields.depends('rhythm','valid_from', 'last_document_date', 'rhythm_type',
+    @fields.depends('rhythm','valid_from', 'last_document_date', 'rhythm_type', 'contract',
                     'unit_price')        
     def _next_document_date(self, calc_document_date=None):
         def _check_valid_to(i_date:datetime.date):
-            """ next doc date must between valid_fromn/valid_to"""
-            if ( self.valid_to != None and self.valid_to < i_date ) \
+            """ next doc date must between valid_fromn/valid_to and contract start/end/start_booking"""
+            if ( self.valid_to != None and self.valid_to < i_date and self.contract.start_booking_date < i_date ) \
                 or (self.contract.end_date != None and self.contract.end_date < i_date )\
                 or (self.contract.termination_date != None and self.contract.termination_date < i_date ):
                 return self.last_document_date
@@ -2100,11 +2153,10 @@ class ContractTerm(sequence_ordered(), ModelSQL, ModelView, TaxableMixin):
             elif self.rhythm_type == 'annually':
                 return _check_valid_to(my_document_Date + relativedelta(years= self.rhythm))
         
-        return self.valid_from
-    
+        return self.contract.start_booking_date if (self.contract and self.contract.start_booking_date) else self.valid_from
 
     @fields.depends('rhythm','valid_from', 'last_document_date', 'rhythm_type',
-                    'unit_price')
+                    'unit_price', methods=['_next_document_date'])
     def on_change_with_next_document_date(self, name=None):
         return self._next_document_date()
 

@@ -30,6 +30,18 @@
         </record>   
         <record model="ir.message" id="msg_invalid_calculation_method">
             <field name="text">For WEG Billing, the start date {} must be the first day of the year.</field>
-        </record>        
+        </record>
+        <record model="ir.message" id="msg_term_valid_from_before_contract_start">
+            <field name="text">Term "{}": Valid from ({}) must not be before the contract start date ({})!</field>
+        </record>
+        <record model="ir.message" id="msg_term_valid_from_after_contract_end">
+            <field name="text">Term "{}": Valid from ({}) must not be after the contract end date ({})!</field>
+        </record>
+        <record model="ir.message" id="msg_item_valid_from_before_contract_start">
+            <field name="text">Contract item "{}": Valid from ({}) must not be before the contract start date ({})!</field>
+        </record>
+        <record model="ir.message" id="msg_item_valid_from_after_contract_end">
+            <field name="text">Contract item "{}": Valid from ({}) must not be after the contract end date ({})!</field>
+        </record>
     </data>
 </tryton>

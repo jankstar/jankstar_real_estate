@@ -575,8 +575,8 @@ class MeterReading(ModelSQL, ModelView):
         )
     meter_id = fields.Char("Meter ID", required=True)
     reading_date = fields.Date("Reading Date", required=True)
-    reading_user = fields.Many2One('res.user', "Reading User", required=True)
-    value = Quantitative("Value", required=True, unit='unit',digits='unit')
+    reading_user = fields.Many2One('res.user', "Reading User")
+    value = Quantitative("Value", required=True, unit='unit', digits='unit')
     unit = fields.Function(fields.Many2One('product.uom', "Unit", 
             readonly=True,),'on_change_with_unit')
     consumption = fields.Function(Quantitative("Consumption", unit='unit',digits='unit',), 
@@ -602,7 +602,8 @@ class MeterReading(ModelSQL, ModelView):
     
     @fields.depends('base_object', 'reading_date', 'value', 'unit')
     def on_change_with_name(self, name=None):
-        return f"{self.base_object.compute_name} - {self.reading_date}: {self.value} {self.unit.symbol if self.unit else ''}"
+        return f"{self.base_object.compute_name if self.base_object else '?'}" +\
+              f" - {self.reading_date}: {self.value} {self.unit.symbol if self.unit else ''}"
 
     @fields.depends('base_object', 'reading_date','meter_id')
     def on_change_with_meter_id(self, name=None):
@@ -619,7 +620,7 @@ class MeterReading(ModelSQL, ModelView):
                 return last_reading[0].meter_id         
         return None
     
-    @fields.depends('base_object', 'reading_date', 'value')
+    @fields.depends('base_object', 'reading_date', 'value', 'meter_id')
     def on_change_with_consumption(self, name=None):
         if self.base_object and self.base_object.meter_is_counter:
             # get last reading

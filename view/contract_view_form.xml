@@ -35,6 +35,8 @@
             <label name="phone_partner"/><field name="phone_partner" readonly="1"/>
             <newline/>   
             <label name="date_of_signature"/><field name="date_of_signature"/>
+            <newline/>   
+            <label name="start_booking_date"/><field name="start_booking_date"/>
 
             <separator name="comment" colspan="6"/>
             <field name="comment" colspan="6"/>

@@ -464,7 +464,7 @@ msgstr "Währung"
 
 msgctxt "field:real_estate.contract.cash_flow,description:"
 msgid "Description"
-msgstr "Abschreibung"
+msgstr "Beschreibung"
 
 msgctxt "field:real_estate.contract.cash_flow,document_date:"
 msgid "Document Date"
@@ -616,7 +616,7 @@ msgstr "Vertrag"
 
 msgctxt "field:real_estate.contract.log,description:"
 msgid "Description"
-msgstr "Abschreibung"
+msgstr "Beschreibung"
 
 msgctxt "field:real_estate.contract.log,event:"
 msgid "Event"
@@ -896,7 +896,7 @@ msgstr "Konto"
 
 msgctxt "field:real_estate.contract.term.type,compute_name:"
 msgid "Description"
-msgstr "Abschreibung"
+msgstr "Beschreibung"
 
 msgctxt "field:real_estate.contract.term.type,default_quantity:"
 msgid "Default Quantity"
@@ -1432,11 +1432,11 @@ msgstr "Vertrag"
 
 msgctxt "model:ir.action,name:act_contract_term_tree"
 msgid "Contract Terms"
-msgstr "Vertragsbedingungen"
+msgstr "Vertragskonditionen"
 
 msgctxt "model:ir.action,name:act_contract_term_type"
 msgid "Contract Term Types"
-msgstr "Typen Vertragsbedingungen"
+msgstr "Typen Vertragskonditionen"
 
 msgctxt "model:ir.action,name:act_contract_type"
 msgid "Contract Types"
@@ -1660,7 +1660,7 @@ msgstr "Vertrag"
 
 msgctxt "model:ir.ui.menu,name:menu_contract_term_type"
 msgid "Contract Term Types"
-msgstr "Typen Vertragsbedingungen"
+msgstr "Typen Vertragskonditionen"
 
 msgctxt "model:ir.ui.menu,name:menu_contract_type"
 msgid "Contract Types"
