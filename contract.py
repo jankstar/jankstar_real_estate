@@ -862,7 +862,7 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
             ('contractual_partner.name',) + tuple(clause[1:]),
         ]   
 
-    def _create_moves(self, terms, date):
+    def _create_moves(self, terms, date, invoice_state='draft'):
         #pdb.set_trace()  # Breakpoint
 
         self.add_log('process', f'start quere contract {self.id} at {date}')
@@ -888,7 +888,10 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
                 for tax in term.taxes:
                     taxes.add(tax)
                 
-
+                # for invoice line account, we use the term account if exist, else we use the default revenue or expense account based on the invoice type
+                l_account = term.account.id if term.account else config.account_revenue.id if self.c_type.invoice_type == 'out' \
+                    else config.account_expense.id
+                
                 for cash_flow in term.cash_flow:
 
                     if cash_flow.document_date <= date and cash_flow.state == 'draft':
@@ -903,8 +906,7 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
                             quantity=term.quantity,
                             unit=term.unit,
                             unit_price=term.unit_price,
-                            account=term.account.id if term.account else config.account_revenue.id if self.c_type.invoice_type == 'out' \
-                                else config.account_expense.id,
+                            account=l_account,
                             currency=self.currency.id,
                             taxes=list(taxes),
                             contract=self,
@@ -949,7 +951,7 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
                 currency=self.currency.id,
                 journal=self.c_type.account_journal.id,
                 account=self.c_type.account.id if self.c_type.account else l_account,
-                payment_term=self.payment_term.id,
+                payment_term=self.payment_term.id if self.payment_term else None,
                 description=self.c_type.mark if self.c_type.mark else self.c_type.name,
                 reference=self.contract_number,
                 lines=line_vals,
@@ -962,15 +964,17 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
             #invoices = Invoice.create([invoice_vals])
             #invoice, = invoices
             Invoice.save([invoice])
-            self.add_log('process',f'contract {self.id} / invoice {invoice.id} posted.')
+            if invoice_state == 'posted':
+                Invoice.post([invoice])
+            self.add_log('process',f'contract {self.id} / invoice {invoice.id} saved (state={invoice_state}).')
 
         else:
             self.add_log('process',f'contract {self.id} - no term computed')
 
 
     @classmethod
-    def call_create_moves(cls, contract_ids, date, action='re_calc', execute_in_queue=True):
-        """ call create_moves in queue or directly based on execute_in_queue flag 
+    def call_create_moves(cls, contract_ids, date, action='re_calc', execute_in_queue=True, invoice_state='draft'):
+        """ call create_moves in queue or directly based on execute_in_queue flag
         by chunks of contract_ids"""
         if len(contract_ids) > 0:
             #pdb.set_trace()  # Breakpoint
@@ -981,13 +985,13 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
                     context = transaction.context
                     with transaction.set_context(
                         queue_batch=context.get('queue_batch', True)):
-                        cls.__queue__.create_moves(chunk, date, action)
+                        cls.__queue__.create_moves(chunk, date, action, invoice_state)
 
                 else:
-                    cls.create_moves(chunk, date, action)
+                    cls.create_moves(chunk, date, action, invoice_state)
 
     @classmethod
-    def create_moves(cls, contract_ids, date, action='re_calc'):
+    def create_moves(cls, contract_ids, date, action='re_calc', invoice_state='draft'):
         """
         Calculate and Creat all account move on contract before a date.
         """
@@ -1026,7 +1030,7 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
                     process_terms.append(term.id)
 
             if len(process_terms) > 0 and action in ('create', 're_calc_and_create'):
-                    cls._create_moves(contract, process_terms, date)
+                    cls._create_moves(contract, process_terms, date, invoice_state)
 
             contract.add_log('process',f'"create_moves" finished')
             contract.save()
@@ -2330,8 +2334,16 @@ class CreateMovesStart(ModelView):
                "Re-Calculate and Create moves: first sync re-calculate, then async create moves until date"
         , required=True)
 
+    invoice_state = fields.Selection([
+        ('draft', 'Draft'),
+        ('posted', 'Posted'),
+        ], 'Invoice State',
+        states={
+            'invisible': ~Eval('action', '').in_(['create', 're_calc_and_create']),
+        },
+        help="Draft: invoices are saved as draft.\nPosted: invoices are posted immediately after creation.")
 
-    execute_in_queue = fields.Boolean('Execute in queue', 
+    execute_in_queue = fields.Boolean('Execute in queue',
         help="If checked, the moves will be created as quered moves, which can be posted later. Otherwise, the moves will be posted immediately after creation.")
 
     propertys = fields.Many2Many(
@@ -2364,7 +2376,11 @@ class CreateMovesStart(ModelView):
     @staticmethod
     def default_action():
         return 'create'
-    
+
+    @staticmethod
+    def default_invoice_state():
+        return 'draft'
+
     @staticmethod
     def default_execute_in_queue():
         return True
@@ -2396,10 +2412,11 @@ class CreateMoves(Wizard):
 
             Contract = pool.get('real_estate.contract')
             contract_ids = Contract.search(seach_domain)
-                
-            if len(contract_ids) > 0:    
+
+            if len(contract_ids) > 0:
                 Contract.call_create_moves(
-                    contract_ids, self.start.date, self.start.action, self.start.execute_in_queue)
+                    contract_ids, self.start.date, self.start.action,
+                    self.start.execute_in_queue, self.start.invoice_state or 'draft')
         return 'end'
 
     
