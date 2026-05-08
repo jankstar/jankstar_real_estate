@@ -1920,12 +1920,12 @@ class ContractTerm(sequence_ordered(), ModelSQL, ModelView, TaxableMixin):
         
         my_last_document_date = self.last_document_date
         my_next_document_date = self._next_document_date(calc_document_date=my_last_document_date)
-        while my_last_document_date < my_next_document_date and self.total_amount != 0 \
+        while ( my_last_document_date == None or my_last_document_date < my_next_document_date ) and self.total_amount != 0 \
             and (not self.valid_from or my_next_document_date >= self.valid_from) \
             and (not self.valid_to or my_next_document_date <= self.valid_to) \
             and my_next_document_date <= today_plus_year:
                 
-                cash_flow = ContractTermCashFlow(
+                cash_flow = CashFlow(
                     state='draft',
                     #posting_date=invoice_line.accounting_date,
                     document_date=my_next_document_date,
@@ -1936,9 +1936,9 @@ class ContractTerm(sequence_ordered(), ModelSQL, ModelView, TaxableMixin):
                     #invoice_line=invoice_line.id,
                     property=self.contract.property.id if self.contract else None,
                     company=self.contract.company.id if self.contract else None,
-                    quantity=invoice_line.quantity,
-                    unit=invoice_line.unit.id if invoice_line.unit else None,
-                    unit_price=invoice_line.unit_price,
+                    quantity=self.quantity,
+                    unit=self.unit.id if self.unit else None,
+                    unit_price=self.unit_price,
                     )
                 cash_flow.save()     
 

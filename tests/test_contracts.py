@@ -22,6 +22,9 @@ Das Skript legt für die ersten 3 Wohnungen je folgende Objekte an:
 Das Skript ist idempotent: es bricht ab, wenn "Mieter 1" als Party
 bereits in der Datenbank existiert.
 
+Voraussetzung: Der Benutzer "admin" muss in Tryton auf die Sprache Deutsch
+gestellt sein, da sonst die Bemessungstypen nicht per Namen gefunden werden.
+
 Verwendung:
     python tests/test_contracts.py --database <Datenbankname> [--config <trytond.conf>]
 """

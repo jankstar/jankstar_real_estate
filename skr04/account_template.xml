@@ -4988,11 +4988,11 @@
             <field name="type" ref="type_1480"/>
         </record>
         <record id="view_balance_1490" model="account.account.template">
-            <field name="name">erhaltene Anzahlungen auf Bestellungen</field>
+            <field name="name">erhaltene Anzahlungen</field>
             <field name="parent" ref="view_balance_1430"/>
         </record>
         <record id="account_1190" model="account.account.template">
-            <field name="name">Erhaltene Anzahlungen auf Bestellungen (von Vorräten offen abgesetzt)</field>
+            <field name="name">Erhaltene Anzahlungen (von Vorräten offen abgesetzt)</field>
             <field name="parent" ref="view_balance_1490"/>
             <field name="code">1190</field>
             <field name="type" ref="type_1490"/>
@@ -6654,7 +6654,7 @@
             <field name="type" ref="type_2470"/>
         </record>
         <record id="view_balance_2480" model="account.account.template">
-            <field name="name">erhaltene Anzahlungen auf Bestellungen</field>
+            <field name="name">erhaltene Anzahlungen</field>
             <field name="parent" ref="view_balance_2440"/>
         </record>
         <record id="view_balance_2485" model="account.account.template">
@@ -6662,10 +6662,11 @@
             <field name="parent" ref="view_balance_2480"/>
         </record>
         <record id="account_3250" model="account.account.template">
-            <field name="name">Erhaltene Anzahlungen auf Bestellungen (Verbindlichkeiten)</field>
+            <field name="name">Erhaltene Anzahlungen (Verbindlichkeiten)</field>
             <field name="parent" ref="view_balance_2485"/>
             <field name="code">3250</field>
             <field name="type" ref="type_2485"/>
+            <field name="party_required" eval="True"/>
         </record>
         <record id="account_3260" model="account.account.template">
             <field name="name">Erhaltene, versteuerte Anzahlungen 7 % USt (Verbindlichkeiten)</field>

@@ -2252,15 +2252,15 @@ msgstr "Entwurf"
 
 msgctxt "selection:real_estate.contract.create_moves.start,action:"
 msgid "Create moves"
-msgstr "Bewegungen erstellen"
+msgstr "Buchungen erstellen"
 
 msgctxt "selection:real_estate.contract.create_moves.start,action:"
 msgid "Re-Calculate and Create moves"
-msgstr "Neu-Berechnung und Buchungen erstellen"
+msgstr "Finanzstrom berechnen und Buchungen erstellen"
 
 msgctxt "selection:real_estate.contract.create_moves.start,action:"
 msgid "Re-Calculate moves"
-msgstr "Neu-Berechnung Buchung"
+msgstr "Finanzstrom berechnen"
 
 msgctxt "selection:real_estate.contract.term,rhythm_type:"
 msgid "Annually"

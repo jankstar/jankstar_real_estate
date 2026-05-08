@@ -232,13 +232,15 @@
             <field eval="10" name="sequence"/>
             <field name="statement">balance</field>
             <field name="assets" eval="True"/>
+            <field name="deposit" eval="True"/>
         </record>
         <record id="type_1490" model="account.account.type.template">
-            <field name="name">erhaltene Anzahlungen auf Bestellungen</field>
+            <field name="name">erhaltene Anzahlungen</field>
             <field name="parent" ref="type_1430"/>
             <field eval="10" name="sequence"/>
             <field name="statement">balance</field>
             <field name="assets" eval="True"/>
+            <field name="deposit" eval="True"/>
         </record>
         <record id="type_1510" model="account.account.type.template">
             <field name="name">Forderungen und sonstige Vermögensgegenstände</field>
@@ -481,16 +483,18 @@
             <field name="statement">balance</field>
         </record>
         <record id="type_2480" model="account.account.type.template">
-            <field name="name">erhaltene Anzahlungen auf Bestellungen</field>
+            <field name="name">erhaltene Anzahlungen</field>
             <field name="parent" ref="type_2440"/>
             <field eval="10" name="sequence"/>
             <field name="statement">balance</field>
+            <field name="deposit" eval="True"/>
         </record>
         <record id="type_2485" model="account.account.type.template">
             <field name="name">davon mit einer Restlaufzeit bis zu einem Jahr</field>
             <field name="parent" ref="type_2480"/>
             <field eval="10" name="sequence"/>
             <field name="statement">balance</field>
+            <field name="deposit" eval="True"/>
         </record>
         <record id="type_2490" model="account.account.type.template">
             <field name="name">Verbindlichkeiten aus Lieferungen und Leistungen</field>

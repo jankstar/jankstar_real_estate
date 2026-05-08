@@ -20,6 +20,10 @@ Das Skript legt folgende Objekte an:
 Das Skript ist idempotent: es bricht ab, wenn eine Property mit dem Namen
 "Musterstraße 1" in der Zieldatenbank bereits vorhanden ist.
 
+Voraussetzung: Der Benutzer "admin" muss in Tryton auf die Sprache Deutsch
+gestellt sein, da sonst die Bemessungstypen (z.B. "Bruttogeschossfläche [BHF]",
+"Anzahl Räume", "Wohnfläche") nicht per Namen gefunden werden.
+
 Verwendung:
     python tests/test_immo.py --database <Datenbankname> [--config <trytond.conf>]
 """
