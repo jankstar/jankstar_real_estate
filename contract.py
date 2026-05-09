@@ -19,7 +19,7 @@ from trytond.modules.account.tax import TaxableMixin
 from trytond.modules.company.model import (
     employee_field, reset_employee, set_employee)
 from trytond.tools import (
-    cached_property, firstline, grouped_slice, reduce_ids, slugify,
+    cached_property, firstline, slugify,
     sqlite_apply_types)
 from trytond.wizard import (
     Button, StateReport, StateTransition, StateView, Wizard)
@@ -200,33 +200,31 @@ class AccountContract(ActivePeriodMixin, ModelSQL):
                 (a.account.id, a.party.id): a.id for a in c_records}
             with transaction.set_context(company=company.id):
                 line_query, fiscalyear_ids = MoveLine.query_get(line)
-            for sub_account_ids in grouped_slice(account_ids):
-                account_sql = reduce_ids(table_a.id, sub_account_ids)
-                for sub_party_ids in grouped_slice(party_ids):
-                    party_sql = reduce_ids(line.party, sub_party_ids)
-                    query = (table_a.join(table_c,
-                            condition=(table_c.left >= table_a.left)
-                            & (table_c.right <= table_a.right)
-                            ).join(line, condition=line.account == table_c.id
-                            ).select(
-                            table_a.id,
-                            line.party,
-                            Sum(
-                                Coalesce(line.debit, 0)
-                                - Coalesce(line.credit, 0)).as_('balance'),
-                            where=account_sql & party_sql & line_query,
-                            group_by=[table_a.id, line.party]))
-                    if backend.name == 'sqlite':
-                        sqlite_apply_types(query, [None, None, 'NUMERIC'])
-                    cursor.execute(*query)
-                    for account_id, party_id, balance in cursor:
-                        try:
-                            id_ = account_party2id[(account_id, party_id)]
-                        except KeyError:
-                            # There can be more combinations of account-party
-                            # in the database than from records
-                            continue
-                        balances[id_] = balance
+            account_sql = fields.SQL_OPERATORS['in'](table_a.id, account_ids)
+            party_sql = fields.SQL_OPERATORS['in'](line.party, party_ids)
+            query = (table_a.join(table_c,
+                    condition=(table_c.left >= table_a.left)
+                    & (table_c.right <= table_a.right)
+                    ).join(line, condition=line.account == table_c.id
+                    ).select(
+                    table_a.id,
+                    line.party,
+                    Sum(
+                        Coalesce(line.debit, Decimal(0))
+                        - Coalesce(line.credit, Decimal(0))).as_('balance'),
+                    where=account_sql & party_sql & line_query,
+                    group_by=[table_a.id, line.party]))
+            if backend.name == 'sqlite':
+                sqlite_apply_types(query, [None, None, 'NUMERIC'])
+            cursor.execute(*query)
+            for account_id, party_id, balance in cursor:
+                try:
+                    id_ = account_party2id[(account_id, party_id)]
+                except KeyError:
+                    # There can be more combinations of account-party
+                    # in the database than from records
+                    continue
+                balances[id_] = balance
 
             for record in c_records:
                 balances[record.id] = record.currency.round(
@@ -264,10 +262,10 @@ class AccountContract(ActivePeriodMixin, ModelSQL):
         types = [None, None]
         for name in names:
             if name == 'line_count':
-                columns.append(Count(Literal('*')).as_(name))
+                columns.append(Count().as_(name))
                 types.append(None)
             else:
-                columns.append(Sum(Coalesce(Column(line, name), 0)).as_(name))
+                columns.append(Sum(Coalesce(Column(line, name), Decimal(0))).as_(name))
                 types.append('NUMERIC')
 
         for company, c_records in groupby(records, key=lambda r: r.company):
@@ -280,27 +278,25 @@ class AccountContract(ActivePeriodMixin, ModelSQL):
             with transaction.set_context(company=company.id):
                 line_query, fiscalyear_ids = MoveLine.query_get(line)
 
-            for sub_account_ids in grouped_slice(account_ids):
-                account_sql = reduce_ids(table.id, sub_account_ids)
-                for sub_party_ids in grouped_slice(party_ids):
-                    party_sql = reduce_ids(line.party, sub_party_ids)
-                    query = (table.join(line, 'LEFT',
-                            condition=line.account == table.id
-                            ).select(*columns,
-                            where=account_sql & party_sql & line_query,
-                            group_by=[table.id, line.party]))
-                    if backend.name == 'sqlite':
-                        sqlite_apply_types(query, types)
-                    cursor.execute(*query)
-                    for row in cursor:
-                        try:
-                            id_ = account_party2id[tuple(row[0:2])]
-                        except KeyError:
-                            # There can be more combinations of account-party
-                            # in the database than from records
-                            continue
-                        for i, name in enumerate(names, 2):
-                            result[name][id_] = row[i]
+            account_sql = fields.SQL_OPERATORS['in'](table.id, account_ids)
+            party_sql = fields.SQL_OPERATORS['in'](line.party, party_ids)
+            query = (table.join(line, 'LEFT',
+                    condition=line.account == table.id
+                    ).select(*columns,
+                    where=account_sql & party_sql & line_query,
+                    group_by=[table.id, line.party]))
+            if backend.name == 'sqlite':
+                sqlite_apply_types(query, types)
+            cursor.execute(*query)
+            for row in cursor:
+                try:
+                    id_ = account_party2id[tuple(row[0:2])]
+                except KeyError:
+                    # There can be more combinations of account-party
+                    # in the database than from records
+                    continue
+                for i, name in enumerate(names, 2):
+                    result[name][id_] = row[i]
             for record in c_records:
                 for name in names:
                     if name == 'line_count':
@@ -1992,7 +1988,7 @@ class ContractTerm(sequence_ordered(), ModelSQL, ModelView, TaxableMixin):
                     state='draft',
                     #posting_date=invoice_line.accounting_date,
                     document_date=my_next_document_date,
-                    #due_date=invoice_line.payment_term_date,
+                    due_date=self._on_change_with_next_due_date(calc_document_date=my_next_document_date),
                     contract=self.contract.id,
                     #invoice=invoice_line.invoice.id,
                     term=self.id,
@@ -2164,19 +2160,24 @@ class ContractTerm(sequence_ordered(), ModelSQL, ModelView, TaxableMixin):
         else:
             return Decimal(0)
 
-
     @fields.depends('next_document_date', 'contract', 'rhythm','rhythm_type',
                     'unit_price')
-    def on_change_with_next_due_date(self, name=None):
+    def _on_change_with_next_due_date(self, calc_document_date=None):
+        """ Calculate next due date based on next document date and payment term of the contract """
         if self.contract and self.contract.payment_term \
-            and self.next_document_date and self.unit_price:
+            and calc_document_date and self.unit_price:
             payment_term = Pool().get('account.invoice.payment_term')
             term = payment_term(self.contract.payment_term)
             term_lines = term.compute(
-                self.unit_price, self.contract.currency, self.next_document_date)
-            return term_lines[-1][0] if term_lines else self.next_document_date
+                self.unit_price, self.contract.currency, calc_document_date)
+            return term_lines[-1][0] if term_lines else calc_document_date
         else:
-            return self.next_document_date
+            return calc_document_date    
+
+    @fields.depends('next_document_date', 'contract', 'rhythm','rhythm_type',
+                    'unit_price', methods=['_on_change_with_next_due_date'])
+    def on_change_with_next_due_date(self, name=None):
+        return self._on_change_with_next_due_date(calc_document_date=self.next_document_date)
         
     @fields.depends('rhythm','valid_from', 'last_document_date', 'rhythm_type', 'rhythm_start', 'contract',
                     'unit_price')        

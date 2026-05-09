@@ -2,6 +2,7 @@
 <tree>
     <field name="document_date" width="110"/>
     <field name="posting_date" width="110" optional="1"/>
+    <field name="due_date" width="110" optional="1"/>
     <field name="name"/>
     <field name="state" width="60" readonly="1"/>
     <field name="invoice_state" width="60" readonly="1"/>
