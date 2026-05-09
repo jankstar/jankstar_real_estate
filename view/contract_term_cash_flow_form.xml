@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<form col="6">
+    <label name="name"/><field name="name" colspan="3" readonly="1"/>
+    <label name="state"/><field name="state" readonly="1"/>
+    <newline/>
+    <label name="contract"/><field name="contract" readonly="1" colspan="3"/>
+    <label name="property"/><field name="property" readonly="1"/>
+    <newline/>
+    <label name="term"/><field name="term" readonly="1" colspan="3"/>
+    <label name="company"/><field name="company" readonly="1"/>
+    <newline/>
+    <label name="document_date"/><field name="document_date" readonly="1"/>
+    <label name="posting_date"/><field name="posting_date" readonly="1"/>
+    <label name="due_date"/><field name="due_date" readonly="1"/>
+    <newline/>
+    <label name="invoice"/><field name="invoice" readonly="1" colspan="3"/>
+    <label name="invoice_state"/><field name="invoice_state" readonly="1"/>
+    <newline/>
+    <label name="invoice_line"/><field name="invoice_line" readonly="1" colspan="5"/>
+    <newline/>
+    <separator name="amount" colspan="6"/>
+    <label name="quantity"/><field name="quantity" readonly="1"/>
+    <label name="unit"/><field name="unit" readonly="1"/>
+    <label name="unit_price"/><field name="unit_price" readonly="1"/>
+    <newline/>
+    <label name="amount"/><field name="amount" readonly="1"/>
+    <label name="tax_amount"/><field name="tax_amount" readonly="1"/>
+    <label name="total_amount"/><field name="total_amount" readonly="1"/>
+    <newline/>
+    <label name="currency"/><field name="currency" readonly="1"/>
+</form>

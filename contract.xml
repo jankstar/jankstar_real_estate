@@ -499,5 +499,65 @@
         </record>
 
 
+
+        <!-- *** ContractTermCashFlow standalone menu *** -->
+        <record model="ir.ui.view" id="contract_term_cash_flow_view_tree">
+            <field name="model">real_estate.contract.term.cash_flow</field>
+            <field name="type">tree</field>
+            <field name="name">contract_term_cash_flow_tree</field>
+        </record>
+
+        <record model="ir.ui.view" id="contract_term_cash_flow_view_form">
+            <field name="model">real_estate.contract.term.cash_flow</field>
+            <field name="type">form</field>
+            <field name="name">contract_term_cash_flow_form</field>
+        </record>
+
+        <record model="ir.action.act_window" id="act_contract_term_cash_flow">
+            <field name="name">Cash Flow</field>
+            <field name="res_model">real_estate.contract.term.cash_flow</field>
+        </record>
+
+        <record model="ir.action.act_window.view" id="act_contract_term_cash_flow_view1">
+            <field name="sequence" eval="10"/>
+            <field name="view" ref="contract_term_cash_flow_view_tree"/>
+            <field name="act_window" ref="act_contract_term_cash_flow"/>
+        </record>
+
+        <record model="ir.action.act_window.view" id="act_contract_term_cash_flow_view2">
+            <field name="sequence" eval="20"/>
+            <field name="view" ref="contract_term_cash_flow_view_form"/>
+            <field name="act_window" ref="act_contract_term_cash_flow"/>
+        </record>
+
+        <record model="ir.action.act_window.domain" id="act_contract_term_cash_flow_domain_draft">
+            <field name="name">Draft</field>
+            <field name="sequence" eval="10"/>
+            <field name="domain" eval="[('state', '=', 'draft')]" pyson="1"/>
+            <field name="count" eval="True"/>
+            <field name="act_window" ref="act_contract_term_cash_flow"/>
+        </record>
+
+        <record model="ir.action.act_window.domain" id="act_contract_term_cash_flow_domain_done">
+            <field name="name">Done</field>
+            <field name="sequence" eval="20"/>
+            <field name="domain" eval="[('state', '=', 'done')]" pyson="1"/>
+            <field name="count" eval="True"/>
+            <field name="act_window" ref="act_contract_term_cash_flow"/>
+        </record>
+
+        <record model="ir.action.act_window.domain" id="act_contract_term_cash_flow_domain_all">
+            <field name="name">All</field>
+            <field name="sequence" eval="90"/>
+            <field name="domain"></field>
+            <field name="act_window" ref="act_contract_term_cash_flow"/>
+        </record>
+
+        <menuitem
+            parent="menu_real_estate_contracts"
+            action="act_contract_term_cash_flow"
+            sequence="30"
+            id="menu_contract_term_cash_flow"/>
+
    </data>
 </tryton>

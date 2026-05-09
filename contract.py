@@ -1486,10 +1486,9 @@ class ContractTermCashFlow( ModelView, ModelSQL):
          "State", sort=False, required=True, 
          states={'readonly': True,})
 
-    name = fields.Function(fields.Char("Name"), 
-                                    'on_change_with_name', 
-                                    #searcher='name_search'
-                                    )    
+    name = fields.Function(fields.Char("Name"),
+                                    'on_change_with_name',
+                                    searcher='name_search')
 
 
     posting_date = fields.Date('Posting Date', 
@@ -1613,7 +1612,45 @@ class ContractTermCashFlow( ModelView, ModelSQL):
             return f'{self.document_date:%Y/%m/%d} / {self.term.name}'
         elif self.term:
             return f'{self.term.next_document_date:%Y/%m/%d} / {self.term.name}'
-        return f" - "   
+        return f" - "
+
+    @classmethod
+    def name_search(cls, name, clause):
+        import re
+        import calendar as cal
+        _, operator, value = clause
+        if operator.startswith('!') or operator.startswith('not '):
+            bool_op = 'AND'
+        else:
+            bool_op = 'OR'
+
+        domain = [bool_op,
+            ('invoice_line.description',) + tuple(clause[1:]),
+            ('term.term_type.name',) + tuple(clause[1:]),
+            ('term.contract.contract_number',) + tuple(clause[1:]),
+            ('term.contract.contractual_partner.name',) + tuple(clause[1:]),
+        ]
+
+        # Parse date pattern YYYY/MM or YYYY/MM/DD from search value
+        # and translate to a document_date range condition
+        clean = value.strip('%') if isinstance(value, str) else ''
+        m = re.match(r'^(\d{4})/(\d{2})(?:/(\d{2}))?$', clean)
+        if m:
+            try:
+                year, month = int(m.group(1)), int(m.group(2))
+                if m.group(3):
+                    domain.append(
+                        ('document_date', '=', datetime.date(year, month, int(m.group(3)))))
+                else:
+                    last_day = cal.monthrange(year, month)[1]
+                    domain.append(['AND',
+                        ('document_date', '>=', datetime.date(year, month, 1)),
+                        ('document_date', '<=', datetime.date(year, month, last_day)),
+                    ])
+            except ValueError:
+                pass
+
+        return domain
 
     @fields.depends('term', 'invoice_line')
     def on_change_with_quantity(self, name=None):
@@ -2348,12 +2385,10 @@ class ContractTerm(sequence_ordered(), ModelSQL, ModelView, TaxableMixin):
             bool_op = 'AND'
         else:
             bool_op = 'OR'
-        if cls.term_type:
-            return [bool_op,
-                ('self.term_type.name',) + tuple(clause[1:]),
-                ('self.term_type.m_type.name',) + tuple(clause[1:]),
-            ]  
-        return []
+        return [bool_op,
+            ('term_type.name',) + tuple(clause[1:]),
+            ('term_type.m_type.name',) + tuple(clause[1:]),
+        ]
 
 
 #**************************************************************
