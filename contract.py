@@ -1398,6 +1398,15 @@ class ContractTermType(DeactivableMixin, base_object.re_sequence_ordered(), Mode
         help="Defines the frequency of the term. 30 days for monthly, 90 days for quarterly, 365 days for annually."
     )
 
+    rhythm_start = fields.Selection([
+        (None, 'first day of month'),
+        ('term_start', 'Day of term valid from date'),
+        ('15th_month', '15th day of month'),
+        ('month_end', 'last day of month'),
+        ], "Rhythm Start",
+        sort=False,
+    )
+
     compute_name = fields.Function(fields.Char("Description"), 
                                     'on_change_with_compute_name', 
                                     searcher='compute_name_search'
@@ -1760,6 +1769,13 @@ class ContractTerm(sequence_ordered(), ModelSQL, ModelView, TaxableMixin):
             'invisible': (Eval('term_type', None) == None),
             },
         )
+    
+    rhythm_start = fields.Selection('get_rhythm_start', "Rhythm Start",
+        sort=False,
+        states={
+            'invisible': (Eval('term_type', None) == None),
+            },
+        )
 
     property = fields.Function(fields.Many2One('real_estate.base_object','Property'),
         'on_change_with_property')
@@ -1876,6 +1892,12 @@ class ContractTerm(sequence_ordered(), ModelSQL, ModelView, TaxableMixin):
         pool = Pool()
         Object = pool.get('real_estate.contract.term.type')
         return Object.fields_get(['rhythm_type'])['rhythm_type']['selection']
+
+    @classmethod
+    def get_rhythm_start(cls):
+        pool = Pool()
+        Object = pool.get('real_estate.contract.term.type')
+        return Object.fields_get(['rhythm_start'])['rhythm_start']['selection']
 
     def re_calc(self):
         """ Re-calculate next document/due date by rhythm and last posting date """
@@ -2119,7 +2141,7 @@ class ContractTerm(sequence_ordered(), ModelSQL, ModelView, TaxableMixin):
         else:
             return self.next_document_date
         
-    @fields.depends('rhythm','valid_from', 'last_document_date', 'rhythm_type', 'contract',
+    @fields.depends('rhythm','valid_from', 'last_document_date', 'rhythm_type', 'rhythm_start', 'contract',
                     'unit_price')        
     def _next_document_date(self, calc_document_date=None):
         def _check_valid_to(i_date:datetime.date):
@@ -2129,8 +2151,17 @@ class ContractTerm(sequence_ordered(), ModelSQL, ModelView, TaxableMixin):
                 or (self.contract.termination_date != None and self.contract.termination_date < i_date ):
                 return self.last_document_date
             else: 
-                #letzter des Monats 
-                return i_date.replace(day=1) + relativedelta(months=1) - relativedelta(days=1)
+
+                if self.rhythm_start == 'term_start' and i_date != None:
+                    return i_date.day(day=self.valid_from.day)
+                
+                if self.rhythm_start == 'month_end' and i_date != None:
+                    return i_date.replace(day=1) + relativedelta(months=1) - datetime.timedelta(days=1)
+
+                if self.rhythm_start == '15th_month' and i_date != None:
+                    return i_date.replace(day=15)
+                
+                return i_date
 
         my_document_Date = calc_document_date if calc_document_date != None else self.last_document_date
 

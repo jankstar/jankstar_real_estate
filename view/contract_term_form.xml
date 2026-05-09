@@ -21,6 +21,7 @@
         <page string="General" id="general" col="6">  
         <label name="rhythm"/><field name="rhythm" />
         <label name="rhythm_type"/><field name="rhythm_type" />
+        <label name="rhythm_start"/><field name="rhythm_start" />
 
         <newline/>   
         <label name="quantity"/><field name="quantity"/>
