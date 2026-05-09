@@ -2208,6 +2208,13 @@ class ContractTerm(sequence_ordered(), ModelSQL, ModelView, TaxableMixin):
             return self.term_type.rhythm_type   
         else:
             return 'monthly'
+        
+    @fields.depends('term_type')
+    def on_change_with_rhythm_start(self, name=None):
+        if self.term_type and self.term_type.rhythm_start:
+            return self.term_type.rhythm_start   
+        else:
+            return None
 
     @fields.depends('term_type')
     def on_change_with_name(self, name=None):
