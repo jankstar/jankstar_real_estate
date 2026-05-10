@@ -6,7 +6,9 @@ Datenbank vorhanden sein (Property "Musterstraße 1" mit Wohnungen).
 
 Das Skript legt für die ersten 3 Wohnungen je folgende Objekte an:
   - 1 Vertragspartner (party.party): "Mieter 1" bis "Mieter 3"
-      mit einer party.address "Musterstraße 1, Wohnung <Nr>"
+      Sprache: Deutsch (ir.lang code='de')
+      mit einer party.address: Musterstraße 1, 14163 Berlin, DE
+      (wird inline beim Speichern der Party angelegt)
   - 1 Mietvertrag (real_estate.contract):
       - Vertragsart: erste verfügbare ContractType für type_of_use 'residential'
       - Startdatum: 01.01.2026, Status: draft
@@ -94,23 +96,32 @@ def get_contract_type():
     return results[0]
 
 
-def create_party(name: str, street: str, city: str, country) -> object:
+def create_party(name: str, country, lang) -> tuple:
     Party = Model.get('party.party')
     Address = Model.get('party.address')
 
     party = Party()
     party.name = name
+    if lang:
+        party.lang = lang
     party.save()
 
-    address = Address()
-    address.party = party
-    address.street = street
-    address.city = city
+    if party.addresses:
+        address = party.addresses[0]
+    else:
+        address = Address()
+        address.party = party
+
+    address.street_name = 'Musterstraße 1'
+    address.postal_code = '14163'
+    address.city = 'Berlin'
     if country:
         address.country = country
+    address.delivery = True
+    address.invoice = True
     address.save()
 
-    print(f'  Vertragspartner: {name} (id={party.id}), Adresse: {street}, {city}')
+    print(f'  Vertragspartner: {name} (id={party.id}), Adresse: Musterstraße 1, 14163 Berlin')
     return party, address
 
 
@@ -190,22 +201,25 @@ def main():
     tt_rent = get_term_type(1000)   # Apartment rent
     tt_nk = get_term_type(2000)     # Betriebskosten
 
-    # Land aus Firmendaten übernehmen (für party.address), optional
     Country = Model.get('country.country')
     countries = Country.find([('code', '=', 'DE')])
     country = countries[0] if countries else None
+
+    Lang = Model.get('ir.lang')
+    langs = Lang.find([('code', '=', 'de')])
+    de_lang = langs[0] if langs else None
+    if not de_lang:
+        print('WARNUNG: Sprache "de" nicht gefunden – Sprache wird nicht gesetzt.')
 
     print(f'Erzeuge Verträge für Company "{company.rec_name}" ...')
 
     for i, apartment in enumerate(apartments, start=1):
         print(f'\n--- Mieter {i} / Wohnung: {apartment.name} ---')
 
-        street = f'Musterstraße 1, {apartment.name}'
         party, address = create_party(
             name=f'Mieter {i}',
-            street=street,
-            city='Berlin',
             country=country,
+            lang=de_lang,
         )
 
         contract = create_contract(

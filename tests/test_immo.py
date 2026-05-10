@@ -129,6 +129,25 @@ def get_uom(symbol: str):
     return results[0]
 
 
+def get_country(code: str):
+    Country = Model.get('country.country')
+    results = Country.find([('code', '=', code)])
+    return results[0] if results else None
+
+
+def create_re_address(country) -> object:
+    Address = Model.get('real_estate.address')
+    address = Address()
+    address.street_unstructured = 'Musterstraße 1'
+    address.postal_code = '14163'
+    address.city = 'Berlin'
+    if country:
+        address.country = country
+    address.save()
+    print(f'  Adresse:   Musterstraße 1, 14163 Berlin angelegt (id={address.id})')
+    return address
+
+
 def create_meter(parent, name: str, sequence: int, company, uom, admin_user) -> None:
     BaseObject = Model.get('real_estate.base_object')
     obj = BaseObject()
@@ -207,7 +226,14 @@ def main():
     t_raume = get_measurement_type('Anzahl Räume')
     t_wfl = get_measurement_type('Wohnfläche')
 
+    country_de = get_country('DE')
+    if not country_de:
+        print('WARNUNG: Land "DE" nicht gefunden – Adresse wird ohne Land angelegt.')
+
     print(f'Erzeuge Daten für Company "{company.rec_name}" ...')
+
+    # Adresse (real_estate.address) für die Immobilie
+    prop_address = create_re_address(country_de)
 
     # Immobilie (Property)
     prop = create_base_object(
@@ -216,6 +242,8 @@ def main():
         company=company,
         sequence=10,
     )
+    prop.address = prop_address
+    prop.save()
 
     # Gebäude
     building = create_base_object(

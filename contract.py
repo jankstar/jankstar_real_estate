@@ -858,46 +858,40 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
             ('contractual_partner.name',) + tuple(clause[1:]),
         ]   
 
-    def _create_moves(self, terms, date, invoice_state='draft'):
-        #pdb.set_trace()  # Breakpoint
-
+    def _create_moves(self, terms, date, invoice_state='draft', invoice_date=None):
         self.add_log('process', f'start quere contract {self.id} at {date}')
         if not terms:
             self.add_log('process', f'stop quere contract {self.id} at {date} - no terms')
             return
-        
+
         pool = Pool()
         Invoice = pool.get('account.invoice')
         InvoiceLine = pool.get('account.invoice.line')
         Configuration = pool.get('account.configuration')
         config = Configuration(1)
 
+        # Group invoice lines by posting_date; store document_date and due_date per group
+        lines_by_date = defaultdict(
+            lambda: {'lines': [], 'document_date': None, 'due_date': None})
 
-        line_vals = []
         for term_id in terms:
-
             term = next(
-                    (obj for obj in self.terms if obj.id == term_id),
-                    None,)
-            if term :
-                taxes = set()
-                for tax in term.taxes:
-                    taxes.add(tax)
-                
-                # for invoice line account, we use the term account if exist, else we use the default revenue or expense account based on the invoice type
-                l_account = term.account.id if term.account else config.account_revenue.id if self.c_type.invoice_type == 'out' \
-                    else config.account_expense.id
-                
-                for cash_flow in term.cash_flow:
+                (obj for obj in self.terms if obj.id == term_id), None)
+            if term:
+                taxes = set(term.taxes)
 
+                # use term account if set, else fall back to default revenue/expense
+                l_account = term.account.id if term.account \
+                    else config.account_revenue.id if self.c_type.invoice_type == 'out' \
+                    else config.account_expense.id
+
+                for cash_flow in term.cash_flow:
                     if cash_flow.document_date <= date and cash_flow.state == 'draft':
-                        # if there is already a draft cash flow entry for the term and 
-                        # the document date is due, use it to create invoice line
                         new_invoice_line = InvoiceLine(
                             type='line',
                             company=self.company.id,
                             party=self.contractual_partner.id,
-                            invoice_type=self.c_type.invoice_type,                        
+                            invoice_type=self.c_type.invoice_type,
                             description=cash_flow.name,
                             quantity=term.quantity,
                             unit=term.unit,
@@ -906,74 +900,78 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
                             currency=self.currency.id,
                             taxes=list(taxes),
                             contract=self,
-                            term=term    
-                            )
-                        new_invoice_line.save() # to get the id for cash flow relation
-                        line_vals.append(new_invoice_line)
+                            term=term,
+                        )
+                        new_invoice_line.save()
 
                         cash_flow.state = 'done'
-                        cash_flow.posting_date = date
+                        cash_flow.posting_date = cash_flow.document_date
+                        group = lines_by_date[cash_flow.posting_date]
+                        group['lines'].append(new_invoice_line)
+                        if group['document_date'] is None:
+                            group['document_date'] = cash_flow.document_date
+                            group['due_date'] = cash_flow.due_date
+
                         cash_flow.invoice_line = new_invoice_line
                         cash_flow.save()
 
-                        term.last_posting_date = date
-                        term.last_document_date = term.next_document_date
+                        term.last_posting_date = cash_flow.posting_date
+                        term.last_document_date = cash_flow.document_date
                         term.next_document_date = term.on_change_with_next_document_date()
                         term.next_due_date = term.on_change_with_next_due_date()
                         term.save()
 
-        line_vals.sort(key=lambda ele: ele.description)
+        if not lines_by_date:
+            self.add_log('process', f'contract {self.id} - no term computed')
+            return
 
-        #pdb.set_trace()  # Breakpoint
-        if len(line_vals) > 0:
+        if self.c_type.invoice_type == 'out':
+            l_account = self.contractual_partner.account_receivable.id \
+                if self.contractual_partner.account_receivable \
+                else config.default_account_receivable.id
+        else:
+            l_account = self.contractual_partner.account_payable.id \
+                if self.contractual_partner.account_payable \
+                else config.default_account_payable.id
 
-            if self.c_type.invoice_type == 'out':
-                # for customer invoice, we can have only one invoice per term and we update the invoice if already exist in draft state
-                l_account = self.contractual_partner.account_receivable.id \
-                    if self.contractual_partner.account_receivable else config.default_account_receivable.id
-            else:
-                # for supplier invoice, we can have only one invoice per term and we update the invoice if already exist in draft state
-                l_account = self.contractual_partner.account_payable.id \
-                    if self.contractual_partner.account_payable else config.default_account_payable.id
+        for posting_date, group in sorted(lines_by_date.items()):
+            invoice_lines = sorted(group['lines'], key=lambda l: l.description)
+            document_date = group['document_date']
+            due_date = group['due_date']
+            inv_date = invoice_date or document_date
+
+            l_description = self.c_type.mark if self.c_type.mark else self.c_type.name
 
             invoice = Invoice(
                 company=self.company.id,
-                type=self.c_type.invoice_type, #as debit or credit type
+                type=self.c_type.invoice_type,
                 party=self.contractual_partner.id,
-                invoice_date=date,
-                accounting_date=date,
-                payment_term_date=date,
+                invoice_date=inv_date,
+                accounting_date=posting_date,
+                payment_term_date=due_date,
                 invoice_address=self.invoice_address,
                 currency=self.currency.id,
                 journal=self.c_type.account_journal.id,
                 account=self.c_type.account.id if self.c_type.account else l_account,
                 payment_term=self.payment_term.id if self.payment_term else None,
-                description=self.c_type.mark if self.c_type.mark else self.c_type.name,
+                description=f'{l_description} - {posting_date.strftime("%Y-%m-%d")}',
                 reference=self.contract_number,
-                lines=line_vals,
-                contract=self
+                lines=invoice_lines,
+                contract=self,
             )
-            
-
-            #pdb.set_trace()  # Breakpoint
-
-            #invoices = Invoice.create([invoice_vals])
-            #invoice, = invoices
             Invoice.save([invoice])
             if invoice_state == 'posted':
                 Invoice.post([invoice])
-            self.add_log('process',f'contract {self.id} / invoice {invoice.id} saved (state={invoice_state}).')
-
-        else:
-            self.add_log('process',f'contract {self.id} - no term computed')
+            self.add_log('process',
+                f'contract {self.id} / invoice {invoice.id} saved'
+                f' (state={invoice_state}, posting_date={posting_date}).')
 
 
     @classmethod
-    def call_create_moves(cls, contract_ids, date, action='re_calc', execute_in_queue=True, invoice_state='draft'):
+    def call_create_moves(cls, contract_ids, date, action='re_calc', execute_in_queue=True, invoice_state='draft', invoice_date=None):
         """ call create_moves in queue or directly based on execute_in_queue flag
         by chunks of contract_ids"""
         if len(contract_ids) > 0:
-            #pdb.set_trace()  # Breakpoint
             chunks = [contract_ids[i:i+_chunk_size] for i in range(0, len(contract_ids), _chunk_size)]
             for chunk in chunks:
                 if execute_in_queue:
@@ -981,13 +979,13 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
                     context = transaction.context
                     with transaction.set_context(
                         queue_batch=context.get('queue_batch', True)):
-                        cls.__queue__.create_moves(chunk, date, action, invoice_state)
+                        cls.__queue__.create_moves(chunk, date, action, invoice_state, invoice_date)
 
                 else:
-                    cls.create_moves(chunk, date, action, invoice_state)
+                    cls.create_moves(chunk, date, action, invoice_state, invoice_date)
 
     @classmethod
-    def create_moves(cls, contract_ids, date, action='re_calc', invoice_state='draft'):
+    def create_moves(cls, contract_ids, date, action='re_calc', invoice_state='draft', invoice_date=None):
         """
         Calculate and Creat all account move on contract before a date.
         """
@@ -1026,7 +1024,7 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
                     process_terms.append(term.id)
 
             if len(process_terms) > 0 and action in ('create', 're_calc_and_create'):
-                    cls._create_moves(contract, process_terms, date, invoice_state)
+                    cls._create_moves(contract, process_terms, date, invoice_state, invoice_date)
 
             contract.add_log('process',f'"create_moves" finished')
             contract.save()
@@ -2199,7 +2197,8 @@ class ContractTerm(sequence_ordered(), ModelSQL, ModelView, TaxableMixin):
                 if self.rhythm_start == '15th_month' and i_date != None:
                     return i_date.replace(day=15)
                 
-                return i_date
+                # default is first day of month
+                return i_date.replace(day=1)
 
         my_document_Date = calc_document_date if calc_document_date != None else self.last_document_date
 
@@ -2408,6 +2407,12 @@ class CreateMovesStart(ModelView):
                "Re-Calculate and Create moves: first sync re-calculate, then async create moves until date"
         , required=True)
 
+    invoice_date = fields.Date('Invoice Date',
+        states={
+            'invisible': ~Eval('action', '').in_(['create', 're_calc_and_create']),
+            'required': Eval('action', '').in_(['create', 're_calc_and_create']),
+        })
+
     invoice_state = fields.Selection([
         ('draft', 'Draft'),
         ('posted', 'Posted'),
@@ -2452,6 +2457,10 @@ class CreateMovesStart(ModelView):
         return 'create'
 
     @staticmethod
+    def default_invoice_date():
+        return Pool().get('ir.date').today()
+
+    @staticmethod
     def default_invoice_state():
         return 'draft'
 
@@ -2490,7 +2499,8 @@ class CreateMoves(Wizard):
             if len(contract_ids) > 0:
                 Contract.call_create_moves(
                     contract_ids, self.start.date, self.start.action,
-                    self.start.execute_in_queue, self.start.invoice_state or 'draft')
+                    self.start.execute_in_queue, self.start.invoice_state or 'draft',
+                    self.start.invoice_date)
         return 'end'
 
     

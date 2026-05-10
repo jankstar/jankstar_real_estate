@@ -21,6 +21,8 @@
     <group colspan="2" col="-1" id="rhythm">
         <label name="rhythm"/><field name="rhythm" />
         <label name="rhythm_type"/><field name="rhythm_type" />
+        <newline/>
+        <label name="rhythm_start"/><field name="rhythm_start" />
     </group>
     <newline/>
     <label name="account"/><field name="account" />
