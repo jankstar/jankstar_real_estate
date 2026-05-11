@@ -695,6 +695,7 @@
 
         <record model="real_estate.contract.type" id="contract_rental_agreement_type">
             <field name="name">Rental agreement</field>
+            <field name="mark" >Debit</field>
             <field name="prefix" >1</field>
             <field name='start_number'>1000</field>
             <field name="step_term">10</field>
@@ -707,6 +708,7 @@
 
         <record model="real_estate.contract.type" id="contract_parking_space_lease_agreement_type">
             <field name="name">Parking Space Lease Agreement</field>
+            <field name="mark" >Debit</field>
             <field name="prefix" >2</field>
             <field name='start_number'>2000</field>
             <field name="step_term">10</field>
@@ -719,6 +721,7 @@
 
         <record model="real_estate.contract.type" id="contract_debit_costs_agreement_type">
             <field name="name">Debit Costs Agreement</field>
+            <field name="mark" >Debit</field>
             <field name="prefix" >3</field>
             <field name='start_number'>3000</field>
             <field name="step_term">10</field>
@@ -731,6 +734,7 @@
 
         <record model="real_estate.contract.type" id="contract_credit_costs_agreement_type">
             <field name="name">Credit Costs Agreement</field>
+            <field name="mark" >Credit</field>
             <field name="prefix" >4</field>
             <field name='start_number'>4000</field>
             <field name="step_term">10</field>
@@ -743,6 +747,7 @@
 
         <record model="real_estate.contract.type" id="contract_commercial_lease_agreement_type">
             <field name="name">Commercial lease agreement</field>
+            <field name="mark" >Debit</field>
             <field name="prefix" >5</field>
             <field name='start_number'>5000</field>
             <field name="step_term">10</field>
@@ -755,6 +760,7 @@
 
         <record model="real_estate.contract.type" id="contract_condominium_fee_agreement_type">
             <field name="name">Condominium fee agreement</field>
+            <field name="mark" >Debit</field>
             <field name="prefix" >8</field>
             <field name='start_number'>8000</field>
             <field name="step_term">10</field>
