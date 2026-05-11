@@ -1494,15 +1494,15 @@ class ContractTermCashFlow( ModelView, ModelSQL):
 
     contract = fields.Function(fields.Many2One(
         'real_estate.contract', 'Contract',
-        ), 'on_change_with_contract')
+        ), 'on_change_with_contract', searcher='search_contract')
 
     invoice = fields.Function(fields.Many2One(
         'account.invoice', "Invoice",
-        ), 'on_change_with_invoice')
-    
+        ), 'on_change_with_invoice', searcher='search_invoice')
+
     invoice_state = fields.Function(
         fields.Selection('get_invoice_states', "Invoice State"),
-        'on_change_with_invoice_state')
+        'on_change_with_invoice_state', searcher='search_invoice_state')
 
     term = fields.Many2One(
         'real_estate.contract.term', 'Term',required=True,
@@ -1514,11 +1514,11 @@ class ContractTermCashFlow( ModelView, ModelSQL):
         states={'readonly': True,})
 
 
-    property = fields.Function(fields.Many2One('real_estate.base_object','Property'),
-        'on_change_with_property')
+    property = fields.Function(fields.Many2One('real_estate.base_object', 'Property'),
+        'on_change_with_property', searcher='search_property')
 
-    company = fields.Function(fields.Many2One('company.company','Company'),
-        'on_change_with_company')
+    company = fields.Function(fields.Many2One('company.company', 'Company'),
+        'on_change_with_company', searcher='search_company')
 
     quantity = fields.Function(fields.Float(
         "Quantity", digits='unit',
@@ -1646,6 +1646,38 @@ class ContractTermCashFlow( ModelView, ModelSQL):
 
         return domain
 
+    @classmethod
+    def search_contract(cls, name, clause):
+        return [('term.contract',) + tuple(clause[1:])]
+
+    @classmethod
+    def search_property(cls, name, clause):
+        return [('term.contract.property',) + tuple(clause[1:])]
+
+    @classmethod
+    def search_company(cls, name, clause):
+        return [('term.contract.company',) + tuple(clause[1:])]
+
+    @classmethod
+    def search_invoice(cls, name, clause):
+        return [('invoice_line.invoice',) + tuple(clause[1:])]
+
+    @classmethod
+    def search_invoice_state(cls, name, clause):
+        _, operator, value = clause
+        if operator in ('=', '!=') and value == 'draft':
+            if operator == '=':
+                return ['OR',
+                    ('invoice_line', '=', None),
+                    ('invoice_line.invoice.state', '=', 'draft'),
+                ]
+            else:
+                return ['AND',
+                    ('invoice_line', '!=', None),
+                    ('invoice_line.invoice.state', '!=', 'draft'),
+                ]
+        return [('invoice_line.invoice.state',) + tuple(clause[1:])]
+
     @fields.depends('term', 'invoice_line')
     def on_change_with_quantity(self, name=None):
         if self.invoice_line:
@@ -1740,6 +1772,41 @@ class ContractTermCashFlow( ModelView, ModelSQL):
         return None
 
       
+
+#**********************************************************************
+class ContractTermCashFlowContext(ModelView):
+    'Contract Term Cash Flow Context'
+    __name__ = 'real_estate.contract.term.cash_flow.context'
+
+    company = fields.Many2One('company.company', 'Company', required=True)
+    property = fields.Many2One('real_estate.base_object', 'Property',
+        domain=[
+            ('type', '=', 'property'),
+            ('company', '=', Eval('company', -1)),
+        ])
+    contract = fields.Many2One('real_estate.contract', 'Contract',
+        domain=[
+            ('company', '=', Eval('company', -1)),
+            If(Eval('property', None),
+                [('property', '=', Eval('property', None))],
+                []),
+        ])
+    from_date = fields.Date('From Date')
+    to_date = fields.Date('To Date')
+
+    @classmethod
+    def default_company(cls):
+        return Transaction().context.get('company')
+
+    @classmethod
+    def default_from_date(cls):
+        today = Pool().get('ir.date').today()
+        return today.replace(month=1, day=1)
+
+    @classmethod
+    def default_to_date(cls):
+        return Pool().get('ir.date').today()
+
 
 #**********************************************************************
 class ContractTerm(sequence_ordered(), ModelSQL, ModelView, TaxableMixin):

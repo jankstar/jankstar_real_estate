@@ -513,9 +513,19 @@
             <field name="name">contract_term_cash_flow_form</field>
         </record>
 
+        <record model="ir.ui.view" id="cash_flow_context_view_form">
+            <field name="model">real_estate.contract.term.cash_flow.context</field>
+            <field name="type">form</field>
+            <field name="name">cash_flow_context_form</field>
+        </record>
+
         <record model="ir.action.act_window" id="act_contract_term_cash_flow">
             <field name="name">Cash Flow</field>
             <field name="res_model">real_estate.contract.term.cash_flow</field>
+            <field name="context_model">real_estate.contract.term.cash_flow.context</field>
+            <field name="context_domain"
+                eval="[('term.contract.company', '=', Eval('company', -1)), If(Eval('property', None), [('term.contract.property', '=', Eval('property', None))], []), If(Eval('from_date', None), [('document_date', '>=', Eval('from_date', None))], []), If(Eval('to_date', None), [('document_date', '&lt;=', Eval('to_date', None))], [])]"
+                pyson="1"/>
         </record>
 
         <record model="ir.action.act_window.view" id="act_contract_term_cash_flow_view1">

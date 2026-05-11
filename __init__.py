@@ -31,6 +31,7 @@ def register():
         contract.ContractItem,
         contract.ContractLog,
         contract.ContractTermCashFlow,
+        contract.ContractTermCashFlowContext,
         contract.Contract,
         contract.CreateMovesStart,
         contract.TerminateContractStart,
