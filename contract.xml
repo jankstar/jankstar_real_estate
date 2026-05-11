@@ -293,16 +293,265 @@
         <field name="action" ref="report_contract_letter_de"/>
       </record>
 
+    <record model="ir.rule.group" id="rule_group_contract_companies">
+        <field name="name">User in companies</field>
+        <field name="model">real_estate.contract</field>
+        <field name="global_p" eval="True"/>
+    </record>
+    <record model="ir.rule" id="rule_contract_companies">
+        <field name="domain"
+            eval="[('company', 'in', Eval('companies', []))]"
+            pyson="1"/>
+        <field name="rule_group" ref="rule_group_contract_companies"/>
+    </record>
+
+    <!-- Contract: Contract group full access, Object group read -->
     <record model="ir.model.access" id="access_contract_user">
         <field name="model">real_estate.contract</field>
+        <field name="group" ref="group_real_estate_contract"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_delete" eval="True"/>
+    </record>
+    <record model="ir.model.access" id="access_contract_admin">
+        <field name="model">real_estate.contract</field>
+        <field name="group" ref="group_real_estate_admin"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_delete" eval="True"/>
+    </record>
+    <record model="ir.model.access" id="access_contract_object_group">
+        <field name="model">real_estate.contract</field>
+        <field name="group" ref="group_real_estate_object"/>
         <field name="perm_read" eval="True"/>
         <field name="perm_write" eval="False"/>
         <field name="perm_create" eval="False"/>
         <field name="perm_delete" eval="False"/>
     </record>
 
-    <record model="ir.model.access" id="access_contract_admin">
-        <field name="model">real_estate.contract</field>
+    <!-- ContractTerm -->
+    <record model="ir.model.access" id="access_contract_term_contract_group">
+        <field name="model">real_estate.contract.term</field>
+        <field name="group" ref="group_real_estate_contract"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_delete" eval="True"/>
+    </record>
+    <record model="ir.model.access" id="access_contract_term_admin">
+        <field name="model">real_estate.contract.term</field>
+        <field name="group" ref="group_real_estate_admin"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_delete" eval="True"/>
+    </record>
+    <record model="ir.model.access" id="access_contract_term_object_group">
+        <field name="model">real_estate.contract.term</field>
+        <field name="group" ref="group_real_estate_object"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_delete" eval="False"/>
+    </record>
+
+    <!-- ContractTermTax -->
+    <record model="ir.model.access" id="access_contract_term_tax_contract_group">
+        <field name="model">real_estate.contract.term.tax</field>
+        <field name="group" ref="group_real_estate_contract"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_delete" eval="True"/>
+    </record>
+    <record model="ir.model.access" id="access_contract_term_tax_admin">
+        <field name="model">real_estate.contract.term.tax</field>
+        <field name="group" ref="group_real_estate_admin"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_delete" eval="True"/>
+    </record>
+    <record model="ir.model.access" id="access_contract_term_tax_object_group">
+        <field name="model">real_estate.contract.term.tax</field>
+        <field name="group" ref="group_real_estate_object"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_delete" eval="False"/>
+    </record>
+
+    <!-- ContractItem -->
+    <record model="ir.model.access" id="access_contract_item_contract_group">
+        <field name="model">real_estate.contract.item</field>
+        <field name="group" ref="group_real_estate_contract"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_delete" eval="True"/>
+    </record>
+    <record model="ir.model.access" id="access_contract_item_admin">
+        <field name="model">real_estate.contract.item</field>
+        <field name="group" ref="group_real_estate_admin"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_delete" eval="True"/>
+    </record>
+    <record model="ir.model.access" id="access_contract_item_object_group">
+        <field name="model">real_estate.contract.item</field>
+        <field name="group" ref="group_real_estate_object"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_delete" eval="False"/>
+    </record>
+
+    <!-- ContractLog -->
+    <record model="ir.model.access" id="access_contract_log_contract_group">
+        <field name="model">real_estate.contract.log</field>
+        <field name="group" ref="group_real_estate_contract"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_delete" eval="True"/>
+    </record>
+    <record model="ir.model.access" id="access_contract_log_admin">
+        <field name="model">real_estate.contract.log</field>
+        <field name="group" ref="group_real_estate_admin"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_delete" eval="True"/>
+    </record>
+    <record model="ir.model.access" id="access_contract_log_object_group">
+        <field name="model">real_estate.contract.log</field>
+        <field name="group" ref="group_real_estate_object"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_delete" eval="False"/>
+    </record>
+
+    <!-- ContractTermCashFlow: Contract group CRUD, Object group read -->
+    <record model="ir.model.access" id="access_contract_term_cash_flow_contract_group">
+        <field name="model">real_estate.contract.term.cash_flow</field>
+        <field name="group" ref="group_real_estate_contract"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_delete" eval="False"/>
+    </record>
+    <record model="ir.model.access" id="access_contract_term_cash_flow_admin">
+        <field name="model">real_estate.contract.term.cash_flow</field>
+        <field name="group" ref="group_real_estate_admin"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_delete" eval="True"/>
+    </record>
+    <record model="ir.model.access" id="access_contract_term_cash_flow_object_group">
+        <field name="model">real_estate.contract.term.cash_flow</field>
+        <field name="group" ref="group_real_estate_object"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_delete" eval="False"/>
+    </record>
+
+    <!-- AccountContract / GeneralLedgerAccountContract -->
+    <record model="ir.model.access" id="access_account_contract_contract_group">
+        <field name="model">real_estate.account_contract</field>
+        <field name="group" ref="group_real_estate_contract"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_delete" eval="False"/>
+    </record>
+    <record model="ir.model.access" id="access_account_contract_admin">
+        <field name="model">real_estate.account_contract</field>
+        <field name="group" ref="group_real_estate_admin"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_delete" eval="True"/>
+    </record>
+    <record model="ir.model.access" id="access_account_contract_object_group">
+        <field name="model">real_estate.account_contract</field>
+        <field name="group" ref="group_real_estate_object"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_delete" eval="False"/>
+    </record>
+
+    <!-- ContractType: Configuration → Admin only + beide Gruppen read -->
+    <record model="ir.model.access" id="access_contract_type_contract_group">
+        <field name="model">real_estate.contract.type</field>
+        <field name="group" ref="group_real_estate_contract"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_delete" eval="False"/>
+    </record>
+    <record model="ir.model.access" id="access_contract_type_object_group">
+        <field name="model">real_estate.contract.type</field>
+        <field name="group" ref="group_real_estate_object"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_delete" eval="False"/>
+    </record>
+
+    <!-- ContractTermType: Configuration → Admin only + beide Gruppen read -->
+    <record model="ir.model.access" id="access_contract_term_type_contract_group">
+        <field name="model">real_estate.contract.term.type</field>
+        <field name="group" ref="group_real_estate_contract"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_delete" eval="False"/>
+    </record>
+    <record model="ir.model.access" id="access_contract_term_type_object_group">
+        <field name="model">real_estate.contract.term.type</field>
+        <field name="group" ref="group_real_estate_object"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_delete" eval="False"/>
+    </record>
+
+    <!-- AccountContract (internal link model) -->
+    <record model="ir.model.access" id="access_contract_account_contract_contract_group">
+        <field name="model">real_estate.contract.account_contract</field>
+        <field name="group" ref="group_real_estate_contract"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_delete" eval="True"/>
+    </record>
+    <record model="ir.model.access" id="access_contract_account_contract_admin">
+        <field name="model">real_estate.contract.account_contract</field>
+        <field name="group" ref="group_real_estate_admin"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_delete" eval="True"/>
+    </record>
+    <record model="ir.model.access" id="access_contract_account_contract_object_group">
+        <field name="model">real_estate.contract.account_contract</field>
+        <field name="group" ref="group_real_estate_object"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_delete" eval="False"/>
+    </record>
+
+    <!-- ContractTypeTax: Configuration sub-model → Admin only -->
+    <record model="ir.model.access" id="access_contract_type_tax_admin">
+        <field name="model">real_estate.contract.type.tax</field>
         <field name="group" ref="group_real_estate_admin"/>
         <field name="perm_read" eval="True"/>
         <field name="perm_write" eval="True"/>
@@ -360,6 +609,75 @@
         <field name="model">real_estate.contract,-1</field>
         <field name="action" ref="act_general_ledger_account_contract_form_contract"/>
     </record>
+
+        <!-- *** ContractTermCashFlow standalone menu *** -->
+        <record model="ir.ui.view" id="contract_term_cash_flow_view_tree">
+            <field name="model">real_estate.contract.term.cash_flow</field>
+            <field name="type">tree</field>
+            <field name="name">contract_term_cash_flow_tree</field>
+        </record>
+
+        <record model="ir.ui.view" id="contract_term_cash_flow_view_form">
+            <field name="model">real_estate.contract.term.cash_flow</field>
+            <field name="type">form</field>
+            <field name="name">contract_term_cash_flow_form</field>
+        </record>
+
+        <record model="ir.ui.view" id="cash_flow_context_view_form">
+            <field name="model">real_estate.contract.term.cash_flow.context</field>
+            <field name="type">form</field>
+            <field name="name">cash_flow_context_form</field>
+        </record>
+
+        <record model="ir.action.act_window" id="act_contract_term_cash_flow">
+            <field name="name">Cash Flow</field>
+            <field name="res_model">real_estate.contract.term.cash_flow</field>
+            <field name="context_model">real_estate.contract.term.cash_flow.context</field>
+            <field name="context_domain"
+                eval="[('term.contract.company', '=', Eval('company', -1)), If(Eval('property', None), [('term.contract.property', '=', Eval('property', None))], []), If(Eval('from_date', None), [('document_date', '>=', Eval('from_date', None))], []), If(Eval('to_date', None), [('document_date', '&lt;=', Eval('to_date', None))], [])]"
+                pyson="1"/>
+        </record>
+
+        <record model="ir.action.act_window.view" id="act_contract_term_cash_flow_view1">
+            <field name="sequence" eval="10"/>
+            <field name="view" ref="contract_term_cash_flow_view_tree"/>
+            <field name="act_window" ref="act_contract_term_cash_flow"/>
+        </record>
+
+        <record model="ir.action.act_window.view" id="act_contract_term_cash_flow_view2">
+            <field name="sequence" eval="20"/>
+            <field name="view" ref="contract_term_cash_flow_view_form"/>
+            <field name="act_window" ref="act_contract_term_cash_flow"/>
+        </record>
+
+        <record model="ir.action.act_window.domain" id="act_contract_term_cash_flow_domain_draft">
+            <field name="name">Draft</field>
+            <field name="sequence" eval="10"/>
+            <field name="domain" eval="[('state', '=', 'draft')]" pyson="1"/>
+            <field name="count" eval="True"/>
+            <field name="act_window" ref="act_contract_term_cash_flow"/>
+        </record>
+
+        <record model="ir.action.act_window.domain" id="act_contract_term_cash_flow_domain_done">
+            <field name="name">Done</field>
+            <field name="sequence" eval="20"/>
+            <field name="domain" eval="[('state', '=', 'done')]" pyson="1"/>
+            <field name="count" eval="True"/>
+            <field name="act_window" ref="act_contract_term_cash_flow"/>
+        </record>
+
+        <record model="ir.action.act_window.domain" id="act_contract_term_cash_flow_domain_all">
+            <field name="name">All</field>
+            <field name="sequence" eval="90"/>
+            <field name="domain"></field>
+            <field name="act_window" ref="act_contract_term_cash_flow"/>
+        </record>
+
+        <menuitem
+            parent="menu_real_estate_contracts"
+            action="act_contract_term_cash_flow"
+            sequence="30"
+            id="menu_contract_term_cash_flow"/>
 
    </data>
 
@@ -500,74 +818,7 @@
 
 
 
-        <!-- *** ContractTermCashFlow standalone menu *** -->
-        <record model="ir.ui.view" id="contract_term_cash_flow_view_tree">
-            <field name="model">real_estate.contract.term.cash_flow</field>
-            <field name="type">tree</field>
-            <field name="name">contract_term_cash_flow_tree</field>
-        </record>
 
-        <record model="ir.ui.view" id="contract_term_cash_flow_view_form">
-            <field name="model">real_estate.contract.term.cash_flow</field>
-            <field name="type">form</field>
-            <field name="name">contract_term_cash_flow_form</field>
-        </record>
-
-        <record model="ir.ui.view" id="cash_flow_context_view_form">
-            <field name="model">real_estate.contract.term.cash_flow.context</field>
-            <field name="type">form</field>
-            <field name="name">cash_flow_context_form</field>
-        </record>
-
-        <record model="ir.action.act_window" id="act_contract_term_cash_flow">
-            <field name="name">Cash Flow</field>
-            <field name="res_model">real_estate.contract.term.cash_flow</field>
-            <field name="context_model">real_estate.contract.term.cash_flow.context</field>
-            <field name="context_domain"
-                eval="[('term.contract.company', '=', Eval('company', -1)), If(Eval('property', None), [('term.contract.property', '=', Eval('property', None))], []), If(Eval('from_date', None), [('document_date', '>=', Eval('from_date', None))], []), If(Eval('to_date', None), [('document_date', '&lt;=', Eval('to_date', None))], [])]"
-                pyson="1"/>
-        </record>
-
-        <record model="ir.action.act_window.view" id="act_contract_term_cash_flow_view1">
-            <field name="sequence" eval="10"/>
-            <field name="view" ref="contract_term_cash_flow_view_tree"/>
-            <field name="act_window" ref="act_contract_term_cash_flow"/>
-        </record>
-
-        <record model="ir.action.act_window.view" id="act_contract_term_cash_flow_view2">
-            <field name="sequence" eval="20"/>
-            <field name="view" ref="contract_term_cash_flow_view_form"/>
-            <field name="act_window" ref="act_contract_term_cash_flow"/>
-        </record>
-
-        <record model="ir.action.act_window.domain" id="act_contract_term_cash_flow_domain_draft">
-            <field name="name">Draft</field>
-            <field name="sequence" eval="10"/>
-            <field name="domain" eval="[('state', '=', 'draft')]" pyson="1"/>
-            <field name="count" eval="True"/>
-            <field name="act_window" ref="act_contract_term_cash_flow"/>
-        </record>
-
-        <record model="ir.action.act_window.domain" id="act_contract_term_cash_flow_domain_done">
-            <field name="name">Done</field>
-            <field name="sequence" eval="20"/>
-            <field name="domain" eval="[('state', '=', 'done')]" pyson="1"/>
-            <field name="count" eval="True"/>
-            <field name="act_window" ref="act_contract_term_cash_flow"/>
-        </record>
-
-        <record model="ir.action.act_window.domain" id="act_contract_term_cash_flow_domain_all">
-            <field name="name">All</field>
-            <field name="sequence" eval="90"/>
-            <field name="domain"></field>
-            <field name="act_window" ref="act_contract_term_cash_flow"/>
-        </record>
-
-        <menuitem
-            parent="menu_real_estate_contracts"
-            action="act_contract_term_cash_flow"
-            sequence="30"
-            id="menu_contract_term_cash_flow"/>
 
    </data>
 </tryton>

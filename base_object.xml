@@ -493,12 +493,14 @@
             <field name="act_window" ref="act_open_child_base_object"/>
         </record>
 
+        <!-- BaseObject: Object group full access -->
         <record model="ir.model.access" id="access_base_object">
             <field name="model">real_estate.base_object</field>
+            <field name="group" ref="group_real_estate_object"/>
             <field name="perm_read" eval="True"/>
-            <field name="perm_write" eval="False"/>
-            <field name="perm_create" eval="False"/>
-            <field name="perm_delete" eval="False"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
         </record>
         <record model="ir.model.access" id="access_base_object_admin">
             <field name="model">real_estate.base_object</field>
@@ -507,6 +509,41 @@
             <field name="perm_write" eval="True"/>
             <field name="perm_create" eval="True"/>
             <field name="perm_delete" eval="True"/>
+        </record>
+        <!-- Contract group needs read access to base_object for property selector -->
+        <record model="ir.model.access" id="access_base_object_contract_group">
+            <field name="model">real_estate.base_object</field>
+            <field name="group" ref="group_real_estate_contract"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+
+        <!-- MeterReading: Object group full access, Contract group read -->
+        <record model="ir.model.access" id="access_meter_reading_object_group">
+            <field name="model">real_estate.meter_reading</field>
+            <field name="group" ref="group_real_estate_object"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+        <record model="ir.model.access" id="access_meter_reading_admin">
+            <field name="model">real_estate.meter_reading</field>
+            <field name="group" ref="group_real_estate_admin"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+        <record model="ir.model.access" id="access_meter_reading_contract_group">
+            <field name="model">real_estate.meter_reading</field>
+            <field name="group" ref="group_real_estate_contract"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
         </record>
 
         <!--record model="ir.ui.icon" id="project_icon">

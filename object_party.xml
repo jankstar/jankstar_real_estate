@@ -76,6 +76,33 @@
             <field name="act_window" ref="act_object_party_role"/>
         </record>
 
+        <!-- ObjectParty: Object group full access, Contract group read -->
+        <record model="ir.model.access" id="access_object_party_object_group">
+            <field name="model">real_estate.object_party</field>
+            <field name="group" ref="group_real_estate_object"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+        <record model="ir.model.access" id="access_object_party_admin">
+            <field name="model">real_estate.object_party</field>
+            <field name="group" ref="group_real_estate_admin"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+        <record model="ir.model.access" id="access_object_party_contract_group">
+            <field name="model">real_estate.object_party</field>
+            <field name="group" ref="group_real_estate_contract"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+
+        <!-- ObjectPartyRole: Configuration → Admin only + beide Gruppen read -->
         <record model="ir.model.access" id="access_object_party_role_admin">
             <field name="model">real_estate.object_party.role</field>
             <field name="group" ref="group_real_estate_admin"/>
@@ -83,6 +110,22 @@
             <field name="perm_write" eval="True"/>
             <field name="perm_create" eval="True"/>
             <field name="perm_delete" eval="True"/>
+        </record>
+        <record model="ir.model.access" id="access_object_party_role_object_group">
+            <field name="model">real_estate.object_party.role</field>
+            <field name="group" ref="group_real_estate_object"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_object_party_role_contract_group">
+            <field name="model">real_estate.object_party.role</field>
+            <field name="group" ref="group_real_estate_contract"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
         </record>
 
         <menuitem
