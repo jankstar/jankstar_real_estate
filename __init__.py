@@ -42,11 +42,11 @@ def register():
         party.Party,
         invoice.Invoice,
         invoice.InvoiceLine,
-        operation_cost.CostGroup,
-        operation_cost.CostObjectType,
-        operation_cost.CostObject,
-        operation_cost.CostGroupLog,
+        operation_cost.BillingUnit,
+        operation_cost.CostType,
         operation_cost.SettlementUnit,
+        operation_cost.BillingUnitLog,
+        operation_cost.CostShare,
         module='real_estate', type_='model')
     Pool.register(
         contract.CreateMoves,

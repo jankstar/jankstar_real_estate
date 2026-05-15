@@ -32,15 +32,20 @@ class InvalidCalculationMethod(ValidationError):
     pass
 
 #**********************************************************************
-class CostGroup(Workflow,DeactivableMixin, sequence_ordered(), ModelSQL, ModelView):
-    __name__ = 'real_estate.cost_group'
+class BillingUnit(Workflow,DeactivableMixin, sequence_ordered(), ModelSQL, ModelView):
+    __name__ = 'real_estate.billing_unit'
     __rec_name__ = 'name'
 
     company = fields.Function(fields.Many2One('company.company','Company'),
         'on_change_with_company')
     
     property = fields.Many2One('real_estate.base_object', 
-        "Property", required=True, path='path', ondelete='CASCADE',)
+        "Property", required=True, path='path', ondelete='CASCADE',
+        states={
+            'readonly': Eval('state') != 'draft',
+            },
+        domain=[
+            ('type', '=', 'property' ),],)
 
     start_date = fields.Date('Start Date', 
         states={
@@ -88,7 +93,7 @@ class CostGroup(Workflow,DeactivableMixin, sequence_ordered(), ModelSQL, ModelVi
             help="The term type which can use this cost group.") 
 
 
-    cost_objects = fields.One2Many('real_estate.cost_object', 'cost_group', 'Cost Objects',
+    settlement_units = fields.One2Many('real_estate.settlement_unit', 'billing_unit', 'Cost Objects',
             #states=_states_only_propperty
             states={ 'readonly': Eval('state') != 'draft', },
             )    
@@ -126,27 +131,27 @@ class CostGroup(Workflow,DeactivableMixin, sequence_ordered(), ModelSQL, ModelVi
     @Workflow.transition('approved')
     #@set_employee('running_by')
     #@reset_employee('cancelled_by', 'terminated_by')
-    def approved(cls, cost_groups):
-        for cost_group in cost_groups:
-            cost_group.add_log('state_change', f'cost group state changed to approved')
-            cost_group.state = 'approved'
-            cost_group.save()
+    def approved(cls, billing_units):
+        for billing_unit in billing_units:
+            billing_unit.add_log('state_change', f'cost group state changed to approved')
+            billing_unit.state = 'approved'
+            billing_unit.save()
 
 
     @classmethod
     @ModelView.button
     @Workflow.transition('selection')
-    def selection(cls, cost_groups):
-        for cost_group in cost_groups:
-            cost_group.add_log('state_change', f'cost group state changed to selection')
+    def selection(cls, billing_units):
+        for billing_unit in billing_units:
+            billing_unit.add_log('state_change', f'cost group state changed to selection')
             all_state = True
-            for cost_object in cost_group.cost_objects:
-                cost_object.selection()   
-                if cost_object.sub_state != 'selection':
+            for settlement_unit in billing_unit.settlement_units:
+                settlement_unit.selection()   
+                if settlement_unit.sub_state != 'selection':
                     all_state = False
             if all_state:
-                cost_group.state = 'selection'
-            cost_group.save()
+                billing_unit.state = 'selection'
+            billing_unit.save()
 
 
     @staticmethod
@@ -160,14 +165,14 @@ class CostGroup(Workflow,DeactivableMixin, sequence_ordered(), ModelSQL, ModelVi
     @staticmethod
     def get_sub_states():
         pool = Pool()
-        SettlementUnit = pool.get('real_estate.settlement_unit')
-        return SettlementUnit.fields_get(['state'])['state']['selection']
+        CostShare = pool.get('real_estate.cost_share')
+        return CostShare.fields_get(['state'])['state']['selection']
     
-    @fields.depends('cost_objects')
+    @fields.depends('settlement_units')
     def on_change_with_sub_state(self, name=None):
         #return the lowest state of all settlement units
-        if self.cost_objects:
-            states = set(cost_object.sub_state for cost_object in self.cost_objects)
+        if self.settlement_units:
+            states = set(settlement_unit.sub_state for settlement_unit in self.settlement_units)
             if len(states) == 1:
                 return states.pop()
             elif 'error' in states:
@@ -246,22 +251,22 @@ class CostGroup(Workflow,DeactivableMixin, sequence_ordered(), ModelSQL, ModelVi
     def on_change_with_currency(self, name=None):
         return self.company.currency if self.company else None
 
-    @fields.depends('cost_objects')
+    @fields.depends('settlement_units')
     def on_change_with_planned_costs(self, name=None):
-        if self.cost_objects:
-            return sum(cost_object.planned_costs for cost_object in self.cost_objects if cost_object.planned_costs)
+        if self.settlement_units:
+            return sum(settlement_unit.planned_costs for settlement_unit in self.settlement_units if settlement_unit.planned_costs)
 
         # # here you can implement the logic to calculate the planned costs based on the start and end date
         # # for example, you can sum up the costs of all cost objects that fall within the date range
         # if self.start_date and self.end_date:
         #     pool = Pool()
-        #     CostObject = pool.get('real_estate.cost_object')
-        #     cost_objects = CostObject.search([
-        #         ('cost_group', '=', self.id),
+        #     SettlementUnit = pool.get('real_estate.settlement_unit')
+        #     settlement_units = SettlementUnit.search([
+        #         ('billing_unit', '=', self.id),
         #         ('start_date', '>=', self.start_date),
         #         ('end_date', '<=', self.end_date),
         #     ])
-        #     total_costs = sum(cost_object.planned_costs for cost_object in cost_objects)
+        #     total_costs = sum(settlement_unit.planned_costs for settlement_unit in settlement_units)
         #     return total_costs
         # return None
 
@@ -283,17 +288,17 @@ class CostGroup(Workflow,DeactivableMixin, sequence_ordered(), ModelSQL, ModelVi
 
     def add_log(self, event, description=None):
         pool = Pool()
-        CostLog = pool.get('real_estate.cost_group.log')
+        CostLog = pool.get('real_estate.billing_unit.log')
         CostLog.create([{
-            'cost_group': self.id,
+            'billing_unit': self.id,
             'event': event,
             'description': description or '',
         }])
         print(f'cost group {self.id}, event {event}, description {description}')
 
 #**********************************************************************
-class CostObjectType(DeactivableMixin, sequence_ordered(), ModelSQL, ModelView):
-    __name__ = 'real_estate.cost_object.type'
+class CostType(DeactivableMixin, sequence_ordered(), ModelSQL, ModelView):
+    __name__ = 'real_estate.cost_type'
 
     name = fields.Char("Name", required=True, translate=True)
     comment = fields.Text("Comment")    
@@ -301,11 +306,11 @@ class CostObjectType(DeactivableMixin, sequence_ordered(), ModelSQL, ModelView):
 
 
 #**********************************************************************
-class CostGroupLog(ModelSQL, ModelView):
+class BillingUnitLog(ModelSQL, ModelView):
     "Cost Group log obj"
-    __name__ = 'real_estate.cost_group.log'
+    __name__ = 'real_estate.billing_unit.log'
 
-    cost_group = fields.Many2One('real_estate.cost_group', 'Cost Group', required=True, ondelete='CASCADE')
+    billing_unit = fields.Many2One('real_estate.billing_unit', 'Cost Group', required=True, ondelete='CASCADE')
     event = fields.Char('Event', required=True)
     description = fields.Text('Description')
     create_date = fields.DateTime('Create Date', readonly=True)
@@ -313,8 +318,8 @@ class CostGroupLog(ModelSQL, ModelView):
 
 
 #**********************************************************************
-class CostObject(DeactivableMixin, base_object.re_sequence_ordered(), ModelSQL, ModelView):
-    __name__ = 'real_estate.cost_object'
+class SettlementUnit(DeactivableMixin, base_object.re_sequence_ordered(), ModelSQL, ModelView):
+    __name__ = 'real_estate.settlement_unit'
 
     property = fields.Function(fields.Many2One('real_estate.base_object','Property'),
         'on_change_with_property')
@@ -322,7 +327,7 @@ class CostObject(DeactivableMixin, base_object.re_sequence_ordered(), ModelSQL, 
     company = fields.Function(fields.Many2One('company.company','Company'),
         'on_change_with_company')
     
-    cost_group = fields.Many2One('real_estate.cost_group', 'Cost Group', 
+    billing_unit = fields.Many2One('real_estate.billing_unit', 'Cost Group', 
         required=True, ondelete='CASCADE',
         # domain=[
         #      ('company', '=', Eval('company', -1)),
@@ -338,7 +343,7 @@ class CostObject(DeactivableMixin, base_object.re_sequence_ordered(), ModelSQL, 
     sub_state = fields.Function(fields.Selection('get_sub_states', "Sub State"), 'on_change_with_sub_state')  
 
     type = fields.Many2One(
-        'real_estate.cost_object.type', "Cost Type", required=True, on_change='on_change_type',)
+        'real_estate.cost_type', "Cost Type", required=True, on_change='on_change_type',)
     
     comment = fields.Text("Comment")    
     
@@ -438,10 +443,10 @@ class CostObject(DeactivableMixin, base_object.re_sequence_ordered(), ModelSQL, 
         )
 
 
-    settlement_units = fields.One2Many('real_estate.settlement_unit', 'cost_object', 'Settlement Units',
+    cost_shares = fields.One2Many('real_estate.cost_share', 'settlement_unit', 'Settlement Units',
         states={ 
             'readonly': True, 
-            'invisible': ((Bool(Eval('settlement_units',0)) == False ) | (Eval('state') == 'draft')),
+            'invisible': ((Bool(Eval('cost_shares',0)) == False ) | (Eval('state') == 'draft')),
             },
         )
     
@@ -464,29 +469,29 @@ class CostObject(DeactivableMixin, base_object.re_sequence_ordered(), ModelSQL, 
     @staticmethod
     def get_states():
         pool = Pool()
-        CostGroup = pool.get('real_estate.cost_group')
-        return CostGroup.fields_get(['state'])['state']['selection']     
+        BillingUnit = pool.get('real_estate.billing_unit')
+        return BillingUnit.fields_get(['state'])['state']['selection']     
     
     @staticmethod
     def get_sub_states():
         pool = Pool()
-        SettlementUnit = pool.get('real_estate.settlement_unit')
-        return SettlementUnit.fields_get(['state'])['state']['selection']
+        CostShare = pool.get('real_estate.cost_share')
+        return CostShare.fields_get(['state'])['state']['selection']
 
     @fields.depends('type', 'sequence')
     def on_change_type(self):
         if self.type and not self.sequence:
             self.sequence = self.type.sequence
 
-    @fields.depends('cost_group')
+    @fields.depends('billing_unit')
     def on_change_with_state(self, name=None):
-        return self.cost_group.state if self.cost_group else None     
+        return self.billing_unit.state if self.billing_unit else None     
     
-    @fields.depends('settlement_units')
+    @fields.depends('cost_shares')
     def on_change_with_sub_state(self, name=None):
         #return the lowest state of all settlement units
-        if self.settlement_units:
-            states = set(settlement_unit.state for settlement_unit in self.settlement_units)
+        if self.cost_shares:
+            states = set(cost_share.state for cost_share in self.cost_shares)
             if len(states) == 1:
                 return states.pop()
             elif 'error' in states:
@@ -499,21 +504,21 @@ class CostObject(DeactivableMixin, base_object.re_sequence_ordered(), ModelSQL, 
                 return 'value_share'
         return 'error' #if no settlement unit linked, return error to avoid the cost object can be selected in cost group selection state
 
-    @fields.depends('cost_group')
+    @fields.depends('billing_unit')
     def on_change_with_property(self, name=None):
-        return self.cost_group.property if self.cost_group else None
+        return self.billing_unit.property if self.billing_unit else None
     
-    @fields.depends('cost_group')
+    @fields.depends('billing_unit')
     def on_change_with_company(self, name=None):
-        return self.cost_group.property.company if self.cost_group else None
+        return self.billing_unit.property.company if self.billing_unit else None
 
-    @fields.depends('cost_group', 'reg_ex_object', 'allocation_rule')
+    @fields.depends('billing_unit', 'reg_ex_object', 'allocation_rule')
     def on_change_with_objects(self, name=None):
         objects = []
-        if self.cost_group and self.allocation_rule != 'no_allocation':
+        if self.billing_unit and self.allocation_rule != 'no_allocation':
             objects = Pool().get('real_estate.base_object').search([
-                ('company', '=', self.cost_group.company),
-                ('property', '=', self.cost_group.property),
+                ('company', '=', self.billing_unit.company),
+                ('property', '=', self.billing_unit.property),
                 ('type', '=', 'object'),
                 ('state', '=', 'approved'), #only search approved objects
             ])
@@ -522,13 +527,13 @@ class CostObject(DeactivableMixin, base_object.re_sequence_ordered(), ModelSQL, 
                 objects = [item for item in objects if pattern.search(item.name)]
         return objects
     
-    @fields.depends('cost_group', 'reg_ex_meter', 'allocation_rule', 'objects', 'meter_unit')
+    @fields.depends('billing_unit', 'reg_ex_meter', 'allocation_rule', 'objects', 'meter_unit')
     def on_change_with_meters(self, name=None):
         meters = []
-        if self.cost_group and self.objects and self.allocation_rule == 'allocation_by_consumption':
+        if self.billing_unit and self.objects and self.allocation_rule == 'allocation_by_consumption':
             meters = Pool().get('real_estate.base_object').search([
-                ('company', '=', self.cost_group.company),
-                ('property', '=', self.cost_group.property),
+                ('company', '=', self.billing_unit.company),
+                ('property', '=', self.billing_unit.property),
                 ('parent', 'in', [obj.id for obj in self.objects]), #only search meters which are linked to the objects
                 ('type', '=', 'equipment'),
                 ('e_type', '=', 'meters'), #only search meters which have measurement type
@@ -540,10 +545,10 @@ class CostObject(DeactivableMixin, base_object.re_sequence_ordered(), ModelSQL, 
                 meters = [item for item in meters if pattern.search(item.name)]
         return meters
 
-    @fields.depends('cost_group', 'm_type', 'allocation_rule', 'objects')
+    @fields.depends('billing_unit', 'm_type', 'allocation_rule', 'objects')
     def on_change_with_measurements(self, name=None):
         measurements = []
-        if self.cost_group and self.objects and self.allocation_rule == 'allocation_by_measurement':
+        if self.billing_unit and self.objects and self.allocation_rule == 'allocation_by_measurement':
             measurements = Pool().get('real_estate.measurement').search([
                 ('base_object', 'in', [obj.id for obj in self.objects]), #only search measurements which are linked to the objects
                 ('m_type', '=', self.m_type), #only search measurements which have the same measurement type
@@ -569,13 +574,13 @@ class CostObject(DeactivableMixin, base_object.re_sequence_ordered(), ModelSQL, 
     def on_change_with_sequence(self, name=None):
         return self.type.sequence if ( self.type and not self.sequence ) else self.sequence
 
-    @fields.depends('cost_group')
+    @fields.depends('billing_unit')
     def on_change_with_start_date(self, name=None):
-        return self.cost_group.start_date if self.cost_group else None
+        return self.billing_unit.start_date if self.billing_unit else None
     
-    @fields.depends('cost_group')
+    @fields.depends('billing_unit')
     def on_change_with_end_date(self, name=None):
-        return self.cost_group.end_date if self.cost_group else None
+        return self.billing_unit.end_date if self.billing_unit else None
 
     @fields.depends('type', 'sequence')
     def on_change_with_name(self, name=None):
@@ -590,8 +595,8 @@ class CostObject(DeactivableMixin, base_object.re_sequence_ordered(), ModelSQL, 
             raise ValidationError(gettext("Only cost object with state 'Approved' can be selected."))
 
         #all settlement units linked to this cost object delete
-        for settlement_unit in self.settlement_units:
-            settlement_unit.delete()
+        for cost_share in self.cost_shares:
+            cost_share.delete()
 
         object_count = 0
         #all object linked to this cost object must be in state 'approved'
@@ -601,7 +606,7 @@ class CostObject(DeactivableMixin, base_object.re_sequence_ordered(), ModelSQL, 
                 object.start_date <= self.end_date and ( object.end_date == None or object.end_date >= self.start_date):
                 object_cont += 1
 
-                if self.cost_group.calculation_method == 'WEG_billing' :
+                if self.billing_unit.calculation_method == 'WEG_billing' :
                     #only the last one contract 
                     contract_items = Pool().get('real_estate.contract.item').search([
                         ('object', '=', object), #only search contract which have contract item linked to the object
@@ -622,24 +627,24 @@ class CostObject(DeactivableMixin, base_object.re_sequence_ordered(), ModelSQL, 
                         order=[('valid_from', 'ASC')]) #order by start date to make sure the sequence of settlement unit is correct
 
                 for contract_item in contract_items:
-                    settlement_unit = Pool().get('real_estate.settlement_unit')()
-                    settlement_unit.cost_object = self.id
-                    settlement_unit.contract = contract_item.contract.id
-                    settlement_unit.base_object = contract_item.object.id
-                    settlement_unit.start_date = max(contract_item.start_date, self.start_date) if contract_item.start_date else self.start_date
-                    settlement_unit.end_date = min(contract_item.end_date, self.end_date) if contract_item.end_date else self.end_date
-                    settlement_unit.state = 'selection'
-                    if self.cost_group.calculation_method == 'WEG_billing':
-                        settlement_unit.start_date = self.cost_group.start_date
-                        settlement_unit.end_date = self.cost_group.end_date
-                    settlement_unit.save()
+                    cost_share = Pool().get('real_estate.cost_share')()
+                    cost_share.settlement_unit = self.id
+                    cost_share.contract = contract_item.contract.id
+                    cost_share.base_object = contract_item.object.id
+                    cost_share.start_date = max(contract_item.start_date, self.start_date) if contract_item.start_date else self.start_date
+                    cost_share.end_date = min(contract_item.end_date, self.end_date) if contract_item.end_date else self.end_date
+                    cost_share.state = 'selection'
+                    if self.billing_unit.calculation_method == 'WEG_billing':
+                        cost_share.start_date = self.billing_unit.start_date
+                        cost_share.end_date = self.billing_unit.end_date
+                    cost_share.save()
                 if not contract_items:
-                    self.cost_group.add_log('selection_error', f'Cost object {self.id} can not be selected because no contract item found for object {object.id} in the date range.')
+                    self.billing_unit.add_log('selection_error', f'Cost object {self.id} can not be selected because no contract item found for object {object.id} in the date range.')
             
         if object_count == 0:           
-            self.cost_group.add_log('selection', f'Cost object {self.id} is selected with {object_count} objects and {len(self.settlement_units)} settlement units.')  
+            self.billing_unit.add_log('selection', f'Cost object {self.id} is selected with {object_count} objects and {len(self.cost_shares)} settlement units.')  
 
-        if len(self.settlement_units) > 0:
+        if len(self.cost_shares) > 0:
             self.state = 'selection'
         else:
             self.state = 'error'    
@@ -676,10 +681,10 @@ class CostObject(DeactivableMixin, base_object.re_sequence_ordered(), ModelSQL, 
         ]      
 
 #**********************************************************************
-class SettlementUnit(DeactivableMixin, ModelSQL, ModelView):
-    __name__ = 'real_estate.settlement_unit'
+class CostShare(DeactivableMixin, ModelSQL, ModelView):
+    __name__ = 'real_estate.cost_share'
 
-    cost_object = fields.Many2One('real_estate.cost_object', 'Cost Object', required=True, ondelete='CASCADE',)
+    settlement_unit = fields.Many2One('real_estate.settlement_unit', 'Cost Object', required=True, ondelete='CASCADE',)
 
     state = fields.Selection([
             ('selection', 'Selection'),
@@ -736,6 +741,6 @@ class SettlementUnit(DeactivableMixin, ModelSQL, ModelView):
     def default_state(cls):
         return 'selection'
     
-    @fields.depends('cost_object')
+    @fields.depends('settlement_unit')
     def on_change_with_currency(self, name=None):
-        return self.cost_object.currency if self.cost_object else None
+        return self.settlement_unit.currency if self.settlement_unit else None

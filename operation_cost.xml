@@ -2,38 +2,38 @@
 
     <data>
 
-    <!-- Cost Group -->
-        <record model="ir.ui.view" id="base_object_view_list_cost_group">
-            <field name="model">real_estate.cost_group</field>
+    <!-- Billing Unit -->
+        <record model="ir.ui.view" id="base_object_view_list_billing_unit">
+            <field name="model">real_estate.billing_unit</field>
             <field name="type">tree</field>
-            <field name="name">base_object_list_cost_group</field>
+            <field name="name">base_object_list_billing_unit</field>
         </record>
-        <record model="ir.ui.view" id="cost_group_list">
-            <field name="model">real_estate.cost_group</field>
+        <record model="ir.ui.view" id="billing_unit_list">
+            <field name="model">real_estate.billing_unit</field>
             <field name="type">tree</field>
             <field name="priority" eval="20"/>
-            <field name="name">cost_group_list</field>
-        </record>        
-        <record model="ir.ui.view" id="cost_group_form">
-            <field name="model">real_estate.cost_group</field>
+            <field name="name">billing_unit_list</field>
+        </record>
+        <record model="ir.ui.view" id="billing_unit_form">
+            <field name="model">real_estate.billing_unit</field>
             <field name="type">form</field>
-            <field name="name">cost_group_form</field>
+            <field name="name">billing_unit_form</field>
         </record>
 
-        <record model="ir.action.act_window" id="act_cost_group_tree">
+        <record model="ir.action.act_window" id="act_billing_unit_tree">
             <field name="name">Cost Groups</field>
-            <field name="res_model">real_estate.cost_group</field>
+            <field name="res_model">real_estate.billing_unit</field>
         </record>
 
-        <record model="ir.action.act_window.view" id="act_cost_group_tree_view1">
+        <record model="ir.action.act_window.view" id="act_billing_unit_tree_view1">
             <field name="sequence" eval="10"/>
-            <field name="view" ref="cost_group_list"/>
-            <field name="act_window" ref="act_cost_group_tree"/>
+            <field name="view" ref="billing_unit_list"/>
+            <field name="act_window" ref="act_billing_unit_tree"/>
         </record>
-        <record model="ir.action.act_window.view" id="act_cost_group_tree_view2">
+        <record model="ir.action.act_window.view" id="act_billing_unit_tree_view2">
             <field name="sequence" eval="20"/>
-            <field name="view" ref="cost_group_form"/>
-            <field name="act_window" ref="act_cost_group_tree"/>
+            <field name="view" ref="billing_unit_form"/>
+            <field name="act_window" ref="act_billing_unit_tree"/>
         </record>
 
 
@@ -46,29 +46,29 @@
         <menuitem
             parent="menu_real_estate_operation_costs"
             sequence="10"
-            action="act_cost_group_tree"
-            id="menu_cost_group"/>
+            action="act_billing_unit_tree"
+            id="menu_billing_unit"/>
 
     <!-- Cost Object -->
         <record model="ir.ui.view" id="base_object_view_list_cost_object">
-            <field name="model">real_estate.cost_object</field>
+            <field name="model">real_estate.settlement_unit</field>
             <field name="type">tree</field>
-            <field name="name">cost_group_list_cost_object</field>
+            <field name="name">billing_unit_list_settlement_unit</field>
         </record>
         <record model="ir.ui.view" id="cost_object_list">
-            <field name="model">real_estate.cost_object</field>
+            <field name="model">real_estate.settlement_unit</field>
             <field name="type">tree</field>
             <field name="name">cost_object_list</field>
         </record>        
         <record model="ir.ui.view" id="cost_object_form">
-            <field name="model">real_estate.cost_object</field>
+            <field name="model">real_estate.settlement_unit</field>
             <field name="type">form</field>
             <field name="name">cost_object_form</field>
         </record>
 
         <record model="ir.action.act_window" id="act_cost_object_tree">
             <field name="name">Cost Objects</field>
-            <field name="res_model">real_estate.cost_object</field>
+            <field name="res_model">real_estate.settlement_unit</field>
         </record>
 
         <record model="ir.action.act_window.view" id="act_cost_object_tree_view1">
@@ -88,106 +88,106 @@
             id="menu_cost_object"/>
 
     <!-- Cost Object Type -->
-        <record model="ir.ui.view" id="cost_object_type_list">
-            <field name="model">real_estate.cost_object.type</field>
+        <record model="ir.ui.view" id="cost_type_list">
+            <field name="model">real_estate.cost_type</field>
             <field name="type">tree</field>
-            <field name="name">cost_object_type_list</field>
+            <field name="name">cost_type_list</field>
         </record>
-        <record model="ir.ui.view" id="cost_object_type_form">
-            <field name="model">real_estate.cost_object.type</field>
+        <record model="ir.ui.view" id="cost_type_form">
+            <field name="model">real_estate.cost_type</field>
             <field name="type">form</field>
-            <field name="name">cost_object_type_form</field>
+            <field name="name">cost_type_form</field>
         </record>
 
-        <record model="ir.action.act_window" id="act_cost_object_type">
+        <record model="ir.action.act_window" id="act_cost_type">
             <field name="name">Cost Object Types</field>
-            <field name="res_model">real_estate.cost_object.type</field>
+            <field name="res_model">real_estate.cost_type</field>
         </record>
-        <record model="ir.action.act_window.view" id="act_cost_object_type_view1">
+        <record model="ir.action.act_window.view" id="act_cost_type_view1">
             <field name="sequence" eval="10"/>
-            <field name="view" ref="cost_object_type_list"/>
-            <field name="act_window" ref="act_cost_object_type"/>
+            <field name="view" ref="cost_type_list"/>
+            <field name="act_window" ref="act_cost_type"/>
         </record>
-        <record model="ir.action.act_window.view" id="act_cost_object_type_view2">
+        <record model="ir.action.act_window.view" id="act_cost_type_view2">
             <field name="sequence" eval="20"/>
-            <field name="view" ref="cost_object_type_form"/>
-            <field name="act_window" ref="act_cost_object_type"/>
+            <field name="view" ref="cost_type_form"/>
+            <field name="act_window" ref="act_cost_type"/>
         </record>
         
         <menuitem
             parent="menu_real_estate_configuration"
             sequence="30"
-            action="act_cost_object_type"
-            id="menu_cost_object_type"/>
+            action="act_cost_type"
+            id="menu_cost_type"/>
 
     </data>
 
     <data noupdate="1">
-        <record model='real_estate.cost_object.type' id="cost_object_type_Grundsteuer">
+        <record model='real_estate.cost_type' id="cost_type_Grundsteuer">
             <field name='name'>Grundsteuer</field>
             <field name='sequence'>100</field>
         </record>
-        <record model='real_estate.cost_object.type' id="cost_object_type_Wasserversorgung">
+        <record model='real_estate.cost_type' id="cost_type_Wasserversorgung">
             <field name='name'>Wasserversorgung, Abwasser</field>
             <field name='sequence'>200</field>
         </record>
-        <record model='real_estate.cost_object.type' id="cost_object_type_Heizung">
+        <record model='real_estate.cost_type' id="cost_type_Heizung">
             <field name='name'>Heizung (Brennstoff)</field>
             <field name='sequence'>300</field>
         </record>
-        <record model='real_estate.cost_object.type' id="cost_object_type_Heizung_Wartung">
+        <record model='real_estate.cost_type' id="cost_type_Heizung_Wartung">
             <field name='name'>Heizung (Wartung)</field>
             <field name='sequence'>310</field>
         </record>
-        <record model='real_estate.cost_object.type' id="cost_object_type_warmwasser">
+        <record model='real_estate.cost_type' id="cost_type_warmwasser">
             <field name='name'>Warmwasser</field>
             <field name='sequence'>320</field>
         </record>
-        <record model='real_estate.cost_object.type' id="cost_object_type_Aufzug">
+        <record model='real_estate.cost_type' id="cost_type_Aufzug">
             <field name='name'>Aufzug</field>
             <field name='sequence'>400</field>
         </record>
-         <record model='real_estate.cost_object.type' id="cost_object_type_Sraßenreinigung">
+         <record model='real_estate.cost_type' id="cost_type_Sraßenreinigung">
             <field name='name'>Straßenreinigung</field>
             <field name='sequence'>500</field>
         </record>
-         <record model='real_estate.cost_object.type' id="cost_object_type_Muellabfuhr">
+         <record model='real_estate.cost_type' id="cost_type_Muellabfuhr">
             <field name='name'>Müllabfuhr</field>
             <field name='sequence'>510</field>
         </record>
-         <record model='real_estate.cost_object.type' id="cost_object_type_Gartenpflege">
+         <record model='real_estate.cost_type' id="cost_type_Gartenpflege">
             <field name='name'>Gartenpflege</field>
             <field name='sequence'>600</field>
         </record>
-         <record model='real_estate.cost_object.type' id="cost_object_type_Hausreinigung">
+         <record model='real_estate.cost_type' id="cost_type_Hausreinigung">
             <field name='name'>Hausreinigung</field>
             <field name='sequence'>610</field>
         </record>
-         <record model='real_estate.cost_object.type' id="cost_object_type_Hausmeister">
+         <record model='real_estate.cost_type' id="cost_type_Hausmeister">
             <field name='name'>Hausmeister</field>
             <field name='sequence'>620</field>
         </record>
-        <record model='real_estate.cost_object.type' id="cost_object_type_Hausstrom">
+        <record model='real_estate.cost_type' id="cost_type_Hausstrom">
             <field name='name'>Hausstrom</field>
             <field name='sequence'>700</field>
         </record>
-         <record model='real_estate.cost_object.type' id="cost_object_type_Gebäudeversicherung">
+         <record model='real_estate.cost_type' id="cost_type_Gebäudeversicherung">
             <field name='name'>Gebäudeversicherung</field>
             <field name='sequence'>800</field>
         </record>
-        <record model='real_estate.cost_object.type' id="cost_object_type_Schornsteinfeger">
+        <record model='real_estate.cost_type' id="cost_type_Schornsteinfeger">
             <field name='name'>Schornsteinfeger</field>
             <field name='sequence'>900</field>
         </record>
-        <record model='real_estate.cost_object.type' id="cost_object_type_Sonstiges">
+        <record model='real_estate.cost_type' id="cost_type_Sonstiges">
             <field name='name'>Sonstiges</field>
             <field name='sequence'>999</field>
         </record>
-        <record model='real_estate.cost_object.type' id="cost_object_type_Verwaltungskosten">
+        <record model='real_estate.cost_type' id="cost_type_Verwaltungskosten">
             <field name='name'>Verwaltungskosten</field>
             <field name='sequence'>10</field>
         </record>
-         <record model='real_estate.cost_object.type' id="cost_object_type_Instandhaltungsruecklage">
+         <record model='real_estate.cost_type' id="cost_type_Instandhaltungsruecklage">
             <field name='name'>Instandhaltungsrücklage</field>
             <field name='sequence'>12</field>
         </record>        

@@ -195,7 +195,7 @@ class BaseObject(Workflow, DeactivableMixin, re_sequence_ordered(), tree(separat
             'invisible': Eval('type') != 'property',
             }
     
-    cost_groups = fields.One2Many('real_estate.cost_group', 'property', 'Cost Group',
+    billing_units = fields.One2Many('real_estate.billing_unit', 'property', 'Billing Units',
         states=_states_only_propperty)
 
     ## special data building
@@ -300,7 +300,7 @@ class BaseObject(Workflow, DeactivableMixin, re_sequence_ordered(), tree(separat
             ('/form/notebook/page[@id="page_object"]', 'states', cls._states_only_object),
             ('/form/notebook/page[@id="page_equipment"]', 'states', cls._states_only_equipment),
             ('/form/notebook/page[@id="page_meter"]', 'states', cls._states_only_equipment_meter),
-            ('/form/notebook/page[@id="page_cost_group"]', 'states', cls._states_only_propperty),
+            ('/form/notebook/page[@id="page_billing_unit"]', 'states', cls._states_only_propperty),
             ]
 
 

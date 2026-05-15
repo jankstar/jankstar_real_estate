@@ -1,12 +1,12 @@
 <?xml version="1.0"?>
 <form col="6" >
-    <group colspan="4" id="cost_object_active">
+    <group colspan="4" id="settlement_unit_active">
         <label name="active"/><field name="active" xexpand="0" width="15"/>
         <label name="id"/><field name="id" readonly="1" xexpand="0" width="15"/>
         <label name="sequence"/><field name="sequence"/>
         <label name="name"/><field name="name"/>
     </group>
-    <group colspan="2" id="cost_object_state">
+    <group colspan="2" id="settlement_unit_state">
         <label name="state"/><field name="state"/>
         <newline/>
         <label name="sub_state"/><field name="sub_state"/>
@@ -15,7 +15,7 @@
     <newline/>
     <label name="company"/><field name="company"/>
     <label name="property"/><field name="property"/>
-    <label name="cost_group"/><field name="cost_group"/>
+    <label name="billing_unit"/><field name="billing_unit"/>
     <newline/>
     <label name="start_date" /><field name="start_date"/>
     <label name="end_date" /><field name="end_date"/>
@@ -33,17 +33,17 @@
     <newline/>   
     <separator name="comment" colspan="4"/><field name="comment" colspan="4"/>
     <newline/>
-    <group colspan="8"  id="cost_object_base_objects">
+    <group colspan="8"  id="settlement_unit_base_objects">
         <field name="objects"/>
     </group>
-     <group colspan="8"  id="cost_object_base_meters">
+     <group colspan="8"  id="settlement_unit_base_meters">
         <field name="meters"/>
     </group>
-    <group colspan="8"  id="cost_object_base_measurements">
+    <group colspan="8"  id="settlement_unit_base_measurements">
         <field name="measurements"/>
     </group>
-        <group colspan="8"  id="cost_object_base_settlement_units">
-        <field name="settlement_units"/>
+        <group colspan="8"  id="settlement_unit_base_cost_shares">
+        <field name="cost_shares"/>
     </group>
 
 </form>

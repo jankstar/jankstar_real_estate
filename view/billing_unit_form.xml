@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <form col="6" >
-    <group col="-1" id="cost_group_active" colspan="6">
+    <group col="-1" id="billing_unit_active" colspan="6">
         <label name="start_date" /><field name="start_date" xexpand="0"/>
         <label name="active"/><field name="active" xexpand="0" width="15"/>
         <label name="id"/><field name="id" readonly="1" xexpand="0" width="15"/>
@@ -9,19 +9,19 @@
     </group>
     <newline/>
     <notebook colspan="8">
-        <page string="Cost Objects" id="page_cost_objects" col="-1">
-            <field name="cost_objects"
+        <page string="Settlement Units" id="page_settlement_units" col="-1">
+            <field name="settlement_units"
                 view_ids="real_estate.base_object_view_list_cost_object"/>
         </page>
         <page string="Detail" id="page_detail" col="6">
-            <group col="6" colspan="4" id="cost_group_detail_general">
+            <group col="6" colspan="4" id="billing_unit_detail_general">
                 <label name="company"/><field name="company"/>
                 <label name="property"/><field name="property"/>
                 <newline/>
                 <label name="end_date" /><field name="end_date"/>
                 <label name="calculation_method"/><field name="calculation_method"/>
             </group>
-            <group col="6" colspan="4" id="cost_group_term_types">
+            <group col="6" colspan="4" id="billing_unit_term_types">
                 <label name="term_types_of_use"/><field name="term_types_of_use"/>
             </group>
       

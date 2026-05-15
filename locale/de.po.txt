@@ -150,7 +150,7 @@ msgctxt "field:real_estate.base_object,compute_property:"
 msgid "Property"
 msgstr "Wirtschaftseinheit"
 
-msgctxt "field:real_estate.base_object,cost_groups:"
+msgctxt "field:real_estate.base_object,billing_units:"
 msgid "Cost Group"
 msgstr "Kostengruppe"
 
@@ -982,127 +982,127 @@ msgctxt "field:real_estate.contract.type.tax,tax:"
 msgid "Tax"
 msgstr "Steuer"
 
-msgctxt "field:real_estate.cost_group,base_object:"
+msgctxt "field:real_estate.billing_unit,base_object:"
 msgid "Base Object"
 msgstr "Immobilienobjekt"
 
-msgctxt "field:real_estate.cost_group,company:"
+msgctxt "field:real_estate.billing_unit,company:"
 msgid "Company"
 msgstr "Gesellschaft"
 
-msgctxt "field:real_estate.cost_group,cost_objects:"
+msgctxt "field:real_estate.billing_unit,settlement_units:"
 msgid "Cost Objects"
 msgstr "Kostensammler"
 
-msgctxt "field:real_estate.cost_group,currency:"
+msgctxt "field:real_estate.billing_unit,currency:"
 msgid "Currency"
 msgstr "Währung"
 
-msgctxt "field:real_estate.cost_group,description:"
+msgctxt "field:real_estate.billing_unit,description:"
 msgid "Description"
 msgstr "Beschreibung"
 
-msgctxt "field:real_estate.cost_group,end_date:"
+msgctxt "field:real_estate.billing_unit,end_date:"
 msgid "End Date"
 msgstr "Endedatum"
 
-msgctxt "field:real_estate.cost_group,planned_costs:"
+msgctxt "field:real_estate.billing_unit,planned_costs:"
 msgid "Planned Costs"
 msgstr "Plankosten"
 
-msgctxt "field:real_estate.cost_group,property:"
+msgctxt "field:real_estate.billing_unit,property:"
 msgid "Property"
 msgstr "Wirtschaftseinheit"
 
-msgctxt "field:real_estate.cost_group,start_date:"
+msgctxt "field:real_estate.billing_unit,start_date:"
 msgid "Start Date"
 msgstr "Startdatum"
 
-msgctxt "field:real_estate.cost_group,state:"
+msgctxt "field:real_estate.billing_unit,state:"
 msgid "State"
 msgstr "Status"
 
-msgctxt "field:real_estate.cost_group,term_types_of_use:"
+msgctxt "field:real_estate.billing_unit,term_types_of_use:"
 msgid "Term Types"
 msgstr "Konditionstyp"
 
-msgctxt "field:real_estate.cost_object,allocation_rule:"
+msgctxt "field:real_estate.settlement_unit,allocation_rule:"
 msgid "Allocation Rule"
 msgstr "Umlageregel"
 
-msgctxt "field:real_estate.cost_object,comment:"
+msgctxt "field:real_estate.settlement_unit,comment:"
 msgid "Comment"
 msgstr "Bemerkung"
 
-msgctxt "field:real_estate.cost_object,company:"
+msgctxt "field:real_estate.settlement_unit,company:"
 msgid "Company"
 msgstr "Gesellschaft"
 
-msgctxt "field:real_estate.cost_object,cost_group:"
+msgctxt "field:real_estate.settlement_unit,billing_unit:"
 msgid "Cost Group"
 msgstr "Kostengruppe"
 
-msgctxt "field:real_estate.cost_object,currency:"
+msgctxt "field:real_estate.settlement_unit,currency:"
 msgid "Currency"
 msgstr "Währung"
 
-msgctxt "field:real_estate.cost_object,end_date:"
+msgctxt "field:real_estate.settlement_unit,end_date:"
 msgid "End Date"
 msgstr "Endedatum"
 
-msgctxt "field:real_estate.cost_object,m_type:"
+msgctxt "field:real_estate.settlement_unit,m_type:"
 msgid "Measurement Type"
 msgstr "Bemessungstyp"
 
-msgctxt "field:real_estate.cost_object,meter_unit:"
+msgctxt "field:real_estate.settlement_unit,meter_unit:"
 msgid "Unit"
 msgstr "Einheit"
 
-msgctxt "field:real_estate.cost_object,objects:"
+msgctxt "field:real_estate.settlement_unit,objects:"
 msgid "Objects"
 msgstr "Objekte"
 
-msgctxt "field:real_estate.cost_object,planned_costs:"
+msgctxt "field:real_estate.settlement_unit,planned_costs:"
 msgid "Planned Costs"
 msgstr "Plankosten"
 
-msgctxt "field:real_estate.cost_object,property:"
+msgctxt "field:real_estate.settlement_unit,property:"
 msgid "Property"
 msgstr "Wirtschaftseinheit"
 
-msgctxt "field:real_estate.cost_object,reg_ex_meter:"
+msgctxt "field:real_estate.settlement_unit,reg_ex_meter:"
 msgid "Reg. Ex. Meter"
 msgstr "Reg-Ex Zähler"
 
-msgctxt "field:real_estate.cost_object,reg_ex_object:"
+msgctxt "field:real_estate.settlement_unit,reg_ex_object:"
 msgid "Reg. Ex. Object"
 msgstr "Reg-Ex Objekt"
 
-msgctxt "field:real_estate.cost_object,settlement_units:"
+msgctxt "field:real_estate.settlement_unit,cost_shares:"
 msgid "Settlement Units"
 msgstr "Abrechnungseinheiten"
 
-msgctxt "field:real_estate.cost_object,start_date:"
+msgctxt "field:real_estate.settlement_unit,start_date:"
 msgid "Start Date"
 msgstr "Startdatum"
 
-msgctxt "field:real_estate.cost_object,state:"
+msgctxt "field:real_estate.settlement_unit,state:"
 msgid "State"
 msgstr "Status"
 
-msgctxt "field:real_estate.cost_object,type:"
+msgctxt "field:real_estate.settlement_unit,type:"
 msgid "Cost Type"
 msgstr "Kostenart"
 
-msgctxt "field:real_estate.cost_object,vacancy:"
+msgctxt "field:real_estate.settlement_unit,vacancy:"
 msgid "Allocation During Vacancy"
 msgstr "Umlage bei Leerstand"
 
-msgctxt "field:real_estate.cost_object.type,comment:"
+msgctxt "field:real_estate.cost_type,comment:"
 msgid "Comment"
 msgstr "Bemerkung"
 
-msgctxt "field:real_estate.cost_object.type,no_print:"
+msgctxt "field:real_estate.cost_type,no_print:"
 msgid "No Print"
 msgstr "kein Ausdruck"
 
@@ -1210,15 +1210,15 @@ msgctxt "field:real_estate.object_party.role,types:"
 msgid "Types"
 msgstr "Typen"
 
-msgctxt "field:real_estate.settlement_unit,error_message:"
+msgctxt "field:real_estate.cost_share,error_message:"
 msgid "Error Message"
 msgstr "Fehlermeldung"
 
-msgctxt "field:real_estate.settlement_unit,planned_costs:"
+msgctxt "field:real_estate.cost_share,planned_costs:"
 msgid "Planned Costs"
 msgstr "Plankosten"
 
-msgctxt "field:real_estate.settlement_unit,state:"
+msgctxt "field:real_estate.cost_share,state:"
 msgid "Settlement Unit"
 msgstr "Abrechnungseinheit"
 
@@ -1345,11 +1345,11 @@ msgctxt "help:real_estate.contract.type,unoccupied:"
 msgid "Is the property unoccupied?"
 msgstr "Ist die Immobilie nicht belegt?"
 
-msgctxt "help:real_estate.cost_group,term_types_of_use:"
+msgctxt "help:real_estate.billing_unit,term_types_of_use:"
 msgid "The term type which can use this cost group."
 msgstr "Konditionsart, die mit dieser Kostengruppe genutzt wird."
 
-msgctxt "help:real_estate.cost_object,reg_ex_meter:"
+msgctxt "help:real_estate.settlement_unit,reg_ex_meter:"
 msgid ""
 "Regular expression to find the meter. For Example '\\s+Electricity\\s*' to "
 "find the meter with name contains '556 Electricity Meter'."
@@ -1358,7 +1358,7 @@ msgstr ""
 "Zähler zu ermitteln, die 'Strom' in der Bezeichnung haben,  z.B. '556 "
 "Stromzähler'."
 
-msgctxt "help:real_estate.cost_object,reg_ex_object:"
+msgctxt "help:real_estate.settlement_unit,reg_ex_object:"
 msgid ""
 "Regular expression to find the object. For Example '\\s+Appartement\\s*' to "
 "find the object with name contains '100/100 Appartement #45'."
@@ -1450,11 +1450,11 @@ msgctxt "model:ir.action,name:act_measurement_tree"
 msgid "Measurement"
 msgstr "Bemessungen"
 
-msgctxt "model:ir.ui.menu,name:menu_cost_object_type"
+msgctxt "model:ir.ui.menu,name:menu_cost_type"
 msgid "Cost Object Types"
 msgstr "Typ Kostensammler"
 
-msgctxt "model:ir.action,name:act_cost_object_type"
+msgctxt "model:ir.action,name:act_cost_type"
 msgid "Cost Object Types"
 msgstr "Typ Kostensammler"
 
@@ -1831,59 +1831,59 @@ msgctxt "model:real_estate.contract.type.tax,string:"
 msgid "Real Estate Contract Type Tax"
 msgstr "Steuer Vertragstyp"
 
-msgctxt "model:real_estate.cost_group,string:"
+msgctxt "model:real_estate.billing_unit,string:"
 msgid "Real Estate Cost Group"
 msgstr "Kostengruppe"
 
-msgctxt "model:real_estate.cost_group.log,string:"
+msgctxt "model:real_estate.billing_unit.log,string:"
 msgid "Real Estate Cost Group Log"
 msgstr "Protokoll Kostengruppe"
 
-msgctxt "model:real_estate.cost_object,string:"
+msgctxt "model:real_estate.settlement_unit,string:"
 msgid "Real Estate Cost Object"
 msgstr "Kostensammler"
 
-msgctxt "model:real_estate.cost_object.type,name:cost_object_type_Hausmeister"
+msgctxt "model:real_estate.cost_type,name:cost_type_Hausmeister"
 msgid "Hausmeister"
 msgstr "Hausmeister"
 
 msgctxt ""
-"model:real_estate.cost_object.type,name:cost_object_type_Hausreinigung"
+"model:real_estate.cost_type,name:cost_type_Hausreinigung"
 msgid "Hausreinigung"
 msgstr "Hausreinigung"
 
-msgctxt "model:real_estate.cost_object.type,name:cost_object_type_Hausstrom"
+msgctxt "model:real_estate.cost_type,name:cost_type_Hausstrom"
 msgid "Hausstrom"
 msgstr "Hausstrom"
 
-msgctxt "model:real_estate.cost_object.type,name:cost_object_type_Heizung"
+msgctxt "model:real_estate.cost_type,name:cost_type_Heizung"
 msgid "Heizung (Brennstoff)"
 msgstr "Heizung (Brennstoff)"
 
 msgctxt ""
-"model:real_estate.cost_object.type,name:cost_object_type_Heizung_Wartung"
+"model:real_estate.cost_type,name:cost_type_Heizung_Wartung"
 msgid "Heizung (Wartung)"
 msgstr "Heizung (Wartung)"
 
-msgctxt "model:real_estate.cost_object.type,name:cost_object_type_Muellabfuhr"
+msgctxt "model:real_estate.cost_type,name:cost_type_Muellabfuhr"
 msgid "Müllabfuhr"
 msgstr "Müllabfuhr"
 
 msgctxt ""
-"model:real_estate.cost_object.type,name:cost_object_type_Verwaltungskosten"
+"model:real_estate.cost_type,name:cost_type_Verwaltungskosten"
 msgid "Verwaltungskosten"
 msgstr "Verwaltungskosten"
 
 msgctxt ""
-"model:real_estate.cost_object.type,name:cost_object_type_Wasserversorgung"
+"model:real_estate.cost_type,name:cost_type_Wasserversorgung"
 msgid "Wasserversorgung, Abwasser"
 msgstr "Wasserversorgung, Abwasser"
 
-msgctxt "model:real_estate.cost_object.type,name:cost_object_type_warmwasser"
+msgctxt "model:real_estate.cost_type,name:cost_type_warmwasser"
 msgid "Warmwasser"
 msgstr "Warmwasser"
 
-msgctxt "model:real_estate.cost_object.type,string:"
+msgctxt "model:real_estate.cost_type,string:"
 msgid "Real Estate Cost Object Type"
 msgstr "Kostensammler Typ"
 
@@ -1950,7 +1950,7 @@ msgctxt "model:real_estate.object_party.role,string:"
 msgid "Real Estate Object Party Role"
 msgstr "Rolle Immobilienpartner"
 
-msgctxt "model:real_estate.settlement_unit,string:"
+msgctxt "model:real_estate.cost_share,string:"
 msgid "Real Estate Settlement Unit"
 msgstr "Abrechnungseinheit"
 
@@ -2318,39 +2318,39 @@ msgctxt "selection:real_estate.contract.term.type,rhythm_type:"
 msgid "Weekly"
 msgstr "wöchendlich"
 
-msgctxt "selection:real_estate.cost_group,state:"
+msgctxt "selection:real_estate.billing_unit,state:"
 msgid "Approved"
 msgstr "freigegeben"
 
-msgctxt "selection:real_estate.cost_group,state:"
+msgctxt "selection:real_estate.billing_unit,state:"
 msgid "Billed"
 msgstr "abgerechnet"
 
-msgctxt "selection:real_estate.cost_group,state:"
+msgctxt "selection:real_estate.billing_unit,state:"
 msgid "Draft"
 msgstr "Entwurf"
 
-msgctxt "selection:real_estate.cost_object,allocation_rule:"
+msgctxt "selection:real_estate.settlement_unit,allocation_rule:"
 msgid "Allocation by consumption"
 msgstr "Umlage nach Verbrauch"
 
-msgctxt "selection:real_estate.cost_object,allocation_rule:"
+msgctxt "selection:real_estate.settlement_unit,allocation_rule:"
 msgid "Allocation by measurement"
 msgstr "Umlage nach Bemessung"
 
-msgctxt "selection:real_estate.cost_object,allocation_rule:"
+msgctxt "selection:real_estate.settlement_unit,allocation_rule:"
 msgid "Allocation per rental unit"
 msgstr "Umlage per Mietobjekt"
 
-msgctxt "selection:real_estate.cost_object,allocation_rule:"
+msgctxt "selection:real_estate.settlement_unit,allocation_rule:"
 msgid "No allocation"
 msgstr "keine Umlage"
 
-msgctxt "selection:real_estate.cost_object,vacancy:"
+msgctxt "selection:real_estate.settlement_unit,vacancy:"
 msgid "Allocation by owner"
 msgstr "Umlage auf Eigentümer"
 
-msgctxt "selection:real_estate.cost_object,vacancy:"
+msgctxt "selection:real_estate.settlement_unit,vacancy:"
 msgid "No allocation (all cost allocated by tenant)"
 msgstr "Keine Umlage (alle Kosten trägt der Mieter)"
 
@@ -2370,15 +2370,15 @@ msgctxt "selection:real_estate.meter_reading,m_type:"
 msgid "reading"
 msgstr "Ablesung"
 
-msgctxt "selection:real_estate.settlement_unit,state:"
+msgctxt "selection:real_estate.cost_share,state:"
 msgid "Error"
 msgstr "Fehler"
 
-msgctxt "selection:real_estate.settlement_unit,state:"
+msgctxt "selection:real_estate.cost_share,state:"
 msgid "Estimated Value Share"
 msgstr "geschätzter Wertanteil"
 
-msgctxt "selection:real_estate.settlement_unit,state:"
+msgctxt "selection:real_estate.cost_share,state:"
 msgid "Selection"
 msgstr "Auswahl"
 
@@ -2458,7 +2458,7 @@ msgctxt "view:real_estate.contract:"
 msgid "Terms"
 msgstr "Konditionen"
 
-msgctxt "view:real_estate.cost_group:"
+msgctxt "view:real_estate.billing_unit:"
 msgid "Cost Objects"
 msgstr "Kostensammler"
 
