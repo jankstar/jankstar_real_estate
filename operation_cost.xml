@@ -120,6 +120,52 @@
             action="act_cost_type"
             id="menu_cost_type"/>
 
+    <!-- Billing Unit Log -->
+        <record model="ir.ui.view" id="billing_unit_log_view_tree">
+            <field name="model">real_estate.billing_unit.log</field>
+            <field name="type">tree</field>
+            <field name="name">billing_unit_log_tree</field>
+        </record>
+
+        <record model="ir.ui.view" id="billing_unit_log_view_form">
+            <field name="model">real_estate.billing_unit.log</field>
+            <field name="type">form</field>
+            <field name="name">billing_unit_log_form</field>
+        </record>
+
+        <record model="ir.ui.view" id="billing_unit_log_context_view_form">
+            <field name="model">real_estate.billing_unit.log.context</field>
+            <field name="type">form</field>
+            <field name="name">billing_unit_log_context_form</field>
+        </record>
+
+        <record model="ir.action.act_window" id="act_billing_unit_log">
+            <field name="name">Billing Unit Log</field>
+            <field name="res_model">real_estate.billing_unit.log</field>
+            <field name="context_model">real_estate.billing_unit.log.context</field>
+            <field name="context_domain"
+                eval="[('company', '=', Eval('company', -1)), If(Eval('property', None), [('property', '=', Eval('property', None))], []), If(Eval('billing_unit', None), [('billing_unit', '=', Eval('billing_unit', None))], []), If(Eval('from_date', None), [('log_date', '>=', Eval('from_date', None))], []), If(Eval('to_date', None), [('log_date', '&lt;=', Eval('to_date', None))], [])]"
+                pyson="1"/>
+        </record>
+
+        <record model="ir.action.act_window.view" id="act_billing_unit_log_view1">
+            <field name="sequence" eval="10"/>
+            <field name="view" ref="billing_unit_log_view_tree"/>
+            <field name="act_window" ref="act_billing_unit_log"/>
+        </record>
+
+        <record model="ir.action.act_window.view" id="act_billing_unit_log_view2">
+            <field name="sequence" eval="20"/>
+            <field name="view" ref="billing_unit_log_view_form"/>
+            <field name="act_window" ref="act_billing_unit_log"/>
+        </record>
+
+        <menuitem
+            parent="menu_real_estate_operation_costs"
+            action="act_billing_unit_log"
+            sequence="30"
+            id="menu_billing_unit_log"/>
+
     </data>
 
     <data noupdate="1">

@@ -21,6 +21,7 @@ from dateutil.relativedelta import relativedelta
 
 from sql import Column
 import re
+import datetime
 from decimal import Decimal
 from . import base_object
 
@@ -133,6 +134,14 @@ class BillingUnit(Workflow,DeactivableMixin, sequence_ordered(), ModelSQL, Model
     #@reset_employee('cancelled_by', 'terminated_by')
     def approved(cls, billing_units):
         for billing_unit in billing_units:
+            #check if there is an settlemant unit and term_types_of_use is not empty
+            if (not billing_unit.settlement_units) or len(billing_unit.settlement_units) == 0:
+                raise ValidationError(gettext("real_estate.msg_settlement_units_error",).format(
+                    billing_unit.name))
+            if (not billing_unit.term_types_of_use) or len(billing_unit.term_types_of_use) == 0:
+                raise ValidationError(gettext("real_estate.msg_term_types_of_use",).format(
+                    billing_unit.name))
+
             billing_unit.add_log('state_change', f'cost group state changed to approved')
             billing_unit.state = 'approved'
             billing_unit.save()
@@ -310,11 +319,98 @@ class BillingUnitLog(ModelSQL, ModelView):
     "Cost Group log obj"
     __name__ = 'real_estate.billing_unit.log'
 
-    billing_unit = fields.Many2One('real_estate.billing_unit', 'Cost Group', required=True, ondelete='CASCADE')
+    billing_unit = fields.Many2One('real_estate.billing_unit', 'Billing Unit', required=True, ondelete='CASCADE')
     event = fields.Char('Event', required=True)
     description = fields.Text('Description')
     create_date = fields.DateTime('Create Date', readonly=True)
     create_uid = fields.Many2One('res.user', 'User', readonly=True)
+
+    log_date = fields.Function(fields.Date('Date'), 'get_log_date',
+        searcher='search_log_date')
+
+    property = fields.Function(
+        fields.Many2One('real_estate.base_object', 'Property'),
+        'on_change_with_property', searcher='search_property')
+
+    company = fields.Function(
+        fields.Many2One('company.company', 'Company'),
+        'on_change_with_company', searcher='search_company')
+
+    def get_log_date(self, name):
+        if self.create_date:
+            return self.create_date.date()
+        return None
+
+    @classmethod
+    def search_log_date(cls, name, clause):
+        _, operator, value = clause
+        if value is None:
+            return [('create_date', operator, None)]
+        if isinstance(value, datetime.date) and not isinstance(value, datetime.datetime):
+            if operator == '>=':
+                value = datetime.datetime.combine(value, datetime.time.min)
+            elif operator == '<=':
+                value = datetime.datetime.combine(value, datetime.time.max)
+            elif operator == '=':
+                return ['AND',
+                    ('create_date', '>=', datetime.datetime.combine(value, datetime.time.min)),
+                    ('create_date', '<=', datetime.datetime.combine(value, datetime.time.max)),
+                ]
+        return [('create_date', operator, value)]
+
+    @fields.depends('billing_unit')
+    def on_change_with_property(self, name=None):
+        if self.billing_unit and self.billing_unit.property:
+            return self.billing_unit.property
+        return None
+
+    @fields.depends('billing_unit')
+    def on_change_with_company(self, name=None):
+        if self.billing_unit and self.billing_unit.property:
+            return self.billing_unit.property.company
+        return None
+
+    @classmethod
+    def search_property(cls, name, clause):
+        return [('billing_unit.property',) + tuple(clause[1:])]
+
+    @classmethod
+    def search_company(cls, name, clause):
+        return [('billing_unit.property.company',) + tuple(clause[1:])]
+
+
+#**********************************************************************
+class BillingUnitLogContext(ModelView):
+    'Billing Unit Log Context'
+    __name__ = 'real_estate.billing_unit.log.context'
+
+    company = fields.Many2One('company.company', 'Company', required=True)
+    property = fields.Many2One('real_estate.base_object', 'Property',
+        domain=[
+            ('type', '=', 'property'),
+            ('company', '=', Eval('company', -1)),
+        ])
+    billing_unit = fields.Many2One('real_estate.billing_unit', 'Billing Unit',
+        domain=[
+            If(Eval('property', None),
+                [('property', '=', Eval('property', None))],
+                []),
+        ])
+    from_date = fields.Date('From Date')
+    to_date = fields.Date('To Date')
+
+    @classmethod
+    def default_company(cls):
+        return Transaction().context.get('company')
+
+    @classmethod
+    def default_from_date(cls):
+        today = Pool().get('ir.date').today()
+        return today.replace(month=1, day=1)
+
+    @classmethod
+    def default_to_date(cls):
+        return Pool().get('ir.date').today()
 
 
 #**********************************************************************
@@ -489,7 +585,7 @@ class SettlementUnit(DeactivableMixin, base_object.re_sequence_ordered(), ModelS
     
     @fields.depends('cost_shares')
     def on_change_with_sub_state(self, name=None):
-        #return the lowest state of all settlement units
+        #return the lowest state of all cost shares
         if self.cost_shares:
             states = set(cost_share.state for cost_share in self.cost_shares)
             if len(states) == 1:
@@ -502,7 +598,7 @@ class SettlementUnit(DeactivableMixin, base_object.re_sequence_ordered(), ModelS
                 return 'estimated_value_share'
             elif 'value_share' in states:
                 return 'value_share'
-        return 'error' #if no settlement unit linked, return error to avoid the cost object can be selected in cost group selection state
+        return 'preparation' #if no cost share linked, return preparation as default sub state
 
     @fields.depends('billing_unit')
     def on_change_with_property(self, name=None):
@@ -687,6 +783,7 @@ class CostShare(DeactivableMixin, ModelSQL, ModelView):
     settlement_unit = fields.Many2One('real_estate.settlement_unit', 'Cost Object', required=True, ondelete='CASCADE',)
 
     state = fields.Selection([
+            ('preparation', 'Preparation'),
             ('selection', 'Selection'),
             ('estimated_value_share', 'Estimated Value Share'),
             ('value_share', 'Value Share'),

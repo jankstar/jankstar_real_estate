@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<form col="6">
+    <label name="company"/><field name="company" colspan="2"/>
+    <newline/>
+    <label name="property"/><field name="property" colspan="2"/>
+    <newline/>
+    <label name="billing_unit"/><field name="billing_unit" colspan="2"/>
+    <newline/>
+    <label name="from_date"/><field name="from_date"/>
+    <label name="to_date"/><field name="to_date"/>
+</form>

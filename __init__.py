@@ -47,6 +47,7 @@ def register():
         operation_cost.CostType,
         operation_cost.SettlementUnit,
         operation_cost.BillingUnitLog,
+        operation_cost.BillingUnitLogContext,
         operation_cost.CostShare,
         module='real_estate', type_='model')
     Pool.register(
