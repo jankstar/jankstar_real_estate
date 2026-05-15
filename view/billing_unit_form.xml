@@ -11,7 +11,7 @@
     <notebook colspan="8">
         <page string="Settlement Units" id="page_settlement_units" col="-1">
             <field name="settlement_units"
-                view_ids="real_estate.base_object_view_list_cost_object"/>
+                view_ids="real_estate.base_object_view_list_settlement_unit"/>
         </page>
         <page string="Detail" id="page_detail" col="6">
             <group col="6" colspan="4" id="billing_unit_detail_general">
