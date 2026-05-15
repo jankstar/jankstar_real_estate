@@ -679,6 +679,52 @@
             sequence="30"
             id="menu_contract_term_cash_flow"/>
 
+        <!-- *** ContractLog standalone menu *** -->
+        <record model="ir.ui.view" id="contract_log_view_tree">
+            <field name="model">real_estate.contract.log</field>
+            <field name="type">tree</field>
+            <field name="name">contract_log_tree</field>
+        </record>
+
+        <record model="ir.ui.view" id="contract_log_view_form">
+            <field name="model">real_estate.contract.log</field>
+            <field name="type">form</field>
+            <field name="name">contract_log_form</field>
+        </record>
+
+        <record model="ir.ui.view" id="contract_log_context_view_form">
+            <field name="model">real_estate.contract.log.context</field>
+            <field name="type">form</field>
+            <field name="name">contract_log_context_form</field>
+        </record>
+
+        <record model="ir.action.act_window" id="act_contract_log">
+            <field name="name">Contract Log</field>
+            <field name="res_model">real_estate.contract.log</field>
+            <field name="context_model">real_estate.contract.log.context</field>
+            <field name="context_domain"
+                eval="[('company', '=', Eval('company', -1)), If(Eval('property', None), [('property', '=', Eval('property', None))], []), If(Eval('contract', None), [('contract', '=', Eval('contract', None))], []), If(Eval('from_date', None), [('log_date', '>=', Eval('from_date', None))], []), If(Eval('to_date', None), [('log_date', '&lt;=', Eval('to_date', None))], [])]"
+                pyson="1"/>
+        </record>
+
+        <record model="ir.action.act_window.view" id="act_contract_log_view1">
+            <field name="sequence" eval="10"/>
+            <field name="view" ref="contract_log_view_tree"/>
+            <field name="act_window" ref="act_contract_log"/>
+        </record>
+
+        <record model="ir.action.act_window.view" id="act_contract_log_view2">
+            <field name="sequence" eval="20"/>
+            <field name="view" ref="contract_log_view_form"/>
+            <field name="act_window" ref="act_contract_log"/>
+        </record>
+
+        <menuitem
+            parent="menu_real_estate_contracts"
+            action="act_contract_log"
+            sequence="40"
+            id="menu_contract_log"/>
+
    </data>
 
 

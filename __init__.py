@@ -30,6 +30,7 @@ def register():
         contract.ContractTermType,
         contract.ContractItem,
         contract.ContractLog,
+        contract.ContractLogContext,
         contract.ContractTermCashFlow,
         contract.ContractTermCashFlowContext,
         contract.Contract,

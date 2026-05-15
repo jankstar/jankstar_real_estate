@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<tree>
+    <field name="log_date" width="110"/>
+    <field name="contract" readonly="1"/>
+    <field name="property" readonly="1" optional="1"/>
+    <field name="event" width="160"/>
+    <field name="description"/>
+    <field name="create_uid" width="120" optional="1"/>
+</tree>

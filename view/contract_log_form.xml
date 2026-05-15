@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<form col="4">
+    <label name="create_date"/><field name="create_date" readonly="1"/>
+    <label name="create_uid"/><field name="create_uid" readonly="1"/>
+    <label name="contract"/><field name="contract" readonly="1" colspan="3"/>
+    <label name="property"/><field name="property" readonly="1" colspan="3"/>
+    <label name="event"/><field name="event" readonly="1" colspan="3"/>
+    <label name="description"/><field name="description" readonly="1" colspan="3"/>
+</form>

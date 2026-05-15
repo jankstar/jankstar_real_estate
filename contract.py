@@ -92,6 +92,95 @@ class ContractLog(ModelSQL, ModelView):
     create_date = fields.DateTime('Create Date', readonly=True)
     create_uid = fields.Many2One('res.user', 'User', readonly=True)
 
+    log_date = fields.Function(fields.Date('Date'), 'get_log_date',
+        searcher='search_log_date')
+
+    property = fields.Function(
+        fields.Many2One('real_estate.base_object', 'Property'),
+        'on_change_with_property', searcher='search_property')
+
+    company = fields.Function(
+        fields.Many2One('company.company', 'Company'),
+        'on_change_with_company', searcher='search_company')
+
+    def get_log_date(self, name):
+        if self.create_date:
+            return self.create_date.date()
+        return None
+
+    @classmethod
+    def search_log_date(cls, name, clause):
+        _, operator, value = clause
+        if value is None:
+            return [('create_date', operator, None)]
+        if isinstance(value, datetime.date) and not isinstance(value, datetime.datetime):
+            if operator == '>=':
+                value = datetime.datetime.combine(value, datetime.time.min)
+            elif operator == '<=':
+                value = datetime.datetime.combine(value, datetime.time.max)
+            elif operator == '=':
+                return ['AND',
+                    ('create_date', '>=', datetime.datetime.combine(value, datetime.time.min)),
+                    ('create_date', '<=', datetime.datetime.combine(value, datetime.time.max)),
+                ]
+        return [('create_date', operator, value)]
+
+    @fields.depends('contract')
+    def on_change_with_property(self, name=None):
+        if self.contract and self.contract.property:
+            return self.contract.property
+        return None
+
+    @fields.depends('contract')
+    def on_change_with_company(self, name=None):
+        if self.contract and self.contract.company:
+            return self.contract.company
+        return None
+
+    @classmethod
+    def search_property(cls, name, clause):
+        return [('contract.property',) + tuple(clause[1:])]
+
+    @classmethod
+    def search_company(cls, name, clause):
+        return [('contract.company',) + tuple(clause[1:])]
+
+
+#**********************************************************************
+class ContractLogContext(ModelView):
+    'Contract Log Context'
+    __name__ = 'real_estate.contract.log.context'
+
+    company = fields.Many2One('company.company', 'Company', required=True)
+    property = fields.Many2One('real_estate.base_object', 'Property',
+        domain=[
+            ('type', '=', 'property'),
+            ('company', '=', Eval('company', -1)),
+        ])
+    contract = fields.Many2One('real_estate.contract', 'Contract',
+        domain=[
+            ('company', '=', Eval('company', -1)),
+            If(Eval('property', None),
+                [('property', '=', Eval('property', None))],
+                []),
+        ])
+    from_date = fields.Date('From Date')
+    to_date = fields.Date('To Date')
+
+    @classmethod
+    def default_company(cls):
+        return Transaction().context.get('company')
+
+    @classmethod
+    def default_from_date(cls):
+        today = Pool().get('ir.date').today()
+        return today.replace(month=1, day=1)
+
+    @classmethod
+    def default_to_date(cls):
+        return Pool().get('ir.date').today()
+
+
 #**********************************************************************
 class AccountContract(ActivePeriodMixin, ModelSQL):
     __name__ = 'real_estate.contract.account_contract'
