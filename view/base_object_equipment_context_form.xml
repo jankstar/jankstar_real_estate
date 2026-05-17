@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<form col="6">
+    <label name="company"/><field name="company" colspan="2"/>
+    <newline/>
+    <label name="property"/><field name="property" colspan="2"/>
+    <newline/>
+    <label name="e_type"/><field name="e_type" colspan="2"/>
+</form>

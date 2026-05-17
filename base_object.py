@@ -701,6 +701,56 @@ class BaseObjectOccupancy(ModelSQL, ModelView):
 
 
 #**************************************************************************
+class BaseObjectEquipmentContext(ModelView):
+    'Base Object Equipment Context'
+    __name__ = 'real_estate.base_object.equipment.context'
+
+    company = fields.Many2One('company.company', 'Company', required=True)
+    property = fields.Many2One('real_estate.base_object', 'Property',
+        domain=[
+            ('type', '=', 'property'),
+            ('company', '=', Eval('company', -1)),
+        ])
+    e_type = fields.Selection([
+            (None, ''),
+            ('technical_building_equipment,', 'Technical Building Equipment'),
+            ('structure', 'Structures'),
+            ('installation', 'Installation'),
+            ('meters', 'Meters'),
+        ], 'Equipment Type', sort=False)
+
+    @classmethod
+    def default_company(cls):
+        return Transaction().context.get('company')
+
+
+class BaseObjectCompanyContext(ModelView):
+    'Base Object Company Context'
+    __name__ = 'real_estate.base_object.company.context'
+
+    company = fields.Many2One('company.company', 'Company', required=True)
+
+    @classmethod
+    def default_company(cls):
+        return Transaction().context.get('company')
+
+
+class BaseObjectContext(ModelView):
+    'Base Object Context'
+    __name__ = 'real_estate.base_object.context'
+
+    company = fields.Many2One('company.company', 'Company', required=True)
+    property = fields.Many2One('real_estate.base_object', 'Property',
+        domain=[
+            ('type', '=', 'property'),
+            ('company', '=', Eval('company', -1)),
+        ])
+
+    @classmethod
+    def default_company(cls):
+        return Transaction().context.get('company')
+
+
 class BaseObjectOccupancyContext(ModelView):
     'Base Object Occupancy Context'
     __name__ = 'real_estate.base_object.occupancy.context'

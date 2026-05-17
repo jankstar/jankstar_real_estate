@@ -380,6 +380,38 @@ class BillingUnitLog(ModelSQL, ModelView):
 
 
 #**********************************************************************
+class SettlementUnitContext(ModelView):
+    'Settlement Unit Context'
+    __name__ = 'real_estate.settlement_unit.context'
+
+    company = fields.Many2One('company.company', 'Company', required=True)
+    property = fields.Many2One('real_estate.base_object', 'Property',
+        domain=[
+            ('type', '=', 'property'),
+            ('company', '=', Eval('company', -1)),
+        ])
+
+    @classmethod
+    def default_company(cls):
+        return Transaction().context.get('company')
+
+
+class BillingUnitContext(ModelView):
+    'Billing Unit Context'
+    __name__ = 'real_estate.billing_unit.context'
+
+    company = fields.Many2One('company.company', 'Company', required=True)
+    property = fields.Many2One('real_estate.base_object', 'Property',
+        domain=[
+            ('type', '=', 'property'),
+            ('company', '=', Eval('company', -1)),
+        ])
+
+    @classmethod
+    def default_company(cls):
+        return Transaction().context.get('company')
+
+
 class BillingUnitLogContext(ModelView):
     'Billing Unit Log Context'
     __name__ = 'real_estate.billing_unit.log.context'
@@ -691,11 +723,11 @@ class SettlementUnit(DeactivableMixin, base_object.re_sequence_ordered(), ModelS
         if self.state != 'approved':
             raise ValidationError(gettext("Only settlement units with state 'Approved' can be selected."))
 
-        for cost_share in self.cost_shares:
-            cost_share.delete()
+        CostShare = Pool().get('real_estate.cost_share')
+        if self.cost_shares:
+            CostShare.delete(list(self.cost_shares))
 
         Occupancy = Pool().get('real_estate.base_object.occupancy')
-        CostShare = Pool().get('real_estate.cost_share')
         is_weg = self.billing_unit.calculation_method == 'WEG_billing'
         object_count = 0
 

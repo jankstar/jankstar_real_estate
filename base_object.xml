@@ -194,11 +194,21 @@
             sequence="10"
             id="menu_real_estate_tree"/>
 
+        <record model="ir.ui.view" id="base_object_company_context_form_view">
+            <field name="model">real_estate.base_object.company.context</field>
+            <field name="type">form</field>
+            <field name="name">base_object_company_context_form</field>
+        </record>
+
         <record model="ir.action.act_window" id="act_property_form">
             <field name="name">Property</field>
             <field name="res_model">real_estate.base_object</field>
             <field name="domain" eval="[('type', '=', 'property')]" pyson="1"/>
             <field name="context"></field>
+            <field name="context_model">real_estate.base_object.company.context</field>
+            <field name="context_domain"
+                eval="[('company', '=', Eval('company', -1))]"
+                pyson="1"/>
         </record>
         <record model="ir.action.act_window.view" id="act_property_form_view1">
             <field name="sequence" eval="10"/>
@@ -255,6 +265,10 @@
             <field name="res_model">real_estate.base_object</field>
             <field name="domain" eval="[('type', '=', 'building')]" pyson="1"/>
             <field name="context"></field>
+            <field name="context_model">real_estate.base_object.company.context</field>
+            <field name="context_domain"
+                eval="[('company', '=', Eval('company', -1))]"
+                pyson="1"/>
         </record>
         <record model="ir.action.act_window.view" id="act_building_form_view1">
             <field name="sequence" eval="10"/>
@@ -311,6 +325,10 @@
             <field name="res_model">real_estate.base_object</field>
             <field name="domain" eval="[('type', '=', 'land')]" pyson="1"/>
             <field name="context"></field>
+            <field name="context_model">real_estate.base_object.company.context</field>
+            <field name="context_domain"
+                eval="[('company', '=', Eval('company', -1))]"
+                pyson="1"/>
         </record>
         <record model="ir.action.act_window.view" id="act_land_form_view1">
             <field name="sequence" eval="10"/>
@@ -362,11 +380,21 @@
         </record>
 
 
+        <record model="ir.ui.view" id="base_object_context_form_view">
+            <field name="model">real_estate.base_object.context</field>
+            <field name="type">form</field>
+            <field name="name">base_object_context_form</field>
+        </record>
+
         <record model="ir.action.act_window" id="act_object_form">
             <field name="name">Rental Object</field>
             <field name="res_model">real_estate.base_object</field>
             <field name="domain" eval="[('type', '=', 'object')]" pyson="1"/>
             <field name="context"></field>
+            <field name="context_model">real_estate.base_object.context</field>
+            <field name="context_domain"
+                eval="[('company', '=', Eval('company', -1)), If(Eval('property', None), [('property', '=', Eval('property', None))], [])]"
+                pyson="1"/>
         </record>
         <record model="ir.action.act_window.view" id="act_object_form_view1">
             <field name="sequence" eval="10"/>
@@ -418,11 +446,21 @@
 
         <!-- Equipment -->
 
+        <record model="ir.ui.view" id="base_object_equipment_context_form_view">
+            <field name="model">real_estate.base_object.equipment.context</field>
+            <field name="type">form</field>
+            <field name="name">base_object_equipment_context_form</field>
+        </record>
+
         <record model="ir.action.act_window" id="act_equipment_form">
             <field name="name">Equipment</field>
             <field name="res_model">real_estate.base_object</field>
             <field name="domain" eval="[('type', '=', 'equipment')]" pyson="1"/>
             <field name="context"></field>
+            <field name="context_model">real_estate.base_object.equipment.context</field>
+            <field name="context_domain"
+                eval="[('company', '=', Eval('company', -1)), If(Eval('property', None), [('property', '=', Eval('property', None))], []), If(Eval('e_type', None), [('e_type', '=', Eval('e_type', None))], [])]"
+                pyson="1"/>
         </record>
         <record model="ir.action.act_window.view" id="act_equipment_form_view1">
             <field name="sequence" eval="10"/>

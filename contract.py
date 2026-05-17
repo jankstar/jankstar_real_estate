@@ -147,6 +147,22 @@ class ContractLog(ModelSQL, ModelView):
 
 
 #**********************************************************************
+class ContractContext(ModelView):
+    'Contract Context'
+    __name__ = 'real_estate.contract.context'
+
+    company = fields.Many2One('company.company', 'Company', required=True)
+    property = fields.Many2One('real_estate.base_object', 'Property',
+        domain=[
+            ('type', '=', 'property'),
+            ('company', '=', Eval('company', -1)),
+        ])
+
+    @classmethod
+    def default_company(cls):
+        return Transaction().context.get('company')
+
+
 class ContractLogContext(ModelView):
     'Contract Log Context'
     __name__ = 'real_estate.contract.log.context'

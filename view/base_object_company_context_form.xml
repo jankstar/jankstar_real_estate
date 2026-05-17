@@ -1,0 +1,4 @@
+<?xml version="1.0"?>
+<form col="4">
+    <label name="company"/><field name="company" colspan="2"/>
+</form>
