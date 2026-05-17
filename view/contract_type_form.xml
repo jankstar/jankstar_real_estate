@@ -6,7 +6,7 @@
         <label name="name"/><field name="name"/>
         <newline/>
         <label name="mark"/><field name="mark"/>
-        <label name="unoccupied"/><field name="unoccupied"/>
+        <label name="occupancy"/><field name="occupancy"/>
     </group>
     <group colspan="1" col="-1" id="checkboxes">
         <label name="active"/>

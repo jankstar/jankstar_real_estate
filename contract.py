@@ -758,6 +758,7 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
             contract.add_log('state_change', f'contract state changed to running')
             contract.state = 'running'
             contract.save()
+        cls._refresh_occupancy_for_contracts(contrats)
 
     # @classmethod
     # @ModelView.button
@@ -787,6 +788,7 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
             contract.add_log('state_change', f'contract state changed to cancelled')
             contract.state = 'cancelled'
             contract.save()
+        cls._refresh_occupancy_for_contracts(contrats)
 
     @classmethod
     @ModelView.button
@@ -795,6 +797,19 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
             contract.add_log('change_partner', f'contract partner changed from {contract.contractual_partner.name if contract.contractual_partner else "None"} to {contract.contractual_partner.name if contract.contractual_partner else "None"}')
             contract.save()
 
+
+    @classmethod
+    def _refresh_occupancy_for_contracts(cls, contracts):
+        pool = Pool()
+        BaseObjectOccupancy = pool.get('real_estate.base_object.occupancy')
+        BaseObject = pool.get('real_estate.base_object')
+        base_object_ids = set()
+        for contract in contracts:
+            for item in contract.items:
+                if item.object:
+                    base_object_ids.add(item.object.id)
+        if base_object_ids:
+            BaseObjectOccupancy.refresh(BaseObject.browse(list(base_object_ids)))
 
     @classmethod
     def set_cash_flow(cls, record, name, value):
@@ -1172,6 +1187,7 @@ class TerminateContractWizard(Wizard):
         self.start.contract.termination_reason = self.start.reason
         self.start.contract.termination_notice = self.start.notice_period
         self.start.contract.save()
+        Contract._refresh_occupancy_for_contracts([self.start.contract])
         return 'end'
 
 
@@ -1288,7 +1304,8 @@ class ContractType(DeactivableMixin, base_object.re_sequence_ordered(), ModelSQL
 
     mark = fields.Char("Mark", help='Periodic posting Mark')
 
-    unoccupied = fields.Boolean("Unoccupied", help='Is the property unoccupied?')
+    occupancy = fields.Boolean("Occupancy",
+        help='If set, only one active contract per object is allowed at a time.')
 
     @classmethod
     def default_step_item(cls):
@@ -1418,6 +1435,8 @@ class ContractItem(sequence_ordered(), ModelSQL, ModelView, metaclass=PoolMeta):
         # valid_from must be within the contract period (>= start_date, <= end_date if set)
         super().validate_fields(instances, fields)
         for item in instances:
+            if {'valid_from', 'valid_to', 'object'} & set(fields):
+                cls._check_occupancy_overlap(item)
             if 'valid_from' not in fields:
                 continue
             if item.valid_from is None or item.contract is None:
@@ -1438,6 +1457,82 @@ class ContractItem(sequence_ordered(), ModelSQL, ModelView, metaclass=PoolMeta):
     @classmethod
     def set_children(cls, record, name, value):
         pass
+
+    @classmethod
+    def _check_occupancy_overlap(cls, item):
+        if not item.contract or not item.contract.c_type:
+            return
+        if not item.contract.c_type.occupancy:
+            return
+        if not item.object:
+            return
+        contract_state = item.contract.state or 'draft'
+        if contract_state == 'cancelled':
+            return
+
+        domain = [
+            ('object', '=', item.object.id),
+            ('contract.c_type.occupancy', '=', True),
+            ('contract.state', 'not in', ('cancelled',)),
+            ('id', '!=', item.id),
+            ['OR', ('valid_to', '=', None), ('valid_to', '>=', item.valid_from)],
+        ]
+        if item.valid_to:
+            domain.append(('valid_from', '<=', item.valid_to))
+
+        if not cls.search(domain):
+            return
+
+        obj_name = item.object.rec_name
+        date_from = item.valid_from.isoformat() if item.valid_from else '?'
+        date_to = item.valid_to.isoformat() if item.valid_to else 'open'
+
+        if contract_state in ('running', 'terminated'):
+            raise ValidationError(
+                gettext('real_estate.msg_occupancy_overlap',
+                    obj_name, date_from, date_to))
+        else:
+            cls.raise_user_warning(
+                f'occupancy_overlap_{item.id}',
+                'real_estate.msg_occupancy_overlap_warning',
+                obj_name, date_from, date_to)
+
+    @classmethod
+    def create(cls, vlist):
+        records = super().create(vlist)
+        cls._refresh_occupancy(records)
+        return records
+
+    @classmethod
+    def write(cls, *args):
+        actions = iter(args)
+        old_ids = set()
+        for records, values in zip(actions, actions):
+            old_ids.update(r.id for r in records)
+        super().write(*args)
+        updated = cls.browse(list(old_ids))
+        cls._refresh_occupancy(updated)
+
+    @classmethod
+    def delete(cls, records):
+        base_object_ids = {r.object.id for r in records if r.object}
+        super().delete(records)
+        if base_object_ids:
+            cls._refresh_occupancy_by_ids(base_object_ids)
+
+    @classmethod
+    def _refresh_occupancy(cls, items):
+        base_object_ids = {r.object.id for r in items if r.object}
+        cls._refresh_occupancy_by_ids(base_object_ids)
+
+    @classmethod
+    def _refresh_occupancy_by_ids(cls, base_object_ids):
+        if not base_object_ids:
+            return
+        pool = Pool()
+        BaseObjectOccupancy = pool.get('real_estate.base_object.occupancy')
+        BaseObject = pool.get('real_estate.base_object')
+        BaseObjectOccupancy.refresh(BaseObject.browse(list(base_object_ids)))
 
 #**********************************************************************
 class ContractTermType(DeactivableMixin, base_object.re_sequence_ordered(), ModelSQL, ModelView):

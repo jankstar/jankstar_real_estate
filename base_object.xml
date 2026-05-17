@@ -571,6 +571,65 @@
         </record-->
 
 
+    <!-- BaseObjectOccupancy global list -->
+        <record model="ir.ui.view" id="base_object_occupancy_view_tree">
+            <field name="model">real_estate.base_object.occupancy</field>
+            <field name="type">tree</field>
+            <field name="name">base_object_occupancy_tree</field>
+        </record>
+
+        <record model="ir.ui.view" id="base_object_occupancy_context_view_form">
+            <field name="model">real_estate.base_object.occupancy.context</field>
+            <field name="type">form</field>
+            <field name="name">base_object_occupancy_context_form</field>
+        </record>
+
+        <record model="ir.action.act_window" id="act_base_object_occupancy">
+            <field name="name">Occupancy</field>
+            <field name="res_model">real_estate.base_object.occupancy</field>
+            <field name="context_model">real_estate.base_object.occupancy.context</field>
+            <field name="context_domain"
+                eval="[('company', '=', Eval('company', -1)), If(Eval('property', None), [('property', '=', Eval('property', None))], []), If(Eval('contract', None), [('contract', '=', Eval('contract', None))], []), If(Eval('from_date', None), [('start_date', '>=', Eval('from_date', None))], []), If(Eval('to_date', None), [('start_date', '&lt;=', Eval('to_date', None))], []), If(Eval('state', None), [('state', '=', Eval('state', None))], [])]"
+                pyson="1"/>
+        </record>
+
+        <record model="ir.action.act_window.view" id="act_base_object_occupancy_view1">
+            <field name="sequence" eval="10"/>
+            <field name="view" ref="base_object_occupancy_view_tree"/>
+            <field name="act_window" ref="act_base_object_occupancy"/>
+        </record>
+
+        <menuitem
+            parent="menu_real_estate_contracts"
+            action="act_base_object_occupancy"
+            sequence="40"
+            id="menu_base_object_occupancy"/>
+
+        <record model="ir.model.access" id="access_base_object_occupancy_object_group">
+            <field name="model">real_estate.base_object.occupancy</field>
+            <field name="group" ref="group_real_estate_object"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+        <record model="ir.model.access" id="access_base_object_occupancy_admin">
+            <field name="model">real_estate.base_object.occupancy</field>
+            <field name="group" ref="group_real_estate_admin"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+        <record model="ir.model.access" id="access_base_object_occupancy_contract_group">
+            <field name="model">real_estate.base_object.occupancy</field>
+            <field name="group" ref="group_real_estate_contract"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+
       <record model="ir.action.report" id="report_base_object">
          <field name="name">Fact Sheet</field>
          <field name="report_name">real_estate.base_object.report</field>

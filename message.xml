@@ -28,6 +28,12 @@
         <record model="ir.message" id="msg_end_date_must_be_less_or_equal_than_parent_end_date">
             <field name="text">{}: End date ({}) must be less or equal than parent end date ({})!</field>
         </record>   
+        <record model="ir.message" id="msg_occupancy_overlap">
+            <field name="text">Object "{}": An occupancy contract already exists for the period from {} to {}. Only one occupancy contract per object is allowed at a time.</field>
+        </record>
+        <record model="ir.message" id="msg_occupancy_overlap_warning">
+            <field name="text">Object "{}": Another occupancy contract exists for the period from {} to {}. Do you want to proceed anyway?</field>
+        </record>
         <record model="ir.message" id="msg_settlement_units_error">
             <field name="text">Billing unit "{}": At least one settlement unit is required before approval.</field>
         </record>

@@ -16,7 +16,9 @@ from trytond.modules.company import CompanyReport
 
 from sql import Column
 from decimal import Decimal
+import datetime
 
+from dateutil.relativedelta import relativedelta
 import logging
 import pdb
 
@@ -197,6 +199,11 @@ class BaseObject(Workflow, DeactivableMixin, re_sequence_ordered(), tree(separat
     
     billing_units = fields.One2Many('real_estate.billing_unit', 'property', 'Billing Units',
         states=_states_only_propperty)
+
+    occupancy = fields.One2Many('real_estate.base_object.occupancy', 'base_object',
+        'Occupancy',
+        states={'invisible': Eval('type') != 'object'},
+        readonly=True)
 
     ## special data building
     _states_only_building= {
@@ -415,6 +422,20 @@ class BaseObject(Workflow, DeactivableMixin, re_sequence_ordered(), tree(separat
 
 
 
+    @classmethod
+    def write(cls, *args):
+        super().write(*args)
+        actions = iter(args)
+        to_refresh = set()
+        for records, values in zip(actions, actions):
+            if {'start_date', 'end_date'} & set(values):
+                for rec in records:
+                    if rec.type == 'object':
+                        to_refresh.add(rec.id)
+        if to_refresh:
+            BaseObjectOccupancy = Pool().get('real_estate.base_object.occupancy')
+            BaseObjectOccupancy.refresh(cls.browse(list(to_refresh)))
+
     def get_number_of_objects(self, name=None):
         return len(self.children)   
     
@@ -555,7 +576,171 @@ class BaseObject(Workflow, DeactivableMixin, re_sequence_ordered(), tree(separat
             ('name',) + tuple(clause[1:]),
             ]
 
-#**************************************************************************   
+#**************************************************************************
+class BaseObjectOccupancy(ModelSQL, ModelView):
+    "Base Object Occupancy"
+    __name__ = 'real_estate.base_object.occupancy'
+
+    base_object = fields.Many2One('real_estate.base_object', 'Object',
+        required=True, ondelete='CASCADE', readonly=True)
+    property = fields.Many2One('real_estate.base_object', 'Property',
+        readonly=True, ondelete='SET NULL')
+    start_date = fields.Date('Start Date', readonly=True)
+    end_date = fields.Date('End Date', readonly=True)
+    state = fields.Selection([
+        ('rented', 'Rented'),
+        ('vacant', 'Vacant'),
+    ], 'State', readonly=True)
+    contract = fields.Many2One('real_estate.contract', 'Contract',
+        readonly=True, ondelete='SET NULL')
+
+    company = fields.Function(
+        fields.Many2One('company.company', 'Company'),
+        'on_change_with_company', searcher='search_company')
+
+    @fields.depends('base_object')
+    def on_change_with_company(self, name=None):
+        if self.base_object:
+            return self.base_object.company
+        return None
+
+    @classmethod
+    def search_company(cls, name, clause):
+        return [('base_object.company',) + tuple(clause[1:])]
+
+    @classmethod
+    def refresh(cls, base_objects):
+        for base_object in base_objects:
+            cls.delete(cls.search([('base_object', '=', base_object.id)]))
+            if base_object.type == 'object' and base_object.start_date:
+                cls._compute(base_object)
+
+    @classmethod
+    def _get_property(cls, base_object):
+        obj = base_object
+        while obj and obj.type != 'property':
+            obj = obj.parent
+        return obj if obj and obj.type == 'property' else None
+
+    @classmethod
+    def _compute(cls, base_object):
+        ContractItem = Pool().get('real_estate.contract.item')
+        property_ = cls._get_property(base_object)
+
+        items = ContractItem.search([
+            ('object', '=', base_object.id),
+            ('contract.c_type.occupancy', '=', True),
+            ('contract.state', 'in', ('running', 'terminated')),
+        ], order=[('valid_from', 'ASC')])
+
+        ref_start = base_object.start_date
+        ref_end = base_object.end_date
+        prop_id = property_.id if property_ else None
+
+        records = []
+        cursor = ref_start
+
+        for item in items:
+            item_start = max(item.valid_from, ref_start) if item.valid_from else ref_start
+            item_end = item.valid_to
+            if ref_end:
+                item_end = min(item_end, ref_end) if item_end else ref_end
+
+            if cursor < item_start:
+                records.append({
+                    'base_object': base_object.id,
+                    'property': prop_id,
+                    'start_date': cursor,
+                    'end_date': item_start - relativedelta(days=1),
+                    'state': 'vacant',
+                    'contract': None,
+                })
+
+            records.append({
+                'base_object': base_object.id,
+                'property': prop_id,
+                'start_date': item_start,
+                'end_date': item_end,
+                'state': 'rented',
+                'contract': item.contract.id,
+            })
+
+            if item_end:
+                cursor = item_end + relativedelta(days=1)
+            else:
+                cursor = None
+                break
+
+        if cursor is not None:
+            # trailing_end is None when object has no end date (open-ended)
+            trailing_end = ref_end
+            if not items:
+                # no occupancy contracts at all — whole period is vacant
+                records.append({
+                    'base_object': base_object.id,
+                    'property': prop_id,
+                    'start_date': ref_start,
+                    'end_date': trailing_end,
+                    'state': 'vacant',
+                    'contract': None,
+                })
+            elif trailing_end is None or cursor <= trailing_end:
+                # trailing vacant after last contract;
+                # open-ended (end_date=None) when object itself has no end date
+                records.append({
+                    'base_object': base_object.id,
+                    'property': prop_id,
+                    'start_date': cursor,
+                    'end_date': trailing_end,
+                    'state': 'vacant',
+                    'contract': None,
+                })
+
+        if records:
+            cls.create(records)
+
+
+#**************************************************************************
+class BaseObjectOccupancyContext(ModelView):
+    'Base Object Occupancy Context'
+    __name__ = 'real_estate.base_object.occupancy.context'
+
+    company = fields.Many2One('company.company', 'Company', required=True)
+    property = fields.Many2One('real_estate.base_object', 'Property',
+        domain=[
+            ('type', '=', 'property'),
+            ('company', '=', Eval('company', -1)),
+        ])
+    contract = fields.Many2One('real_estate.contract', 'Contract',
+        domain=[
+            ('company', '=', Eval('company', -1)),
+            If(Eval('property', None),
+                [('property', '=', Eval('property', None))],
+                []),
+        ])
+    from_date = fields.Date('From Date')
+    to_date = fields.Date('To Date')
+    state = fields.Selection([
+        (None, ''),
+        ('rented', 'Rented'),
+        ('vacant', 'Vacant'),
+    ], 'State', sort=False)
+
+    @classmethod
+    def default_company(cls):
+        return Transaction().context.get('company')
+
+    @classmethod
+    def default_from_date(cls):
+        today = Pool().get('ir.date').today()
+        return today.replace(month=1, day=1)
+
+    @classmethod
+    def default_to_date(cls):
+        return Pool().get('ir.date').today()
+
+
+#**************************************************************************
 class MeterReading(ModelSQL, ModelView):
     "Meter Reading"
     __name__ = 'real_estate.meter_reading'

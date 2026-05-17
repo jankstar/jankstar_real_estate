@@ -91,10 +91,10 @@ class BillingUnit(Workflow,DeactivableMixin, sequence_ordered(), ModelSQL, Model
 
     term_types_of_use = fields.MultiSelection(
             'get_term_types_of_use', "Term Types",
-            help="The term type which can use this cost group.") 
+            help="The term type which can use this billing unit.")
 
 
-    settlement_units = fields.One2Many('real_estate.settlement_unit', 'billing_unit', 'Cost Objects',
+    settlement_units = fields.One2Many('real_estate.settlement_unit', 'billing_unit', 'Settlement Units',
             #states=_states_only_propperty
             states={ 'readonly': Eval('state') != 'draft', },
             )    
@@ -142,7 +142,7 @@ class BillingUnit(Workflow,DeactivableMixin, sequence_ordered(), ModelSQL, Model
                 raise ValidationError(gettext("real_estate.msg_term_types_of_use",).format(
                     billing_unit.name))
 
-            billing_unit.add_log('state_change', f'cost group state changed to approved')
+            billing_unit.add_log('state_change', f'billing unit state changed to approved')
             billing_unit.state = 'approved'
             billing_unit.save()
 
@@ -152,7 +152,7 @@ class BillingUnit(Workflow,DeactivableMixin, sequence_ordered(), ModelSQL, Model
     @Workflow.transition('selection')
     def selection(cls, billing_units):
         for billing_unit in billing_units:
-            billing_unit.add_log('state_change', f'cost group state changed to selection')
+            billing_unit.add_log('state_change', f'billing unit state changed to selection')
             all_state = True
             for settlement_unit in billing_unit.settlement_units:
                 settlement_unit.selection()   
@@ -224,7 +224,7 @@ class BillingUnit(Workflow,DeactivableMixin, sequence_ordered(), ModelSQL, Model
     @fields.depends('calculation_method', 'start_date')
     def _check_calculation_method_notify(self):
         if self.calculation_method == 'WEG_billing' and ( self.start_date.month != 1 or self.start_date.day != 1 ):
-            logger.warning(f"Invalid calculation method for cost group {self.id}: start date {self.start_date} is not the first day of the year.")
+            logger.warning(f"Invalid calculation method for billing unit {self.id}: start date {self.start_date} is not the first day of the year.")
             yield ('warning', 
                    gettext("real_estate.msg_invalid_calculation_method",).format(
                        self.start_date))
@@ -303,7 +303,7 @@ class BillingUnit(Workflow,DeactivableMixin, sequence_ordered(), ModelSQL, Model
             'event': event,
             'description': description or '',
         }])
-        print(f'cost group {self.id}, event {event}, description {description}')
+        print(f'billing unit {self.id}, event {event}, description {description}')
 
 #**********************************************************************
 class CostType(DeactivableMixin, sequence_ordered(), ModelSQL, ModelView):
@@ -316,7 +316,7 @@ class CostType(DeactivableMixin, sequence_ordered(), ModelSQL, ModelView):
 
 #**********************************************************************
 class BillingUnitLog(ModelSQL, ModelView):
-    "Cost Group log obj"
+    "Billing Unit log obj"
     __name__ = 'real_estate.billing_unit.log'
 
     billing_unit = fields.Many2One('real_estate.billing_unit', 'Billing Unit', required=True, ondelete='CASCADE')
@@ -423,7 +423,7 @@ class SettlementUnit(DeactivableMixin, base_object.re_sequence_ordered(), ModelS
     company = fields.Function(fields.Many2One('company.company','Company'),
         'on_change_with_company')
     
-    billing_unit = fields.Many2One('real_estate.billing_unit', 'Cost Group', 
+    billing_unit = fields.Many2One('real_estate.billing_unit', 'Billing Unit',
         required=True, ondelete='CASCADE',
         # domain=[
         #      ('company', '=', Eval('company', -1)),
@@ -539,7 +539,7 @@ class SettlementUnit(DeactivableMixin, base_object.re_sequence_ordered(), ModelS
         )
 
 
-    cost_shares = fields.One2Many('real_estate.cost_share', 'settlement_unit', 'Settlement Units',
+    cost_shares = fields.One2Many('real_estate.cost_share', 'settlement_unit', 'Cost Shares',
         states={ 
             'readonly': True, 
             'invisible': ((Bool(Eval('cost_shares',0)) == False ) | (Eval('state') == 'draft')),
@@ -687,71 +687,98 @@ class SettlementUnit(DeactivableMixin, base_object.re_sequence_ordered(), ModelS
         return self.company.currency if self.company else None    
 
     def selection(self):
+        """Select objects for billing using the occupancy table."""
         if self.state != 'approved':
-            raise ValidationError(gettext("Only cost object with state 'Approved' can be selected."))
+            raise ValidationError(gettext("Only settlement units with state 'Approved' can be selected."))
 
-        #all settlement units linked to this cost object delete
         for cost_share in self.cost_shares:
             cost_share.delete()
 
+        Occupancy = Pool().get('real_estate.base_object.occupancy')
+        CostShare = Pool().get('real_estate.cost_share')
+        is_weg = self.billing_unit.calculation_method == 'WEG_billing'
         object_count = 0
-        #all object linked to this cost object must be in state 'approved'
+
         for object in self.objects:
-            #only start date and end date of the object, it should be in the range of cost object start date and end date
-            if object.state == 'approved' and \
-                object.start_date <= self.end_date and ( object.end_date == None or object.end_date >= self.start_date):
-                object_cont += 1
+            if not (object.state == 'approved'
+                    and object.start_date <= self.end_date
+                    and (object.end_date is None or object.end_date >= self.start_date)):
+                continue
+            object_count += 1
 
-                if self.billing_unit.calculation_method == 'WEG_billing' :
-                    #only the last one contract 
-                    contract_items = Pool().get('real_estate.contract.item').search([
-                        ('object', '=', object), #only search contract which have contract item linked to the object
-                        ('valid_from', '<=', self.end_date),
-                        (('valid_to', '>=', self.start_date) or ('valid_to', '=', None)),
-                        ('contract.state', 'in', ('running','terminaated')), #only search contract in state 'running' or 'terminated'
-                        ],
-                        order=[('valid_from', 'DESC')], #select the last contract
-                        limit=1) #only one contract
+            # Query occupancy entries for this object overlapping the settlement unit period
+            occ_domain = [
+                ('base_object', '=', object.id),
+                ('start_date', '<=', self.end_date),
+                ['OR', ('end_date', '=', None), ('end_date', '>=', self.start_date)],
+            ]
+
+            if is_weg:
+                # Last rented entry covers the entire billing unit period
+                entries = Occupancy.search(
+                    occ_domain + [('state', '=', 'rented')],
+                    order=[('start_date', 'DESC')], limit=1)
+                if not entries:
+                    self.billing_unit.add_log('selection_error',
+                        f'Settlement unit {self.id}: no rented occupancy found'
+                        f' for object {object.id}.')
                 else:
-                    #all contracts in the validation date range
-                    contract_items = Pool().get('real_estate.contract.item').search([
-                        ('object', '=', object), #only search contract which have contract item linked to the object
-                        ('valid_from', '<=', self.end_date),
-                        (('valid_to', '>=', self.start_date) or ('valid_to', '=', None)),
-                        ('contract.state', 'in', ('running','terminaated')), #only search contract in state 'running' or 'terminated'
-                        ],
-                        order=[('valid_from', 'ASC')]) #order by start date to make sure the sequence of settlement unit is correct
-
-                for contract_item in contract_items:
-                    cost_share = Pool().get('real_estate.cost_share')()
-                    cost_share.settlement_unit = self.id
-                    cost_share.contract = contract_item.contract.id
-                    cost_share.base_object = contract_item.object.id
-                    cost_share.start_date = max(contract_item.start_date, self.start_date) if contract_item.start_date else self.start_date
-                    cost_share.end_date = min(contract_item.end_date, self.end_date) if contract_item.end_date else self.end_date
-                    cost_share.state = 'selection'
-                    if self.billing_unit.calculation_method == 'WEG_billing':
-                        cost_share.start_date = self.billing_unit.start_date
-                        cost_share.end_date = self.billing_unit.end_date
+                    cost_share = CostShare(
+                        settlement_unit=self.id,
+                        contract=entries[0].contract.id if entries[0].contract else None,
+                        base_object=object.id,
+                        start_date=self.billing_unit.start_date,
+                        end_date=self.billing_unit.end_date,
+                        state='selection',
+                    )
                     cost_share.save()
-                if not contract_items:
-                    self.billing_unit.add_log('selection_error', f'Cost object {self.id} can not be selected because no contract item found for object {object.id} in the date range.')
-            
-        if object_count == 0:           
-            self.billing_unit.add_log('selection', f'Cost object {self.id} is selected with {object_count} objects and {len(self.cost_shares)} settlement units.')  
+            else:
+                entries = Occupancy.search(occ_domain, order=[('start_date', 'ASC')])
+                rented = [e for e in entries if e.state == 'rented']
+                if not rented:
+                    self.billing_unit.add_log('selection_error',
+                        f'Settlement unit {self.id}: no rented occupancy found'
+                        f' for object {object.id}.')
+                else:
+                    for occ in entries:
+                        share_start = max(occ.start_date, self.start_date) if occ.start_date else self.start_date
+                        share_end = (min(occ.end_date, self.end_date)
+                            if occ.end_date and self.end_date
+                            else (occ.end_date or self.end_date))
 
-        if len(self.cost_shares) > 0:
-            self.state = 'selection'
-        else:
-            self.state = 'error'    
+                        if occ.state == 'rented':
+                            cost_share = CostShare(
+                                settlement_unit=self.id,
+                                contract=occ.contract.id if occ.contract else None,
+                                base_object=object.id,
+                                start_date=share_start,
+                                end_date=share_end,
+                                state='selection',
+                            )
+                            cost_share.save()
+                        elif occ.state == 'vacant' and self.vacancy == 'by_owner':
+                            cost_share = CostShare(
+                                settlement_unit=self.id,
+                                contract=None,
+                                base_object=object.id,
+                                start_date=share_start,
+                                end_date=share_end,
+                                state='selection',
+                            )
+                            cost_share.save()
+                            self.billing_unit.add_log('vacancy_selection',
+                                f'Settlement unit {self.id}: vacancy cost share created'
+                                f' for object {object.id} from {share_start} to {share_end}.')
 
+        self.billing_unit.add_log('selection',
+            f'Settlement unit {self.id} selection completed: {object_count} objects processed.')
         self.save()
         
     def builling(self, selection_on=False):
         if self.state == 'billed':
-            raise ValidationError(gettext("This cost object is already billed."))
+            raise ValidationError(gettext("This settlement unit is already billed."))
         if self.state != 'draft':
-            raise ValidationError(gettext("Only cost object with state 'Approved' can be billed."))
+            raise ValidationError(gettext("Only settlement unit with state 'Approved' can be billed."))
 
         if selection_on:
             #if cost object without allocation rule 'no_allocation' can be billed without selection
@@ -779,8 +806,11 @@ class SettlementUnit(DeactivableMixin, base_object.re_sequence_ordered(), ModelS
 #**********************************************************************
 class CostShare(DeactivableMixin, ModelSQL, ModelView):
     __name__ = 'real_estate.cost_share'
+    __rec_name__ = 'name'
 
-    settlement_unit = fields.Many2One('real_estate.settlement_unit', 'Cost Object', required=True, ondelete='CASCADE',)
+    settlement_unit = fields.Many2One('real_estate.settlement_unit', 'Settlement Unit', required=True, ondelete='CASCADE',)
+
+    name = fields.Function(fields.Char('Name'), 'on_change_with_name')
 
     state = fields.Selection([
             ('preparation', 'Preparation'),
@@ -837,6 +867,19 @@ class CostShare(DeactivableMixin, ModelSQL, ModelView):
     @classmethod
     def default_state(cls):
         return 'selection'
+    
+    @fields.depends('start_date', 'end_date', 'contract', 'base_object')
+    def on_change_with_name(self, name=None):
+        date_part = (
+            f"{self.start_date:%Y-%m-%d}" if self.start_date else '?'
+        ) + ' - ' + (
+            f"{self.end_date:%Y-%m-%d}" if self.end_date else '?'
+        )
+        if self.contract:
+            return f"{date_part} / {self.contract.rec_name}"
+        elif self.base_object:
+            return f"{date_part} / {self.base_object.rec_name}"
+        return date_part
     
     @fields.depends('settlement_unit')
     def on_change_with_currency(self, name=None):

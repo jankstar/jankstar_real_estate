@@ -1506,10 +1506,6 @@ msgctxt "help:real_estate.contract.type,types_of_use:"
 msgid "The type of object which can use this measurement."
 msgstr "Der Objekttyp, für den diese Bemessung verwendet werden kann."
 
-msgctxt "help:real_estate.contract.type,unoccupied:"
-msgid "Is the property unoccupied?"
-msgstr "Ist die Immobilie nicht belegt?"
-
 msgctxt "help:real_estate.billing_unit,term_types_of_use:"
 msgid "The term type which can use this cost group."
 msgstr "Konditionsart, die mit dieser Kostengruppe genutzt wird."

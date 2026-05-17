@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<tree>
+    <field name="base_object" readonly="1"/>
+    <field name="property" readonly="1" optional="1"/>
+    <field name="start_date" width="110"/>
+    <field name="end_date" width="110"/>
+    <field name="state" width="90"/>
+    <field name="contract" readonly="1"/>
+    <field name="company" readonly="1" optional="1"/>
+</tree>
