@@ -305,6 +305,7 @@ class BaseObject(Workflow, DeactivableMixin, re_sequence_ordered(), tree(separat
         return super().view_attributes() + [
             ('/form/notebook/page[@id="page_building"]', 'states', cls._states_only_building),
             ('/form/notebook/page[@id="page_object"]', 'states', cls._states_only_object),
+            ('/form/notebook/page[@id="page_occupancy"]', 'states', cls._states_only_object),
             ('/form/notebook/page[@id="page_equipment"]', 'states', cls._states_only_equipment),
             ('/form/notebook/page[@id="page_meter"]', 'states', cls._states_only_equipment_meter),
             ('/form/notebook/page[@id="page_billing_unit"]', 'states', cls._states_only_propperty),
@@ -347,8 +348,21 @@ class BaseObject(Workflow, DeactivableMixin, re_sequence_ordered(), tree(separat
                 'deactivated': {
                     'invisible': Eval('state') != 'locked',
                     'depends': ['state'],
-                    },                })              
-       
+                    },
+                'refresh_occupancy': {
+                    'invisible': Eval('type') != 'object',
+                    'depends': ['type'],
+                    },
+                })
+
+    @classmethod
+    @ModelView.button
+    def refresh_occupancy(cls, base_objects):
+        BaseObjectOccupancy = Pool().get('real_estate.base_object.occupancy')
+        objects = [o for o in base_objects if o.type == 'object']
+        if objects:
+            BaseObjectOccupancy.refresh(objects)
+
     @classmethod
     def default_company(cls):
         return Transaction().context.get('company')

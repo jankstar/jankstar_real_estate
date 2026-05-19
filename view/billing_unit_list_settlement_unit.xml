@@ -1,10 +1,11 @@
 <?xml version="1.0"?>
 <tree editable="1">
-    <field name="start_date" width="110"/>
+    <field name="start_date" width="110" optional="0"/>
     <field name="end_date" width="110" optional="1"/>
     <field name="sequence"/>
     <field name="type"/>
     <field name="planned_costs" optional="1" sum="1"/>
+    <field name="actual_costs" optional="1" sum="1"/>
     <field name="currency" optional="1"/>    
     <field name="state" width="60" optional="1" readonly="1"/>
     <field name="sub_state" width="60" optional="1" readonly="1"/>

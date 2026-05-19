@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<form col="6">
+    <label name="settlement_unit"/><field name="settlement_unit" colspan="2"/>
+    <label name="state"/><field name="state"/>
+    <newline/>
+    <label name="base_object"/><field name="base_object" colspan="2"/>
+    <label name="contract"/><field name="contract" colspan="2"/>
+    <newline/>
+    <label name="start_date"/><field name="start_date"/>
+    <label name="end_date"/><field name="end_date"/>
+    <label name="time_share"/><field name="time_share"/>
+    <newline/>
+    <label name="value_share"/><field name="value_share"/>
+    <label name="planned_costs"/><field name="planned_costs"/>
+    <label name="actual_costs"/><field name="actual_costs"/>
+    <label name="currency"/><field name="currency"/>
+    <newline/>
+    <label name="error_message"/><field name="error_message" colspan="4"/>
+</form>

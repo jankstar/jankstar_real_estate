@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<form col="6" >
+<form col="6">
     <group colspan="4" id="settlement_unit_active">
         <label name="active"/><field name="active" xexpand="0" width="15"/>
         <label name="id"/><field name="id" readonly="1" xexpand="0" width="15"/>
@@ -13,37 +13,49 @@
     </group>
 
     <newline/>
-    <label name="company"/><field name="company"/>
-    <label name="property"/><field name="property"/>
-    <label name="billing_unit"/><field name="billing_unit"/>
-    <newline/>
-    <label name="start_date" /><field name="start_date"/>
-    <label name="end_date" /><field name="end_date"/>
-    <label name="type"/><field name="type"/>
-    <newline/>
-    <label name="allocation_rule"/><field name="allocation_rule"/>
-    <label name="vacancy"/><field name="vacancy"/>
-    <label name="m_type"/><field name="m_type"/>
-    <label name="meter_unit"/><field name="meter_unit"/>
-    <label name="reg_ex_object"/><field name="reg_ex_object"/>
-    <label name="reg_ex_meter"/><field name="reg_ex_meter"/>
-    <newline/>
-    <label name="planned_costs"/><field name="planned_costs"/>
-    <label name="currency"/><field name="currency"/>
-    <newline/>   
-    <separator name="comment" colspan="4"/><field name="comment" colspan="4"/>
-    <newline/>
-    <group colspan="8"  id="settlement_unit_base_objects">
-        <field name="objects"/>
-    </group>
-     <group colspan="8"  id="settlement_unit_base_meters">
-        <field name="meters"/>
-    </group>
-    <group colspan="8"  id="settlement_unit_base_measurements">
-        <field name="measurements"/>
-    </group>
-        <group colspan="8"  id="settlement_unit_base_cost_shares">
-        <field name="cost_shares"/>
+    <notebook colspan="6">
+        <page string="Detail" id="page_detail" col="6">
+            <label name="company"/><field name="company"/>
+            <label name="property"/><field name="property"/>
+            <label name="billing_unit"/><field name="billing_unit"/>
+            <newline/>
+            <label name="start_date"/><field name="start_date"/>
+            <label name="end_date"/><field name="end_date"/>
+            <label name="type"/><field name="type"/>
+            <newline/>
+            <label name="allocation_rule"/><field name="allocation_rule"/>
+            <label name="vacancy"/><field name="vacancy"/>
+            <label name="m_type"/><field name="m_type"/>
+            <label name="meter_unit"/><field name="meter_unit"/>
+            <newline/>
+            <label name="planned_costs"/><field name="planned_costs"/>
+            <label name="actual_costs"/><field name="actual_costs"/>
+            <label name="currency"/><field name="currency"/>
+            <newline/>
+            <label name="value_total"/><field name="value_total"/>
+            <label name="time_total"/><field name="time_total"/>
+            <newline/>
+            <separator name="comment" colspan="6"/>
+            <field name="comment" colspan="6"/>
+        </page>
+        <page string="Objects" id="page_objects" col="4">
+            <label name="reg_ex_object"/><field name="reg_ex_object" colspan="2"/>
+            <newline/>
+            <field name="objects" colspan="4"/>
+        </page>
+        <page string="Measurements" id="page_measurements" col="1">
+            <field name="measurements"/>
+        </page>
+        <page string="Meters" id="page_meters" col="4">
+            <label name="reg_ex_meter"/><field name="reg_ex_meter" colspan="2"/>
+            <newline/>
+            <field name="meters" colspan="4"/>
+        </page>
+    </notebook>
+
+    <group colspan="6" id="settlement_unit_base_cost_shares">
+        <field name="cost_shares"
+            view_ids="real_estate.cost_share_list,real_estate.cost_share_form"/>
     </group>
 
 </form>

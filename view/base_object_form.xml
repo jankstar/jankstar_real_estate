@@ -87,8 +87,10 @@ this repository contains the full copyright notices and license terms. -->
                 view_ids="real_estate.base_object_view_list_billing_unit"/>
         </page>
 
-        <page string="Occupancy" id="page_occupancy" col="1">
-            <field name="occupancy"
+        <page string="Occupancy" id="page_occupancy" col="4">
+            <button name="refresh_occupancy" string="Refresh Occupancy" colspan="1"/>
+            <newline/>
+            <field name="occupancy" colspan="4"
                 view_ids="real_estate.base_object_occupancy_view_tree"/>
         </page>
         

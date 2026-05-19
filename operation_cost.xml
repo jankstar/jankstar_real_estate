@@ -2,6 +2,18 @@
 
     <data>
 
+    <!-- CostShare -->
+        <record model="ir.ui.view" id="cost_share_list">
+            <field name="model">real_estate.cost_share</field>
+            <field name="type">tree</field>
+            <field name="name">cost_share_list</field>
+        </record>
+        <record model="ir.ui.view" id="cost_share_form">
+            <field name="model">real_estate.cost_share</field>
+            <field name="type">form</field>
+            <field name="name">cost_share_form</field>
+        </record>
+
     <!-- Billing Unit -->
         <record model="ir.ui.view" id="base_object_view_list_billing_unit">
             <field name="model">real_estate.billing_unit</field>
@@ -53,10 +65,16 @@
             sequence="30"
             id="menu_real_estate_operation_costs"/>
 
+        <record model="ir.ui.icon" id="receipt_long">
+            <field name="name">receipt_long</field>
+            <field name="path">icons/receipt_long.svg</field>
+        </record>
+
         <menuitem
             parent="menu_real_estate_operation_costs"
             sequence="10"
             action="act_billing_unit_tree"
+            icon="receipt_long"
             id="menu_billing_unit"/>
 
     <!-- Settlement Unit -->
@@ -183,8 +201,41 @@
         <menuitem
             parent="menu_real_estate_operation_costs"
             action="act_billing_unit_log"
-            sequence="30"
+            sequence="50"
             id="menu_billing_unit_log"/>
+
+        <!-- CostShare list -->
+        <record model="ir.ui.view" id="cost_share_context_form_view">
+            <field name="model">real_estate.cost_share.context</field>
+            <field name="type">form</field>
+            <field name="name">cost_share_context_form</field>
+        </record>
+
+        <record model="ir.action.act_window" id="act_cost_share">
+            <field name="name">Cost Shares</field>
+            <field name="res_model">real_estate.cost_share</field>
+            <field name="context_model">real_estate.cost_share.context</field>
+            <field name="context_domain"
+                eval="[('settlement_unit.billing_unit.property.company', '=', Eval('company', -1)), If(Eval('property', None), [('settlement_unit.billing_unit.property', '=', Eval('property', None))], []), If(Eval('billing_unit', None), [('settlement_unit.billing_unit', '=', Eval('billing_unit', None))], []), If(Eval('settlement_unit', None), [('settlement_unit', '=', Eval('settlement_unit', None))], []), If(Eval('contract', None), [('contract', '=', Eval('contract', None))], []), If(Eval('from_date', None), [('start_date', '&gt;=', Eval('from_date', None))], []), If(Eval('to_date', None), [('end_date', '&lt;=', Eval('to_date', None))], [])]"
+                pyson="1"/>
+        </record>
+
+        <record model="ir.action.act_window.view" id="act_cost_share_view1">
+            <field name="sequence" eval="10"/>
+            <field name="view" ref="cost_share_list"/>
+            <field name="act_window" ref="act_cost_share"/>
+        </record>
+        <record model="ir.action.act_window.view" id="act_cost_share_view2">
+            <field name="sequence" eval="20"/>
+            <field name="view" ref="cost_share_form"/>
+            <field name="act_window" ref="act_cost_share"/>
+        </record>
+
+        <menuitem
+            parent="menu_real_estate_operation_costs"
+            action="act_cost_share"
+            sequence="40"
+            id="menu_cost_share"/>
 
     </data>
 

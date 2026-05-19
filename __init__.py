@@ -49,6 +49,7 @@ def register():
         party.Party,
         invoice.Invoice,
         invoice.InvoiceLine,
+        operation_cost.CostShareContext,
         operation_cost.SettlementUnitContext,
         operation_cost.BillingUnitContext,
         operation_cost.BillingUnit,

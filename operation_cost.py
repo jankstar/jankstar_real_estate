@@ -22,7 +22,7 @@ from dateutil.relativedelta import relativedelta
 from sql import Column
 import re
 import datetime
-from decimal import Decimal
+from decimal import Decimal, ROUND_HALF_UP
 from . import base_object
 
 import logging
@@ -65,6 +65,13 @@ class BillingUnit(Workflow,DeactivableMixin, sequence_ordered(), ModelSQL, Model
         states={ 'readonly': Eval('state') != 'draft', },
         )
 
+    billing_type = fields.Selection([
+        ('planned_billing', 'Planned Billing'),
+        ('actual_billing', 'Actual Billing'),
+        ], "Billing Type", sort=False,
+        states={ 'readonly': Eval('state') != 'draft', },
+        )
+
     planned_costs = fields.Function(Monetary('Planned Costs', currency='currency', digits= 'currency',#(16, 2),
         ),'on_change_with_planned_costs',
         )
@@ -80,7 +87,6 @@ class BillingUnit(Workflow,DeactivableMixin, sequence_ordered(), ModelSQL, Model
             ('draft', 'Draft'),
             ('approved', 'Approved'),
             ('selection', 'Selection'),
-            ('estimated_value_share', 'Estimated Value Share'),
             ('value_share', 'Value Share'),
             ('billed', 'Billed'),
             ], "State", sort=False,
@@ -106,61 +112,85 @@ class BillingUnit(Workflow,DeactivableMixin, sequence_ordered(), ModelSQL, Model
         cls._transitions |= set((
             ('draft', 'approved'),
             ('approved', 'selection'),
-            ('selection', 'estimated_value_share'),
-            ('estimated_value_share', 'value_share'),
+            ('selection', 'value_share'),
+            ('value_share', 'billed'),
             ))
 
         cls._buttons.update({
                 'approved': {
-                    'invisible': (
-                        ~Eval('state').in_(['draft'])
-                        ),
-                    #'icon': If(Eval('state') == 'cancelled', 'tryton-undo',
-                    #    'tryton-back'),
+                    'invisible': ~Eval('state').in_(['draft']),
                     'depends': ['state'],
                     },
                 'selection': {
-                    'invisible': (
-                        (~Eval('state').in_(['approved', 'selection']))
-                        ),
-                    'depends': ['state', 'sub_state'],
+                    'invisible': ~Eval('state').in_(['approved', 'selection']),
+                    'depends': ['state'],
+                    },
+                'compute_value_shares_button': {
+                    'invisible': ~Eval('state').in_(['selection', 'value_share']),
+                    'depends': ['state'],
+                    },
+                'billing': {
+                    'invisible': ~Eval('state').in_(['value_share']),
+                    'depends': ['state'],
                     },
                 })
 
     @classmethod
     @ModelView.button
     @Workflow.transition('approved')
-    #@set_employee('running_by')
-    #@reset_employee('cancelled_by', 'terminated_by')
     def approved(cls, billing_units):
         for billing_unit in billing_units:
-            #check if there is an settlemant unit and term_types_of_use is not empty
-            if (not billing_unit.settlement_units) or len(billing_unit.settlement_units) == 0:
-                raise ValidationError(gettext("real_estate.msg_settlement_units_error",).format(
+            if not billing_unit.settlement_units:
+                raise ValidationError(gettext(
+                    "real_estate.msg_settlement_units_error").format(
                     billing_unit.name))
-            if (not billing_unit.term_types_of_use) or len(billing_unit.term_types_of_use) == 0:
-                raise ValidationError(gettext("real_estate.msg_term_types_of_use",).format(
+            if not billing_unit.term_types_of_use:
+                raise ValidationError(gettext(
+                    "real_estate.msg_term_types_of_use").format(
                     billing_unit.name))
-
-            billing_unit.add_log('state_change', f'billing unit state changed to approved')
+            billing_unit.add_log('state_change',
+                'billing unit state changed to approved')
             billing_unit.state = 'approved'
             billing_unit.save()
 
+    @classmethod
+    @ModelView.button
+    def selection(cls, billing_units):
+        SettlementUnit = Pool().get('real_estate.settlement_unit')
+        for billing_unit in billing_units:
+            for su in billing_unit.settlement_units:
+                su.selection()
+            sus = SettlementUnit.browse(
+                [su.id for su in billing_unit.settlement_units])
+            all_selection = all(
+                su.sub_state == 'selection' for su in sus)
+            if all_selection and billing_unit.state == 'approved':
+                billing_unit.add_log('state_change',
+                    'billing unit state changed to selection')
+                billing_unit.state = 'selection'
+            billing_unit.save()
 
     @classmethod
     @ModelView.button
-    @Workflow.transition('selection')
-    def selection(cls, billing_units):
+    def compute_value_shares_button(cls, billing_units):
+        SettlementUnit = Pool().get('real_estate.settlement_unit')
         for billing_unit in billing_units:
-            billing_unit.add_log('state_change', f'billing unit state changed to selection')
-            all_state = True
-            for settlement_unit in billing_unit.settlement_units:
-                settlement_unit.selection()   
-                if settlement_unit.sub_state != 'selection':
-                    all_state = False
-            if all_state:
-                billing_unit.state = 'selection'
+            for su in billing_unit.settlement_units:
+                su.compute_value_shares()
+            sus = SettlementUnit.browse(
+                [su.id for su in billing_unit.settlement_units])
+            all_value_share = all(
+                su.sub_state == 'value_share' for su in sus)
+            if all_value_share:
+                billing_unit.add_log('state_change',
+                    'billing unit state changed to value_share')
+                billing_unit.state = 'value_share'
             billing_unit.save()
+
+    @classmethod
+    @ModelView.button
+    def billing(cls, billing_units):
+        pass
 
 
     @staticmethod
@@ -170,6 +200,10 @@ class BillingUnit(Workflow,DeactivableMixin, sequence_ordered(), ModelSQL, Model
     @staticmethod
     def default_calculation_method():
         return 'rental_apartment'
+
+    @staticmethod
+    def default_billing_type():
+        return 'planned_billing'
 
     @staticmethod
     def get_sub_states():
@@ -188,8 +222,6 @@ class BillingUnit(Workflow,DeactivableMixin, sequence_ordered(), ModelSQL, Model
                 return 'error'
             elif 'selection' in states:
                 return 'selection'
-            elif 'estimated_value_share' in states:
-                return 'estimated_value_share'
             elif 'value_share' in states:
                 return 'value_share'
         return None
@@ -445,9 +477,58 @@ class BillingUnitLogContext(ModelView):
         return Pool().get('ir.date').today()
 
 
+class CostShareContext(ModelView):
+    'Cost Share Context'
+    __name__ = 'real_estate.cost_share.context'
+
+    company = fields.Many2One('company.company', 'Company', required=True)
+    property = fields.Many2One('real_estate.base_object', 'Property',
+        domain=[
+            ('type', '=', 'property'),
+            ('company', '=', Eval('company', -1)),
+        ])
+    billing_unit = fields.Many2One('real_estate.billing_unit', 'Billing Unit',
+        domain=[
+            If(Eval('property', None),
+                [('property', '=', Eval('property', None))],
+                []),
+        ])
+    settlement_unit = fields.Many2One('real_estate.settlement_unit',
+        'Settlement Unit',
+        domain=[
+            If(Eval('billing_unit', None),
+                [('billing_unit', '=', Eval('billing_unit', None))],
+                []),
+        ])
+    contract = fields.Many2One('real_estate.contract', 'Contract',
+        domain=[
+            ('company', '=', Eval('company', -1)),
+            If(Eval('property', None),
+                [('property', '=', Eval('property', None))],
+                []),
+        ])
+    from_date = fields.Date('From Date')
+    to_date = fields.Date('To Date')
+
+    @classmethod
+    def default_company(cls):
+        return Transaction().context.get('company')
+
+    @classmethod
+    def default_from_date(cls):
+        today = Pool().get('ir.date').today()
+        return today.replace(month=1, day=1)
+
+    @classmethod
+    def default_to_date(cls):
+        today = Pool().get('ir.date').today()
+        return today.replace(month=12, day=31)
+
+
 #**********************************************************************
 class SettlementUnit(DeactivableMixin, base_object.re_sequence_ordered(), ModelSQL, ModelView):
     __name__ = 'real_estate.settlement_unit'
+    __rec_name__ = 'name'
 
     property = fields.Function(fields.Many2One('real_estate.base_object','Property'),
         'on_change_with_property')
@@ -478,13 +559,15 @@ class SettlementUnit(DeactivableMixin, base_object.re_sequence_ordered(), ModelS
     name = fields.Function(fields.Char("Name"), 'on_change_with_name', 
                 searcher='name_search')  
 
-    planned_costs = Monetary('Planned Costs', currency='currency', digits= 'currency',#(16, 2),
-        states={
-            'readonly': Eval('state') == 'billed',
-            },
+    planned_costs = Monetary('Planned Costs', currency='currency', digits='currency',
+        states={'readonly': Eval('state') == 'billed'},
         )
 
-    currency = fields.Function(fields.Many2One('currency.currency', 'Currency',), 'on_change_with_currency') 
+    actual_costs = Monetary('Actual Costs', currency='currency', digits='currency',
+        states={'readonly': Eval('state') == 'billed'},
+        )
+
+    currency = fields.Function(fields.Many2One('currency.currency', 'Currency',), 'on_change_with_currency')
 
 
     allocation_rule =  fields.Selection([
@@ -581,6 +664,20 @@ class SettlementUnit(DeactivableMixin, base_object.re_sequence_ordered(), ModelS
     value_total = fields.Float('Value to Total', digits=(16, 4),
       states={  'readonly': True,  }
         )
+
+    time_total = fields.Function(fields.Integer('Time Total (days)'),
+        'on_change_with_time_total')
+
+    @classmethod
+    def view_attributes(cls):
+        return super().view_attributes() + [
+            ('//page[@id="page_measurements"]', 'states', {
+                'invisible': Eval('allocation_rule') != 'allocation_by_measurement',
+            }),
+            ('//page[@id="page_meters"]', 'states', {
+                'invisible': Eval('allocation_rule') != 'allocation_by_consumption',
+            }),
+        ]
 
     @classmethod
     def default_company(cls):
@@ -716,12 +813,18 @@ class SettlementUnit(DeactivableMixin, base_object.re_sequence_ordered(), ModelS
     
     @fields.depends('company')
     def on_change_with_currency(self, name=None):
-        return self.company.currency if self.company else None    
+        return self.company.currency if self.company else None
+
+    @fields.depends('start_date', 'end_date')
+    def on_change_with_time_total(self, name=None):
+        if self.start_date and self.end_date:
+            return (self.end_date - self.start_date).days + 1
+        return None
 
     def selection(self):
-        """Select objects for billing using the occupancy table."""
-        if self.state != 'approved':
-            raise ValidationError(gettext("Only settlement units with state 'Approved' can be selected."))
+        """Select objects and contracts for billing using the occupancy table."""
+        if self.state != 'approved' and self.state != 'selection':
+            raise ValidationError(gettext("Only settlement units with state 'Approved' or 'Selection' can be selected."))
 
         CostShare = Pool().get('real_estate.cost_share')
         if self.cost_shares:
@@ -767,7 +870,9 @@ class SettlementUnit(DeactivableMixin, base_object.re_sequence_ordered(), ModelS
             else:
                 entries = Occupancy.search(occ_domain, order=[('start_date', 'ASC')])
                 rented = [e for e in entries if e.state == 'rented']
-                if not rented:
+                vacant = [e for e in entries if e.state == 'vacant']
+                by_owner = self.vacancy == 'by_owner'
+                if not rented and not (vacant and by_owner):
                     self.billing_unit.add_log('selection_error',
                         f'Settlement unit {self.id}: no rented occupancy found'
                         f' for object {object.id}.')
@@ -805,7 +910,158 @@ class SettlementUnit(DeactivableMixin, base_object.re_sequence_ordered(), ModelS
         self.billing_unit.add_log('selection',
             f'Settlement unit {self.id} selection completed: {object_count} objects processed.')
         self.save()
-        
+
+    def compute_value_shares(self):
+        """Compute value_share on each CostShare based on allocation_rule,
+        then write value_total as the sum on this SettlementUnit."""
+        pool = Pool()
+        Measurement = pool.get('real_estate.measurement')
+        BaseObject = pool.get('real_estate.base_object')
+        MeterReading = pool.get('real_estate.meter_reading')
+
+        if self.allocation_rule == 'no_allocation':
+            return
+
+        total = 0.0
+
+        for cost_share in self.cost_shares:
+            if not cost_share.base_object:
+                continue
+
+            value = None
+            error_msg = None
+
+            if self.allocation_rule == 'allocation_by_measurement':
+                measurements = Measurement.search([
+                    ('base_object', '=', cost_share.base_object.id),
+                    ('m_type', '=', self.m_type.id),
+                    ('valid_from', '<=', cost_share.end_date),
+                ], order=[('valid_from', 'DESC')], limit=1)
+                if measurements:
+                    value = float(measurements[0].value or 0)
+                else:
+                    error_msg = (
+                        f'No measurement for {cost_share.base_object.rec_name}'
+                        f' type {self.m_type.name} on {cost_share.end_date}')
+
+            elif self.allocation_rule == 'allocation_by_consumption':
+                meter_domain = [
+                    ('parent', '=', cost_share.base_object.id),
+                    ('type', '=', 'equipment'),
+                    ('e_type', '=', 'meters'),
+                    ('meter_unit', '=', self.meter_unit.id),
+                    ('state', '=', 'approved'),
+                ]
+                meters = BaseObject.search(meter_domain)
+                if self.reg_ex_meter:
+                    pattern = re.compile(self.reg_ex_meter)
+                    meters = [m for m in meters if pattern.search(m.name or '')]
+
+                consumption = 0.0
+                found = False
+                for meter in meters:
+                    factor = float(meter.meter_factor or 1)
+                    if meter.meter_is_counter:
+                        end_rdg = MeterReading.search([
+                            ('base_object', '=', meter.id),
+                            ('reading_date', '<=', cost_share.end_date),
+                        ], order=[('reading_date', 'DESC')], limit=1)
+                        start_rdg = MeterReading.search([
+                            ('base_object', '=', meter.id),
+                            ('reading_date', '<=', cost_share.start_date),
+                        ], order=[('reading_date', 'DESC')], limit=1)
+                        if end_rdg and start_rdg:
+                            consumption += (
+                                float(end_rdg[0].value or 0)
+                                - float(start_rdg[0].value or 0)
+                            ) * factor
+                            found = True
+                    else:
+                        rdgs = MeterReading.search([
+                            ('base_object', '=', meter.id),
+                            ('reading_date', '>=', cost_share.start_date),
+                            ('reading_date', '<=', cost_share.end_date),
+                        ], order=[('reading_date', 'DESC')], limit=1)
+                        if rdgs:
+                            consumption += float(rdgs[0].value or 0) * factor
+                            found = True
+
+                if found:
+                    value = consumption
+                else:
+                    error_msg = (
+                        f'No meter readings for {cost_share.base_object.rec_name}'
+                        f' in {cost_share.start_date} – {cost_share.end_date}')
+
+            elif self.allocation_rule == 'allocation_per_rental_unit':
+                value = 1.0
+
+            if value is not None:
+                cost_share.value_share = value
+                if cost_share.state in ('selection', 'estimated_value_share'):
+                    cost_share.state = 'value_share'
+                total += value
+            else:
+                cost_share.state = 'error'
+                cost_share.error_message = error_msg
+            cost_share.save()
+
+        self.value_total = total
+        self.save()
+
+        # Second pass: distribute planned_costs and actual_costs
+        CostShare = pool.get('real_estate.cost_share')
+        vt = Decimal(str(total)) if total else Decimal(0)
+        time_total = (
+            (self.end_date - self.start_date).days + 1
+            if self.start_date and self.end_date else 0)
+
+        cost_shares = CostShare.search(
+            [('settlement_unit', '=', self.id),
+             ('state', '=', 'value_share')])
+
+        def _distribute(su_amount):
+            """Return list of (cost_share, rounded_amount) summing to su_amount."""
+            _cent = Decimal('0.01')
+            rows = []
+            for cs in cost_shares:
+                if not cs.value_share or not vt:
+                    raw = Decimal(0)
+                else:
+                    vs = Decimal(str(cs.value_share))
+                    if self.allocation_rule == 'allocation_by_consumption':
+                        raw = su_amount * vs / vt
+                    else:
+                        ts = (
+                            (cs.end_date - cs.start_date).days + 1
+                            if cs.start_date and cs.end_date else 0)
+                        time_factor = (
+                            Decimal(ts) / Decimal(time_total)
+                            if time_total else Decimal(0))
+                        raw = su_amount * vs / vt * time_factor
+                rows.append([cs, raw.quantize(_cent, rounding=ROUND_HALF_UP)])
+            diff = (su_amount - sum(r[1] for r in rows)).quantize(_cent)
+            if diff and rows:
+                n = int(abs(diff) / _cent)
+                if diff > 0:
+                    rows.sort(key=lambda r: r[1])
+                    for i in range(n):
+                        rows[i][1] += _cent
+                else:
+                    rows.sort(key=lambda r: r[1], reverse=True)
+                    for i in range(n):
+                        rows[i][1] -= _cent
+            return rows
+
+        planned_rows = _distribute(self.planned_costs or Decimal(0))
+        actual_rows = _distribute(self.actual_costs or Decimal(0))
+
+        actual_by_id = {r[0].id: r[1] for r in actual_rows}
+        for cost_share, planned_amount in planned_rows:
+            cost_share.planned_costs = planned_amount
+            cost_share.actual_costs = actual_by_id.get(cost_share.id, Decimal(0))
+            cost_share.save()
+
     def builling(self, selection_on=False):
         if self.state == 'billed':
             raise ValidationError(gettext("This settlement unit is already billed."))
@@ -842,7 +1098,8 @@ class CostShare(DeactivableMixin, ModelSQL, ModelView):
 
     settlement_unit = fields.Many2One('real_estate.settlement_unit', 'Settlement Unit', required=True, ondelete='CASCADE',)
 
-    name = fields.Function(fields.Char('Name'), 'on_change_with_name')
+    name = fields.Function(fields.Char('Name'), 'on_change_with_name',
+        searcher='search_name')
 
     state = fields.Selection([
             ('preparation', 'Preparation'),
@@ -850,7 +1107,7 @@ class CostShare(DeactivableMixin, ModelSQL, ModelView):
             ('estimated_value_share', 'Estimated Value Share'),
             ('value_share', 'Value Share'),
             ('error', 'Error'),
-            ], "Settlement Unit", sort=False,
+            ], "State", sort=False,
             states={ 'readonly': True, },
             )
     
@@ -878,6 +1135,9 @@ class CostShare(DeactivableMixin, ModelSQL, ModelView):
         states={
         'readonly': Eval('state') != 'value_share',},
         )
+
+    time_share = fields.Function(fields.Integer('Time Share (days)'),
+        'on_change_with_time_share')
 
     planned_costs = Monetary('Planned Costs', currency='currency', digits= 'currency',#(16, 2),
         states={
@@ -913,6 +1173,20 @@ class CostShare(DeactivableMixin, ModelSQL, ModelView):
             return f"{date_part} / {self.base_object.rec_name}"
         return date_part
     
+    @classmethod
+    def search_name(cls, name, clause):
+        _, operator, value = clause
+        return ['OR',
+            ('contract', operator, value),
+            ('base_object.name', operator, value),
+        ]
+
     @fields.depends('settlement_unit')
     def on_change_with_currency(self, name=None):
         return self.settlement_unit.currency if self.settlement_unit else None
+
+    @fields.depends('start_date', 'end_date')
+    def on_change_with_time_share(self, name=None):
+        if self.start_date and self.end_date:
+            return (self.end_date - self.start_date).days + 1
+        return None
