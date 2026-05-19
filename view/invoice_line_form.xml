@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<data>
+    <xpath expr="//notebook" position="inside">
+        <page string="Real Estate" id="page_real_estate" col="4">
+            <label name="property"/><field name="property" colspan="3"/>
+            <label name="settlement_unit"/><field name="settlement_unit" colspan="3"/>
+            <label name="service_period_from"/><field name="service_period_from"/>
+            <label name="service_period_to"/><field name="service_period_to"/>
+            <newline/>
+            <label name="term"/><field name="term" colspan="3"/>
+        </page>
+    </xpath>
+</data>

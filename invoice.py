@@ -47,14 +47,59 @@ class InvoiceLine(metaclass=PoolMeta):
 
     term = fields.Many2One(
         'real_estate.contract.term', 'Term',
-        states={
-        'readonly': Eval('invoice_state') != 'draft',
-            },
-         domain=[
-             If(Bool(Eval('contract')),
-            ('contract', '=', Eval('contract', -1)),
-            ()),
-            ]       
+        states={'readonly': Eval('invoice_state') != 'draft'},
+        domain=[
+            If(Bool(Eval('contract')),
+                ('contract', '=', Eval('contract', -1)),
+                ()),
+        ]
+    )
+
+    company = fields.Function(
+        fields.Many2One('company.company', 'Company'),
+        'on_change_with_company'
+    )
+
+    property = fields.Many2One(
+        'real_estate.base_object', 'Property',
+        states={'readonly': Eval('invoice_state') != 'draft'},
+        domain=[
+            ('type', '=', 'property'),
+            If(Bool(Eval('company')),
+                ('company', '=', Eval('company', -1)),
+                ()),
+        ]
+    )
+
+    settlement_unit = fields.Many2One(
+        'real_estate.settlement_unit', 'Settlement Unit',
+        states={'readonly': Eval('invoice_state') != 'draft'},
+        domain=[
+            If(Bool(Eval('property')),
+                ('billing_unit.property', '=', Eval('property', -1)),
+                ()),
+            ('billing_unit.state', 'not in', ['draft', 'billed']),
+        ]
+    )
+
+    service_period_from = fields.Date(
+        'Service Period From',
+        states={'readonly': Eval('invoice_state') != 'draft'},
+        domain=[
+            If(Bool(Eval('service_period_from')) & Bool(Eval('service_period_to')),
+                ('service_period_from', '<=', Eval('service_period_to')),
+                ()),
+        ]
+    )
+
+    service_period_to = fields.Date(
+        'Service Period To',
+        states={'readonly': Eval('invoice_state') != 'draft'},
+        domain=[
+            If(Bool(Eval('service_period_from')) & Bool(Eval('service_period_to')),
+                ('service_period_to', '>=', Eval('service_period_from')),
+                ()),
+        ]
     )
 
     @classmethod
@@ -64,10 +109,26 @@ class InvoiceLine(metaclass=PoolMeta):
         cls._sql_indexes.add(
             Index(table,
                 (Column(table, 'term'), Index.Range(order='ASC NULLS FIRST')),
-                (table.id, Index.Range(order='ASC NULLS FIRST'))))  
+                (table.id, Index.Range(order='ASC NULLS FIRST'))))
 
-    @fields.depends('company', 'invoice')
-    def on_change_with_contract(self):
+    @fields.depends('invoice')
+    def on_change_with_contract(self, name=None):
         if self.invoice and self.invoice.contract:
             return self.invoice.contract
         return None
+
+    @fields.depends('invoice')
+    def on_change_with_company(self, name=None):
+        if self.invoice and self.invoice.company:
+            return self.invoice.company
+        return None
+
+    @classmethod
+    def validate(cls, lines):
+        super().validate(lines)
+        for line in lines:
+            if (line.service_period_from and line.service_period_to
+                    and line.service_period_from > line.service_period_to):
+                raise ValueError(
+                    f'Service period from ({line.service_period_from})'
+                    f' must be before to ({line.service_period_to})')

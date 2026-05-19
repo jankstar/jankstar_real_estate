@@ -822,5 +822,11 @@
             <field name="type">incremental</field>
         </record>
 
+        <record model="ir.ui.view" id="invoice_line_view_form_real_estate">
+            <field name="model">account.invoice.line</field>
+            <field name="inherit" ref="account_invoice.invoice_line_view_form"/>
+            <field name="name">invoice_line_form</field>
+        </record>
+
     </data>
 </tryton>
