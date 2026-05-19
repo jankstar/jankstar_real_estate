@@ -8,6 +8,8 @@
             <label name="service_period_to"/><field name="service_period_to"/>
             <newline/>
             <label name="term"/><field name="term" colspan="3"/>
+            <newline/>
+            <label name="estg_35a"/><field name="estg_35a" colspan="3"/>
         </page>
     </xpath>
 </data>

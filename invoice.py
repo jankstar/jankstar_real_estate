@@ -62,7 +62,6 @@ class InvoiceLine(metaclass=PoolMeta):
 
     property = fields.Many2One(
         'real_estate.base_object', 'Property',
-        states={'readonly': Eval('invoice_state') != 'draft'},
         domain=[
             ('type', '=', 'property'),
             If(Bool(Eval('company')),
@@ -73,7 +72,6 @@ class InvoiceLine(metaclass=PoolMeta):
 
     settlement_unit = fields.Many2One(
         'real_estate.settlement_unit', 'Settlement Unit',
-        states={'readonly': Eval('invoice_state') != 'draft'},
         domain=[
             If(Bool(Eval('property')),
                 ('billing_unit.property', '=', Eval('property', -1)),
@@ -84,7 +82,6 @@ class InvoiceLine(metaclass=PoolMeta):
 
     service_period_from = fields.Date(
         'Service Period From',
-        states={'readonly': Eval('invoice_state') != 'draft'},
         domain=[
             If(Bool(Eval('service_period_from')) & Bool(Eval('service_period_to')),
                 ('service_period_from', '<=', Eval('service_period_to')),
@@ -94,12 +91,20 @@ class InvoiceLine(metaclass=PoolMeta):
 
     service_period_to = fields.Date(
         'Service Period To',
-        states={'readonly': Eval('invoice_state') != 'draft'},
         domain=[
             If(Bool(Eval('service_period_from')) & Bool(Eval('service_period_to')),
                 ('service_period_to', '>=', Eval('service_period_from')),
                 ()),
         ]
+    )
+
+    estg_35a = fields.Selection([
+        ('', ''),
+        ('abs1', 'Abs. 1 - Minijob im Haushalt'),
+        ('abs2', 'Abs. 2 - Haushaltsnahe Dienstleistungen (z.B. Gartenpflege)'),
+        ('abs3', 'Abs. 3 - Handwerkerleistungen (z.B. Schornsteinfeger)'),
+    ], '§35a EStG',
+        sort=False,
     )
 
     @classmethod
