@@ -9,8 +9,6 @@ from trytond.transaction import Transaction
  
 from trytond.pyson import Bool, Eval, Id, If
 
-import pdb
-
 
 class Invoice(metaclass=PoolMeta):
     """Invoice extension for real estate"""
@@ -53,11 +51,6 @@ class InvoiceLine(metaclass=PoolMeta):
                 ('contract', '=', Eval('contract', -1)),
                 ()),
         ]
-    )
-
-    company = fields.Function(
-        fields.Many2One('company.company', 'Company'),
-        'on_change_with_company'
     )
 
     property = fields.Many2One(
@@ -115,17 +108,15 @@ class InvoiceLine(metaclass=PoolMeta):
             Index(table,
                 (Column(table, 'term'), Index.Range(order='ASC NULLS FIRST')),
                 (table.id, Index.Range(order='ASC NULLS FIRST'))))
+        cls._sql_indexes.add(
+            Index(table,
+                (Column(table, 'settlement_unit'), Index.Range(order='ASC NULLS FIRST')),
+                (table.id, Index.Range(order='ASC NULLS FIRST'))))
 
     @fields.depends('invoice')
     def on_change_with_contract(self, name=None):
-        if self.invoice and self.invoice.contract:
+        if self.invoice and hasattr(self.invoice, 'contract'):
             return self.invoice.contract
-        return None
-
-    @fields.depends('invoice')
-    def on_change_with_company(self, name=None):
-        if self.invoice and self.invoice.company:
-            return self.invoice.company
         return None
 
     @classmethod

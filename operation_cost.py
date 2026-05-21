@@ -26,7 +26,6 @@ from decimal import Decimal, ROUND_HALF_UP
 from . import base_object
 
 import logging
-import pdb
 
 logger = logging.getLogger(__name__)
 class InvalidCalculationMethod(ValidationError):
@@ -911,9 +910,40 @@ class SettlementUnit(DeactivableMixin, base_object.re_sequence_ordered(), ModelS
             f'Settlement unit {self.id} selection completed: {object_count} objects processed.')
         self.save()
 
+    def selection_actual_costs(self):
+        """Sum amount + tax of all invoice lines assigned to this settlement unit
+        and write the result into actual_costs."""
+        pool = Pool()
+        InvoiceLine = pool.get('account.invoice.line')
+        Tax = pool.get('account.tax')
+        lines = InvoiceLine.search([
+            ('settlement_unit', '=', self.id),
+        ])
+        total = Decimal(0)
+        for line in lines:
+            amount = line.amount or Decimal(0)
+            tax_amount = Decimal(0)
+            if line.taxes:
+                tax_date = (line.invoice.invoice_date
+                    if line.invoice and line.invoice.invoice_date
+                    else datetime.date.today())
+                computed = Tax.compute(
+                    list(line.taxes),
+                    line.unit_price or Decimal(0),
+                    line.quantity or Decimal(0),
+                    tax_date,
+                )
+                tax_amount = sum(
+                    Decimal(str(t['amount'])) for t in computed
+                )
+            total += amount + tax_amount
+        self.actual_costs = total.quantize(Decimal('0.01'))
+        self.save()
+
     def compute_value_shares(self):
         """Compute value_share on each CostShare based on allocation_rule,
         then write value_total as the sum on this SettlementUnit."""
+        self.selection_actual_costs()
         pool = Pool()
         Measurement = pool.get('real_estate.measurement')
         BaseObject = pool.get('real_estate.base_object')

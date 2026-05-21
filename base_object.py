@@ -20,7 +20,6 @@ import datetime
 
 from dateutil.relativedelta import relativedelta
 import logging
-import pdb
 
 
 logger = logging.getLogger(__name__)
@@ -891,7 +890,6 @@ class MeterReading(ModelSQL, ModelView):
         super().validate(records)  # Standard-Validierungen
         
         for record in records:
-            #pdb.set_trace()
             # Validierung: reading_date muss groesser als letzte reading_date sein
             MeterReading = Pool().get('real_estate.meter_reading')
             last_reading = MeterReading.search([

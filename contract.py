@@ -44,8 +44,6 @@ import calendar
 from trytond.modules.account.account import _GeneralLedgerAccount
 from trytond.modules.account.common import ActivePeriodMixin
 
-import pdb
-
 logger = logging.getLogger(__name__)
 
 _chunk_size = 100 # number of contract to process in one chunk when processing in queue, 
