@@ -86,15 +86,20 @@
 
             </notebook>
         </page>
+        <page string="Cost Shares" id="page_cost_shares">
+            <newline/>
+            <field name="cost_shares"
+                view_ids="real_estate.cost_share_list"/>
+        </page>
         <page string="Measurements" id="page_measurements">
             <newline/>
             <field name="measurements"
                 view_ids="real_estate.contract_view_list_measurement"/>
-        </page>          
+        </page>
         <page string="Meters" id="page_meters">
             <newline/>
             <field name="meters" />
-        </page>        
+        </page>
     </notebook>
     <newline/>
     <button name="running" string="Running"/>

@@ -662,6 +662,11 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
         ,'on_change_with_measurements',
         setter='set_measurements',)
 
+    cost_shares = fields.Function(
+        fields.One2Many('real_estate.cost_share', None,
+                        'Cost Shares', readonly=True),
+        'get_cost_shares')
+
 
 
     #termination
@@ -825,6 +830,30 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
         if base_object_ids:
             BaseObjectOccupancy.refresh(BaseObject.browse(list(base_object_ids)))
 
+    _COMPUTE_VALUE_SHARES_FIELDS = frozenset({
+        'state', 'start_date', 'end_date',
+        'termination_date', 'terminated_by_type',
+        'termination_notice', 'receipt_of_termination_notice',
+    })
+
+    @classmethod
+    def write(cls, *args):
+        super().write(*args)
+        contract_ids = set()
+        actions = iter(args)
+        for records, values in zip(actions, actions):
+            if cls._COMPUTE_VALUE_SHARES_FIELDS & set(values):
+                for c in records:
+                    contract_ids.add(c.id)
+        if contract_ids:
+            fresh = cls.browse(list(contract_ids))
+            cls._refresh_occupancy_for_contracts(fresh)
+            BaseObject = Pool().get('real_estate.base_object')
+            property_ids = {c.property.id for c in fresh if c.property}
+            if property_ids:
+                BaseObject.compute_value_shares(
+                    BaseObject.browse(list(property_ids)))
+
     @classmethod
     def set_cash_flow(cls, record, name, value):
         pass
@@ -839,6 +868,20 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
                   ]
 
     @classmethod
+    def get_cost_shares(cls, contracts, name):
+        pool = Pool()
+        CostShare = pool.get('real_estate.cost_share')
+        result = {c.id: [] for c in contracts}
+        contract_ids = [c.id for c in contracts]
+        shares = CostShare.search([
+            ('contract', 'in', contract_ids),
+            ('settlement_unit.billing_unit.state', 'not in', ['draft', 'billed']),
+        ])
+        for share in shares:
+            result[share.contract.id].append(share.id)
+        return result
+
+    @classmethod
     def get_term_types_of_use(cls):
         pool = Pool()
         BaseObject = pool.get('real_estate.base_object')
@@ -847,6 +890,12 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
     @classmethod
     def default_company(cls):
         return Transaction().context.get('company')
+
+    def get_effective_end_date(self):
+        if self.termination_date and (
+                not self.end_date or self.termination_date < self.end_date):
+            return self.termination_date
+        return self.end_date
 
     @fields.depends('terms',)
     def on_change_with_cash_flow(self,name=None):
@@ -1117,12 +1166,9 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
             if effective_start > date:
                 contract.add_log('process',f'contract booking start {effective_start} - finished')
                 exit
-            if contract.end_date != None and contract.end_date < date:
-                contract.add_log('process',f'contract end_date {contract.end_date} - finished')
-                exit            
-            if contract.termination_date != None and contract.termination_date < date:
-                contract.add_log('process',f'contract termination_date {contract.termination_date} - finished')
-                exit    
+            if contract.get_effective_end_date() != None and contract.get_effective_end_date() < date:
+                contract.add_log('process',f'contract effective_end_date {contract.get_effective_end_date()} - finished')
+                exit
 
             process_terms = []
             for term in contract.terms:
@@ -1461,12 +1507,12 @@ class ContractItem(sequence_ordered(), ModelSQL, ModelView, metaclass=PoolMeta):
                         item.rec_name,
                         item.valid_from.isoformat(),
                         item.contract.start_date.isoformat()))
-            if item.contract.end_date and item.valid_from > item.contract.end_date:
+            if item.contract.get_effective_end_date() and item.valid_from > item.contract.get_effective_end_date():
                 raise ValidationError(
                     gettext('real_estate.msg_item_valid_from_after_contract_end',
                         item.rec_name,
                         item.valid_from.isoformat(),
-                        item.contract.end_date.isoformat()))
+                        item.contract.get_effective_end_date().isoformat()))
 
     @classmethod
     def set_children(cls, record, name, value):
@@ -2337,12 +2383,12 @@ class ContractTerm(sequence_ordered(), ModelSQL, ModelView, TaxableMixin):
                         term.rec_name,
                         term.valid_from.isoformat(),
                         term.contract.start_date.isoformat()))
-            if term.contract.end_date and term.valid_from > term.contract.end_date:
+            if term.contract.get_effective_end_date() and term.valid_from > term.contract.get_effective_end_date():
                 raise ValidationError(
                     gettext('real_estate.msg_term_valid_from_after_contract_end',
                         term.rec_name,
                         term.valid_from.isoformat(),
-                        term.contract.end_date.isoformat()))
+                        term.contract.get_effective_end_date().isoformat()))
 
     @fields.depends('cash_flow')
     def on_change_with_last_document_date(self, name=None):
@@ -2448,8 +2494,7 @@ class ContractTerm(sequence_ordered(), ModelSQL, ModelView, TaxableMixin):
         def _check_valid_to(i_date:datetime.date):
             """ next doc date must between valid_fromn/valid_to and contract start/end/start_booking"""
             if ( self.valid_to != None and self.valid_to < i_date and self.contract.start_booking_date < i_date ) \
-                or (self.contract.end_date != None and self.contract.end_date < i_date )\
-                or (self.contract.termination_date != None and self.contract.termination_date < i_date ):
+                or (self.contract.get_effective_end_date() != None and self.contract.get_effective_end_date() < i_date ):
                 return self.last_document_date
             else: 
 

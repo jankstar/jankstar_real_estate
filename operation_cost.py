@@ -283,10 +283,10 @@ class BillingUnit(Workflow,DeactivableMixin, sequence_ordered(), ModelSQL, Model
     @fields.depends('settlement_units', 'start_date', 'end_date',
             'term_types_of_use', 'billing_type')
     def on_change_with_cash_flow_lines(self, name=None):
-        # Collect contracts from cost_shares of all settlement_units.
-        # Filter by term_types_of_use and document_date within start_date..end_date.
-        # billing_type='actual_billing': only paid lines (invoice_state='paid').
-        # billing_type='planned_billing': all lines except cancelled invoices.
+        """Collect contracts from cost_shares of all settlement_units.
+        Filter by term_types_of_use and document_date within start_date..end_date.
+        billing_type='actual_billing': only paid lines (invoice_state='paid').
+        billing_type='planned_billing': all lines except cancelled invoices."""
         CashFlowLine = Pool().get('real_estate.contract.term.cash_flow')
         contract_ids = list({
             cs.contract.id
@@ -311,7 +311,7 @@ class BillingUnit(Workflow,DeactivableMixin, sequence_ordered(), ModelSQL, Model
         return CashFlowLine.search(domain)
 
     def _get_cost_shares(self):
-        # Returns all cost_shares across settlement_units, or [] if guard fails.
+        """Returns all cost_shares across settlement_units, or [] if guard fails."""
         if self.state == 'draft':
             return []
         shares = [
@@ -337,7 +337,7 @@ class BillingUnit(Workflow,DeactivableMixin, sequence_ordered(), ModelSQL, Model
 
     @fields.depends('state', 'settlement_units')
     def on_change_with_sum_actual_cost_by_owner(self, name=None):
-        # Cost shares without contract = costs borne by owner (vacancy/object)
+        """Cost shares without contract = costs borne by owner (vacancy/object)."""
         shares = self._get_cost_shares()
         if not shares:
             return Decimal(0)
@@ -349,7 +349,7 @@ class BillingUnit(Workflow,DeactivableMixin, sequence_ordered(), ModelSQL, Model
 
     @fields.depends('state', 'settlement_units')
     def on_change_with_sum_actual_cost_by_allocation(self, name=None):
-        # Cost shares with contract = costs allocated to tenants
+        """Cost shares with contract = costs allocated to tenants."""
         shares = self._get_cost_shares()
         if not shares:
             return Decimal(0)
@@ -370,7 +370,7 @@ class BillingUnit(Workflow,DeactivableMixin, sequence_ordered(), ModelSQL, Model
 
     @fields.depends('state', 'settlement_units', 'cash_flow_lines')
     def on_change_with_sum_refund_receivable(self, name=None):
-        # Positive = tenant owes additional payment; negative = refund due to tenant.
+        """Positive = tenant owes additional payment; negative = refund due to tenant."""
         shares = self._get_cost_shares()
         if not shares:
             return Decimal(0)

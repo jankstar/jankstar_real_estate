@@ -363,6 +363,12 @@ class BaseObject(Workflow, DeactivableMixin, re_sequence_ordered(), tree(separat
                     'invisible': Eval('type') != 'object',
                     'depends': ['type'],
                     },
+                'compute_value_shares': {
+                    'invisible': ~(
+                        (Eval('type') == 'property') &
+                        (Eval('state') == 'approved')),
+                    'depends': ['type', 'state'],
+                    },
                 })
 
     @classmethod
@@ -372,6 +378,36 @@ class BaseObject(Workflow, DeactivableMixin, re_sequence_ordered(), tree(separat
         objects = [o for o in base_objects if o.type == 'object']
         if objects:
             BaseObjectOccupancy.refresh(objects)
+
+    @classmethod
+    @ModelView.button
+    def compute_value_shares(cls, base_objects):
+        BillingUnit = Pool().get('real_estate.billing_unit')
+        for obj in base_objects:
+            if obj.type != 'property' or obj.state != 'approved':
+                continue
+            units = [bu for bu in obj.billing_units if bu.state == 'value_share']
+            if units:
+                BillingUnit.compute_value_shares_button(units)
+
+    @classmethod
+    def write(cls, *args):
+        super().write(*args)
+        object_ids = set()
+        actions = iter(args)
+        for records, _ in zip(actions, actions):
+            for obj in records:
+                object_ids.add(obj.id)
+        if object_ids:
+            BaseObjectOccupancy = Pool().get('real_estate.base_object.occupancy')
+            rental_objects = [
+                o for o in cls.browse(list(object_ids)) if o.type == 'object']
+            if rental_objects:
+                BaseObjectOccupancy.refresh(rental_objects)
+                property_ids = {
+                    o.property.id for o in rental_objects if o.property}
+                if property_ids:
+                    cls.compute_value_shares(cls.browse(list(property_ids)))
 
     @classmethod
     def default_company(cls):
@@ -671,6 +707,9 @@ class BaseObjectOccupancy(ModelSQL, ModelView):
         for item in items:
             item_start = max(item.valid_from, ref_start) if item.valid_from else ref_start
             item_end = item.valid_to
+            contract_end = item.contract.get_effective_end_date() if item.contract else None
+            if contract_end:
+                item_end = min(item_end, contract_end) if item_end else contract_end
             if ref_end:
                 item_end = min(item_end, ref_end) if item_end else ref_end
 
@@ -815,7 +854,8 @@ class BaseObjectOccupancyContext(ModelView):
 
     @classmethod
     def default_to_date(cls):
-        return Pool().get('ir.date').today()
+        today = Pool().get('ir.date').today()
+        return today.replace(month=12, day=31)
 
 
 #**************************************************************************

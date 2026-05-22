@@ -111,4 +111,6 @@ this repository contains the full copyright notices and license terms. -->
                 view_ids="real_estate.base_object_view_list_children"/>
         </page>
     </notebook>
+    <newline/>
+    <button name="compute_value_shares" string="Compute Value Shares"/>
 </form>
