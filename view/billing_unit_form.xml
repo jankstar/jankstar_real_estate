@@ -8,10 +8,36 @@
         <label name="state"/><field name="state" colspan="2"/>
     </group>
     <newline/>
+    <group col="6" colspan="6" id="billing_unit_sums">
+        <label name="sum_planned_costs"/><field name="sum_planned_costs" readonly="1"/>
+        <label name="sum_actual_costs"/><field name="sum_actual_costs" readonly="1"/>
+        <newline/>
+        <label name="sum_actual_cost_by_owner"/><field name="sum_actual_cost_by_owner" readonly="1"/>
+        <label name="sum_actual_cost_by_allocation"/><field name="sum_actual_cost_by_allocation" readonly="1"/>
+        <newline/>
+        <label name="sum_advanced_payment"/><field name="sum_advanced_payment" readonly="1"/>
+        <label name="sum_refund_receivable"/><field name="sum_refund_receivable" readonly="1"/>
+    </group>
+    <newline/>
     <notebook colspan="8">
         <page string="Settlement Units" id="page_settlement_units" col="-1">
             <field name="settlement_units"
                 view_ids="real_estate.base_object_view_list_settlement_unit"/>
+        </page>
+        <page string="Invoice Lines" id="page_invoice_lines" col="6">
+            <field name="invoice_lines"
+                view_ids="real_estate.invoice_line_view_tree_billing_unit"
+                readonly="1"/>
+        </page>
+        <page string="Value Shares" id="page_value_shares" col="1">
+            <field name="cost_shares"
+                view_ids="real_estate.cost_share_list,real_estate.cost_share_form"
+                readonly="1"/>
+        </page>
+        <page string="Cash Flow Lines" id="page_cash_flow_lines" col="1">
+            <field name="cash_flow_lines"
+                view_ids="real_estate.contract_term_cash_flow_view_tree,real_estate.contract_term_cash_flow_view_form"
+                readonly="1"/>
         </page>
         <page string="Detail" id="page_detail" col="6">
             <group col="6" colspan="4" id="billing_unit_detail_general">
@@ -29,6 +55,8 @@
         </page>
 
     </notebook>
+
+
     <button name="approved" string="Approved" colspan="1"/>
     <button name="selection" string="Selection" colspan="1"/>
     <button name="compute_value_shares_button" string="Compute Value Shares" colspan="1"/>

@@ -1,12 +1,14 @@
 from functools import total_ordering
+from decimal import Decimal
 
 from sql import Column
 
 from trytond.i18n import lazy_gettext, gettext
 from trytond.model import Index, Model, ModelSQL, fields
+from trytond.modules.currency.fields import Monetary
 from trytond.pool import Pool, PoolMeta
 from trytond.transaction import Transaction
- 
+
 from trytond.pyson import Bool, Eval, Id, If
 
 
@@ -63,6 +65,21 @@ class InvoiceLine(metaclass=PoolMeta):
         ]
     )
 
+    invoice_date = fields.Function(
+        fields.Date('Invoice Date'),
+        'on_change_with_invoice_date'
+    )
+
+    tax_amount = fields.Function(
+        Monetary('Tax Amount', currency='currency', digits='currency'),
+        'on_change_with_tax_amount'
+    )
+
+    total_amount = fields.Function(
+        Monetary('Total Amount', currency='currency', digits='currency'),
+        'on_change_with_total_amount'
+    )
+
     settlement_unit = fields.Many2One(
         'real_estate.settlement_unit', 'Settlement Unit',
         domain=[
@@ -112,6 +129,35 @@ class InvoiceLine(metaclass=PoolMeta):
             Index(table,
                 (Column(table, 'settlement_unit'), Index.Range(order='ASC NULLS FIRST')),
                 (table.id, Index.Range(order='ASC NULLS FIRST'))))
+
+    @fields.depends('invoice')
+    def on_change_with_invoice_date(self, name=None):
+        if self.invoice:
+            return self.invoice.invoice_date
+        return None
+
+    @fields.depends('taxes', 'unit_price', 'quantity', 'taxes_date', 'invoice')
+    def on_change_with_tax_amount(self, name=None):
+        if not self.taxes:
+            return Decimal(0)
+        Tax = Pool().get('account.tax')
+        date = (self.taxes_date
+            or (self.invoice.invoice_date if self.invoice else None))
+        tax_list = Tax.compute(
+            list(self.taxes),
+            self.unit_price or Decimal(0),
+            self.quantity or Decimal(0),
+            date)
+        total = sum(t['amount'] for t in tax_list)
+        if self.invoice and self.invoice.currency:
+            total = self.invoice.currency.round(total)
+        return total
+
+    @fields.depends('amount', 'taxes', 'unit_price', 'quantity', 'taxes_date', 'invoice')
+    def on_change_with_total_amount(self, name=None):
+        amount = self.amount or Decimal(0)
+        tax_amount = self.on_change_with_tax_amount() or Decimal(0)
+        return amount + tax_amount
 
     @fields.depends('invoice')
     def on_change_with_contract(self, name=None):

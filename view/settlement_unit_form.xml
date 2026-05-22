@@ -58,4 +58,10 @@
             view_ids="real_estate.cost_share_list,real_estate.cost_share_form"/>
     </group>
 
+    <group colspan="6" id="settlement_unit_invoice_lines">
+        <field name="invoice_lines"
+            view_ids="real_estate.invoice_line_view_tree_settlement_unit"
+            readonly="1"/>
+    </group>
+
 </form>

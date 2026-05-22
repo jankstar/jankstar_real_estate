@@ -828,5 +828,17 @@
             <field name="name">invoice_line_form</field>
         </record>
 
+        <record model="ir.ui.view" id="invoice_line_view_tree_settlement_unit">
+            <field name="model">account.invoice.line</field>
+            <field name="type">tree</field>
+            <field name="name">invoice_line_tree_settlement_unit</field>
+        </record>
+
+        <record model="ir.ui.view" id="invoice_line_view_tree_billing_unit">
+            <field name="model">account.invoice.line</field>
+            <field name="type">tree</field>
+            <field name="name">invoice_line_tree_billing_unit</field>
+        </record>
+
     </data>
 </tryton>

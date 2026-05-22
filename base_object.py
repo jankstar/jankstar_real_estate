@@ -196,6 +196,17 @@ class BaseObject(Workflow, DeactivableMixin, re_sequence_ordered(), tree(separat
             'invisible': Eval('type') != 'property',
             }
     
+    billing_as = fields.Selection([
+            ('residential', 'Residential (gross)'),
+            ('commercial', 'Commercial (net)'),
+            ],
+        'Billing as',
+        sort=False,
+        states={
+            'invisible': Eval('type') != 'property',
+            'readonly': Eval('state') != 'draft',
+            })
+
     billing_units = fields.One2Many('real_estate.billing_unit', 'property', 'Billing Units',
         states=_states_only_propperty)
 
@@ -369,6 +380,10 @@ class BaseObject(Workflow, DeactivableMixin, re_sequence_ordered(), tree(separat
     @staticmethod
     def default_state():
         return 'draft'
+
+    @staticmethod
+    def default_billing_as():
+        return 'residential'
     
     @classmethod
     def default_meter_factor(cls):
