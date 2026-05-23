@@ -919,8 +919,8 @@ class SettlementUnit(DeactivableMixin, base_object.re_sequence_ordered(), ModelS
 
     def selection(self):
         """Select objects and contracts for billing using the occupancy table."""
-        if self.state != 'approved' and self.state != 'selection':
-            raise ValidationError(gettext("Only settlement units with state 'Approved' or 'Selection' can be selected."))
+        if self.state != 'approved' and self.state != 'selection' and self.state != 'value_share':
+            raise ValidationError(gettext("Only settlement units with state 'Approved' or 'Selection' or 'Value Share' can be selected."))
 
         CostShare = Pool().get('real_estate.cost_share')
         if self.cost_shares:
@@ -928,24 +928,29 @@ class SettlementUnit(DeactivableMixin, base_object.re_sequence_ordered(), ModelS
 
         Occupancy = Pool().get('real_estate.base_object.occupancy')
         is_weg = self.billing_unit.calculation_method == 'WEG_billing'
+        bu_start = self.billing_unit.start_date
+        bu_end = self.billing_unit.end_date
         object_count = 0
 
         for object in self.objects:
             if not (object.state == 'approved'
-                    and object.start_date <= self.end_date
-                    and (object.end_date is None or object.end_date >= self.start_date)):
+                    and object.start_date <= bu_end
+                    and (object.end_date is None or object.end_date >= bu_start)):
                 continue
             object_count += 1
 
-            # Query occupancy entries for this object overlapping the settlement unit period
+            # Refresh occupancy so date ranges reflect current contract state
+            Occupancy.refresh([object])
+
+            # Occupancy entries overlapping the billing unit period
             occ_domain = [
                 ('base_object', '=', object.id),
-                ('start_date', '<=', self.end_date),
-                ['OR', ('end_date', '=', None), ('end_date', '>=', self.start_date)],
+                ('start_date', '<=', bu_end),
+                ['OR', ('end_date', '=', None), ('end_date', '>=', bu_start)],
             ]
 
             if is_weg:
-                # Last rented entry covers the entire billing unit period
+                # WEG: last rented entry covers the entire billing unit period
                 entries = Occupancy.search(
                     occ_domain + [('state', '=', 'rented')],
                     order=[('start_date', 'DESC')], limit=1)
@@ -958,26 +963,29 @@ class SettlementUnit(DeactivableMixin, base_object.re_sequence_ordered(), ModelS
                         settlement_unit=self.id,
                         contract=entries[0].contract.id if entries[0].contract else None,
                         base_object=object.id,
-                        start_date=self.billing_unit.start_date,
-                        end_date=self.billing_unit.end_date,
+                        start_date=bu_start,
+                        end_date=bu_end,
                         state='selection',
                     )
                     cost_share.save()
             else:
+                # Non-WEG: all rented entries create cost shares for their respective periods; 
+                # if vacancy allocation by owner, also create cost shares for vacant periods
                 entries = Occupancy.search(occ_domain, order=[('start_date', 'ASC')])
-                rented = [e for e in entries if e.state == 'rented']
-                vacant = [e for e in entries if e.state == 'vacant']
                 by_owner = self.vacancy == 'by_owner'
-                if not rented and not (vacant and by_owner):
+                rented = any(e.state == 'rented' for e in entries)
+                if not rented and not (any(e.state == 'vacant' for e in entries) and by_owner):
                     self.billing_unit.add_log('selection_error',
                         f'Settlement unit {self.id}: no rented occupancy found'
                         f' for object {object.id}.')
                 else:
                     for occ in entries:
-                        share_start = max(occ.start_date, self.start_date) if occ.start_date else self.start_date
-                        share_end = (min(occ.end_date, self.end_date)
-                            if occ.end_date and self.end_date
-                            else (occ.end_date or self.end_date))
+                        # cap to billing unit period
+                        share_start = max(occ.start_date, bu_start)
+                        if occ.end_date:
+                            share_end = min(occ.end_date, bu_end) if bu_end else occ.end_date
+                        else:
+                            share_end = bu_end
 
                         if occ.state == 'rented':
                             cost_share = CostShare(
@@ -989,7 +997,7 @@ class SettlementUnit(DeactivableMixin, base_object.re_sequence_ordered(), ModelS
                                 state='selection',
                             )
                             cost_share.save()
-                        elif occ.state == 'vacant' and self.vacancy == 'by_owner':
+                        elif occ.state == 'vacant' and by_owner:
                             cost_share = CostShare(
                                 settlement_unit=self.id,
                                 contract=None,
@@ -1178,11 +1186,11 @@ class SettlementUnit(DeactivableMixin, base_object.re_sequence_ordered(), ModelS
                 if diff > 0:
                     rows.sort(key=lambda r: r[1])
                     for i in range(n):
-                        rows[i][1] += _cent
+                        rows[i % len(rows)][1] += _cent
                 else:
                     rows.sort(key=lambda r: r[1], reverse=True)
                     for i in range(n):
-                        rows[i][1] -= _cent
+                        rows[i % len(rows)][1] -= _cent
             return rows
 
         planned_rows = _distribute(self.planned_costs or Decimal(0))
@@ -1275,8 +1283,7 @@ class CostShare(DeactivableMixin, ModelSQL, ModelView):
         )
     
     base_object = fields.Many2One('real_estate.base_object', 'Object', ondelete='CASCADE',
-        states={
-        'readonly': True,},
+        domain=[('type', '=', 'object')],
         )
     
     value_share = fields.Float('Value Share',digits=(16, 4),
@@ -1361,6 +1368,13 @@ class CostShareContext(ModelView):
         domain=[
             If(Eval('billing_unit', None),
                 [('billing_unit', '=', Eval('billing_unit', None))],
+                []),
+        ])
+    base_object = fields.Many2One('real_estate.base_object', 'Object',
+        domain=[
+            ('type', '=', 'object'),
+            If(Eval('property', None),
+                [('property', '=', Eval('property', None))],
                 []),
         ])
     contract = fields.Many2One('real_estate.contract', 'Contract',

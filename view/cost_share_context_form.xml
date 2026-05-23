@@ -8,6 +8,8 @@
     <newline/>
     <label name="settlement_unit"/><field name="settlement_unit" colspan="2"/>
     <newline/>
+    <label name="base_object"/><field name="base_object" colspan="2"/>
+    <newline/>
     <label name="contract"/><field name="contract" colspan="2"/>
     <newline/>
     <label name="from_date"/><field name="from_date"/>

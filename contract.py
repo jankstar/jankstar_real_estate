@@ -776,6 +776,11 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
         for contract in contrats:
             contract.add_log('state_change', f'contract state changed to running')
             contract.state = 'running'
+            contract.terminated_by_type = None
+            contract.receipt_of_termination_notice = None
+            contract.termination_notice = ''
+            contract.termination_date = None
+            contract.termination_reason = None
             contract.save()
         cls._refresh_occupancy_for_contracts(contrats)
 
@@ -822,6 +827,7 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
         pool = Pool()
         BaseObjectOccupancy = pool.get('real_estate.base_object.occupancy')
         BaseObject = pool.get('real_estate.base_object')
+        ContractItem = pool.get('real_estate.contract.item')
         base_object_ids = set()
         for contract in contracts:
             for item in contract.items:
@@ -829,6 +835,7 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
                     base_object_ids.add(item.object.id)
         if base_object_ids:
             BaseObjectOccupancy.refresh(BaseObject.browse(list(base_object_ids)))
+            ContractItem._trigger_billing_unit_selection(base_object_ids)
 
     _COMPUTE_VALUE_SHARES_FIELDS = frozenset({
         'state', 'start_date', 'end_date',
@@ -1593,6 +1600,28 @@ class ContractItem(sequence_ordered(), ModelSQL, ModelView, metaclass=PoolMeta):
         BaseObjectOccupancy = pool.get('real_estate.base_object.occupancy')
         BaseObject = pool.get('real_estate.base_object')
         BaseObjectOccupancy.refresh(BaseObject.browse(list(base_object_ids)))
+        cls._trigger_billing_unit_selection(base_object_ids)
+
+    @classmethod
+    def _trigger_billing_unit_selection(cls, base_object_ids):
+        pool = Pool()
+        BaseObject = pool.get('real_estate.base_object')
+        BillingUnit = pool.get('real_estate.billing_unit')
+        objects = BaseObject.browse(list(base_object_ids))
+        property_ids = {o.property.id for o in objects if o.property}
+        if not property_ids:
+            return
+        billing_units = BillingUnit.search([
+            ('property', 'in', list(property_ids)),
+            ('state', 'in', ['approved', 'selection', 'value_share']),
+        ])
+        if not billing_units:
+            return
+        BillingUnit.selection(billing_units)
+        refreshed = BillingUnit.browse([bu.id for bu in billing_units])
+        compute_units = [bu for bu in refreshed if bu.state in ('selection', 'value_share')]
+        if compute_units:
+            BillingUnit.compute_value_shares_button(compute_units)
 
 #**********************************************************************
 class ContractTermType(DeactivableMixin, base_object.re_sequence_ordered(), ModelSQL, ModelView):

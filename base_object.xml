@@ -627,7 +627,7 @@
             <field name="res_model">real_estate.base_object.occupancy</field>
             <field name="context_model">real_estate.base_object.occupancy.context</field>
             <field name="context_domain"
-                eval="[('company', '=', Eval('company', -1)), If(Eval('property', None), [('property', '=', Eval('property', None))], []), If(Eval('contract', None), [('contract', '=', Eval('contract', None))], []), If(Eval('from_date', None), [('start_date', '>=', Eval('from_date', None))], []), If(Eval('to_date', None), [('start_date', '&lt;=', Eval('to_date', None))], []), If(Eval('state', None), [('state', '=', Eval('state', None))], [])]"
+                eval="[('company', '=', Eval('company', -1)), If(Eval('property', None), [('property', '=', Eval('property', None))], []), If(Eval('base_object', None), [('base_object', '=', Eval('base_object', None))], []), If(Eval('contract', None), [('contract', '=', Eval('contract', None))], []), If(Eval('from_date', None), [('start_date', '>=', Eval('from_date', None))], []), If(Eval('to_date', None), [('start_date', '&lt;=', Eval('to_date', None))], []), If(Eval('state', None), [('state', '=', Eval('state', None))], [])]"
                 pyson="1"/>
         </record>
 

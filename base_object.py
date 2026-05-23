@@ -828,6 +828,13 @@ class BaseObjectOccupancyContext(ModelView):
             ('type', '=', 'property'),
             ('company', '=', Eval('company', -1)),
         ])
+    base_object = fields.Many2One('real_estate.base_object', 'Object',
+        domain=[
+            ('type', '=', 'object'),
+            If(Eval('property', None),
+                [('property', '=', Eval('property', None))],
+                []),
+        ])
     contract = fields.Many2One('real_estate.contract', 'Contract',
         domain=[
             ('company', '=', Eval('company', -1)),

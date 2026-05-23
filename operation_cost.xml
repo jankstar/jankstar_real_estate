@@ -216,7 +216,7 @@
             <field name="res_model">real_estate.cost_share</field>
             <field name="context_model">real_estate.cost_share.context</field>
             <field name="context_domain"
-                eval="[('settlement_unit.billing_unit.property.company', '=', Eval('company', -1)), If(Eval('property', None), [('settlement_unit.billing_unit.property', '=', Eval('property', None))], []), If(Eval('billing_unit', None), [('settlement_unit.billing_unit', '=', Eval('billing_unit', None))], []), If(Eval('settlement_unit', None), [('settlement_unit', '=', Eval('settlement_unit', None))], []), If(Eval('contract', None), [('contract', '=', Eval('contract', None))], []), If(Eval('from_date', None), [('start_date', '&gt;=', Eval('from_date', None))], []), If(Eval('to_date', None), [('end_date', '&lt;=', Eval('to_date', None))], [])]"
+                eval="[('settlement_unit.billing_unit.property.company', '=', Eval('company', -1)), If(Eval('property', None), [('settlement_unit.billing_unit.property', '=', Eval('property', None))], []), If(Eval('billing_unit', None), [('settlement_unit.billing_unit', '=', Eval('billing_unit', None))], []), If(Eval('settlement_unit', None), [('settlement_unit', '=', Eval('settlement_unit', None))], []), If(Eval('base_object', None), [('base_object', '=', Eval('base_object', None))], []), If(Eval('contract', None), [('contract', '=', Eval('contract', None))], []), If(Eval('from_date', None), [('start_date', '&gt;=', Eval('from_date', None))], []), If(Eval('to_date', None), [('end_date', '&lt;=', Eval('to_date', None))], [])]"
                 pyson="1"/>
         </record>
 
