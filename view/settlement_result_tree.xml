@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<tree>
+    <field name="state" optional="0" width="80"/>
+    <field name="contract" optional="0"/>
+    <field name="base_object" optional="0"/>
+    <field name="start_date" optional="0" width="100"/>
+    <field name="end_date" optional="0" width="100"/>
+    <field name="planned_costs" optional="0" sum="1"/>
+    <field name="actual_costs" optional="0" sum="1"/>
+    <field name="advanced_payment" optional="0" sum="1"/>
+    <field name="refund_receivable" optional="0" sum="1"/>
+    <field name="currency" optional="1"/>
+</tree>

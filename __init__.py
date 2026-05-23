@@ -58,6 +58,8 @@ def register():
         operation_cost.BillingUnitLog,
         operation_cost.BillingUnitLogContext,
         operation_cost.CostShare,
+        operation_cost.SettlementResultContext,
+        operation_cost.SettlementResult,
         module='real_estate', type_='model')
     Pool.register(
         contract.CreateMoves,

@@ -2,6 +2,13 @@
 
     <data>
 
+    <!-- SettlementResult -->
+        <record model="ir.ui.view" id="settlement_result_tree_view">
+            <field name="model">real_estate.settlement_result</field>
+            <field name="type">tree</field>
+            <field name="name">settlement_result_tree</field>
+        </record>
+
     <!-- CostShare -->
         <record model="ir.ui.view" id="cost_share_list">
             <field name="model">real_estate.cost_share</field>
@@ -236,6 +243,34 @@
             action="act_cost_share"
             sequence="40"
             id="menu_cost_share"/>
+
+    <!-- Settlement Result -->
+        <record model="ir.ui.view" id="settlement_result_context_form_view">
+            <field name="model">real_estate.settlement_result.context</field>
+            <field name="type">form</field>
+            <field name="name">settlement_result_context_form</field>
+        </record>
+
+        <record model="ir.action.act_window" id="act_settlement_result">
+            <field name="name">Settlement Results</field>
+            <field name="res_model">real_estate.settlement_result</field>
+            <field name="context_model">real_estate.settlement_result.context</field>
+            <field name="context_domain"
+                eval="[('billing_unit.property.company', '=', Eval('company', -1)), If(Eval('property', None), [('billing_unit.property', '=', Eval('property', None))], []), If(Eval('billing_unit', None), [('billing_unit', '=', Eval('billing_unit', None))], []), If(Eval('contract', None), [('contract', '=', Eval('contract', None))], []), If(Eval('base_object', None), [('base_object', '=', Eval('base_object', None))], []), If(Eval('from_date', None), [('start_date', '&gt;=', Eval('from_date', None))], []), If(Eval('to_date', None), [('end_date', '&lt;=', Eval('to_date', None))], [])]"
+                pyson="1"/>
+        </record>
+
+        <record model="ir.action.act_window.view" id="act_settlement_result_view1">
+            <field name="sequence" eval="10"/>
+            <field name="view" ref="settlement_result_tree_view"/>
+            <field name="act_window" ref="act_settlement_result"/>
+        </record>
+
+        <menuitem
+            parent="menu_real_estate_operation_costs"
+            action="act_settlement_result"
+            sequence="45"
+            id="menu_settlement_result"/>
 
     </data>
 

@@ -39,6 +39,11 @@
                 view_ids="real_estate.contract_term_cash_flow_view_tree,real_estate.contract_term_cash_flow_view_form"
                 readonly="1"/>
         </page>
+        <page string="Settlement Results" id="page_settlement_results" col="1">
+            <field name="settlment_results"
+                view_ids="real_estate.settlement_result_tree_view"
+                readonly="1"/>
+        </page>
         <page string="Detail" id="page_detail" col="6">
             <group col="6" colspan="4" id="billing_unit_detail_general">
                 <label name="company"/><field name="company"/>
@@ -60,6 +65,7 @@
     <button name="approved" string="Approved" colspan="1"/>
     <button name="selection" string="Selection" colspan="1"/>
     <button name="compute_value_shares_button" string="Compute Value Shares" colspan="1"/>
+    <button name="compute_settlement_result" string="Compute Settlement Result" colspan="1"/>
     <button name="billing" string="Billing" colspan="1"/>
 
 </form>

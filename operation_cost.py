@@ -70,6 +70,15 @@ class BillingUnit(Workflow,DeactivableMixin, sequence_ordered(), ModelSQL, Model
         ('WEG_billing', 'WEG Billing'),
         ], "Calculation Method", sort=False,
         states={ 'readonly': Eval('state') != 'draft', },
+        help=(
+            "Rental Apartment: Operating cost settlement for residential tenancies under §§ 1–2 BetrKV. "
+            "Cost shares are allocated to tenants based on floor area, consumption, or number of occupants. "
+            "Advance payments made by tenants are offset; the result is a credit or additional charge per tenant.\n"
+            "WEG Billing: Annual statement for condominium owner associations under § 28 WEG. "
+            "Total costs are distributed among owners according to their co-ownership shares (MEA). "
+            "Paid maintenance fees are offset; reserve fund contributions and non-allocable costs "
+            "remain with the individual owner."
+        ),
         )
 
     billing_type = fields.Selection([
@@ -77,6 +86,15 @@ class BillingUnit(Workflow,DeactivableMixin, sequence_ordered(), ModelSQL, Model
         ('actual_billing', 'Actual Billing'),
         ], "Billing Type", sort=False,
         states={ 'readonly': Eval('state') != 'draft', },
+        help=(
+            "Planned Billing: Settlement based on all invoice lines that have not been cancelled, "
+            "including amounts that are still open (unpaid). "
+            "Suitable for operating cost settlements where all costs incurred in a period are to be "
+            "taken into account regardless of payment receipt.\n"
+            "Actual Billing: Only invoice lines that have actually been paid (status 'paid') are included. "
+            "Suitable for WEG annual statements or cash-based accounting where only "
+            "payments actually received form the basis for settlement."
+        ),
         )
 
     planned_costs = fields.Function(Monetary('Planned Costs', currency='currency', digits= 'currency',#(16, 2),
@@ -121,6 +139,8 @@ class BillingUnit(Workflow,DeactivableMixin, sequence_ordered(), ModelSQL, Model
 
     cash_flow_lines = fields.Function(fields.One2Many('real_estate.contract.term.cash_flow', None, 'Cash Flow Lines'),
         'on_change_with_cash_flow_lines')
+    
+    settlment_results = fields.One2Many('real_estate.settlement_result', 'billing_unit', 'Settlement Results')
 
     sum_planned_costs = fields.Function(
         Monetary('Sum Planned Costs', currency='currency', digits='currency'),
@@ -173,6 +193,10 @@ class BillingUnit(Workflow,DeactivableMixin, sequence_ordered(), ModelSQL, Model
                     'invisible': ~Eval('state').in_(['value_share']),
                     'depends': ['state'],
                     },
+                'compute_settlement_result': {
+                    'invisible': ~Eval('state').in_(['value_share']),
+                    'depends': ['state'],
+                    },
                 })
 
     @classmethod
@@ -214,6 +238,7 @@ class BillingUnit(Workflow,DeactivableMixin, sequence_ordered(), ModelSQL, Model
     @ModelView.button
     def compute_value_shares_button(cls, billing_units):
         SettlementUnit = Pool().get('real_estate.settlement_unit')
+        value_share_ids = []
         for billing_unit in billing_units:
             for su in billing_unit.settlement_units:
                 su.compute_value_shares()
@@ -225,12 +250,105 @@ class BillingUnit(Workflow,DeactivableMixin, sequence_ordered(), ModelSQL, Model
                 billing_unit.add_log('state_change',
                     'billing unit state changed to value_share')
                 billing_unit.state = 'value_share'
+                value_share_ids.append(billing_unit.id)
             billing_unit.save()
+        if value_share_ids:
+            refreshed = cls.browse(value_share_ids)
+            cls.compute_settlement_result(refreshed)
 
     @classmethod
     @ModelView.button
     def billing(cls, billing_units):
         pass
+
+    @classmethod
+    @ModelView.button
+    def compute_settlement_result(cls, billing_units):
+        pool = Pool()
+        SettlementResult = pool.get('real_estate.settlement_result')
+        for billing_unit in billing_units:
+            if billing_unit.state != 'value_share':
+                raise ValidationError(
+                    f"Billing unit {billing_unit.name} is not in state 'value_share'.")
+            existing = SettlementResult.search(
+                [('billing_unit', '=', billing_unit.id)])
+            if existing:
+                SettlementResult.delete(existing)
+            groups = {}
+            for cs in billing_unit._get_cost_shares():
+                if cs.contract:
+                    key = ('contract', cs.contract.id,
+                        cs.base_object.id if cs.base_object else None)
+                elif cs.base_object:
+                    key = ('object', cs.base_object.id)
+                else:
+                    key = None
+                if key not in groups:
+                    groups[key] = {
+                        'contract': cs.contract if cs.contract else None,
+                        'base_object': cs.base_object if cs.base_object else None,
+                        'start_date': cs.start_date,
+                        'end_date': cs.end_date,
+                        'planned_costs': Decimal(0),
+                        'actual_costs': Decimal(0),
+                    }
+                g = groups[key]
+                if cs.start_date and (
+                        g['start_date'] is None or cs.start_date < g['start_date']):
+                    g['start_date'] = cs.start_date
+                if cs.end_date and (
+                        g['end_date'] is None or cs.end_date > g['end_date']):
+                    g['end_date'] = cs.end_date
+                g['planned_costs'] += cs.planned_costs or Decimal(0)
+                g['actual_costs'] += cs.actual_costs or Decimal(0)
+            advanced_by_contract = {}
+            for line in (billing_unit.cash_flow_lines or []):
+                if line.contract:
+                    cid = line.contract.id
+                    advanced_by_contract[cid] = (
+                        advanced_by_contract.get(cid, Decimal(0))
+                        + (line.amount or Decimal(0)))
+            contract_actual_totals = {}
+            contract_object_count = {}
+            for key, g in groups.items():
+                if key and key[0] == 'contract':
+                    cid = key[1]
+                    contract_actual_totals[cid] = (
+                        contract_actual_totals.get(cid, Decimal(0))
+                        + g['actual_costs'])
+                    contract_object_count[cid] = (
+                        contract_object_count.get(cid, 0) + 1)
+            for key, g in groups.items():
+                contract_id = g['contract'].id if g['contract'] else None
+                base_object_id = g['base_object'].id if g['base_object'] else None
+                if contract_id:
+                    total_adv = advanced_by_contract.get(contract_id, Decimal(0))
+                    total_actual = contract_actual_totals.get(contract_id, Decimal(0))
+                    if total_actual > 0:
+                        adv = (total_adv * g['actual_costs'] / total_actual).quantize(
+                            Decimal('0.01'), rounding=ROUND_HALF_UP)
+                    else:
+                        n = contract_object_count.get(contract_id, 1)
+                        adv = (total_adv / n).quantize(
+                            Decimal('0.01'), rounding=ROUND_HALF_UP)
+                    refund = g['actual_costs'] - adv
+                else:
+                    adv = None
+                    refund = None
+                result = SettlementResult(
+                    billing_unit=billing_unit.id,
+                    contract=contract_id,
+                    base_object=base_object_id,
+                    start_date=g['start_date'],
+                    end_date=g['end_date'],
+                    planned_costs=g['planned_costs'],
+                    actual_costs=g['actual_costs'],
+                    advanced_payment=adv,
+                    refund_receivable=refund,
+                )
+                result.save()
+            billing_unit.add_log('compute_settlement_result',
+                f'Settlement results computed: {len(groups)} records created.')
 
 
     @staticmethod
@@ -1400,3 +1518,143 @@ class CostShareContext(ModelView):
     def default_to_date(cls):
         today = Pool().get('ir.date').today()
         return today.replace(month=12, day=31)
+    
+#**********************************************************************
+class SettlementResultContext(ModelView):
+    'Settlement Result Context'
+    __name__ = 'real_estate.settlement_result.context'
+
+    company = fields.Many2One('company.company', 'Company', required=True)
+    property = fields.Many2One('real_estate.base_object', 'Property',
+        domain=[
+            ('type', '=', 'property'),
+            ('company', '=', Eval('company', -1)),
+        ])
+    billing_unit = fields.Many2One('real_estate.billing_unit', 'Billing Unit',
+        domain=[
+            If(Eval('property', None),
+                [('property', '=', Eval('property', None))],
+                []),
+        ])
+    contract = fields.Many2One('real_estate.contract', 'Contract',
+        domain=[
+            ('company', '=', Eval('company', -1)),
+            If(Eval('property', None),
+                [('property', '=', Eval('property', None))],
+                []),
+        ])
+    base_object = fields.Many2One('real_estate.base_object', 'Object',
+        domain=[
+            ('type', '=', 'object'),
+            If(Eval('property', None),
+                [('property', '=', Eval('property', None))],
+                []),
+        ])
+    from_date = fields.Date('From Date')
+    to_date = fields.Date('To Date')
+
+    @classmethod
+    def default_company(cls):
+        return Transaction().context.get('company')
+
+    @classmethod
+    def default_from_date(cls):
+        today = Pool().get('ir.date').today()
+        return today.replace(month=1, day=1)
+
+    @classmethod
+    def default_to_date(cls):
+        today = Pool().get('ir.date').today()
+        return today.replace(month=12, day=31)
+
+ #**********************************************************************
+class SettlementResult(ModelSQL, ModelView):
+    __name__ = 'real_estate.settlement_result'
+    __rec_name__ = 'name'
+
+    billing_unit = fields.Many2One('real_estate.billing_unit', 'Billing Unit', required=True, ondelete='CASCADE',)
+
+    name = fields.Function(fields.Char('Name'), 'on_change_with_name',
+        searcher='search_name')
+
+    state = fields.Selection([
+            ('approved', 'Approved'),
+            ('billed', 'Billed'),
+            ], "State", sort=False,
+            states={ 'readonly': True, },
+            )
+    
+    start_date = fields.Date('Start Date', 
+         states={
+        'readonly': True,},
+        )
+    
+    end_date = fields.Date('End Date', 
+         states={
+        'readonly': True,},
+        )
+    
+    contract = fields.Many2One('real_estate.contract', 'Contract', ondelete='CASCADE',
+        states={
+            'readonly': True,},
+        )
+    
+    base_object = fields.Many2One('real_estate.base_object', 'Object', ondelete='CASCADE',
+        domain=[('type', '=', 'object')],
+        states={
+            'readonly': True,},        
+        )
+    
+    planned_costs = Monetary('Planned Costs', currency='currency', digits= 'currency',#(16, 2),
+        states={
+            'readonly': True,},
+        )
+    
+    actual_costs = Monetary('Actual Costs', currency='currency', digits= 'currency',#(16, 2),
+        states={
+            'readonly': True,},
+        )
+
+    advanced_payment = Monetary('Advanced Payment', currency='currency', digits='currency',
+        states={ 
+            'readonly': True,},
+        )
+
+    refund_receivable = Monetary('Refund/Receivable', currency='currency', digits='currency',
+        states={ 
+            'readonly': True,},
+        )
+
+    currency = fields.Function(fields.Many2One('currency.currency', 'Currency',), 'on_change_with_currency') 
+
+
+    @fields.depends('start_date', 'end_date', 'contract', 'base_object')
+    def on_change_with_name(self, name=None):
+        date_part = (
+            f"{self.start_date:%Y-%m-%d}" if self.start_date else '?'
+        ) + ' - ' + (
+            f"{self.end_date:%Y-%m-%d}" if self.end_date else '?'
+        )
+        if self.contract:
+            return f"{date_part} / {self.contract.rec_name}"
+        elif self.base_object:
+            return f"{date_part} / {self.base_object.rec_name}"
+        return date_part
+
+    @classmethod
+    def search_name(cls, name, clause):
+        _, operator, value = clause
+        return ['OR',
+            ('contract', operator, value),
+            ('base_object.name', operator, value),
+        ]    
+    
+    @staticmethod
+    def default_state():
+        return 'approved'
+
+    @fields.depends('billing_unit')
+    def on_change_with_currency(self, name=None):
+        return self.billing_unit.currency if self.billing_unit else None
+
+
