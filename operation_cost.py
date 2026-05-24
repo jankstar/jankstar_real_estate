@@ -32,12 +32,22 @@ class InvalidCalculationMethod(ValidationError):
     pass
 
 #**********************************************************************
+class CostCategoryGroup(DeactivableMixin, sequence_ordered(), ModelSQL, ModelView):
+    "Cost Category Group"
+    __name__ = 'real_estate.cost_category_group'
+
+    name = fields.Char("Name", required=True, translate=True)
+
+#**********************************************************************
 class CostType(DeactivableMixin, sequence_ordered(), ModelSQL, ModelView):
     __name__ = 'real_estate.cost_type'
 
     name = fields.Char("Name", required=True, translate=True)
-    comment = fields.Text("Comment")    
+    comment = fields.Text("Comment")
     no_print = fields.Boolean("No Print")
+    category_group = fields.Many2One(
+        'real_estate.cost_category_group', "Category Group",
+        ondelete='SET NULL')
 
 #**********************************************************************
 class BillingUnit(Workflow,DeactivableMixin, sequence_ordered(), ModelSQL, ModelView):

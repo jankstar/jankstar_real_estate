@@ -1,237 +1,817 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:py="http://genshi.edgewall.org/" 
+      xmlns:py="http://genshi.edgewall.org/"
       xmlns:i18n="http://genshi.edgewall.org/i18n"
-      lang="en">
-    <?python 
-        from genshi import XML, HTML
-    ?>
+      lang="de">
+<?python
+from genshi import XML, HTML
+from decimal import Decimal
+?>
 <head>
     <meta charset="utf-8" />
-
     <title>Mietvertrag</title>
     <meta content="width=device-width, initial-scale=1" name="viewport" />
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Infant:ital,wght@0,300..700;1,300..700" rel="stylesheet"
-        type="text/css" />
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&amp;family=Source+Serif+4:ital,wght@0,300;0,400;0,600;1,300&amp;display=swap"
+          rel="stylesheet" type="text/css" />
     <script src="https://unpkg.com/pagedjs/dist/paged.polyfill.js" defer="true"> </script>
 
     <style type="text/css">
-        
+        :root {
+            --ink: #1a1714;
+            --ink-light: #4a4540;
+            --ink-muted: #8a8480;
+            --rule: #c8bfb0;
+            --rule-light: #e8e0d4;
+            --cream: #faf7f2;
+            --accent: #8b1a1a;
+            --accent-soft: #f0e8e0;
+            --field-bg: #f5f0e8;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
         @page {
             size: A4;
             margin-left: 25mm;
-            margin-right: 10mm;
+            margin-right: 15mm;
             margin-top: 17mm;
             margin-bottom: 17mm;
 
-            @top-left {
-                content: ' ';
-            }   
-
             @top-center {
-                content: ' ${HTML(record.company.header.replace("\n", "\A "))} ';
-                font-family: "Cormorant Infant", serif;
-                white-space: pre;
-                font-size: 10px;
+                content: '${record.company.get_rec_name("")}';
+                font-family: "Source Serif 4", serif;
+                font-size: 9px;
+                color: #8a8480;
             }
 
-            @top-right {
-                content: url("https://discuss-cdn.tryton.org/uploads/default/original/1X/e3125c305e2d732f316c836d9397d8a61079406c.png");
-            }  
-
-            @bottom-center {
-                content: '${record.company.footer.replace("\n", "\A ")}';
-                font-family: "Cormorant Infant", serif;
-                white-space: pre;
-                font-size: 10px;
+            @bottom-left {
+                content: 'Vertrag Nr. ${record.contract_number or ""}';
+                font-family: "Source Serif 4", serif;
+                font-size: 8px;
+                color: #8a8480;
             }
 
             @bottom-right {
                 content: 'Seite ' counter(page) ' von ' counter(pages);
-                font-family: "Cormorant Infant", serif;
-                font-size: 14px;
-            }
-
-            @bottom-left {
-                content: '©tryton - 2025/09/24';
-                font-family: "Cormorant Infant", serif;
-                font-size: 6px;
+                font-family: "Source Serif 4", serif;
+                font-size: 8px;
             }
         }
 
         body {
-            font-family: "Cormorant Infant", serif;
-            font-size: 14px;
-
+            font-family: 'Source Serif 4', Georgia, serif;
+            font-weight: 300;
+            background: #e8e0d0;
+            color: var(--ink);
+            font-size: 10.5pt;
+            line-height: 1.65;
         }
 
-        table {
-            margin-top: 5mm;
-            border-collapse: collapse;
-            border-spacing: 0;
-            table-layout: fixed;
-            width: 100%;
+        .page {
+            background: var(--cream);
+            max-width: 210mm;
+            margin: 20px auto;
+            padding: 22mm 20mm 20mm 24mm;
+            box-shadow: 0 4px 40px rgba(0,0,0,0.18), 0 1px 4px rgba(0,0,0,0.10);
+            position: relative;
         }
 
-        td {
-            border: 1px solid black;
-            padding: 10px;
-            text-align: inherit;
-            vertical-align: top;
-            overflow-wrap: break-word;  /* Besser als word-wrap (veraltet) */
-            hyphens: auto;              /* Silbentrennung falls möglich */
+        .page::before {
+            content: '';
+            position: absolute;
+            left: 0; top: 0; bottom: 0;
+            width: 6px;
+            background: linear-gradient(180deg, var(--accent) 0%, #c0392b 50%, var(--accent) 100%);
         }
 
-        th {
-            border: 1px solid black;
-            padding: 10px;
-            text-align: inherit;
-            vertical-align: top;
-            overflow-wrap: break-word;  /* Besser als word-wrap (veraltet) */
-            hyphens: auto;              /* Silbentrennung falls möglich */
-            text-align: left;
+        .doc-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 8mm;
+            padding-bottom: 5mm;
+            border-bottom: 2px solid var(--ink);
         }
 
-        table,
-        th,
-        td {
-            border: none;
+        .doc-header-left .doc-type {
+            font-family: 'Playfair Display', serif;
+            font-size: 22pt;
+            font-weight: 700;
+            color: var(--accent);
+            letter-spacing: -0.02em;
+            line-height: 1.1;
         }
 
-        h7 {
-            font-size: 8px;
+        .doc-header-left .doc-subtitle {
+            font-size: 9pt;
+            color: var(--ink-muted);
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            margin-top: 2px;
+            font-weight: 400;
         }
 
-        .datum {
+        .doc-header-right {
             text-align: right;
+            font-size: 8.5pt;
+            color: var(--ink-muted);
+            line-height: 1.8;
         }
 
-        .briefkopf {
-            font-size: 21px;
-            font-weight: bold;
+        .doc-header-right strong {
+            color: var(--ink);
+            font-weight: 600;
         }
 
-        .anschrift {
-            margin-top: 12px;
+        .section { margin-bottom: 6mm; }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 3mm;
+            margin-top: 5mm;
         }
 
-        .betreff {
-            margin-top: 8.4mm;
-            font-weight: bold;
-            text-decoration: underline;
+        .section-number {
+            font-family: 'Playfair Display', serif;
+            font-size: 8pt;
+            font-weight: 700;
+            color: var(--cream);
+            background: var(--accent);
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            letter-spacing: 0;
         }
 
-        .kopf {
-            margin: 0%;
-            padding: 0%;
-            border: unset
+        .section-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 11pt;
+            font-weight: 600;
+            color: var(--ink);
+            letter-spacing: 0.01em;
+            border-bottom: 1px solid var(--rule);
+            flex: 1;
+            padding-bottom: 2px;
         }
 
-        .signature {
-            margin: 0%;
-            padding: 0%;
-            border: unset;            
-            line-height: 1.2;          /* Sehr eng für Adressen */
+        .field-grid { display: grid; gap: 2mm 4mm; }
+        .field-grid-2 { grid-template-columns: 1fr 1fr; }
+        .field-grid-3 { grid-template-columns: 1fr 1fr 1fr; }
+
+        .field { display: flex; flex-direction: column; gap: 1px; }
+        .field.span-2 { grid-column: span 2; }
+        .field.span-3 { grid-column: span 3; }
+
+        .field-label {
+            font-size: 7pt;
+            letter-spacing: 0.10em;
+            text-transform: uppercase;
+            color: var(--ink-muted);
+            font-weight: 600;
         }
 
-        .fuss {
-            margin: 0%;
-            padding: 0%;
-            border: unset
+        .field-value {
+            background: var(--field-bg);
+            border-bottom: 1.5px solid var(--rule);
+            padding: 3px 5px;
+            min-height: 20px;
+            font-size: 10pt;
+            color: var(--ink);
+            font-style: italic;
         }
+
+        .field-value.multiline { min-height: 36px; white-space: pre-wrap; }
+        .field-value.blank { color: transparent; }
+
+        .para {
+            margin-bottom: 2.5mm;
+            text-align: justify;
+            hyphens: auto;
+            font-size: 10pt;
+            color: var(--ink-light);
+        }
+
+        .para strong { color: var(--ink); font-weight: 600; }
+
+        .amount-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 3mm 0;
+            font-size: 10pt;
+        }
+
+        .amount-table td {
+            padding: 3px 6px;
+            border-bottom: 1px solid var(--rule-light);
+            vertical-align: top;
+        }
+
+        .amount-table td:last-child {
+            text-align: right;
+            font-variant-numeric: tabular-nums;
+            white-space: nowrap;
+            min-width: 90px;
+            background: var(--field-bg);
+            border-left: 1px solid var(--rule);
+            font-style: italic;
+        }
+
+        .amount-table tr.total td {
+            border-top: 2px solid var(--ink);
+            border-bottom: none;
+            font-weight: 600;
+            color: var(--ink);
+        }
+
+        .amount-table tr.total td:last-child {
+            background: var(--accent-soft);
+            color: var(--accent);
+        }
+
+        .highlight-box {
+            background: var(--accent-soft);
+            border-left: 3px solid var(--accent);
+            padding: 3mm 5mm;
+            margin: 3mm 0;
+            font-size: 10pt;
+        }
+
+        .checklist { list-style: none; margin: 2mm 0; }
+
+        .checklist li {
+            display: flex;
+            align-items: baseline;
+            gap: 6px;
+            padding: 1.5px 0;
+            font-size: 10pt;
+            color: var(--ink-light);
+        }
+
+        .checklist li::before {
+            content: '&#x2610;';
+            font-size: 11pt;
+            flex-shrink: 0;
+            color: var(--ink-muted);
+        }
+
+        .checklist li.checked::before {
+            content: '&#x2611;';
+            color: var(--accent);
+        }
+
+        .signature-section {
+            margin-top: 10mm;
+            padding-top: 5mm;
+            border-top: 2px solid var(--ink);
+        }
+
+        .sig-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 9pt;
+            color: var(--ink-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            margin-bottom: 5mm;
+            text-align: center;
+        }
+
+        .sig-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10mm;
+        }
+
+        .sig-block .sig-label {
+            font-size: 7.5pt;
+            color: var(--ink-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.10em;
+            margin-bottom: 2mm;
+        }
+
+        .sig-line {
+            border-bottom: 1.5px solid var(--ink);
+            height: 18mm;
+            position: relative;
+            margin-bottom: 2mm;
+        }
+
+        .sig-line::after {
+            content: attr(data-label);
+            position: absolute;
+            bottom: -14px;
+            left: 0;
+            font-size: 7.5pt;
+            color: var(--ink-muted);
+            font-style: italic;
+        }
+
+        .sig-sub {
+            font-size: 8pt;
+            color: var(--ink-muted);
+            font-style: italic;
+        }
+
+        .divider {
+            border: none;
+            border-top: 1px solid var(--rule);
+            margin: 4mm 0;
+        }
+
+        .doc-footer {
+            margin-top: 8mm;
+            padding-top: 3mm;
+            border-top: 1px solid var(--rule);
+            display: flex;
+            justify-content: space-between;
+            font-size: 7.5pt;
+            color: var(--ink-muted);
+            font-style: italic;
+        }
+
+        .ornament {
+            text-align: center;
+            color: var(--accent);
+            font-size: 14pt;
+            margin: 2mm 0;
+            letter-spacing: 0.3em;
+            opacity: 0.5;
+        }
+
+        @media print {
+            body { background: white; }
+            .page {
+                margin: 0;
+                box-shadow: none;
+                max-width: 100%;
+                padding: 15mm 18mm 15mm 20mm;
+            }
+            .page::before { display: none; }
+            .no-print { display: none; }
+        }
+
+        .print-bar {
+            text-align: center;
+            padding: 12px;
+            font-family: 'Source Serif 4', serif;
+            font-size: 9pt;
+        }
+
+        .btn-print {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 8px 24px;
+            font-family: 'Source Serif 4', serif;
+            font-size: 9.5pt;
+            letter-spacing: 0.06em;
+            cursor: pointer;
+            border-radius: 2px;
+        }
+
+        .btn-print:hover { background: #6a1010; }
     </style>
 </head>
 
-
 <body>
-    <?python 
-        from genshi import XML, HTML
-    ?>
+<?python
+first_item = record.items[0] if record.items else None
+obj = first_item.object if first_item else None
+obj_addr = obj.address if obj else None
+prop_addr = record.property.address if record.property else None
+display_obj_addr = obj_addr or prop_addr
+comp_party_addrs = record.company.party.addresses
+comp_addr = comp_party_addrs[0] if comp_party_addrs else None
+inv_addr = record.invoice_address
+sig_date = _format(record.date_of_signature) if record.date_of_signature else datetime.datetime.now().strftime('%d.%m.%Y')
+total_amount = sum((t.total_amount for t in record.terms if t.total_amount is not None), Decimal(0))
+basement_nrs = [item.object.basement_nr for item in record.items if item.object and item.object.basement_nr]
+?>
 
-    <section>
-        <table class="kopf" style="width: 100%; ">
-        <tbody>
-        <tr class="kopf">
-            <td class="kopf">        
-                <div class="briefkopf">
-                ${record.company.get_rec_name("")}<br />
-                ${record.company.party.addresses[0].street_single_line}<br />
-                ${record.company.party.addresses[0].postal_code} ${record.company.party.addresses[0].city}<br />
-                <br />
+<div class="print-bar no-print">
+    <button class="btn-print" onclick="window.print()">&#x2399;&#160; Drucken / Als PDF speichern</button>
+</div>
+
+<div class="page">
+
+    <!-- HEADER -->
+    <div class="doc-header">
+        <div class="doc-header-left">
+            <div class="doc-type">Mietvertrag</div>
+            <div class="doc-subtitle">Wohnraummietvertrag &#xB7; &#xA7; 535 ff. BGB</div>
+        </div>
+        <div class="doc-header-right">
+            Vertragsnummer: <strong>${record.contract_number or '&#x2014;'}</strong><br />
+            Datum: <strong>${sig_date}</strong><br />
+            Ort: <strong>${comp_addr.city if comp_addr else '&#x2014;'}</strong>
+        </div>
+    </div>
+
+    <!-- § 1 VERTRAGSPARTEIEN -->
+    <div class="section">
+        <div class="section-header">
+            <div class="section-number">1</div>
+            <div class="section-title">Vertragsparteien</div>
+        </div>
+
+        <p class="para"><strong>Vermieter</strong></p>
+        <div class="field-grid field-grid-2" style="margin-bottom:3mm">
+            <div class="field span-2">
+                <span class="field-label">Name / Firma</span>
+                <div class="field-value">${record.company.get_rec_name('')}</div>
+            </div>
+            <div class="field span-2">
+                <span class="field-label">Stra&#xDF;e, Hausnummer</span>
+                <div class="field-value">${comp_addr.street_single_line if comp_addr else '&#x2014;'}</div>
+            </div>
+            <div class="field">
+                <span class="field-label">PLZ, Ort</span>
+                <div class="field-value">${((comp_addr.postal_code or '') + ' ' + (comp_addr.city or '')).strip() if comp_addr else '&#x2014;'}</div>
+            </div>
+            <div class="field">
+                <span class="field-label">Ansprechpartner / Kontakt</span>
+                <div class="field-value">${user.name + (' &#xB7; Tel. ' + user.phone if user.phone else '')}</div>
+            </div>
+        </div>
+
+        <hr class="divider" />
+        <p class="para"><strong>Mieter</strong></p>
+        <div class="field-grid field-grid-2">
+            <div class="field span-2">
+                <span class="field-label">Name, Vorname / Firma</span>
+                <div class="field-value">${record.contractual_partner.name}</div>
+            </div>
+            <div class="field span-2">
+                <span class="field-label">Anschrift (vor Einzug)</span>
+                <div class="field-value">${inv_addr.street_single_line}, ${inv_addr.postal_code or ''} ${inv_addr.city or ''}</div>
+            </div>
+            <div class="field">
+                <span class="field-label">Telefon</span>
+                <div class="field-value">${record.phone_partner or '&#x2014;'}</div>
+            </div>
+            <div class="field">
+                <span class="field-label">E-Mail</span>
+                <div class="field-value blank">.</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- § 2 MIETOBJEKT -->
+    <div class="section">
+        <div class="section-header">
+            <div class="section-number">2</div>
+            <div class="section-title">Mietobjekt</div>
+        </div>
+
+        <div class="field-grid field-grid-2">
+            <div class="field span-2">
+                <span class="field-label">Anschrift des Mietobjekts</span>
+                <div class="field-value">
+                    ${display_obj_addr.street_single_line if display_obj_addr else '&#x2014;'}${(', ' + (display_obj_addr.postal_code or '') + ' ' + (display_obj_addr.city or '')).strip(', ') if display_obj_addr and (display_obj_addr.postal_code or display_obj_addr.city) else ''}
                 </div>
-            </td>
-        <td class="kopf"></td>
-        
-        </tr>
-        <tr class="kopf">
-            <td class="kopf" style="width: 85mm;">
-                <div class="anschrift">
-                <h7> ${record.company.get_rec_name("")} * ${record.invoice_address.street_single_line} * ${record.company.party.addresses[0].postal_code} ${record.company.party.addresses[0].city} </h7> <br />
-                <br />
-                ${ record.contractual_partner.name }<br />
-                ${ record.invoice_address.street_single_line }<br />
-                ${ record.invoice_address.postal_code} ${ record.invoice_address.city}<br />
-                <br />
-                <br />
-                <br />
-                </div>
-            </td>
-            <td class="kopf" style="width: 85mm;">
-                <br />
-                <b>Name</b>: ${user.name}<br />
-                <b>Tel.</b>: ${user.phone}<br />
-                <b>Email</b>: ${user.email}<br />
-                <br />
-                <br />
-                <div class="datum">Datum: ${ datetime.datetime.now().strftime('%d.%m.%Y') }<br /></div> 
-            </td>
-        </tr>
-        </tbody>
+            </div>
+            <div class="field">
+                <span class="field-label">Bezeichnung / Lage</span>
+                <div class="field-value">${obj.name if obj else '&#x2014;'}</div>
+            </div>
+            <div class="field">
+                <span class="field-label">Wohnungs-Nr. / Kennung</span>
+                <div class="field-value">${obj.object_number if obj else '&#x2014;'}</div>
+            </div>
+        </div>
+
+        <div style="margin-top:3mm">
+            <p class="para" style="margin-bottom:1.5mm"><strong>Zur Wohnung geh&#xF6;ren:</strong></p>
+            <ul class="checklist">
+                <li py:attrs="{'class': 'checked'} if basement_nrs else {}">Keller Nr. ${', '.join(basement_nrs) if basement_nrs else '_______'}</li>
+                <li>Stellplatz / Garage Nr. _______</li>
+                <li>Dachbodenabteil</li>
+                <li>Gartenmitbenutzung</li>
+                <li>Sonstiges: ___________________________</li>
+            </ul>
+        </div>
+
+        <p class="para" style="margin-top:3mm">
+            Die Wohnung wird vermietet zum ausschlie&#xDF;lichen Gebrauch als <strong>Wohnraum</strong>.
+            Eine gewerbliche oder berufliche Nutzung bedarf der vorherigen schriftlichen Zustimmung des Vermieters.
+        </p>
+    </div>
+
+    <!-- § 3 MIETDAUER -->
+    <div class="section">
+        <div class="section-header">
+            <div class="section-number">3</div>
+            <div class="section-title">Mietdauer</div>
+        </div>
+
+        <div class="field-grid field-grid-2" style="margin-bottom:3mm">
+            <div class="field">
+                <span class="field-label">Mietbeginn</span>
+                <div class="field-value">${_format(record.start_date) if record.start_date else '&#x2014;'}</div>
+            </div>
+            <div class="field">
+                <span class="field-label">Mietende (leer = unbefristet)</span>
+                <div class="field-value">${_format(record.end_date) if record.end_date else 'Unbefristet'}</div>
+            </div>
+        </div>
+
+        <p class="para" py:if="not record.end_date">
+            Das Mietverh&#xE4;ltnis wird auf <strong>unbestimmte Zeit</strong> geschlossen. Es kann von beiden Seiten unter
+            Einhaltung der gesetzlichen K&#xFC;ndigungsfristen gem&#xE4;&#xDF; &#xA7; 573c BGB gek&#xFC;ndigt werden.
+            Die ordentliche K&#xFC;ndigungsfrist f&#xFC;r den Mieter betr&#xE4;gt <strong>3 Monate</strong> zum Monatsende,
+            sofern die K&#xFC;ndigung bis zum 3.&#xA0;Werktag des Kalendermonats eingeht.
+        </p>
+        <p class="para" py:if="record.end_date">
+            Das Mietverh&#xE4;ltnis ist auf <strong>bestimmte Zeit</strong> geschlossen und endet am
+            <strong>${_format(record.end_date)}</strong> ohne K&#xFC;ndigung.
+        </p>
+        <p class="para">
+            Eine au&#xDF;erordentliche K&#xFC;ndigung bleibt unber&#xFC;hrt. Die K&#xFC;ndigung bedarf der <strong>Schriftform</strong>.
+        </p>
+    </div>
+
+    <!-- § 4 MIETE UND NEBENKOSTEN -->
+    <div class="section">
+        <div class="section-header">
+            <div class="section-number">4</div>
+            <div class="section-title">Miete und Betriebskosten</div>
+        </div>
+
+        <table class="amount-table">
+            <tbody>
+                <tr py:for="term in record.terms">
+                    <td>${term.term_type.name if term.term_type else term.name}</td>
+                    <td>${_format(term.total_amount) if term.total_amount is not None else '&#x2014;'} ${term.currency.symbol if term.currency else record.currency.symbol}</td>
+                </tr>
+                <tr class="total">
+                    <td>Gesamtmiete (monatlich)</td>
+                    <td>${_format(total_amount)} ${record.currency.symbol}</td>
+                </tr>
+            </tbody>
         </table>
 
-        <div class="betreff">Mietvertrag Nr. ${ record.contract_number } - ${ record.items[0].name }<br /></div><br />
-        
-        ${ record.contractual_partner.salutation },<br />
-        <p>wenn Sie sofort anfangen möchten, tippen Sie auf einen 
-            Platzhaltertext (wie diesen), und beginnen Sie mit der
-            Eingabe.</p>
-    </section>
+        <p class="para" style="margin-top:3mm">
+            Die Miete ist monatlich im Voraus, sp&#xE4;testens am <strong>3.&#xA0;Werktag</strong> eines jeden Monats,
+            auf folgendes Konto des Vermieters zu &#xFC;berweisen:
+        </p>
 
-    <table>
-        <tbody>
-            <tr>
-                <th style="width: 20mm;">Nr.</th>
-                <th>Konditionen</th>
-                <th style="text-align: right;">Preis</th>
-            </tr>
-            <p py:for="obj in record.terms">
-                <tr>
-                    <td>${ obj.sequence }</td>
-                    <td>${ obj.name }</td>
-                    <td style="text-align: right;">${_format(obj.total_amount)} ${obj.currency.symbol} </td>
-                </tr>
-            </p>
-                <tr>
-                    <td></td>
-                    <td><i>Summe</i></td>
-                    <td style="text-align: right;"><i>${ _format(sum(term.total_amount for term in record.terms)) } ${record.currency.symbol} </i> </td>
-                </tr>            
-        </tbody>
-    </table>
-    <section>
-        <p>Fragen Sie sich vielleicht, was Sie in das Anschreiben aufnehmen sollen? Gut geeignet sind wichtige Punkte
-            dazu,
-            welche Vorteile Sie dem Unternehmen bieten können und warum Sie für diese bestimmte Stelle besonders
-            geeignet
-            sind. Denken Sie auch daran, um ein Vorstellungsgespräch zu bitten. Halten Sie den Text aber insgesamt kurz.
-            Ein
-            Anschreiben sollte kein Roman sein, auch wenn Sie Seiten füllen könnten.</p>
-        Mit freundlichen Grüßen, <br />
-        <br />
-        <p class="signature"> ${HTML(user.signature)} </p>
-        <br />
+        <div class="field-grid field-grid-2" style="margin:2mm 0 3mm">
+            <div class="field">
+                <span class="field-label">Kontoinhaber</span>
+                <div class="field-value blank">.</div>
+            </div>
+            <div class="field">
+                <span class="field-label">Kreditinstitut</span>
+                <div class="field-value blank">.</div>
+            </div>
+            <div class="field">
+                <span class="field-label">IBAN</span>
+                <div class="field-value blank">.</div>
+            </div>
+            <div class="field">
+                <span class="field-label">BIC</span>
+                <div class="field-value blank">.</div>
+            </div>
+        </div>
 
-    </section>
+        <p class="para">
+            &#xDC;ber die Betriebskosten wird j&#xE4;hrlich abgerechnet. Der Abrechnungszeitraum ist das Kalenderjahr.
+            Die Abrechnung ist dem Mieter sp&#xE4;testens <strong>12 Monate</strong> nach Ende des Abrechnungszeitraums
+            zuzustellen (&#xA7;&#xA0;556 Abs.&#xA0;3 BGB). Guthaben werden erstattet, Nachzahlungen sind f&#xE4;llig.
+            Betriebskosten werden gem&#xE4;&#xDF; <strong>&#xA7;&#xA0;2 BetrKV</strong> umgelegt. Der Umlageschl&#xFC;ssel ist
+            die Wohnfl&#xE4;che, soweit nichts anderes angegeben.
+        </p>
+    </div>
+
+    <!-- § 5 KAUTION -->
+    <div class="section">
+        <div class="section-header">
+            <div class="section-number">5</div>
+            <div class="section-title">Mietsicherheit (Kaution)</div>
+        </div>
+
+        <div class="highlight-box">
+            Der Mieter leistet eine Barkaution in H&#xF6;he von <strong>_____________ ${record.currency.symbol}</strong>
+            (maximal 3 Nettokaltmieten, &#xA7;&#xA0;551 BGB).
+            Die Kaution ist zu gleichen Teilen in den ersten drei Monaten des Mietverh&#xE4;ltnisses zu zahlen,
+            erstmals am _____________.
+        </div>
+
+        <p class="para" style="margin-top:2mm">
+            Der Vermieter ist verpflichtet, die Kaution getrennt von seinem Verm&#xF6;gen bei einem Kreditinstitut
+            zu dem f&#xFC;r Spareinlagen mit gesetzlicher K&#xFC;ndigungsfrist &#xFC;blichen Zinssatz anzulegen (&#xA7;&#xA0;551 Abs.&#xA0;3 BGB).
+            Die Kaution nebst aufgelaufener Zinsen wird nach Beendigung des Mietverh&#xE4;ltnisses und vollst&#xE4;ndiger
+            Kl&#xE4;rung aller gegenseitigen Anspr&#xFC;che zur&#xFC;ckgezahlt.
+        </p>
+    </div>
+
+    <!-- § 6 ÜBERGABE -->
+    <div class="section">
+        <div class="section-header">
+            <div class="section-number">6</div>
+            <div class="section-title">&#xDC;bergabe und Zustand der Mietsache</div>
+        </div>
+        <p class="para">
+            Die &#xDC;bergabe der Wohnung erfolgt am <strong>${_format(record.start_date) if record.start_date else '_____________'}</strong> im vertragsgem&#xE4;&#xDF;en Zustand.
+            Ein gemeinsames &#xDC;bergabeprotokoll wird erstellt und von beiden Parteien unterzeichnet.
+            Es dokumentiert den Zustand der Wohnung, vorhandene M&#xE4;ngel sowie die Z&#xE4;hlerst&#xE4;nde
+            f&#xFC;r Strom, Gas und Wasser.
+        </p>
+        <p class="para">
+            Der Mieter erh&#xE4;lt folgende Schl&#xFC;ssel: ______ &#xD7; Wohnungsschl&#xFC;ssel, ______ &#xD7; Hausschl&#xFC;ssel,
+            ______ &#xD7; Briefkastenschl&#xFC;ssel, ______ &#xD7; Sonstige: _____________.
+        </p>
+    </div>
+
+    <!-- § 7 SCHÖNHEITSREPARATUREN -->
+    <div class="section">
+        <div class="section-header">
+            <div class="section-number">7</div>
+            <div class="section-title">Sch&#xF6;nheitsreparaturen</div>
+        </div>
+        <p class="para">
+            Sch&#xF6;nheitsreparaturen (Tapezieren, Streichen von W&#xE4;nden, Decken, Heizk&#xF6;rpern, Innent&#xFC;ren,
+            Fenster und Au&#xDF;ent&#xFC;ren von innen) obliegen dem <strong>Vermieter</strong>, sofern keine
+            wirksame abweichende Vereinbarung getroffen wurde.
+        </p>
+        <p class="para"><em>Individuelle Vereinbarung (bei Bedarf ausf&#xFC;llen):</em></p>
+        <div class="field">
+            <div class="field-value multiline blank">.</div>
+        </div>
+    </div>
+
+    <!-- § 8 TIERHALTUNG / UNTERVERMIETUNG -->
+    <div class="section">
+        <div class="section-header">
+            <div class="section-number">8</div>
+            <div class="section-title">Tierhaltung und Untervermietung</div>
+        </div>
+        <p class="para">
+            Die Haltung von <strong>Kleintieren</strong> (z.&#xA0;B. Hamster, Zierfische, V&#xF6;gel in &#xFC;blicher Zahl)
+            ist gestattet. Die Haltung von Hunden und Katzen sowie sonstigen gr&#xF6;&#xDF;eren Tieren
+            bedarf der vorherigen schriftlichen Zustimmung des Vermieters.
+        </p>
+        <p class="para">
+            Eine <strong>Untervermietung</strong> oder &#xDC;berlassung der Wohnung an Dritte bedarf
+            ebenfalls der vorherigen schriftlichen Zustimmung des Vermieters (&#xA7;&#xA0;540 BGB).
+            Bei berechtigtem Interesse des Mieters darf die Zustimmung nicht ohne triftigen Grund
+            verweigert werden.
+        </p>
+    </div>
+
+    <!-- § 9 INSTANDHALTUNG / MÄNGEL -->
+    <div class="section">
+        <div class="section-header">
+            <div class="section-number">9</div>
+            <div class="section-title">Instandhaltung, M&#xE4;ngelanzeige und Kleinreparaturen</div>
+        </div>
+        <p class="para">
+            Der Mieter ist verpflichtet, M&#xE4;ngel der Mietsache unverz&#xFC;glich dem Vermieter anzuzeigen (&#xA7;&#xA0;536c BGB).
+            Unterl&#xE4;sst er die Anzeige, haftet er f&#xFC;r den dadurch entstehenden Schaden.
+        </p>
+        <p class="para">
+            Kleinreparaturen an Gegenst&#xE4;nden, die dem h&#xE4;ufigen und direkten Zugriff des Mieters ausgesetzt sind
+            (Wasserhähne, Lichtschalter, T&#xFC;rschl&#xF6;sser, Fenstergriffe u.&#xA0;&#xE4;.), tr&#xE4;gt der Mieter bis zu einem
+            Betrag von <strong>100&#xA0;&#x20AC; je Einzelreparatur</strong>, maximal <strong>8&#xA0;% der Jahresnettokaltmiete</strong>
+            pro Jahr.
+        </p>
+    </div>
+
+    <!-- § 10 BAULICHE VERÄNDERUNGEN -->
+    <div class="section">
+        <div class="section-header">
+            <div class="section-number">10</div>
+            <div class="section-title">Bauliche Ver&#xE4;nderungen und Einbauten</div>
+        </div>
+        <p class="para">
+            Bauliche Ver&#xE4;nderungen, Einbauten sowie Installationen bed&#xFC;rfen der vorherigen
+            schriftlichen Zustimmung des Vermieters. Bei Auszug ist der urspr&#xFC;ngliche Zustand
+            wiederherzustellen, sofern nicht ausdr&#xFC;cklich etwas anderes vereinbart wurde.
+        </p>
+    </div>
+
+    <!-- § 11 HAUSORDNUNG -->
+    <div class="section">
+        <div class="section-header">
+            <div class="section-number">11</div>
+            <div class="section-title">Hausordnung</div>
+        </div>
+        <p class="para">
+            Der Mieter verpflichtet sich, die Hausordnung einzuhalten. Die Hausordnung ist
+            Bestandteil dieses Vertrages und wird als <strong>Anlage&#xA0;1</strong> beigef&#xFC;gt.
+            Ruhezeiten sind: werktags 13:00&#x2013;15:00&#xA0;Uhr und 22:00&#x2013;07:00&#xA0;Uhr, sonn- und feiertags ganzt&#xE4;gig.
+        </p>
+    </div>
+
+    <!-- § 12 ENERGIEAUSWEIS -->
+    <div class="section">
+        <div class="section-header">
+            <div class="section-number">12</div>
+            <div class="section-title">Energieausweis</div>
+        </div>
+        <p class="para">
+            Der Vermieter hat dem Mieter vor Vertragsabschluss einen <strong>Energieausweis</strong>
+            gem&#xE4;&#xDF; &#xA7;&#xA0;80 GEG vorgelegt. Art: &#x2610; Bedarfsausweis &#xA0; &#x2610; Verbrauchsausweis.<br />
+            Energieeffizienzklasse: _______ &#xA0;|&#xA0; Endenergiebedarf/-verbrauch: _______ kWh/(m&#xB2;&#xB7;a)
+        </p>
+    </div>
+
+    <!-- § 13 SONSTIGE VEREINBARUNGEN -->
+    <div class="section">
+        <div class="section-header">
+            <div class="section-number">13</div>
+            <div class="section-title">Sonstige Vereinbarungen</div>
+        </div>
+        <div class="field">
+            <div py:if="record.comment"
+                 class="field-value multiline"
+                 style="min-height:60px; font-style:normal;">${record.comment}</div>
+            <div py:if="not record.comment"
+                 class="field-value multiline blank"
+                 style="min-height:60px;">.</div>
+        </div>
+    </div>
+
+    <!-- § 14 ANLAGEN -->
+    <div class="section">
+        <div class="section-header">
+            <div class="section-number">14</div>
+            <div class="section-title">Vertragsanlagen</div>
+        </div>
+        <ul class="checklist">
+            <li>Anlage&#xA0;1: Hausordnung</li>
+            <li>Anlage&#xA0;2: &#xDC;bergabeprotokoll</li>
+            <li>Anlage&#xA0;3: Grundriss der Wohnung</li>
+            <li>Anlage&#xA0;4: Betriebskostenaufstellung (&#xA7;&#xA0;2 BetrKV)</li>
+            <li>Anlage&#xA0;5: ___________________________</li>
+        </ul>
+    </div>
+
+    <!-- § 15 SCHLUSSBESTIMMUNGEN -->
+    <div class="section">
+        <div class="section-header">
+            <div class="section-number">15</div>
+            <div class="section-title">Schlussbestimmungen</div>
+        </div>
+        <p class="para">
+            &#xC4;nderungen und Erg&#xE4;nzungen dieses Vertrages bed&#xFC;rfen der <strong>Schriftform</strong>.
+            Dies gilt auch f&#xFC;r die Aufhebung des Schriftformerfordernisses.
+            M&#xFC;ndliche Nebenabreden bestehen nicht.
+        </p>
+        <p class="para">
+            Sollten einzelne Bestimmungen dieses Vertrages unwirksam sein oder werden, bleibt
+            die Wirksamkeit der &#xFC;brigen Bestimmungen unber&#xFC;hrt. An die Stelle der unwirksamen
+            Bestimmung tritt die gesetzliche Regelung.
+        </p>
+        <p class="para">
+            Es gilt das Recht der Bundesrepublik Deutschland. Gerichtsstand ist,
+            soweit gesetzlich zul&#xE4;ssig, der Ort der Mietwohnung.
+        </p>
+    </div>
+
+    <div class="ornament">&#xB7; &#xB7; &#xB7;</div>
+
+    <!-- UNTERSCHRIFTEN -->
+    <div class="signature-section">
+        <div class="sig-title">Vertragsunterschriften</div>
+
+        <div class="sig-grid">
+            <div class="sig-block">
+                <div class="sig-label">Vermieter</div>
+                <div class="sig-line" data-label="Ort, Datum"></div>
+                <div class="sig-sub">${record.company.get_rec_name('')}</div>
+            </div>
+            <div class="sig-block">
+                <div class="sig-label">Mieter</div>
+                <div class="sig-line" data-label="Ort, Datum"></div>
+                <div class="sig-sub">${record.contractual_partner.name}</div>
+            </div>
+            <div class="sig-block">
+                <div class="sig-label">Mieter (Person 2, falls vorhanden)</div>
+                <div class="sig-line" data-label="Ort, Datum"></div>
+                <div class="sig-sub">Unterschrift Mieter / in</div>
+            </div>
+            <div class="sig-block">
+                <div class="sig-label">Empfang best&#xE4;tigt</div>
+                <div class="sig-line" data-label="Datum"></div>
+                <div class="sig-sub">Mieter best&#xE4;tigt Erhalt einer Ausfertigung</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <div class="doc-footer">
+        <span>Mietvertrag Nr. ${record.contract_number or '&#x2014;'} &#xB7; &#xA7;&#xA7; 535 ff. BGB</span>
+        <span>${record.company.get_rec_name('')}</span>
+    </div>
+
+</div>
+
 </body>
-
 </html>

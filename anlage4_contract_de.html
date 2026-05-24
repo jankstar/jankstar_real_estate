@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:py="http://genshi.edgewall.org/"
+      xmlns:i18n="http://genshi.edgewall.org/i18n"
+      lang="de">
+<head>
+    <meta charset="utf-8" />
+    <title>Anlage 4 – Betriebskostenaufstellung</title>
+    <meta content="width=device-width, initial-scale=1" name="viewport" />
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&amp;family=Source+Serif+4:ital,opsz,wght@0,8..60,300;0,8..60,400;0,8..60,600;1,8..60,300&amp;display=swap"
+          rel="stylesheet" type="text/css" />
+
+    <style type="text/css">
+        :root {
+            --ink: #1a1714;
+            --ink-light: #3a3530;
+            --ink-muted: #8a8480;
+            --rule: #c8bfb0;
+            --rule-light: #e8e0d4;
+            --cream: #faf7f2;
+            --accent: #8b1a1a;
+            --accent-soft: #f5ede8;
+            --field-bg: #f5f0e8;
+            --yes-bg: #eaf3de;
+            --yes-text: #3b6d11;
+            --no-bg: #f5f5f5;
+            --no-text: #888;
+            --section-bg: #f0ebe2;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Source Serif 4', Georgia, serif;
+            font-weight: 300;
+            background: #e0d8cc;
+            color: var(--ink);
+            font-size: 9.5pt;
+            line-height: 1.55;
+        }
+
+        .page {
+            background: var(--cream);
+            max-width: 210mm;
+            margin: 20px auto;
+            padding: 18mm 18mm 18mm 22mm;
+            box-shadow: 0 4px 40px rgba(0,0,0,0.18);
+            position: relative;
+        }
+
+        .page::before {
+            content: '';
+            position: absolute;
+            left: 0; top: 0; bottom: 0;
+            width: 5px;
+            background: var(--accent);
+        }
+
+        .doc-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            padding-bottom: 4mm;
+            border-bottom: 2px solid var(--ink);
+            margin-bottom: 6mm;
+        }
+
+        .doc-header-left .anlage-label {
+            font-size: 7.5pt;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: var(--accent);
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+
+        .doc-header-left .doc-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 17pt;
+            font-weight: 700;
+            color: var(--ink);
+            line-height: 1.1;
+        }
+
+        .doc-header-left .doc-sub {
+            font-size: 8.5pt;
+            color: var(--ink-muted);
+            margin-top: 2px;
+            font-style: italic;
+        }
+
+        .doc-header-right {
+            font-size: 8pt;
+            color: var(--ink-muted);
+            text-align: right;
+            line-height: 1.9;
+        }
+
+        .doc-header-right strong { color: var(--ink); font-weight: 600; }
+
+        .bezug-bar {
+            background: var(--section-bg);
+            border-left: 3px solid var(--accent);
+            padding: 3mm 5mm;
+            margin-bottom: 5mm;
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 4mm;
+            font-size: 8.5pt;
+        }
+
+        .bezug-item .bl {
+            color: var(--ink-muted);
+            font-size: 7pt;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            display: block;
+            margin-bottom: 2px;
+        }
+
+        .bezug-item .bv {
+            color: var(--ink);
+            font-weight: 400;
+            font-style: italic;
+            border-bottom: 1px solid var(--rule);
+            padding-bottom: 1px;
+        }
+
+        .intro {
+            font-size: 9pt;
+            color: var(--ink-light);
+            margin-bottom: 5mm;
+            text-align: justify;
+            hyphens: auto;
+            line-height: 1.6;
+        }
+
+        table.bk {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 8.5pt;
+        }
+
+        table.bk thead tr {
+            background: var(--ink);
+            color: var(--cream);
+        }
+
+        table.bk thead th {
+            padding: 4px 6px;
+            font-weight: 600;
+            font-family: 'Source Serif 4', serif;
+            font-size: 7.5pt;
+            letter-spacing: 0.04em;
+            text-align: left;
+            white-space: nowrap;
+        }
+
+        table.bk thead th:nth-child(3),
+        table.bk thead th:nth-child(4),
+        table.bk thead th:nth-child(5) {
+            text-align: center;
+        }
+
+        table.bk tr.section-row td {
+            background: var(--section-bg);
+            font-family: 'Playfair Display', serif;
+            font-size: 8pt;
+            font-weight: 600;
+            color: var(--accent);
+            padding: 4px 6px;
+            letter-spacing: 0.04em;
+            border-top: 1px solid var(--rule);
+        }
+
+        table.bk tr.bk-row td {
+            padding: 3px 6px;
+            border-bottom: 0.5px solid var(--rule-light);
+            vertical-align: middle;
+            color: var(--ink-light);
+        }
+
+        table.bk tr.bk-row td:first-child {
+            font-size: 7pt;
+            color: var(--ink-muted);
+            white-space: nowrap;
+        }
+
+        table.bk tr.bk-row td:nth-child(3),
+        table.bk tr.bk-row td:nth-child(4),
+        table.bk tr.bk-row td:nth-child(5) {
+            text-align: center;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 1px 7px;
+            border-radius: 3px;
+            font-size: 7pt;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+        }
+
+        .badge-yes { background: var(--yes-bg); color: var(--yes-text); }
+        .badge-no  { background: var(--no-bg);  color: var(--no-text); }
+
+        .uk {
+            font-size: 7pt;
+            background: var(--field-bg);
+            padding: 1px 5px;
+            border-radius: 2px;
+            color: var(--ink-muted);
+            white-space: nowrap;
+        }
+
+        .legende {
+            margin-top: 5mm;
+            padding: 3mm 5mm;
+            border: 0.5px solid var(--rule);
+            font-size: 7.5pt;
+            color: var(--ink-muted);
+            line-height: 1.8;
+        }
+
+        .legende strong { color: var(--ink); }
+
+        .hinweis {
+            margin-top: 4mm;
+            background: var(--accent-soft);
+            border-left: 3px solid var(--accent);
+            padding: 3mm 5mm;
+            font-size: 8.5pt;
+            color: var(--ink-light);
+            line-height: 1.6;
+        }
+
+        .sig-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12mm;
+            margin-top: 8mm;
+            padding-top: 4mm;
+            border-top: 1px solid var(--rule);
+        }
+
+        .sig-block .sl {
+            font-size: 7pt;
+            color: var(--ink-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-bottom: 10mm;
+        }
+
+        .sig-line { border-bottom: 1px solid var(--ink); margin-bottom: 2mm; }
+        .sig-sub { font-size: 7.5pt; color: var(--ink-muted); font-style: italic; }
+
+        .doc-footer {
+            margin-top: 6mm;
+            padding-top: 2mm;
+            border-top: 0.5px solid var(--rule);
+            display: flex;
+            justify-content: space-between;
+            font-size: 7pt;
+            color: var(--ink-muted);
+            font-style: italic;
+        }
+
+        .empty-hint {
+            text-align: center;
+            color: var(--ink-muted);
+            font-style: italic;
+            padding: 8mm 0;
+            font-size: 9pt;
+        }
+
+        @media print {
+            body { background: white; }
+            .page { margin: 0; box-shadow: none; max-width: 100%; }
+            .page::before { display: none; }
+            .no-print { display: none; }
+        }
+
+        .print-bar { text-align: center; padding: 10px; }
+
+        .btn-print {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 7px 22px;
+            font-family: 'Source Serif 4', serif;
+            font-size: 9pt;
+            letter-spacing: 0.05em;
+            cursor: pointer;
+            border-radius: 2px;
+        }
+
+        .btn-print:hover { background: #6a1010; }
+    </style>
+</head>
+<body>
+<?python
+first_item = record.items[0] if record.items else None
+obj = first_item.object if first_item else None
+obj_addr = obj.address if obj else None
+prop_addr = record.property.address if record.property else None
+display_obj_addr = obj_addr or prop_addr
+
+def addr_line(addr):
+    if not addr:
+        return '—'
+    street = addr.street_single_line or ''
+    plz_ort = ((addr.postal_code or '') + ' ' + (addr.city or '')).strip()
+    parts = [p for p in [street, plz_ort] if p]
+    return ', '.join(parts) if parts else '—'
+
+sig_date = _format(record.date_of_signature) if record.date_of_signature else _format(record.start_date)
+?>
+
+<div class="print-bar no-print">
+    <button class="btn-print" onclick="window.print()">&#x2399;&#160; Drucken / Als PDF speichern</button>
+</div>
+
+<div class="page">
+
+    <div class="doc-header">
+        <div class="doc-header-left">
+            <div class="anlage-label">Anlage 4 zum Mietvertrag</div>
+            <div class="doc-title">Betriebskostenaufstellung</div>
+            <div class="doc-sub">gem&#228;&#223; &#167; 2 Betriebskostenverordnung (BetrKV)</div>
+        </div>
+        <div class="doc-header-right">
+            Vertragsnummer: <strong>${record.contract_number or '&#x2014;'}</strong><br />
+            Stand: <strong>${sig_date or '&#x2014;'}</strong>
+        </div>
+    </div>
+
+    <div class="bezug-bar">
+        <div class="bezug-item">
+            <span class="bl">Mietobjekt</span>
+            <span class="bv">${addr_line(display_obj_addr)}</span>
+        </div>
+        <div class="bezug-item">
+            <span class="bl">Mieter</span>
+            <span class="bv">${record.contractual_partner.name if record.contractual_partner else '&#x2014;'}</span>
+        </div>
+        <div class="bezug-item">
+            <span class="bl">Mietbeginn</span>
+            <span class="bv">${_format(record.start_date) if record.start_date else '&#x2014;'}</span>
+        </div>
+    </div>
+
+    <p class="intro">
+        Diese Aufstellung benennt die Betriebskostenarten, die gem&#228;&#223; &#167; 2 BetrKV auf den Mieter umgelegt werden
+        und Gegenstand der j&#228;hrlichen Betriebskostenabrechnung sind. Nur die nachfolgend mit
+        <span style="display:inline-block; background:var(--yes-bg); color:var(--yes-text); padding:0 5px; font-size:7pt; font-weight:600; border-radius:2px;">JA</span>
+        gekennzeichneten Positionen sind Bestandteil des Mietvertrages. Der angegebene Umlageschl&#252;ssel gilt vorbehaltlich
+        abweichender gesetzlicher Regelungen (insbesondere HeizkostenV).
+    </p>
+
+    <py:choose>
+        <py:when test="bk_groups">
+            <table class="bk">
+                <thead>
+                    <tr>
+                        <th style="width:40px;">&#167; 2 Nr.</th>
+                        <th>Betriebskostenart</th>
+                        <th style="width:55px;">Umlegbar</th>
+                        <th style="width:120px;">Umlageschl&#252;ssel</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <py:for each="group in bk_groups">
+                        <tr class="section-row">
+                            <td colspan="4">${group['name']}</td>
+                        </tr>
+                        <py:for each="row in group['rows']">
+                            <tr class="bk-row">
+                                <td>${row['betrKV_nr']}</td>
+                                <td>${row['name']}</td>
+                                <td><span class="badge badge-yes">Ja</span></td>
+                                <td>
+                                    <py:choose>
+                                        <py:when test="row['allocation'] != '&#x2014;' and row['allocation'] != '—'">
+                                            <span class="uk">${row['allocation']}</span>
+                                        </py:when>
+                                        <py:otherwise>&#x2014;</py:otherwise>
+                                    </py:choose>
+                                </td>
+                            </tr>
+                        </py:for>
+                    </py:for>
+                </tbody>
+            </table>
+        </py:when>
+        <py:otherwise>
+            <div class="empty-hint">
+                F&#252;r dieses Objekt sind keine Betriebskosten-Abrechnungseinheiten konfiguriert.
+            </div>
+        </py:otherwise>
+    </py:choose>
+
+    <div class="legende">
+        <strong>Umlageschl&#252;ssel-Erl&#228;uterung:</strong>&#160;
+        <strong>Wohnfl&#228;che</strong> = anteilig nach m&#178; der Wohnung zur Gesamtwohnfl&#228;che des Geb&#228;udes &#xB7;
+        <strong>Wohneinheiten</strong> = je Wohnung gleicher Anteil &#xB7;
+        <strong>Verbrauch</strong> = nach Heizkostenverordnung (HeizkostenV), mind. 50&#160;% nach Verbrauch &#xB7;
+        &#196;nderungen des Umlageschl&#252;ssels durch den Vermieter nur bei sachlichem Grund und mit Ank&#252;ndigung (&#167;&#160;556a BGB).
+    </div>
+
+    <div class="hinweis">
+        <strong>Hinweise:</strong>&#160;
+        Nicht in der Betriebskostenabrechnung umlegbar sind u.&#160;a.: Verwaltungskosten, Instandhaltungs- und Instandsetzungskosten,
+        R&#252;cklagen, Leerstandskosten sowie das Mietausfallwagnis (&#167;&#160;1 Abs.&#160;2 BetrKV).
+        Die Abrechnung erfolgt j&#228;hrlich zum Abrechnungszeitraum <strong>01.01.&#x2013;31.12.</strong> eines jeden Jahres.
+        Der Vermieter ist zur Anpassung der Vorauszahlungen nach Vorlage der Abrechnung berechtigt (&#167;&#160;560 Abs.&#160;4 BGB).
+    </div>
+
+    <div class="sig-row">
+        <div class="sig-block">
+            <div class="sl">Vermieter</div>
+            <div class="sig-line">&#160;</div>
+            <div class="sig-sub">Ort, Datum &#xB7; Unterschrift Vermieter</div>
+        </div>
+        <div class="sig-block">
+            <div class="sl">Mieter</div>
+            <div class="sig-line">&#160;</div>
+            <div class="sig-sub">Ort, Datum &#xB7; Unterschrift Mieter</div>
+        </div>
+    </div>
+
+    <div class="doc-footer">
+        <span>Anlage 4 zum Mietvertrag &#xB7; Betriebskostenaufstellung &#167; 2 BetrKV</span>
+        <span>Vertrag Nr. ${record.contract_number or '&#x2014;'}</span>
+    </div>
+
+</div>
+
+</body>
+</html>

@@ -132,6 +132,39 @@
             action="act_settlement_unit_tree"
             id="menu_settlement_unit"/>
 
+    <!-- Cost Category Group -->
+        <record model="ir.ui.view" id="cost_category_group_list">
+            <field name="model">real_estate.cost_category_group</field>
+            <field name="type">tree</field>
+            <field name="name">cost_category_group_list</field>
+        </record>
+        <record model="ir.ui.view" id="cost_category_group_form">
+            <field name="model">real_estate.cost_category_group</field>
+            <field name="type">form</field>
+            <field name="name">cost_category_group_form</field>
+        </record>
+
+        <record model="ir.action.act_window" id="act_cost_category_group">
+            <field name="name">Cost Category Groups</field>
+            <field name="res_model">real_estate.cost_category_group</field>
+        </record>
+        <record model="ir.action.act_window.view" id="act_cost_category_group_view1">
+            <field name="sequence" eval="10"/>
+            <field name="view" ref="cost_category_group_list"/>
+            <field name="act_window" ref="act_cost_category_group"/>
+        </record>
+        <record model="ir.action.act_window.view" id="act_cost_category_group_view2">
+            <field name="sequence" eval="20"/>
+            <field name="view" ref="cost_category_group_form"/>
+            <field name="act_window" ref="act_cost_category_group"/>
+        </record>
+
+        <menuitem
+            parent="menu_real_estate_configuration"
+            sequence="40"
+            action="act_cost_category_group"
+            id="menu_cost_category_group"/>
+
     <!-- Cost Type -->
         <record model="ir.ui.view" id="cost_type_list">
             <field name="model">real_estate.cost_type</field>
@@ -158,10 +191,10 @@
             <field name="view" ref="cost_type_form"/>
             <field name="act_window" ref="act_cost_type"/>
         </record>
-        
+
         <menuitem
             parent="menu_real_estate_configuration"
-            sequence="30"
+            sequence="42"
             action="act_cost_type"
             id="menu_cost_type"/>
 
@@ -275,74 +308,160 @@
     </data>
 
     <data noupdate="1">
-        <record model='real_estate.cost_type' id="cost_type_Grundsteuer">
-            <field name='name'>Grundsteuer</field>
-            <field name='sequence'>100</field>
+
+        <!-- Cost Category Groups (aus Anlage 4 § 2 BetrKV) -->
+        <record model="real_estate.cost_category_group" id="cost_category_group_1">
+            <field name="name">I · Grundbesitzabgaben &amp; Versicherungen</field>
+            <field name="sequence">100</field>
         </record>
-        <record model='real_estate.cost_type' id="cost_type_Wasserversorgung">
-            <field name='name'>Wasserversorgung, Abwasser</field>
-            <field name='sequence'>200</field>
+        <record model="real_estate.cost_category_group" id="cost_category_group_2">
+            <field name="name">II · Ver- und Entsorgung</field>
+            <field name="sequence">200</field>
         </record>
-        <record model='real_estate.cost_type' id="cost_type_Heizung">
-            <field name='name'>Heizung (Brennstoff)</field>
-            <field name='sequence'>300</field>
+        <record model="real_estate.cost_category_group" id="cost_category_group_3">
+            <field name="name">III · Reinigung, Pflege &amp; Sicherheit</field>
+            <field name="sequence">300</field>
         </record>
-        <record model='real_estate.cost_type' id="cost_type_Heizung_Wartung">
-            <field name='name'>Heizung (Wartung)</field>
-            <field name='sequence'>310</field>
+        <record model="real_estate.cost_category_group" id="cost_category_group_4">
+            <field name="name">IV · Sonstige Betriebskosten</field>
+            <field name="sequence">400</field>
         </record>
-        <record model='real_estate.cost_type' id="cost_type_warmwasser">
-            <field name='name'>Warmwasser</field>
-            <field name='sequence'>320</field>
+        <record model="real_estate.cost_category_group" id="cost_category_group_9">
+            <field name="name">V · Keine Umlage (z.B. Instandhaltungsrücklage, Verwaltungskosten)</field>
+            <field name="sequence">900</field>
         </record>
-        <record model='real_estate.cost_type' id="cost_type_Aufzug">
-            <field name='name'>Aufzug</field>
-            <field name='sequence'>400</field>
+
+        <!-- Gruppe I: Grundbesitzabgaben &amp; Versicherungen (§ 2 Nr. 1, 13) -->
+        <record model="real_estate.cost_type" id="cost_type_Grundsteuer">
+            <field name="name">Grundsteuer</field>
+            <field name="sequence">100</field>
+            <field name="category_group" ref="cost_category_group_1"/>
+            <field name="comment">§ 2 Nr. 1 BetrKV – Laufende öffentliche Lasten des Grundstücks (Grundsteuer)</field>
         </record>
-         <record model='real_estate.cost_type' id="cost_type_Sraßenreinigung">
-            <field name='name'>Straßenreinigung</field>
-            <field name='sequence'>500</field>
+        <record model="real_estate.cost_type" id="cost_type_Gebäudeversicherung">
+            <field name="name">Gebäudeversicherung</field>
+            <field name="sequence">110</field>
+            <field name="category_group" ref="cost_category_group_1"/>
+            <field name="comment">§ 2 Nr. 13 BetrKV – Kosten der Sach- und Haftpflichtversicherung (Gebäude, Haftpflicht, Glasbruch)</field>
         </record>
-         <record model='real_estate.cost_type' id="cost_type_Muellabfuhr">
-            <field name='name'>Müllabfuhr</field>
-            <field name='sequence'>510</field>
+
+        <!-- Gruppe II: Ver- und Entsorgung (§ 2 Nr. 2–7) -->
+        <record model="real_estate.cost_type" id="cost_type_Wasserversorgung">
+            <field name="name">Wasserversorgung, Abwasser</field>
+            <field name="sequence">200</field>
+            <field name="category_group" ref="cost_category_group_2"/>
+            <field name="comment">§ 2 Nr. 2 BetrKV – Kosten der Wasserversorgung (Frischwasser, Grundgebühr, Wasserzähler) / Nr. 3 – Kosten der Entwässerung (Schmutz- und Niederschlagswasser)</field>
         </record>
-         <record model='real_estate.cost_type' id="cost_type_Gartenpflege">
-            <field name='name'>Gartenpflege</field>
-            <field name='sequence'>600</field>
+        <record model="real_estate.cost_type" id="cost_type_Heizung">
+            <field name="name">Heizung (Brennstoff)</field>
+            <field name="sequence">300</field>
+            <field name="category_group" ref="cost_category_group_2"/>
+            <field name="comment">§ 2 Nr. 4 BetrKV – Kosten des Betriebs der zentralen Heizungsanlage (Brennstoff, Strom, Bedienung)</field>
         </record>
-         <record model='real_estate.cost_type' id="cost_type_Hausreinigung">
-            <field name='name'>Hausreinigung</field>
-            <field name='sequence'>610</field>
+        <record model="real_estate.cost_type" id="cost_type_Heizung_Wartung">
+            <field name="name">Heizung (Wartung)</field>
+            <field name="sequence">310</field>
+            <field name="category_group" ref="cost_category_group_2"/>
+            <field name="comment">§ 2 Nr. 4 BetrKV – Kosten des Betriebs der zentralen Heizungsanlage (Wartung, Reinigung, Messung)</field>
         </record>
-         <record model='real_estate.cost_type' id="cost_type_Hausmeister">
-            <field name='name'>Hausmeister</field>
-            <field name='sequence'>620</field>
+        <record model="real_estate.cost_type" id="cost_type_warmwasser">
+            <field name="name">Warmwasser</field>
+            <field name="sequence">320</field>
+            <field name="category_group" ref="cost_category_group_2"/>
+            <field name="comment">§ 2 Nr. 5 BetrKV – Kosten des Betriebs der zentralen Warmwasserversorgungsanlage</field>
         </record>
-        <record model='real_estate.cost_type' id="cost_type_Hausstrom">
-            <field name='name'>Hausstrom</field>
-            <field name='sequence'>700</field>
+        <record model="real_estate.cost_type" id="cost_type_Heizung_Warmwasser_verbunden">
+            <field name="name">Verbundene Heizungs- und Warmwasserversorgung</field>
+            <field name="sequence">330</field>
+            <field name="category_group" ref="cost_category_group_2"/>
+            <field name="comment">§ 2 Nr. 6 BetrKV – Kosten verbundener Heizungs- und Warmwasserversorgungsanlagen</field>
         </record>
-         <record model='real_estate.cost_type' id="cost_type_Gebäudeversicherung">
-            <field name='name'>Gebäudeversicherung</field>
-            <field name='sequence'>800</field>
+        <record model="real_estate.cost_type" id="cost_type_Aufzug">
+            <field name="name">Aufzug</field>
+            <field name="sequence">400</field>
+            <field name="category_group" ref="cost_category_group_2"/>
+            <field name="comment">§ 2 Nr. 7 BetrKV – Kosten des Betriebs des Personen- oder Lastenaufzugs</field>
         </record>
-        <record model='real_estate.cost_type' id="cost_type_Schornsteinfeger">
-            <field name='name'>Schornsteinfeger</field>
-            <field name='sequence'>900</field>
+
+        <!-- Gruppe III: Reinigung, Pflege &amp; Sicherheit (§ 2 Nr. 8–12) -->
+        <record model="real_estate.cost_type" id="cost_type_Sraßenreinigung">
+            <field name="name">Straßenreinigung</field>
+            <field name="sequence">500</field>
+            <field name="category_group" ref="cost_category_group_3"/>
+            <field name="comment">§ 2 Nr. 8 BetrKV – Kosten der Straßenreinigung (öffentliche Reinigungspflicht, Winterdienst)</field>
         </record>
-        <record model='real_estate.cost_type' id="cost_type_Sonstiges">
-            <field name='name'>Sonstiges</field>
-            <field name='sequence'>999</field>
+        <record model="real_estate.cost_type" id="cost_type_Muellabfuhr">
+            <field name="name">Müllabfuhr</field>
+            <field name="sequence">510</field>
+            <field name="category_group" ref="cost_category_group_3"/>
+            <field name="comment">§ 2 Nr. 8 BetrKV – Kosten der Müllbeseitigung (Abfallgebühren, Behältermiete)</field>
         </record>
-        <record model='real_estate.cost_type' id="cost_type_Verwaltungskosten">
-            <field name='name'>Verwaltungskosten</field>
-            <field name='sequence'>10</field>
+        <record model="real_estate.cost_type" id="cost_type_Hausreinigung">
+            <field name="name">Hausreinigung</field>
+            <field name="sequence">520</field>
+            <field name="category_group" ref="cost_category_group_3"/>
+            <field name="comment">§ 2 Nr. 9 BetrKV – Kosten der Gebäudereinigung und Ungezieferbekämpfung</field>
         </record>
-         <record model='real_estate.cost_type' id="cost_type_Instandhaltungsruecklage">
-            <field name='name'>Instandhaltungsrücklage</field>
-            <field name='sequence'>12</field>
-        </record>        
+        <record model="real_estate.cost_type" id="cost_type_Gartenpflege">
+            <field name="name">Gartenpflege</field>
+            <field name="sequence">600</field>
+            <field name="category_group" ref="cost_category_group_3"/>
+            <field name="comment">§ 2 Nr. 10 BetrKV – Kosten der Gartenpflege (Grünanlagen, Spielplatz, Erneuerung von Pflanzen)</field>
+        </record>
+        <record model="real_estate.cost_type" id="cost_type_Hausstrom">
+            <field name="name">Hausstrom</field>
+            <field name="sequence">610</field>
+            <field name="category_group" ref="cost_category_group_3"/>
+            <field name="comment">§ 2 Nr. 11 BetrKV – Kosten der Beleuchtung (Gemeinschaftsflächen, Außenanlagen)</field>
+        </record>
+        <record model="real_estate.cost_type" id="cost_type_Schornsteinfeger">
+            <field name="name">Schornsteinfeger</field>
+            <field name="sequence">620</field>
+            <field name="category_group" ref="cost_category_group_3"/>
+            <field name="comment">§ 2 Nr. 12 BetrKV – Kosten der Schornsteinreinigung</field>
+        </record>
+
+        <!-- Gruppe IV: Sonstige Betriebskosten (§ 2 Nr. 14–17) -->
+        <record model="real_estate.cost_type" id="cost_type_Hausmeister">
+            <field name="name">Hausmeister</field>
+            <field name="sequence">700</field>
+            <field name="category_group" ref="cost_category_group_4"/>
+            <field name="comment">§ 2 Nr. 14 BetrKV – Hauswartkosten (Lohn inkl. Sozialabgaben, ohne Instandhaltungstätigkeiten)</field>
+        </record>
+        <record model="real_estate.cost_type" id="cost_type_Antennenanlage">
+            <field name="name">Antennenanlage / SAT / Kabel</field>
+            <field name="sequence">710</field>
+            <field name="category_group" ref="cost_category_group_4"/>
+            <field name="comment">§ 2 Nr. 15 BetrKV – Kosten des Betriebs der Gemeinschaftsantennenanlage, SAT-Anlage oder des Kabelanschlusses</field>
+        </record>
+        <record model="real_estate.cost_type" id="cost_type_Waeschepflege">
+            <field name="name">Wäschepflege</field>
+            <field name="sequence">720</field>
+            <field name="category_group" ref="cost_category_group_4"/>
+            <field name="comment">§ 2 Nr. 16 BetrKV – Kosten des Betriebs der Einrichtungen für die Wäschepflege</field>
+        </record>
+        <record model="real_estate.cost_type" id="cost_type_Sonstiges">
+            <field name="name">Sonstiges</field>
+            <field name="sequence">999</field>
+            <field name="category_group" ref="cost_category_group_4"/>
+            <field name="comment">§ 2 Nr. 17 BetrKV – Sonstige Betriebskosten (z.B. Dachrinnenreinigung, Rauchwarnmelder-Wartung, Legionellenprüfung)</field>
+        </record>
+
+        <!-- Gruppe V: Keine Umlage -->
+        <record model="real_estate.cost_type" id="cost_type_Verwaltungskosten">
+            <field name="name">Verwaltungskosten</field>
+            <field name="sequence">10</field>
+            <field name="no_print" eval="True"/>
+            <field name="category_group" ref="cost_category_group_9"/>
+            <field name="comment">§ 1 Abs. 2 Nr. 1 BetrKV – Nicht umlagefähig: Kosten der Hausverwaltung</field>
+        </record>
+        <record model="real_estate.cost_type" id="cost_type_Instandhaltungsruecklage">
+            <field name="name">Instandhaltungsrücklage</field>
+            <field name="sequence">12</field>
+            <field name="no_print" eval="True"/>
+            <field name="category_group" ref="cost_category_group_9"/>
+            <field name="comment">§ 1 Abs. 2 Nr. 4 BetrKV – Nicht umlagefähig: Instandhaltungs- und Instandsetzungskosten, Rücklagen</field>
+        </record>
 
     </data>
 </tryton>

@@ -130,7 +130,7 @@
 
         <menuitem
             parent="menu_real_estate_configuration"
-            sequence="30"
+            sequence="20"
             action="act_object_party_role"
             id="menu_object_party_role"/>
 

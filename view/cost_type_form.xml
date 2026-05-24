@@ -4,6 +4,8 @@
     <newline/>
     <label name="name"/><field name="name"/>
     <newline/>
+    <label name="category_group"/><field name="category_group"/>
+    <newline/>
     <label name="comment"/><field name="comment"/>
     <newline/>
 

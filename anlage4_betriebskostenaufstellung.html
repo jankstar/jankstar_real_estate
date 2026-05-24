@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Anlage 4 – Betriebskostenaufstellung § 2 BetrKV</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,300;0,8..60,400;0,8..60,600;1,8..60,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1a1714;
+    --ink-light: #3a3530;
+    --ink-muted: #8a8480;
+    --rule: #c8bfb0;
+    --rule-light: #e8e0d4;
+    --cream: #faf7f2;
+    --accent: #8b1a1a;
+    --accent-soft: #f5ede8;
+    --field-bg: #f5f0e8;
+    --yes-bg: #eaf3de;
+    --yes-text: #3b6d11;
+    --no-bg: #f5f5f5;
+    --no-text: #888;
+    --section-bg: #f0ebe2;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Source Serif 4', Georgia, serif;
+    font-weight: 300;
+    background: #e0d8cc;
+    color: var(--ink);
+    font-size: 9.5pt;
+    line-height: 1.55;
+  }
+
+  .page {
+    background: var(--cream);
+    max-width: 210mm;
+    margin: 20px auto;
+    padding: 18mm 18mm 18mm 22mm;
+    box-shadow: 0 4px 40px rgba(0,0,0,0.18);
+    position: relative;
+  }
+
+  .page::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 5px;
+    background: var(--accent);
+  }
+
+  /* Header */
+  .doc-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding-bottom: 4mm;
+    border-bottom: 2px solid var(--ink);
+    margin-bottom: 6mm;
+  }
+
+  .doc-header-left .anlage-label {
+    font-size: 7.5pt;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent);
+    font-weight: 600;
+    margin-bottom: 2px;
+  }
+
+  .doc-header-left .doc-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 17pt;
+    font-weight: 700;
+    color: var(--ink);
+    line-height: 1.1;
+  }
+
+  .doc-header-left .doc-sub {
+    font-size: 8.5pt;
+    color: var(--ink-muted);
+    margin-top: 2px;
+    font-style: italic;
+  }
+
+  .doc-header-right {
+    font-size: 8pt;
+    color: var(--ink-muted);
+    text-align: right;
+    line-height: 1.9;
+  }
+
+  .doc-header-right strong { color: var(--ink); font-weight: 600; }
+
+  /* Bezug-Zeile */
+  .bezug-bar {
+    background: var(--section-bg);
+    border-left: 3px solid var(--accent);
+    padding: 3mm 5mm;
+    margin-bottom: 5mm;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 4mm;
+    font-size: 8.5pt;
+  }
+
+  .bezug-item .bl { color: var(--ink-muted); font-size: 7pt; text-transform: uppercase; letter-spacing: 0.08em; display: block; margin-bottom: 2px; }
+  .bezug-item .bv { color: var(--ink); font-weight: 400; font-style: italic; border-bottom: 1px solid var(--rule); padding-bottom: 1px; }
+
+  /* Intro */
+  .intro {
+    font-size: 9pt;
+    color: var(--ink-light);
+    margin-bottom: 5mm;
+    text-align: justify;
+    hyphens: auto;
+    line-height: 1.6;
+  }
+
+  /* Tabelle */
+  table.bk {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 8.5pt;
+  }
+
+  table.bk thead tr {
+    background: var(--ink);
+    color: var(--cream);
+  }
+
+  table.bk thead th {
+    padding: 4px 6px;
+    font-weight: 600;
+    font-family: 'Source Serif 4', serif;
+    font-size: 7.5pt;
+    letter-spacing: 0.04em;
+    text-align: left;
+    white-space: nowrap;
+  }
+
+  table.bk thead th:nth-child(3),
+  table.bk thead th:nth-child(4),
+  table.bk thead th:nth-child(5) {
+    text-align: center;
+  }
+
+  /* Sektionszeile */
+  table.bk tr.section-row td {
+    background: var(--section-bg);
+    font-family: 'Playfair Display', serif;
+    font-size: 8pt;
+    font-weight: 600;
+    color: var(--accent);
+    padding: 4px 6px;
+    letter-spacing: 0.04em;
+    border-top: 1px solid var(--rule);
+  }
+
+  /* Datenzeilen */
+  table.bk tr.bk-row td {
+    padding: 3px 6px;
+    border-bottom: 0.5px solid var(--rule-light);
+    vertical-align: middle;
+    color: var(--ink-light);
+  }
+
+  table.bk tr.bk-row:hover td { background: #f5f0e8; }
+
+  table.bk tr.bk-row td:first-child {
+    font-size: 7pt;
+    color: var(--ink-muted);
+    white-space: nowrap;
+  }
+
+  table.bk tr.bk-row td:nth-child(3),
+  table.bk tr.bk-row td:nth-child(4),
+  table.bk tr.bk-row td:nth-child(5) {
+    text-align: center;
+  }
+
+  /* Ja/Nein Badges */
+  .badge {
+    display: inline-block;
+    padding: 1px 7px;
+    border-radius: 3px;
+    font-size: 7pt;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+  }
+  .badge-yes { background: var(--yes-bg); color: var(--yes-text); }
+  .badge-no  { background: var(--no-bg);  color: var(--no-text); }
+  .badge-ind { background: #e8f0fa; color: #185fa5; }
+
+  /* Umlageschlüssel */
+  .uk {
+    font-size: 7pt;
+    background: var(--field-bg);
+    padding: 1px 5px;
+    border-radius: 2px;
+    color: var(--ink-muted);
+    white-space: nowrap;
+  }
+
+  /* VPZ Betrag-Felder */
+  td.vpz-field {
+    font-style: italic;
+    color: var(--ink);
+    min-width: 75px;
+    text-align: right !important;
+  }
+
+  /* Summenzeile */
+  tr.summe td {
+    background: var(--accent-soft);
+    border-top: 2px solid var(--accent);
+    font-weight: 600;
+    color: var(--ink);
+    padding: 5px 6px;
+    font-size: 9pt;
+  }
+
+  tr.summe td:last-child {
+    color: var(--accent);
+    text-align: right;
+  }
+
+  /* Legende */
+  .legende {
+    margin-top: 5mm;
+    padding: 3mm 5mm;
+    border: 0.5px solid var(--rule);
+    font-size: 7.5pt;
+    color: var(--ink-muted);
+    line-height: 1.8;
+  }
+
+  .legende strong { color: var(--ink); }
+
+  /* Hinweisbox */
+  .hinweis {
+    margin-top: 4mm;
+    background: var(--accent-soft);
+    border-left: 3px solid var(--accent);
+    padding: 3mm 5mm;
+    font-size: 8.5pt;
+    color: var(--ink-light);
+    line-height: 1.6;
+  }
+
+  /* Unterschrift */
+  .sig-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12mm;
+    margin-top: 8mm;
+    padding-top: 4mm;
+    border-top: 1px solid var(--rule);
+  }
+
+  .sig-block .sl { font-size: 7pt; color: var(--ink-muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 10mm; }
+  .sig-line { border-bottom: 1px solid var(--ink); margin-bottom: 2mm; }
+  .sig-sub { font-size: 7.5pt; color: var(--ink-muted); font-style: italic; }
+
+  /* Footer */
+  .doc-footer {
+    margin-top: 6mm;
+    padding-top: 2mm;
+    border-top: 0.5px solid var(--rule);
+    display: flex;
+    justify-content: space-between;
+    font-size: 7pt;
+    color: var(--ink-muted);
+    font-style: italic;
+  }
+
+  /* Print */
+  @media print {
+    body { background: white; }
+    .page { margin: 0; box-shadow: none; max-width: 100%; }
+    .page::before { display: none; }
+    .no-print { display: none; }
+  }
+
+  .print-bar {
+    text-align: center;
+    padding: 10px;
+  }
+
+  .btn-print {
+    background: var(--accent);
+    color: white;
+    border: none;
+    padding: 7px 22px;
+    font-family: 'Source Serif 4', serif;
+    font-size: 9pt;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+    border-radius: 2px;
+  }
+
+  .btn-print:hover { background: #6a1010; }
+</style>
+</head>
+<body>
+
+<div class="print-bar no-print">
+  <button class="btn-print" onclick="window.print()">⎙ &nbsp;Drucken / Als PDF speichern</button>
+</div>
+
+<div class="page">
+
+  <div class="doc-header">
+    <div class="doc-header-left">
+      <div class="anlage-label">Anlage 4 zum Mietvertrag</div>
+      <div class="doc-title">Betriebskostenaufstellung</div>
+      <div class="doc-sub">gemäß § 2 Betriebskostenverordnung (BetrKV)</div>
+    </div>
+    <div class="doc-header-right">
+      Vertragsnummer: <strong>___________</strong><br>
+      Stand: <strong>_______________</strong>
+    </div>
+  </div>
+
+  <div class="bezug-bar">
+    <div class="bezug-item">
+      <span class="bl">Mietobjekt</span>
+      <span class="bv">Musterstraße 12, 2. OG links, 12345 Musterstadt</span>
+    </div>
+    <div class="bezug-item">
+      <span class="bl">Mieter</span>
+      <span class="bv">Max Mustermann</span>
+    </div>
+    <div class="bezug-item">
+      <span class="bl">Wohnfläche / Gesamtfläche</span>
+      <span class="bv">72,50 m² / 580,00 m²</span>
+    </div>
+  </div>
+
+  <p class="intro">
+    Diese Aufstellung benennt die Betriebskostenarten, die gemäß § 2 BetrKV auf den Mieter umgelegt werden
+    und Gegenstand der jährlichen Betriebskostenabrechnung sind. Nur die nachfolgend mit <span style="display:inline-block; background:var(--yes-bg); color:var(--yes-text); padding:0 5px; font-size:7pt; font-weight:600; border-radius:2px;">JA</span> gekennzeichneten
+    Positionen sind Bestandteil des Mietvertrages. Der angegebene Umlageschlüssel gilt vorbehaltlich
+    abweichender gesetzlicher Regelungen (insbesondere HeizkostenV).
+  </p>
+
+  <table class="bk">
+    <thead>
+      <tr>
+        <th style="width:40px;">§ 2 Nr.</th>
+        <th>Betriebskostenart</th>
+        <th style="width:55px;">Umlegbar</th>
+        <th style="width:90px;">Umlageschlüssel</th>
+        <th style="width:90px;">Monatl. VPZ ca.</th>
+      </tr>
+    </thead>
+    <tbody>
+
+      <!-- GRUPPE 1: Grundbesitzabgaben -->
+      <tr class="section-row"><td colspan="5">I &nbsp;·&nbsp; Grundbesitzabgaben &amp; Versicherungen</td></tr>
+
+      <tr class="bk-row">
+        <td>Nr. 1</td>
+        <td>Laufende öffentliche Lasten des Grundstücks <em style="color:var(--ink-muted)">(Grundsteuer)</em></td>
+        <td><span class="badge badge-yes">Ja</span></td>
+        <td><span class="uk">Wohnfläche</span></td>
+        <td class="vpz-field">12,50 €</td>
+      </tr>
+
+      <tr class="bk-row">
+        <td>Nr. 13</td>
+        <td>Sach- und Haftpflichtversicherung <em style="color:var(--ink-muted)">(Gebäude, Haftpflicht, Glasbruch)</em></td>
+        <td><span class="badge badge-yes">Ja</span></td>
+        <td><span class="uk">Wohnfläche</span></td>
+        <td class="vpz-field">8,00 €</td>
+      </tr>
+
+      <!-- GRUPPE 2: Ver- und Entsorgung -->
+      <tr class="section-row"><td colspan="5">II &nbsp;·&nbsp; Ver- und Entsorgung</td></tr>
+
+      <tr class="bk-row">
+        <td>Nr. 2</td>
+        <td>Kosten der Wasserversorgung <em style="color:var(--ink-muted)">(Frischwasser, Wasserzähler, Grundgebühr)</em></td>
+        <td><span class="badge badge-yes">Ja</span></td>
+        <td><span class="uk">Personen / Zähler</span></td>
+        <td class="vpz-field">18,00 €</td>
+      </tr>
+
+      <tr class="bk-row">
+        <td>Nr. 3</td>
+        <td>Kosten der Entwässerung <em style="color:var(--ink-muted)">(Schmutz- und Niederschlagswasser)</em></td>
+        <td><span class="badge badge-yes">Ja</span></td>
+        <td><span class="uk">Wohnfläche</span></td>
+        <td class="vpz-field">7,00 €</td>
+      </tr>
+
+      <tr class="bk-row">
+        <td>Nr. 4</td>
+        <td>Kosten des Betriebs der zentralen Heizungsanlage <em style="color:var(--ink-muted)">(inkl. Wartung, Schornsteinfeger)</em></td>
+        <td><span class="badge badge-yes">Ja</span></td>
+        <td><span class="uk">70 % Verbrauch / 30 % Fläche</span></td>
+        <td class="vpz-field">65,00 €</td>
+      </tr>
+
+      <tr class="bk-row">
+        <td>Nr. 5</td>
+        <td>Kosten des Betriebs der zentralen Warmwasserversorgung</td>
+        <td><span class="badge badge-yes">Ja</span></td>
+        <td><span class="uk">70 % Verbrauch / 30 % Fläche</span></td>
+        <td class="vpz-field">18,00 €</td>
+      </tr>
+
+      <tr class="bk-row">
+        <td>Nr. 6</td>
+        <td>Kosten verbundener Heizungs- und Warmwasserversorgungsanlagen</td>
+        <td><span class="badge badge-no">Nein</span></td>
+        <td>—</td>
+        <td class="vpz-field" style="color:var(--ink-muted);">—</td>
+      </tr>
+
+      <tr class="bk-row">
+        <td>Nr. 7</td>
+        <td>Kosten des Betriebs des Personen- oder Lastenaufzugs</td>
+        <td><span class="badge badge-no">Nein</span></td>
+        <td>—</td>
+        <td class="vpz-field" style="color:var(--ink-muted);">—</td>
+      </tr>
+
+      <!-- GRUPPE 3: Reinigung & Pflege -->
+      <tr class="section-row"><td colspan="5">III &nbsp;·&nbsp; Reinigung, Pflege &amp; Sicherheit</td></tr>
+
+      <tr class="bk-row">
+        <td>Nr. 8</td>
+        <td>Kosten der Straßenreinigung und Müllbeseitigung</td>
+        <td><span class="badge badge-yes">Ja</span></td>
+        <td><span class="uk">Wohnfläche</span></td>
+        <td class="vpz-field">9,00 €</td>
+      </tr>
+
+      <tr class="bk-row">
+        <td>Nr. 9</td>
+        <td>Kosten der Gebäudereinigung und Ungezieferbekämpfung</td>
+        <td><span class="badge badge-yes">Ja</span></td>
+        <td><span class="uk">Wohnfläche</span></td>
+        <td class="vpz-field">5,00 €</td>
+      </tr>
+
+      <tr class="bk-row">
+        <td>Nr. 10</td>
+        <td>Kosten der Gartenpflege <em style="color:var(--ink-muted)">(inkl. Pflege von Grünanlagen, Spielplatz)</em></td>
+        <td><span class="badge badge-yes">Ja</span></td>
+        <td><span class="uk">Wohnfläche</span></td>
+        <td class="vpz-field">6,00 €</td>
+      </tr>
+
+      <tr class="bk-row">
+        <td>Nr. 11</td>
+        <td>Kosten der Beleuchtung <em style="color:var(--ink-muted)">(Gemeinschaftsflächen, Außenanlagen)</em></td>
+        <td><span class="badge badge-yes">Ja</span></td>
+        <td><span class="uk">Wohneinheiten</span></td>
+        <td class="vpz-field">3,50 €</td>
+      </tr>
+
+      <tr class="bk-row">
+        <td>Nr. 12</td>
+        <td>Kosten der Schornsteinreinigung</td>
+        <td><span class="badge badge-yes">Ja</span></td>
+        <td><span class="uk">Wohnfläche</span></td>
+        <td class="vpz-field">2,00 €</td>
+      </tr>
+
+      <!-- GRUPPE 4: Sonstiges -->
+      <tr class="section-row"><td colspan="5">IV &nbsp;·&nbsp; Sonstige Betriebskosten</td></tr>
+
+      <tr class="bk-row">
+        <td>Nr. 14</td>
+        <td>Hauswartkosten <em style="color:var(--ink-muted)">(anteiliger Lohn inkl. Sozialabgaben; ohne Instandhaltung)</em></td>
+        <td><span class="badge badge-yes">Ja</span></td>
+        <td><span class="uk">Wohnfläche</span></td>
+        <td class="vpz-field">12,00 €</td>
+      </tr>
+
+      <tr class="bk-row">
+        <td>Nr. 15</td>
+        <td>Kosten des Betriebs der Gemeinschaftsantennenanlage / SAT / Kabel</td>
+        <td><span class="badge badge-no">Nein</span></td>
+        <td>—</td>
+        <td class="vpz-field" style="color:var(--ink-muted);">—</td>
+      </tr>
+
+      <tr class="bk-row">
+        <td>Nr. 16</td>
+        <td>Kosten des Betriebs der Einrichtungen für die Wäschepflege</td>
+        <td><span class="badge badge-no">Nein</span></td>
+        <td>—</td>
+        <td class="vpz-field" style="color:var(--ink-muted);">—</td>
+      </tr>
+
+      <tr class="bk-row">
+        <td>Nr. 17</td>
+        <td>Sonstige Betriebskosten <em style="color:var(--ink-muted)">(Dachrinnenreinigung, Rauchwarnmelder-Wartung, Legionellenprüfung)</em></td>
+        <td><span class="badge badge-yes">Ja</span></td>
+        <td><span class="uk">Wohnfläche</span></td>
+        <td class="vpz-field">4,00 €</td>
+      </tr>
+
+      <!-- SUMME -->
+      <tr class="summe">
+        <td colspan="4">Summe monatliche Betriebskostenvorauszahlung (kalt, ohne Heizung/WW)</td>
+        <td style="text-align:right;">69,00 €</td>
+      </tr>
+      <tr class="summe" style="border-top: none;">
+        <td colspan="4">Summe monatliche Vorauszahlung Heizung + Warmwasser</td>
+        <td style="text-align:right;">83,00 €</td>
+      </tr>
+      <tr class="summe" style="background: var(--accent-soft); border-top: 2px solid var(--accent);">
+        <td colspan="4" style="font-size:10pt;">Gesamte monatliche Betriebskostenvorauszahlung</td>
+        <td style="font-size:10pt; text-align:right; color:var(--accent);">152,00 €</td>
+      </tr>
+
+    </tbody>
+  </table>
+
+  <div class="legende">
+    <strong>Umlageschlüssel-Erläuterung:</strong>
+    <strong>Wohnfläche</strong> = anteilig nach m² der Wohnung zur Gesamtwohnfläche des Gebäudes ·
+    <strong>Wohneinheiten</strong> = je Wohnung gleicher Anteil ·
+    <strong>Personen</strong> = nach gemeldeter Personenzahl ·
+    <strong>Verbrauch</strong> = nach Heizkostenverordnung (HeizkostenV), mind. 50 % nach Verbrauch ·
+    Änderungen des Umlageschlüssels durch den Vermieter nur bei sachlichem Grund und mit Ankündigung (§ 556a BGB).
+  </div>
+
+  <div class="hinweis">
+    <strong>Hinweise:</strong>
+    Nicht in der Betriebskostenabrechnung umlegbar sind u.a.: Verwaltungskosten, Instandhaltungs- und Instandsetzungskosten,
+    Rücklagen, Leerstandskosten sowie das Mietausfallwagnis (§ 1 Abs. 2 BetrKV).
+    Die Abrechnung erfolgt jährlich zum Abrechnungszeitraum <strong>01.01.–31.12.</strong> eines jeden Jahres.
+    Der Vermieter ist zur Anpassung der Vorauszahlungen nach Vorlage der Abrechnung berechtigt (§ 560 Abs. 4 BGB).
+  </div>
+
+  <div class="sig-row">
+    <div class="sig-block">
+      <div class="sl">Vermieter</div>
+      <div class="sig-line"></div>
+      <div class="sig-sub">Ort, Datum · Unterschrift Vermieter</div>
+    </div>
+    <div class="sig-block">
+      <div class="sl">Mieter</div>
+      <div class="sig-line"></div>
+      <div class="sig-sub">Ort, Datum · Unterschrift Mieter</div>
+    </div>
+  </div>
+
+  <div class="doc-footer">
+    <span>Anlage 4 zum Mietvertrag · Betriebskostenaufstellung § 2 BetrKV</span>
+    <span>Stand 2025 · Seite 1 von 1</span>
+  </div>
+
+</div>
+
+</body>
+</html>

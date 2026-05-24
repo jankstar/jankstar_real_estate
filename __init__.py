@@ -53,6 +53,7 @@ def register():
         operation_cost.SettlementUnitContext,
         operation_cost.BillingUnitContext,
         operation_cost.BillingUnit,
+        operation_cost.CostCategoryGroup,
         operation_cost.CostType,
         operation_cost.SettlementUnit,
         operation_cost.BillingUnitLog,
@@ -68,4 +69,5 @@ def register():
     Pool.register(
         base_object.BaseObjectReport,
         contract.ContractReport,
+        contract.ContractAnnex4Report,
         module='real_estate', type_='report')

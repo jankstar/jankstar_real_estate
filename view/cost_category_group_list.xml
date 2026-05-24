@@ -2,7 +2,4 @@
 <tree sequence="sequence">
     <field name="sequence"/>
     <field name="name"/>
-    <field name="category_group"/>
-    <field name="comment"/>
-    <field name="no_print"/>
 </tree>

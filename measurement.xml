@@ -150,7 +150,7 @@
         
         <menuitem
             parent="menu_real_estate_configuration"
-            sequence="30"
+            sequence="10"
             action="act_measurement_type"
             id="menu_measurement_type"/>
 
