@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<form col="6">
+    <label name="billing_unit"/><field name="billing_unit" colspan="3"/>
+    <label name="state"/><field name="state" colspan="1"/>
+    <newline/>
+    <label name="contract"/><field name="contract" colspan="4"/>
+    <newline/>
+    <label name="base_object"/><field name="base_object" colspan="4"/>
+    <newline/>
+    <label name="term"/><field name="term" colspan="4"/>
+    <newline/>
+    <label name="start_date"/><field name="start_date"/>
+    <label name="end_date"/><field name="end_date"/>
+    <newline/>
+    <label name="planned_costs"/><field name="planned_costs"/>
+    <label name="actual_costs"/><field name="actual_costs"/>
+    <newline/>
+    <label name="advanced_payment"/><field name="advanced_payment"/>
+    <label name="refund_receivable"/><field name="refund_receivable"/>
+    <label name="currency"/><field name="currency"/>
+</form>

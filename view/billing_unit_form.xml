@@ -41,7 +41,7 @@
         </page>
         <page string="Settlement Results" id="page_settlement_results" col="1">
             <field name="settlment_results"
-                view_ids="real_estate.settlement_result_tree_view"
+                view_ids="real_estate.settlement_result_tree_view,real_estate.settlement_result_form_view"
                 readonly="1"/>
         </page>
         <page string="Detail" id="page_detail" col="6">

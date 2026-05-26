@@ -207,6 +207,12 @@ class BaseObject(Workflow, DeactivableMixin, re_sequence_ordered(), tree(separat
             'readonly': Eval('state') != 'draft',
             })
 
+    collective_billing = fields.Boolean('Collective Billing',
+        states={
+            'invisible': Eval('type') != 'property',
+            'readonly': Eval('state') != 'draft',
+            })
+
     billing_units = fields.One2Many('real_estate.billing_unit', 'property', 'Billing Units',
         states=_states_only_propperty)
 
@@ -369,6 +375,18 @@ class BaseObject(Workflow, DeactivableMixin, re_sequence_ordered(), tree(separat
                         (Eval('state') == 'approved')),
                     'depends': ['type', 'state'],
                     },
+                'compute_settlement_result_property': {
+                    'invisible': ~(
+                        (Eval('type') == 'property') &
+                        (Eval('state') == 'approved')),
+                    'depends': ['type', 'state'],
+                    },
+                'billing_property': {
+                    'invisible': ~(
+                        (Eval('type') == 'property') &
+                        (Eval('state') == 'approved')),
+                    'depends': ['type', 'state'],
+                    },
                 })
 
     @classmethod
@@ -389,6 +407,28 @@ class BaseObject(Workflow, DeactivableMixin, re_sequence_ordered(), tree(separat
             units = [bu for bu in obj.billing_units if bu.state == 'value_share']
             if units:
                 BillingUnit.compute_value_shares_button(units)
+
+    @classmethod
+    @ModelView.button
+    def compute_settlement_result_property(cls, base_objects):
+        BillingUnit = Pool().get('real_estate.billing_unit')
+        for obj in base_objects:
+            if obj.type != 'property' or obj.state != 'approved':
+                continue
+            units = [bu for bu in obj.billing_units if bu.state == 'value_share']
+            if units:
+                BillingUnit.compute_settlement_result(units)
+
+    @classmethod
+    @ModelView.button
+    def billing_property(cls, base_objects):
+        BillingUnit = Pool().get('real_estate.billing_unit')
+        for obj in base_objects:
+            if obj.type != 'property' or obj.state != 'approved':
+                continue
+            units = [bu for bu in obj.billing_units if bu.state == 'value_share']
+            if units:
+                BillingUnit.billing(units)
 
     @classmethod
     def write(cls, *args):
@@ -420,6 +460,10 @@ class BaseObject(Workflow, DeactivableMixin, re_sequence_ordered(), tree(separat
     @staticmethod
     def default_billing_as():
         return 'residential'
+
+    @staticmethod
+    def default_collective_billing():
+        return True
     
     @classmethod
     def default_meter_factor(cls):

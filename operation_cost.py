@@ -33,13 +33,14 @@ class InvalidCalculationMethod(ValidationError):
 
 #**********************************************************************
 class CostCategoryGroup(DeactivableMixin, sequence_ordered(), ModelSQL, ModelView):
-    "Cost Category Group"
+    "Cost Category Group, grouping of cost types for reporting and analysis purposes, e.g. heating, water, etc."
     __name__ = 'real_estate.cost_category_group'
 
     name = fields.Char("Name", required=True, translate=True)
 
 #**********************************************************************
 class CostType(DeactivableMixin, sequence_ordered(), ModelSQL, ModelView):
+    """Cost Type, e.g. heating, water, common electricity, etc."""
     __name__ = 'real_estate.cost_type'
 
     name = fields.Char("Name", required=True, translate=True)
@@ -51,19 +52,23 @@ class CostType(DeactivableMixin, sequence_ordered(), ModelSQL, ModelView):
 
 #**********************************************************************
 class BillingUnit(Workflow,DeactivableMixin, sequence_ordered(), ModelSQL, ModelView):
+    """Billing Unit, e.g. operating cost settlement for a year, WEG annual statement, etc."""
     __name__ = 'real_estate.billing_unit'
     __rec_name__ = 'name'
 
     company = fields.Function(fields.Many2One('company.company','Company'),
         'on_change_with_company')
     
-    property = fields.Many2One('real_estate.base_object', 
+    property = fields.Many2One('real_estate.base_object',
         "Property", required=True, path='path', ondelete='CASCADE',
         states={
             'readonly': Eval('state') != 'draft',
             },
         domain=[
             ('type', '=', 'property' ),],)
+
+    collective_billing = fields.Function(fields.Boolean('Collective Billing'),
+        'on_change_with_collective_billing')
 
     start_date = fields.Date('Start Date', 
         states={
@@ -200,8 +205,8 @@ class BillingUnit(Workflow,DeactivableMixin, sequence_ordered(), ModelSQL, Model
                     'depends': ['state'],
                     },
                 'billing': {
-                    'invisible': ~Eval('state').in_(['value_share']),
-                    'depends': ['state'],
+                    'invisible': ~Eval('state').in_(['value_share']) | Bool(Eval('collective_billing')),
+                    'depends': ['state', 'collective_billing'],
                     },
                 'compute_settlement_result': {
                     'invisible': ~Eval('state').in_(['value_share']),
@@ -274,6 +279,9 @@ class BillingUnit(Workflow,DeactivableMixin, sequence_ordered(), ModelSQL, Model
     @classmethod
     @ModelView.button
     def compute_settlement_result(cls, billing_units):
+        """Compute settlement result based on cost shares and cash flow lines of all settlement units. 
+        For each unique combination of contract and base_object, create a settlement result record with 
+        aggregated planned and actual costs, and allocated advanced payment and refund/receivable amounts."""
         pool = Pool()
         SettlementResult = pool.get('real_estate.settlement_result')
         for billing_unit in billing_units:
@@ -312,12 +320,15 @@ class BillingUnit(Workflow,DeactivableMixin, sequence_ordered(), ModelSQL, Model
                 g['planned_costs'] += cs.planned_costs or Decimal(0)
                 g['actual_costs'] += cs.actual_costs or Decimal(0)
             advanced_by_contract = {}
+            terms_by_contract = {}
             for line in (billing_unit.cash_flow_lines or []):
                 if line.contract:
                     cid = line.contract.id
                     advanced_by_contract[cid] = (
                         advanced_by_contract.get(cid, Decimal(0))
                         + (line.amount or Decimal(0)))
+                    if line.term:
+                        terms_by_contract.setdefault(cid, set()).add(line.term.id)
             contract_actual_totals = {}
             contract_object_count = {}
             for key, g in groups.items():
@@ -345,10 +356,13 @@ class BillingUnit(Workflow,DeactivableMixin, sequence_ordered(), ModelSQL, Model
                 else:
                     adv = None
                     refund = None
+                term_ids = terms_by_contract.get(contract_id, set()) if contract_id else set()
+                term_id = term_ids.pop() if len(term_ids) == 1 else None
                 result = SettlementResult(
                     billing_unit=billing_unit.id,
                     contract=contract_id,
                     base_object=base_object_id,
+                    term=term_id,
                     start_date=g['start_date'],
                     end_date=g['end_date'],
                     planned_costs=g['planned_costs'],
@@ -516,7 +530,11 @@ class BillingUnit(Workflow,DeactivableMixin, sequence_ordered(), ModelSQL, Model
     @fields.depends('property')
     def on_change_with_company(self, name=None):
         return self.property.company if self.property else None
-    
+
+    @fields.depends('property')
+    def on_change_with_collective_billing(self, name=None):
+        return bool(self.property.collective_billing) if self.property else False
+
     def pre_validate(self):
         super().pre_validate()
         self.check_calculation_method()
@@ -741,6 +759,7 @@ class BillingUnitLogContext(ModelView):
 
 #**********************************************************************
 class SettlementUnit(DeactivableMixin, base_object.re_sequence_ordered(), ModelSQL, ModelView):
+    """Settlement Unit, e.g. cost allocation for a specific cost type and period within a billing unit."""
     __name__ = 'real_estate.settlement_unit'
     __rec_name__ = 'name'
 
@@ -1377,6 +1396,7 @@ class SettlementUnitContext(ModelView):
 
 #**********************************************************************
 class CostShare(DeactivableMixin, ModelSQL, ModelView):
+    """Cost Share, e.g. share of a specific cost type and period allocated to a specific contract or object."""
     __name__ = 'real_estate.cost_share'
     __rec_name__ = 'name'
 
@@ -1579,10 +1599,16 @@ class SettlementResultContext(ModelView):
 
  #**********************************************************************
 class SettlementResult(ModelSQL, ModelView):
+    """Settlement Result, e.g. result of cost allocation for a specific cost type and period within a billing unit, used for reporting and invoicing."""
     __name__ = 'real_estate.settlement_result'
     __rec_name__ = 'name'
 
     billing_unit = fields.Many2One('real_estate.billing_unit', 'Billing Unit', required=True, ondelete='CASCADE',)
+
+    term = fields.Many2One('real_estate.contract.term', 'Term',
+        ondelete='SET NULL',
+        states={'readonly': True},
+        )
 
     name = fields.Function(fields.Char('Name'), 'on_change_with_name',
         searcher='search_name')
