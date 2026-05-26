@@ -2,14 +2,20 @@ from trytond.pool import Pool
 
 from . import base_object
 from . import measurement
-from . import address 
+from . import address
 from . import object_party
-from . import contract
+from . import contract_core
+from . import contract_type
+from . import contract_item
+from . import contract_term
+from . import contract_wizard
 from . import sequence
 from . import res
 from . import party
 from . import invoice
-from . import operation_cost
+from . import billing_unit
+from . import settlement_unit
+from . import settlement_result
 
 __all__ = ['register']
 
@@ -28,46 +34,46 @@ def register():
         base_object.MeterReading,
         object_party.ObjectPartyRole,
         object_party.ObjectParty,
-        contract.ContractContext,
-        contract.ContractType,
-        contract.ContractTypeTax,
-        contract.ContractTerm,
-        contract.ContractTermTax,
-        contract.ContractTermType,
-        contract.ContractItem,
-        contract.ContractLog,
-        contract.ContractLogContext,
-        contract.ContractTermCashFlow,
-        contract.ContractTermCashFlowContext,
-        contract.Contract,
-        contract.CreateMovesStart,
-        contract.TerminateContractStart,
-        contract.AccountContract,
-        contract.GeneralLedgerAccountContract,
+        contract_core.ContractContext,
+        contract_core.ContractLog,
+        contract_core.ContractLogContext,
+        contract_core.AccountContract,
+        contract_core.GeneralLedgerAccountContract,
+        contract_core.Contract,
+        contract_type.ContractTypeTax,
+        contract_type.ContractType,
+        contract_type.ContractTermType,
+        contract_item.ContractItem,
+        contract_term.ContractTermTax,
+        contract_term.ContractTermCashFlow,
+        contract_term.ContractTermCashFlowContext,
+        contract_term.ContractTerm,
+        contract_wizard.CreateMovesStart,
+        contract_wizard.TerminateContractStart,
         #sequence.Sequence,
         res.User,
         party.Party,
         invoice.Invoice,
         invoice.InvoiceLine,
-        operation_cost.CostShareContext,
-        operation_cost.SettlementUnitContext,
-        operation_cost.BillingUnitContext,
-        operation_cost.BillingUnit,
-        operation_cost.CostCategoryGroup,
-        operation_cost.CostType,
-        operation_cost.SettlementUnit,
-        operation_cost.BillingUnitLog,
-        operation_cost.BillingUnitLogContext,
-        operation_cost.CostShare,
-        operation_cost.SettlementResultContext,
-        operation_cost.SettlementResult,
+        billing_unit.CostCategoryGroup,
+        billing_unit.CostType,
+        billing_unit.BillingUnitContext,
+        billing_unit.BillingUnitLogContext,
+        billing_unit.BillingUnit,
+        billing_unit.BillingUnitLog,
+        settlement_unit.SettlementUnitContext,
+        settlement_unit.SettlementUnit,
+        settlement_result.CostShareContext,
+        settlement_result.SettlementResultContext,
+        settlement_result.CostShare,
+        settlement_result.SettlementResult,
         module='real_estate', type_='model')
     Pool.register(
-        contract.CreateMoves,
-        contract.TerminateContractWizard,
+        contract_wizard.CreateMoves,
+        contract_wizard.TerminateContractWizard,
         module='real_estate', type_='wizard')
     Pool.register(
         base_object.BaseObjectReport,
-        contract.ContractReport,
-        contract.ContractAnnex4Report,
+        contract_wizard.ContractReport,
+        contract_wizard.ContractAnnex4Report,
         module='real_estate', type_='report')

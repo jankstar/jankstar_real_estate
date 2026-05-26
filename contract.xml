@@ -279,7 +279,7 @@
         <field name="name">Contract Fact Sheet (en)</field>
         <field name="report_name">real_estate.contract.report</field>
         <field name="model">real_estate.contract</field>
-        <field name="report">real_estate/contract_en.html</field>
+        <field name="report">real_estate/report/contract_en.html</field>
         <field name="template_extension">html</field>
       </record>
 
@@ -293,7 +293,7 @@
         <field name="name">Contract Letter (de) </field>
         <field name="report_name">real_estate.contract.report</field>
         <field name="model">real_estate.contract</field>
-        <field name="report">real_estate/contract_letter_de.html</field>
+        <field name="report">real_estate/report/contract_letter_de.html</field>
         <field name="template_extension">html</field>
       </record>
 
@@ -307,7 +307,7 @@
         <field name="name">Anlage 4 – Betriebskostenaufstellung (de)</field>
         <field name="report_name">real_estate.contract.annex4.report</field>
         <field name="model">real_estate.contract</field>
-        <field name="report">real_estate/anlage4_contract_de.html</field>
+        <field name="report">real_estate/report/anlage4_contract_de.html</field>
         <field name="template_extension">html</field>
       </record>
 
