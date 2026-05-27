@@ -58,10 +58,10 @@ class ContractItem(sequence_ordered(), ModelSQL, ModelView, metaclass=PoolMeta):
 
     @fields.depends('contract', 'sequence')
     def on_change_with_sequence(self, name=None):
-        if (self.sequence != None and self.sequence != 0):
+        if (self.sequence is not None and self.sequence != 0):
             return self.sequence
 
-        if self.contract != None and self.contract.next_item_sequence:
+        if self.contract is not None and self.contract.next_item_sequence:
             return self.contract.next_item_sequence
 
         return self.contract.c_type.step_item if self.contract and self.contract.c_type else 1
@@ -74,7 +74,7 @@ class ContractItem(sequence_ordered(), ModelSQL, ModelView, metaclass=PoolMeta):
 
     @fields.depends('contract', 'valid_from')
     def on_change_contract(self, name=None):
-        if self.contract != None and self.valid_from == None:
+        if self.contract is not None and self.valid_from is None:
             self.valid_from = self.contract.start_date
 
     @fields.depends('contract')

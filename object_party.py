@@ -1,17 +1,10 @@
 
 from trytond.model import (
-    DeactivableMixin, Index, ModelSQL, ModelView, fields, Unique, Check, sequence_ordered,
-    sum_tree, tree)
+    DeactivableMixin, ModelSQL, ModelView, fields, Unique, sequence_ordered)
 from trytond.model.exceptions import ValidationError
 from trytond.i18n import gettext
-from trytond.cache import Cache
-from trytond.report import Report
-from trytond.pool import Pool
-from trytond.transaction import Transaction
-from trytond.pyson import Bool, Eval, If, PYSONEncoder, TimeDelta
-from trytond.pool import PoolMeta
-from trytond.i18n import lazy_gettext
-from sql import Column
+from trytond.pool import Pool, PoolMeta
+from trytond.pyson import Bool, Eval, If, PYSONEncoder
 
 from .base_object import BaseObject
 

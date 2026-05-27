@@ -1,15 +1,12 @@
-from functools import total_ordering
 from decimal import Decimal
 
 from sql import Column
 
-from trytond.i18n import lazy_gettext, gettext
-from trytond.model import Index, Model, ModelSQL, fields
+from trytond.model import Index, ModelSQL, fields
 from trytond.modules.currency.fields import Monetary
 from trytond.pool import Pool, PoolMeta
-from trytond.transaction import Transaction
 
-from trytond.pyson import Bool, Eval, Id, If
+from trytond.pyson import Bool, Eval, If
 
 
 class Invoice(metaclass=PoolMeta):

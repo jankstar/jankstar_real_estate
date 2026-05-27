@@ -792,7 +792,6 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
             'event': event,
             'description': description or '',
         }])
-        print(f'contract {self.id}, event {event}, description {description}')
 
     @staticmethod
     def default_state():
@@ -832,9 +831,9 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
 
     @fields.depends('c_type', 'property', 'company')
     def on_change_with_sequence(self, name=None):
-        if (self.sequence != None and self.sequence != 0):
+        if (self.sequence is not None and self.sequence != 0):
             return self.sequence
-        if self.c_type != None and self.property != None and self.company != None:
+        if self.c_type is not None and self.property is not None and self.company is not None:
             contracts = Pool().get('real_estate.contract').search([
                 ('company', '=', self.company.id),
                 ('c_type', '=', self.c_type.id),
@@ -846,7 +845,7 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
     @fields.depends('c_type', 'property', 'sequence')
     def on_change_with_contract_number(self, name=None):
         self.sequence = self.on_change_with_sequence()
-        if self.c_type == None or self.property == None or not self.sequence:
+        if self.c_type is None or self.property is None or not self.sequence:
             return f" - "
         return f"{self.c_type.prefix}-{self.property.sequence}-{self.sequence}"
 
@@ -1020,14 +1019,14 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
             contract.add_log('process', f'start "create_moves" with date {date} and action {action}')
             if contract.state != 'running' and contract.state != 'terminated':
                 contract.add_log('process', f'contract state {contract.state} - finished')
-                exit
+                continue
             effective_start = contract.start_booking_date or contract.start_date
             if effective_start > date:
                 contract.add_log('process', f'contract booking start {effective_start} - finished')
-                exit
-            if contract.get_effective_end_date() != None and contract.get_effective_end_date() < date:
+                continue
+            if contract.get_effective_end_date() is not None and contract.get_effective_end_date() < date:
                 contract.add_log('process', f'contract effective_end_date {contract.get_effective_end_date()} - finished')
-                exit
+                continue
 
             process_terms = []
             for term in contract.terms:

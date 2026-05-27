@@ -204,20 +204,20 @@ class CreateMoves(Wizard):
         pool = Pool()
         with check_access():
 
-            seach_domain = [('state', 'in', ('running', 'terminated')),
+            search_domain = [('state', 'in', ('running', 'terminated')),
                             ('start_date', '<=', self.start.date)
                             ]
             if self.start.propertys:
                 property_ids = [p.id for p in self.start.propertys]
-                seach_domain.append(('property', 'in', property_ids))
+                search_domain.append(('property', 'in', property_ids))
             if self.start.contracts:
                 contract_ids = [c.id for c in self.start.contracts]
-                seach_domain.append(('id', 'in', contract_ids))
+                search_domain.append(('id', 'in', contract_ids))
 
             Contract = pool.get('real_estate.contract')
-            contract_ids = Contract.search(seach_domain)
+            contract_ids = Contract.search(search_domain)
 
-            if len(contract_ids) > 0:
+            if contract_ids:
                 Contract.call_create_moves(
                     contract_ids, self.start.date, self.start.action,
                     self.start.execute_in_queue, self.start.invoice_state or 'draft',

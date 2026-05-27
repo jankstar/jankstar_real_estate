@@ -430,24 +430,6 @@ class BaseObject(Workflow, DeactivableMixin, re_sequence_ordered(), tree(separat
             if units:
                 BillingUnit.billing(units)
 
-    @classmethod
-    def write(cls, *args):
-        super().write(*args)
-        object_ids = set()
-        actions = iter(args)
-        for records, _ in zip(actions, actions):
-            for obj in records:
-                object_ids.add(obj.id)
-        if object_ids:
-            BaseObjectOccupancy = Pool().get('real_estate.base_object.occupancy')
-            rental_objects = [
-                o for o in cls.browse(list(object_ids)) if o.type == 'object']
-            if rental_objects:
-                BaseObjectOccupancy.refresh(rental_objects)
-                property_ids = {
-                    o.property.id for o in rental_objects if o.property}
-                if property_ids:
-                    cls.compute_value_shares(cls.browse(list(property_ids)))
 
     @classmethod
     def default_company(cls):
@@ -533,16 +515,18 @@ class BaseObject(Workflow, DeactivableMixin, re_sequence_ordered(), tree(separat
     @classmethod
     def write(cls, *args):
         super().write(*args)
+        all_ids = set()
         actions = iter(args)
-        to_refresh = set()
-        for records, values in zip(actions, actions):
-            if {'start_date', 'end_date'} & set(values):
-                for rec in records:
-                    if rec.type == 'object':
-                        to_refresh.add(rec.id)
-        if to_refresh:
+        for records, _ in zip(actions, actions):
+            for rec in records:
+                all_ids.add(rec.id)
+        rental_objects = [o for o in cls.browse(list(all_ids)) if o.type == 'object']
+        if rental_objects:
             BaseObjectOccupancy = Pool().get('real_estate.base_object.occupancy')
-            BaseObjectOccupancy.refresh(cls.browse(list(to_refresh)))
+            BaseObjectOccupancy.refresh(rental_objects)
+            property_ids = {o.property.id for o in rental_objects if o.property}
+            if property_ids:
+                cls.compute_value_shares(cls.browse(list(property_ids)))
 
     def get_number_of_objects(self, name=None):
         return len(self.children)   

@@ -310,7 +310,7 @@ class ContractTermCashFlow(ModelView, ModelSQL):
             return self.currency.round(amount)
         return amount
 
-    def _get_invouce_line_taxes(self) -> dict:
+    def _get_invoice_line_taxes(self) -> dict:
         pool = Pool()
         Tax = pool.get('account.tax')
         Date = pool.get('ir.date')
@@ -342,7 +342,7 @@ class ContractTermCashFlow(ModelView, ModelSQL):
         total_amount = Decimal(0)
         tax_amount = Decimal(0)
         if self.invoice_line:
-            my_tax = self._get_invouce_line_taxes()
+            my_tax = self._get_invoice_line_taxes()
             tax_amount = my_tax['tax_amount'] or Decimal(0)
             total_amount = self.amount + tax_amount
         elif self.term:
@@ -595,7 +595,7 @@ class ContractTerm(sequence_ordered(), ModelSQL, ModelView, TaxableMixin):
 
         for invoice_line in invoice_lines:
             is_found = next((e for e in self.cash_flow if e.invoice_line == invoice_line.id), None)
-            if is_found == None:
+            if is_found is None:
                 cash_flow = CashFlow(
                     state='done',
                     posting_date=invoice_line.invoice.accounting_date,
@@ -613,7 +613,7 @@ class ContractTerm(sequence_ordered(), ModelSQL, ModelView, TaxableMixin):
                     )
                 cash_flow.save()
 
-            elif is_found != None and invoice_line.invoice.state == 'cancelled':
+            elif is_found is not None and invoice_line.invoice.state == 'cancelled':
                     CashFlow.delete([is_found])
 
         today = datetime.date.today()
@@ -623,7 +623,7 @@ class ContractTerm(sequence_ordered(), ModelSQL, ModelView, TaxableMixin):
 
         my_last_document_date = self.last_document_date
         my_next_document_date = self._next_document_date(calc_document_date=my_last_document_date)
-        while (my_last_document_date == None or my_last_document_date < my_next_document_date) and self.total_amount != 0 \
+        while (my_last_document_date is None or my_last_document_date < my_next_document_date) and self.total_amount != 0 \
             and (not self.valid_from or my_next_document_date >= self.valid_from) \
             and (not self.valid_to or my_next_document_date <= self.valid_to) \
             and my_next_document_date <= today_plus_year:
@@ -735,10 +735,10 @@ class ContractTerm(sequence_ordered(), ModelSQL, ModelView, TaxableMixin):
 
     @fields.depends('contract', 'sequence')
     def on_change_with_sequence(self, name=None):
-        if (self.sequence != None and self.sequence != 0):
+        if (self.sequence is not None and self.sequence != 0):
             return self.sequence
 
-        if self.contract != None and self.contract.next_term_sequence:
+        if self.contract is not None and self.contract.next_term_sequence:
             return self.contract.next_term_sequence
 
         return self.contract.c_type.step_term if self.contract and self.contract.c_type else 1
@@ -810,24 +810,24 @@ class ContractTerm(sequence_ordered(), ModelSQL, ModelView, TaxableMixin):
                     'unit_price')
     def _next_document_date(self, calc_document_date=None):
         def _check_valid_to(i_date: datetime.date):
-            if (self.valid_to != None and self.valid_to < i_date and self.contract.start_booking_date < i_date) \
-                or (self.contract.get_effective_end_date() != None and self.contract.get_effective_end_date() < i_date):
+            if (self.valid_to is not None and self.valid_to < i_date and self.contract.start_booking_date < i_date) \
+                or (self.contract.get_effective_end_date() is not None and self.contract.get_effective_end_date() < i_date):
                 return self.last_document_date
             else:
-                if self.rhythm_start == 'term_start' and i_date != None:
-                    return i_date.day(day=self.valid_from.day)
+                if self.rhythm_start == 'term_start' and i_date is not None:
+                    return i_date.replace(day=self.valid_from.day)
 
-                if self.rhythm_start == 'month_end' and i_date != None:
+                if self.rhythm_start == 'month_end' and i_date is not None:
                     return i_date.replace(day=1) + relativedelta(months=1) - datetime.timedelta(days=1)
 
-                if self.rhythm_start == '15th_month' and i_date != None:
+                if self.rhythm_start == '15th_month' and i_date is not None:
                     return i_date.replace(day=15)
 
                 return i_date.replace(day=1)
 
-        my_document_Date = calc_document_date if calc_document_date != None else self.last_document_date
+        my_document_Date = calc_document_date if calc_document_date is not None else self.last_document_date
 
-        if my_document_Date != None:
+        if my_document_Date is not None:
             if self.rhythm_type == 'monthly':
                 return _check_valid_to(my_document_Date + relativedelta(months=self.rhythm))
 
@@ -901,18 +901,18 @@ class ContractTerm(sequence_ordered(), ModelSQL, ModelView, TaxableMixin):
                 meas_sorted = sorted(ref_item.object.measurements, key=lambda x: x.valid_from, reverse=True)
                 for meas in meas_sorted:
                     if meas.m_type == self.term_type.m_type \
-                        and (self.next_document_date == None or meas.valid_from <= self.next_document_date):
+                        and (self.next_document_date is None or meas.valid_from <= self.next_document_date):
                         self.quantity = meas.value
 
     @fields.depends('term_type', 'reference_item', 'next_document_date', 'valid_from')
     def on_change_with_quantity(self, name=None):
-        if self.term_type != None and self.term_type.m_type != None and self.reference_item != None:
+        if self.term_type is not None and self.term_type.m_type is not None and self.reference_item is not None:
             ref_item = Pool().get('real_estate.contract.item')(self.reference_item)
-            if ref_item.object != None and len(ref_item.object.measurements) > 0:
+            if ref_item.object is not None and ref_item.object.measurements:
                 meas_sorted = sorted(ref_item.object.measurements, key=lambda x: x.valid_from, reverse=True)
                 for meas in meas_sorted:
                     if meas.m_type == self.term_type.m_type \
-                        and (self.next_document_date == None or meas.valid_from <= self.next_document_date):
+                        and (self.next_document_date is None or meas.valid_from <= self.next_document_date):
                         return meas.value
 
         if self.term_type and self.term_type.default_quantity:
@@ -934,7 +934,7 @@ class ContractTerm(sequence_ordered(), ModelSQL, ModelView, TaxableMixin):
                     'currency', 'property', 'company',
                     'type_of_use')
     def on_change_contract(self, name=None):
-        if self.contract != None and self.valid_from == None:
+        if self.contract is not None and self.valid_from is None:
             self.valid_from = self.contract.start_date
         if self.contract:
             self.currency = self.contract.currency
@@ -950,12 +950,12 @@ class ContractTerm(sequence_ordered(), ModelSQL, ModelView, TaxableMixin):
 
     @fields.depends('contract', 'valid_from', 'valid_to')
     def on_change_with_reference_item(self, name=None):
-        if self.reference_item == None \
-          and self.contract and len(self.contract.items) > 0:
+        if self.reference_item is None \
+          and self.contract and self.contract.items:
             sorted_items = sorted(self.contract.items, key=lambda x: (x.valid_from), reverse=True)
 
             for item in sorted_items:
-                if item.valid_from <= self.valid_from and (item.valid_to == None or item.valid_to >= self.valid_from):
+                if item.valid_from <= self.valid_from and (item.valid_to is None or item.valid_to >= self.valid_from):
                     return item
         return self.reference_item
 

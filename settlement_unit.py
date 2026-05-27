@@ -576,7 +576,7 @@ class SettlementUnit(DeactivableMixin, base_object.re_sequence_ordered(), ModelS
             cost_share.actual_costs = actual_by_id.get(cost_share.id, Decimal(0))
             cost_share.save()
 
-    def builling(self, selection_on=False):
+    def billing(self, selection_on=False):
         if self.state == 'billed':
             raise ValidationError(gettext("This settlement unit is already billed."))
         if self.state != 'draft':
@@ -595,7 +595,7 @@ class SettlementUnit(DeactivableMixin, base_object.re_sequence_ordered(), ModelS
 
         return [bool_op,
             ('property.name',) + tuple(clause[1:]),
-            ('commend',) + tuple(clause[1:]),
+            ('comment',) + tuple(clause[1:]),
         ]
 
 #********************************************************************

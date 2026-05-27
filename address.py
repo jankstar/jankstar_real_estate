@@ -4,15 +4,11 @@
 import re
 from string import Template
 
-from sql import Literal
-from sql.operators import Equal
-
 from trytond.cache import Cache
 from trytond.i18n import gettext
 from trytond.model import (
     DeactivableMixin, Exclude, MatchMixin, ModelSQL, ModelView, fields,
     sequence_ordered)
-from trytond.model.exceptions import AccessError
 from trytond.pool import Pool
 from trytond.pyson import Eval, If
 from trytond.rpc import RPC

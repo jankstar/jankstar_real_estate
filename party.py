@@ -1,10 +1,8 @@
-from functools import total_ordering
-
 from sql import Column
 
 from trytond.i18n import lazy_gettext, gettext
-from trytond.model import Index, Model, ModelSQL, fields
-from trytond.pool import Pool, PoolMeta
+from trytond.model import Index, fields
+from trytond.pool import PoolMeta
 
 
 class Party(metaclass=PoolMeta):

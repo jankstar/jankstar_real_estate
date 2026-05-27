@@ -603,7 +603,6 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
             'event': event,
             'description': description or '',
         }])
-        print(f'billing unit {self.id}, event {event}, description {description}')
 
 
 #**********************************************************************

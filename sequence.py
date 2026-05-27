@@ -1,21 +1,8 @@
 import datetime
-from trytond.model import (
-    DeactivableMixin, Index, ModelSQL, ModelView, fields, Unique, Check, sequence_ordered,
-    sum_tree, tree)
-from trytond.model.exceptions import ValidationError
-from trytond.i18n import gettext
-from trytond.cache import Cache
-from trytond.report import Report
-from trytond.pool import Pool
-from trytond.transaction import Transaction
-from trytond.pyson import Bool, Eval, If, PYSONEncoder, TimeDelta
+
+from trytond.model import fields
 from trytond.pool import PoolMeta
-from trytond.i18n import lazy_gettext
-
-
-import logging
-
-logger = logging.getLogger(__name__)
+from trytond.pyson import Eval
 
 class Sequence(metaclass=PoolMeta):
     __name__ = 'ir.sequence'

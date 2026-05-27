@@ -1,16 +1,12 @@
 
 from trytond.model import (
-    DeactivableMixin, Index, ModelSQL, ModelView, fields, Unique, Check, sequence_ordered,
-    sum_tree, tree)
+    DeactivableMixin, Index, ModelSQL, ModelView, fields, Unique, sequence_ordered)
 from trytond.model.exceptions import ValidationError
-from trytond.i18n import gettext
+from trytond.i18n import gettext, lazy_gettext
 from trytond.cache import Cache
-from trytond.report import Report
-from trytond.pool import Pool
+from trytond.pool import Pool, PoolMeta
 from trytond.transaction import Transaction
-from trytond.pyson import Bool, Eval, If, PYSONEncoder, TimeDelta
-from trytond.pool import PoolMeta
-from trytond.i18n import lazy_gettext
+from trytond.pyson import Bool, Eval, If, PYSONEncoder
 from sql import Column
 
 from .base_object import BaseObject
@@ -59,7 +55,7 @@ class MeasurementType(DeactivableMixin, sequence_ordered(), ModelSQL, ModelView)
             myType = records[0].id
         else:
             myType = None
-        cls._get_default_state_cache.set(type, myType)
+        cls._get_default_type_cache.set(type, myType)
         return myType
 
     @classmethod
@@ -192,6 +188,6 @@ class Measurement(DeactivableMixin, ModelSQL, ModelView, metaclass=PoolMeta):
             return [bool_op,
                 ('m_type.name',) + tuple(clause[1:]),
                 ('m_type.unit',) + tuple(clause[1:]),
-                ('valde_from',) + tuple(clause[1:]),
+                ('valid_from',) + tuple(clause[1:]),
                 ]
         return []    
