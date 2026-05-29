@@ -6,13 +6,9 @@
             <label name="base_object"/><field name="base_object" colspan="3"/>
             <label name="billing_unit"/><field name="billing_unit" colspan="3"/>
             <label name="settlement_unit"/><field name="settlement_unit" colspan="3"/>
-            <label name="service_period_from"/><field name="service_period_from"/>
-            <label name="service_period_to"/><field name="service_period_to"/>
             <newline/>
             <label name="contract"/><field name="contract" colspan="3"/>
             <label name="term"/><field name="term" colspan="3"/>
-            <newline/>
-            <label name="estg_35a"/><field name="estg_35a" colspan="3"/>
         </page>
     </xpath>
 </data>

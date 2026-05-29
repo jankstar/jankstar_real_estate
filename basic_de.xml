@@ -828,6 +828,12 @@
             <field name="name">invoice_line_form</field>
         </record>
 
+        <record model="ir.ui.view" id="account_move_line_view_form_real_estate">
+            <field name="model">account.move.line</field>
+            <field name="inherit" ref="account.move_line_view_form"/>
+            <field name="name">account_move_line_form</field>
+        </record>
+
         <record model="ir.ui.view" id="invoice_line_view_tree_settlement_unit">
             <field name="model">account.invoice.line</field>
             <field name="type">tree</field>

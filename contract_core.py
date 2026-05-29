@@ -542,10 +542,7 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
         'on_change_with_cash_flow', setter='set_cash_flow')
 
     cash_flow_pending = fields.One2Many('account.invoice', 'contract', 'Cash Flow Pending',
-        filter=['AND', [
-            ('state', '!=', 'paid'),
-            ('state', '!=', 'cancelled'),
-        ]],
+        filter=[('state', '=', 'posted')],
         order=[('invoice_date', 'ASC')],
         states={'readonly': True})
 
@@ -780,9 +777,14 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
 
     @fields.depends('terms')
     def on_change_with_cash_flow(self, name=None):
-        return sorted([cash_flow_line for term in self.terms for cash_flow_line in term.cash_flow
-                        if (cash_flow_line.invoice is None or cash_flow_line.state == 'draft')],
-                    key=lambda line: (line.document_date, line.posting_date, line.name))
+        def _is_draft(cf):
+            if not cf.invoice_line:
+                return True
+            inv = cf.invoice_line.invoice
+            return inv is None or inv.state in ('draft', 'validated')
+        return sorted(
+            [cf for term in self.terms for cf in term.cash_flow if _is_draft(cf)],
+            key=lambda line: (line.document_date, line.posting_date, line.name))
 
     def add_log(self, event, description=None):
         pool = Pool()
@@ -917,6 +919,10 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
 
                 for cash_flow in term.cash_flow:
                     if cash_flow.document_date <= date and cash_flow.state == 'draft':
+                        ref_object = (
+                            term.reference_item.object
+                            if term.reference_item and term.reference_item.object
+                            else None)
                         new_invoice_line = InvoiceLine(
                             type='line',
                             company=self.company.id,
@@ -931,6 +937,7 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
                             taxes=list(taxes),
                             contract=self,
                             term=term,
+                            base_object=ref_object.id if ref_object else None,
                         )
                         new_invoice_line.save()
 
@@ -956,13 +963,19 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
             return
 
         if self.c_type.invoice_type == 'out':
-            l_account = self.contractual_partner.account_receivable.id \
-                if self.contractual_partner.account_receivable \
-                else config.default_account_receivable.id
+            l_account = (
+                self.c_type.account.id
+                if self.c_type.account
+                else self.contractual_partner.account_receivable.id
+                if self.contractual_partner.account_receivable
+                else config.default_account_receivable.id)
         else:
-            l_account = self.contractual_partner.account_payable.id \
-                if self.contractual_partner.account_payable \
-                else config.default_account_payable.id
+            l_account = (
+                self.c_type.account.id
+                if self.c_type.account
+                else self.contractual_partner.account_payable.id
+                if self.contractual_partner.account_payable
+                else config.default_account_payable.id)
 
         for posting_date, group in sorted(lines_by_date.items()):
             invoice_lines = sorted(group['lines'], key=lambda l: l.description)
@@ -982,7 +995,7 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
                 invoice_address=self.invoice_address,
                 currency=self.currency.id,
                 journal=self.c_type.account_journal.id,
-                account=self.c_type.account.id if self.c_type.account else l_account,
+                account=l_account,
                 payment_term=self.payment_term.id if self.payment_term else None,
                 description=f'{l_description} - {posting_date.strftime("%Y-%m-%d")}',
                 reference=self.contract_number,

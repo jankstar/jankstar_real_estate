@@ -59,7 +59,8 @@ class ContractType(DeactivableMixin, base_object.re_sequence_ordered(), ModelSQL
             ('closed', '!=', True),
             ('party_required', '=', True),
             ],
-            )
+        help="Party account for invoice headers. "
+             "Overrides the party's default receivable/payable account.")
 
     taxes = fields.Many2Many('real_estate.contract.type.tax',
         'c_type', 'tax', 'Default Term Taxes',
@@ -78,6 +79,14 @@ class ContractType(DeactivableMixin, base_object.re_sequence_ordered(), ModelSQL
     account_journal = fields.Many2One('account.journal', 'Journal',
         domain=[('type', 'in', ('revenue', 'expense'))],
         required=True)
+
+    account_billing_unit = fields.Many2One('account.account',
+        'Operating Cost Clearing Account',
+        domain=[
+            ('closed', '!=', True),
+            ('company', '=', Eval('context', {}).get('company', -1)),
+            ],
+        help="Credit account for operating costs in the settlement invoice.")
 
     prefix = fields.Char("Prefix", required=True)
 

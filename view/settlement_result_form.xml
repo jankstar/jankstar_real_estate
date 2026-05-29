@@ -18,4 +18,6 @@
     <label name="advanced_payment"/><field name="advanced_payment"/>
     <label name="refund_receivable"/><field name="refund_receivable"/>
     <label name="currency"/><field name="currency"/>
+    <newline/>
+    <label name="invoice"/><field name="invoice" colspan="4"/>
 </form>

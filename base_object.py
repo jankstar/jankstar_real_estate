@@ -387,6 +387,12 @@ class BaseObject(Workflow, DeactivableMixin, re_sequence_ordered(), tree(separat
                         (Eval('state') == 'approved')),
                     'depends': ['type', 'state'],
                     },
+                'cancel_property': {
+                    'invisible': ~(
+                        (Eval('type') == 'property') &
+                        (Eval('state') == 'approved')),
+                    'depends': ['type', 'state'],
+                    },
                 })
 
     @classmethod
@@ -429,6 +435,17 @@ class BaseObject(Workflow, DeactivableMixin, re_sequence_ordered(), tree(separat
             units = [bu for bu in obj.billing_units if bu.state == 'value_share']
             if units:
                 BillingUnit.billing(units)
+
+    @classmethod
+    @ModelView.button
+    def cancel_property(cls, base_objects):
+        BillingUnit = Pool().get('real_estate.billing_unit')
+        for obj in base_objects:
+            if obj.type != 'property' or obj.state != 'approved':
+                continue
+            units = [bu for bu in obj.billing_units if bu.state == 'billed']
+            if units:
+                BillingUnit.cancel(units)
 
 
     @classmethod

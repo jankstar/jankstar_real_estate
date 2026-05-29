@@ -27,6 +27,8 @@
     <newline/>
     <label name="account"/><field name="account"/>
     <newline/>
+<label name="account_billing_unit"/><field name="account_billing_unit"/>
+    <newline/>
     <label name="taxes"/><field name="taxes"/>
 
 </form>

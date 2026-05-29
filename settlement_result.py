@@ -246,6 +246,10 @@ class SettlementResult(ModelSQL, ModelView):
     refund_receivable = Monetary('Refund/Receivable', currency='currency', digits='currency',
         states={'readonly': True})
 
+    invoice = fields.Many2One('account.invoice', 'Invoice',
+        ondelete='SET NULL',
+        states={'readonly': True})
+
     currency = fields.Function(fields.Many2One('currency.currency', 'Currency'), 'on_change_with_currency')
 
     @fields.depends('start_date', 'end_date', 'contract', 'base_object')

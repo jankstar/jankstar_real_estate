@@ -44,6 +44,11 @@
                 view_ids="real_estate.settlement_result_tree_view,real_estate.settlement_result_form_view"
                 readonly="1"/>
         </page>
+        <page string="Moves" id="page_moves" col="1">
+            <field name="moves"
+                view_ids="real_estate.billing_unit_moves_tree_view,real_estate.billing_unit_moves_form_view"
+                readonly="1"/>
+        </page>
         <page string="Detail" id="page_detail" col="6">
             <group col="6" colspan="4" id="billing_unit_detail_general">
                 <label name="company"/><field name="company"/>
@@ -67,5 +72,6 @@
     <button name="compute_value_shares_button" string="Compute Value Shares" colspan="1"/>
     <button name="compute_settlement_result" string="Compute Settlement Result" colspan="1"/>
     <button name="billing" string="Billing" colspan="1"/>
+    <button name="cancel" string="Cancel Billing" colspan="1"/>
 
 </form>

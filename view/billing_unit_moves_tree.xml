@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<tree>
+    <field name="billing_unit"/>
+    <field name="property"/>
+    <field name="contract"/>
+    <field name="settlement_result"/>
+    <field name="moves_advanced_payment"/>
+    <field name="moves_actual_costs"/>
+    <field name="moves_alloc_by_owner"/>
+</tree>

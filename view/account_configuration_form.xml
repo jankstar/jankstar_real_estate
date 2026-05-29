@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<data>
+    <xpath expr="/form/separator[@id='currency_exchange']" position="before">
+        <separator id="real_estate" string="Real Estate" colspan="4"/>
+        <label name="re_account_allocation_by_owner"/>
+        <field name="re_account_allocation_by_owner"/>
+        <label name="re_journal_billing"/>
+        <field name="re_journal_billing"/>
+    </xpath>
+</data>

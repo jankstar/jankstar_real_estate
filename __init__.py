@@ -13,6 +13,7 @@ from . import sequence
 from . import res
 from . import party
 from . import invoice
+from . import account_configuration
 from . import billing_unit
 from . import settlement_unit
 from . import settlement_result
@@ -55,12 +56,16 @@ def register():
         party.Party,
         invoice.Invoice,
         invoice.InvoiceLine,
+        invoice.AccountMoveLine,
+        account_configuration.AccountConfigurationRealEstate,
+        account_configuration.AccountConfiguration,
         billing_unit.CostCategoryGroup,
         billing_unit.CostType,
         billing_unit.BillingUnitContext,
         billing_unit.BillingUnitLogContext,
         billing_unit.BillingUnit,
         billing_unit.BillingUnitLog,
+        billing_unit.BillingUnitMoves,
         settlement_unit.SettlementUnitContext,
         settlement_unit.SettlementUnit,
         settlement_result.CostShareContext,

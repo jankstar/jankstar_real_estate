@@ -143,6 +143,8 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
 
     settlment_results = fields.One2Many('real_estate.settlement_result', 'billing_unit', 'Settlement Results')
 
+    moves = fields.One2Many('real_estate.billing_unit.moves', 'billing_unit', 'Moves')
+
     sum_planned_costs = fields.Function(
         Monetary('Sum Planned Costs', currency='currency', digits='currency'),
         'on_change_with_sum_planned_costs')
@@ -175,6 +177,7 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
             ('approved', 'selection'),
             ('selection', 'value_share'),
             ('value_share', 'billed'),
+            ('billed', 'value_share'),
             ))
 
         cls._buttons.update({
@@ -197,6 +200,10 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
                 'compute_settlement_result': {
                     'invisible': ~Eval('state').in_(['value_share']),
                     'depends': ['state'],
+                    },
+                'cancel': {
+                    'invisible': ~Eval('state').in_(['billed']) | Bool(Eval('collective_billing')),
+                    'depends': ['state', 'collective_billing'],
                     },
                 })
 
@@ -258,18 +265,385 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
             cls.compute_settlement_result(refreshed)
 
     @classmethod
+    def _check_chronological_order(cls, billing_units):
+        by_property = {}
+        for bu in billing_units:
+            by_property.setdefault(bu.property.id, []).append(bu)
+
+        for prop_id, units in by_property.items():
+            prop = units[0].property
+            all_units = cls.search([('property', '=', prop_id)])
+            min_start = min(u.start_date for u in units)
+
+            blocking = [u for u in all_units
+                        if u.start_date < min_start and u.state != 'billed']
+            if blocking:
+                raise ValidationError(gettext(
+                    'real_estate.msg_billing_unit_chronological_order',
+                    names=', '.join(u.name for u in blocking)))
+
+            if prop.collective_billing:
+                same_start = [u for u in all_units
+                              if u.start_date == min_start and u.state != 'billed']
+                missing = [u for u in same_start
+                           if u.id not in {b.id for b in units}]
+                if missing:
+                    raise ValidationError(gettext(
+                        'real_estate.msg_billing_unit_collective_required',
+                        names=', '.join(u.name for u in missing)))
+
+    @classmethod
     @ModelView.button
+    @Workflow.transition('billed')
     def billing(cls, billing_units):
-        pass
+        pool = Pool()
+        Invoice = pool.get('account.invoice')
+        InvoiceLine = pool.get('account.invoice.line')
+        AccountMove = pool.get('account.move')
+        AccountMoveLine = pool.get('account.move.line')
+        SettlementResult = pool.get('real_estate.settlement_result')
+        BillingUnitMoves = pool.get('real_estate.billing_unit.moves')
+        AccountConfiguration = pool.get('account.configuration')
+        CashFlowLine = pool.get('real_estate.contract.term.cash_flow')
+        Date = pool.get('ir.date')
+
+        cls._check_chronological_order(billing_units)
+
+        # Determine scope: if collective_billing, expand to all BUs with same start_date
+        scope_units = list(billing_units)
+        if billing_units and billing_units[0].property.collective_billing:
+            prop = billing_units[0].property
+            min_start = min(bu.start_date for bu in billing_units)
+            scope_units = cls.search([
+                ('property', '=', prop.id),
+                ('start_date', '=', min_start),
+                ('state', '!=', 'billed'),
+            ])
+
+        # c) Refuse billing if any settlement unit has error sub_state
+        error_units = [bu for bu in scope_units if bu.sub_state == 'error']
+        if error_units:
+            raise ValidationError(gettext(
+                'real_estate.msg_billing_unit_has_errors',
+                names=', '.join(bu.name for bu in error_units)))
+
+        # c) Re-verify no draft cash flow items exist at billing time
+        for bu in scope_units:
+            contract_ids = list({
+                r.contract.id
+                for r in SettlementResult.search([
+                    ('billing_unit', '=', bu.id),
+                    ('state', '=', 'approved'),
+                ])
+                if r.contract
+            })
+            if not contract_ids:
+                continue
+            draft_domain = [
+                ('term.contract', 'in', contract_ids),
+                ('invoice_state', '=', 'draft'),
+            ]
+            if bu.start_date:
+                draft_domain.append(('document_date', '>=', bu.start_date))
+            if bu.end_date:
+                draft_domain.append(('document_date', '<=', bu.end_date))
+            if bu.term_types_of_use:
+                draft_domain.append(('term.term_type', 'in',
+                    [int(t) for t in bu.term_types_of_use]))
+            if CashFlowLine.search(draft_domain, limit=1):
+                raise ValidationError(gettext(
+                    'real_estate.msg_billing_unit_draft_items',
+                    name=bu.name))
+
+        today = Date.today()
+        config = AccountConfiguration(1)
+
+        # Collect all approved settlement results for scope_units
+        all_results = SettlementResult.search([
+            ('billing_unit', 'in', [bu.id for bu in scope_units]),
+            ('state', '=', 'approved'),
+        ])
+
+        # Group by contract (or base_object for vacancy)
+        by_contract = {}
+        vacancy_results = []
+        for result in all_results:
+            if result.contract:
+                key = result.contract.id
+                by_contract.setdefault(key, []).append(result)
+            else:
+                vacancy_results.append(result)
+
+        # --- Process contracts ---
+        for contract_id, results in by_contract.items():
+            contract = results[0].contract
+            c_type = contract.c_type
+
+            total_actual = sum(r.actual_costs or Decimal(0) for r in results)
+            total_advanced = sum(r.advanced_payment or Decimal(0) for r in results)
+            refund_receivable = total_actual - total_advanced
+
+            # Skip if truly nothing to post
+            if total_actual == Decimal(0) and total_advanced == Decimal(0):
+                SettlementResult.write(results, {'state': 'billed'})
+                continue
+
+            invoice_type = c_type.invoice_type
+
+            if invoice_type == 'out':
+                header_account = (
+                    c_type.account.id
+                    if c_type.account
+                    else contract.contractual_partner.account_receivable.id
+                    if contract.contractual_partner.account_receivable
+                    else config.default_account_receivable.id)
+            else:
+                header_account = (
+                    c_type.account.id
+                    if c_type.account
+                    else contract.contractual_partner.account_payable.id
+                    if contract.contractual_partner.account_payable
+                    else config.default_account_payable.id)
+
+            invoice_lines = []
+            moves_by_result = {}  # result.id -> (adv_line, cost_line)
+
+            # One advance payment line per term (aggregated over all results of that term)
+            by_term = {}
+            for r in results:
+                if r.term:
+                    by_term.setdefault(r.term.id, []).append(r)
+
+            adv_line_by_term = {}
+            for term_id, term_results in by_term.items():
+                term = term_results[0].term
+                term_advanced = sum(r.advanced_payment or Decimal(0) for r in term_results)
+                if term_advanced != Decimal(0) and term.account:
+                    adv_amount = -term_advanced if invoice_type == 'out' else term_advanced
+                    adv_line = InvoiceLine(
+                        type='line',
+                        company=contract.company.id,
+                        party=contract.contractual_partner.id,
+                        invoice_type=invoice_type,
+                        description=f"{term.name} — Advance Payment",
+                        quantity=Decimal(1),
+                        unit_price=adv_amount,
+                        account=term.account.id,
+                        currency=contract.currency.id,
+                        contract=contract.id,
+                        term=term.id,
+                    )
+                    adv_line.save()
+                    invoice_lines.append(adv_line)
+                    adv_line_by_term[term_id] = adv_line
+                else:
+                    adv_line_by_term[term_id] = None
+
+            # One cost line per settlement result (property from billing_unit)
+            cost_line_by_result = {}
+            for r in results:
+                r_actual = r.actual_costs or Decimal(0)
+                if r_actual != Decimal(0) and c_type.account_billing_unit:
+                    cost_amount = r_actual if invoice_type == 'out' else -r_actual
+                    description = (r.base_object.rec_name
+                        if r.base_object else r.billing_unit.name)
+                    cost_line = InvoiceLine(
+                        type='line',
+                        company=contract.company.id,
+                        party=contract.contractual_partner.id,
+                        invoice_type=invoice_type,
+                        description=f"{description} — Operating Costs",
+                        quantity=Decimal(1),
+                        unit_price=cost_amount,
+                        account=c_type.account_billing_unit.id,
+                        currency=contract.currency.id,
+                        contract=contract.id,
+                        billing_unit=r.billing_unit.id,
+                    )
+                    cost_line.save()
+                    invoice_lines.append(cost_line)
+                    cost_line_by_result[r.id] = cost_line
+                else:
+                    cost_line_by_result[r.id] = None
+
+            for r in results:
+                adv_line = adv_line_by_term.get(r.term.id) if r.term else None
+                cost_line = cost_line_by_result.get(r.id)
+                moves_by_result[r.id] = (adv_line, cost_line)
+
+            if not invoice_lines:
+                SettlementResult.write(results, {'state': 'billed'})
+                continue
+
+            period_str = (f"{min(r.start_date for r in results if r.start_date)}"
+                          f" – {max(r.end_date for r in results if r.end_date)}")
+
+            invoice = Invoice(
+                company=contract.company.id,
+                type=invoice_type,
+                party=contract.contractual_partner.id,
+                invoice_date=today,
+                journal=c_type.account_journal.id,
+                account=header_account,
+                invoice_address=contract.invoice_address,
+                currency=contract.currency.id,
+                payment_term=(contract.payment_term.id
+                              if contract.payment_term else None),
+                description=f"Operating Cost Settlement {period_str}",
+                reference=contract.contract_number,
+                lines=invoice_lines,
+                contract=contract,
+            )
+            Invoice.save([invoice])
+
+            for r in results:
+                adv_line, cost_line = moves_by_result.get(r.id, (None, None))
+                BillingUnitMoves.create([{
+                    'billing_unit': r.billing_unit.id,
+                    'settlement_result': r.id,
+                    'property': r.billing_unit.property.id,
+                    'contract': contract.id,
+                    'moves_advanced_payment': adv_line.id if adv_line else None,
+                    'moves_actual_costs': cost_line.id if cost_line else None,
+                }])
+
+            SettlementResult.write(results, {
+                'state': 'billed',
+                'invoice': invoice.id,
+            })
+
+            for bu in scope_units:
+                bu.add_log('billing',
+                    f"Invoice {invoice.id} created for contract "
+                    f"{contract.contract_number} ({invoice_type}).")
+
+        # --- Process vacancy (no contract) ---
+        if vacancy_results:
+            vacancy_account = config.re_account_allocation_by_owner
+            vacancy_journal = config.re_journal_billing
+
+            if vacancy_account and vacancy_journal:
+                for r in vacancy_results:
+                    actual = r.actual_costs or Decimal(0)
+                    if actual == Decimal(0):
+                        SettlementResult.write([r], {'state': 'billed'})
+                        continue
+
+                    period = Pool().get('account.period')
+                    period_rec = period.find(
+                        r.billing_unit.property.company.id, date=today)
+
+                    obj_name = (r.base_object.rec_name
+                        if r.base_object else r.billing_unit.name)
+                    move = AccountMove(
+                        journal=vacancy_journal.id,
+                        date=today,
+                        period=period_rec,
+                        company=r.billing_unit.property.company.id,
+                        description=(
+                            f"Vacancy Cost — {r.billing_unit.name}"),
+                    )
+                    AccountMove.save([move])
+
+                    debit_line = AccountMoveLine(
+                        move=move.id,
+                        account=vacancy_account.id,
+                        debit=actual,
+                        credit=Decimal(0),
+                        description=f"Vacancy — {obj_name}",
+                        base_object=r.base_object.id if r.base_object else None,
+                    )
+                    credit_line = AccountMoveLine(
+                        move=move.id,
+                        account=vacancy_account.id,
+                        debit=Decimal(0),
+                        credit=actual,
+                        description=f"Vacancy — {r.billing_unit.name}",
+                        billing_unit=r.billing_unit.id,
+                    )
+                    AccountMoveLine.save([debit_line, credit_line])
+                    AccountMove.post([move])
+
+                    BillingUnitMoves.create([{
+                        'billing_unit': r.billing_unit.id,
+                        'settlement_result': r.id,
+                        'property': r.billing_unit.property.id,
+                        'moves_alloc_by_owner': credit_line.id,
+                    }])
+
+                    SettlementResult.write([r], {'state': 'billed'})
+
+            else:
+                # No configuration — just mark as billed
+                SettlementResult.write(vacancy_results, {'state': 'billed'})
+
+        for bu in scope_units:
+            bu.add_log('billing', 'Billing completed.')
+
+    @classmethod
+    @ModelView.button
+    @Workflow.transition('value_share')
+    def cancel(cls, billing_units):
+        pool = Pool()
+        Invoice = pool.get('account.invoice')
+        SettlementResult = pool.get('real_estate.settlement_result')
+        BillingUnitMoves = pool.get('real_estate.billing_unit.moves')
+
+        # Expand scope for collective billing (same property, same start_date, state billed)
+        scope_units = list(billing_units)
+        if billing_units and billing_units[0].property.collective_billing:
+            prop = billing_units[0].property
+            min_start = min(bu.start_date for bu in billing_units)
+            scope_units = cls.search([
+                ('property', '=', prop.id),
+                ('start_date', '=', min_start),
+                ('state', '=', 'billed'),
+            ])
+
+        # Collect all invoices linked via BillingUnitMoves
+        all_moves = BillingUnitMoves.search([
+            ('billing_unit', 'in', [bu.id for bu in scope_units]),
+        ])
+        invoice_ids = set()
+        for m in all_moves:
+            if m.moves_advanced_payment and m.moves_advanced_payment.invoice:
+                invoice_ids.add(m.moves_advanced_payment.invoice.id)
+            if m.moves_actual_costs and m.moves_actual_costs.invoice:
+                invoice_ids.add(m.moves_actual_costs.invoice.id)
+
+        # Cancel invoices
+        if invoice_ids:
+            invoices = Invoice.browse(list(invoice_ids))
+            Invoice.cancel(invoices)
+
+        # Delete BillingUnitMoves
+        BillingUnitMoves.delete(all_moves)
+
+        # Reset SettlementResults
+        results = SettlementResult.search([
+            ('billing_unit', 'in', [bu.id for bu in scope_units]),
+            ('state', '=', 'billed'),
+        ])
+        if results:
+            SettlementResult.write(results, {'state': 'approved', 'invoice': None})
+
+        # Transition all scope units back to value_share
+        cls.write(scope_units, {'state': 'value_share'})
+        for bu in scope_units:
+            bu.add_log('cancel', 'Billing cancelled.')
 
     @classmethod
     @ModelView.button
     def compute_settlement_result(cls, billing_units):
         """Compute settlement result based on cost shares and cash flow lines of all settlement units.
+        Checks chronological order before processing.
         For each unique combination of contract and base_object, create a settlement result record with
         aggregated planned and actual costs, and allocated advanced payment and refund/receivable amounts."""
+        cls._check_chronological_order(billing_units)
         pool = Pool()
         SettlementResult = pool.get('real_estate.settlement_result')
+        CostShare = pool.get('real_estate.cost_share')
+        CashFlowLine = pool.get('real_estate.contract.term.cash_flow')
         for billing_unit in billing_units:
             if billing_unit.state != 'value_share':
                 raise ValidationError(
@@ -315,6 +689,62 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
                         + (line.amount or Decimal(0)))
                     if line.term:
                         terms_by_contract.setdefault(cid, set()).add(line.term.id)
+
+            # a) Check for draft invoice items in the settlement period.
+            # Reset previous draft-error markers so the check is re-runnable.
+            prev_draft_errors = CostShare.search([
+                ('settlement_unit.billing_unit', '=', billing_unit.id),
+                ('state', '=', 'error'),
+                ('error_message', 'like', '[draft]%'),
+            ])
+            if prev_draft_errors:
+                CostShare.write(prev_draft_errors, {
+                    'state': 'value_share',
+                    'error_message': '',
+                })
+            all_contract_ids = list({
+                cs.contract.id
+                for su in billing_unit.settlement_units
+                for cs in su.cost_shares
+                if cs.contract
+            })
+            if all_contract_ids:
+                draft_domain = [
+                    ('term.contract', 'in', all_contract_ids),
+                    ('invoice_state', '=', 'draft'),
+                ]
+                if billing_unit.start_date:
+                    draft_domain.append(
+                        ('document_date', '>=', billing_unit.start_date))
+                if billing_unit.end_date:
+                    draft_domain.append(
+                        ('document_date', '<=', billing_unit.end_date))
+                if billing_unit.term_types_of_use:
+                    draft_domain.append(('term.term_type', 'in',
+                        [int(t) for t in billing_unit.term_types_of_use]))
+                draft_lines = CashFlowLine.search(draft_domain)
+                if draft_lines:
+                    draft_contract_ids = {
+                        dl.contract.id for dl in draft_lines if dl.contract}
+                    period_str = (
+                        f"{billing_unit.start_date} - {billing_unit.end_date}")
+                    for su in billing_unit.settlement_units:
+                        error_shares = [
+                            cs for cs in su.cost_shares
+                            if cs.contract
+                            and cs.contract.id in draft_contract_ids
+                        ]
+                        if error_shares:
+                            CostShare.write(error_shares, {
+                                'state': 'error',
+                                'error_message': (
+                                    f'[draft] Draft items in period {period_str}.'
+                                    f' Please post or delete before settlement.'),
+                            })
+                    billing_unit.add_log('compute_settlement_result',
+                        f'[draft] {len(draft_lines)} draft item(s) found for '
+                        f'{len(draft_contract_ids)} contract(s) in {period_str}.')
+
             contract_actual_totals = {}
             contract_object_count = {}
             for key, g in groups.items():
@@ -412,7 +842,7 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
         """Collect contracts from cost_shares of all settlement_units.
         Filter by term_types_of_use and document_date within start_date..end_date.
         billing_type='actual_billing': only paid lines (invoice_state='paid').
-        billing_type='planned_billing': all lines except cancelled invoices."""
+        billing_type='planned_billing': posted and paid lines only (excludes drafts and cancellations)."""
         CashFlowLine = Pool().get('real_estate.contract.term.cash_flow')
         contract_ids = list({
             cs.contract.id
@@ -433,7 +863,8 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
         if self.billing_type == 'actual_billing':
             domain.append(('invoice_state', '=', 'paid'))
         else:
-            domain.append(('invoice_state', '!=', 'cancelled'))
+            # planned_billing: posted (open) + paid only; excludes drafts and cancellations
+            domain.append(('invoice_state', 'in', ['posted', 'paid']))
         return CashFlowLine.search(domain)
 
     def _get_cost_shares(self):
@@ -668,6 +1099,26 @@ class BillingUnitLog(ModelSQL, ModelView):
     @classmethod
     def search_company(cls, name, clause):
         return [('billing_unit.property.company',) + tuple(clause[1:])]
+
+
+#**********************************************************************
+class BillingUnitMoves(ModelSQL, ModelView):
+    "Billing Unit Moves — references to generated postings per settlement result"
+    __name__ = 'real_estate.billing_unit.moves'
+
+    billing_unit = fields.Many2One('real_estate.billing_unit', 'Billing Unit',
+        required=True, ondelete='CASCADE')
+    settlement_result = fields.Many2One('real_estate.settlement_result',
+        'Settlement Result', ondelete='SET NULL')
+    property = fields.Many2One('real_estate.base_object', 'Property',
+        domain=[('type', '=', 'property')])
+    contract = fields.Many2One('real_estate.contract', 'Contract')
+    moves_advanced_payment = fields.Many2One('account.invoice.line',
+        'Advance Payment Line', ondelete='SET NULL')
+    moves_actual_costs = fields.Many2One('account.invoice.line',
+        'Actual Costs Line', ondelete='SET NULL')
+    moves_alloc_by_owner = fields.Many2One('account.move.line',
+        'Owner Allocation Line', ondelete='SET NULL')
 
 
 #**********************************************************************

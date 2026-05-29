@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<tryton>
+    <data>
+        <!-- account.configuration extension view -->
+        <record model="ir.ui.view" id="account_configuration_view_form">
+            <field name="model">account.configuration</field>
+            <field name="inherit" ref="account.configuration_view_form"/>
+            <field name="name">account_configuration_form</field>
+        </record>
+
+        <!-- billing_unit.moves views -->
+        <record model="ir.ui.view" id="billing_unit_moves_form_view">
+            <field name="model">real_estate.billing_unit.moves</field>
+            <field name="type">form</field>
+            <field name="name">billing_unit_moves_form</field>
+        </record>
+        <record model="ir.ui.view" id="billing_unit_moves_tree_view">
+            <field name="model">real_estate.billing_unit.moves</field>
+            <field name="type">tree</field>
+            <field name="name">billing_unit_moves_tree</field>
+        </record>
+    </data>
+</tryton>

@@ -91,6 +91,7 @@ this repository contains the full copyright notices and license terms. -->
             <button name="compute_value_shares" string="Compute Value Shares"/>
             <button name="compute_settlement_result_property" string="Compute Settlement Result"/>
             <button name="billing_property" string="Billing"/>
+            <button name="cancel_property" string="Cancel Billing"/>
         </page>
 
         <page string="Occupancy" id="page_occupancy" col="4">

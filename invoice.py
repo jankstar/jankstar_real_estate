@@ -5,7 +5,6 @@ from sql import Column
 from trytond.model import Index, ModelSQL, fields
 from trytond.modules.currency.fields import Monetary
 from trytond.pool import Pool, PoolMeta
-
 from trytond.pyson import Bool, Eval, If
 
 
@@ -37,9 +36,14 @@ class InvoiceLine(metaclass=PoolMeta):
     """Invoice Line extension for real estate"""
     __name__ = 'account.invoice.line'
 
-    contract = fields.Function(
-        fields.Many2One('real_estate.contract', 'Contract'),
-        'on_change_with_contract'
+    contract = fields.Many2One(
+        'real_estate.contract', 'Contract',
+        states={'readonly': Eval('invoice_state') != 'draft'},
+        domain=[
+            If(Bool(Eval('company')),
+                ('company', '=', Eval('company', -1)),
+                ()),
+        ]
     )
 
     term = fields.Many2One(
@@ -52,14 +56,18 @@ class InvoiceLine(metaclass=PoolMeta):
         ]
     )
 
-    property = fields.Many2One(
-        'real_estate.base_object', 'Property',
+    base_object = fields.Many2One(
+        'real_estate.base_object', 'Object',
         domain=[
-            ('type', '=', 'property'),
             If(Bool(Eval('company')),
                 ('company', '=', Eval('company', -1)),
                 ()),
         ]
+    )
+
+    property = fields.Function(
+        fields.Many2One('real_estate.base_object', 'Property'),
+        'on_change_with_property'
     )
 
     invoice_date = fields.Function(
@@ -77,12 +85,23 @@ class InvoiceLine(metaclass=PoolMeta):
         'on_change_with_total_amount'
     )
 
+    billing_unit = fields.Many2One(
+        'real_estate.billing_unit', 'Billing Unit',
+        domain=[
+            If(Bool(Eval('property')),
+                ('property', '=', Eval('property', -1)),
+                ()),
+        ]
+    )
+
     settlement_unit = fields.Many2One(
         'real_estate.settlement_unit', 'Settlement Unit',
         domain=[
-            If(Bool(Eval('property')),
-                ('billing_unit.property', '=', Eval('property', -1)),
-                ()),
+            If(Bool(Eval('billing_unit')),
+                ('billing_unit', '=', Eval('billing_unit', -1)),
+                If(Bool(Eval('property')),
+                    ('billing_unit.property', '=', Eval('property', -1)),
+                    ())),
             ('billing_unit.state', 'not in', ['draft', 'billed']),
         ]
     )
@@ -120,12 +139,35 @@ class InvoiceLine(metaclass=PoolMeta):
         table = cls.__table__()
         cls._sql_indexes.add(
             Index(table,
+                (Column(table, 'contract'), Index.Range(order='ASC NULLS FIRST')),
+                (table.id, Index.Range(order='ASC NULLS FIRST'))))
+        cls._sql_indexes.add(
+            Index(table,
                 (Column(table, 'term'), Index.Range(order='ASC NULLS FIRST')),
                 (table.id, Index.Range(order='ASC NULLS FIRST'))))
         cls._sql_indexes.add(
             Index(table,
                 (Column(table, 'settlement_unit'), Index.Range(order='ASC NULLS FIRST')),
                 (table.id, Index.Range(order='ASC NULLS FIRST'))))
+        cls._sql_indexes.add(
+            Index(table,
+                (Column(table, 'billing_unit'), Index.Range(order='ASC NULLS FIRST')),
+                (table.id, Index.Range(order='ASC NULLS FIRST'))))
+
+    @fields.depends('billing_unit', 'settlement_unit', 'term', 'base_object')
+    def on_change_with_property(self, name=None):
+        if self.billing_unit and self.billing_unit.property:
+            return self.billing_unit.property
+        if self.settlement_unit and self.settlement_unit.billing_unit:
+            return self.settlement_unit.billing_unit.property
+        if self.term and self.term.property:
+            return self.term.property
+        if self.base_object:
+            if self.base_object.type == 'property':
+                return self.base_object
+            if self.base_object.property:
+                return self.base_object.property
+        return None
 
     @fields.depends('invoice')
     def on_change_with_invoice_date(self, name=None):
@@ -156,11 +198,20 @@ class InvoiceLine(metaclass=PoolMeta):
         tax_amount = self.on_change_with_tax_amount() or Decimal(0)
         return amount + tax_amount
 
-    @fields.depends('invoice')
-    def on_change_with_contract(self, name=None):
-        if self.invoice and hasattr(self.invoice, 'contract'):
-            return self.invoice.contract
-        return None
+    @fields.depends('term')
+    def on_change_term(self):
+        if self.term and self.term.contract:
+            self.contract = self.term.contract
+
+    def get_move_lines(self):
+        lines = super().get_move_lines()
+        for line in lines:
+            line.contract = self.contract
+            line.term = self.term
+            line.base_object = self.base_object
+            line.billing_unit = self.billing_unit
+            line.settlement_unit = self.settlement_unit
+        return lines
 
     @classmethod
     def validate(cls, lines):
@@ -171,3 +222,61 @@ class InvoiceLine(metaclass=PoolMeta):
                 raise ValueError(
                     f'Service period from ({line.service_period_from})'
                     f' must be before to ({line.service_period_to})')
+            if (line.term and line.contract
+                    and line.term.contract != line.contract):
+                raise ValueError(
+                    f'Term "{line.term.rec_name}" does not belong to'
+                    f' contract "{line.contract.rec_name}".')
+
+
+#**********************************************************************
+class AccountMoveLine(metaclass=PoolMeta):
+    """Account Move Line extension for real estate"""
+    __name__ = 'account.move.line'
+
+    contract = fields.Many2One('real_estate.contract', 'Contract',
+        ondelete='SET NULL')
+
+    term = fields.Many2One('real_estate.contract.term', 'Term',
+        ondelete='SET NULL')
+
+    base_object = fields.Many2One('real_estate.base_object', 'Object',
+        ondelete='SET NULL')
+
+    billing_unit = fields.Many2One('real_estate.billing_unit', 'Billing Unit',
+        ondelete='SET NULL')
+
+    settlement_unit = fields.Many2One('real_estate.settlement_unit',
+        'Settlement Unit', ondelete='SET NULL')
+
+    property = fields.Function(
+        fields.Many2One('real_estate.base_object', 'Property'),
+        'on_change_with_property')
+
+    @classmethod
+    def __setup__(cls):
+        super().__setup__()
+        table = cls.__table__()
+        cls._sql_indexes.add(
+            Index(table,
+                (Column(table, 'contract'), Index.Range(order='ASC NULLS FIRST')),
+                (table.id, Index.Range(order='ASC NULLS FIRST'))))
+        cls._sql_indexes.add(
+            Index(table,
+                (Column(table, 'billing_unit'), Index.Range(order='ASC NULLS FIRST')),
+                (table.id, Index.Range(order='ASC NULLS FIRST'))))
+
+    @fields.depends('billing_unit', 'settlement_unit', 'term', 'base_object')
+    def on_change_with_property(self, name=None):
+        if self.billing_unit and self.billing_unit.property:
+            return self.billing_unit.property
+        if self.settlement_unit and self.settlement_unit.billing_unit:
+            return self.settlement_unit.billing_unit.property
+        if self.term and self.term.property:
+            return self.term.property
+        if self.base_object:
+            if self.base_object.type == 'property':
+                return self.base_object
+            if self.base_object.property:
+                return self.base_object.property
+        return None

@@ -55,5 +55,17 @@
         <record model="ir.message" id="msg_item_valid_from_after_contract_end">
             <field name="text">Contract item "{}": Valid from ({}) must not be after the contract end date ({})!</field>
         </record>
+        <record model="ir.message" id="msg_billing_unit_chronological_order">
+            <field name="text">The following billing units must be billed first (chronological order): {names}</field>
+        </record>
+        <record model="ir.message" id="msg_billing_unit_collective_required">
+            <field name="text">Collective billing requires the following billing units to be processed together: {names}</field>
+        </record>
+        <record model="ir.message" id="msg_billing_unit_has_errors">
+            <field name="text">Cannot bill: settlement unit(s) have errors in "{names}". Fix all errors before billing.</field>
+        </record>
+        <record model="ir.message" id="msg_billing_unit_draft_items">
+            <field name="text">Cannot bill "{name}": draft invoice items exist in the settlement period. Post or delete all drafts first.</field>
+        </record>
     </data>
 </tryton>

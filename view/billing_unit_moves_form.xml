@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<form col="6">
+    <label name="billing_unit"/><field name="billing_unit" colspan="3"/>
+    <label name="property"/><field name="property" colspan="2"/>
+    <newline/>
+    <label name="contract"/><field name="contract" colspan="4"/>
+    <newline/>
+    <label name="settlement_result"/><field name="settlement_result" colspan="4"/>
+    <newline/>
+    <label name="moves_advanced_payment"/><field name="moves_advanced_payment" colspan="4"/>
+    <newline/>
+    <label name="moves_actual_costs"/><field name="moves_actual_costs" colspan="4"/>
+    <newline/>
+    <label name="moves_alloc_by_owner"/><field name="moves_alloc_by_owner" colspan="4"/>
+</form>
