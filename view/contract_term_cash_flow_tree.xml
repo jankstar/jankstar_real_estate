@@ -14,4 +14,5 @@
     <field name="tax_amount"/>
     <field name="total_amount" sum="1"/>
     <field name="currency" optional="1"/>
+    <field name="create_moves_run_id" optional="1"/>
 </tree>

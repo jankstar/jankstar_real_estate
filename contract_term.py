@@ -91,6 +91,8 @@ class ContractTermCashFlow(ModelView, ModelSQL):
                                     'on_change_with_name',
                                     searcher='name_search')
 
+    create_moves_run_id = fields.Char('Create Moves Run ID', readonly=True)
+
     posting_date = fields.Date('Posting Date',
         states={'readonly': True,})
     document_date = fields.Date('Document Date',

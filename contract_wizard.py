@@ -111,7 +111,7 @@ class TerminateContractStart(ModelView):
 
 
 #**********************************************************************
-class CreateMovesStart(ModelView):
+class CreateContractMovesStart(ModelView):
     """Start view for Create Moves Wizard"""
     __name__ = 'real_estate.contract.create_moves.start'
 
@@ -188,7 +188,7 @@ class CreateMovesStart(ModelView):
 
 
 #**********************************************************************
-class CreateMoves(Wizard):
+class CreateContractMoves(Wizard):
     """Wizard to create moves for contracts until given date, with option to 
     re-calculate next document/due date by rhythm and last posting date before move creation"""
     __name__ = 'real_estate.contract.create_moves'

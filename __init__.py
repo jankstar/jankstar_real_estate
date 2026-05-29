@@ -49,7 +49,7 @@ def register():
         contract_term.ContractTermCashFlow,
         contract_term.ContractTermCashFlowContext,
         contract_term.ContractTerm,
-        contract_wizard.CreateMovesStart,
+        contract_wizard.CreateContractMovesStart,
         contract_wizard.TerminateContractStart,
         #sequence.Sequence,
         res.User,
@@ -75,7 +75,7 @@ def register():
         settlement_result.SettlementResult,
         module='real_estate', type_='model')
     Pool.register(
-        contract_wizard.CreateMoves,
+        contract_wizard.CreateContractMoves,
         contract_wizard.TerminateContractWizard,
         module='real_estate', type_='wizard')
     Pool.register(

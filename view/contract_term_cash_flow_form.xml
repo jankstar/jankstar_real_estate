@@ -18,6 +18,8 @@
     <newline/>
     <label name="invoice_line"/><field name="invoice_line" readonly="1" colspan="5"/>
     <newline/>
+    <label name="create_moves_run_id"/><field name="create_moves_run_id" readonly="1" colspan="5"/>
+    <newline/>
     <separator name="amount" colspan="6"/>
     <label name="quantity"/><field name="quantity" readonly="1"/>
     <label name="unit"/><field name="unit" readonly="1"/>

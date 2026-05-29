@@ -899,6 +899,10 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
             self.add_log('process', f'stop quere contract {self.id} at {date} - no terms')
             return
 
+        create_moves_run_id = (
+            f"{datetime.datetime.now().strftime('%Y%m%d-%H%M%S')}"
+            f"-U{Transaction().user}")
+
         pool = Pool()
         Invoice = pool.get('account.invoice')
         InvoiceLine = pool.get('account.invoice.line')
@@ -943,6 +947,7 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
 
                         cash_flow.state = 'done'
                         cash_flow.posting_date = cash_flow.document_date
+                        cash_flow.create_moves_run_id = create_moves_run_id
                         group = lines_by_date[cash_flow.posting_date]
                         group['lines'].append(new_invoice_line)
                         if group['document_date'] is None:
