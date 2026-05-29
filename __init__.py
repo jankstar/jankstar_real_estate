@@ -66,6 +66,7 @@ def register():
         billing_unit.BillingUnit,
         billing_unit.BillingUnitLog,
         billing_unit.BillingUnitMoves,
+        billing_unit.BillingUnitMovesContext,
         settlement_unit.SettlementUnitContext,
         settlement_unit.SettlementUnit,
         settlement_result.CostShareContext,

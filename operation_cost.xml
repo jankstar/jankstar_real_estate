@@ -315,6 +315,39 @@
             sequence="45"
             id="menu_settlement_result"/>
 
+    <!-- Billing Unit Moves -->
+        <record model="ir.ui.view" id="billing_unit_moves_context_form_view">
+            <field name="model">real_estate.billing_unit.moves.context</field>
+            <field name="type">form</field>
+            <field name="name">billing_unit_moves_context_form</field>
+        </record>
+
+        <record model="ir.action.act_window" id="act_billing_unit_moves">
+            <field name="name">Billing Unit Moves</field>
+            <field name="res_model">real_estate.billing_unit.moves</field>
+            <field name="context_model">real_estate.billing_unit.moves.context</field>
+            <field name="context_domain"
+                eval="[('billing_unit.property.company', '=', Eval('company', -1)), If(Eval('property', None), [('property', '=', Eval('property', None))], []), If(Eval('billing_unit', None), [('billing_unit', '=', Eval('billing_unit', None))], []), If(Eval('contract', None), [('contract', '=', Eval('contract', None))], []), If(Eval('from_date', None), [('billing_unit.start_date', '&gt;=', Eval('from_date', None))], []), If(Eval('to_date', None), [('billing_unit.end_date', '&lt;=', Eval('to_date', None))], [])]"
+                pyson="1"/>
+        </record>
+
+        <record model="ir.action.act_window.view" id="act_billing_unit_moves_view1">
+            <field name="sequence" eval="10"/>
+            <field name="view" ref="billing_unit_moves_tree_view"/>
+            <field name="act_window" ref="act_billing_unit_moves"/>
+        </record>
+        <record model="ir.action.act_window.view" id="act_billing_unit_moves_view2">
+            <field name="sequence" eval="20"/>
+            <field name="view" ref="billing_unit_moves_form_view"/>
+            <field name="act_window" ref="act_billing_unit_moves"/>
+        </record>
+
+        <menuitem
+            parent="menu_real_estate_operation_costs"
+            action="act_billing_unit_moves"
+            sequence="46"
+            id="menu_billing_unit_moves"/>
+
     </data>
 
     <data noupdate="1">

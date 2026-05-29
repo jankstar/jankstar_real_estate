@@ -69,7 +69,8 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
         domain=[If(Bool(Eval('end_date')), ('start_date', '<=', Eval('end_date', None)), ())],
         )
 
-    end_date = fields.Function(fields.Date('End Date'), 'on_change_with_end_date')
+    end_date = fields.Function(fields.Date('End Date'),
+        'on_change_with_end_date', searcher='search_end_date')
 
     calculation_method = fields.Selection([
         ('rental_apartment', 'Rental Apartment'),
@@ -144,6 +145,8 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
     settlment_results = fields.One2Many('real_estate.settlement_result', 'billing_unit', 'Settlement Results')
 
     moves = fields.One2Many('real_estate.billing_unit.moves', 'billing_unit', 'Moves')
+
+    billing_run_id = fields.Char('Billing Run ID', readonly=True)
 
     sum_planned_costs = fields.Function(
         Monetary('Sum Planned Costs', currency='currency', digits='currency'),
@@ -320,6 +323,10 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
                 ('state', '!=', 'billed'),
             ])
 
+        billing_run_id = (
+            f"{datetime.datetime.now().strftime('%Y%m%d-%H%M%S')}"
+            f"-U{Transaction().user}")
+
         # c) Refuse billing if any settlement unit has error sub_state
         error_units = [bu for bu in scope_units if bu.sub_state == 'error']
         if error_units:
@@ -354,6 +361,8 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
                 raise ValidationError(gettext(
                     'real_estate.msg_billing_unit_draft_items',
                     name=bu.name))
+
+        cls.write(scope_units, {'billing_run_id': billing_run_id})
 
         today = Date.today()
         config = AccountConfiguration(1)
@@ -505,6 +514,7 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
                     'contract': contract.id,
                     'moves_advanced_payment': adv_line.id if adv_line else None,
                     'moves_actual_costs': cost_line.id if cost_line else None,
+                    'billing_run_id': billing_run_id,
                 }])
 
             SettlementResult.write(results, {
@@ -569,6 +579,7 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
                         'settlement_result': r.id,
                         'property': r.billing_unit.property.id,
                         'moves_alloc_by_owner': credit_line.id,
+                        'billing_run_id': billing_run_id,
                     }])
 
                     SettlementResult.write([r], {'state': 'billed'})
@@ -966,6 +977,15 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
             return self.start_date - relativedelta(days=1) + relativedelta(years=1)
         return None
 
+    @classmethod
+    def search_end_date(cls, name, clause):
+        _, operator, value = clause
+        if value is None:
+            return [('start_date', operator, None)]
+        # end_date = start_date + 1 year - 1 day  →  start_date = end_date + 1 day - 1 year
+        start_value = value + relativedelta(days=1) - relativedelta(years=1)
+        return [('start_date', operator, start_value)]
+
     @fields.depends(methods=['_check_calculation_method_notify'])
     def on_change_notify(self):
         notifications = super().on_change_notify()
@@ -1120,6 +1140,8 @@ class BillingUnitMoves(ModelSQL, ModelView):
     moves_alloc_by_owner = fields.Many2One('account.move.line',
         'Owner Allocation Line', ondelete='SET NULL')
 
+    billing_run_id = fields.Char('Billing Run ID', readonly=True)
+
 
 #**********************************************************************
 class BillingUnitContext(ModelView):
@@ -1169,3 +1191,45 @@ class BillingUnitLogContext(ModelView):
     @classmethod
     def default_to_date(cls):
         return Pool().get('ir.date').today()
+
+
+#**********************************************************************
+class BillingUnitMovesContext(ModelView):
+    'Billing Unit Moves Context'
+    __name__ = 'real_estate.billing_unit.moves.context'
+
+    company = fields.Many2One('company.company', 'Company', required=True)
+    property = fields.Many2One('real_estate.base_object', 'Property',
+        domain=[
+            ('type', '=', 'property'),
+            ('company', '=', Eval('company', -1)),
+        ])
+    billing_unit = fields.Many2One('real_estate.billing_unit', 'Billing Unit',
+        domain=[
+            If(Eval('property', None),
+                [('property', '=', Eval('property', None))],
+                []),
+        ])
+    contract = fields.Many2One('real_estate.contract', 'Contract',
+        domain=[
+            ('company', '=', Eval('company', -1)),
+            If(Eval('property', None),
+                [('property', '=', Eval('property', None))],
+                []),
+        ])
+    from_date = fields.Date('From Date')
+    to_date = fields.Date('To Date')
+
+    @classmethod
+    def default_company(cls):
+        return Transaction().context.get('company')
+
+    @classmethod
+    def default_from_date(cls):
+        today = Pool().get('ir.date').today()
+        return today.replace(month=1, day=1)
+
+    @classmethod
+    def default_to_date(cls):
+        today = Pool().get('ir.date').today()
+        return today.replace(month=12, day=31)

@@ -7,4 +7,5 @@
     <field name="moves_advanced_payment"/>
     <field name="moves_actual_costs"/>
     <field name="moves_alloc_by_owner"/>
+    <field name="billing_run_id"/>
 </tree>
