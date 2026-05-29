@@ -1,0 +1,166 @@
+<tryton>
+
+    <data>
+
+    <!-- Settlement Result -->
+        <record model="ir.ui.view" id="settlement_result_tree_view">
+            <field name="model">real_estate.settlement_result</field>
+            <field name="type">tree</field>
+            <field name="name">settlement_result_tree</field>
+        </record>
+        <record model="ir.ui.view" id="settlement_result_form_view">
+            <field name="model">real_estate.settlement_result</field>
+            <field name="type">form</field>
+            <field name="name">settlement_result_form</field>
+        </record>
+
+    <!-- Cost Share -->
+        <record model="ir.ui.view" id="cost_share_list">
+            <field name="model">real_estate.cost_share</field>
+            <field name="type">tree</field>
+            <field name="name">cost_share_list</field>
+        </record>
+        <record model="ir.ui.view" id="cost_share_form">
+            <field name="model">real_estate.cost_share</field>
+            <field name="type">form</field>
+            <field name="name">cost_share_form</field>
+        </record>
+
+        <record model="ir.ui.view" id="cost_share_context_form_view">
+            <field name="model">real_estate.cost_share.context</field>
+            <field name="type">form</field>
+            <field name="name">cost_share_context_form</field>
+        </record>
+
+        <record model="ir.action.act_window" id="act_cost_share">
+            <field name="name">Cost Shares</field>
+            <field name="res_model">real_estate.cost_share</field>
+            <field name="context_model">real_estate.cost_share.context</field>
+            <field name="context_domain"
+                eval="[('settlement_unit.billing_unit.property.company', '=', Eval('company', -1)), If(Eval('property', None), [('settlement_unit.billing_unit.property', '=', Eval('property', None))], []), If(Eval('billing_unit', None), [('settlement_unit.billing_unit', '=', Eval('billing_unit', None))], []), If(Eval('settlement_unit', None), [('settlement_unit', '=', Eval('settlement_unit', None))], []), If(Eval('base_object', None), [('base_object', '=', Eval('base_object', None))], []), If(Eval('contract', None), [('contract', '=', Eval('contract', None))], []), If(Eval('from_date', None), [('start_date', '&gt;=', Eval('from_date', None))], []), If(Eval('to_date', None), [('end_date', '&lt;=', Eval('to_date', None))], [])]"
+                pyson="1"/>
+        </record>
+
+        <record model="ir.action.act_window.view" id="act_cost_share_view1">
+            <field name="sequence" eval="10"/>
+            <field name="view" ref="cost_share_list"/>
+            <field name="act_window" ref="act_cost_share"/>
+        </record>
+        <record model="ir.action.act_window.view" id="act_cost_share_view2">
+            <field name="sequence" eval="20"/>
+            <field name="view" ref="cost_share_form"/>
+            <field name="act_window" ref="act_cost_share"/>
+        </record>
+
+        <menuitem
+            parent="menu_real_estate_operation_costs"
+            action="act_cost_share"
+            sequence="40"
+            id="menu_cost_share"/>
+
+    <!-- Settlement Result -->
+        <record model="ir.ui.view" id="settlement_result_context_form_view">
+            <field name="model">real_estate.settlement_result.context</field>
+            <field name="type">form</field>
+            <field name="name">settlement_result_context_form</field>
+        </record>
+
+        <record model="ir.action.act_window" id="act_settlement_result">
+            <field name="name">Settlement Results</field>
+            <field name="res_model">real_estate.settlement_result</field>
+            <field name="context_model">real_estate.settlement_result.context</field>
+            <field name="context_domain"
+                eval="[('billing_unit.property.company', '=', Eval('company', -1)), If(Eval('property', None), [('billing_unit.property', '=', Eval('property', None))], []), If(Eval('billing_unit', None), [('billing_unit', '=', Eval('billing_unit', None))], []), If(Eval('contract', None), [('contract', '=', Eval('contract', None))], []), If(Eval('base_object', None), [('base_object', '=', Eval('base_object', None))], []), If(Eval('from_date', None), [('start_date', '&gt;=', Eval('from_date', None))], []), If(Eval('to_date', None), [('end_date', '&lt;=', Eval('to_date', None))], [])]"
+                pyson="1"/>
+        </record>
+
+        <record model="ir.action.act_window.view" id="act_settlement_result_view1">
+            <field name="sequence" eval="10"/>
+            <field name="view" ref="settlement_result_tree_view"/>
+            <field name="act_window" ref="act_settlement_result"/>
+        </record>
+        <record model="ir.action.act_window.view" id="act_settlement_result_view2">
+            <field name="sequence" eval="20"/>
+            <field name="view" ref="settlement_result_form_view"/>
+            <field name="act_window" ref="act_settlement_result"/>
+        </record>
+
+        <menuitem
+            parent="menu_real_estate_operation_costs"
+            action="act_settlement_result"
+            sequence="45"
+            id="menu_settlement_result"/>
+
+    <!-- Access rights -->
+
+        <!-- CostShare: admin+billing CRUD, contract+object read -->
+        <record model="ir.model.access" id="access_cost_share_admin">
+            <field name="model">real_estate.cost_share</field>
+            <field name="group" ref="group_real_estate_admin"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+        <record model="ir.model.access" id="access_cost_share_billing">
+            <field name="model">real_estate.cost_share</field>
+            <field name="group" ref="group_real_estate_billing"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+        <record model="ir.model.access" id="access_cost_share_contract">
+            <field name="model">real_estate.cost_share</field>
+            <field name="group" ref="group_real_estate_contract"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+        <record model="ir.model.access" id="access_cost_share_object">
+            <field name="model">real_estate.cost_share</field>
+            <field name="group" ref="group_real_estate_object"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+
+        <!-- SettlementResult: admin+billing CRUD, contract+object read -->
+        <record model="ir.model.access" id="access_settlement_result_admin">
+            <field name="model">real_estate.settlement_result</field>
+            <field name="group" ref="group_real_estate_admin"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+        <record model="ir.model.access" id="access_settlement_result_billing">
+            <field name="model">real_estate.settlement_result</field>
+            <field name="group" ref="group_real_estate_billing"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+        <record model="ir.model.access" id="access_settlement_result_contract">
+            <field name="model">real_estate.settlement_result</field>
+            <field name="group" ref="group_real_estate_contract"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+        <record model="ir.model.access" id="access_settlement_result_object">
+            <field name="model">real_estate.settlement_result</field>
+            <field name="group" ref="group_real_estate_object"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+
+    </data>
+
+</tryton>

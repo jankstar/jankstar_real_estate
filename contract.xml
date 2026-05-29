@@ -354,6 +354,14 @@
         <field name="perm_create" eval="False"/>
         <field name="perm_delete" eval="False"/>
     </record>
+    <record model="ir.model.access" id="access_contract_billing">
+        <field name="model">real_estate.contract</field>
+        <field name="group" ref="group_real_estate_billing"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_delete" eval="False"/>
+    </record>
 
     <!-- ContractTerm -->
     <record model="ir.model.access" id="access_contract_term_contract_group">
@@ -375,6 +383,14 @@
     <record model="ir.model.access" id="access_contract_term_object_group">
         <field name="model">real_estate.contract.term</field>
         <field name="group" ref="group_real_estate_object"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_delete" eval="False"/>
+    </record>
+    <record model="ir.model.access" id="access_contract_term_billing">
+        <field name="model">real_estate.contract.term</field>
+        <field name="group" ref="group_real_estate_billing"/>
         <field name="perm_read" eval="True"/>
         <field name="perm_write" eval="False"/>
         <field name="perm_create" eval="False"/>
@@ -406,6 +422,14 @@
         <field name="perm_create" eval="False"/>
         <field name="perm_delete" eval="False"/>
     </record>
+    <record model="ir.model.access" id="access_contract_term_tax_billing">
+        <field name="model">real_estate.contract.term.tax</field>
+        <field name="group" ref="group_real_estate_billing"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_delete" eval="False"/>
+    </record>
 
     <!-- ContractItem -->
     <record model="ir.model.access" id="access_contract_item_contract_group">
@@ -427,6 +451,14 @@
     <record model="ir.model.access" id="access_contract_item_object_group">
         <field name="model">real_estate.contract.item</field>
         <field name="group" ref="group_real_estate_object"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_delete" eval="False"/>
+    </record>
+    <record model="ir.model.access" id="access_contract_item_billing">
+        <field name="model">real_estate.contract.item</field>
+        <field name="group" ref="group_real_estate_billing"/>
         <field name="perm_read" eval="True"/>
         <field name="perm_write" eval="False"/>
         <field name="perm_create" eval="False"/>
@@ -458,15 +490,23 @@
         <field name="perm_create" eval="False"/>
         <field name="perm_delete" eval="False"/>
     </record>
+    <record model="ir.model.access" id="access_contract_log_billing">
+        <field name="model">real_estate.contract.log</field>
+        <field name="group" ref="group_real_estate_billing"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_delete" eval="False"/>
+    </record>
 
     <!-- ContractTermCashFlow: Contract group CRUD, Object group read -->
     <record model="ir.model.access" id="access_contract_term_cash_flow_contract_group">
         <field name="model">real_estate.contract.term.cash_flow</field>
         <field name="group" ref="group_real_estate_contract"/>
         <field name="perm_read" eval="True"/>
-        <field name="perm_write" eval="False"/>
-        <field name="perm_create" eval="False"/>
-        <field name="perm_delete" eval="False"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_delete" eval="True"/>
     </record>
     <record model="ir.model.access" id="access_contract_term_cash_flow_admin">
         <field name="model">real_estate.contract.term.cash_flow</field>
@@ -479,6 +519,14 @@
     <record model="ir.model.access" id="access_contract_term_cash_flow_object_group">
         <field name="model">real_estate.contract.term.cash_flow</field>
         <field name="group" ref="group_real_estate_object"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_delete" eval="False"/>
+    </record>
+    <record model="ir.model.access" id="access_contract_term_cash_flow_billing">
+        <field name="model">real_estate.contract.term.cash_flow</field>
+        <field name="group" ref="group_real_estate_billing"/>
         <field name="perm_read" eval="True"/>
         <field name="perm_write" eval="False"/>
         <field name="perm_create" eval="False"/>
@@ -510,6 +558,14 @@
         <field name="perm_create" eval="False"/>
         <field name="perm_delete" eval="False"/>
     </record>
+    <record model="ir.model.access" id="access_account_contract_billing">
+        <field name="model">real_estate.account_contract</field>
+        <field name="group" ref="group_real_estate_billing"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_delete" eval="False"/>
+    </record>
 
     <!-- ContractType: Configuration → Admin only + beide Gruppen read -->
     <record model="ir.model.access" id="access_contract_type_contract_group">
@@ -528,6 +584,14 @@
         <field name="perm_create" eval="False"/>
         <field name="perm_delete" eval="False"/>
     </record>
+    <record model="ir.model.access" id="access_contract_type_billing">
+        <field name="model">real_estate.contract.type</field>
+        <field name="group" ref="group_real_estate_billing"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_delete" eval="False"/>
+    </record>
 
     <!-- ContractTermType: Configuration → Admin only + beide Gruppen read -->
     <record model="ir.model.access" id="access_contract_term_type_contract_group">
@@ -541,6 +605,14 @@
     <record model="ir.model.access" id="access_contract_term_type_object_group">
         <field name="model">real_estate.contract.term.type</field>
         <field name="group" ref="group_real_estate_object"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_delete" eval="False"/>
+    </record>
+    <record model="ir.model.access" id="access_contract_term_type_billing">
+        <field name="model">real_estate.contract.term.type</field>
+        <field name="group" ref="group_real_estate_billing"/>
         <field name="perm_read" eval="True"/>
         <field name="perm_write" eval="False"/>
         <field name="perm_create" eval="False"/>
@@ -572,8 +644,16 @@
         <field name="perm_create" eval="False"/>
         <field name="perm_delete" eval="False"/>
     </record>
+    <record model="ir.model.access" id="access_contract_account_contract_billing">
+        <field name="model">real_estate.contract.account_contract</field>
+        <field name="group" ref="group_real_estate_billing"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_delete" eval="False"/>
+    </record>
 
-    <!-- ContractTypeTax: Configuration sub-model → Admin only -->
+    <!-- ContractTypeTax: Admin CRUD, contract read -->
     <record model="ir.model.access" id="access_contract_type_tax_admin">
         <field name="model">real_estate.contract.type.tax</field>
         <field name="group" ref="group_real_estate_admin"/>
@@ -581,6 +661,14 @@
         <field name="perm_write" eval="True"/>
         <field name="perm_create" eval="True"/>
         <field name="perm_delete" eval="True"/>
+    </record>
+    <record model="ir.model.access" id="access_contract_type_tax_contract_group">
+        <field name="model">real_estate.contract.type.tax</field>
+        <field name="group" ref="group_real_estate_contract"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_delete" eval="False"/>
     </record>
 
     <record model="ir.ui.view" id="terminate_contract_view_form">

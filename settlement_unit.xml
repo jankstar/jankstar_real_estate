@@ -1,0 +1,92 @@
+<tryton>
+
+    <data>
+
+    <!-- Settlement Unit -->
+        <record model="ir.ui.view" id="base_object_view_list_settlement_unit">
+            <field name="model">real_estate.settlement_unit</field>
+            <field name="type">tree</field>
+            <field name="name">billing_unit_list_settlement_unit</field>
+        </record>
+        <record model="ir.ui.view" id="settlement_unit_list">
+            <field name="model">real_estate.settlement_unit</field>
+            <field name="type">tree</field>
+            <field name="name">settlement_unit_list</field>
+        </record>
+        <record model="ir.ui.view" id="settlement_unit_form">
+            <field name="model">real_estate.settlement_unit</field>
+            <field name="type">form</field>
+            <field name="name">settlement_unit_form</field>
+        </record>
+
+        <record model="ir.ui.view" id="settlement_unit_context_form_view">
+            <field name="model">real_estate.settlement_unit.context</field>
+            <field name="type">form</field>
+            <field name="name">settlement_unit_context_form</field>
+        </record>
+
+        <record model="ir.action.act_window" id="act_settlement_unit_tree">
+            <field name="name">Settlement Units</field>
+            <field name="res_model">real_estate.settlement_unit</field>
+            <field name="context_model">real_estate.settlement_unit.context</field>
+            <field name="context_domain"
+                eval="[('billing_unit.property.company', '=', Eval('company', -1)), If(Eval('property', None), [('billing_unit.property', '=', Eval('property', None))], [])]"
+                pyson="1"/>
+        </record>
+
+        <record model="ir.action.act_window.view" id="act_settlement_unit_tree_view1">
+            <field name="sequence" eval="10"/>
+            <field name="view" ref="settlement_unit_list"/>
+            <field name="act_window" ref="act_settlement_unit_tree"/>
+        </record>
+        <record model="ir.action.act_window.view" id="act_settlement_unit_tree_view2">
+            <field name="sequence" eval="20"/>
+            <field name="view" ref="settlement_unit_form"/>
+            <field name="act_window" ref="act_settlement_unit_tree"/>
+        </record>
+
+        <menuitem
+            parent="menu_real_estate_operation_costs"
+            sequence="20"
+            action="act_settlement_unit_tree"
+            id="menu_settlement_unit"/>
+
+    <!-- Access rights -->
+
+        <!-- SettlementUnit: admin+billing CRUD, contract+object read -->
+        <record model="ir.model.access" id="access_settlement_unit_admin">
+            <field name="model">real_estate.settlement_unit</field>
+            <field name="group" ref="group_real_estate_admin"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+        <record model="ir.model.access" id="access_settlement_unit_billing">
+            <field name="model">real_estate.settlement_unit</field>
+            <field name="group" ref="group_real_estate_billing"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+        <record model="ir.model.access" id="access_settlement_unit_contract">
+            <field name="model">real_estate.settlement_unit</field>
+            <field name="group" ref="group_real_estate_contract"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+        <record model="ir.model.access" id="access_settlement_unit_object">
+            <field name="model">real_estate.settlement_unit</field>
+            <field name="group" ref="group_real_estate_object"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+
+    </data>
+
+</tryton>

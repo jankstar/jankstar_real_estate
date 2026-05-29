@@ -66,6 +66,200 @@ The following master data must be set up before the module can be used:
 ``real_estate.cost_category_group`` / ``real_estate.cost_type``
    Cost categories (e.g. *Heating*, *Water*) and individual cost types
    used to structure operating cost settlements.
+   Default values for German BetrKV (§ 2) are loaded at module installation.
+
+``account.configuration`` (real estate extension)
+   Default accounts for operating cost billing (actual costs, advances,
+   owner allocation). Configured via the account configuration form
+   extension added by ``account_configuration.py``.
+
+
+Access Control
+==============
+
+Four user groups are provided. Access is additive — a user may belong to
+multiple groups.
+
+``group_real_estate_admin`` — **Real Estate Administration**
+   Full CRUD on all module models. Intended for system administrators and
+   property managers with unrestricted access. The built-in ``admin`` user
+   is automatically assigned to this group at installation.
+
+``group_real_estate_object`` — **Real Estate Object**
+   Full CRUD on property and object data (``base_object``, ``address``,
+   ``measurement``, ``meter_reading``, ``object_party``, ``occupancy``).
+   Read-only access to contract, billing, and configuration models.
+   Intended for facility managers who maintain the property master data
+   but do not manage contracts or run settlements.
+
+``group_real_estate_contract`` — **Real Estate Contract**
+   Full CRUD on contract data (``contract``, ``contract.term``,
+   ``contract.item``, ``contract.log``, ``contract.term.cash_flow``,
+   ``contract.term.tax``, ``account_contract``).
+   Read-only access to property, billing, and configuration models.
+   Intended for property managers / letting agents.
+
+``group_real_estate_billing`` — **Real Estate Billing**
+   Full CRUD on all operating cost and settlement models
+   (``billing_unit``, ``billing_unit.log``, ``billing_unit.moves``,
+   ``settlement_unit``, ``settlement_result``, ``cost_share``,
+   ``cost_category_group``, ``cost_type``,
+   ``account.configuration.real_estate``).
+   Read-only access to property and contract models.
+   Intended for the operating cost accountant who runs the annual
+   settlement but does not modify contracts or property master data.
+
+Permission matrix (``C`` = CRUD · ``R`` = read · ``—`` = no access):
+
+.. list-table::
+   :header-rows: 1
+   :widths: 42 10 10 10 10
+
+   * - Model
+     - admin
+     - object
+     - contract
+     - billing
+   * - ``real_estate.address``
+     - C
+     - C
+     - R
+     - R
+   * - ``real_estate.base_object``
+     - C
+     - C
+     - R
+     - R
+   * - ``real_estate.base_object.occupancy``
+     - C
+     - C
+     - C
+     - R
+   * - ``real_estate.meter_reading``
+     - C
+     - C
+     - R
+     - R
+   * - ``real_estate.measurement.type``
+     - C
+     - R
+     - R
+     - R
+   * - ``real_estate.measurement``
+     - C
+     - C
+     - R
+     - R
+   * - ``real_estate.object_party``
+     - C
+     - C
+     - R
+     - R
+   * - ``real_estate.object_party.role``
+     - C
+     - R
+     - R
+     - R
+   * - ``real_estate.contract``
+     - C
+     - R
+     - C
+     - R
+   * - ``real_estate.contract.item``
+     - C
+     - R
+     - C
+     - R
+   * - ``real_estate.contract.term``
+     - C
+     - R
+     - C
+     - R
+   * - ``real_estate.contract.term.tax``
+     - C
+     - R
+     - C
+     - R
+   * - ``real_estate.contract.log``
+     - C
+     - R
+     - C
+     - R
+   * - ``real_estate.contract.account_contract``
+     - C
+     - R
+     - C
+     - R
+   * - ``real_estate.contract.term.cash_flow``
+     - C
+     - R
+     - C
+     - R
+   * - ``real_estate.account_contract``
+     - C
+     - R
+     - R
+     - R
+   * - ``real_estate.contract.type``
+     - C
+     - R
+     - R
+     - R
+   * - ``real_estate.contract.term.type``
+     - C
+     - R
+     - R
+     - R
+   * - ``real_estate.contract.type.tax``
+     - C
+     - —
+     - R
+     - R
+   * - ``real_estate.cost_category_group``
+     - C
+     - R
+     - R
+     - C
+   * - ``real_estate.cost_type``
+     - C
+     - R
+     - R
+     - C
+   * - ``real_estate.billing_unit``
+     - C
+     - R
+     - R
+     - C
+   * - ``real_estate.billing_unit.log``
+     - C
+     - R
+     - R
+     - C
+   * - ``real_estate.billing_unit.moves``
+     - C
+     - R
+     - R
+     - C
+   * - ``real_estate.settlement_unit``
+     - C
+     - R
+     - R
+     - C
+   * - ``real_estate.cost_share``
+     - C
+     - C
+     - C
+     - C
+   * - ``real_estate.settlement_result``
+     - C
+     - C
+     - C
+     - C
+   * - ``account.configuration.real_estate``
+     - C
+     - R
+     - R
+     - R
 
 
 Data Model
@@ -143,7 +337,9 @@ Contract Management
    - Links to ``party.party`` (contractual partner), ``base_object``
      (property), and one or more ``ContractItem`` records
    - Generates Tryton accounting moves (invoices) for all active terms
-     via ``create_moves`` / ``call_create_moves``
+     via ``CreateContractMoves`` wizard (``call_create_moves``)
+   - Cash flow tabs on the contract form: *Draft* (invoice state
+     ``draft``/``validated``), *Pending* (``posted``), *Paid* (``paid``)
    - ``_refresh_occupancy_for_contracts`` updates occupancy records when
      a contract starts or is terminated
    - ``add_log`` appends timestamped ``ContractLog`` entries
@@ -185,10 +381,19 @@ Contract Management
 ``real_estate.contract.term.cash_flow``  (``contract_term.py``)
    Projected or realised cash flow entry for a term.
 
-   *States:* ``draft`` (planned) · ``done`` (invoiced)
+   *States:* ``draft`` (planned, no invoice line yet) · ``done`` (invoiced)
+
+   *Invoice states* (computed from the linked invoice):
+   ``draft`` / ``validated`` — not yet posted (excluded from settlement
+   calculations); ``posted`` — open receivable; ``paid`` — settled.
+   Only ``posted`` and ``paid`` entries appear in the balance sheet and
+   are used as *advance payment* in operating cost settlement.
 
    Stores ``posting_date``, ``document_date``, ``due_date``, and a link to
    the ``account.invoice.line`` once billed.
+   ``create_moves_run_id`` (format ``YYYYMMDD-HHMMSS-U<userid>``) is set
+   for all cash flow entries created in a single ``CreateContractMoves`` run,
+   allowing traceability back to the wizard invocation.
    Supports date-pattern search (``YYYY/MM`` or ``YYYY/MM/DD``) in the name field.
 
 ``Quantitative``  (``contract_term.py``)
@@ -235,15 +440,46 @@ Operating Cost Settlement
 
    ``compute_settlement_result``
       Derives ``SettlementResult`` records per contract — actual costs,
-      advances paid, and the resulting refund or additional receivable.
+      advances paid (only ``posted``/``paid`` invoice lines), and the
+      resulting refund or additional receivable.
+      Sets affected ``CostShare`` records to state ``error`` if any
+      cash flow entries in the period are still in ``draft``/``validated``
+      state; the error message is prefixed with ``[draft]`` so it can be
+      reset on re-run once the drafts are posted or deleted.
 
    ``billing``
       Creates invoices/credit notes from the settlement results.
+      Refuses to proceed if ``sub_state`` is ``error`` or if draft cash
+      flow lines still exist in the settlement period.
+      Generates a ``billing_run_id`` (``YYYYMMDD-HHMMSS-U<userid>``) that
+      is written to the billing unit and all ``BillingUnitMoves`` records
+      of the same run, so every posting can be traced back to its run.
       Hidden when the property has ``collective_billing = True``; in that
       case the action is triggered from the property form instead.
 
+   ``billing_run_id``
+      Char field set at the end of a successful ``billing()`` call,
+      identical to the value written to all ``BillingUnitMoves`` of that run.
+
 ``real_estate.billing_unit.log``  (``billing_unit.py``)
    Timestamped log entries attached to a billing unit.
+
+``real_estate.billing_unit.moves``  (``billing_unit.py``)
+   One record per invoice or journal entry created by ``billing()``.
+   Links the billing unit to the contract, settlement result, and the
+   individual posting records:
+
+   - ``moves_advanced_payment`` — ``account.invoice.line`` that reverses
+     the operating-cost advance (credit note line)
+   - ``moves_actual_costs`` — ``account.invoice.line`` for the actual costs
+   - ``moves_alloc_by_owner`` — ``account.move.line`` for the owner
+     allocation journal entry
+
+   ``billing_run_id`` ties all moves of one billing run together
+   (same value as on the parent ``BillingUnit``).
+   Browseable via the *Billing Unit Moves* menu entry under
+   *Operation Costs*, filtered by company, property, billing unit,
+   contract, and date range.
 
 ``real_estate.settlement_unit``  (``settlement_unit.py``)
    One cost-type line within a billing unit, e.g. *Gas 2024*.
@@ -274,6 +510,9 @@ Operating Cost Settlement
 
    Stores ``value_share`` (allocation factor), ``time_share`` (days),
    ``planned_costs``, ``actual_costs``.
+   ``error_message`` describes the problem; entries set by
+   ``compute_settlement_result`` carry a ``[draft]`` prefix and are
+   automatically cleared on the next successful re-run.
 
 ``real_estate.settlement_result``  (``settlement_result.py``)
    Final settlement record per contract (or object) and billing unit.
@@ -281,9 +520,9 @@ Operating Cost Settlement
    *States:* ``approved`` · ``billed``
 
    Stores ``planned_costs``, ``actual_costs``, ``advanced_payment``
-   (sum of operating-cost advance invoices during the period), and the
-   derived ``refund_receivable`` (positive = refund to tenant,
-   negative = additional receivable).
+   (sum of ``posted``/``paid`` operating-cost advance invoice lines during
+   the period), and the derived ``refund_receivable`` (positive = refund
+   to tenant, negative = additional receivable).
    Optionally links to the single ``ContractTerm`` that covered all advances
    when exactly one term was involved.
 
@@ -302,6 +541,14 @@ Extensions to Core Modules
    Adds a ``term`` Many2One field linking invoice lines to the
    ``ContractTerm`` that generated them.
 
+``account.move.line``  (``invoice.py``)
+   Extended list view to include contract and term context for journal entries.
+
+``account.configuration``  (``account_configuration.py``)
+   Extends the standard account configuration with real-estate-specific
+   default accounts used during operating cost billing (actual costs account,
+   advance payment account, owner allocation account).
+
 ``res.user``  (``res.py``)
    Adds ``phone`` and ``mobile`` fields.
 
@@ -309,11 +556,14 @@ Extensions to Core Modules
 Wizards
 =======
 
-``real_estate.contract.create_moves``  (``contract_wizard.py``)
+``real_estate.contract.create_moves``  (``contract_wizard.py``,
+class ``CreateContractMoves``)
    Batch invoice generation wizard. Supports three actions:
 
    ``create``
-      Generate invoices up to a given date.
+      Generate invoices up to a given date. All ``ContractTermCashFlow``
+      entries created in this run share the same ``create_moves_run_id``
+      (``YYYYMMDD-HHMMSS-U<userid>``).
 
    ``re_calc``
       Rebuild cash flow projections without creating invoices.
@@ -368,9 +618,11 @@ Source Layout
 .. code-block:: text
 
    real_estate/
+   ├── account_configuration.py # extension to account.configuration
    ├── address.py               # real_estate.address
    ├── base_object.py           # real_estate.base_object, occupancy, meter readings
-   ├── billing_unit.py          # real_estate.billing_unit, cost_type, cost_category_group
+   ├── billing_unit.py          # real_estate.billing_unit, billing_unit.moves,
+   │                            #   billing_unit.log, cost_type, cost_category_group
    ├── contract_core.py         # real_estate.contract, contract.log, account views
    ├── contract_item.py         # real_estate.contract.item
    ├── contract_term.py         # real_estate.contract.term, cash_flow, Quantitative

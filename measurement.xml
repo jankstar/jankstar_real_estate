@@ -66,6 +66,9 @@
         <record model="res.group" id="group_real_estate_contract">
             <field name="name">Real Estate Contract</field>
         </record>
+        <record model="res.group" id="group_real_estate_billing">
+            <field name="name">Real Estate Billing</field>
+        </record>
 
         <!-- MeasurementType: Configuration → Admin only -->
         <record model="ir.model.access" id="access_measurement_type_admin">
@@ -115,6 +118,22 @@
         <record model="ir.model.access" id="access_measurement_type_contract_group">
             <field name="model">real_estate.measurement.type</field>
             <field name="group" ref="group_real_estate_contract"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_measurement_type_billing">
+            <field name="model">real_estate.measurement.type</field>
+            <field name="group" ref="group_real_estate_billing"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_measurement_billing">
+            <field name="model">real_estate.measurement</field>
+            <field name="group" ref="group_real_estate_billing"/>
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="False"/>
             <field name="perm_create" eval="False"/>
