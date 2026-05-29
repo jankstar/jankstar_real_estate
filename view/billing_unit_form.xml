@@ -34,7 +34,7 @@
                 view_ids="real_estate.cost_share_list,real_estate.cost_share_form"
                 readonly="1"/>
         </page>
-        <page string="Cash Flow Lines" id="page_cash_flow_lines" col="1">
+        <page string="Advanced Payment" id="page_cash_flow_lines" col="1">
             <field name="cash_flow_lines"
                 view_ids="real_estate.contract_term_cash_flow_view_tree,real_estate.contract_term_cash_flow_view_form"
                 readonly="1"/>

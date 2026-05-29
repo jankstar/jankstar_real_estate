@@ -138,7 +138,7 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
     cost_shares = fields.Function(fields.One2Many('real_estate.cost_share', None, 'Cost Shares'),
         'on_change_with_cost_shares')
 
-    cash_flow_lines = fields.Function(fields.One2Many('real_estate.contract.term.cash_flow', None, 'Cash Flow Lines'),
+    cash_flow_lines = fields.Function(fields.One2Many('real_estate.contract.term.cash_flow', None, 'Advanced Payment'),
         'on_change_with_cash_flow_lines')
 
     settlment_results = fields.One2Many('real_estate.settlement_result', 'billing_unit', 'Settlement Results')
