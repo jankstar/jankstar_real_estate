@@ -55,7 +55,8 @@
 
     <group colspan="6" id="settlement_unit_base_cost_shares">
         <field name="cost_shares"
-            view_ids="real_estate.cost_share_list,real_estate.cost_share_form"/>
+            view_ids="real_estate.cost_share_list,real_estate.cost_share_form"
+            readonly="1"/>
     </group>
 
     <group colspan="6" id="settlement_unit_invoice_lines">

@@ -98,7 +98,8 @@ this repository contains the full copyright notices and license terms. -->
             <button name="refresh_occupancy" string="Refresh Occupancy" colspan="1"/>
             <newline/>
             <field name="occupancy" colspan="4"
-                view_ids="real_estate.base_object_occupancy_view_tree"/>
+                view_ids="real_estate.base_object_occupancy_view_tree"
+                readonly="1"/>
         </page>
         
         <page name="measurements" col="1">

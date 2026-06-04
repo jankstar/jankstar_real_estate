@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<tree>
+<tree creatable="0">
     <field name="name" optional="0"/>
     <field name="state" optional="0" width="80"/>
     <field name="settlement_unit" optional="1"/>

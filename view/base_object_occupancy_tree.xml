@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<tree>
+<tree creatable="0">
     <field name="base_object" readonly="1"/>
     <field name="property" readonly="1" optional="1"/>
     <field name="start_date" width="110"/>

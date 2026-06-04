@@ -15,7 +15,8 @@ class CostShare(DeactivableMixin, ModelSQL, ModelView):
     __name__ = 'real_estate.cost_share'
     __rec_name__ = 'name'
 
-    settlement_unit = fields.Many2One('real_estate.settlement_unit', 'Settlement Unit', required=True, ondelete='CASCADE')
+    settlement_unit = fields.Many2One('real_estate.settlement_unit', 'Settlement Unit', required=True, ondelete='CASCADE',
+                                      states={'readonly': True},)
 
     name = fields.Function(fields.Char('Name'), 'on_change_with_name',
         searcher='search_name')
@@ -40,19 +41,20 @@ class CostShare(DeactivableMixin, ModelSQL, ModelView):
         states={'readonly': True})
 
     base_object = fields.Many2One('real_estate.base_object', 'Object', ondelete='CASCADE',
-        domain=[('type', '=', 'object')])
+        domain=[('type', '=', 'object')],
+        states={'readonly': True})
 
     value_share = fields.Float('Value Share', digits=(16, 4),
-        states={'readonly': Eval('state') != 'value_share'})
+        states={'readonly': True},)
 
     time_share = fields.Function(fields.Integer('Time Share (days)'),
         'on_change_with_time_share')
 
     planned_costs = Monetary('Planned Costs', currency='currency', digits='currency',
-        states={'readonly': Eval('state') == 'billed'})
+        states={'readonly': True})
 
     actual_costs = Monetary('Actual Costs', currency='currency', digits='currency',
-        states={'readonly': Eval('state') != 'value_share'})
+        states={'readonly': True},)
 
     currency = fields.Function(fields.Many2One('currency.currency', 'Currency'), 'on_change_with_currency')
 

@@ -71,15 +71,16 @@
             <notebook colspan="8">
 
                 <page string="Draft" id="page_cash_flow_draft">
-                    <field name="cash_flow_draft" 
-                        view_ids="real_estate.contract_view_list_cash_flow" />
+                    <field name="cash_flow_draft"
+                        view_ids="real_estate.contract_view_list_cash_flow"
+                        readonly="1"/>
                 </page>
 
                 <page string="Pending" id="page_cash_flow_pending">
-                    <field name="cash_flow_pending" />
+                    <field name="cash_flow_pending" readonly="1"/>
                 </page>
                 <page string="Paid" id="page_cash_flow_paid">
-                    <field name="cash_flow_paid" />
+                    <field name="cash_flow_paid" readonly="1"/>
                 <!-- view_ids="real_estate.contract_view_list_cash_flow"
                     /-->
                 </page>
@@ -89,7 +90,8 @@
         <page string="Cost Shares" id="page_cost_shares">
             <newline/>
             <field name="cost_shares"
-                view_ids="real_estate.cost_share_list"/>
+                view_ids="real_estate.cost_share_list"
+                readonly="1"/>
         </page>
         <page string="Measurements" id="page_measurements">
             <newline/>

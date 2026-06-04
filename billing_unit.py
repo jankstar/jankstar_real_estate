@@ -1127,18 +1127,19 @@ class BillingUnitMoves(ModelSQL, ModelView):
     __name__ = 'real_estate.billing_unit.moves'
 
     billing_unit = fields.Many2One('real_estate.billing_unit', 'Billing Unit',
-        required=True, ondelete='CASCADE')
+        required=True, ondelete='CASCADE', states={'readonly': True})
     settlement_result = fields.Many2One('real_estate.settlement_result',
-        'Settlement Result', ondelete='SET NULL')
+        'Settlement Result', ondelete='SET NULL', states={'readonly': True})
     property = fields.Many2One('real_estate.base_object', 'Property',
-        domain=[('type', '=', 'property')])
-    contract = fields.Many2One('real_estate.contract', 'Contract')
+        domain=[('type', '=', 'property')], states={'readonly': True})
+    contract = fields.Many2One('real_estate.contract', 'Contract',
+        states={'readonly': True})
     moves_advanced_payment = fields.Many2One('account.invoice.line',
-        'Advance Payment Line', ondelete='SET NULL')
+        'Advance Payment Line', ondelete='SET NULL', states={'readonly': True})
     moves_actual_costs = fields.Many2One('account.invoice.line',
-        'Actual Costs Line', ondelete='SET NULL')
+        'Actual Costs Line', ondelete='SET NULL', states={'readonly': True})
     moves_alloc_by_owner = fields.Many2One('account.move.line',
-        'Owner Allocation Line', ondelete='SET NULL')
+        'Owner Allocation Line', ondelete='SET NULL', states={'readonly': True})
 
     billing_run_id = fields.Char('Billing Run ID', readonly=True)
 
