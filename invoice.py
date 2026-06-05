@@ -125,13 +125,17 @@ class InvoiceLine(metaclass=PoolMeta):
     )
 
     estg_35a = fields.Selection([
-        ('', ''),
-        ('abs1', 'Abs. 1 - Minijob im Haushalt'),
-        ('abs2', 'Abs. 2 - Haushaltsnahe Dienstleistungen (z.B. Gartenpflege)'),
-        ('abs3', 'Abs. 3 - Handwerkerleistungen (z.B. Schornsteinfeger)'),
+        ('', 'none'),
+        ('abs1', 'Para. 1 - Minor Employment in the Household'),
+        ('abs2', 'Para. 2 - Household-Related Services (e.g. Garden Maintenance)'),
+        ('abs3', 'Para. 3 - Craftsmen Services (e.g. Chimney Sweep)'),
     ], '§35a EStG',
         sort=False,
     )
+
+    @classmethod
+    def default_estg_35a(cls):
+        return ''
 
     @classmethod
     def __setup__(cls):
