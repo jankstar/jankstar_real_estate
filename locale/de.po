@@ -10,10 +10,9 @@ msgctxt "field:account.configuration,re_journal_billing:"
 msgid "Operating Cost Settlement Journal"
 msgstr ""
 
-#, fuzzy
 msgctxt "field:account.configuration.real_estate,company:"
 msgid "Company"
-msgstr "Unternehmen"
+msgstr "Gesellschaft"
 
 msgctxt ""
 "field:account.configuration.real_estate,re_account_allocation_by_owner:"
@@ -28,15 +27,13 @@ msgctxt "field:account.invoice,contract:"
 msgid "Contract"
 msgstr "Vertrag"
 
-#, fuzzy
 msgctxt "field:account.invoice.line,base_object:"
 msgid "Object"
 msgstr "Objekt"
 
-#, fuzzy
 msgctxt "field:account.invoice.line,billing_unit:"
 msgid "Billing Unit"
-msgstr "Kostengruppe"
+msgstr "Abrechnungseinheit"
 
 msgctxt "field:account.invoice.line,contract:"
 msgid "Contract"
@@ -46,12 +43,10 @@ msgctxt "field:account.invoice.line,estg_35a:"
 msgid "§35a EStG"
 msgstr ""
 
-#, fuzzy
 msgctxt "field:account.invoice.line,invoice_date:"
 msgid "Invoice Date"
 msgstr "Rechnungsdatum"
 
-#, fuzzy
 msgctxt "field:account.invoice.line,property:"
 msgid "Property"
 msgstr "Wirtschaftseinheit"
@@ -64,7 +59,6 @@ msgctxt "field:account.invoice.line,service_period_to:"
 msgid "Service Period To"
 msgstr ""
 
-#, fuzzy
 msgctxt "field:account.invoice.line,settlement_unit:"
 msgid "Settlement Unit"
 msgstr "Kostensammler"
@@ -77,7 +71,6 @@ msgctxt "field:account.invoice.line,term:"
 msgid "Term"
 msgstr "Kondition"
 
-#, fuzzy
 msgctxt "field:account.invoice.line,total_amount:"
 msgid "Total Amount"
 msgstr "SOLL-Betrag (kumuliert)"
@@ -86,32 +79,26 @@ msgctxt "field:account.invoice.line-account.tax,c_type:"
 msgid "Contract Type"
 msgstr "Vertragsart"
 
-#, fuzzy
 msgctxt "field:account.move.line,base_object:"
 msgid "Object"
 msgstr "Objekt"
 
-#, fuzzy
 msgctxt "field:account.move.line,billing_unit:"
 msgid "Billing Unit"
-msgstr "Kostengruppe"
+msgstr "Abrechnungseinheit"
 
-#, fuzzy
 msgctxt "field:account.move.line,contract:"
 msgid "Contract"
 msgstr "Vertrag"
 
-#, fuzzy
 msgctxt "field:account.move.line,property:"
 msgid "Property"
 msgstr "Wirtschaftseinheit"
 
-#, fuzzy
 msgctxt "field:account.move.line,settlement_unit:"
 msgid "Settlement Unit"
 msgstr "Kostensammler"
 
-#, fuzzy
 msgctxt "field:account.move.line,term:"
 msgid "Term"
 msgstr "Kondition"
@@ -128,7 +115,6 @@ msgctxt "field:real_estate.account_contract,account:"
 msgid "Account"
 msgstr "Konto"
 
-#, fuzzy
 msgctxt "field:real_estate.account_contract,active:"
 msgid "Active"
 msgstr "Aktiv"
@@ -161,7 +147,6 @@ msgctxt "field:real_estate.account_contract,end_credit:"
 msgid "End Credit"
 msgstr "Endguthaben"
 
-#, fuzzy
 msgctxt "field:real_estate.account_contract,end_date:"
 msgid "End Date"
 msgstr "Endedatum"
@@ -174,7 +159,6 @@ msgctxt "field:real_estate.account_contract,line_count:"
 msgid "Line Count"
 msgstr "Zeilenzähler"
 
-#, fuzzy
 msgctxt "field:real_estate.account_contract,party:"
 msgid "Party"
 msgstr "Partner"
@@ -279,6 +263,46 @@ msgctxt "field:real_estate.base_object,billing_as:"
 msgid "Billing as"
 msgstr "Abrechnung als"
 
+msgctxt "view:real_estate.billing_unit:"
+msgid "Approved"
+msgstr "Freigeben"
+
+msgctxt "view:real_estate.billing_unit:"
+msgid "Selection"
+msgstr "Auswählen"
+
+msgctxt "view:real_estate.billing_unit:"
+msgid "Compute Value Shares"
+msgstr "Kostenanteile berechnen"
+
+msgctxt "view:real_estate.base_object:"
+msgid "Compute Value Shares"
+msgstr "Kostenanteile berechnen"
+
+msgctxt "view:real_estate.billing_unit:"
+msgid "Compute Settlement Results"
+msgstr "Abrechnungsergebis berechnen"
+
+msgctxt "view:real_estate.base_object:"
+msgid "Compute Settlement Results"
+msgstr "Abrechnungsergebis berechnen"
+
+msgctxt "view:real_estate.billing_unit:"
+msgid "Billing"
+msgstr "Abrechnen/Buchen"
+
+msgctxt "view:real_estate.base_object:"
+msgid "Billing"
+msgstr "Abrechnen/Buchen"
+
+msgctxt "view:real_estate.billing_unit:"
+msgid "Cancel Billing"
+msgstr "Storno Abrechnung"
+
+msgctxt "view:real_estate.base_object:"
+msgid "Cancel Billing"
+msgstr "Storno Abrechnung"
+
 msgctxt "view:real_estate.base_object:"
 msgid "Billing Units"
 msgstr "Abrechnungseinheiten"
@@ -308,6 +332,18 @@ msgid "Comment"
 msgstr "Bemerkung"
 
 msgctxt "field:real_estate.base_object,company:"
+msgid "Company"
+msgstr "Gesellschaft"
+
+msgctxt "field:real_estate.base_object.context, company:"
+msgid "Company"
+msgstr "Gesellschaft"
+
+msgctxt "field:real_estate.base_object.context, property:"
+msgid "Property"
+msgstr "Wirtschaftseinheit"
+
+msgctxt "field:real_estate.base_object.company.context, company:"
 msgid "Company"
 msgstr "Gesellschaft"
 
@@ -417,7 +453,7 @@ msgstr "Nr."
 
 msgctxt "field:real_estate.base_object,occupancy:"
 msgid "Occupancy"
-msgstr ""
+msgstr "Belegung/Leerstand"
 
 msgctxt "field:real_estate.base_object,parent:"
 msgid "Parent"
@@ -471,32 +507,26 @@ msgctxt "field:real_estate.base_object,year_of_construction:"
 msgid "Year of Construction"
 msgstr "Baujahr"
 
-#, fuzzy
 msgctxt "field:real_estate.base_object.company.context,company:"
 msgid "Company"
-msgstr "Unternehmen"
+msgstr "Gesellschaft"
 
-#, fuzzy
 msgctxt "field:real_estate.base_object.context,company:"
 msgid "Company"
-msgstr "Unternehmen"
+msgstr "Gesellschaft"
 
-#, fuzzy
 msgctxt "field:real_estate.base_object.context,property:"
 msgid "Property"
 msgstr "Wirtschaftseinheit"
 
-#, fuzzy
 msgctxt "field:real_estate.base_object.equipment.context,company:"
 msgid "Company"
-msgstr "Unternehmen"
+msgstr "Gesellschaft"
 
-#, fuzzy
 msgctxt "field:real_estate.base_object.equipment.context,e_type:"
 msgid "Equipment Type"
 msgstr "Equipment Typ"
 
-#, fuzzy
 msgctxt "field:real_estate.base_object.equipment.context,property:"
 msgid "Property"
 msgstr "Wirtschaftseinheit"
@@ -529,40 +559,42 @@ msgctxt "field:real_estate.base_object.occupancy,state:"
 msgid "State"
 msgstr "Status"
 
-#, fuzzy
 msgctxt "field:real_estate.base_object.occupancy.context,base_object:"
 msgid "Object"
 msgstr "Objekt"
 
-#, fuzzy
 msgctxt "field:real_estate.base_object.occupancy.context,company:"
 msgid "Company"
-msgstr "Unternehmen"
+msgstr "Gesellschaft"
 
-#, fuzzy
 msgctxt "field:real_estate.base_object.occupancy.context,contract:"
 msgid "Contract"
 msgstr "Vertrag"
 
-#, fuzzy
 msgctxt "field:real_estate.base_object.occupancy.context,from_date:"
 msgid "From Date"
 msgstr "Von Datum"
 
-#, fuzzy
 msgctxt "field:real_estate.base_object.occupancy.context,property:"
 msgid "Property"
 msgstr "Wirtschaftseinheit"
 
-#, fuzzy
 msgctxt "field:real_estate.base_object.occupancy.context,state:"
 msgid "State"
 msgstr "Status"
 
-#, fuzzy
 msgctxt "field:real_estate.base_object.occupancy.context,to_date:"
 msgid "To Date"
 msgstr "Enddatum"
+
+msgctxt "view:real_estate.billing_unit:"
+msgid "Billing"
+msgstr "Abrechnung"
+
+msgctxt "view:real_estate.billing_unit:"
+msgid "Cancel Billing"
+msgstr "Abrechnung stornieren"
+
 
 msgctxt "field:real_estate.billing_unit,base_object:"
 msgid "Base Object"
@@ -640,7 +672,6 @@ msgctxt "field:real_estate.billing_unit,moves:"
 msgid "Moves"
 msgstr "Buchungen"
 
-#, fuzzy
 msgctxt "field:real_estate.billing_unit,name:"
 msgid "Name"
 msgstr "Name Export"
@@ -745,25 +776,21 @@ msgctxt "field:real_estate.billing_unit,cost_shares:"
 msgid "Cost Shares"
 msgstr "Kostenanteile"
 
-#, fuzzy
 msgctxt "field:real_estate.billing_unit.context,company:"
 msgid "Company"
-msgstr "Unternehmen"
+msgstr "Gesellschaft"
 
-#, fuzzy
 msgctxt "field:real_estate.billing_unit.context,property:"
 msgid "Property"
 msgstr "Wirtschaftseinheit"
 
-#, fuzzy
 msgctxt "field:real_estate.billing_unit.log,billing_unit:"
 msgid "Billing Unit"
-msgstr "Kostengruppe"
+msgstr "Abrechnungseinheit"
 
-#, fuzzy
 msgctxt "field:real_estate.billing_unit.log,company:"
 msgid "Company"
-msgstr "Unternehmen"
+msgstr "Gesellschaft"
 
 msgctxt "field:real_estate.billing_unit.log,description:"
 msgid "Description"
@@ -773,52 +800,42 @@ msgctxt "field:real_estate.billing_unit.log,event:"
 msgid "Event"
 msgstr "Ereignis"
 
-#, fuzzy
 msgctxt "field:real_estate.billing_unit.log,log_date:"
 msgid "Date"
 msgstr "Datum"
 
-#, fuzzy
 msgctxt "field:real_estate.billing_unit.log,property:"
 msgid "Property"
 msgstr "Wirtschaftseinheit"
 
-#, fuzzy
 msgctxt "field:real_estate.billing_unit.log.context,billing_unit:"
 msgid "Billing Unit"
-msgstr "Kostengruppe"
+msgstr "Abrechnungseinheit"
 
-#, fuzzy
 msgctxt "field:real_estate.billing_unit.log.context,company:"
 msgid "Company"
-msgstr "Unternehmen"
+msgstr "Gesellschaft"
 
-#, fuzzy
 msgctxt "field:real_estate.billing_unit.log.context,from_date:"
 msgid "From Date"
 msgstr "Von Datum"
 
-#, fuzzy
 msgctxt "field:real_estate.billing_unit.log.context,property:"
 msgid "Property"
 msgstr "Wirtschaftseinheit"
 
-#, fuzzy
 msgctxt "field:real_estate.billing_unit.log.context,to_date:"
 msgid "To Date"
 msgstr "Enddatum"
 
-#, fuzzy
 msgctxt "field:real_estate.billing_unit.moves,billing_run_id:"
 msgid "Billing Run ID"
 msgstr "ID Abrechnungslauf"
 
-#, fuzzy
 msgctxt "field:real_estate.billing_unit.moves,billing_unit:"
 msgid "Billing Unit"
-msgstr "Kostengruppe"
+msgstr "Abrechnungseinheit"
 
-#, fuzzy
 msgctxt "field:real_estate.billing_unit.moves,contract:"
 msgid "Contract"
 msgstr "Vertrag"
@@ -835,7 +852,6 @@ msgctxt "field:real_estate.billing_unit.moves,moves_alloc_by_owner:"
 msgid "Owner Allocation Line"
 msgstr ""
 
-#, fuzzy
 msgctxt "field:real_estate.billing_unit.moves,property:"
 msgid "Property"
 msgstr "Wirtschaftseinheit"
@@ -844,35 +860,49 @@ msgctxt "field:real_estate.billing_unit.moves,settlement_result:"
 msgid "Settlement Result"
 msgstr ""
 
-#, fuzzy
 msgctxt "field:real_estate.billing_unit.moves.context,billing_unit:"
 msgid "Billing Unit"
-msgstr "Kostengruppe"
+msgstr "Abrechnungseinheit"
 
-#, fuzzy
 msgctxt "field:real_estate.billing_unit.moves.context,company:"
 msgid "Company"
-msgstr "Unternehmen"
+msgstr "Gesellschaft"
 
-#, fuzzy
 msgctxt "field:real_estate.billing_unit.moves.context,contract:"
 msgid "Contract"
 msgstr "Vertrag"
 
-#, fuzzy
 msgctxt "field:real_estate.billing_unit.moves.context,from_date:"
 msgid "From Date"
 msgstr "Von Datum"
 
-#, fuzzy
 msgctxt "field:real_estate.billing_unit.moves.context,property:"
 msgid "Property"
 msgstr "Wirtschaftseinheit"
 
-#, fuzzy
 msgctxt "field:real_estate.billing_unit.moves.context,to_date:"
 msgid "To Date"
 msgstr "Enddatum"
+
+msgctxt "view:real_estate.contract:"
+msgid "Running"
+msgstr "Aktivieren"
+
+msgctxt "view:real_estate.contract:"
+msgid "Terminate"
+msgstr "Kündigen"
+
+msgctxt "view:real_estate.contract:"
+msgid "Cancel"
+msgstr "Aktivierung zurücksetzten"
+
+msgctxt "view:real_estate.contract:"
+msgid "Change Partner"
+msgstr "Partner wechseln"
+
+msgctxt "view:real_estate.contract:"
+msgid "Party Ledger"
+msgstr "Kontenblatt"
 
 msgctxt "field:real_estate.contract,address_partner:"
 msgid "Address Partner"
@@ -958,12 +988,10 @@ msgctxt "field:real_estate.contract,lines:"
 msgid "Lines"
 msgstr "Zeilen"
 
-#, fuzzy
 msgctxt "field:real_estate.contract,measurements:"
 msgid "Measurements"
 msgstr "Bemessungen"
 
-#, fuzzy
 msgctxt "field:real_estate.contract,meters:"
 msgid "Meters"
 msgstr "Zähler"
@@ -972,7 +1000,6 @@ msgctxt "field:real_estate.contract,moves_line:"
 msgid "Moves Line"
 msgstr "Buchungszeilen"
 
-#, fuzzy
 msgctxt "field:real_estate.contract,name:"
 msgid "Name"
 msgstr "Name Export"
@@ -1049,7 +1076,6 @@ msgctxt "field:real_estate.contract.account_contract,account:"
 msgid "Account"
 msgstr "Konto"
 
-#, fuzzy
 msgctxt "field:real_estate.contract.account_contract,active:"
 msgid "Active"
 msgstr "Aktiv"
@@ -1058,7 +1084,6 @@ msgctxt "field:real_estate.contract.account_contract,amount_second_currency:"
 msgid "Amount Second Currency"
 msgstr "Wert Zweitwährung"
 
-#, fuzzy
 msgctxt "field:real_estate.contract.account_contract,balance:"
 msgid "Balance"
 msgstr "Saldo"
@@ -1067,7 +1092,6 @@ msgctxt "field:real_estate.contract.account_contract,closed:"
 msgid "Closed"
 msgstr "geschlossen"
 
-#, fuzzy
 msgctxt "field:real_estate.contract.account_contract,code:"
 msgid "Code"
 msgstr "Länderkürzel"
@@ -1096,7 +1120,6 @@ msgctxt "field:real_estate.contract.account_contract,debit:"
 msgid "Debit"
 msgstr "Guthaben"
 
-#, fuzzy
 msgctxt "field:real_estate.contract.account_contract,debit_type:"
 msgid "Debit Type"
 msgstr "Soll Typ"
@@ -1105,22 +1128,18 @@ msgctxt "field:real_estate.contract.account_contract,end_date:"
 msgid "End Date"
 msgstr "Endedatum"
 
-#, fuzzy
 msgctxt "field:real_estate.contract.account_contract,line_count:"
 msgid "Line Count"
 msgstr "Zeilenzähler"
 
-#, fuzzy
 msgctxt "field:real_estate.contract.account_contract,name:"
 msgid "Name"
 msgstr "Name Export"
 
-#, fuzzy
 msgctxt "field:real_estate.contract.account_contract,party:"
 msgid "Party"
 msgstr "Partner"
 
-#, fuzzy
 msgctxt "field:real_estate.contract.account_contract,second_currency:"
 msgid "Secondary Currency"
 msgstr "Fremdwährung"
@@ -1185,12 +1204,10 @@ msgctxt "field:real_estate.contract.cash_flow,unit_price:"
 msgid "Unit Price"
 msgstr "Einheitspreis (EP)"
 
-#, fuzzy
 msgctxt "field:real_estate.contract.context,company:"
 msgid "Company"
-msgstr "Unternehmen"
+msgstr "Gesellschaft"
 
-#, fuzzy
 msgctxt "field:real_estate.contract.context,property:"
 msgid "Property"
 msgstr "Wirtschaftseinheit"
@@ -1207,7 +1224,6 @@ msgctxt "field:real_estate.contract.create_moves.start,contracts:"
 msgid "Filter Contracts"
 msgstr "Filter Vertrag"
 
-#, fuzzy
 msgctxt "field:real_estate.contract.create_moves.start,date:"
 msgid "to Date"
 msgstr "Datum"
@@ -1216,7 +1232,6 @@ msgctxt "field:real_estate.contract.create_moves.start,execute_in_queue:"
 msgid "Execute in queue"
 msgstr "In Warteschlange ausführen"
 
-#, fuzzy
 msgctxt "field:real_estate.contract.create_moves.start,invoice_date:"
 msgid "Invoice Date"
 msgstr "Rechnungsdatum"
@@ -1261,7 +1276,6 @@ msgctxt "field:real_estate.contract.item,currency:"
 msgid "Currency"
 msgstr "Währung"
 
-#, fuzzy
 msgctxt "field:real_estate.contract.item,name:"
 msgid "Name"
 msgstr "Name Export"
@@ -1322,10 +1336,9 @@ msgctxt "field:real_estate.contract.line,move:"
 msgid "Account Move"
 msgstr "Buchungszeile"
 
-#, fuzzy
 msgctxt "field:real_estate.contract.log,company:"
 msgid "Company"
-msgstr "Unternehmen"
+msgstr "Gesellschaft"
 
 msgctxt "field:real_estate.contract.log,contract:"
 msgid "Contract"
@@ -1339,37 +1352,30 @@ msgctxt "field:real_estate.contract.log,event:"
 msgid "Event"
 msgstr "Ereignis"
 
-#, fuzzy
 msgctxt "field:real_estate.contract.log,log_date:"
 msgid "Date"
 msgstr "Datum"
 
-#, fuzzy
 msgctxt "field:real_estate.contract.log,property:"
 msgid "Property"
 msgstr "Wirtschaftseinheit"
 
-#, fuzzy
 msgctxt "field:real_estate.contract.log.context,company:"
 msgid "Company"
-msgstr "Unternehmen"
+msgstr "Gesellschaft"
 
-#, fuzzy
 msgctxt "field:real_estate.contract.log.context,contract:"
 msgid "Contract"
 msgstr "Vertrag"
 
-#, fuzzy
 msgctxt "field:real_estate.contract.log.context,from_date:"
 msgid "From Date"
 msgstr "Von Datum"
 
-#, fuzzy
 msgctxt "field:real_estate.contract.log.context,property:"
 msgid "Property"
 msgstr "Wirtschaftseinheit"
 
-#, fuzzy
 msgctxt "field:real_estate.contract.log.context,to_date:"
 msgid "To Date"
 msgstr "Enddatum"
@@ -1434,7 +1440,6 @@ msgctxt "field:real_estate.contract.term,monthly_rhythm:"
 msgid "Monthly Rhythm"
 msgstr "Rhythmus monatlich"
 
-#, fuzzy
 msgctxt "field:real_estate.contract.term,name:"
 msgid "Name"
 msgstr "Name Export"
@@ -1579,7 +1584,6 @@ msgctxt "field:real_estate.contract.term.cash_flow,invoice_state:"
 msgid "Invoice State"
 msgstr "Status Rechnung"
 
-#, fuzzy
 msgctxt "field:real_estate.contract.term.cash_flow,name:"
 msgid "Name"
 msgstr "Name Export"
@@ -1620,27 +1624,22 @@ msgctxt "field:real_estate.contract.term.cash_flow,unit_price:"
 msgid "Unit Price"
 msgstr "Einheitspreis (EP)"
 
-#, fuzzy
 msgctxt "field:real_estate.contract.term.cash_flow.context,company:"
 msgid "Company"
-msgstr "Unternehmen"
+msgstr "Gesellschaft"
 
-#, fuzzy
 msgctxt "field:real_estate.contract.term.cash_flow.context,contract:"
 msgid "Contract"
 msgstr "Vertrag"
 
-#, fuzzy
 msgctxt "field:real_estate.contract.term.cash_flow.context,from_date:"
 msgid "From Date"
 msgstr "Von Datum"
 
-#, fuzzy
 msgctxt "field:real_estate.contract.term.cash_flow.context,property:"
 msgid "Property"
 msgstr "Wirtschaftseinheit"
 
-#, fuzzy
 msgctxt "field:real_estate.contract.term.cash_flow.context,to_date:"
 msgid "To Date"
 msgstr "Enddatum"
@@ -1709,7 +1708,6 @@ msgctxt "field:real_estate.contract.term.type,monthly_rhythm:"
 msgid "Monthly Rhythm"
 msgstr "Rhythmus monatlich"
 
-#, fuzzy
 msgctxt "field:real_estate.contract.term.type,name:"
 msgid "Name"
 msgstr "Name Export"
@@ -1762,16 +1760,14 @@ msgctxt "field:real_estate.contract.type,mark:"
 msgid "Mark"
 msgstr "Mark"
 
-#, fuzzy
 msgctxt "field:real_estate.contract.type,name:"
 msgid "Name"
 msgstr "Name Export"
 
 msgctxt "field:real_estate.contract.type,occupancy:"
 msgid "Occupancy"
-msgstr ""
+msgstr "Belegung/Leerstand"
 
-#, fuzzy
 msgctxt "field:real_estate.contract.type,prefix:"
 msgid "Prefix"
 msgstr "Präfix"
@@ -1820,7 +1816,6 @@ msgctxt "field:real_estate.contract.type.tax,tax:"
 msgid "Tax"
 msgstr "Steuer"
 
-#, fuzzy
 msgctxt "field:real_estate.cost_category_group,name:"
 msgid "Name"
 msgstr "Name Export"
@@ -1849,7 +1844,6 @@ msgctxt "field:real_estate.cost_share,error_message:"
 msgid "Error Message"
 msgstr "Fehlermeldung"
 
-#, fuzzy
 msgctxt "field:real_estate.cost_share,name:"
 msgid "Name"
 msgstr "Name Export"
@@ -1884,44 +1878,36 @@ msgstr "Zeitanteil (Tage)"
 
 msgctxt "field:real_estate.cost_share,value_share:"
 msgid "Value Share"
-msgstr "Wertanteil"
+msgstr "Anteil (Wert)"
 
-#, fuzzy
 msgctxt "field:real_estate.cost_share.context,base_object:"
 msgid "Object"
 msgstr "Objekt"
 
-#, fuzzy
 msgctxt "field:real_estate.cost_share.context,billing_unit:"
 msgid "Billing Unit"
-msgstr "Kostengruppe"
+msgstr "Abrechnungseinheit"
 
-#, fuzzy
 msgctxt "field:real_estate.cost_share.context,company:"
 msgid "Company"
-msgstr "Unternehmen"
+msgstr "Gesellschaft"
 
-#, fuzzy
 msgctxt "field:real_estate.cost_share.context,contract:"
 msgid "Contract"
 msgstr "Vertrag"
 
-#, fuzzy
 msgctxt "field:real_estate.cost_share.context,from_date:"
 msgid "From Date"
 msgstr "Von Datum"
 
-#, fuzzy
 msgctxt "field:real_estate.cost_share.context,property:"
 msgid "Property"
 msgstr "Wirtschaftseinheit"
 
-#, fuzzy
 msgctxt "field:real_estate.cost_share.context,settlement_unit:"
 msgid "Settlement Unit"
 msgstr "Kostensammler"
 
-#, fuzzy
 msgctxt "field:real_estate.cost_share.context,to_date:"
 msgid "To Date"
 msgstr "Enddatum"
@@ -1934,7 +1920,6 @@ msgctxt "field:real_estate.cost_type,comment:"
 msgid "Comment"
 msgstr "Bemerkung"
 
-#, fuzzy
 msgctxt "field:real_estate.cost_type,name:"
 msgid "Name"
 msgstr "Name Export"
@@ -1951,7 +1936,6 @@ msgctxt "field:real_estate.measurement,m_type:"
 msgid "Measurement Type"
 msgstr "Bemessungstype"
 
-#, fuzzy
 msgctxt "field:real_estate.measurement,name:"
 msgid "Name"
 msgstr "Name Export"
@@ -1960,7 +1944,6 @@ msgctxt "field:real_estate.measurement,no_print:"
 msgid "No Print"
 msgstr "kein Ausdruck"
 
-#, fuzzy
 msgctxt "field:real_estate.measurement,symbol:"
 msgid "Symbol"
 msgstr "Symbol"
@@ -1981,7 +1964,6 @@ msgctxt "field:real_estate.measurement.type,default:"
 msgid "Default"
 msgstr "Default"
 
-#, fuzzy
 msgctxt "field:real_estate.measurement.type,name:"
 msgid "Name"
 msgstr "Name Export"
@@ -2014,7 +1996,6 @@ msgctxt "field:real_estate.meter_reading,meter_id:"
 msgid "Meter ID"
 msgstr "Zähler ID"
 
-#, fuzzy
 msgctxt "field:real_estate.meter_reading,name:"
 msgid "Name"
 msgstr "Name Export"
@@ -2039,7 +2020,6 @@ msgctxt "field:real_estate.object_party,base_object:"
 msgid "Object"
 msgstr "Objekt"
 
-#, fuzzy
 msgctxt "field:real_estate.object_party,name:"
 msgid "Name"
 msgstr "Name Export"
@@ -2068,7 +2048,6 @@ msgctxt "field:real_estate.object_party.role,default:"
 msgid "Default"
 msgstr "Default"
 
-#, fuzzy
 msgctxt "field:real_estate.object_party.role,name:"
 msgid "Name"
 msgstr "Name Export"
@@ -2113,7 +2092,6 @@ msgctxt "field:real_estate.settlement_result,invoice:"
 msgid "Invoice"
 msgstr "Rechnung"
 
-#, fuzzy
 msgctxt "field:real_estate.settlement_result,name:"
 msgid "Name"
 msgstr "Name Export"
@@ -2142,37 +2120,30 @@ msgctxt "field:real_estate.settlement_result,term:"
 msgid "Term"
 msgstr "Kondition"
 
-#, fuzzy
 msgctxt "field:real_estate.settlement_result.context,base_object:"
 msgid "Object"
 msgstr "Objekt"
 
-#, fuzzy
 msgctxt "field:real_estate.settlement_result.context,billing_unit:"
 msgid "Billing Unit"
-msgstr "Kostengruppe"
+msgstr "Abrechnungseinheit"
 
-#, fuzzy
 msgctxt "field:real_estate.settlement_result.context,company:"
 msgid "Company"
-msgstr "Unternehmen"
+msgstr "Gesellschaft"
 
-#, fuzzy
 msgctxt "field:real_estate.settlement_result.context,contract:"
 msgid "Contract"
 msgstr "Vertrag"
 
-#, fuzzy
 msgctxt "field:real_estate.settlement_result.context,from_date:"
 msgid "From Date"
 msgstr "Von Datum"
 
-#, fuzzy
 msgctxt "field:real_estate.settlement_result.context,property:"
 msgid "Property"
 msgstr "Wirtschaftseinheit"
 
-#, fuzzy
 msgctxt "field:real_estate.settlement_result.context,to_date:"
 msgid "To Date"
 msgstr "Enddatum"
@@ -2241,7 +2212,6 @@ msgctxt "field:real_estate.settlement_unit,meters:"
 msgid "Meters"
 msgstr "Zähler"
 
-#, fuzzy
 msgctxt "field:real_estate.settlement_unit,name:"
 msgid "Name"
 msgstr "Name Export"
@@ -2294,12 +2264,10 @@ msgctxt "field:real_estate.settlement_unit,value_total:"
 msgid "Value to Total"
 msgstr "Gesamtwert"
 
-#, fuzzy
 msgctxt "field:real_estate.settlement_unit.context,company:"
 msgid "Company"
-msgstr "Unternehmen"
+msgstr "Gesellschaft"
 
-#, fuzzy
 msgctxt "field:real_estate.settlement_unit.context,property:"
 msgid "Property"
 msgstr "Wirtschaftseinheit"
@@ -2337,7 +2305,6 @@ msgctxt "field:real_estate.terminate_contract.start,termination_date_calc:"
 msgid "Termination Date"
 msgstr "Kündigungsdatum"
 
-#, fuzzy
 msgctxt "field:res.user,mobile:"
 msgid "Mobile"
 msgstr "Mobiltelefon"
@@ -2427,7 +2394,6 @@ msgstr ""
 "Zuerst synchron neu berechnen, dann asynchron Bewegungen bis zum Datum "
 "erstellen"
 
-#, fuzzy
 msgctxt "help:real_estate.contract.create_moves.start,execute_in_queue:"
 msgid ""
 "If checked, the moves will be created as queued moves, which can be posted "
@@ -2533,17 +2499,14 @@ msgctxt "help:real_estate.contract.type,unoccupied:"
 msgid "Is the property unoccupied?"
 msgstr ""
 
-#, fuzzy
 msgctxt "help:real_estate.measurement.type,default:"
 msgid "Check to use as default state for the type."
 msgstr "Als Standardstatus für den Typ verwenden."
 
-#, fuzzy
 msgctxt "help:real_estate.measurement.type,default:"
 msgid "Check to use as default state for the type."
 msgstr "Als Standardstatus für den Typ verwenden."
 
-#, fuzzy
 msgctxt "help:real_estate.measurement.type,default:"
 msgid "Check to use as default state for the type."
 msgstr "Als Standardstatus für den Typ verwenden."
@@ -2576,7 +2539,6 @@ msgctxt "help:real_estate.object_party.role,types:"
 msgid "The type of object which can use this role."
 msgstr "Der Objekttyp, für den diese Rolle verwendet werden kann."
 
-#, fuzzy
 msgctxt "help:real_estate.settlement_unit,reg_ex_meter:"
 msgid ""
 "Regular expression to find the meter. For Example '[1-9/ "
@@ -2587,7 +2549,6 @@ msgstr ""
 "Zähler zu ermitteln, die 'Strom' in der Bezeichnung haben,  z.B. '556 "
 "Stromzähler'."
 
-#, fuzzy
 msgctxt "help:real_estate.settlement_unit,reg_ex_object:"
 msgid ""
 "Regular expression to find the object. For Example '[1-9/ "
@@ -2705,7 +2666,6 @@ msgctxt "model:country.country,name:country_in"
 msgid "Indien"
 msgstr ""
 
-#, fuzzy
 msgctxt "model:country.country,name:country_is"
 msgid "Island"
 msgstr "Insel"
@@ -2888,7 +2848,7 @@ msgstr "Adressen"
 
 msgctxt "model:ir.action,name:act_base_object_occupancy"
 msgid "Occupancy"
-msgstr ""
+msgstr "Belegung/Leerstand"
 
 msgctxt "model:ir.action,name:act_billing_unit_log"
 msgid "Billing Unit Log"
@@ -2898,7 +2858,6 @@ msgctxt "model:ir.action,name:act_billing_unit_moves"
 msgid "Billing Unit Moves"
 msgstr ""
 
-#, fuzzy
 msgctxt "model:ir.action,name:act_billing_unit_tree"
 msgid "Billing Units"
 msgstr "Abrechnungseinheit"
@@ -2915,7 +2874,6 @@ msgctxt "model:ir.action,name:act_contract_log"
 msgid "Contract Log"
 msgstr ""
 
-#, fuzzy
 msgctxt "model:ir.action,name:act_contract_term_cash_flow"
 msgid "Cash Flow"
 msgstr "Finanzstrom"
@@ -2940,12 +2898,10 @@ msgctxt "model:ir.action,name:act_cost_type"
 msgid "Cost Types"
 msgstr "Typ Kostensammler"
 
-#, fuzzy
 msgctxt "model:ir.action,name:act_equipment_form"
 msgid "Equipment"
 msgstr "Equipment"
 
-#, fuzzy
 msgctxt ""
 "model:ir.action,name:act_general_ledger_account_contract_form_contract"
 msgid "Accounts"
@@ -2979,7 +2935,6 @@ msgctxt "model:ir.action,name:act_object_party_tree"
 msgid "Object Parties"
 msgstr "Partner zum Objekt"
 
-#, fuzzy
 msgctxt "model:ir.action,name:act_open_child_base_object"
 msgid "Object"
 msgstr "Objekt"
@@ -2992,12 +2947,10 @@ msgctxt "model:ir.action,name:act_real_estate_tree"
 msgid "Real Estate Object"
 msgstr "Immobilienobjekt"
 
-#, fuzzy
 msgctxt "model:ir.action,name:act_settlement_result"
 msgid "Settlement Results"
 msgstr "Abrechnungsergebnis"
 
-#, fuzzy
 msgctxt "model:ir.action,name:act_settlement_unit_tree"
 msgid "Settlement Units"
 msgstr "Kostensammler"
@@ -3030,11 +2983,10 @@ msgctxt "model:ir.action.act_window.domain,name:act_building_form_domain_all"
 msgid "All"
 msgstr "Alle"
 
-#, fuzzy
 msgctxt ""
 "model:ir.action.act_window.domain,name:act_building_form_domain_approved"
 msgid "Approved"
-msgstr "Genehmigt"
+msgstr "Aktiv"
 
 msgctxt ""
 "model:ir.action.act_window.domain,name:act_building_form_domain_draft"
@@ -3065,19 +3017,16 @@ msgctxt ""
 msgid "Terminated"
 msgstr "Beendet"
 
-#, fuzzy
 msgctxt ""
 "model:ir.action.act_window.domain,name:act_contract_term_cash_flow_domain_all"
 msgid "All"
 msgstr "Alle"
 
-#, fuzzy
 msgctxt ""
 "model:ir.action.act_window.domain,name:act_contract_term_cash_flow_domain_done"
 msgid "Done"
 msgstr "Erledigt"
 
-#, fuzzy
 msgctxt ""
 "model:ir.action.act_window.domain,name:act_contract_term_cash_flow_domain_draft"
 msgid "Draft"
@@ -3087,11 +3036,9 @@ msgctxt "model:ir.action.act_window.domain,name:act_equipment_form_domain_all"
 msgid "All"
 msgstr "Alle"
 
-#, fuzzy
-msgctxt ""
-"model:ir.action.act_window.domain,name:act_equipment_form_domain_approved"
+msgctxt "model:ir.action.act_window.domain,name:act_equipment_form_domain_approved"
 msgid "Approved"
-msgstr "Genehmigt"
+msgstr "Aktiv"
 
 msgctxt ""
 "model:ir.action.act_window.domain,name:act_equipment_form_domain_draft"
@@ -3107,10 +3054,9 @@ msgctxt "model:ir.action.act_window.domain,name:act_land_form_domain_all"
 msgid "All"
 msgstr "Alle"
 
-#, fuzzy
 msgctxt "model:ir.action.act_window.domain,name:act_land_form_domain_approved"
 msgid "Approved"
-msgstr "Genehmigt"
+msgstr "Aktiv"
 
 msgctxt "model:ir.action.act_window.domain,name:act_land_form_domain_draft"
 msgid "Draft"
@@ -3124,11 +3070,10 @@ msgctxt "model:ir.action.act_window.domain,name:act_object_form_domain_all"
 msgid "All"
 msgstr "Alle"
 
-#, fuzzy
 msgctxt ""
 "model:ir.action.act_window.domain,name:act_object_form_domain_approved"
 msgid "Approved"
-msgstr "Genehmigt"
+msgstr "Aktiv"
 
 msgctxt "model:ir.action.act_window.domain,name:act_object_form_domain_draft"
 msgid "Draft"
@@ -3163,6 +3108,8 @@ msgid ""
 "The following billing units must be billed first (chronological order): "
 "%(names)s"
 msgstr ""
+"Die folgenden Abrechnungseinheiten müssen zuerst abgerechnet werden "
+"(chronologische Reihenfolge): %(names)s"
 
 #, python-format
 msgctxt "model:ir.message,text:msg_billing_unit_collective_required"
@@ -3170,6 +3117,17 @@ msgid ""
 "Collective billing requires the following billing units to be processed "
 "together: %(names)s"
 msgstr ""
+"Die Sammelabrechnung erfordert, dass die folgenden Abrechnungseinheiten "
+"gemeinsam verarbeitet werden: %(names)s"
+
+#, python-format
+msgctxt "model:ir.message,text:msg_billing_unit_delete_not_draft"
+msgid ""
+"Cannot delete \"%(name)s\": deletion is only allowed in state 'Draft' "
+"(current state: %(state)s)."
+msgstr ""
+"\"%(name)s\" kann nicht gelöscht werden: Löschen ist nur im Status 'Entwurf'"
+" erlaubt (aktueller Status: %(state)s)."
 
 #, python-format
 msgctxt "model:ir.message,text:msg_billing_unit_draft_items"
@@ -3177,6 +3135,9 @@ msgid ""
 "Cannot bill \"%(name)s\": unposted contract cash flow items exist in the "
 "settlement period. Post all pending items (CreateMoves) before billing."
 msgstr ""
+"\"%(name)s\" kann nicht abgerechnet werden: Im Abrechnungszeitraum existieren"
+" noch nicht gebuchte Sollstellungen. Bitte alle offenen Posten zuerst buchen"
+" (Sollstellung erzeugen)."
 
 #, python-format
 msgctxt "model:ir.message,text:msg_billing_unit_has_errors"
@@ -3184,6 +3145,8 @@ msgid ""
 "Cannot bill: settlement unit(s) have errors in \"%(names)s\". Fix all errors"
 " before billing."
 msgstr ""
+"Abrechnung nicht möglich: Abrechnungseinheit(en) \"%(names)s\" enthalten"
+" Fehler. Bitte alle Fehler beheben."
 
 msgctxt ""
 "model:ir.message,text:msg_duplicate_meter_reading_for_same_date_and_meter_id"
@@ -3267,6 +3230,16 @@ msgctxt "model:ir.message,text:msg_salutation"
 msgid "Dear Sir or Madam"
 msgstr "Sehr geehrte Damen und Herren"
 
+#, python-format
+msgctxt "model:ir.message,text:msg_settlement_unit_delete_not_draft"
+msgid ""
+"Cannot delete settlement unit \"%(name)s\": deletion is only allowed when "
+"the billing unit is in state 'Draft' (current state: %(state)s)."
+msgstr ""
+"Abrechnungsposition \"%(name)s\" kann nicht gelöscht werden: Löschen ist nur"
+" erlaubt, wenn die Abrechnungseinheit im Status 'Entwurf' ist "
+"(aktueller Status: %(state)s)."
+
 msgctxt "model:ir.message,text:msg_settlement_units_error"
 msgid ""
 "Billing unit \"{}\": At least one settlement unit is required before "
@@ -3297,7 +3270,6 @@ msgctxt "model:ir.rule.group,name:rule_group_base_object_companies"
 msgid "User in companies"
 msgstr "Benutzer in der Gesellschaft"
 
-#, fuzzy
 msgctxt "model:ir.rule.group,name:rule_group_contract_companies"
 msgid "User in companies"
 msgstr "Benutzer in Unternehmen"
@@ -3328,20 +3300,19 @@ msgstr "Adressen"
 
 msgctxt "model:ir.ui.menu,name:menu_base_object_occupancy"
 msgid "Occupancy"
-msgstr ""
+msgstr "Belegung/Leerstand"
 
-#, fuzzy
 msgctxt "model:ir.ui.menu,name:menu_billing_unit"
 msgid "Billing Units"
 msgstr "Abrechnungseinheit"
 
 msgctxt "model:ir.ui.menu,name:menu_billing_unit_log"
 msgid "Billing Unit Log"
-msgstr ""
+msgstr "Abrechnungseinheit Protokoll"
 
 msgctxt "model:ir.ui.menu,name:menu_billing_unit_moves"
 msgid "Billing Unit Moves"
-msgstr ""
+msgstr "Abrechnungseinheit Belege"
 
 msgctxt "model:ir.ui.menu,name:menu_building_form"
 msgid "Building"
@@ -3353,9 +3324,8 @@ msgstr "Vertrag"
 
 msgctxt "model:ir.ui.menu,name:menu_contract_log"
 msgid "Contract Log"
-msgstr ""
+msgstr "Vertrag Protokoll"
 
-#, fuzzy
 msgctxt "model:ir.ui.menu,name:menu_contract_term_cash_flow"
 msgid "Cash Flow"
 msgstr "Finanzstrom"
@@ -3370,7 +3340,7 @@ msgstr "Vertragsarten"
 
 msgctxt "model:ir.ui.menu,name:menu_cost_category_group"
 msgid "Cost Category Groups"
-msgstr ""
+msgstr "Kostenartengruppe"
 
 msgctxt "model:ir.ui.menu,name:menu_cost_type"
 msgid "Cost Types"
@@ -3380,7 +3350,6 @@ msgctxt "model:ir.ui.menu,name:menu_create_moves"
 msgid "Create Contract Moves"
 msgstr "Soll/Habenstellung"
 
-#, fuzzy
 msgctxt "model:ir.ui.menu,name:menu_equipment_form"
 msgid "Equipment"
 msgstr "Equipment"
@@ -3405,7 +3374,6 @@ msgctxt "model:ir.ui.menu,name:menu_object_party_role"
 msgid "Object Party Roles"
 msgstr "Partnerrolle"
 
-#, fuzzy
 msgctxt "model:ir.ui.menu,name:menu_real_estate"
 msgid "Real Estate"
 msgstr "Immobilien"
@@ -3442,32 +3410,33 @@ msgctxt "model:ir.ui.menu,name:menu_real_estate_tree"
 msgid "Real Estate Object"
 msgstr "Immobilienobjekt"
 
-#, fuzzy
 msgctxt "model:ir.ui.menu,name:menu_reporting"
 msgid "Reporting"
 msgstr "Auswertungen"
 
-#, fuzzy
 msgctxt "model:ir.ui.menu,name:menu_settlement_result"
 msgid "Settlement Results"
 msgstr "Abrechnungsergebnis"
 
-#, fuzzy
 msgctxt "model:ir.ui.menu,name:menu_settlement_unit"
 msgid "Settlement Units"
 msgstr "Kostensammler"
 
+msgctxt "model:ir.ui.menu,name:menu_cost_share"
+msgid "Cost Shares"
+msgstr "Kostenanteile"
+
 msgctxt "model:product.uom,name:uom_re_euro_unit"
 msgid "Euro"
-msgstr ""
+msgstr "Euro"
 
 msgctxt "model:product.uom,symbol:uom_re_euro_unit"
 msgid "EUR"
-msgstr ""
+msgstr "EUR"
 
 msgctxt "model:real_estate.account_contract,string:"
 msgid "Real Estate Account Contract"
-msgstr ""
+msgstr "Immobilien Vertragsbuchhaltung"
 
 msgctxt "model:real_estate.address,string:"
 msgid "Real Estate Address"
@@ -3479,15 +3448,15 @@ msgstr "Immobilienobjekt"
 
 msgctxt "model:real_estate.base_object.company.context,string:"
 msgid "Real Estate Base Object Company Context"
-msgstr ""
+msgstr "Immobilienobjekte"
 
 msgctxt "model:real_estate.base_object.context,string:"
 msgid "Real Estate Base Object Context"
-msgstr ""
+msgstr "Immobilienobjekte"
 
 msgctxt "model:real_estate.base_object.equipment.context,string:"
 msgid "Real Estate Base Object Equipment Context"
-msgstr ""
+msgstr "Equipment"
 
 msgctxt "model:real_estate.base_object.occupancy,string:"
 msgid "Real Estate Base Object Occupancy"
@@ -3495,7 +3464,7 @@ msgstr "Belegung/Leerstand"
 
 msgctxt "model:real_estate.base_object.occupancy.context,string:"
 msgid "Real Estate Base Object Occupancy Context"
-msgstr ""
+msgstr "Belegung/Leerstand"
 
 msgctxt "model:real_estate.billing_unit,string:"
 msgid "Real Estate Billing Unit"
@@ -3507,24 +3476,23 @@ msgstr "Kostengruppe"
 
 msgctxt "model:real_estate.billing_unit.context,string:"
 msgid "Real Estate Billing Unit Context"
-msgstr ""
+msgstr "Abrechnungseinheit"
 
-#, fuzzy
 msgctxt "model:real_estate.billing_unit.log,string:"
 msgid "Real Estate Billing Unit Log"
 msgstr "Protokoll Kostengruppe"
 
 msgctxt "model:real_estate.billing_unit.log.context,string:"
 msgid "Real Estate Billing Unit Log Context"
-msgstr ""
+msgstr "Abrechnungseinheit Protokoll"
 
 msgctxt "model:real_estate.billing_unit.moves,string:"
 msgid "Real Estate Billing Unit Moves"
-msgstr ""
+msgstr "Abrechnungseinheit Belege"
 
 msgctxt "model:real_estate.billing_unit.moves.context,string:"
 msgid "Real Estate Billing Unit Moves Context"
-msgstr ""
+msgstr "Abrechnungseinheit Belege"
 
 msgctxt "model:real_estate.contract,string:"
 msgid "Real Estate Contract"
@@ -3532,7 +3500,7 @@ msgstr "Immobilienvertrag"
 
 msgctxt "model:real_estate.contract.account_contract,string:"
 msgid "Real Estate Contract Account Contract"
-msgstr ""
+msgstr "Vertragsbuchhaltung"
 
 msgctxt "model:real_estate.contract.cash_flow,string:"
 msgid "Real Estate Contract Cash Flow"
@@ -3540,7 +3508,7 @@ msgstr "Immobilienvertrag Finanzsstrom"
 
 msgctxt "model:real_estate.contract.context,string:"
 msgid "Real Estate Contract Context"
-msgstr ""
+msgstr "Immobilienvertrag"
 
 msgctxt "model:real_estate.contract.create_moves.start,string:"
 msgid "Real Estate Contract Create Moves Start"
@@ -3582,13 +3550,11 @@ msgctxt "model:real_estate.contract.term.tax,string:"
 msgid "Real Estate Contract Term Tax"
 msgstr "Vertragskonditionen Steuer"
 
-#, fuzzy
 msgctxt ""
 "model:real_estate.contract.term.type,name:contract_term_type_apartment_rent"
 msgid "Apartment rent (monthly)"
 msgstr "Miete (monatlich)"
 
-#, fuzzy
 msgctxt ""
 "model:real_estate.contract.term.type,name:contract_term_type_commercial_rent"
 msgid "Commercial rent (monthly)"
@@ -3674,7 +3640,6 @@ msgctxt "model:real_estate.cost_category_group,string:"
 msgid "Real Estate Cost Category Group"
 msgstr ""
 
-#, fuzzy
 msgctxt "model:real_estate.cost_share,string:"
 msgid "Real Estate Cost Share"
 msgstr "Kostensammler"
@@ -3764,7 +3729,6 @@ msgctxt "model:real_estate.cost_type,name:cost_type_warmwasser"
 msgid "Warmwasser"
 msgstr "Warmwasser"
 
-#, fuzzy
 msgctxt "model:real_estate.cost_type,string:"
 msgid "Real Estate Cost Type"
 msgstr "Kostensammler Typ"
@@ -3864,12 +3828,10 @@ msgctxt "model:res.group,name:group_real_estate_billing"
 msgid "Real Estate Billing"
 msgstr ""
 
-#, fuzzy
 msgctxt "model:res.group,name:group_real_estate_contract"
 msgid "Real Estate Contract"
 msgstr "Immobilienvertrag"
 
-#, fuzzy
 msgctxt "model:res.group,name:group_real_estate_object"
 msgid "Real Estate Object"
 msgstr "Immobilienobjekt"
@@ -3898,7 +3860,6 @@ msgctxt "selection:account.invoice.line,estg_35a:"
 msgid "Para. 3 - Craftsmen Services (e.g. Chimney Sweep)"
 msgstr ""
 
-#, fuzzy
 msgctxt "selection:account.invoice.line,estg_35a:"
 msgid "none"
 msgstr "keinen"
@@ -3936,10 +3897,6 @@ msgid "Approved"
 msgstr "Aktiv"
 
 msgctxt "selection:real_estate.base_object,state:"
-msgid "Approved"
-msgstr "Aktiv"
-
-msgctxt "selection:real_estate.base_object,state:"
 msgid "Deactivated"
 msgstr "Deaktiviert"
 
@@ -3962,10 +3919,6 @@ msgstr "Gesperrt"
 msgctxt "selection:real_estate.base_object,state:"
 msgid "Locked"
 msgstr "Gesperrt"
-
-msgctxt "selection:real_estate.base_object,status:"
-msgid "Approved"
-msgstr "Aktiv"
 
 msgctxt "selection:real_estate.base_object,status:"
 msgid "Approved"
@@ -4147,7 +4100,6 @@ msgctxt "selection:real_estate.base_object.equipment.context,e_type:"
 msgid "Installation"
 msgstr ""
 
-#, fuzzy
 msgctxt "selection:real_estate.base_object.equipment.context,e_type:"
 msgid "Meters"
 msgstr "Zähler"
@@ -4156,7 +4108,6 @@ msgctxt "selection:real_estate.base_object.equipment.context,e_type:"
 msgid "Structures"
 msgstr ""
 
-#, fuzzy
 msgctxt "selection:real_estate.base_object.equipment.context,e_type:"
 msgid "Technical Building Equipment"
 msgstr "Technische Gebäudeausstattung [TGA]"
@@ -4169,12 +4120,10 @@ msgctxt "selection:real_estate.base_object.occupancy,state:"
 msgid "Vacant"
 msgstr "leerstehend"
 
-#, fuzzy
 msgctxt "selection:real_estate.base_object.occupancy.context,state:"
 msgid "Rented"
 msgstr "vermietet"
 
-#, fuzzy
 msgctxt "selection:real_estate.base_object.occupancy.context,state:"
 msgid "Vacant"
 msgstr "leerstehend"
@@ -4207,7 +4156,6 @@ msgctxt "selection:real_estate.billing_unit,state:"
 msgid "Draft"
 msgstr "Entwurf"
 
-#, fuzzy
 msgctxt "selection:real_estate.billing_unit,state:"
 msgid "Estimated Value Share"
 msgstr "geschätzt Aufgeteilt"
@@ -4332,12 +4280,10 @@ msgctxt "selection:real_estate.contract.create_moves.start,action:"
 msgid "Re-Calculate moves"
 msgstr "Finanzstrom berechnen"
 
-#, fuzzy
 msgctxt "selection:real_estate.contract.create_moves.start,invoice_state:"
 msgid "Draft"
 msgstr "Entwurf"
 
-#, fuzzy
 msgctxt "selection:real_estate.contract.create_moves.start,invoice_state:"
 msgid "Posted"
 msgstr "Festgeschrieben"
@@ -4358,12 +4304,10 @@ msgctxt "selection:real_estate.contract.term,rhythm_type:"
 msgid "Quarterly"
 msgstr "vierteljährlich"
 
-#, fuzzy
 msgctxt "selection:real_estate.contract.term.cash_flow,state:"
 msgid "Done"
 msgstr "Erledigt"
 
-#, fuzzy
 msgctxt "selection:real_estate.contract.term.cash_flow,state:"
 msgid "Draft"
 msgstr "Entwurf"
@@ -4430,7 +4374,7 @@ msgstr "Fehler"
 
 msgctxt "selection:real_estate.cost_share,state:"
 msgid "Estimated Value Share"
-msgstr "geschätzter Wertanteil"
+msgstr "geschätzte Aufteilung"
 
 msgctxt "selection:real_estate.cost_share,state:"
 msgid "Preparation"
@@ -4438,11 +4382,11 @@ msgstr "Vorbereitung"
 
 msgctxt "selection:real_estate.cost_share,state:"
 msgid "Selection"
-msgstr "Auswahl"
+msgstr "Ausgewählt"
 
 msgctxt "selection:real_estate.cost_share,state:"
 msgid "Value Share"
-msgstr "Wertanteil"
+msgstr "Ist Aufteilung"
 
 msgctxt "selection:real_estate.meter_reading,m_type:"
 msgid "estimate"
@@ -4572,7 +4516,6 @@ msgctxt "view:real_estate.contract:"
 msgid "Terms"
 msgstr "Konditionen"
 
-#, fuzzy
 msgctxt "wizard_button:real_estate.contract.create_moves,start,create_moves:"
 msgid "OK"
 msgstr "OK"
@@ -4585,7 +4528,6 @@ msgctxt "wizard_button:real_estate.terminate_contract.wizard,start,end:"
 msgid "Cancel"
 msgstr "Abbruch"
 
-#, fuzzy
 msgctxt ""
 "wizard_button:real_estate.terminate_contract.wizard,start,terminate_contract:"
 msgid "OK"

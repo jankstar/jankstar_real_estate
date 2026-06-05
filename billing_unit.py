@@ -211,6 +211,16 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
                 })
 
     @classmethod
+    def delete(cls, billing_units):
+        for billing_unit in billing_units:
+            if billing_unit.state != 'draft':
+                raise ValidationError(gettext(
+                    'real_estate.msg_billing_unit_delete_not_draft',
+                    name=billing_unit.name,
+                    state=billing_unit.state))
+        super().delete(billing_units)
+
+    @classmethod
     @ModelView.button
     @Workflow.transition('approved')
     def approved(cls, billing_units):

@@ -72,7 +72,7 @@
     <button name="approved" string="Approved" colspan="1"/>
     <button name="selection" string="Selection" colspan="1"/>
     <button name="compute_value_shares_button" string="Compute Value Shares" colspan="1"/>
-    <button name="compute_settlement_result" string="Compute Settlement Result" colspan="1"/>
+    <button name="compute_settlement_result" string="Compute Settlement Results" colspan="1"/>
     <button name="billing" string="Billing" colspan="1"/>
     <button name="cancel" string="Cancel Billing" colspan="1"/>
 

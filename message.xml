@@ -64,6 +64,12 @@
         <record model="ir.message" id="msg_billing_unit_has_errors">
             <field name="text">Cannot bill: settlement unit(s) have errors in "%(names)s". Fix all errors before billing.</field>
         </record>
+        <record model="ir.message" id="msg_settlement_unit_delete_not_draft">
+            <field name="text">Cannot delete settlement unit "%(name)s": deletion is only allowed when the billing unit is in state 'Draft' (current state: %(state)s).</field>
+        </record>
+        <record model="ir.message" id="msg_billing_unit_delete_not_draft">
+            <field name="text">Cannot delete "%(name)s": deletion is only allowed in state 'Draft' (current state: %(state)s).</field>
+        </record>
         <record model="ir.message" id="msg_billing_unit_draft_items">
             <field name="text">Cannot bill "%(name)s": unposted contract cash flow items exist in the settlement period. Post all pending items (CreateMoves) before billing.</field>
         </record>

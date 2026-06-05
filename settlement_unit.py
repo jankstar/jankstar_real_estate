@@ -143,6 +143,16 @@ class SettlementUnit(DeactivableMixin, base_object.re_sequence_ordered(), ModelS
         'on_change_with_invoice_lines')
 
     @classmethod
+    def delete(cls, settlement_units):
+        for su in settlement_units:
+            if su.billing_unit and su.billing_unit.state != 'draft':
+                raise ValidationError(gettext(
+                    'real_estate.msg_settlement_unit_delete_not_draft',
+                    name=su.name,
+                    state=su.billing_unit.state))
+        super().delete(settlement_units)
+
+    @classmethod
     def view_attributes(cls):
         return super().view_attributes() + [
             ('//page[@id="page_measurements"]', 'states', {

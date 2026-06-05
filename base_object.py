@@ -835,7 +835,7 @@ class BaseObjectEquipmentContext(ModelView):
     def default_company(cls):
         return Transaction().context.get('company')
 
-
+#**************************************************************************
 class BaseObjectCompanyContext(ModelView):
     'Base Object Company Context'
     __name__ = 'real_estate.base_object.company.context'
@@ -846,7 +846,7 @@ class BaseObjectCompanyContext(ModelView):
     def default_company(cls):
         return Transaction().context.get('company')
 
-
+#**************************************************************************
 class BaseObjectContext(ModelView):
     'Base Object Context'
     __name__ = 'real_estate.base_object.context'
