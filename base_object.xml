@@ -653,12 +653,6 @@
             <field name="act_window" ref="act_base_object_occupancy"/>
         </record>
 
-        <menuitem
-            parent="menu_real_estate_contracts"
-            action="act_base_object_occupancy"
-            sequence="40"
-            id="menu_base_object_occupancy"/>
-
         <record model="ir.model.access" id="access_base_object_occupancy_object_group">
             <field name="model">real_estate.base_object.occupancy</field>
             <field name="group" ref="group_real_estate_object"/>

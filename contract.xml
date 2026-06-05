@@ -8,6 +8,13 @@
         sequence="20"
         id="menu_real_estate_contracts"/>
 
+        <!-- menuitem for base object occupancy from base_object -->
+        <menuitem
+            parent="menu_real_estate_contracts"
+            action="act_base_object_occupancy"
+            sequence="40"
+            id="menu_base_object_occupancy"/>
+
         <record model="ir.ui.view" id="contract_context_form_view">
             <field name="model">real_estate.contract.context</field>
             <field name="type">form</field>
