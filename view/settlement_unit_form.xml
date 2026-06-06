@@ -44,12 +44,14 @@
             <field name="objects" colspan="4"/>
         </page>
         <page string="Measurements" id="page_measurements" col="1">
-            <field name="measurements"/>
+            <field name="measurements"
+                view_ids="real_estate.settlement_unit_measurement_tree"/>
         </page>
         <page string="Meters" id="page_meters" col="4">
             <label name="reg_ex_meter"/><field name="reg_ex_meter" colspan="2"/>
             <newline/>
-            <field name="meters" colspan="4"/>
+            <field name="meters" colspan="4"
+                view_ids="real_estate.settlement_unit_meter_tree"/>
         </page>
     </notebook>
 

@@ -19,6 +19,18 @@
             <field name="name">settlement_unit_form</field>
         </record>
 
+        <record model="ir.ui.view" id="settlement_unit_meter_tree">
+            <field name="model">real_estate.base_object</field>
+            <field name="type">tree</field>
+            <field name="name">settlement_unit_meter_tree</field>
+        </record>
+
+        <record model="ir.ui.view" id="settlement_unit_measurement_tree">
+            <field name="model">real_estate.measurement</field>
+            <field name="type">tree</field>
+            <field name="name">settlement_unit_measurement_tree</field>
+        </record>
+
         <record model="ir.ui.view" id="settlement_unit_context_form_view">
             <field name="model">real_estate.settlement_unit.context</field>
             <field name="type">form</field>

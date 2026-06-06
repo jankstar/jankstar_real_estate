@@ -12,8 +12,8 @@
     <label name="time_share"/><field name="time_share" readonly="1"/>
     <newline/>
     <label name="value_share"/><field name="value_share" readonly="1"/>
-    <label name="planned_costs"/><field name="planned_costs" readonly="1"/>
-    <label name="actual_costs"/><field name="actual_costs" readonly="1"/>
+    <label name="planned_costs"/><field name="planned_costs"/>
+    <label name="actual_costs"/><field name="actual_costs"/>
     <label name="currency"/><field name="currency" readonly="1"/>
     <newline/>
     <label name="error_message"/><field name="error_message" colspan="4" readonly="1"/>

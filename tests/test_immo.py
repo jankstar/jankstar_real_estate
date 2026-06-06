@@ -2,23 +2,27 @@
 Demodaten für das Tryton-Modul real_estate erzeugen.
 
 Das Skript legt folgende Objekte an:
-  - 1 Immobilie (Property) "Musterstraße 1", Startdatum 01.01.2026, Status: approved
-  - 1 Gebäude (Building) als Kind der Immobilie mit einer Bemessung:
-      Bruttogeschossfläche 3.500 m² ab 01.01.2026
-  - 4 Wohnungen (Rental Object, Type of Use: residential, Use: apartment)
-      als Kinder des Gebäudes:
-      - Wohnung 01 (EG links):  2 Räume, 57 m² Wohnfläche
-      - Wohnung 02 (EG rechts): 3 Räume, 83 m² Wohnfläche
-      - Wohnung 03 (OG links):  2 Räume, 57 m² Wohnfläche
-      - Wohnung 04 (OG rechts): 3 Räume, 83 m² Wohnfläche
+
+  Wirtschaftseinheit 1: "Musterstraße 1-4"
+  Wirtschaftseinheit 2: "Musterstraße 5-8"
+
+  Je Wirtschaftseinheit:
+  - 4 Gebäude (Building), je mit einer Bemessung:
+      Bruttogeschossfläche 3.500 m² ab 01.01.2025
+  - Je Gebäude 4 Wohnungen (Rental Object, Type of Use: residential, Use: apartment):
+      - Wohnung XX (EG links):  2 Räume, 57 m² Wohnfläche
+      - Wohnung XX (EG rechts): 3 Räume, 83 m² Wohnfläche
+      - Wohnung XX (OG links):  2 Räume, 57 m² Wohnfläche
+      - Wohnung XX (OG rechts): 3 Räume, 83 m² Wohnfläche
+  - Die Wohnungsnummern zählen je Wirtschaftseinheit durch (01–16).
   - Je Wohnung 1 Zähler (Equipment, e_type: meters, Einheit: m³, Faktor: 1,
       Is Counter: ja) mit:
-      - Initialablesung 0 m³ zum 01.01.2026
-      - Ablesung zum 30.04.2026 mit zufälligem Verbrauch zwischen 20 und 40 m³
-      Die Zähler-ID wird automatisch generiert (Format: Z-<Jahr>-<Nr>, z.B. Z-2026-0001).
+      - Initialablesung 0 m³ zum 01.01.2025
+      - Ablesung zum 30.04.2025 mit zufälligem Verbrauch zwischen 20 und 40 m³
+      Die Zähler-ID wird automatisch generiert (Format: Z-<Jahr>-<Nr>, z.B. Z-2025-0001).
 
 Das Skript ist idempotent: es bricht ab, wenn eine Property mit dem Namen
-"Musterstraße 1" in der Zieldatenbank bereits vorhanden ist.
+"Musterstraße 1-4" oder "Musterstraße 5-8" in der Zieldatenbank bereits vorhanden ist.
 
 Voraussetzung: Der Benutzer "admin" muss in Tryton auf die Sprache Deutsch
 gestellt sein, da sonst die Bemessungstypen (z.B. "Bruttogeschossfläche [BHF]",
@@ -36,7 +40,7 @@ from decimal import Decimal
 
 from proteus import Model, config
 
-START_DATE = datetime.date(2026, 1, 1)
+START_DATE = datetime.date(2025, 1, 1)
 
 # Globaler Zähler für eindeutige Meter-IDs innerhalb dieses Script-Laufs
 _meter_id_counter = 0
@@ -121,7 +125,6 @@ def get_uom(symbol: str):
     Uom = Model.get('product.uom')
     results = Uom.find([('symbol', '=', symbol)])
     if not results:
-        # Fallback: Suche nach Name
         results = Uom.find([('name', 'ilike', symbol)])
     if not results:
         print(f'ERROR: Einheit "{symbol}" nicht gefunden.', file=sys.stderr)
@@ -135,16 +138,16 @@ def get_country(code: str):
     return results[0] if results else None
 
 
-def create_re_address(country) -> object:
+def create_re_address(street_number: int, country) -> object:
     Address = Model.get('real_estate.address')
     address = Address()
-    address.street_unstructured = 'Musterstraße 1'
+    address.street_unstructured = f'Musterstraße {street_number}'
     address.postal_code = '14163'
     address.city = 'Berlin'
     if country:
         address.country = country
     address.save()
-    print(f'  Adresse:   Musterstraße 1, 14163 Berlin angelegt (id={address.id})')
+    print(f'  Adresse:   Musterstraße {street_number}, 14163 Berlin angelegt (id={address.id})')
     return address
 
 
@@ -175,18 +178,65 @@ def create_meter(parent, name: str, sequence: int, company, uom, admin_user) -> 
     reading.value = Decimal(0)
     reading.save()
 
-    # Ablesung 30.04.2026 mit zufälligem Verbrauch zwischen 20 und 40 m³
+    # Ablesung 30.04.2025 mit zufälligem Verbrauch zwischen 20 und 40 m³
     verbrauch = Decimal(random.randint(20, 40))
     reading2 = MeterReading()
     reading2.base_object = obj
     reading2.m_type = 'reading'
     reading2.meter_id = meter_id
-    reading2.reading_date = datetime.date(2026, 4, 30)
+    reading2.reading_date = datetime.date(2025, 4, 30)
     reading2.reading_user = admin_user
     reading2.value = verbrauch
     reading2.save()
 
     print(f'    Zähler:    {name} (id={obj.id}, meter_id={meter_id}, Verbrauch={verbrauch} m³)')
+
+
+def create_building(house_nr: int, building_seq: int, prop, company,
+                    country, t_bgf, t_raume, t_wfl, uom_m3, admin_user,
+                    apt_start_nr: int) -> int:
+    """Create one building with 4 apartments and meters.
+    Returns the next apartment number after the last one created."""
+    address = create_re_address(house_nr, country)
+
+    building = create_base_object(
+        name=f'Musterstraße {house_nr} – Hauptgebäude',
+        obj_type='building',
+        company=company,
+        sequence=building_seq,
+        parent=prop,
+    )
+    building.address = address
+    building.save()
+    create_measurement(building, t_bgf, 3500.0)
+
+    # 4 apartments: (floor, side, rooms, area)
+    apt_layout = [
+        (0, 'links',  2, 57.0),
+        (0, 'rechts', 3, 83.0),
+        (1, 'links',  2, 57.0),
+        (1, 'rechts', 3, 83.0),
+    ]
+    floor_label = {0: 'EG', 1: 'OG'}
+    for i, (floor, seite, rooms, area) in enumerate(apt_layout):
+        nr = apt_start_nr + i
+        apt_name = f'Wohnung {nr:02d} ({floor_label[floor]} {seite})'
+        apt = create_base_object(
+            name=apt_name,
+            obj_type='object',
+            company=company,
+            sequence=(i + 1) * 10,
+            parent=building,
+            type_of_use='residential',
+            use_class='apartment',
+            floor=floor,
+        )
+        create_measurement(apt, t_raume, float(rooms))
+        create_measurement(apt, t_wfl, area)
+        create_meter(apt, f'Zähler {nr:02d}', sequence=10,
+                     company=company, uom=uom_m3, admin_user=admin_user)
+
+    return apt_start_nr + 4
 
 
 def main():
@@ -208,80 +258,64 @@ def main():
 
     BaseObject = Model.get('real_estate.base_object')
 
-    # Idempotenz: abbrechen, wenn Objekt schon vorhanden
-    existing = BaseObject.find([
-        ('name', '=', 'Musterstraße 1'),
-        ('type', '=', 'property'),
-        ('company', '=', company.id),
-    ])
-    if existing:
-        print(f'Property "Musterstraße 1" existiert bereits (id={existing[0].id}). Abbruch.')
-        return
+    # Idempotenz: abbrechen, wenn eines der Objekte schon vorhanden ist
+    for prop_name in ('Musterstraße 1-4', 'Musterstraße 5-8'):
+        existing = BaseObject.find([
+            ('name', '=', prop_name),
+            ('type', '=', 'property'),
+            ('company', '=', company.id),
+        ])
+        if existing:
+            print(f'Property "{prop_name}" existiert bereits (id={existing[0].id}). Abbruch.')
+            return
 
-    # Einheit Kubikmeter vorab laden
     uom_m3 = get_uom('m³')
 
-    # Bemessungstypen vorab laden
     t_bgf = get_measurement_type('Bruttogeschossfläche [BHF]')
     t_raume = get_measurement_type('Anzahl Räume')
     t_wfl = get_measurement_type('Wohnfläche')
 
     country_de = get_country('DE')
     if not country_de:
-        print('WARNUNG: Land "DE" nicht gefunden – Adresse wird ohne Land angelegt.')
+        print('WARNUNG: Land "DE" nicht gefunden – Adressen werden ohne Land angelegt.')
 
     print(f'Erzeuge Daten für Company "{company.rec_name}" ...')
 
-    # Adresse (real_estate.address) für die Immobilie
-    prop_address = create_re_address(country_de)
-
-    # Immobilie (Property)
-    prop = create_base_object(
-        name='Musterstraße 1',
-        obj_type='property',
-        company=company,
-        sequence=10,
+    building_args = dict(
+        company=company, country=country_de,
+        t_bgf=t_bgf, t_raume=t_raume, t_wfl=t_wfl,
+        uom_m3=uom_m3, admin_user=admin_user,
     )
-    prop.address = prop_address
-    prop.save()
 
-    # Gebäude
-    building = create_base_object(
-        name='Musterstraße 1 – Hauptgebäude',
-        obj_type='building',
-        company=company,
-        sequence=10,
-        parent=prop,
+    # Wirtschaftseinheit 1: Musterstraße 1-4
+    print('\n=== Wirtschaftseinheit: Musterstraße 1-4 ===')
+    prop1 = create_base_object(
+        name='Musterstraße 1-4', obj_type='property',
+        company=company, sequence=10,
     )
-    create_measurement(building, t_bgf, 3500.0)
-
-    # 4 Wohnungen: (Name, Sequenz, Stockwerk, Seite, Nummer)
-    apartments = [
-        ('Wohnung 01 (EG links)',  10, 0, 'links',  1),
-        ('Wohnung 02 (EG rechts)', 20, 0, 'rechts', 2),
-        ('Wohnung 03 (OG links)',  30, 1, 'links',  3),
-        ('Wohnung 04 (OG rechts)', 40, 1, 'rechts', 4),
-    ]
-    for apt_name, seq, floor, seite, nr in apartments:
-        apt = create_base_object(
-            name=apt_name,
-            obj_type='object',
-            company=company,
-            sequence=seq,
-            parent=building,
-            type_of_use='residential',
-            use_class='apartment',
-            floor=floor,
+    apt_nr = 1
+    for house_nr, building_seq in [(1, 10), (2, 20), (3, 30), (4, 40)]:
+        print(f'\n--- Gebäude Musterstraße {house_nr} ---')
+        apt_nr = create_building(
+            house_nr=house_nr, building_seq=building_seq,
+            prop=prop1, apt_start_nr=apt_nr, **building_args,
         )
-        if seite == 'links':
-            create_measurement(apt, t_raume, 2.0)
-            create_measurement(apt, t_wfl, 57.0)
-        else:
-            create_measurement(apt, t_raume, 3.0)
-            create_measurement(apt, t_wfl, 83.0)
-        create_meter(apt, f'Zähler {nr:02d}', sequence=10, company=company, uom=uom_m3, admin_user=admin_user)
 
-    print('Fertig.')
+    # Wirtschaftseinheit 2: Musterstraße 5-8
+    print('\n=== Wirtschaftseinheit: Musterstraße 5-8 ===')
+    prop2 = create_base_object(
+        name='Musterstraße 5-8', obj_type='property',
+        company=company, sequence=20,
+    )
+    apt_nr = 1
+    for house_nr, building_seq in [(5, 10), (6, 20), (7, 30), (8, 40)]:
+        print(f'\n--- Gebäude Musterstraße {house_nr} ---')
+        apt_nr = create_building(
+            house_nr=house_nr, building_seq=building_seq,
+            prop=prop2, apt_start_nr=apt_nr, **building_args,
+        )
+
+    print('\nFertig.')
 
 
 if __name__ == '__main__':

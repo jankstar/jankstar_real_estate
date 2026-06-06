@@ -852,10 +852,11 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
 
     @fields.depends('settlement_units')
     def on_change_with_cost_shares(self, name=None):
-        cost_shares = []
-        for settlement_unit in self.settlement_units:
-            cost_shares.extend(settlement_unit.cost_shares)
-        return cost_shares
+        CostShare = Pool().get('real_estate.cost_share')
+        su_ids = [su.id for su in (self.settlement_units or []) if su.id]
+        if not su_ids:
+            return []
+        return CostShare.search([('settlement_unit', 'in', su_ids)])
 
     @fields.depends('settlement_units', 'start_date', 'end_date',
             'term_types_of_use', 'billing_type')
@@ -865,12 +866,13 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
         billing_type='actual_billing': only paid lines (invoice_state='paid').
         billing_type='planned_billing': posted and paid lines only (excludes drafts and cancellations)."""
         CashFlowLine = Pool().get('real_estate.contract.term.cash_flow')
+        CostShare = Pool().get('real_estate.cost_share')
+        su_ids = [su.id for su in (self.settlement_units or []) if su.id]
         contract_ids = list({
             cs.contract.id
-            for su in (self.settlement_units or [])
-            for cs in su.cost_shares
+            for cs in CostShare.search([('settlement_unit', 'in', su_ids)])
             if cs.contract
-        })
+        } if su_ids else set())
         if not contract_ids:
             return []
         domain = [('term.contract', 'in', contract_ids)]

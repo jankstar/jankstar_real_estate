@@ -6,15 +6,15 @@ Voraussetzung: Die Kreditoren aus test_kreditor.py müssen bereits vorhanden sei
 Das Skript legt folgende Rechnungen an und bucht sie (state=posted):
 
   Land Berlin — 1 Rechnung:
-    - Datum: 15.03.2026
-    - Position: "Grundsteuer 2026", 1 × 1.890,00 EUR, ohne Steuer
+    - Datum: 15.03.2025
+    - Position: "Grundsteuer 2025", 1 × 1.890,00 EUR, ohne Steuer
     - Konto: 7680 (Grundsteuer)
 
-  Berliner Wasserbetriebe — 5 Rechnungen, monatlich zum 15. (Jan–Mai 2026):
+  Berliner Wasserbetriebe — 5 Rechnungen, monatlich zum 15. (Jan–Mai 2025):
     - Position: "Wasserrechnung MM/YYYY", 1 × 261,00 EUR + 19 % VSt
     - Konto: 5130
 
-  BSR — 3 Rechnungen, alle 2 Monate zum 15. (Jan, Mrz, Mai 2026):
+  BSR — 3 Rechnungen, alle 2 Monate zum 15. (Jan, Mrz, Mai 2025):
     - Position 1: "Straßenreinigung", 1 × 45,00 EUR + 19 % VSt, Konto 5130
     - Position 2: "Müll",             1 × 65,00 EUR + 19 % VSt, Konto 5130
 
@@ -232,15 +232,15 @@ def main():
     invoices_todo = []
 
     invoices_todo.append((
-        datetime.date(2026, 3, 15), land_berlin,
-        'Grundsteuer 2026',
-        [{'description': 'Grundsteuer 2026', 'unit_price': Decimal('1890.00'),
+        datetime.date(2025, 3, 15), land_berlin,
+        'Grundsteuer 2025',
+        [{'description': 'Grundsteuer 2025', 'unit_price': Decimal('1890.00'),
           'account': acc_7680, 'taxes': [],
           'property': prop, 'settlement_unit': su_100}],
     ))
 
     for month in range(1, 6):
-        d = datetime.date(2026, month, 15)
+        d = datetime.date(2025, month, 15)
         label = d.strftime('%m/%Y')
         invoices_todo.append((
             d, wasser,
@@ -251,7 +251,7 @@ def main():
         ))
 
     for month in [1, 3, 5]:
-        d = datetime.date(2026, month, 15)
+        d = datetime.date(2025, month, 15)
         label = d.strftime('%m/%Y')
         invoices_todo.append((
             d, bsr,

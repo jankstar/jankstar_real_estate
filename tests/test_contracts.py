@@ -11,10 +11,10 @@ Das Skript legt für die ersten 3 Wohnungen je folgende Objekte an:
       (wird inline beim Speichern der Party angelegt)
   - 1 Mietvertrag (real_estate.contract):
       - Vertragsart: erste verfügbare ContractType für type_of_use 'residential'
-      - Startdatum: 01.01.2026, Status: draft
+      - Startdatum: 01.01.2025, Status: draft
       - Vertragspartner: der angelegte Mieter
       - Rechnungsadresse: die Adresse des Mieters
-  - 1 ContractItem: Zuordnung der Wohnung zum Vertrag ab 01.01.2026
+  - 1 ContractItem: Zuordnung der Wohnung zum Vertrag ab 01.01.2025
   - 2 Konditionen (ContractTerm) je Vertrag, mit Bezug zum ContractItem,
       Rhythmus monatlich (rhythm=1, rhythm_type='monthly'):
       - Apartment rent   (ContractTermType sequence=1000): zufälliger Einheitspreis zwischen 11,00 und 16,00
@@ -39,7 +39,7 @@ from decimal import Decimal
 
 from proteus import Model, config
 
-START_DATE = datetime.date(2026, 1, 1)
+START_DATE = datetime.date(2025, 1, 1)
 
 
 def connect(database: str, cfg_file: str | None) -> None:

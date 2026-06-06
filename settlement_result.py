@@ -3,7 +3,7 @@ from trytond.model import (
     DeactivableMixin, ModelSQL, ModelView, fields)
 from trytond.pool import Pool
 from trytond.transaction import Transaction
-from trytond.pyson import Eval, If
+from trytond.pyson import Bool, Eval, If
 from trytond.modules.currency.fields import Monetary
 
 from decimal import Decimal
@@ -50,11 +50,15 @@ class CostShare(DeactivableMixin, ModelSQL, ModelView):
     time_share = fields.Function(fields.Integer('Time Share (days)'),
         'on_change_with_time_share')
 
+    external_billing = fields.Function(
+        fields.Boolean('External Billing'),
+        'on_change_with_external_billing')
+
     planned_costs = Monetary('Planned Costs', currency='currency', digits='currency',
-        states={'readonly': True})
+        states={'readonly': ~Eval('external_billing', False)})
 
     actual_costs = Monetary('Actual Costs', currency='currency', digits='currency',
-        states={'readonly': True},)
+        states={'readonly': ~Eval('external_billing', False)})
 
     currency = fields.Function(fields.Many2One('currency.currency', 'Currency'), 'on_change_with_currency')
 
@@ -84,6 +88,12 @@ class CostShare(DeactivableMixin, ModelSQL, ModelView):
             ('contract', operator, value),
             ('base_object.name', operator, value),
         ]
+
+    @fields.depends('settlement_unit')
+    def on_change_with_external_billing(self, name=None):
+        if self.settlement_unit:
+            return self.settlement_unit.allocation_rule == 'allocation_from_external_billing'
+        return False
 
     @fields.depends('settlement_unit')
     def on_change_with_currency(self, name=None):

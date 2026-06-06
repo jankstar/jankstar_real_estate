@@ -4134,7 +4134,7 @@ msgstr "Ist-Abrechnung"
 
 msgctxt "selection:real_estate.billing_unit,billing_type:"
 msgid "Planned Billing"
-msgstr "Abrechnung geplant"
+msgstr "Soll-Abrechnung"
 
 msgctxt "selection:real_estate.billing_unit,calculation_method:"
 msgid "Rental Apartment"
@@ -4142,7 +4142,7 @@ msgstr "Mietwohnung"
 
 msgctxt "selection:real_estate.billing_unit,calculation_method:"
 msgid "WEG Billing"
-msgstr "WEB Abrechnung"
+msgstr "WEG Abrechnung"
 
 msgctxt "selection:real_estate.billing_unit,state:"
 msgid "Approved"
