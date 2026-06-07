@@ -684,6 +684,16 @@
         <field name="name">terminate_contract_form</field>
     </record>
 
+    <record model="ir.action.wizard" id="wizard_contract_running">
+        <field name="name">Set Running</field>
+        <field name="wiz_name">real_estate.contract.running.wizard</field>
+    </record>
+    <record model="ir.action.keyword" id="act_contract_running_tree_action">
+        <field name="keyword">form_action</field>
+        <field name="model">real_estate.contract,-1</field>
+        <field name="action" ref="wizard_contract_running"/>
+    </record>
+
     <record model="ir.action.wizard" id="wizard_terminate_contract">
         <field name="name">Terminate Contract</field>
         <field name="wiz_name">real_estate.terminate_contract.wizard</field>
@@ -694,10 +704,20 @@
         <field name="type">form</field>
         <field name="name">contract_create_moves_start_form</field>
     </record>
+    <record model="ir.ui.view" id="contract_create_moves_confirm_view_form">
+        <field name="model">real_estate.contract.create_moves.confirm</field>
+        <field name="type">form</field>
+        <field name="name">contract_create_moves_confirm_form</field>
+    </record>
+    <record model="ir.ui.view" id="contract_create_moves_result_view_form">
+        <field name="model">real_estate.contract.create_moves.result</field>
+        <field name="type">form</field>
+        <field name="name">contract_create_moves_result_form</field>
+    </record>
 
     <record model="ir.action.wizard" id="wizard_create_moves">
         <field name="name">Create Contract Moves</field>
-        <field name="wiz_name">real_estate.contract.create_moves</field>
+        <field name="wiz_name">real_estate.contract.create_moves.wizard</field>
     </record>
 
     <menuitem

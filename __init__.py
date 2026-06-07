@@ -9,6 +9,7 @@ from . import contract_type
 from . import contract_item
 from . import contract_term
 from . import contract_wizard
+from . import contract_report
 from . import sequence
 from . import res
 from . import party
@@ -50,6 +51,8 @@ def register():
         contract_term.ContractTermCashFlowContext,
         contract_term.ContractTerm,
         contract_wizard.CreateContractMovesStart,
+        contract_wizard.CreateContractMovesConfirm,
+        contract_wizard.CreateContractMovesResult,
         contract_wizard.TerminateContractStart,
         #sequence.Sequence,
         res.User,
@@ -75,11 +78,12 @@ def register():
         settlement_result.SettlementResult,
         module='real_estate', type_='model')
     Pool.register(
-        contract_wizard.CreateContractMoves,
+        contract_wizard.CreateContractMovesWizard,
         contract_wizard.TerminateContractWizard,
+        contract_wizard.ContractRunningWizard,
         module='real_estate', type_='wizard')
     Pool.register(
         base_object.BaseObjectReport,
-        contract_wizard.ContractReport,
-        contract_wizard.ContractAnnex4Report,
+        contract_report.ContractReport,
+        contract_report.ContractAnnex4Report,
         module='real_estate', type_='report')

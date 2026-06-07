@@ -26,6 +26,7 @@ class CostShare(DeactivableMixin, ModelSQL, ModelView):
             ('selection', 'Selection'),
             ('estimated_value_share', 'Estimated Value Share'),
             ('value_share', 'Value Share'),
+            ('no_allocation', 'No Allocation'),
             ('error', 'Error'),
             ], "State", sort=False,
             states={'readonly': True},

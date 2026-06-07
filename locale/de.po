@@ -2971,6 +2971,10 @@ msgctxt "model:ir.action,name:report_contract_letter_de"
 msgid "Contract Letter (de)"
 msgstr "Vertrag Brief  (de)"
 
+msgctxt "model:ir.action,name:wizard_contract_running"
+msgid "Set Running"
+msgstr "Vertrag aktivieren"
+
 msgctxt "model:ir.action,name:wizard_create_moves"
 msgid "Create Contract Moves"
 msgstr "Soll/Habenstellung"
@@ -3103,6 +3107,20 @@ msgid "Locked"
 msgstr "Gesperrt"
 
 #, python-format
+#, python-format
+msgctxt "model:ir.message,text:msg_selection_invalid_state"
+msgid "Cannot run selection for \"%(name)s\": not allowed in state '%(state)s'."
+msgstr "Selektion für \"%(name)s\" nicht möglich: im Status '%(state)s' nicht erlaubt."
+
+#, python-format
+msgctxt "model:ir.message,text:msg_selection_reset_warning"
+msgid ""
+"Selection for \"%(name)s\": existing cost shares and settlement results will "
+"be deleted. Continue?"
+msgstr ""
+"Selektion für \"%(name)s\": vorhandene Kostenanteile und Abrechnungsergebnisse "
+"werden gelöscht. Fortfahren?"
+
 msgctxt "model:ir.message,text:msg_billing_unit_chronological_order"
 msgid ""
 "The following billing units must be billed first (chronological order): "
@@ -4120,6 +4138,10 @@ msgctxt "selection:real_estate.base_object.occupancy,state:"
 msgid "Vacant"
 msgstr "leerstehend"
 
+msgctxt "selection:real_estate.base_object.occupancy,state:"
+msgid "Under Negotiation"
+msgstr "in Verhandlung"
+
 msgctxt "selection:real_estate.base_object.occupancy.context,state:"
 msgid "Rented"
 msgstr "vermietet"
@@ -4127,6 +4149,10 @@ msgstr "vermietet"
 msgctxt "selection:real_estate.base_object.occupancy.context,state:"
 msgid "Vacant"
 msgstr "leerstehend"
+
+msgctxt "selection:real_estate.base_object.occupancy.context,state:"
+msgid "Under Negotiation"
+msgstr "in Verhandlung"
 
 msgctxt "selection:real_estate.billing_unit,billing_type:"
 msgid "Actual Billing"
@@ -4516,11 +4542,11 @@ msgctxt "view:real_estate.contract:"
 msgid "Terms"
 msgstr "Konditionen"
 
-msgctxt "wizard_button:real_estate.contract.create_moves,start,create_moves:"
+msgctxt "wizard_button:real_estate.contract.create_moves.wizard,start,create_moves:"
 msgid "OK"
 msgstr "OK"
 
-msgctxt "wizard_button:real_estate.contract.create_moves,start,end:"
+msgctxt "wizard_button:real_estate.contract.create_moves.wizard,start,end:"
 msgid "Cancel"
 msgstr "Abbruch"
 

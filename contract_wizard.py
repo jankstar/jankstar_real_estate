@@ -1,16 +1,14 @@
-'Contract Wizards and Reports'
+'Contract Wizards'
 from trytond.model import ModelView, fields
 from trytond.pool import Pool
 from trytond.transaction import Transaction
 from trytond.pyson import Eval
 from trytond.wizard import (
     Button, StateTransition, StateView, Wizard)
-from trytond.report import Report
 from trytond.transaction import check_access, without_check_access
 
 from dateutil.relativedelta import relativedelta
 
-import re
 import datetime
 import calendar
 
@@ -44,7 +42,6 @@ class TerminateContractWizard(Wizard):
         self.start.contract.termination_reason = self.start.reason
         self.start.contract.termination_notice = self.start.notice_period
         self.start.contract.save()
-        Contract._refresh_occupancy_for_contracts([self.start.contract])
         return 'end'
 
 #**********************************************************************
@@ -133,6 +130,8 @@ class CreateContractMovesStart(ModelView):
             'required': Eval('action', '').in_(['create', 're_calc_and_create']),
         })
 
+    invoice_date_in_past = fields.Boolean('Invoice Date in Past', readonly=True)
+
     invoice_state = fields.Selection([
         ('draft', 'Draft'),
         ('posted', 'Posted'),
@@ -156,6 +155,23 @@ class CreateContractMovesStart(ModelView):
         'real_estate.contract', None, None, 'Filter Contracts',
         domain=[('company', '=', Eval('company', -1))],
     )
+
+    @fields.depends('date', 'invoice_date')
+    def on_change_date(self):
+        today = Pool().get('ir.date').today()
+        if self.date and self.date < today:
+            self.invoice_date = self.date.replace(day=1)
+        self.invoice_date_in_past = self._check_past(self.invoice_date)
+
+    @fields.depends('invoice_date')
+    def on_change_invoice_date(self):
+        self.invoice_date_in_past = self._check_past(self.invoice_date)
+
+    @staticmethod
+    def _check_past(invoice_date):
+        if not invoice_date:
+            return False
+        return invoice_date < Pool().get('ir.date').today()
 
     @staticmethod
     def default_date():
@@ -183,27 +199,101 @@ class CreateContractMovesStart(ModelView):
         return 'draft'
 
     @staticmethod
+    def default_invoice_date_in_past():
+        return False
+
+    @staticmethod
     def default_execute_in_queue():
         return True
 
 
 #**********************************************************************
-class CreateContractMoves(Wizard):
-    """Wizard to create moves for contracts until given date, with option to 
+class CreateContractMovesConfirm(ModelView):
+    'Create Contract Moves - Confirm'
+    __name__ = 'real_estate.contract.create_moves.confirm'
+
+    contracts_count = fields.Integer('Matching Contracts', readonly=True)
+    date = fields.Date('Up to Date', readonly=True)
+    action = fields.Char('Action', readonly=True)
+    invoice_state = fields.Char('Invoice State', readonly=True)
+    execute_in_queue = fields.Boolean('Execute in Queue', readonly=True)
+    n_properties = fields.Integer('Properties Filter', readonly=True)
+    n_contracts = fields.Integer('Contracts Filter', readonly=True)
+
+
+#**********************************************************************
+class CreateContractMovesResult(ModelView):
+    'Create Contract Moves - Result'
+    __name__ = 'real_estate.contract.create_moves.result'
+
+    contracts_count = fields.Integer('Contracts', readonly=True)
+    action = fields.Char('Action', readonly=True)
+    mode = fields.Char('Mode', readonly=True)
+    message = fields.Text('Details', readonly=True)
+
+
+#**********************************************************************
+class CreateContractMovesWizard(Wizard):
+    """Wizard to create moves for contracts until given date, with option to
     re-calculate next document/due date by rhythm and last posting date before move creation"""
-    __name__ = 'real_estate.contract.create_moves'
+    __name__ = 'real_estate.contract.create_moves.wizard'
+
     start = StateView('real_estate.contract.create_moves.start',
         'real_estate.contract_create_moves_start_view_form', [
             Button('Cancel', 'end', 'tryton-cancel'),
-            Button('OK', 'create_moves', 'tryton-ok', True),
+            Button('OK', 'confirm', 'tryton-ok', True),
+            ])
+    confirm = StateView('real_estate.contract.create_moves.confirm',
+        'real_estate.contract_create_moves_confirm_view_form', [
+            Button('Cancel', 'end', 'tryton-cancel'),
+            Button('Process', 'create_moves', 'tryton-ok', True),
             ])
     create_moves = StateTransition()
+    result = StateView('real_estate.contract.create_moves.result',
+        'real_estate.contract_create_moves_result_view_form', [
+            Button('Close', 'end', 'tryton-ok', True),
+            ])
+
+    def default_confirm(self, fields):
+        pool = Pool()
+        Contract = pool.get('real_estate.contract')
+
+        action_labels = {
+            'create': 'Create moves',
+            're_calc': 'Re-calculate moves',
+            're_calc_and_create': 'Re-calculate and create moves',
+        }
+        invoice_labels = {'draft': 'Draft', 'posted': 'Posted'}
+
+        search_domain = [
+            ('state', 'in', ('running', 'terminated')),
+            ('start_date', '<=', self.start.date),
+        ]
+        if self.start.propertys:
+            property_ids = [p.id for p in self.start.propertys]
+            search_domain.append(('property', 'in', property_ids))
+        if self.start.contracts:
+            contract_ids_filter = [c.id for c in self.start.contracts]
+            search_domain.append(('id', 'in', contract_ids_filter))
+
+        count = len(Contract.search(search_domain))
+
+        return {
+            'contracts_count': count,
+            'date': self.start.date,
+            'action': action_labels.get(self.start.action, self.start.action),
+            'invoice_state': invoice_labels.get(
+                self.start.invoice_state or 'draft',
+                self.start.invoice_state or 'draft'),
+            'execute_in_queue': self.start.execute_in_queue,
+            'n_properties': len(self.start.propertys) if self.start.propertys else 0,
+            'n_contracts': len(self.start.contracts) if self.start.contracts else 0,
+        }
 
     @without_check_access
     def transition_create_moves(self):
         pool = Pool()
         with check_access():
-
             search_domain = [('state', 'in', ('running', 'terminated')),
                             ('start_date', '<=', self.start.date)
                             ]
@@ -211,131 +301,67 @@ class CreateContractMoves(Wizard):
                 property_ids = [p.id for p in self.start.propertys]
                 search_domain.append(('property', 'in', property_ids))
             if self.start.contracts:
-                contract_ids = [c.id for c in self.start.contracts]
-                search_domain.append(('id', 'in', contract_ids))
+                contract_ids_filter = [c.id for c in self.start.contracts]
+                search_domain.append(('id', 'in', contract_ids_filter))
 
             Contract = pool.get('real_estate.contract')
             contract_ids = Contract.search(search_domain)
+            count = len(contract_ids)
 
             if contract_ids:
                 Contract.call_create_moves(
                     contract_ids, self.start.date, self.start.action,
                     self.start.execute_in_queue, self.start.invoice_state or 'draft',
                     self.start.invoice_date)
+
+            action_labels = {
+                'create': 'Create moves',
+                're_calc': 'Re-calculate moves',
+                're_calc_and_create': 'Re-calculate and create moves',
+            }
+            self.result.contracts_count = count
+            self.result.action = action_labels.get(self.start.action, self.start.action)
+            if count == 0:
+                self.result.mode = 'No matching contracts found'
+                self.result.message = (
+                    'No contracts matched the selected filters '
+                    f'(up to {self.start.date}).')
+            elif self.start.execute_in_queue:
+                self.result.mode = 'Queued'
+                self.result.message = (
+                    f'{count} contract(s) queued for background processing '
+                    f'up to {self.start.date}.')
+            else:
+                self.result.mode = 'Completed'
+                self.result.message = (
+                    f'{count} contract(s) processed '
+                    f'up to {self.start.date}.')
+        return 'result'
+
+    def default_result(self, fields):
+        return {
+            'contracts_count': self.result.contracts_count,
+            'action': self.result.action,
+            'mode': self.result.mode,
+            'message': self.result.message,
+        }
+
+
+#**********************************************************************
+class ContractRunningWizard(Wizard):
+    'Set Contracts to Running'
+    __name__ = 'real_estate.contract.running.wizard'
+
+    start_state = 'start'
+    start = StateTransition()
+
+    def transition_start(self):
+        Contract = Pool().get('real_estate.contract')
+        contracts = [
+            c for c in Contract.browse(
+                Transaction().context.get('active_ids', []))
+            if c.state == 'draft'
+        ]
+        if contracts:
+            Contract.running(contracts)
         return 'end'
-
-
-#**********************************************************************
-class ContractReport(Report):
-    "Contract Context"
-    __name__ = 'real_estate.contract.report'
-
-    @classmethod
-    def _format(cls, value):
-        if value is None:
-            return ''
-        if type(value) == str:
-            return value
-        if type(value) == bool:
-            return str(value)
-        if type(value) == int:
-            return str(value)
-        if type(value) == float:
-            return cls.format_number(value, None)
-        if type(value) == datetime.date:
-            return cls.format_date(value)
-        if type(value) == datetime.datetime:
-            return cls.format_datetime(value)
-        return value
-
-    @classmethod
-    def get_context(cls, records, header, data):
-        context = super().get_context(records, header, data)
-        context['_format'] = cls._format
-        return context
-
-#**********************************************************************
-class ContractAnnex4Report(Report):
-    "Contract Annex 4 – Betriebskostenaufstellung"
-    __name__ = 'real_estate.contract.annex4.report'
-
-    @classmethod
-    def _format(cls, value):
-        if value is None:
-            return ''
-        if type(value) == str:
-            return value
-        if type(value) == bool:
-            return str(value)
-        if type(value) == int:
-            return str(value)
-        if type(value) == float:
-            return cls.format_number(value, None)
-        if type(value) == datetime.date:
-            return cls.format_date(value)
-        if type(value) == datetime.datetime:
-            return cls.format_datetime(value)
-        return value
-
-    @classmethod
-    def _allocation_label(cls, su):
-        rule = su.allocation_rule or 'no_allocation'
-        if rule == 'allocation_by_measurement' and su.m_type:
-            return su.m_type.name
-        elif rule == 'allocation_by_consumption':
-            if su.meter_unit:
-                return 'nach Verbrauch (%s, HeizkostenV)' % su.meter_unit.symbol
-            return 'nach Verbrauch (HeizkostenV)'
-        elif rule == 'allocation_per_rental_unit':
-            return 'je Wohneinheit'
-        return '—'
-
-    @classmethod
-    def _betrKV_nr(cls, comment):
-        if not comment:
-            return ''
-        m = re.search(r'Nr\.\s*(\d+[a-z]?)', comment)
-        return ('Nr. ' + m.group(1)) if m else ''
-
-    @classmethod
-    def get_context(cls, records, header, data):
-        context = super().get_context(records, header, data)
-        pool = Pool()
-        BillingUnit = pool.get('real_estate.billing_unit')
-        record = context['record']
-        context['_format'] = cls._format
-
-        bk_groups = []
-        if record.property:
-            billing_units = BillingUnit.search([
-                ('property', '=', record.property.id),
-                ('state', 'not in', ['draft', 'billed']),
-            ], order=[('start_date', 'DESC')], limit=1)
-
-            if billing_units:
-                bu = billing_units[0]
-                sus = [
-                    su for su in bu.settlement_units
-                    if su.type and not su.type.no_print
-                ]
-                sus.sort(key=lambda su: (
-                    su.type.category_group.sequence
-                    if su.type.category_group else 9999,
-                    su.type.sequence or 0,
-                ))
-
-                current_grp_name = None
-                for su in sus:
-                    grp = su.type.category_group
-                    grp_name = grp.name if grp else '(Sonstige)'
-                    if grp_name != current_grp_name:
-                        bk_groups.append({'name': grp_name, 'rows': []})
-                        current_grp_name = grp_name
-                    bk_groups[-1]['rows'].append({
-                        'betrKV_nr': cls._betrKV_nr(su.type.comment),
-                        'name': su.type.name or '',
-                        'allocation': cls._allocation_label(su),
-                    })
-
-        context['bk_groups'] = bk_groups
-        return context

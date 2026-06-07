@@ -2,30 +2,36 @@
 Demodaten für Mietverträge im Tryton-Modul real_estate erzeugen.
 
 Voraussetzung: Die Immobiliendaten aus test_immo.py müssen bereits in der
-Datenbank vorhanden sein (Property "Musterstraße 1" mit Wohnungen).
+Datenbank vorhanden sein (Properties "Musterstraße 1-4" und "Musterstraße 5-8").
 
-Das Skript legt für die ersten 3 Wohnungen je folgende Objekte an:
-  - 1 Vertragspartner (party.party): "Mieter 1" bis "Mieter 3"
+Das Skript legt für jede Wirtschaftseinheit folgende Objekte an:
+
+  Je Wirtschaftseinheit (16 Wohnungen, 4 Stellplätze):
+  - Für 15 der 16 Wohnungen je einen Mietvertrag (1 Wohnung bleibt zufällig leer)
+  - Vertragspartner (party.party): "Mieter N" (N zählt über alle WE durch)
       Sprache: Deutsch (ir.lang code='de')
       mit einer party.address: Musterstraße 1, 14163 Berlin, DE
-      (wird inline beim Speichern der Party angelegt)
-  - 1 Mietvertrag (real_estate.contract):
+  - 1 Mietvertrag (real_estate.contract) je Wohnung:
       - Vertragsart: erste verfügbare ContractType für type_of_use 'residential'
       - Startdatum: 01.01.2025, Status: draft
-      - Vertragspartner: der angelegte Mieter
-      - Rechnungsadresse: die Adresse des Mieters
   - 1 ContractItem: Zuordnung der Wohnung zum Vertrag ab 01.01.2025
-  - 2 Konditionen (ContractTerm) je Vertrag, mit Bezug zum ContractItem,
-      Rhythmus monatlich (rhythm=1, rhythm_type='monthly'):
-      - Apartment rent   (ContractTermType sequence=1000): zufälliger Einheitspreis zwischen 11,00 und 16,00
-      - Betriebskosten   (ContractTermType sequence=2000): zufälliger Einheitspreis zwischen  3,00 und  4,00
-      Die ContractTermTypes werden per sequence-Feld gesucht, nicht per Name.
+  - 3 Konditionen (ContractTerm) je Wohnungsvertrag, monatlich:
+      - Apartment rent   (sequence=1000): zufälliger Preis zwischen 11,00 und 16,00 EUR
+      - Betriebskosten   (sequence=2000): zufälliger Preis zwischen  3,00 und  4,00 EUR
+      - Heizkosten       (sequence=3000): zufälliger Preis zwischen  3,00 und  4,00 EUR
+  - 4 Stellplätze werden auf 4 zufällig ausgewählte Wohnungsmieter verteilt
+    (kein Mieter erhält dabei mehr als einen Stellplatz):
+      2x Stellplatz als zusätzliches ContractItem zum vorhandenen Wohnungsvertrag:
+        - 1 ContractItem: Zuordnung des Stellplatzes zum Vertrag (sequence=20)
+        - 1 Kondition Miete Stellplatz (sequence=40): 50,00 EUR, monatlich
+      2x eigener Stellplatz-Mietvertrag für einen anderen Mieter (ohne Stellplatz
+      im Wohnungsvertrag):
+        - Vertragspartner: vorhandener Mieter (gleiche party, gleiche Adresse)
+        - 1 ContractItem: nur der Stellplatz (sequence=10)
+        - 1 Kondition Miete Stellplatz (sequence=10): 50,00 EUR, monatlich
 
 Das Skript ist idempotent: es bricht ab, wenn "Mieter 1" als Party
 bereits in der Datenbank existiert.
-
-Voraussetzung: Der Benutzer "admin" muss in Tryton auf die Sprache Deutsch
-gestellt sein, da sonst die Bemessungstypen nicht per Namen gefunden werden.
 
 Verwendung:
     python tests/test_contracts.py --database <Datenbankname> [--config <trytond.conf>]
@@ -40,6 +46,14 @@ from decimal import Decimal
 from proteus import Model, config
 
 START_DATE = datetime.date(2025, 1, 1)
+PARKING_PRICE = Decimal('50.00')
+
+# (termination_date, receipt_of_notice) — notice 3 months before termination
+TERMINATIONS = [
+    (datetime.date(2025, 5, 31), datetime.date(2025, 2, 28)),
+    (datetime.date(2025, 7, 31), datetime.date(2025, 4, 30)),
+    (datetime.date(2025, 11, 30), datetime.date(2025, 8, 31)),
+]
 
 
 def connect(database: str, cfg_file: str | None) -> None:
@@ -60,29 +74,38 @@ def get_company():
     return companies[0]
 
 
-def get_property():
+def get_properties():
     BaseObject = Model.get('real_estate.base_object')
-    results = BaseObject.find([
-        ('name', '=', 'Musterstraße 1'),
-        ('type', '=', 'property'),
-    ])
-    if not results:
-        print('ERROR: Property "Musterstraße 1" nicht gefunden. Bitte zuerst test_immo.py ausführen.', file=sys.stderr)
-        sys.exit(1)
-    return results[0]
+    props = []
+    for name in ('Musterstraße 1-4', 'Musterstraße 5-8'):
+        results = BaseObject.find([
+            ('name', '=', name),
+            ('type', '=', 'property'),
+        ])
+        if not results:
+            print(f'ERROR: Property "{name}" nicht gefunden. Bitte zuerst test_immo.py ausführen.',
+                  file=sys.stderr)
+            sys.exit(1)
+        props.append(results[0])
+    return props
 
 
-def get_apartments(property_obj, limit: int = 3):
+def get_apartments(property_obj):
     BaseObject = Model.get('real_estate.base_object')
-    apartments = BaseObject.find([
+    return BaseObject.find([
         ('property', '=', property_obj.id),
         ('type', '=', 'object'),
-        ('type_of_use', '=', 'residential'),
-    ], order=[('sequence', 'ASC')], limit=limit)
-    if len(apartments) < limit:
-        print(f'ERROR: Weniger als {limit} Wohnungen unter der Property gefunden.', file=sys.stderr)
-        sys.exit(1)
-    return apartments
+        ('use_class', '=', 'apartment'),
+    ], order=[('sequence', 'ASC')])
+
+
+def get_parking_spaces(property_obj):
+    BaseObject = Model.get('real_estate.base_object')
+    return BaseObject.find([
+        ('property', '=', property_obj.id),
+        ('type', '=', 'object'),
+        ('use_class', '=', 'parking'),
+    ], order=[('sequence', 'ASC')])
 
 
 def get_contract_type():
@@ -91,12 +114,23 @@ def get_contract_type():
         ('types_of_use', 'in', 'residential'),
     ], order=[('sequence', 'ASC')], limit=1)
     if not results:
-        print('ERROR: Keine ContractType für type_of_use "residential" gefunden.', file=sys.stderr)
+        print('ERROR: Keine ContractType für type_of_use "residential" gefunden.',
+              file=sys.stderr)
         sys.exit(1)
     return results[0]
 
 
-def create_party(name: str, country, lang) -> tuple:
+def get_term_type(sequence: int):
+    TermType = Model.get('real_estate.contract.term.type')
+    results = TermType.find([('sequence', '=', sequence)])
+    if not results:
+        print(f'ERROR: ContractTermType mit sequence={sequence} nicht gefunden.',
+              file=sys.stderr)
+        sys.exit(1)
+    return results[0]
+
+
+def create_party(name: str, country, lang):
     Party = Model.get('party.party')
     Address = Model.get('party.address')
 
@@ -121,11 +155,12 @@ def create_party(name: str, country, lang) -> tuple:
     address.invoice = True
     address.save()
 
-    print(f'  Vertragspartner: {name} (id={party.id}), Adresse: Musterstraße 1, 14163 Berlin')
+    print(f'  Vertragspartner: {name} (id={party.id})')
     return party, address
 
 
-def create_contract(company, property_obj, c_type, currency, partner, invoice_address, sequence: int) -> object:
+def create_contract(company, property_obj, c_type, currency,
+                    partner, invoice_address, sequence: int):
     Contract = Model.get('real_estate.contract')
     contract = Contract()
     contract.company = company
@@ -142,16 +177,84 @@ def create_contract(company, property_obj, c_type, currency, partner, invoice_ad
     return contract
 
 
-def get_term_type(sequence: int):
-    TermType = Model.get('real_estate.contract.term.type')
-    results = TermType.find([('sequence', '=', sequence)])
-    if not results:
-        print(f'ERROR: ContractTermType mit sequence={sequence} nicht gefunden.', file=sys.stderr)
-        sys.exit(1)
-    return results[0]
+def create_contract_item(contract, obj, sequence: int):
+    ContractItem = Model.get('real_estate.contract.item')
+    item = ContractItem()
+    item.contract = contract
+    item.object = obj
+    item.valid_from = START_DATE
+    item.sequence = sequence
+    item.save()
+    print(f'    Item:          "{obj.name}" ab {START_DATE}')
+    return item
 
 
-def create_contract_term(contract, term_type, reference_item, unit_price: Decimal, sequence: int) -> None:
+def terminate_contract(contract, termination_date, receipt_date):
+    contract.state = 'terminated'
+    contract.terminated_by_type = 'tenant'
+    contract.receipt_of_termination_notice = receipt_date
+    contract.termination_date = termination_date
+    contract.termination_notice = ''
+    contract.save()
+    print(f'  Vertrag id={contract.id} → terminated per {termination_date} '
+          f'(Eingang Kündigung: {receipt_date})')
+
+
+def create_followup_contract(terminated_contract, company, property_obj, c_type,
+                             currency, partner, invoice_address, start_date, sequence):
+    """Create a follow-up contract copying all items and terms from the predecessor."""
+    Contract = Model.get('real_estate.contract')
+    ContractItem = Model.get('real_estate.contract.item')
+    ContractTerm = Model.get('real_estate.contract.term')
+
+    contract = Contract()
+    contract.company = company
+    contract.property = property_obj
+    contract.type_of_use = terminated_contract.type_of_use
+    contract.c_type = c_type
+    contract.currency = currency
+    contract.start_date = start_date
+    contract.contractual_partner = partner
+    contract.invoice_address = invoice_address
+    contract.sequence = sequence
+    contract.save()
+    print(f'  Folgevertrag: id={contract.id}, Start={start_date}')
+
+    # Copy items; track old_item.id → new_item for term reference mapping
+    item_map = {}
+    for old_item in terminated_contract.items:
+        new_item = ContractItem()
+        new_item.contract = contract
+        new_item.object = old_item.object
+        new_item.valid_from = start_date
+        new_item.sequence = old_item.sequence
+        new_item.save()
+        item_map[old_item.id] = new_item
+        print(f'    Item: "{old_item.object.name}" ab {start_date}')
+
+    # Copy terms with reference_item mapped to new items
+    for old_term in terminated_contract.terms:
+        new_term = ContractTerm()
+        new_term.contract = contract
+        new_term.term_type = old_term.term_type
+        new_term.valid_from = start_date
+        new_term.rhythm = old_term.rhythm
+        new_term.rhythm_type = old_term.rhythm_type
+        new_term.rhythm_start = old_term.rhythm_start
+        new_term.quantity = old_term.quantity
+        new_term.unit_price = old_term.unit_price
+        new_term.sequence = old_term.sequence
+        if old_term.reference_item:
+            new_term.reference_item = item_map.get(old_term.reference_item.id)
+        new_term.save()
+        print(f'    Kondition: {old_term.term_type.name}, '
+              f'EP={old_term.unit_price} EUR')
+
+    return contract
+
+
+def create_contract_term(contract, term_type, reference_item,
+                         unit_price: Decimal, sequence: int) -> None:
     ContractTerm = Model.get('real_estate.contract.term')
     term = ContractTerm()
     term.contract = contract
@@ -164,19 +267,7 @@ def create_contract_term(contract, term_type, reference_item, unit_price: Decima
     term.unit_price = unit_price
     term.sequence = sequence
     term.save()
-    print(f'    Kondition:     {term_type.name}, Einheitspreis={unit_price}, monatlich')
-
-
-def create_contract_item(contract, apartment, sequence: int):
-    ContractItem = Model.get('real_estate.contract.item')
-    item = ContractItem()
-    item.contract = contract
-    item.object = apartment
-    item.valid_from = START_DATE
-    item.sequence = sequence
-    item.save()
-    print(f'    Item:          Wohnung "{apartment.name}" ab {START_DATE}')
-    return item
+    print(f'    Kondition:     {term_type.name}, EP={unit_price} EUR, monatlich')
 
 
 def main():
@@ -187,7 +278,7 @@ def main():
 
     connect(args.database, args.config)
 
-    # Idempotenz: abbrechen, wenn Mieter 1 bereits existiert
+    # Idempotenz
     Party = Model.get('party.party')
     if Party.find([('name', '=', 'Mieter 1')]):
         print('Party "Mieter 1" existiert bereits. Abbruch.')
@@ -195,11 +286,13 @@ def main():
 
     company = get_company()
     currency = company.currency
-    property_obj = get_property()
-    apartments = get_apartments(property_obj, limit=3)
+    properties = get_properties()
     c_type = get_contract_type()
-    tt_rent = get_term_type(1000)   # Apartment rent
-    tt_nk = get_term_type(2000)     # Betriebskosten
+
+    tt_rent    = get_term_type(1000)  # Apartment rent
+    tt_nk      = get_term_type(2000)  # Betriebskosten
+    tt_hz      = get_term_type(3000)  # Heizkosten
+    tt_parking = get_term_type(1100)  # Miete Stellplatz
 
     Country = Model.get('country.country')
     countries = Country.find([('code', '=', 'DE')])
@@ -213,48 +306,171 @@ def main():
 
     print(f'Erzeuge Verträge für Company "{company.rec_name}" ...')
 
-    for i, apartment in enumerate(apartments, start=1):
-        print(f'\n--- Mieter {i} / Wohnung: {apartment.name} ---')
+    mieter_nr = 1  # läuft über alle Wirtschaftseinheiten durch
 
-        party, address = create_party(
-            name=f'Mieter {i}',
-            country=country,
-            lang=de_lang,
-        )
+    for prop in properties:
+        print(f'\n{"=" * 60}')
+        print(f'=== Wirtschaftseinheit: {prop.name} ===')
+        print(f'{"=" * 60}')
 
-        contract = create_contract(
-            company=company,
-            property_obj=property_obj,
-            c_type=c_type,
-            currency=currency,
-            partner=party,
-            invoice_address=address,
-            sequence=i * 10,
-        )
+        apartments = get_apartments(prop)
+        parking_spaces = get_parking_spaces(prop)
 
-        item = create_contract_item(
-            contract=contract,
-            apartment=apartment,
-            sequence=10,
-        )
+        if not apartments:
+            print(f'WARNUNG: Keine Wohnungen unter {prop.name} gefunden.')
+            continue
 
-        rent_price = Decimal(str(round(random.uniform(11, 16), 2)))
-        nk_price = Decimal(str(round(random.uniform(3, 4), 2)))
+        if len(parking_spaces) < 4:
+            print(f'WARNUNG: Weniger als 4 Stellplätze unter {prop.name} gefunden '
+                  f'(gefunden: {len(parking_spaces)}).')
 
-        create_contract_term(
-            contract=contract,
-            term_type=tt_rent,
-            reference_item=item,
-            unit_price=rent_price,
-            sequence=10,
-        )
-        create_contract_term(
-            contract=contract,
-            term_type=tt_nk,
-            reference_item=item,
-            unit_price=nk_price,
-            sequence=20,
-        )
+        # Zufällig 1 Wohnung leer lassen
+        vacant_idx = random.randrange(len(apartments))
+        print(f'\n  Leer bleibend: {apartments[vacant_idx].name} (Index {vacant_idx})')
+
+        # Verträge für alle Wohnungen außer der leerstehenden
+        contracts_this_prop = []
+        contract_seq = 10
+        for idx, apartment in enumerate(apartments):
+            if idx == vacant_idx:
+                print(f'\n  [LEER] {apartment.name} – kein Vertrag')
+                continue
+
+            print(f'\n--- Mieter {mieter_nr} / {apartment.name} ---')
+            party, address = create_party(
+                name=f'Mieter {mieter_nr}',
+                country=country,
+                lang=de_lang,
+            )
+            contract = create_contract(
+                company=company,
+                property_obj=prop,
+                c_type=c_type,
+                currency=currency,
+                partner=party,
+                invoice_address=address,
+                sequence=contract_seq,
+            )
+            item = create_contract_item(contract, apartment, sequence=10)
+
+            rent_price = Decimal(str(round(random.uniform(11, 16), 2)))
+            nk_price   = Decimal(str(round(random.uniform(3, 4), 2)))
+            hz_price   = Decimal(str(round(random.uniform(3, 4), 2)))
+
+            create_contract_term(contract, tt_rent, item, rent_price,   sequence=10)
+            create_contract_term(contract, tt_nk,   item, nk_price,     sequence=20)
+            create_contract_term(contract, tt_hz,   item, hz_price,     sequence=30)
+
+            contracts_this_prop.append(contract)
+            mieter_nr += 1
+            contract_seq += 10
+
+        # Stellplätze verteilen: 2x zu vorhandenem Vertrag, 2x neuer Einzelvertrag
+        n_to_add = min(2, len(parking_spaces), len(contracts_this_prop))
+        n_new = min(2, len(parking_spaces) - n_to_add,
+                    len(contracts_this_prop) - n_to_add)
+        total = n_to_add + n_new
+
+        selected = random.sample(contracts_this_prop, total) if total else []
+        add_to = selected[:n_to_add]
+        new_for = selected[n_to_add:]
+
+        print(f'\n--- Stellplatz zu vorhandenem Vertrag ({n_to_add}x) ---')
+        for contract, parking in zip(add_to, parking_spaces[:n_to_add]):
+            print(f'  Stellplatz "{parking.name}" → Vertrag id={contract.id}')
+            parking_item = create_contract_item(contract, parking, sequence=20)
+            create_contract_term(
+                contract, tt_parking, parking_item,
+                PARKING_PRICE, sequence=40,
+            )
+
+        parking_contracts = []
+        print(f'\n--- Neuer Stellplatz-Einzelvertrag ({n_new}x) ---')
+        for contract, parking in zip(new_for, parking_spaces[n_to_add:n_to_add + n_new]):
+            partner = contract.contractual_partner
+            address = contract.invoice_address
+            print(f'  Stellplatz "{parking.name}" → neuer Vertrag '
+                  f'für "{partner.rec_name}" (id={partner.id})')
+            p_contract = create_contract(
+                company=company,
+                property_obj=prop,
+                c_type=c_type,
+                currency=currency,
+                partner=partner,
+                invoice_address=address,
+                sequence=contract_seq,
+            )
+            contract_seq += 10
+            parking_item = create_contract_item(p_contract, parking, sequence=10)
+            create_contract_term(
+                p_contract, tt_parking, parking_item,
+                PARKING_PRICE, sequence=10,
+            )
+            parking_contracts.append(p_contract)
+
+        all_contracts = contracts_this_prop + parking_contracts
+        print(f'\n--- Verträge aktivieren ({len(all_contracts)}x) ---')
+        for c in all_contracts:
+            c.click('running')
+            print(f'  Vertrag id={c.id} → running')
+
+        n_term = min(len(TERMINATIONS), len(all_contracts))
+        to_terminate = random.sample(all_contracts, n_term)
+        print(f'\n--- Verträge kündigen ({n_term}x) ---')
+        for c, (term_date, receipt_date) in zip(to_terminate, TERMINATIONS):
+            terminate_contract(c, term_date, receipt_date)
+
+        # Follow-up contract for the 31.05.2025 termination
+        if n_term > 0:
+            pred = to_terminate[0]
+            followup_start = TERMINATIONS[0][0] + datetime.timedelta(days=1)
+            print(f'\n--- Folgevertrag für Kündigung {TERMINATIONS[0][0]} ---')
+            party, address = create_party(
+                name=f'Mieter {mieter_nr}',
+                country=country,
+                lang=de_lang,
+            )
+            mieter_nr += 1
+            followup = create_followup_contract(
+                terminated_contract=pred,
+                company=company,
+                property_obj=prop,
+                c_type=c_type,
+                currency=currency,
+                partner=party,
+                invoice_address=address,
+                start_date=followup_start,
+                sequence=contract_seq,
+            )
+            contract_seq += 10
+            followup.click('running')
+            print(f'  Folgevertrag id={followup.id} → running')
+
+        # Follow-up contract for the 31.07.2025 termination, starting 16.09.2025
+        if n_term > 1:
+            pred = to_terminate[1]
+            followup_start = datetime.date(2025, 9, 16)
+            print(f'\n--- Folgevertrag für Kündigung {TERMINATIONS[1][0]} ---')
+            party, address = create_party(
+                name=f'Mieter {mieter_nr}',
+                country=country,
+                lang=de_lang,
+            )
+            mieter_nr += 1
+            followup = create_followup_contract(
+                terminated_contract=pred,
+                company=company,
+                property_obj=prop,
+                c_type=c_type,
+                currency=currency,
+                partner=party,
+                invoice_address=address,
+                start_date=followup_start,
+                sequence=contract_seq,
+            )
+            contract_seq += 10
+            followup.click('running')
+            print(f'  Folgevertrag id={followup.id} → running')
 
     print('\nFertig.')
 

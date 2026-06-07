@@ -2,6 +2,7 @@
 from trytond.model import (sequence_ordered,
     DeactivableMixin, ModelSQL, ModelView, Workflow, fields)
 from trytond.model.exceptions import ValidationError
+from trytond.exceptions import UserWarning
 from trytond.i18n import gettext
 from trytond.pool import Pool
 from trytond.transaction import Transaction
@@ -20,7 +21,8 @@ logger = logging.getLogger(__name__)
 
 class InvalidCalculationMethod(ValidationError):
     pass
-
+class SelectionWarning(UserWarning):
+    pass
 
 #**********************************************************************
 class CostCategoryGroup(DeactivableMixin, sequence_ordered(), ModelSQL, ModelView):
@@ -241,15 +243,43 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
     @classmethod
     @ModelView.button
     def selection(cls, billing_units):
-        SettlementUnit = Pool().get('real_estate.settlement_unit')
+        pool = Pool()
+        SettlementUnit = pool.get('real_estate.settlement_unit')
+        SettlementResult = pool.get('real_estate.settlement_result')
+        Warning = pool.get('res.user.warning')
+
         for billing_unit in billing_units:
+            if billing_unit.state in ('draft', 'billed'):
+                raise ValidationError(gettext(
+                    'real_estate.msg_selection_invalid_state',
+                    name=billing_unit.name,
+                    state=billing_unit.state))
+
+            existing_results = SettlementResult.search([
+                ('billing_unit', '=', billing_unit.id)])
+            if existing_results:
+                key = Warning.format('selection_reset', [billing_unit])
+                if Warning.check(key):
+                    raise SelectionWarning(key, gettext(
+                        'real_estate.msg_selection_reset_warning',
+                        name=billing_unit.name))
+                SettlementResult.delete(existing_results)
+                billing_unit.add_log('selection',
+                    f'Deleted {len(existing_results)} settlement result(s)'
+                    f' before re-selection.')
+
             for su in billing_unit.settlement_units:
                 su.selection()
             sus = SettlementUnit.browse(
                 [su.id for su in billing_unit.settlement_units])
+            # no_allocation SUs create no cost_shares (sub_state stays
+            # 'preparation') — they count as done for the transition check.
             all_selection = all(
-                su.sub_state == 'selection' for su in sus)
-            if all_selection and billing_unit.state == 'approved':
+                su.sub_state == 'selection'
+                or su.allocation_rule == 'no_allocation'
+                for su in sus)
+            if all_selection and billing_unit.state in ('approved', 'selection',
+                    'value_share'):
                 billing_unit.add_log('state_change',
                     'billing unit state changed to selection')
                 billing_unit.state = 'selection'

@@ -2650,7 +2650,7 @@ msgctxt "view:real_estate.billing_unit:"
 msgid "Cost Objects"
 msgstr "Kostensammler"
 
-msgctxt "wizard_button:real_estate.contract.create_moves,start,end:"
+msgctxt "wizard_button:real_estate.contract.create_moves.wizard,start,end:"
 msgid "Cancel"
 msgstr "Abbruch"
 

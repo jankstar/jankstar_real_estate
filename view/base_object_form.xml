@@ -42,6 +42,7 @@ this repository contains the full copyright notices and license terms. -->
         <page string="Rental Object" id="page_object" col="6">
             <label name="floor"/><field name="floor"/>
             <label name="basement_nr"/><field name="basement_nr"/>
+            <label name="parking_nr"/><field name="parking_nr"/>
 
         </page>
 

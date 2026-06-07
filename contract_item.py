@@ -123,13 +123,13 @@ class ContractItem(sequence_ordered(), ModelSQL, ModelView, metaclass=PoolMeta):
                 continue
             if item.contract.start_date and item.valid_from < item.contract.start_date:
                 raise ValidationError(
-                    gettext('real_estate.msg_item_valid_from_before_contract_start',
+                    gettext('real_estate.msg_item_valid_from_before_contract_start').format(
                         item.rec_name,
                         item.valid_from.isoformat(),
                         item.contract.start_date.isoformat()))
             if item.contract.get_effective_end_date() and item.valid_from > item.contract.get_effective_end_date():
                 raise ValidationError(
-                    gettext('real_estate.msg_item_valid_from_after_contract_end',
+                    gettext('real_estate.msg_item_valid_from_after_contract_end').format(
                         item.rec_name,
                         item.valid_from.isoformat(),
                         item.contract.get_effective_end_date().isoformat()))
@@ -150,32 +150,31 @@ class ContractItem(sequence_ordered(), ModelSQL, ModelView, metaclass=PoolMeta):
         if contract_state == 'cancelled':
             return
 
+        # Use the already-computed occupancy table: it correctly accounts for
+        # termination dates, draft-state (under_negotiation), and only
+        # includes occupancy-type contracts.
+        pool = Pool()
+        BaseObjectOccupancy = pool.get('real_estate.base_object.occupancy')
+
         domain = [
-            ('object', '=', item.object.id),
-            ('contract.c_type.occupancy', '=', True),
-            ('contract.state', 'not in', ('cancelled',)),
-            ('id', '!=', item.id),
-            ['OR', ('valid_to', '=', None), ('valid_to', '>=', item.valid_from)],
+            ('base_object', '=', item.object.id),
+            ('state', 'in', ('rented', 'under_negotiation')),
+            ('contract', '!=', item.contract.id),
+            ['OR', ('end_date', '=', None), ('end_date', '>=', item.valid_from)],
         ]
         if item.valid_to:
-            domain.append(('valid_from', '<=', item.valid_to))
+            domain.append(('start_date', '<=', item.valid_to))
 
-        if not cls.search(domain):
+        if not BaseObjectOccupancy.search(domain):
             return
 
         obj_name = item.object.rec_name
         date_from = item.valid_from.isoformat() if item.valid_from else '?'
         date_to = item.valid_to.isoformat() if item.valid_to else 'open'
 
-        if contract_state in ('running', 'terminated'):
-            raise ValidationError(
-                gettext('real_estate.msg_occupancy_overlap',
-                    obj_name, date_from, date_to))
-        else:
-            cls.raise_user_warning(
-                f'occupancy_overlap_{item.id}',
-                'real_estate.msg_occupancy_overlap_warning',
-                obj_name, date_from, date_to)
+        raise ValidationError(
+            gettext('real_estate.msg_occupancy_overlap').format(
+                obj_name, date_from, date_to))
 
     @classmethod
     def create(cls, vlist):
@@ -187,11 +186,20 @@ class ContractItem(sequence_ordered(), ModelSQL, ModelView, metaclass=PoolMeta):
     def write(cls, *args):
         actions = iter(args)
         old_ids = set()
+        re_calc_contract_ids = set()
         for records, values in zip(actions, actions):
             old_ids.update(r.id for r in records)
+            if not Transaction().context.get('_skip_re_calc') and \
+                    {'valid_from', 'valid_to'} & set(values):
+                for r in records:
+                    if r.contract:
+                        re_calc_contract_ids.add(r.contract.id)
         super().write(*args)
         updated = cls.browse(list(old_ids))
         cls._refresh_occupancy(updated)
+        if re_calc_contract_ids:
+            Contract = Pool().get('real_estate.contract')
+            Contract._re_calc_terms(Contract.browse(list(re_calc_contract_ids)))
 
     @classmethod
     def delete(cls, records):

@@ -198,6 +198,8 @@ class SettlementUnit(DeactivableMixin, base_object.re_sequence_ordered(), ModelS
         return self.billing_unit.state if self.billing_unit else None
 
     def get_sub_state(self, name):
+        if self.allocation_rule == 'no_allocation':
+            return 'no_allocation'
         if self.cost_shares:
             states = set(cs.state for cs in self.cost_shares)
             if len(states) == 1:
@@ -210,23 +212,13 @@ class SettlementUnit(DeactivableMixin, base_object.re_sequence_ordered(), ModelS
                 return 'estimated_value_share'
             elif 'value_share' in states:
                 return 'value_share'
+        elif self.vacancy == 'no_allocation':
+            return 'no_allocation'
         return 'preparation'
 
     @fields.depends('cost_shares')
     def on_change_with_sub_state(self, name=None):
-        if self.cost_shares:
-            states = set(cs.state for cs in self.cost_shares)
-            if len(states) == 1:
-                return states.pop()
-            elif 'error' in states:
-                return 'error'
-            elif 'selection' in states:
-                return 'selection'
-            elif 'estimated_value_share' in states:
-                return 'estimated_value_share'
-            elif 'value_share' in states:
-                return 'value_share'
-        return 'preparation'
+        return self.get_sub_state(name)
 
     @fields.depends('billing_unit')
     def on_change_with_property(self, name=None):
@@ -333,9 +325,11 @@ class SettlementUnit(DeactivableMixin, base_object.re_sequence_ordered(), ModelS
         if self.cost_shares:
             CostShare.delete(list(self.cost_shares))
 
-        if self.allocation_rule == 'allocation_from_external_billing':
-            self._selection_external_billing()
+        if self.allocation_rule == 'no_allocation':
+            self.billing_unit.add_log('selection',
+                f'Settlement unit {self.id}: no_allocation — selection skipped.')
             return
+
 
         Occupancy = Pool().get('real_estate.base_object.occupancy')
         is_weg = self.billing_unit.calculation_method == 'WEG_billing'
@@ -418,53 +412,6 @@ class SettlementUnit(DeactivableMixin, base_object.re_sequence_ordered(), ModelS
 
         self.billing_unit.add_log('selection',
             f'Settlement unit {self.id} selection completed: {object_count} objects processed.')
-        self.save()
-
-    def _selection_external_billing(self):
-        """Create one CostShare per rented contract in the billing period.
-        Costs are entered manually by the user — no proportional calculation."""
-        CostShare = Pool().get('real_estate.cost_share')
-        Occupancy = Pool().get('real_estate.base_object.occupancy')
-        bu_start = self.billing_unit.start_date
-        bu_end = self.billing_unit.end_date
-        seen_contracts = set()
-        object_count = 0
-
-        for obj in self.objects:
-            if not (obj.state == 'approved'
-                    and obj.start_date <= bu_end
-                    and (obj.end_date is None or obj.end_date >= bu_start)):
-                continue
-            object_count += 1
-            Occupancy.refresh([obj])
-            entries = Occupancy.search([
-                ('base_object', '=', obj.id),
-                ('start_date', '<=', bu_end),
-                ('state', '=', 'rented'),
-                ['OR', ('end_date', '=', None), ('end_date', '>=', bu_start)],
-            ], order=[('start_date', 'DESC')], limit=1)
-            if not entries or not entries[0].contract:
-                self.billing_unit.add_log('selection_error',
-                    f'Settlement unit {self.id}: no rented contract found'
-                    f' for object {obj.id}.')
-                continue
-            contract_id = entries[0].contract.id
-            if contract_id in seen_contracts:
-                continue
-            seen_contracts.add(contract_id)
-            cost_share = CostShare(
-                settlement_unit=self.id,
-                contract=contract_id,
-                base_object=obj.id,
-                start_date=bu_start,
-                end_date=bu_end,
-                state='selection',
-            )
-            cost_share.save()
-
-        self.billing_unit.add_log('selection',
-            f'Settlement unit {self.id} external billing selection: '
-            f'{object_count} objects, {len(seen_contracts)} contracts.')
         self.save()
 
     def selection_actual_costs(self):

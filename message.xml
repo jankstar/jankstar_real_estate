@@ -55,6 +55,12 @@
         <record model="ir.message" id="msg_item_valid_from_after_contract_end">
             <field name="text">Contract item "{}": Valid from ({}) must not be after the contract end date ({})!</field>
         </record>
+        <record model="ir.message" id="msg_selection_invalid_state">
+            <field name="text">Cannot run selection for "%(name)s": not allowed in state '%(state)s'.</field>
+        </record>
+        <record model="ir.message" id="msg_selection_reset_warning">
+            <field name="text">Selection for "%(name)s": existing cost shares and settlement results will be deleted. Continue?</field>
+        </record>
         <record model="ir.message" id="msg_billing_unit_chronological_order">
             <field name="text">The following billing units must be billed first (chronological order): %(names)s</field>
         </record>

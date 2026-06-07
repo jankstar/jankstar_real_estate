@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<form col="4">
+    <label name="contracts_count"/><field name="contracts_count"/>
+    <label name="action"/><field name="action"/>
+    <newline/>
+    <label name="mode"/><field name="mode" colspan="3"/>
+    <newline/>
+    <label name="message" string=" "/>
+    <field name="message" colspan="3" widget="text" readonly="1"/>
+</form>

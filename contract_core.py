@@ -635,7 +635,7 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
                 'depends': ['state'],
                 },
             'open_party_ledger': {
-                'invisible': (~Eval('state').in_(['draft']))
+                'invisible': Eval('state').in_(['draft'])
                 }
             })
 
@@ -669,7 +669,6 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
             contract.termination_date = None
             contract.termination_reason = None
             contract.save()
-        cls._refresh_occupancy_for_contracts(contrats)
 
     @classmethod
     @ModelView.button_action('real_estate.wizard_terminate_contract')
@@ -685,7 +684,6 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
             contract.add_log('state_change', f'contract state changed to cancelled')
             contract.state = 'cancelled'
             contract.save()
-        cls._refresh_occupancy_for_contracts(contrats)
 
     @classmethod
     @ModelView.button
@@ -715,23 +713,46 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
         'termination_notice', 'receipt_of_termination_notice',
     })
 
+    _RE_CALC_CONTRACT_FIELDS = frozenset({
+        'state', 'start_date', 'end_date', 'termination_date', 'start_booking_date',
+    })
+
+    @classmethod
+    def _re_calc_terms(cls, contracts):
+        """Rebuild cash flows for all terms of the given contracts (once per contract)."""
+        with Transaction().set_context(_skip_re_calc=True):
+            for contract in contracts:
+                if contract.state not in ('running', 'terminated'):
+                    continue
+                for term in contract.terms:
+                    term.re_calc()
+                    term.next_document_date = term.on_change_with_next_document_date()
+                    term.next_due_date = term.on_change_with_next_due_date()
+                    term.save()
+
     @classmethod
     def write(cls, *args):
         super().write(*args)
-        contract_ids = set()
+        occ_ids = set()
+        re_calc_ids = set()
         actions = iter(args)
         for records, values in zip(actions, actions):
             if cls._COMPUTE_VALUE_SHARES_FIELDS & set(values):
                 for c in records:
-                    contract_ids.add(c.id)
-        if contract_ids:
-            fresh = cls.browse(list(contract_ids))
+                    occ_ids.add(c.id)
+            if cls._RE_CALC_CONTRACT_FIELDS & set(values):
+                for c in records:
+                    re_calc_ids.add(c.id)
+        if occ_ids:
+            fresh = cls.browse(list(occ_ids))
             cls._refresh_occupancy_for_contracts(fresh)
             BaseObject = Pool().get('real_estate.base_object')
             property_ids = {c.property.id for c in fresh if c.property}
             if property_ids:
                 BaseObject.compute_value_shares(
                     BaseObject.browse(list(property_ids)))
+        if re_calc_ids and not Transaction().context.get('_skip_re_calc'):
+            cls._re_calc_terms(cls.browse(list(re_calc_ids)))
 
     @classmethod
     def set_cash_flow(cls, record, name, value):
@@ -1009,7 +1030,8 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
             )
             Invoice.save([invoice])
             if invoice_state == 'posted':
-                Invoice.post([invoice])
+                with Transaction().set_context(_skip_warnings=True):
+                    Invoice.post([invoice])
             self.add_log('process',
                 f'contract {self.id} / invoice {invoice.id} saved'
                 f' (state={invoice_state}, posting_date={posting_date}).')

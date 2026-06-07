@@ -424,7 +424,10 @@ class ContractTerm(sequence_ordered(), ModelSQL, ModelView, TaxableMixin):
     reference_item = fields.Many2One('real_estate.contract.item', 'Reference Item',
             ondelete='RESTRICT',
             domain=[('contract', '=', Eval('contract', -1)),
-                    ],)
+                    ],
+            help=("Newly assigned objects only appear here after saving the contract. "
+                  "If a recently added object is missing, save first (Ctrl+S), "
+                  "then add the term."))
 
     valid_from = fields.Date('Valid from', required=True)
     valid_to = fields.Date('Valid to',
@@ -586,6 +589,27 @@ class ContractTerm(sequence_ordered(), ModelSQL, ModelView, TaxableMixin):
         Object = pool.get('real_estate.contract.term.type')
         return Object.fields_get(['rhythm_start'])['rhythm_start']['selection']
 
+    _RE_CALC_TERM_FIELDS = frozenset({
+        'unit_price', 'quantity', 'rhythm', 'rhythm_type', 'rhythm_start',
+        'valid_from', 'valid_to', 'term_type',
+    })
+
+    @classmethod
+    def write(cls, *args):
+        super().write(*args)
+        if Transaction().context.get('_skip_re_calc'):
+            return
+        contract_ids = set()
+        actions = iter(args)
+        for records, values in zip(actions, actions):
+            if cls._RE_CALC_TERM_FIELDS & set(values):
+                for r in records:
+                    if r.contract:
+                        contract_ids.add(r.contract.id)
+        if contract_ids:
+            Contract = Pool().get('real_estate.contract')
+            Contract._re_calc_terms(Contract.browse(list(contract_ids)))
+
     def re_calc(self):
         pool = Pool()
         InvoiceLine = pool.get('account.invoice.line')
@@ -625,7 +649,9 @@ class ContractTerm(sequence_ordered(), ModelSQL, ModelView, TaxableMixin):
 
         my_last_document_date = self.last_document_date
         my_next_document_date = self._next_document_date(calc_document_date=my_last_document_date)
-        while (my_last_document_date is None or my_last_document_date < my_next_document_date) and self.total_amount != 0 \
+        while my_next_document_date is not None \
+            and (my_last_document_date is None or my_last_document_date < my_next_document_date) \
+            and self.total_amount != 0 \
             and (not self.valid_from or my_next_document_date >= self.valid_from) \
             and (not self.valid_to or my_next_document_date <= self.valid_to) \
             and my_next_document_date <= today_plus_year:
@@ -706,13 +732,13 @@ class ContractTerm(sequence_ordered(), ModelSQL, ModelView, TaxableMixin):
                 continue
             if term.contract.start_date and term.valid_from < term.contract.start_date:
                 raise ValidationError(
-                    gettext('real_estate.msg_term_valid_from_before_contract_start',
+                    gettext('real_estate.msg_term_valid_from_before_contract_start').format(
                         term.rec_name,
                         term.valid_from.isoformat(),
                         term.contract.start_date.isoformat()))
             if term.contract.get_effective_end_date() and term.valid_from > term.contract.get_effective_end_date():
                 raise ValidationError(
-                    gettext('real_estate.msg_term_valid_from_after_contract_end',
+                    gettext('real_estate.msg_term_valid_from_after_contract_end').format(
                         term.rec_name,
                         term.valid_from.isoformat(),
                         term.contract.get_effective_end_date().isoformat()))
@@ -891,9 +917,9 @@ class ContractTerm(sequence_ordered(), ModelSQL, ModelView, TaxableMixin):
         if self.term_type and self.term_type.m_type:
             return self.term_type.m_type.unit
         uom = Pool().get('product.uom')
-        default_uom, = uom.search([('name', '=', 'Unit')], limit=1)
-        if default_uom:
-            return default_uom.id
+        results = uom.search([('name', '=', 'Unit')], limit=1)
+        if results:
+            return results[0].id
         return None
 
     def _calc_quantity(self):

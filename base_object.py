@@ -239,7 +239,15 @@ class BaseObject(Workflow, DeactivableMixin, re_sequence_ordered(), tree(separat
     floor = fields.Integer("Floor",
         states=_states_only_object)
     basement_nr = fields.Char("Basement Number", size=10,
-        states=_states_only_object)
+        states={
+            'invisible': (Eval('type') != 'object')
+                | Eval('use_class', '').in_(['parking', 'garage']),
+        })
+    parking_nr = fields.Char("Parking Number", size=10,
+        states={
+            'invisible': (Eval('type') != 'object')
+                | ~Eval('use_class', '').in_(['parking', 'garage']),
+        })
 
     ## special equipment data
     _states_only_equipment = {
@@ -699,6 +707,7 @@ class BaseObjectOccupancy(ModelSQL, ModelView):
     state = fields.Selection([
         ('rented', 'Rented'),
         ('vacant', 'Vacant'),
+        ('under_negotiation', 'Under Negotiation'),
     ], 'State', readonly=True)
     contract = fields.Many2One('real_estate.contract', 'Contract',
         readonly=True, ondelete='SET NULL')
@@ -739,7 +748,7 @@ class BaseObjectOccupancy(ModelSQL, ModelView):
         items = ContractItem.search([
             ('object', '=', base_object.id),
             ('contract.c_type.occupancy', '=', True),
-            ('contract.state', 'in', ('running', 'terminated')),
+            ('contract.state', 'in', ('running', 'terminated', 'draft')),
         ], order=[('valid_from', 'ASC')])
 
         ref_start = base_object.start_date
@@ -752,9 +761,11 @@ class BaseObjectOccupancy(ModelSQL, ModelView):
         for item in items:
             item_start = max(item.valid_from, ref_start) if item.valid_from else ref_start
             item_end = item.valid_to
-            contract_end = item.contract.get_effective_end_date() if item.contract else None
-            if contract_end:
-                item_end = min(item_end, contract_end) if item_end else contract_end
+            # effective end date (termination) only applies to active contracts
+            if item.contract and item.contract.state in ('running', 'terminated'):
+                contract_end = item.contract.get_effective_end_date()
+                if contract_end:
+                    item_end = min(item_end, contract_end) if item_end else contract_end
             if ref_end:
                 item_end = min(item_end, ref_end) if item_end else ref_end
 
@@ -768,12 +779,16 @@ class BaseObjectOccupancy(ModelSQL, ModelView):
                     'contract': None,
                 })
 
+            state = ('rented'
+                if item.contract.state in ('running', 'terminated')
+                else 'under_negotiation')
+
             records.append({
                 'base_object': base_object.id,
                 'property': prop_id,
                 'start_date': item_start,
                 'end_date': item_end,
-                'state': 'rented',
+                'state': state,
                 'contract': item.contract.id,
             })
 
@@ -887,12 +902,17 @@ class BaseObjectOccupancyContext(ModelView):
                 [('property', '=', Eval('property', None))],
                 []),
         ])
-    from_date = fields.Date('From Date')
-    to_date = fields.Date('To Date')
+    from_date = fields.Date('From Date',
+        states={'invisible': Eval('current_only', False)})
+    to_date = fields.Date('To Date',
+        states={'invisible': Eval('current_only', False)})
+    current_only = fields.Boolean('Current Only',
+        help="Show only occupancies active today, regardless of date range.")
     state = fields.Selection([
         (None, ''),
         ('rented', 'Rented'),
         ('vacant', 'Vacant'),
+        ('under_negotiation', 'Under Negotiation'),
     ], 'State', sort=False)
 
     @classmethod
@@ -908,6 +928,10 @@ class BaseObjectOccupancyContext(ModelView):
     def default_to_date(cls):
         today = Pool().get('ir.date').today()
         return today.replace(month=12, day=31)
+
+    @classmethod
+    def default_current_only(cls):
+        return False
 
 
 #**************************************************************************

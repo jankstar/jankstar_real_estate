@@ -20,6 +20,8 @@ Das Skript legt folgende Objekte an:
       - Initialablesung 0 m³ zum 01.01.2025
       - Ablesung zum 30.04.2025 mit zufälligem Verbrauch zwischen 20 und 40 m³
       Die Zähler-ID wird automatisch generiert (Format: Z-<Jahr>-<Nr>, z.B. Z-2025-0001).
+  - 1 Grundstück (Land) direkt unter der Wirtschaftseinheit mit 4 Stellplätzen
+      (Type of Use: commercial, Use: parking), Stellplatznummern 01–04.
 
 Das Skript ist idempotent: es bricht ab, wenn eine Property mit dem Namen
 "Musterstraße 1-4" oder "Musterstraße 5-8" in der Zieldatenbank bereits vorhanden ist.
@@ -192,6 +194,29 @@ def create_meter(parent, name: str, sequence: int, company, uom, admin_user) -> 
     print(f'    Zähler:    {name} (id={obj.id}, meter_id={meter_id}, Verbrauch={verbrauch} m³)')
 
 
+def create_land_with_parking(prop_name: str, prop, company, sequence: int) -> None:
+    """Create one land entry with 4 parking spaces under the given property."""
+    land = create_base_object(
+        name=f'{prop_name} – Grundstück',
+        obj_type='land',
+        company=company,
+        sequence=sequence,
+        parent=prop,
+    )
+    for i in range(1, 5):
+        sp = create_base_object(
+            name=f'Stellplatz {i:02d}',
+            obj_type='object',
+            company=company,
+            sequence=i * 10,
+            parent=land,
+            type_of_use='residential',
+            use_class='parking',
+        )
+        sp.parking_nr = f'{i:02d}'
+        sp.save()
+
+
 def create_building(house_nr: int, building_seq: int, prop, company,
                     country, t_bgf, t_raume, t_wfl, uom_m3, admin_user,
                     apt_start_nr: int) -> int:
@@ -300,6 +325,8 @@ def main():
             house_nr=house_nr, building_seq=building_seq,
             prop=prop1, apt_start_nr=apt_nr, **building_args,
         )
+    print('\n--- Grundstück Musterstraße 1-4 ---')
+    create_land_with_parking('Musterstraße 1-4', prop1, company, sequence=50)
 
     # Wirtschaftseinheit 2: Musterstraße 5-8
     print('\n=== Wirtschaftseinheit: Musterstraße 5-8 ===')
@@ -314,6 +341,8 @@ def main():
             house_nr=house_nr, building_seq=building_seq,
             prop=prop2, apt_start_nr=apt_nr, **building_args,
         )
+    print('\n--- Grundstück Musterstraße 5-8 ---')
+    create_land_with_parking('Musterstraße 5-8', prop2, company, sequence=50)
 
     print('\nFertig.')
 

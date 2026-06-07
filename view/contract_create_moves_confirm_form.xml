@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<form col="4">
+    <group col="4" id="gr_selection" string="Selection">
+        <label name="date"/><field name="date"/>
+        <label name="action"/><field name="action"/>
+        <newline/>
+        <label name="invoice_state"/><field name="invoice_state"/>
+        <label name="execute_in_queue"/><field name="execute_in_queue"/>
+        <newline/>
+        <label name="n_properties"/><field name="n_properties"/>
+        <label name="n_contracts"/><field name="n_contracts"/>
+    </group>
+    <newline/>
+    <group col="4" id="gr_result" string="Matching Contracts">
+        <label name="contracts_count"/><field name="contracts_count" colspan="3"/>
+    </group>
+</form>
