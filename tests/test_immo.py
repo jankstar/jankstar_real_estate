@@ -258,7 +258,7 @@ def create_building(house_nr: int, building_seq: int, prop, company,
         )
         create_measurement(apt, t_raume, float(rooms))
         create_measurement(apt, t_wfl, area)
-        create_meter(apt, f'Zähler {nr:02d}', sequence=10,
+        create_meter(apt, f'Wasser Zähler {nr:02d}', sequence=10,
                      company=company, uom=uom_m3, admin_user=admin_user)
 
     return apt_start_nr + 4
