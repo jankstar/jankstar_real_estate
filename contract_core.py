@@ -640,13 +640,10 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
             })
 
     @classmethod
-    @ModelView.button
+    @ModelView.button_action(
+            'real_estate.act_general_ledger_account_contract_form_contract')
     def open_party_ledger(cls, contracts):
-        for contract in contracts:
-            if contract.contractual_partner:
-                return 'act_party_ledger_from_contract', {
-                    'contractual_partner': contract.contractual_partner.id
-                }
+        pass
 
     @classmethod
     def view_attributes(cls):

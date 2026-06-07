@@ -982,8 +982,18 @@
         </record>
 
         <record model="real_estate.contract.term.type" id="contract_term_type_operating_costs">    
-            <field name="name">Operating costs (monthly)</field>
+            <field name="name">AP for Operating costs (monthly)</field>
             <field name="sequence" >2000</field>
+            <field name="types_of_use" eval="['residential', 'commercial', 'internal']" />
+            <field name="m_type" ref="measurement_living_space_type" />
+            <field name="default_quantity">1</field>
+            <field name="rhythm">1</field>
+            <field name="rhythm_type">monthly</field>
+        </record>
+
+        <record model="real_estate.contract.term.type" id="contract_term_type_heating_costs">    
+            <field name="name">AP for Heating costs (monthly)</field>
+            <field name="sequence" >3000</field>
             <field name="types_of_use" eval="['residential', 'commercial', 'internal']" />
             <field name="m_type" ref="measurement_living_space_type" />
             <field name="default_quantity">1</field>
