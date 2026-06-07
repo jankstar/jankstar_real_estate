@@ -556,8 +556,8 @@ Extensions to Core Modules
 Wizards
 =======
 
-``real_estate.contract.create_moves``  (``contract_wizard.py``,
-class ``CreateContractMoves``)
+``real_estate.contract.create_moves.wizard``  (``contract_wizard.py``,
+class ``CreateContractMovesWizard``)
    Batch invoice generation wizard. Supports three actions:
 
    ``create``
@@ -586,11 +586,11 @@ Reports
 
 HTML templates are located in ``report/``.
 
-``real_estate.contract.report``  (``contract_wizard.py``)
+``real_estate.contract.report``  (``contract_report.py``)
    General contract report.
    Templates: ``contract_en.html``, ``contract_letter_de.html``.
 
-``real_estate.contract.annex4.report``  (``contract_wizard.py``)
+``real_estate.contract.annex4.report``  (``contract_report.py``)
    Annex 4 – Betriebskostenaufstellung.
    Template: ``anlage4_contract_de.html``.
    Renders grouped operating cost positions with BetrKV paragraph references
@@ -627,7 +627,8 @@ Source Layout
    ├── contract_item.py         # real_estate.contract.item
    ├── contract_term.py         # real_estate.contract.term, cash_flow, Quantitative
    ├── contract_type.py         # real_estate.contract.type, term.type
-   ├── contract_wizard.py       # wizards, ContractReport, ContractAnnex4Report
+   ├── contract_report.py       # ContractReport, ContractAnnex4Report
+   ├── contract_wizard.py       # wizards (CreateContractMovesWizard, TerminateContractWizard, …)
    ├── invoice.py               # extensions to account.invoice / invoice.line
    ├── measurement.py           # real_estate.measurement.type, measurement
    ├── object_party.py          # real_estate.object_party, object_party.role
