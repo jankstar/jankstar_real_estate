@@ -459,7 +459,7 @@
             <field name="context"></field>
             <field name="context_model">real_estate.base_object.equipment.context</field>
             <field name="context_domain"
-                eval="[('company', '=', Eval('company', -1)), If(Eval('property', None), [('property', '=', Eval('property', None))], []), If(Eval('e_type', None), [('e_type', '=', Eval('e_type', None))], [])]"
+                eval="[('company', '=', Eval('company', -1)), If(Eval('property', None), [('property', '=', Eval('property', None))], []), If(Eval('parent', None), [('parent', '=', Eval('parent', None))], []), If(Eval('e_type', None), [('e_type', '=', Eval('e_type', None))], [])]"
                 pyson="1"/>
         </record>
         <record model="ir.action.act_window.view" id="act_equipment_form_view1">
@@ -506,6 +506,47 @@
             <field name="domain"></field>
             <field name="act_window" ref="act_equipment_form"/>
         </record>
+
+        <!-- MeterReading -->
+        <record model="ir.ui.view" id="meter_reading_context_form_view">
+            <field name="model">real_estate.meter_reading.context</field>
+            <field name="type">form</field>
+            <field name="name">meter_reading_context_form</field>
+        </record>
+        <record model="ir.ui.view" id="meter_reading_view_list">
+            <field name="model">real_estate.meter_reading</field>
+            <field name="type">tree</field>
+            <field name="name">meter_reading_list</field>
+        </record>
+        <record model="ir.ui.view" id="meter_reading_view_form">
+            <field name="model">real_estate.meter_reading</field>
+            <field name="type">form</field>
+            <field name="name">meter_reading_form</field>
+        </record>
+
+        <record model="ir.action.act_window" id="act_meter_reading_form">
+            <field name="name">Meter Readings</field>
+            <field name="res_model">real_estate.meter_reading</field>
+            <field name="context_model">real_estate.meter_reading.context</field>
+            <field name="context_domain"
+                eval="[('company', '=', Eval('company', -1)), If(Eval('property', None), [('base_object.property', '=', Eval('property', None))], []), If(Eval('parent', None), [('base_object.parent', '=', Eval('parent', None))], []), If(Eval('equipment', None), [('base_object', '=', Eval('equipment', None))], []), If(Eval('from_date', None), [('reading_date', '&gt;=', Eval('from_date', None))], []), If(Eval('to_date', None), [('reading_date', '&lt;=', Eval('to_date', None))], [])]"
+                pyson="1"/>
+        </record>
+        <record model="ir.action.act_window.view" id="act_meter_reading_form_view1">
+            <field name="sequence" eval="10"/>
+            <field name="view" ref="meter_reading_view_list"/>
+            <field name="act_window" ref="act_meter_reading_form"/>
+        </record>
+        <record model="ir.action.act_window.view" id="act_meter_reading_form_view2">
+            <field name="sequence" eval="20"/>
+            <field name="view" ref="meter_reading_view_form"/>
+            <field name="act_window" ref="act_meter_reading_form"/>
+        </record>
+        <menuitem
+            parent="menu_real_estate_masta_data"
+            action="act_meter_reading_form"
+            sequence="60"
+            id="menu_meter_reading_form"/>
 
         <record model="ir.action.act_window" id="act_open_child_base_object">
             <field name="name">Object</field>

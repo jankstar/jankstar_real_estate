@@ -838,13 +838,19 @@ class BaseObjectEquipmentContext(ModelView):
             ('type', '=', 'property'),
             ('company', '=', Eval('company', -1)),
         ])
-    e_type = fields.Selection([
-            (None, ''),
-            ('technical_building_equipment,', 'Technical Building Equipment'),
-            ('structure', 'Structures'),
-            ('installation', 'Installation'),
-            ('meters', 'Meters'),
-        ], 'Equipment Type', sort=False)
+    parent = fields.Many2One('real_estate.base_object', 'Parent Object',
+        domain=[
+            ('company', '=', Eval('company', -1)),
+        ])
+    e_type = fields.Selection('get_e_type', 'Equipment Type', sort=False)
+
+    @classmethod
+    def get_e_type(cls):
+        pool = Pool()
+        BaseObject = pool.get('real_estate.base_object')
+        return [(None, '')] + [
+            (k, v) for k, v in BaseObject._fields['e_type'].selection
+            if k is not None]
 
     @classmethod
     def default_company(cls):
@@ -908,12 +914,13 @@ class BaseObjectOccupancyContext(ModelView):
         states={'invisible': Eval('current_only', False)})
     current_only = fields.Boolean('Current Only',
         help="Show only occupancies active today, regardless of date range.")
-    state = fields.Selection([
-        (None, ''),
-        ('rented', 'Rented'),
-        ('vacant', 'Vacant'),
-        ('under_negotiation', 'Under Negotiation'),
-    ], 'State', sort=False)
+    state = fields.Selection('get_state', 'State', sort=False)
+
+    @classmethod
+    def get_state(cls):
+        pool = Pool()
+        Occupancy = pool.get('real_estate.base_object.occupancy')
+        return [(None, '')] + list(Occupancy._fields['state'].selection)
 
     @classmethod
     def default_company(cls):
@@ -935,6 +942,47 @@ class BaseObjectOccupancyContext(ModelView):
 
 
 #**************************************************************************
+class MeterReadingContext(ModelView):
+    'Meter Reading Context'
+    __name__ = 'real_estate.meter_reading.context'
+
+    company = fields.Many2One('company.company', 'Company', required=True)
+    property = fields.Many2One('real_estate.base_object', 'Property',
+        domain=[
+            ('type', '=', 'property'),
+            ('company', '=', Eval('company', -1)),
+        ])
+    parent = fields.Many2One('real_estate.base_object', 'Parent Object',
+        domain=[
+            ('company', '=', Eval('company', -1)),
+        ])
+    equipment = fields.Many2One('real_estate.base_object', 'Equipment',
+        domain=[
+            ('type', '=', 'equipment'),
+            ('e_type', '=', 'meters'),
+            If(Eval('parent', None),
+                [('parent', '=', Eval('parent', None))],
+                []),
+            ('company', '=', Eval('company', -1)),
+        ])
+    from_date = fields.Date('From Date')
+    to_date = fields.Date('To Date')
+
+    @classmethod
+    def default_company(cls):
+        return Transaction().context.get('company')
+
+    @classmethod
+    def default_from_date(cls):
+        today = Pool().get('ir.date').today()
+        return today.replace(month=1, day=1)
+
+    @classmethod
+    def default_to_date(cls):
+        return Pool().get('ir.date').today()
+
+
+#**************************************************************************
 class MeterReading(ModelSQL, ModelView):
     "Meter Reading"
     __name__ = 'real_estate.meter_reading'
@@ -949,8 +997,10 @@ class MeterReading(ModelSQL, ModelView):
             ('final', 'final reading, removal'),
             ], "Reading Type", required=True, sort=False)
 
+    company = fields.Many2One('company.company', 'Company', required=True)
     base_object = fields.Many2One('real_estate.base_object', 'Base Object', required=True, ondelete='CASCADE',
-        domain=[('type', '=', 'equipment'), ('e_type', '=', 'meters')],
+        domain=[('type', '=', 'equipment'), ('e_type', '=', 'meters'),
+                ('company', '=', Eval('company', -1))],
         )
     meter_id = fields.Char("Meter ID", required=True)
     reading_date = fields.Date("Reading Date", required=True)
@@ -960,6 +1010,15 @@ class MeterReading(ModelSQL, ModelView):
             readonly=True,),'on_change_with_unit')
     consumption = fields.Function(Quantitative("Consumption", unit='unit',digits='unit',), 
         'on_change_with_consumption')
+
+    @classmethod
+    def default_company(cls):
+        return Transaction().context.get('company')
+
+    @fields.depends('base_object')
+    def on_change_base_object(self):
+        if self.base_object and self.base_object.company:
+            self.company = self.base_object.company
 
     @classmethod
     def default_reading_user(cls):

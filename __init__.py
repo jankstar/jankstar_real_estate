@@ -33,6 +33,7 @@ def register():
         base_object.BaseObjectContext,
         base_object.BaseObjectOccupancy,
         base_object.BaseObjectOccupancyContext,
+        base_object.MeterReadingContext,
         base_object.MeterReading,
         object_party.ObjectPartyRole,
         object_party.ObjectParty,

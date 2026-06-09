@@ -42,6 +42,18 @@ class CostType(DeactivableMixin, sequence_ordered(), ModelSQL, ModelView):
     category_group = fields.Many2One(
         'real_estate.cost_category_group', "Category Group",
         ondelete='SET NULL')
+    reading_pre_days = fields.Integer("Valid Reading Pre-Days",
+        help="Days before the target date within which a meter reading is accepted.")
+    reading_post_days = fields.Integer("Valid Reading Post-Days",
+        help="Days after the target date within which a meter reading is accepted.")
+
+    @staticmethod
+    def default_reading_pre_days():
+        return 7
+
+    @staticmethod
+    def default_reading_post_days():
+        return 7
 
 #**********************************************************************
 class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, ModelView):
@@ -191,7 +203,7 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
                     'depends': ['state'],
                     },
                 'selection': {
-                    'invisible': ~Eval('state').in_(['approved', 'selection']),
+                    'invisible': Eval('state').in_(['draft', 'billed']),
                     'depends': ['state'],
                     },
                 'compute_value_shares_button': {
@@ -288,9 +300,25 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
     @classmethod
     @ModelView.button
     def compute_value_shares_button(cls, billing_units):
-        SettlementUnit = Pool().get('real_estate.settlement_unit')
-        value_share_ids = []
+        pool = Pool()
+        SettlementUnit = pool.get('real_estate.settlement_unit')
+        SettlementResult = pool.get('real_estate.settlement_result')
+        Warning = pool.get('res.user.warning')
+
         for billing_unit in billing_units:
+            existing_results = SettlementResult.search([
+                ('billing_unit', '=', billing_unit.id)])
+            if existing_results:
+                key = Warning.format('value_share_reset', [billing_unit])
+                if Warning.check(key):
+                    raise SelectionWarning(key, gettext(
+                        'real_estate.msg_value_share_reset_warning',
+                        name=billing_unit.name))
+                SettlementResult.delete(existing_results)
+                billing_unit.add_log('compute_value_shares',
+                    f'Deleted {len(existing_results)} settlement result(s)'
+                    f' before recomputing value shares.')
+
             for su in billing_unit.settlement_units:
                 su.compute_value_shares()
             sus = SettlementUnit.browse(
@@ -301,11 +329,7 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
                 billing_unit.add_log('state_change',
                     'billing unit state changed to value_share')
                 billing_unit.state = 'value_share'
-                value_share_ids.append(billing_unit.id)
             billing_unit.save()
-        if value_share_ids:
-            refreshed = cls.browse(value_share_ids)
-            cls.compute_settlement_result(refreshed)
 
     @classmethod
     def _check_chronological_order(cls, billing_units):

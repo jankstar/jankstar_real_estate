@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<tree>
+    <field name="company"/>
+    <field name="reading_date"/>
+    <field name="base_object"/>
+    <field name="meter_id"/>
+    <field name="m_type"/>
+    <field name="value"/>
+    <field name="unit"/>
+    <field name="consumption"/>
+    <field name="reading_user"/>
+</tree>

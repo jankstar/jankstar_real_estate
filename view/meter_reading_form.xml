@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<form col="6">
+    <label name="company"/><field name="company" colspan="2"/>
+    <newline/>
+    <label name="base_object"/><field name="base_object" colspan="2"/>
+    <label name="meter_id"/><field name="meter_id" colspan="2"/>
+    <newline/>
+    <label name="reading_date"/><field name="reading_date" colspan="2"/>
+    <label name="m_type"/><field name="m_type" colspan="2"/>
+    <newline/>
+    <label name="value"/><field name="value" colspan="2"/>
+    <label name="unit"/><field name="unit" colspan="2"/>
+    <newline/>
+    <label name="consumption"/><field name="consumption" colspan="2"/>
+    <label name="reading_user"/><field name="reading_user" colspan="2"/>
+</form>

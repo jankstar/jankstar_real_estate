@@ -294,6 +294,12 @@ Property Management
      and ``billing_property`` delegate bulk settlement actions to all
      billing units of the property
 
+   Context classes for list views (``BaseObjectEquipmentContext``,
+   ``BaseObjectOccupancyContext``, ``MeterReadingContext``) provide
+   filterable search panels. Selection fields shared with the underlying
+   model (e.g. ``e_type``, ``state``) are derived dynamically so their
+   labels stay in sync automatically.
+
 ``real_estate.object_party.role``  (``object_party.py``)
    Configurable role definitions per object type
    (e.g. *Tenant* only for type ``object``, *Owner* for all types).
@@ -308,6 +314,19 @@ Property Management
 ``real_estate.measurement``  (``measurement.py``)
    Associates a numeric value and measurement type with a ``BaseObject``
    for a given validity period.
+
+``real_estate.meter_reading``  (``base_object.py``)
+   Meter reading record linked to an equipment object of type ``meters``.
+
+   Key fields: ``company`` (stored, auto-filled from ``base_object`` on change),
+   ``base_object``, ``meter_id``, ``reading_date``, ``m_type``
+   (``initial`` / ``reading`` / ``estimate`` / ``final``),
+   ``value``, ``unit`` (derived from the meter's ``meter_unit``),
+   ``consumption`` (difference to previous reading for counter meters).
+
+   Browseable via the *Meter Readings* menu entry under *Master Data*,
+   filterable by company, property, parent object, equipment (meters only),
+   and date range (``from_date`` / ``to_date``).
 
 
 Contract Management
@@ -412,6 +431,18 @@ Operating Cost Settlement
    Individual cost item (e.g. *Gas*, *Cold Water*) with optional
    ``category_group``, ``comment``, and ``no_print`` flag.
 
+   For ``allocation_by_consumption`` settlement units, two fields control the
+   meter-reading tolerance window around the start/end date of each cost share:
+
+   ``reading_pre_days``
+      Days *before* the target date within which a reading is accepted (default: 7).
+
+   ``reading_post_days``
+      Days *after* the target date within which a reading is accepted (default: 7).
+
+   The reading closest to the target date within the window is used.
+   If no reading is found, an error is stored on the cost share.
+
 ``real_estate.billing_unit``  (``billing_unit.py``)
    Annual (or period) operating cost settlement for one property.
 
@@ -434,9 +465,15 @@ Operating Cost Settlement
 
    ``selection``
       Identifies which contracts/objects are in scope for the billing period.
+      Available in states ``approved``, ``selection``, and ``value_share``
+      (can be re-run from ``value_share`` to revise the scope; existing
+      settlement results are deleted after confirmation).
 
    ``compute_value_shares_button``
       Calculates allocation shares (``CostShare``) for each settlement unit.
+      If settlement results already exist for the billing unit, a confirmation
+      warning is shown before they are deleted and value shares are recomputed.
+      Does **not** automatically call ``compute_settlement_result``.
 
    ``compute_settlement_result``
       Derives ``SettlementResult`` records per contract — actual costs,
@@ -491,15 +528,43 @@ Operating Cost Settlement
 
    ``allocation_by_measurement``
       Allocated by a measurement value, e.g. living area.
+      ``value_share`` = ``measurement_value × time_share / time_total``
+      (time-weighted: a tenant occupying only part of the period receives
+      a proportionally smaller share).
 
    ``allocation_by_consumption``
       Allocated by meter reading consumption (HeizkostenV).
+      ``value_share`` = raw consumption (no time weighting applied).
+
+      Meter readings are looked up within a tolerance window defined by
+      ``reading_pre_days`` / ``reading_post_days`` on the cost type; the
+      closest reading to the target date is chosen.
+
+      **Vacancy handling:** cost shares without a contract receive
+      ``value_share = 0`` automatically — no meter reading is required.
+      For the immediately following contract cost share, if no start reading
+      exists within the normal window, the system falls back to the reading
+      taken at the start of the preceding vacancy. This allows a single
+      read-out at move-out to serve as both the vacancy baseline and the
+      contract's opening reading.
+
+      Missing readings set the cost share to state ``error`` with one of:
+
+      - *"Messwert für Anfangsverbrauch nicht ermittelt"* — start reading absent
+      - *"Messwert für Endverbrauch nicht ermittelt"* — end reading absent
 
    ``allocation_per_rental_unit``
-      Equal share per rental unit.
+      Proportional share by occupancy duration.
+      ``value_share`` = ``time_share / time_total``
+      (full period = 1.0, half period = 0.5, etc.).
 
    Vacancy handling: unoccupied periods can be charged to the owner or left
    unallocated.
+
+   When ``compute_value_shares`` is re-run, cost shares in state ``error``
+   are automatically reset to ``selection`` and their ``error_message``
+   cleared before the new calculation starts, so corrected readings or
+   measurements take effect immediately.
 
 ``real_estate.cost_share``  (``settlement_result.py``)
    Intermediate allocation record: share of a specific cost type for one
@@ -508,8 +573,11 @@ Operating Cost Settlement
    *States:* ``preparation`` · ``selection`` · ``estimated_value_share``
    · ``value_share`` · ``error``
 
-   Stores ``value_share`` (allocation factor), ``time_share`` (days),
-   ``planned_costs``, ``actual_costs``.
+   Stores ``value_share`` (time-weighted allocation factor — for
+   ``allocation_by_measurement`` and ``allocation_per_rental_unit`` this
+   already incorporates the occupancy fraction ``time_share / time_total``;
+   for ``allocation_by_consumption`` it holds the raw consumption value),
+   ``time_share`` (days), ``planned_costs``, ``actual_costs``.
    ``error_message`` describes the problem; entries set by
    ``compute_settlement_result`` carry a ``[draft]`` prefix and are
    automatically cleared on the next successful re-run.
@@ -662,7 +730,10 @@ Running Tests
 Demo data scripts in ``tests/`` (proteus-based, not unit tests):
 
 ``tests/test_immo.py``
-   Creates one property with building, four rental objects, and meter readings.
+   Creates two properties (*Musterstraße 1-4* and *Musterstraße 5-8*), each
+   with four buildings, four rental apartments per building (16 apartments and
+   16 water meters per property), and one land parcel with four parking spaces.
+   Meter names follow the pattern ``Wasser Zähler NN``.
    Run once against a populated database::
 
       python tests/test_immo.py --database <db> [--config trytond.conf]
@@ -672,3 +743,19 @@ Demo data scripts in ``tests/`` (proteus-based, not unit tests):
    Requires data from ``test_immo.py``::
 
       python tests/test_contracts.py --database <db> [--config trytond.conf]
+
+``tests/test_billing_unit.py``
+   Creates two billing units per property (*Kalte Betriebskosten 2025* and
+   *Heizkosten 2025*) with settlement units for measurement-based, consumption-
+   based, and external allocation rules.
+   Requires data from ``test_immo.py``::
+
+      python tests/test_billing_unit.py --database <db> [--config trytond.conf]
+
+``tests/test_payment.py``
+   Books open receivables for all test tenants as a single payment receipt
+   (debit account 1800 Bank / credit receivable account) and reconciles
+   the open items.
+   Requires posted invoices from ``test_contracts.py``::
+
+      python tests/test_payment.py --database <db> [--config trytond.conf]

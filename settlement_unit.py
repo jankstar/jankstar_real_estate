@@ -453,6 +453,11 @@ class SettlementUnit(DeactivableMixin, base_object.re_sequence_ordered(), ModelS
         """Compute value_share on each CostShare based on allocation_rule,
         then write value_total as the sum on this SettlementUnit."""
         self.selection_actual_costs()
+        for cost_share in self.cost_shares:
+            if cost_share.state == 'error':
+                cost_share.state = 'selection'
+                cost_share.error_message = None
+                cost_share.save()
         pool = Pool()
         Measurement = pool.get('real_estate.measurement')
         BaseObject = pool.get('real_estate.base_object')
@@ -466,7 +471,10 @@ class SettlementUnit(DeactivableMixin, base_object.re_sequence_ordered(), ModelS
             return
 
         total = 0.0
+        _unit = 0.0001
 
+        # --- first pass: collect raw values without saving ---
+        pending = []
         for cost_share in self.cost_shares:
             if not cost_share.base_object:
                 continue
@@ -481,64 +489,150 @@ class SettlementUnit(DeactivableMixin, base_object.re_sequence_ordered(), ModelS
                     ('valid_from', '<=', cost_share.end_date),
                 ], order=[('valid_from', 'DESC')], limit=1)
                 if measurements:
-                    value = float(measurements[0].value or 0)
+                    mval = float(measurements[0].value or 0)
+                    value = (mval * cost_share.time_share / self.time_total
+                             if self.time_total else mval)
                 else:
                     error_msg = (
                         f'No measurement for {cost_share.base_object.rec_name}'
                         f' type {self.m_type.name} on {cost_share.end_date}')
 
             elif self.allocation_rule == 'allocation_by_consumption':
-                meter_domain = [
-                    ('parent', '=', cost_share.base_object.id),
-                    ('type', '=', 'equipment'),
-                    ('e_type', '=', 'meters'),
-                    ('meter_unit', '=', self.meter_unit.id),
-                    ('state', '=', 'approved'),
-                ]
-                meters = BaseObject.search(meter_domain)
-                if self.reg_ex_meter:
-                    pattern = re.compile(self.reg_ex_meter)
-                    meters = [m for m in meters if pattern.search(m.name or '')]
+                pre_days = (self.type.reading_pre_days
+                            if self.type and self.type.reading_pre_days is not None
+                            else 7)
+                post_days = (self.type.reading_post_days
+                             if self.type and self.type.reading_post_days is not None
+                             else 7)
 
-                consumption = 0.0
-                found = False
-                for meter in meters:
-                    factor = float(meter.meter_factor or 1)
-                    if meter.meter_is_counter:
-                        end_rdg = MeterReading.search([
-                            ('base_object', '=', meter.id),
-                            ('reading_date', '<=', cost_share.end_date),
-                        ], order=[('reading_date', 'DESC')], limit=1)
-                        start_rdg = MeterReading.search([
-                            ('base_object', '=', meter.id),
-                            ('reading_date', '<=', cost_share.start_date),
-                        ], order=[('reading_date', 'DESC')], limit=1)
-                        if end_rdg and start_rdg:
+                def _closest_reading(meter_id, target_date):
+                    """Return the reading closest to target_date within the window."""
+                    lo = target_date - datetime.timedelta(days=pre_days)
+                    hi = target_date + datetime.timedelta(days=post_days)
+                    rdgs = MeterReading.search([
+                        ('base_object', '=', meter_id),
+                        ('reading_date', '>=', lo),
+                        ('reading_date', '<=', hi),
+                    ])
+                    if not rdgs:
+                        return None
+                    return min(rdgs, key=lambda r: abs((r.reading_date - target_date).days))
+
+                # Vacancy (no contract): consumption = 0, no reading required.
+                if not cost_share.contract:
+                    value = 0.0
+                else:
+                    meter_domain = [
+                        ('parent', '=', cost_share.base_object.id),
+                        ('type', '=', 'equipment'),
+                        ('e_type', '=', 'meters'),
+                        ('meter_unit', '=', self.meter_unit.id),
+                        ('state', '=', 'approved'),
+                    ]
+                    meters = BaseObject.search(meter_domain)
+                    if self.reg_ex_meter:
+                        pattern = re.compile(self.reg_ex_meter)
+                        meters = [m for m in meters if pattern.search(m.name or '')]
+
+                    # Predecessor vacancy: cost share for same object ending
+                    # the day before this one's start_date with no contract.
+                    cs_by_obj = sorted(
+                        [c for c in self.cost_shares
+                         if c.base_object and c.base_object.id == cost_share.base_object.id],
+                        key=lambda c: c.start_date or datetime.date.min)
+                    predecessor = None
+                    for c in cs_by_obj:
+                        if c.end_date and cost_share.start_date:
+                            if c.end_date < cost_share.start_date:
+                                predecessor = c
+                            else:
+                                break
+
+                    consumption = 0.0
+                    found = False
+                    for meter in meters:
+                        factor = float(meter.meter_factor or 1)
+                        if meter.meter_is_counter:
+                            end_rdg = _closest_reading(meter.id, cost_share.end_date)
+                            start_rdg = _closest_reading(meter.id, cost_share.start_date)
+                            # If no start reading and predecessor is a vacancy,
+                            # try the reading at the start of that vacancy.
+                            if start_rdg is None and predecessor and not predecessor.contract:
+                                start_rdg = _closest_reading(meter.id, predecessor.start_date)
+                            if not end_rdg:
+                                error_msg = gettext(
+                                    'real_estate.msg_no_end_reading',
+                                    name=cost_share.base_object.rec_name,
+                                    date=str(cost_share.end_date),
+                                    pre=pre_days, post=post_days)
+                                break
+                            if not start_rdg:
+                                error_msg = gettext(
+                                    'real_estate.msg_no_start_reading',
+                                    name=cost_share.base_object.rec_name,
+                                    date=str(cost_share.start_date),
+                                    pre=pre_days, post=post_days)
+                                break
                             consumption += (
-                                float(end_rdg[0].value or 0)
-                                - float(start_rdg[0].value or 0)
+                                float(end_rdg.value or 0)
+                                - float(start_rdg.value or 0)
                             ) * factor
                             found = True
-                    else:
-                        rdgs = MeterReading.search([
-                            ('base_object', '=', meter.id),
-                            ('reading_date', '>=', cost_share.start_date),
-                            ('reading_date', '<=', cost_share.end_date),
-                        ], order=[('reading_date', 'DESC')], limit=1)
-                        if rdgs:
-                            consumption += float(rdgs[0].value or 0) * factor
+                        else:
+                            rdg = _closest_reading(meter.id, cost_share.end_date)
+                            if not rdg:
+                                error_msg = gettext(
+                                    'real_estate.msg_no_end_reading',
+                                    name=cost_share.base_object.rec_name,
+                                    date=str(cost_share.end_date),
+                                    pre=pre_days, post=post_days)
+                                break
+                            consumption += float(rdg.value or 0) * factor
                             found = True
 
-                if found:
-                    value = consumption
-                else:
-                    error_msg = (
-                        f'No meter readings for {cost_share.base_object.rec_name}'
-                        f' in {cost_share.start_date} – {cost_share.end_date}')
+                    if found:
+                        value = consumption
 
             elif self.allocation_rule == 'allocation_per_rental_unit':
-                value = 1.0
+                value = (cost_share.time_share / self.time_total
+                         if self.time_total else 1.0)
 
+            pending.append((cost_share, value, error_msg))
+
+        # --- rounding and correction for time-weighted rules ---
+        if self.allocation_rule in ('allocation_by_measurement',
+                                    'allocation_per_rental_unit'):
+            ok_rows = [(cs, v) for cs, v, _ in pending if v is not None]
+            if ok_rows:
+                rounded = [(cs, round(v, 4)) for cs, v in ok_rows]
+                exact_sum = sum(v for _, v in ok_rows)
+                rounded_sum = sum(v for _, v in rounded)
+                diff = round(exact_sum - rounded_sum, 4)
+                if diff > 0:
+                    n = round(diff / _unit)
+                    rounded.sort(key=lambda r: r[1])
+                    for i in range(n):
+                        cs, v = rounded[i % len(rounded)]
+                        rounded[i % len(rounded)] = (cs, round(v + _unit, 4))
+                elif diff < 0:
+                    n = round(-diff / _unit)
+                    rounded.sort(key=lambda r: r[1], reverse=True)
+                    for i in range(n):
+                        cs, v = rounded[i % len(rounded)]
+                        rounded[i % len(rounded)] = (cs, round(v - _unit, 4))
+                corrected = {id(cs): v for cs, v in rounded}
+                pending = [
+                    (cs, corrected[id(cs)] if v is not None else None, em)
+                    for cs, v, em in pending
+                ]
+        else:
+            pending = [
+                (cs, round(v, 4) if v is not None else None, em)
+                for cs, v, em in pending
+            ]
+
+        # --- second pass: save ---
+        for cost_share, value, error_msg in pending:
             if value is not None:
                 cost_share.value_share = value
                 if cost_share.state in ('selection', 'estimated_value_share'):
@@ -554,9 +648,6 @@ class SettlementUnit(DeactivableMixin, base_object.re_sequence_ordered(), ModelS
 
         CostShare = pool.get('real_estate.cost_share')
         vt = Decimal(str(total)) if total else Decimal(0)
-        time_total = (
-            (self.end_date - self.start_date).days + 1
-            if self.start_date and self.end_date else 0)
 
         cost_shares = CostShare.search(
             [('settlement_unit', '=', self.id),
@@ -571,16 +662,7 @@ class SettlementUnit(DeactivableMixin, base_object.re_sequence_ordered(), ModelS
                     raw = Decimal(0)
                 else:
                     vs = Decimal(str(cs.value_share))
-                    if self.allocation_rule == 'allocation_by_consumption':
-                        raw = su_amount * vs / vt
-                    else:
-                        ts = (
-                            (cs.end_date - cs.start_date).days + 1
-                            if cs.start_date and cs.end_date else 0)
-                        time_factor = (
-                            Decimal(ts) / Decimal(time_total)
-                            if time_total else Decimal(0))
-                        raw = su_amount * vs / vt * time_factor
+                    raw = su_amount * vs / vt
                 rows.append([cs, raw.quantize(_cent, rounding=ROUND_HALF_UP)])
             diff = (su_amount - sum(r[1] for r in rows)).quantize(_cent)
             if diff and rows:

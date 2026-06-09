@@ -6,5 +6,8 @@
     <newline/>
     <label name="parent"/><field name="parent" colspan="2"/>
     <newline/>
-    <label name="e_type"/><field name="e_type" colspan="2"/>
+    <label name="equipment"/><field name="equipment" colspan="2"/>
+    <newline/>
+    <label name="from_date"/><field name="from_date"/>
+    <label name="to_date"/><field name="to_date"/>
 </form>

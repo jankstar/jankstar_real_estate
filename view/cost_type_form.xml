@@ -9,6 +9,9 @@
     <label name="comment"/><field name="comment"/>
     <newline/>
 
+    <label name="reading_pre_days"/><field name="reading_pre_days"/>
+    <label name="reading_post_days"/><field name="reading_post_days"/>
+    <newline/>
     <group colspan="2" col="-1" id="checkboxes">
         <label name="active"/>
         <field name="active" xexpand="0" width="25"/>

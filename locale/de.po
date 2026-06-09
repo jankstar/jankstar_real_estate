@@ -1928,6 +1928,24 @@ msgctxt "field:real_estate.cost_type,no_print:"
 msgid "No Print"
 msgstr "kein Ausdruck"
 
+msgctxt "field:real_estate.cost_type,reading_pre_days:"
+msgid "Valid Reading Pre-Days"
+msgstr "Gültiger Messwert Vorerfassung (Tage)"
+
+msgctxt "field:real_estate.cost_type,reading_post_days:"
+msgid "Valid Reading Post-Days"
+msgstr "Gültiger Messwert Nacherfassung (Tage)"
+
+#, python-format
+msgctxt "model:ir.message,text:msg_no_start_reading"
+msgid "No start reading for \"%(name)s\" on %(date)s (window: -%(pre)d/+%(post)d days)."
+msgstr "Messwert für Anfangsverbrauch für \"%(name)s\" zum %(date)s nicht ermittelt (Fenster: −%(pre)d/+%(post)d Tage)."
+
+#, python-format
+msgctxt "model:ir.message,text:msg_no_end_reading"
+msgid "No end reading for \"%(name)s\" on %(date)s (window: -%(pre)d/+%(post)d days)."
+msgstr "Messwert für Endverbrauch für \"%(name)s\" zum %(date)s nicht ermittelt (Fenster: −%(pre)d/+%(post)d Tage)."
+
 msgctxt "field:real_estate.measurement,base_object:"
 msgid "Base Object"
 msgstr "Immobilienobjekt"
@@ -3120,6 +3138,15 @@ msgid ""
 msgstr ""
 "Selektion für \"%(name)s\": vorhandene Kostenanteile und Abrechnungsergebnisse "
 "werden gelöscht. Fortfahren?"
+
+#, python-format
+msgctxt "model:ir.message,text:msg_value_share_reset_warning"
+msgid ""
+"Computing value shares for \"%(name)s\": existing settlement results will be "
+"deleted. Continue?"
+msgstr ""
+"Kostenanteile berechnen für \"%(name)s\": vorhandene Abrechnungsergebnisse "
+"werden gelöscht. Weiter?"
 
 msgctxt "model:ir.message,text:msg_billing_unit_chronological_order"
 msgid ""
