@@ -548,6 +548,22 @@
             sequence="60"
             id="menu_meter_reading_form"/>
 
+        <!-- Estimate Consumption Wizard -->
+        <record model="ir.ui.view" id="estimate_consumption_start_view_form">
+            <field name="model">real_estate.estimate_consumption.start</field>
+            <field name="type">form</field>
+            <field name="name">estimate_consumption_start_form</field>
+        </record>
+        <record model="ir.ui.view" id="estimate_consumption_result_view_form">
+            <field name="model">real_estate.estimate_consumption.result</field>
+            <field name="type">form</field>
+            <field name="name">estimate_consumption_result_form</field>
+        </record>
+        <record model="ir.action.wizard" id="wizard_estimate_consumption">
+            <field name="name">Estimate Consumption</field>
+            <field name="wiz_name">real_estate.estimate_consumption.wizard</field>
+        </record>
+
         <record model="ir.action.act_window" id="act_open_child_base_object">
             <field name="name">Object</field>
             <field name="res_model">real_estate.base_object</field>

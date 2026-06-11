@@ -77,6 +77,8 @@ this repository contains the full copyright notices and license terms. -->
                 <label name="meter_last_value"/><field name="meter_last_value" />
                 <label name="meter_last_consumption"/><field name="meter_last_consumption" />
                 <newline/>
+                <button name="estimate_consumption" string="Estimate Consumption"/>
+                <newline/>
                 <group colspan="6" id="group_meter">
                     <field name="meter_readings" />
                 </group>

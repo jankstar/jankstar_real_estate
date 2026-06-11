@@ -527,9 +527,77 @@ msgctxt "field:real_estate.base_object.equipment.context,e_type:"
 msgid "Equipment Type"
 msgstr "Equipment Typ"
 
+msgctxt "field:real_estate.base_object.equipment.context,parent:"
+msgid "Parent Object"
+msgstr "Übergeordnetes Objekt"
+
 msgctxt "field:real_estate.base_object.equipment.context,property:"
 msgid "Property"
 msgstr "Wirtschaftseinheit"
+
+msgctxt "field:real_estate.estimate_consumption.result,consumption:"
+msgid "Consumption"
+msgstr "Verbrauch"
+
+msgctxt "field:real_estate.estimate_consumption.result,estimated_value:"
+msgid "Estimated Value"
+msgstr "Geschätzter Zählerstand"
+
+msgctxt "field:real_estate.estimate_consumption.result,meter:"
+msgid "Meter"
+msgstr "Zähler"
+
+msgctxt "field:real_estate.estimate_consumption.result,meter_id:"
+msgid "Meter ID"
+msgstr "Zähler ID"
+
+msgctxt "field:real_estate.estimate_consumption.result,per_date:"
+msgid "Per Date"
+msgstr "Per Datum"
+
+msgctxt "field:real_estate.estimate_consumption.result,reading1_date:"
+msgid "Reading 1 Date"
+msgstr "Ablesung 1 Datum"
+
+msgctxt "field:real_estate.estimate_consumption.result,reading1_value:"
+msgid "Reading 1 Value"
+msgstr "Ablesung 1 Wert"
+
+msgctxt "field:real_estate.estimate_consumption.result,reading2_date:"
+msgid "Reading 2 Date"
+msgstr "Ablesung 2 Datum"
+
+msgctxt "field:real_estate.estimate_consumption.result,reading2_value:"
+msgid "Reading 2 Value"
+msgstr "Ablesung 2 Wert"
+
+msgctxt "field:real_estate.estimate_consumption.result,reason:"
+msgid "Reason"
+msgstr "Begründung"
+
+msgctxt "field:real_estate.estimate_consumption.start,meter:"
+msgid "Meter"
+msgstr "Zähler"
+
+msgctxt "field:real_estate.estimate_consumption.start,meter_factor:"
+msgid "Factor"
+msgstr "Faktor"
+
+msgctxt "field:real_estate.estimate_consumption.start,meter_id:"
+msgid "Meter ID"
+msgstr "Zähler ID"
+
+msgctxt "field:real_estate.estimate_consumption.start,meter_unit:"
+msgid "Unit"
+msgstr "Einheit"
+
+msgctxt "field:real_estate.estimate_consumption.start,per_date:"
+msgid "Per Date"
+msgstr "Per Datum"
+
+msgctxt "field:real_estate.estimate_consumption.start,reason:"
+msgid "Reason"
+msgstr "Begründung"
 
 msgctxt "field:real_estate.base_object.occupancy,base_object:"
 msgid "Object"
@@ -2002,6 +2070,14 @@ msgctxt "field:real_estate.meter_reading,base_object:"
 msgid "Base Object"
 msgstr "Immobilienobjekt"
 
+msgctxt "field:real_estate.meter_reading,comment:"
+msgid "Comment"
+msgstr "Bemerkung"
+
+msgctxt "field:real_estate.meter_reading,company:"
+msgid "Company"
+msgstr "Gesellschaft"
+
 msgctxt "field:real_estate.meter_reading,consumption:"
 msgid "Consumption"
 msgstr "Verbauch"
@@ -2033,6 +2109,30 @@ msgstr "Einheit"
 msgctxt "field:real_estate.meter_reading,value:"
 msgid "Value"
 msgstr "Wert"
+
+msgctxt "field:real_estate.meter_reading.context,company:"
+msgid "Company"
+msgstr "Gesellschaft"
+
+msgctxt "field:real_estate.meter_reading.context,equipment:"
+msgid "Equipment"
+msgstr "Ausstattung"
+
+msgctxt "field:real_estate.meter_reading.context,from_date:"
+msgid "From Date"
+msgstr "Von Datum"
+
+msgctxt "field:real_estate.meter_reading.context,parent:"
+msgid "Parent Object"
+msgstr "Übergeordnetes Objekt"
+
+msgctxt "field:real_estate.meter_reading.context,property:"
+msgid "Property"
+msgstr "Wirtschaftseinheit"
+
+msgctxt "field:real_estate.meter_reading.context,to_date:"
+msgid "To Date"
+msgstr "Bis Datum"
 
 msgctxt "field:real_estate.object_party,base_object:"
 msgid "Object"
@@ -3395,9 +3495,17 @@ msgctxt "model:ir.ui.menu,name:menu_create_moves"
 msgid "Create Contract Moves"
 msgstr "Soll/Habenstellung"
 
+msgctxt "model:ir.action.wizard,name:wizard_estimate_consumption"
+msgid "Estimate Consumption"
+msgstr "Verbrauch schätzen"
+
 msgctxt "model:ir.ui.menu,name:menu_equipment_form"
 msgid "Equipment"
 msgstr "Equipment"
+
+msgctxt "model:ir.ui.menu,name:menu_meter_reading_form"
+msgid "Meter Readings"
+msgstr "Messbelege"
 
 msgctxt "model:ir.ui.menu,name:menu_land_form"
 msgid "Land"
@@ -3816,9 +3924,25 @@ msgctxt "model:real_estate.measurement.type,string:"
 msgid "Real Estate Measurement Type"
 msgstr "Immobilien Bemessungstyp"
 
+msgctxt "model:real_estate.estimate_consumption.result,string:"
+msgid "Estimate Consumption Result"
+msgstr "Verbrauchsschätzung Ergebnis"
+
+msgctxt "model:real_estate.estimate_consumption.start,string:"
+msgid "Estimate Consumption Start"
+msgstr "Verbrauchsschätzung Start"
+
+msgctxt "model:real_estate.estimate_consumption.wizard,string:"
+msgid "Estimate Consumption"
+msgstr "Verbrauch schätzen"
+
 msgctxt "model:real_estate.meter_reading,string:"
 msgid "Real Estate Meter Reading"
 msgstr "Immobilien Zählerablesung"
+
+msgctxt "model:real_estate.meter_reading.context,string:"
+msgid "Meter Reading Context"
+msgstr "Zählerablesung Kontext"
 
 msgctxt "model:real_estate.object_party,string:"
 msgid "Real Estate Object Party"
@@ -4570,6 +4694,22 @@ msgid "Terms"
 msgstr "Konditionen"
 
 msgctxt "wizard_button:real_estate.contract.create_moves.wizard,start,create_moves:"
+msgid "OK"
+msgstr "OK"
+
+msgctxt "wizard_button:real_estate.estimate_consumption.wizard,result,book:"
+msgid "Book"
+msgstr "Buchen"
+
+msgctxt "wizard_button:real_estate.estimate_consumption.wizard,result,end:"
+msgid "Cancel"
+msgstr "Abbruch"
+
+msgctxt "wizard_button:real_estate.estimate_consumption.wizard,start,end:"
+msgid "Cancel"
+msgstr "Abbruch"
+
+msgctxt "wizard_button:real_estate.estimate_consumption.wizard,start,result:"
 msgid "OK"
 msgstr "OK"
 

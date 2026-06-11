@@ -4,6 +4,7 @@ from trytond.model import (sequence_ordered,
     DeactivableMixin, Index, ModelSQL, ModelView, Workflow, fields, Unique, Check,
     sum_tree, tree)
 from trytond.model.exceptions import ValidationError
+from trytond.exceptions import UserError
 from trytond.i18n import gettext
 from trytond.cache import Cache
 from trytond.report import Report
@@ -11,6 +12,7 @@ from trytond.pool import Pool
 from trytond.transaction import Transaction
 from trytond.pyson import Bool, Eval, If, PYSONEncoder, TimeDelta, Equal
 from trytond.pool import PoolMeta
+from trytond.wizard import Button, StateTransition, StateView, Wizard
 from trytond.i18n import lazy_gettext
 from trytond.modules.company import CompanyReport
 
@@ -401,6 +403,13 @@ class BaseObject(Workflow, DeactivableMixin, re_sequence_ordered(), tree(separat
                         (Eval('state') == 'approved')),
                     'depends': ['type', 'state'],
                     },
+                'estimate_consumption': {
+                    'invisible': ~(
+                        (Eval('type') == 'equipment') &
+                        (Eval('e_type') == 'meters') &
+                        (Eval('state') == 'approved')),
+                    'depends': ['type', 'e_type', 'state'],
+                    },
                 })
 
     @classmethod
@@ -455,6 +464,10 @@ class BaseObject(Workflow, DeactivableMixin, re_sequence_ordered(), tree(separat
             if units:
                 BillingUnit.cancel(units)
 
+    @classmethod
+    @ModelView.button_action('real_estate.wizard_estimate_consumption')
+    def estimate_consumption(cls, base_objects):
+        pass
 
     @classmethod
     def default_company(cls):
@@ -1005,6 +1018,7 @@ class MeterReading(ModelSQL, ModelView):
     meter_id = fields.Char("Meter ID", required=True)
     reading_date = fields.Date("Reading Date", required=True)
     reading_user = fields.Many2One('res.user', "Reading User")
+    comment = fields.Text("Comment")
     value = Quantitative("Value", required=True, unit='unit', digits='unit')
     unit = fields.Function(fields.Many2One('product.uom', "Unit", 
             readonly=True,),'on_change_with_unit')
@@ -1071,8 +1085,155 @@ class MeterReading(ModelSQL, ModelView):
             if last_reading and last_reading[0].value != None and self.value != None:
                 last_value = last_reading[0].value
                 return self.value - last_value
-        
+
         return 0
+
+    @classmethod
+    def simulate_estimate(cls, base_object, per_date, meter_id=None):
+        """Return (estimated_value, consumption, r1, r2).
+        Requires >= 2 non-estimate readings within 1 year before per_date.
+        """
+        one_year_ago = per_date - datetime.timedelta(days=365)
+        domain = [
+            ('base_object', '=', base_object.id),
+            ('reading_date', '>=', one_year_ago),
+            ('reading_date', '<', per_date),
+            ('m_type', 'in', ['initial', 'reading', 'final']),
+        ]
+        if meter_id:
+            domain.append(('meter_id', '=', meter_id))
+        readings = cls.search(domain, order=[('reading_date', 'ASC')])
+        if len(readings) < 2:
+            raise UserError(
+                f'Not enough readings for {base_object.rec_name}: '
+                f'need at least 2 within one year before {per_date}.')
+        r1, r2 = readings[-2], readings[-1]
+        days_between = (r2.reading_date - r1.reading_date).days
+        if days_between == 0:
+            raise UserError(
+                f'Readings {r1.reading_date} and {r2.reading_date} '
+                f'have the same date — cannot extrapolate.')
+        days_to_estimate = (per_date - r2.reading_date).days
+        rate = (float(r2.value) - float(r1.value)) / days_between
+        estimated_value = Decimal(str(
+            round(float(r2.value) + rate * days_to_estimate, 4)))
+        consumption = estimated_value - r2.value
+        return estimated_value, consumption, r1, r2
+
+    @classmethod
+    def create_estimate(cls, base_object, per_date, reason, meter_id=None):
+        """Create and save an estimate reading. Returns the new MeterReading."""
+        estimated_value, consumption, r1, r2 = cls.simulate_estimate(
+            base_object, per_date, meter_id)
+        effective_meter_id = meter_id or r2.meter_id
+        reading = cls()
+        reading.company = base_object.company
+        reading.base_object = base_object
+        reading.meter_id = effective_meter_id
+        reading.reading_date = per_date
+        reading.m_type = 'estimate'
+        reading.value = estimated_value
+        reading.comment = reason
+        reading.save()
+        return reading
+
+
+#**************************************************************************
+class EstimateConsumptionStart(ModelView):
+    'Estimate Consumption Start'
+    __name__ = 'real_estate.estimate_consumption.start'
+
+    meter = fields.Many2One('real_estate.base_object', 'Meter', readonly=True)
+    meter_unit = fields.Many2One('product.uom', 'Unit', readonly=True)
+    meter_factor = fields.Float('Factor', digits=(8, 2), readonly=True)
+    meter_id = fields.Char('Meter ID', required=True)
+    per_date = fields.Date('Per Date', required=True)
+    reason = fields.Char('Reason', required=True)
+
+
+#**************************************************************************
+class EstimateConsumptionResult(ModelView):
+    'Estimate Consumption Result'
+    __name__ = 'real_estate.estimate_consumption.result'
+
+    meter = fields.Many2One('real_estate.base_object', 'Meter', readonly=True)
+    meter_id = fields.Char('Meter ID', readonly=True)
+    per_date = fields.Date('Per Date', readonly=True)
+    reason = fields.Char('Reason', readonly=True)
+    reading1_date = fields.Date('Reading 1 Date', readonly=True)
+    reading1_value = fields.Numeric('Reading 1 Value', readonly=True, digits=(16, 4))
+    reading2_date = fields.Date('Reading 2 Date', readonly=True)
+    reading2_value = fields.Numeric('Reading 2 Value', readonly=True, digits=(16, 4))
+    consumption = fields.Numeric('Consumption', readonly=True, digits=(16, 4))
+    estimated_value = fields.Numeric('Estimated Value', required=True, digits=(16, 4))
+
+
+#**************************************************************************
+class EstimateConsumptionWizard(Wizard):
+    'Estimate Consumption Wizard'
+    __name__ = 'real_estate.estimate_consumption.wizard'
+
+    start = StateView('real_estate.estimate_consumption.start',
+        'real_estate.estimate_consumption_start_view_form', [
+            Button('Cancel', 'end', 'tryton-cancel'),
+            Button('OK', 'result', 'tryton-ok', True),
+        ])
+    result = StateView('real_estate.estimate_consumption.result',
+        'real_estate.estimate_consumption_result_view_form', [
+            Button('Cancel', 'end', 'tryton-cancel'),
+            Button('Book', 'book', 'tryton-ok', True),
+        ])
+    book = StateTransition()
+
+    def default_start(self, fields):
+        pool = Pool()
+        BaseObject = pool.get('real_estate.base_object')
+        MeterReading = pool.get('real_estate.meter_reading')
+        IrDate = pool.get('ir.date')
+        active_id = Transaction().context.get('active_id')
+        meter = BaseObject(active_id)
+        last = MeterReading.search(
+            [('base_object', '=', active_id)],
+            order=[('reading_date', 'DESC')], limit=1)
+        return {
+            'meter': meter.id,
+            'meter_unit': meter.meter_unit.id if meter.meter_unit else None,
+            'meter_factor': meter.meter_factor,
+            'meter_id': last[0].meter_id if last else None,
+            'per_date': IrDate.today(),
+        }
+
+    def default_result(self, fields):
+        pool = Pool()
+        MeterReading = pool.get('real_estate.meter_reading')
+        estimated_value, consumption, r1, r2 = MeterReading.simulate_estimate(
+            self.start.meter, self.start.per_date, self.start.meter_id)
+        return {
+            'meter': self.start.meter.id,
+            'meter_id': self.start.meter_id,
+            'per_date': self.start.per_date,
+            'reason': self.start.reason,
+            'reading1_date': r1.reading_date,
+            'reading1_value': r1.value,
+            'reading2_date': r2.reading_date,
+            'reading2_value': r2.value,
+            'consumption': consumption,
+            'estimated_value': estimated_value,
+        }
+
+    def transition_book(self):
+        pool = Pool()
+        MeterReading = pool.get('real_estate.meter_reading')
+        reading = MeterReading()
+        reading.company = self.result.meter.company
+        reading.base_object = self.result.meter
+        reading.meter_id = self.result.meter_id
+        reading.reading_date = self.result.per_date
+        reading.m_type = 'estimate'
+        reading.value = Decimal(str(self.result.estimated_value))
+        reading.comment = self.result.reason
+        reading.save()
+        return 'end'
 
 
     @classmethod

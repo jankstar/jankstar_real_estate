@@ -13,4 +13,6 @@
     <newline/>
     <label name="consumption"/><field name="consumption" colspan="2"/>
     <label name="reading_user"/><field name="reading_user" colspan="2"/>
+    <newline/>
+    <label name="comment"/><field name="comment" colspan="4"/>
 </form>
