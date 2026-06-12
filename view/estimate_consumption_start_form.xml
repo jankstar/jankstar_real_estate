@@ -1,13 +1,13 @@
 <?xml version="1.0"?>
-<form col="4">
-    <label name="meter"/><field name="meter" colspan="3"/>
+<form col="6">
+    <label name="meter"/><field name="meter" colspan="5"/>
     <newline/>
     <label name="meter_unit"/><field name="meter_unit"/>
     <label name="meter_factor"/><field name="meter_factor"/>
     <newline/>
-    <label name="meter_id"/><field name="meter_id" colspan="3"/>
+    <label name="meter_id"/><field name="meter_id" colspan="5"/>
     <newline/>
     <label name="per_date"/><field name="per_date"/>
     <newline/>
-    <label name="reason"/><field name="reason" colspan="3"/>
+    <label name="reason"/><field name="reason" colspan="5"/>
 </form>

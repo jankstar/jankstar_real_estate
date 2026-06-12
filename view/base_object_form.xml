@@ -68,6 +68,7 @@ this repository contains the full copyright notices and license terms. -->
                 <newline/>
                 <label name="meter_factor"/><field name="meter_factor"/>
                 <label name="meter_is_counter"/><field name="meter_is_counter"/>
+                <label name="meter_no_decimals"/><field name="meter_no_decimals"/>
                 <newline/>
                 <label name="meter_id"/><field name="meter_id" />
                 <newline/>

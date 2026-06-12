@@ -4,6 +4,9 @@
         <record model="ir.message" id="msg_salutation">
             <field name="text">Dear Sir or Madam</field>
         </record>
+        <record model="ir.message" id="msg_meter_value_must_be_integer">
+            <field name="text">Meter reading value {} for point {} must be an integer (no decimal places)!</field>
+        </record>
         <record model="ir.message" id="msg_meter_reading_value_must_be_greater_than_last_reading">
             <field name="text">Meter reading value {} must be greater than last reading value {} for point {}!</field>
         </record>    

@@ -1,20 +1,24 @@
 <?xml version="1.0"?>
-<form col="4">
-    <label name="meter"/><field name="meter" colspan="3"/>
+<form col="6">
+    <label name="meter"/><field name="meter" colspan="5"/>
     <newline/>
-    <label name="meter_id"/><field name="meter_id"/>
+    <label name="meter_id"/><field name="meter_id" colspan="5"/>
+    <newline/>
     <label name="per_date"/><field name="per_date"/>
     <newline/>
-    <label name="reason"/><field name="reason" colspan="3"/>
+    <label name="reason"/><field name="reason" colspan="5"/>
     <newline/>
-    <separator id="sep_readings" string="Basis Readings" colspan="4"/>
+    <separator id="sep_readings" string="Basis Readings" colspan="2"/>
+    <newline/>
     <label name="reading1_date"/><field name="reading1_date"/>
-    <label name="reading1_value"/><field name="reading1_value"/>
+    <field name="reading1_value"/>
     <newline/>
     <label name="reading2_date"/><field name="reading2_date"/>
-    <label name="reading2_value"/><field name="reading2_value"/>
+    <field name="reading2_value"/>
     <newline/>
-    <separator id="sep_result" string="Result" colspan="4"/>
+    <separator id="sep_result" string="Result" colspan="2"/>
+    <newline/>
     <label name="consumption"/><field name="consumption"/>
+    <newline/>
     <label name="estimated_value"/><field name="estimated_value"/>
 </form>

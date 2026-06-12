@@ -309,6 +309,10 @@ class BaseObject(Workflow, DeactivableMixin, re_sequence_ordered(), tree(separat
             'required':  ((Eval('type') == 'equipment') & (Eval('e_type') == 'meters')),
             })
 
+    meter_no_decimals = fields.Boolean("Integer Values",
+        states=_states_only_equipment_meter,
+        help="If checked, meter readings are stored without decimal places.")
+
 
     meter_id = fields.Function(fields.Char("Meter ID"), 
         'on_change_with_meter_id')
@@ -491,6 +495,10 @@ class BaseObject(Workflow, DeactivableMixin, re_sequence_ordered(), tree(separat
 
     @classmethod
     def default_meter_is_counter(cls):
+        return True
+
+    @classmethod
+    def default_meter_no_decimals(cls):
         return True
 
     
@@ -1088,6 +1096,12 @@ class MeterReading(ModelSQL, ModelView):
 
         return 0
 
+    @fields.depends('base_object', 'value')
+    def on_change_value(self):
+        if (self.base_object and self.base_object.meter_no_decimals
+                and self.value is not None):
+            self.value = self.value.quantize(Decimal(1))
+
     @classmethod
     def simulate_estimate(cls, base_object, per_date, meter_id=None):
         """Return (estimated_value, consumption, r1, r2).
@@ -1115,8 +1129,12 @@ class MeterReading(ModelSQL, ModelView):
                 f'have the same date — cannot extrapolate.')
         days_to_estimate = (per_date - r2.reading_date).days
         rate = (float(r2.value) - float(r1.value)) / days_between
+        if base_object.meter_no_decimals:
+            uom_digits = 0
+        else:
+            uom_digits = base_object.meter_unit.digits if base_object.meter_unit else 2
         estimated_value = Decimal(str(
-            round(float(r2.value) + rate * days_to_estimate, 4)))
+            round(float(r2.value) + rate * days_to_estimate, uom_digits)))
         consumption = estimated_value - r2.value
         return estimated_value, consumption, r1, r2
 
@@ -1230,7 +1248,15 @@ class EstimateConsumptionWizard(Wizard):
         reading.meter_id = self.result.meter_id
         reading.reading_date = self.result.per_date
         reading.m_type = 'estimate'
-        reading.value = Decimal(str(self.result.estimated_value))
+        meter = self.result.meter
+        if meter.meter_no_decimals:
+            uom_digits = 0
+        elif meter.meter_unit:
+            uom_digits = meter.meter_unit.digits
+        else:
+            uom_digits = 2
+        reading.value = Decimal(str(self.result.estimated_value)).quantize(
+            Decimal(10) ** -uom_digits)
         reading.comment = self.result.reason
         reading.save()
         return 'end'
@@ -1239,8 +1265,17 @@ class EstimateConsumptionWizard(Wizard):
     @classmethod
     def validate(cls, records):
         super().validate(records)  # Standard-Validierungen
-        
+
         for record in records:
+            if (record.base_object and record.base_object.meter_no_decimals
+                    and record.value is not None
+                    and record.value != record.value.quantize(Decimal(1))):
+                raise ValidationError(
+                    gettext('real_estate.msg_meter_value_must_be_integer').format(
+                        record.value,
+                        record.base_object.compute_name,
+                    )
+                )
             # Validierung: reading_date muss groesser als letzte reading_date sein
             MeterReading = Pool().get('real_estate.meter_reading')
             last_reading = MeterReading.search([
