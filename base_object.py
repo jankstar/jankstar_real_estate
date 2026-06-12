@@ -1105,37 +1105,64 @@ class MeterReading(ModelSQL, ModelView):
     @classmethod
     def simulate_estimate(cls, base_object, per_date, meter_id=None):
         """Return (estimated_value, consumption, r1, r2).
-        Requires >= 2 non-estimate readings within 1 year before per_date.
+
+        Interpolation (preferred): if readings exist both before and after
+        per_date, interpolates between the closest bracketing pair.
+        Extrapolation (fallback): uses the last 2 readings within 1 year
+        before per_date.
         """
-        one_year_ago = per_date - datetime.timedelta(days=365)
-        domain = [
+        base_domain = [
             ('base_object', '=', base_object.id),
-            ('reading_date', '>=', one_year_ago),
-            ('reading_date', '<', per_date),
             ('m_type', 'in', ['initial', 'reading', 'final']),
         ]
         if meter_id:
-            domain.append(('meter_id', '=', meter_id))
-        readings = cls.search(domain, order=[('reading_date', 'ASC')])
-        if len(readings) < 2:
-            raise UserError(
-                f'Not enough readings for {base_object.rec_name}: '
-                f'need at least 2 within one year before {per_date}.')
-        r1, r2 = readings[-2], readings[-1]
-        days_between = (r2.reading_date - r1.reading_date).days
-        if days_between == 0:
-            raise UserError(
-                f'Readings {r1.reading_date} and {r2.reading_date} '
-                f'have the same date — cannot extrapolate.')
-        days_to_estimate = (per_date - r2.reading_date).days
-        rate = (float(r2.value) - float(r1.value)) / days_between
+            base_domain.append(('meter_id', '=', meter_id))
+
+        before = cls.search(
+            base_domain + [('reading_date', '<', per_date)],
+            order=[('reading_date', 'DESC')], limit=1)
+        after = cls.search(
+            base_domain + [('reading_date', '>', per_date)],
+            order=[('reading_date', 'ASC')], limit=1)
+
+        if before and after:
+            # Interpolation between bracketing readings
+            r1, r2 = before[0], after[0]
+            days_between = (r2.reading_date - r1.reading_date).days
+            days_to_r1 = (per_date - r1.reading_date).days
+            rate = (float(r2.value) - float(r1.value)) / days_between
+            raw = float(r1.value) + rate * days_to_r1
+            ref_value = r1.value
+        else:
+            # Extrapolation from last 2 readings within 1 year before per_date
+            one_year_ago = per_date - datetime.timedelta(days=365)
+            readings = cls.search(
+                base_domain + [
+                    ('reading_date', '>=', one_year_ago),
+                    ('reading_date', '<', per_date),
+                ],
+                order=[('reading_date', 'ASC')])
+            if len(readings) < 2:
+                raise UserError(
+                    f'Not enough readings for {base_object.rec_name}: '
+                    f'need at least 2 within one year before {per_date}.')
+            r1, r2 = readings[-2], readings[-1]
+            days_between = (r2.reading_date - r1.reading_date).days
+            if days_between == 0:
+                raise UserError(
+                    f'Readings {r1.reading_date} and {r2.reading_date} '
+                    f'have the same date — cannot extrapolate.')
+            days_to_estimate = (per_date - r2.reading_date).days
+            rate = (float(r2.value) - float(r1.value)) / days_between
+            raw = float(r2.value) + rate * days_to_estimate
+            ref_value = r2.value
+
         if base_object.meter_no_decimals:
             uom_digits = 0
         else:
             uom_digits = base_object.meter_unit.digits if base_object.meter_unit else 2
-        estimated_value = Decimal(str(
-            round(float(r2.value) + rate * days_to_estimate, uom_digits)))
-        consumption = estimated_value - r2.value
+        estimated_value = Decimal(str(round(raw, uom_digits)))
+        consumption = estimated_value - ref_value
         return estimated_value, consumption, r1, r2
 
     @classmethod
