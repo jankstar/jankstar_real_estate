@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<form col="6">
+    <label name="active"/><field name="active" colspan="1"/>
+    <label name="sequence"/><field name="sequence" readonly="1" colspan="1"/>
+    <newline/>
+    <label name="name"/><field name="name" colspan="3"/>
+    <newline/>
+    <label name="has_basement_nr"/><field name="has_basement_nr"/>
+    <newline/>
+    <label name="has_parking_nr"/><field name="has_parking_nr"/>
+
+    
+</form>

@@ -507,6 +507,14 @@ msgctxt "field:real_estate.base_object,use_class:"
 msgid "Use"
 msgstr "Nutzung"
 
+msgctxt "field:real_estate.base_object,use_class_has_basement_nr:"
+msgid "Has Basement Number"
+msgstr "Kellerabteil vorhanden"
+
+msgctxt "field:real_estate.base_object,use_class_has_parking_nr:"
+msgid "Has Parking Number"
+msgstr "Stellplatznummer vorhanden"
+
 msgctxt "field:real_estate.base_object,year_of_construction:"
 msgid "Year of Construction"
 msgstr "Baujahr"
@@ -3059,6 +3067,10 @@ msgctxt "model:ir.action,name:act_object_party_role"
 msgid "Object Party Roles"
 msgstr "Partnerrolle"
 
+msgctxt "model:ir.action,name:act_use_class"
+msgid "Use Classes"
+msgstr "Nutzung Mietobjekt"
+
 msgctxt "model:ir.action,name:act_object_party_tree"
 msgid "Object Parties"
 msgstr "Partner zum Objekt"
@@ -3809,6 +3821,58 @@ msgctxt "model:real_estate.cost_category_group,string:"
 msgid "Real Estate Cost Category Group"
 msgstr ""
 
+msgctxt "model:real_estate.use_class,string:"
+msgid "Use Class"
+msgstr "Nutzungsklasse"
+
+msgctxt "field:real_estate.use_class,name:"
+msgid "Name"
+msgstr "Bezeichnung"
+
+msgctxt "field:real_estate.use_class,has_basement_nr:"
+msgid "Has Basement Number"
+msgstr "Kellerabteilnummer"
+
+msgctxt "field:real_estate.use_class,has_parking_nr:"
+msgid "Has Parking Number"
+msgstr "Stellplatznummer"
+
+msgctxt "field:real_estate.use_class,sequence:"
+msgid "Sequence"
+msgstr "Reihenfolge"
+
+msgctxt "field:real_estate.use_class,active:"
+msgid "Active"
+msgstr "Aktiv"
+
+msgctxt "model:real_estate.use_class,name:use_class_apartment"
+msgid "Apartment"
+msgstr "Wohnung"
+
+msgctxt "model:real_estate.use_class,name:use_class_office"
+msgid "Office"
+msgstr "Büro"
+
+msgctxt "model:real_estate.use_class,name:use_class_retail"
+msgid "Retail"
+msgstr "Einzelhandel"
+
+msgctxt "model:real_estate.use_class,name:use_class_warehouse"
+msgid "Warehouse"
+msgstr "Lager"
+
+msgctxt "model:real_estate.use_class,name:use_class_parking"
+msgid "Parking"
+msgstr "Stellplatz"
+
+msgctxt "model:real_estate.use_class,name:use_class_garage"
+msgid "Garage"
+msgstr "Garage"
+
+msgctxt "model:ir.action,name:act_use_class"
+msgid "Use Classes"
+msgstr "Nutzungsklassen"
+
 msgctxt "model:real_estate.cost_share,string:"
 msgid "Real Estate Cost Share"
 msgstr "Kostensammler"
@@ -4220,66 +4284,6 @@ msgstr "Wohneigentum"
 msgctxt "selection:real_estate.base_object,type_of_use:"
 msgid "Residential property"
 msgstr "Wohneigentum"
-
-msgctxt "selection:real_estate.base_object,use_class:"
-msgid "Apartment"
-msgstr "Wohnung"
-
-msgctxt "selection:real_estate.base_object,use_class:"
-msgid "Apartment"
-msgstr "Wohnung"
-
-msgctxt "selection:real_estate.base_object,use_class:"
-msgid "Garage"
-msgstr "Garage"
-
-msgctxt "selection:real_estate.base_object,use_class:"
-msgid "Garage"
-msgstr "Garage"
-
-msgctxt "selection:real_estate.base_object,use_class:"
-msgid "None"
-msgstr "keine"
-
-msgctxt "selection:real_estate.base_object,use_class:"
-msgid "None"
-msgstr "keine"
-
-msgctxt "selection:real_estate.base_object,use_class:"
-msgid "None"
-msgstr "keine"
-
-msgctxt "selection:real_estate.base_object,use_class:"
-msgid "Office"
-msgstr "Büro"
-
-msgctxt "selection:real_estate.base_object,use_class:"
-msgid "Office"
-msgstr "Büro"
-
-msgctxt "selection:real_estate.base_object,use_class:"
-msgid "Parking"
-msgstr "Stellplatz"
-
-msgctxt "selection:real_estate.base_object,use_class:"
-msgid "Parking"
-msgstr "Stellplatz"
-
-msgctxt "selection:real_estate.base_object,use_class:"
-msgid "Retail"
-msgstr "Verkauf"
-
-msgctxt "selection:real_estate.base_object,use_class:"
-msgid "Retail"
-msgstr "Verkauf"
-
-msgctxt "selection:real_estate.base_object,use_class:"
-msgid "Warehouse"
-msgstr "Lager"
-
-msgctxt "selection:real_estate.base_object,use_class:"
-msgid "Warehouse"
-msgstr "Lager"
 
 msgctxt "selection:real_estate.base_object.equipment.context,e_type:"
 msgid "Installation"

@@ -82,6 +82,16 @@ class Quantitative(fields.Numeric):
         return definition
 
 #**************************************************************************
+class UseClass(DeactivableMixin, sequence_ordered(), ModelSQL, ModelView):
+    "Use Class"
+    __name__ = 'real_estate.use_class'
+
+    name = fields.Char("Name", required=True, translate=True)
+    has_basement_nr = fields.Boolean("Has Basement Number")
+    has_parking_nr = fields.Boolean("Has Parking Number")
+
+
+#**************************************************************************
 class BaseObject(Workflow, DeactivableMixin, re_sequence_ordered(), tree(separator='\\'), ModelSQL, ModelView):
     "Base Object - base class for real estate objects"
     __name__ = 'real_estate.base_object'
@@ -125,22 +135,18 @@ class BaseObject(Workflow, DeactivableMixin, re_sequence_ordered(), tree(separat
             },
             sort=False)
 
-    use_class = fields.Selection([
-            ('apartment', 'Apartment'),
-            ('office', 'Office'),
-            ('retail', 'Retail'),
-            ('warehouse', 'Warehouse'),
-            ('parking', 'Parking'),
-            ('garage', 'Garage'),
-            (None, 'None'),
-            ],
-        "Use", 
-        translate=True,
+    use_class = fields.Many2One('real_estate.use_class', "Use",
         states={
             'invisible': Eval('type') != 'object',
             'required': Eval('type') == 'object',
-            },
-            sort=False)
+            })
+
+    use_class_has_basement_nr = fields.Function(
+        fields.Boolean("Has Basement Number"),
+        'on_change_with_use_class_has_basement_nr')
+    use_class_has_parking_nr = fields.Function(
+        fields.Boolean("Has Parking Number"),
+        'on_change_with_use_class_has_parking_nr')
 
 
     company = fields.Many2One('company.company', "Company", required=True, ondelete='CASCADE')
@@ -243,12 +249,12 @@ class BaseObject(Workflow, DeactivableMixin, re_sequence_ordered(), tree(separat
     basement_nr = fields.Char("Basement Number", size=10,
         states={
             'invisible': (Eval('type') != 'object')
-                | Eval('use_class', '').in_(['parking', 'garage']),
+                | ~Bool(Eval('use_class_has_basement_nr', False)),
         })
     parking_nr = fields.Char("Parking Number", size=10,
         states={
             'invisible': (Eval('type') != 'object')
-                | ~Eval('use_class', '').in_(['parking', 'garage']),
+                | ~Bool(Eval('use_class_has_parking_nr', False)),
         })
 
     ## special equipment data
@@ -626,6 +632,18 @@ class BaseObject(Workflow, DeactivableMixin, re_sequence_ordered(), tree(separat
     @fields.depends('object_number', 'name', 'id', 'type')
     def on_change_with_compute_name(self, name=None):
         return f"{self.object_number} - {self.name} ({self.id})"
+
+    @fields.depends('use_class')
+    def on_change_with_use_class_has_basement_nr(self, name=None):
+        if self.use_class:
+            return self.use_class.has_basement_nr
+        return False
+
+    @fields.depends('use_class')
+    def on_change_with_use_class_has_parking_nr(self, name=None):
+        if self.use_class:
+            return self.use_class.has_parking_nr
+        return False
 
     @fields.depends('sequence', 'parent')
     def on_change_with_object_number(self, name=None):

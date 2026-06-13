@@ -63,6 +63,22 @@ The following master data must be set up before the module can be used:
    Term type definitions with default rhythm (monthly / quarterly / …),
    default quantity source (measurement type), and default account.
 
+``real_estate.use_class``
+   Dynamic use-class catalogue replacing the former static selection field.
+   Each record carries two boolean flags:
+
+   ``has_basement_nr``
+      Show/hide the *Basement Number* field on rental objects.
+
+   ``has_parking_nr``
+      Show/hide the *Parking Number* field on rental objects.
+
+   Six default records are loaded at module installation:
+   *Apartment* (has_basement_nr), *Office* (has_basement_nr),
+   *Retail* (has_basement_nr), *Warehouse* (has_basement_nr),
+   *Parking* (has_parking_nr), *Garage* (has_parking_nr).
+   Additional classes can be created without changing code.
+
 ``real_estate.cost_category_group`` / ``real_estate.cost_type``
    Cost categories (e.g. *Heating*, *Water*) and individual cost types
    used to structure operating cost settlements.
@@ -293,6 +309,23 @@ Property Management
    - Buttons ``compute_value_shares``, ``compute_settlement_result_property``,
      and ``billing_property`` delegate bulk settlement actions to all
      billing units of the property
+
+   *Rental object fields* (visible only for ``type = 'object'``):
+
+   ``type_of_use``
+      Economic use: ``residential``, ``commercial``, ``property``
+      (owner-occupied), or ``internal``. Drives the contract-type filter.
+
+   ``use_class``
+      Many2One to ``real_estate.use_class``. Controls which additional
+      fields (``basement_nr`` / ``parking_nr``) appear on the form.
+
+   *Meter fields* (visible only for ``type = 'equipment'``, ``e_type = 'meters'``):
+
+   ``meter_no_decimals``
+      Boolean, default ``True``. When set, meter readings are validated and
+      rounded to integer values. The estimate-consumption wizard and
+      ``simulate_estimate`` respect this flag and round accordingly.
 
    Context classes for list views (``BaseObjectEquipmentContext``,
    ``BaseObjectOccupancyContext``, ``MeterReadingContext``) provide

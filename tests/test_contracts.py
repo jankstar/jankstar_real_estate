@@ -74,6 +74,15 @@ def get_company():
     return companies[0]
 
 
+def get_use_class(name: str):
+    UseClass = Model.get('real_estate.use_class')
+    results = UseClass.find([('name', '=', name)])
+    if not results:
+        print(f'ERROR: Nutzungsklasse "{name}" nicht gefunden.', file=sys.stderr)
+        sys.exit(1)
+    return results[0]
+
+
 def get_properties():
     BaseObject = Model.get('real_estate.base_object')
     props = []
@@ -90,21 +99,21 @@ def get_properties():
     return props
 
 
-def get_apartments(property_obj):
+def get_apartments(property_obj, uc_apartment):
     BaseObject = Model.get('real_estate.base_object')
     return BaseObject.find([
         ('property', '=', property_obj.id),
         ('type', '=', 'object'),
-        ('use_class', '=', 'apartment'),
+        ('use_class', '=', uc_apartment.id),
     ], order=[('sequence', 'ASC')])
 
 
-def get_parking_spaces(property_obj):
+def get_parking_spaces(property_obj, uc_parking):
     BaseObject = Model.get('real_estate.base_object')
     return BaseObject.find([
         ('property', '=', property_obj.id),
         ('type', '=', 'object'),
-        ('use_class', '=', 'parking'),
+        ('use_class', '=', uc_parking.id),
     ], order=[('sequence', 'ASC')])
 
 
@@ -289,6 +298,9 @@ def main():
     properties = get_properties()
     c_type = get_contract_type()
 
+    uc_apartment = get_use_class('Apartment')
+    uc_parking = get_use_class('Parking')
+
     tt_rent    = get_term_type(1000)  # Apartment rent
     tt_nk      = get_term_type(2000)  # Betriebskosten
     tt_hz      = get_term_type(3000)  # Heizkosten
@@ -313,8 +325,8 @@ def main():
         print(f'=== Wirtschaftseinheit: {prop.name} ===')
         print(f'{"=" * 60}')
 
-        apartments = get_apartments(prop)
-        parking_spaces = get_parking_spaces(prop)
+        apartments = get_apartments(prop, uc_apartment)
+        parking_spaces = get_parking_spaces(prop, uc_parking)
 
         if not apartments:
             print(f'WARNUNG: Keine Wohnungen unter {prop.name} gefunden.')

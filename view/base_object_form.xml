@@ -18,7 +18,7 @@ this repository contains the full copyright notices and license terms. -->
 
 
     <label name="type_of_use"/><field name="type_of_use" widget="selection"/>
-    <label name="use_class"/><field name="use_class" widget="selection"/>
+    <label name="use_class"/><field name="use_class"/>
 
     <group colspan="2" col="-1" id="checkboxes">
         <label name="active"/><field name="active" xexpand="0" width="25"/>

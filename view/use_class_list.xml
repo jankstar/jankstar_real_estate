@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<tree>
+    <field name="sequence"/>
+    <field name="name"/>
+    <field name="has_basement_nr"/>
+    <field name="has_parking_nr"/>
+    <field name="active"/>
+</tree>

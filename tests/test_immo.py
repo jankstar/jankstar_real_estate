@@ -88,7 +88,7 @@ def create_base_object(
     sequence: int,
     parent=None,
     type_of_use: str | None = None,
-    use_class: str | None = None,
+    use_class=None,
     floor: int | None = None,
 ) -> object:
     BaseObject = Model.get('real_estate.base_object')
@@ -121,6 +121,15 @@ def create_measurement(base_object, m_type, value: float) -> None:
     m.valid_from = START_DATE
     m.save()
     print(f'    Bemessung: {m_type.name} = {value} {m_type.unit.symbol}')
+
+
+def get_use_class(name: str):
+    UseClass = Model.get('real_estate.use_class')
+    results = UseClass.find([('name', '=', name)])
+    if not results:
+        print(f'ERROR: Nutzungsklasse "{name}" nicht gefunden.', file=sys.stderr)
+        sys.exit(1)
+    return results[0]
 
 
 def get_uom(symbol: str):
@@ -194,7 +203,8 @@ def create_meter(parent, name: str, sequence: int, company, uom, admin_user) -> 
     print(f'    Zähler:    {name} (id={obj.id}, meter_id={meter_id}, Verbrauch={verbrauch} m³)')
 
 
-def create_land_with_parking(prop_name: str, prop, company, sequence: int) -> None:
+def create_land_with_parking(prop_name: str, prop, company, sequence: int,
+                             uc_parking) -> None:
     """Create one land entry with 4 parking spaces under the given property."""
     land = create_base_object(
         name=f'{prop_name} – Grundstück',
@@ -211,7 +221,7 @@ def create_land_with_parking(prop_name: str, prop, company, sequence: int) -> No
             sequence=i * 10,
             parent=land,
             type_of_use='residential',
-            use_class='parking',
+            use_class=uc_parking,
         )
         sp.parking_nr = f'{i:02d}'
         sp.save()
@@ -219,7 +229,7 @@ def create_land_with_parking(prop_name: str, prop, company, sequence: int) -> No
 
 def create_building(house_nr: int, building_seq: int, prop, company,
                     country, t_bgf, t_raume, t_wfl, uom_m3, admin_user,
-                    apt_start_nr: int) -> int:
+                    apt_start_nr: int, uc_apartment) -> int:
     """Create one building with 4 apartments and meters.
     Returns the next apartment number after the last one created."""
     address = create_re_address(house_nr, country)
@@ -253,7 +263,7 @@ def create_building(house_nr: int, building_seq: int, prop, company,
             sequence=(i + 1) * 10,
             parent=building,
             type_of_use='residential',
-            use_class='apartment',
+            use_class=uc_apartment,
             floor=floor,
         )
         create_measurement(apt, t_raume, float(rooms))
@@ -296,6 +306,9 @@ def main():
 
     uom_m3 = get_uom('m³')
 
+    uc_apartment = get_use_class('Apartment')
+    uc_parking = get_use_class('Parking')
+
     t_bgf = get_measurement_type('Bruttogeschossfläche [BHF]')
     t_raume = get_measurement_type('Anzahl Räume')
     t_wfl = get_measurement_type('Wohnfläche')
@@ -310,6 +323,7 @@ def main():
         company=company, country=country_de,
         t_bgf=t_bgf, t_raume=t_raume, t_wfl=t_wfl,
         uom_m3=uom_m3, admin_user=admin_user,
+        uc_apartment=uc_apartment,
     )
 
     # Wirtschaftseinheit 1: Musterstraße 1-4
@@ -326,7 +340,8 @@ def main():
             prop=prop1, apt_start_nr=apt_nr, **building_args,
         )
     print('\n--- Grundstück Musterstraße 1-4 ---')
-    create_land_with_parking('Musterstraße 1-4', prop1, company, sequence=50)
+    create_land_with_parking('Musterstraße 1-4', prop1, company, sequence=50,
+                             uc_parking=uc_parking)
 
     # Wirtschaftseinheit 2: Musterstraße 5-8
     print('\n=== Wirtschaftseinheit: Musterstraße 5-8 ===')
@@ -342,7 +357,8 @@ def main():
             prop=prop2, apt_start_nr=apt_nr, **building_args,
         )
     print('\n--- Grundstück Musterstraße 5-8 ---')
-    create_land_with_parking('Musterstraße 5-8', prop2, company, sequence=50)
+    create_land_with_parking('Musterstraße 5-8', prop2, company, sequence=50,
+                             uc_parking=uc_parking)
 
     print('\nFertig.')
 

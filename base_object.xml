@@ -51,6 +51,75 @@
         icon="tryton-settings"/>
 
 
+    <!-- Use Class -->
+        <record model="ir.ui.view" id="use_class_list">
+            <field name="model">real_estate.use_class</field>
+            <field name="type">tree</field>
+            <field name="name">use_class_list</field>
+        </record>
+        <record model="ir.ui.view" id="use_class_form">
+            <field name="model">real_estate.use_class</field>
+            <field name="type">form</field>
+            <field name="name">use_class_form</field>
+        </record>
+        <record model="ir.action.act_window" id="act_use_class">
+            <field name="name">Use Classes</field>
+            <field name="res_model">real_estate.use_class</field>
+        </record>
+        <record model="ir.action.act_window.view" id="act_use_class_view1">
+            <field name="sequence" eval="10"/>
+            <field name="view" ref="use_class_list"/>
+            <field name="act_window" ref="act_use_class"/>
+        </record>
+        <record model="ir.action.act_window.view" id="act_use_class_view2">
+            <field name="sequence" eval="20"/>
+            <field name="view" ref="use_class_form"/>
+            <field name="act_window" ref="act_use_class"/>
+        </record>
+        <menuitem
+            parent="menu_real_estate_configuration"
+            sequence="12"
+            action="act_use_class"
+            id="menu_use_class"/>
+
+    <!-- Use Class default records -->
+        <record model="real_estate.use_class" id="use_class_apartment">
+            <field name="sequence" eval="10"/>
+            <field name="name">Apartment</field>
+            <field name="has_basement_nr" eval="True"/>
+            <field name="has_parking_nr" eval="False"/>
+        </record>
+        <record model="real_estate.use_class" id="use_class_office">
+            <field name="sequence" eval="20"/>
+            <field name="name">Office</field>
+            <field name="has_basement_nr" eval="True"/>
+            <field name="has_parking_nr" eval="False"/>
+        </record>
+        <record model="real_estate.use_class" id="use_class_retail">
+            <field name="sequence" eval="30"/>
+            <field name="name">Retail</field>
+            <field name="has_basement_nr" eval="True"/>
+            <field name="has_parking_nr" eval="False"/>
+        </record>
+        <record model="real_estate.use_class" id="use_class_warehouse">
+            <field name="sequence" eval="40"/>
+            <field name="name">Warehouse</field>
+            <field name="has_basement_nr" eval="True"/>
+            <field name="has_parking_nr" eval="False"/>
+        </record>
+        <record model="real_estate.use_class" id="use_class_parking">
+            <field name="sequence" eval="50"/>
+            <field name="name">Parking</field>
+            <field name="has_basement_nr" eval="False"/>
+            <field name="has_parking_nr" eval="True"/>
+        </record>
+        <record model="real_estate.use_class" id="use_class_garage">
+            <field name="sequence" eval="60"/>
+            <field name="name">Garage</field>
+            <field name="has_basement_nr" eval="False"/>
+            <field name="has_parking_nr" eval="True"/>
+        </record>
+
         <record model="res.user-res.group" id="user_admin_group_real_estate_admin">
             <field name="user" ref="res.user_admin"/>
             <field name="group" ref="group_real_estate_admin"/>
