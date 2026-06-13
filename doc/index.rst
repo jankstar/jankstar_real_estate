@@ -161,6 +161,11 @@ Permission matrix (``C`` = CRUD · ``R`` = read · ``—`` = no access):
      - R
      - R
      - R
+   * - ``real_estate.use_class``
+     - C
+     - R
+     - R
+     - R
    * - ``real_estate.measurement``
      - C
      - C
@@ -355,11 +360,28 @@ Property Management
    ``base_object``, ``meter_id``, ``reading_date``, ``m_type``
    (``initial`` / ``reading`` / ``estimate`` / ``final``),
    ``value``, ``unit`` (derived from the meter's ``meter_unit``),
-   ``consumption`` (difference to previous reading for counter meters).
+   ``consumption`` (difference to previous reading for counter meters),
+   ``comment`` (free text).
 
    Browseable via the *Meter Readings* menu entry under *Master Data*,
    filterable by company, property, parent object, equipment (meters only),
    and date range (``from_date`` / ``to_date``).
+
+   **Consumption estimate** (``simulate_estimate`` / ``create_estimate``):
+
+   ``simulate_estimate(base_object, per_date, meter_id=None)``
+      Returns ``(estimated_value, consumption, r1, r2)``.
+      Prefers **interpolation** when readings exist both before and after
+      ``per_date``: takes the closest reading on each side and interpolates
+      linearly between them.
+      Falls back to **extrapolation** using the last two readings within
+      one year before ``per_date`` when no future reading is available.
+      Rounds the result to the meter's UOM digit precision; if
+      ``meter_no_decimals`` is set on the meter, rounds to integers.
+
+   ``create_estimate(base_object, per_date, reason, meter_id=None)``
+      Calls ``simulate_estimate`` and saves a new reading with
+      ``m_type = 'estimate'``.
 
 
 Contract Management
@@ -681,6 +703,25 @@ class ``CreateContractMovesWizard``)
    calculates ``termination_date`` from the notice period
    (3 / 6 / 9 / 12 months to end of month).
 
+``real_estate.estimate_consumption.wizard``  (``base_object.py``,
+class ``EstimateConsumptionWizard``)
+   Two-step wizard launched from the *Meters* tab of any approved meter
+   object. Estimates the meter reading for a chosen cut-off date and
+   books it as an ``estimate`` reading.
+
+   *Step 1 – Start:* displays the meter description, unit and factor,
+   pre-fills ``meter_id`` from the last reading, and prompts for
+   ``per_date`` (default: today) and a free-text ``reason``.
+
+   *Step 2 – Result:* calls ``simulate_estimate`` and shows the two
+   basis readings (``reading1`` / ``reading2``), the derived
+   ``consumption``, and the editable ``estimated_value``. The user can
+   adjust the value before booking.
+
+   *Book:* saves a new ``MeterReading`` with ``m_type = 'estimate'``.
+   The value is rounded to the meter's UOM digit precision (integer if
+   ``meter_no_decimals`` is set) before saving.
+
 
 Reports
 =======
@@ -767,12 +808,16 @@ Demo data scripts in ``tests/`` (proteus-based, not unit tests):
    with four buildings, four rental apartments per building (16 apartments and
    16 water meters per property), and one land parcel with four parking spaces.
    Meter names follow the pattern ``Wasser Zähler NN``.
+   Looks up ``real_estate.use_class`` records by name (*Apartment*, *Parking*)
+   — the default records must be present (loaded by ``trytond-admin``).
    Run once against a populated database::
 
       python tests/test_immo.py --database <db> [--config trytond.conf]
 
 ``tests/test_contracts.py``
-   Creates tenants and lease contracts for three apartments.
+   Creates tenants and lease contracts for the rental apartments.
+   Filters apartments and parking spaces by ``real_estate.use_class`` id
+   (looks up *Apartment* and *Parking* by name).
    Requires data from ``test_immo.py``::
 
       python tests/test_contracts.py --database <db> [--config trytond.conf]
