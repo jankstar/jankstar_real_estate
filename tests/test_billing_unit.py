@@ -4,20 +4,34 @@ Billing Units für die zwei Testimmobilien anlegen.
 Je Wirtschaftseinheit werden zwei Billing Units angelegt:
 
   1. "Kalte Betriebskosten 2025" (calculation_method=rental_apartment)
-     Settlement Units:
-       100 Grundsteuer              — Bemessung Wohnfläche, Leerstand: Eigentümer
-       110 Gebäudeversicherung      — Bemessung Wohnfläche, Leerstand: Eigentümer
+
+     Alle Settlement Units verwenden Objekt-Regex "Wohnung|Einzelhandel",
+     d.h. sowohl Wohnungen als auch Gewerbeflächen (Einzelhandel) werden
+     als Abrechnungsobjekte einbezogen.
+
+     Bemessungsbasierte Settlement Units (m_type=Wohnfläche, sequence=10):
+       Für Wohnungen wird die Wohnfläche herangezogen; für Einzelhandel-
+       Objekte greift der Fallback auf gleiche Einheit (m²), sodass die
+       Gewerbefläche verwendet wird.
+
+       100 Grundsteuer              — Bemessung Fläche m², Leerstand: Eigentümer
+       110 Gebäudeversicherung      — Bemessung Fläche m², Leerstand: Eigentümer
+       500 Straßenreinigung         — Bemessung Fläche m², Leerstand: Eigentümer
+       510 Müllabfuhr               — Bemessung Fläche m², Leerstand: Eigentümer
+       520 Hausreinigung            — Bemessung Fläche m², Leerstand: Eigentümer
+       600 Gartenpflege             — Bemessung Fläche m², Leerstand: Eigentümer
+       610 Hausstrom                — Bemessung Fläche m², Leerstand: Eigentümer
+       620 Schornsteinfeger         — Bemessung Fläche m², Leerstand: Eigentümer
+       700 Hausmeister              — Bemessung Fläche m², Leerstand: Eigentümer
+
+     Verbrauchsbasierte Settlement Unit (Zähler-Regex "Wasser Zähler"):
+       Die Regex trifft sowohl Wohnungszähler ("Wasser Zähler 01" …) als
+       auch Einzelhandelszähler ("Wasser Zähler EH01" …).
+
        200 Wasserversorgung/Abwasser — Verbrauch m³, Leerstand: Eigentümer
-       500 Straßenreinigung         — Bemessung Wohnfläche, Leerstand: Eigentümer
-       510 Müllabfuhr               — Bemessung Wohnfläche, Leerstand: Eigentümer
-       520 Hausreinigung            — Bemessung Wohnfläche, Leerstand: Eigentümer
-       600 Gartenpflege             — Bemessung Wohnfläche, Leerstand: Eigentümer
-       610 Hausstrom                — Bemessung Wohnfläche, Leerstand: Eigentümer
-       620 Schornsteinfeger         — Bemessung Wohnfläche, Leerstand: Eigentümer
-       700 Hausmeister              — Bemessung Wohnfläche, Leerstand: Eigentümer
 
   2. "Heizkosten 2025" (calculation_method=rental_apartment)
-     Settlement Units:
+     Settlement Units (Objekt-Regex: "Wohnung|Einzelhandel"):
        300 Heizung (Brennstoff)     — externe Abrechnung
        310 Heizung (Wartung)        — externe Abrechnung
 
@@ -157,10 +171,11 @@ def create_su_measurement(bu, cost_type, m_type) -> None:
     su.allocation_rule = 'allocation_by_measurement'
     su.m_type = m_type
     su.vacancy = 'by_owner'
-    su.reg_ex_object = 'Wohnung'
+    su.reg_ex_object = 'Wohnung|Einzelhandel'
     su.save()
     print(f'    SU {su.sequence}: {cost_type.name} '
-          f'→ Wohnfläche / Leerstand: Eigentümer / Objekt-Regex: "Wohnung"')
+          f'→ Wohnfläche / Leerstand: Eigentümer '
+          f'/ Objekt-Regex: "Wohnung|Einzelhandel"')
 
 
 def create_su_consumption(bu, cost_type, meter_unit) -> None:
@@ -172,12 +187,12 @@ def create_su_consumption(bu, cost_type, meter_unit) -> None:
     su.allocation_rule = 'allocation_by_consumption'
     su.meter_unit = meter_unit
     su.vacancy = 'by_owner'
-    su.reg_ex_object = 'Wohnung'
+    su.reg_ex_object = 'Wohnung|Einzelhandel'
     su.reg_ex_meter = 'Wasser Zähler'
     su.save()
     print(f'    SU {su.sequence}: {cost_type.name} '
           f'→ Verbrauch {meter_unit.symbol} / Leerstand: Eigentümer '
-          f'/ Objekt-Regex: "Wohnung" / Zähler-Regex: "Wasser Zähler"')
+          f'/ Objekt-Regex: "Wohnung|Einzelhandel" / Zähler-Regex: "Wasser Zähler"')
 
 
 def create_su_external(bu, cost_type) -> None:
@@ -187,10 +202,10 @@ def create_su_external(bu, cost_type) -> None:
     su.type = cost_type
     su.sequence = cost_type.sequence
     su.allocation_rule = 'allocation_from_external_billing'
-    su.reg_ex_object = 'Wohnung'
+    su.reg_ex_object = 'Wohnung|Einzelhandel'
     su.save()
     print(f'    SU {su.sequence}: {cost_type.name} '
-          f'→ externe Abrechnung / Objekt-Regex: "Wohnung"')
+          f'→ externe Abrechnung / Objekt-Regex: "Wohnung|Einzelhandel"')
 
 
 # ---------------------------------------------------------------------------

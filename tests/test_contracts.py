@@ -4,45 +4,69 @@ Demodaten für Mietverträge im Tryton-Modul real_estate erzeugen.
 Voraussetzung: Die Immobiliendaten aus test_immo.py müssen bereits in der
 Datenbank vorhanden sein (Properties "Musterstraße 1-4" und "Musterstraße 5-8").
 
-Das Skript legt für jede Wirtschaftseinheit folgende Objekte an:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+WOHNUNGSMIETVERTRÄGE (type_of_use='residential')
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Je Wirtschaftseinheit (16 Wohnungen, 4 Stellplätze):
 
-  Je Wirtschaftseinheit (16 Wohnungen, 4 Stellplätze, 4 Gewerbeflächen):
-  - Für 15 der 16 Wohnungen je einen Mietvertrag (1 Wohnung bleibt zufällig leer)
-  - Vertragspartner (party.party): "Mieter N" (N zählt über alle WE durch)
-      Sprache: Deutsch (ir.lang code='de')
-      mit einer party.address: Musterstraße 1, 14163 Berlin, DE
-  - 1 Mietvertrag (real_estate.contract) je Wohnung:
-      - Vertragsart: erste verfügbare ContractType für type_of_use 'residential'
-      - Startdatum: 01.01.2025, Status: draft
-  - 1 ContractItem: Zuordnung der Wohnung zum Vertrag ab 01.01.2025
-  - 3 Konditionen (ContractTerm) je Wohnungsvertrag, monatlich:
-      - Apartment rent   (sequence=1000): zufälliger Preis zwischen 11,00 und 16,00 EUR
-      - Betriebskosten   (sequence=2000): zufälliger Preis zwischen  3,00 und  4,00 EUR
-      - Heizkosten       (sequence=3000): zufälliger Preis zwischen  3,00 und  4,00 EUR
-  - 4 Stellplätze werden auf 4 zufällig ausgewählte Wohnungsmieter verteilt
-    (kein Mieter erhält dabei mehr als einen Stellplatz):
-      2x Stellplatz als zusätzliches ContractItem zum vorhandenen Wohnungsvertrag:
-        - 1 ContractItem: Zuordnung des Stellplatzes zum Vertrag (sequence=20)
-        - 1 Kondition Miete Stellplatz (sequence=40): 50,00 EUR, monatlich
-      2x eigener Stellplatz-Mietvertrag für einen anderen Mieter (ohne Stellplatz
-      im Wohnungsvertrag):
-        - Vertragspartner: vorhandener Mieter (gleiche party, gleiche Adresse)
-        - 1 ContractItem: nur der Stellplatz (sequence=10)
-        - 1 Kondition Miete Stellplatz (sequence=10): 50,00 EUR, monatlich
+  - 15 von 16 Wohnungen erhalten je einen Wohnungsmietvertrag;
+    1 Wohnung bleibt zufällig leer (kein Vertrag).
+  - Vertragspartner "Mieter N" (N zählt über beide WE durch):
+      Sprache Deutsch, Adresse Musterstraße 1, 14163 Berlin, DE
+  - Vertragsart: erste ContractType für type_of_use 'residential'
+  - Startdatum: 01.01.2025
+  - Je Vertrag 1 ContractItem (sequence=10) mit der zugeordneten Wohnung
+  - 3 Konditionen je Wohnungsvertrag, monatlich:
+      - Apartment rent (sequence=1000): zufällig 11,00–16,00 EUR, Menge 1
+      - Betriebskosten (sequence=2000): zufällig  3,00– 4,00 EUR, Menge 1
+      - Heizkosten     (sequence=3000): zufällig  3,00– 4,00 EUR, Menge 1
+  - Alle Verträge werden aktiviert (→ running).
+  - 3 Verträge werden zufällig gekündigt:
+      - Kündigung 1: Vertragsende 31.05.2025, Eingang Kündigung 28.02.2025
+      - Kündigung 2: Vertragsende 31.07.2025, Eingang Kündigung 30.04.2025
+      - Kündigung 3: Vertragsende 30.11.2025, Eingang Kündigung 31.08.2025
+  - Für Kündigung 1: Folgevertrag ab 01.06.2025 (neuer Mieter, gleiche Wohnung)
+  - Für Kündigung 2: Folgevertrag ab 16.09.2025 (neuer Mieter, gleiche Wohnung)
 
-  Gewerbemietverträge (type_of_use='commercial'):
-  - Musterstraße 1-4: 1 Gewerbevertrag für alle 4 Gewerbeflächen
-      - Vertragspartner: "Gewerbemieter 1"
-      - 1 ContractItem (sequence=10) mit allen 4 Gewerbeobjekten
-      - Konditionen: Gewerbemiete (sequence=8000) 25,00 EUR/m² × 560 m²,
-        Betriebskosten (sequence=2000) und Heizkosten (sequence=3000) je zufällig 3–4 EUR
-  - Musterstraße 5-8: je 1 Gewerbevertrag pro Gewerbefläche (4 Verträge)
-      - Vertragspartner: "Gewerbemieter 2–5"
-      - Je 1 ContractItem (sequence=10) mit dem zugeordneten Gewerbeobjekt
-      - Konditionen: Gewerbemiete 25,00 EUR/m² × 140 m², NK und HK zufällig 3–4 EUR
+  Stellplätze (4 je WE, zufällig auf Wohnungsmieter verteilt):
+    2x als zusätzliches ContractItem im vorhandenen Wohnungsvertrag:
+        - ContractItem sequence=20, Kondition Miete Stellplatz sequence=40: 50,00 EUR
+    2x als eigener Stellplatz-Einzelvertrag (gleicher Mieter, gleiche Adresse):
+        - ContractItem sequence=10, Kondition Miete Stellplatz sequence=10: 50,00 EUR
 
-Das Skript ist idempotent: es bricht ab, wenn "Mieter 1" als Party
-bereits in der Datenbank existiert.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+GEWERBEMIETVERTRÄGE (type_of_use='commercial')
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  Vertragsart: erste ContractType für type_of_use 'commercial'
+  Startdatum: 01.01.2025, alle Verträge werden aktiviert (→ running).
+  Steuer auf alle Konditionen: USt. 19% Umsatzsteuer voller Satz Waren Inland
+
+  Musterstraße 1-4 — 1 Sammelvertrag für alle 4 Gewerbeflächen:
+    - Vertragspartner: "Gewerbemieter 1"
+    - 1 ContractItem (sequence=10, Label "Gewerbeflächen EG")
+      mit allen 4 Gewerbeobjekten (ContractItemObject)
+    - 3 Konditionen, monatlich (Menge jeweils 4 × 140 m² = 560 m²):
+        - Gewerbemiete    (sequence=8000): 25,00 EUR/m²
+        - Betriebskosten  (sequence=2000): zufällig 3,00–4,00 EUR/m²
+        - Heizkosten      (sequence=3000): zufällig 3,00–4,00 EUR/m²
+
+  Musterstraße 5-8 — je 1 Einzelvertrag pro Gewerbefläche (4 Verträge):
+    - Vertragspartner: "Gewerbemieter 2–5"
+    - Je 1 ContractItem (sequence=10) mit dem zugeordneten Gewerbeobjekt
+    - 3 Konditionen je Vertrag, monatlich (Menge jeweils 140 m²):
+        - Gewerbemiete    (sequence=8000): 25,00 EUR/m²
+        - Betriebskosten  (sequence=2000): zufällig 3,00–4,00 EUR/m²
+        - Heizkosten      (sequence=3000): zufällig 3,00–4,00 EUR/m²
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+HINWEISE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  - Idempotenz: Abbruch wenn Party "Mieter 1" bereits existiert.
+  - UseClass wird per Sequenznummer gesucht (sprachunabhängig):
+      Apartment=10, Parking=50, Retail=30
+  - Für NK/HK-Konditionen bei Gewerbeverträgen wird die Menge explizit
+    auf die Gewerbefläche gesetzt, da proteus on_change_with_quantity
+    vor dem Setzen von reference_item feuert.
 
 Verwendung:
     python tests/test_contracts.py --database <Datenbankname> [--config <trytond.conf>]
