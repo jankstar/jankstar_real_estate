@@ -785,7 +785,7 @@ class BaseObjectOccupancy(ModelSQL, ModelView):
         property_ = cls._get_property(base_object)
 
         items = ContractItem.search([
-            ('object', '=', base_object.id),
+            ('objects.object', '=', base_object.id),
             ('contract.c_type.occupancy', '=', True),
             ('contract.state', 'in', ('running', 'terminated', 'draft')),
         ], order=[('valid_from', 'ASC')])

@@ -9,26 +9,34 @@ Das Skript legt folgende Objekte an:
   Je Wirtschaftseinheit:
   - 4 Gebäude (Building), je mit einer Bemessung:
       Bruttogeschossfläche 3.500 m² ab 01.01.2025
+  - Je Gebäude 1 Gewerbefläche (Rental Object, Type of Use: commercial, Use: retail):
+      - Einzelhandel XX (EG): Erdgeschoss (floor=0), Sequenz 5
+      - Bemessung: Gewerbefläche 140 m²
+      - 1 Zähler (Equipment, e_type: meters, Einheit: m³, Faktor: 1, Is Counter: ja):
+          - Initialablesung 0 m³ zum 01.01.2025
+          - Ablesung zum 30.04.2025 mit zufälligem Verbrauch zwischen 20 und 40 m³
   - Je Gebäude 4 Wohnungen (Rental Object, Type of Use: residential, Use: apartment):
-      - Wohnung XX (EG links):  2 Räume, 57 m² Wohnfläche
-      - Wohnung XX (EG rechts): 3 Räume, 83 m² Wohnfläche
-      - Wohnung XX (OG links):  2 Räume, 57 m² Wohnfläche
-      - Wohnung XX (OG rechts): 3 Räume, 83 m² Wohnfläche
+      - Wohnung XX (1.OG links):  2 Räume, 57 m² Wohnfläche
+      - Wohnung XX (1.OG rechts): 3 Räume, 83 m² Wohnfläche
+      - Wohnung XX (2.OG links):  2 Räume, 57 m² Wohnfläche
+      - Wohnung XX (2.OG rechts): 3 Räume, 83 m² Wohnfläche
+      - 1 Zähler (Equipment, e_type: meters, Einheit: m³, Faktor: 1, Is Counter: ja):
+          - Initialablesung 0 m³ zum 01.01.2025
+          - Ablesung zum 30.04.2025 mit zufälligem Verbrauch zwischen 20 und 40 m³
   - Die Wohnungsnummern zählen je Wirtschaftseinheit durch (01–16).
-  - Je Wohnung 1 Zähler (Equipment, e_type: meters, Einheit: m³, Faktor: 1,
-      Is Counter: ja) mit:
-      - Initialablesung 0 m³ zum 01.01.2025
-      - Ablesung zum 30.04.2025 mit zufälligem Verbrauch zwischen 20 und 40 m³
-      Die Zähler-ID wird automatisch generiert (Format: Z-<Jahr>-<Nr>, z.B. Z-2025-0001).
+  - Die Einzelhandelsnummern zählen je Wirtschaftseinheit durch (01–04).
+  - Die Zähler-ID wird automatisch generiert (Format: Z-<Jahr>-<Nr>, z.B. Z-2025-0001).
   - 1 Grundstück (Land) direkt unter der Wirtschaftseinheit mit 4 Stellplätzen
-      (Type of Use: commercial, Use: parking), Stellplatznummern 01–04.
+      (Type of Use: residential, Use: parking), Stellplatznummern 01–04.
 
 Das Skript ist idempotent: es bricht ab, wenn eine Property mit dem Namen
 "Musterstraße 1-4" oder "Musterstraße 5-8" in der Zieldatenbank bereits vorhanden ist.
 
-Voraussetzung: Der Benutzer "admin" muss in Tryton auf die Sprache Deutsch
-gestellt sein, da sonst die Bemessungstypen (z.B. "Bruttogeschossfläche [BHF]",
-"Anzahl Räume", "Wohnfläche") nicht per Namen gefunden werden.
+Nutzungsklassen (real_estate.use_class) werden per Sequenznummer gesucht
+(sprachunabhängig): Apartment=10, Retail=30, Parking=50.
+
+Bemessungstypen werden per deutschem Namen gesucht – der Benutzer "admin" muss
+daher in Tryton auf die Sprache Deutsch gestellt sein.
 
 Verwendung:
     python tests/test_immo.py --database <Datenbankname> [--config <trytond.conf>]
@@ -123,11 +131,26 @@ def create_measurement(base_object, m_type, value: float) -> None:
     print(f'    Bemessung: {m_type.name} = {value} {m_type.unit.symbol}')
 
 
+USE_CLASS_SEQUENCE = {
+    'Apartment': 10,
+    'Office': 20,
+    'Retail': 30,
+    'Warehouse': 40,
+    'Parking': 50,
+    'Garage': 60,
+}
+
+
 def get_use_class(name: str):
     UseClass = Model.get('real_estate.use_class')
-    results = UseClass.find([('name', '=', name)])
+    seq = USE_CLASS_SEQUENCE.get(name)
+    if seq is None:
+        print(f'ERROR: Unbekannte Nutzungsklasse "{name}".', file=sys.stderr)
+        sys.exit(1)
+    results = UseClass.find([('sequence', '=', seq)])
     if not results:
-        print(f'ERROR: Nutzungsklasse "{name}" nicht gefunden.', file=sys.stderr)
+        print(f'ERROR: Nutzungsklasse sequence={seq} ("{name}") nicht gefunden.',
+              file=sys.stderr)
         sys.exit(1)
     return results[0]
 
@@ -228,10 +251,11 @@ def create_land_with_parking(prop_name: str, prop, company, sequence: int,
 
 
 def create_building(house_nr: int, building_seq: int, prop, company,
-                    country, t_bgf, t_raume, t_wfl, uom_m3, admin_user,
-                    apt_start_nr: int, uc_apartment) -> int:
-    """Create one building with 4 apartments and meters.
-    Returns the next apartment number after the last one created."""
+                    country, t_bgf, t_raume, t_wfl, t_gwfl, uom_m3, admin_user,
+                    apt_start_nr: int, uc_apartment,
+                    retail_start_nr: int, uc_retail) -> tuple:
+    """Create one building with 1 retail space (EG) and 4 apartments (1.OG/2.OG).
+    Returns (next_apt_nr, next_retail_nr)."""
     address = create_re_address(house_nr, country)
 
     building = create_base_object(
@@ -245,14 +269,29 @@ def create_building(house_nr: int, building_seq: int, prop, company,
     building.save()
     create_measurement(building, t_bgf, 3500.0)
 
-    # 4 apartments: (floor, side, rooms, area)
+    # Retail space on floor 0 (EG)
+    retail = create_base_object(
+        name=f'Einzelhandel {retail_start_nr:02d} (EG)',
+        obj_type='object',
+        company=company,
+        sequence=5,
+        parent=building,
+        type_of_use='commercial',
+        use_class=uc_retail,
+        floor=0,
+    )
+    create_measurement(retail, t_gwfl, 140.0)
+    create_meter(retail, f'Wasser Zähler EH{retail_start_nr:02d}', sequence=10,
+                 company=company, uom=uom_m3, admin_user=admin_user)
+
+    # 4 apartments on floors 1 and 2: (floor, side, rooms, area)
     apt_layout = [
-        (0, 'links',  2, 57.0),
-        (0, 'rechts', 3, 83.0),
         (1, 'links',  2, 57.0),
         (1, 'rechts', 3, 83.0),
+        (2, 'links',  2, 57.0),
+        (2, 'rechts', 3, 83.0),
     ]
-    floor_label = {0: 'EG', 1: 'OG'}
+    floor_label = {1: '1.OG', 2: '2.OG'}
     for i, (floor, seite, rooms, area) in enumerate(apt_layout):
         nr = apt_start_nr + i
         apt_name = f'Wohnung {nr:02d} ({floor_label[floor]} {seite})'
@@ -271,7 +310,7 @@ def create_building(house_nr: int, building_seq: int, prop, company,
         create_meter(apt, f'Wasser Zähler {nr:02d}', sequence=10,
                      company=company, uom=uom_m3, admin_user=admin_user)
 
-    return apt_start_nr + 4
+    return apt_start_nr + 4, retail_start_nr + 1
 
 
 def main():
@@ -308,10 +347,12 @@ def main():
 
     uc_apartment = get_use_class('Apartment')
     uc_parking = get_use_class('Parking')
+    uc_retail = get_use_class('Retail')
 
     t_bgf = get_measurement_type('Bruttogeschossfläche [BHF]')
     t_raume = get_measurement_type('Anzahl Räume')
     t_wfl = get_measurement_type('Wohnfläche')
+    t_gwfl = get_measurement_type('Gewerbefläche')
 
     country_de = get_country('DE')
     if not country_de:
@@ -321,9 +362,9 @@ def main():
 
     building_args = dict(
         company=company, country=country_de,
-        t_bgf=t_bgf, t_raume=t_raume, t_wfl=t_wfl,
+        t_bgf=t_bgf, t_raume=t_raume, t_wfl=t_wfl, t_gwfl=t_gwfl,
         uom_m3=uom_m3, admin_user=admin_user,
-        uc_apartment=uc_apartment,
+        uc_apartment=uc_apartment, uc_retail=uc_retail,
     )
 
     # Wirtschaftseinheit 1: Musterstraße 1-4
@@ -333,11 +374,13 @@ def main():
         company=company, sequence=10,
     )
     apt_nr = 1
+    retail_nr = 1
     for house_nr, building_seq in [(1, 10), (2, 20), (3, 30), (4, 40)]:
         print(f'\n--- Gebäude Musterstraße {house_nr} ---')
-        apt_nr = create_building(
+        apt_nr, retail_nr = create_building(
             house_nr=house_nr, building_seq=building_seq,
-            prop=prop1, apt_start_nr=apt_nr, **building_args,
+            prop=prop1, apt_start_nr=apt_nr, retail_start_nr=retail_nr,
+            **building_args,
         )
     print('\n--- Grundstück Musterstraße 1-4 ---')
     create_land_with_parking('Musterstraße 1-4', prop1, company, sequence=50,
@@ -350,11 +393,13 @@ def main():
         company=company, sequence=20,
     )
     apt_nr = 1
+    retail_nr = 1
     for house_nr, building_seq in [(5, 10), (6, 20), (7, 30), (8, 40)]:
         print(f'\n--- Gebäude Musterstraße {house_nr} ---')
-        apt_nr = create_building(
+        apt_nr, retail_nr = create_building(
             house_nr=house_nr, building_seq=building_seq,
-            prop=prop2, apt_start_nr=apt_nr, **building_args,
+            prop=prop2, apt_start_nr=apt_nr, retail_start_nr=retail_nr,
+            **building_args,
         )
     print('\n--- Grundstück Musterstraße 5-8 ---')
     create_land_with_parking('Musterstraße 5-8', prop2, company, sequence=50,

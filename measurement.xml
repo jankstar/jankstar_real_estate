@@ -200,6 +200,13 @@
             <field name="types" eval="['object']"/>
         </record>
 
+        <record model="real_estate.measurement.type" id="measurement_commercial_space_type">
+            <field name="name">Commercial Space</field>
+            <field name="unit" ref="product.uom_square_meter"/>
+            <field name="sequence">15</field>
+            <field name="types" eval="['object']"/>
+        </record>
+
         <record model="real_estate.measurement.type" id="measurement_gross_floor_area_type">
             <field name="name">Gross floor area</field>
             <field name="unit" ref="product.uom_square_meter"/>

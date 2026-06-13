@@ -5,10 +5,39 @@ from trytond.model.exceptions import ValidationError
 from trytond.i18n import gettext
 from trytond.pool import Pool, PoolMeta
 from trytond.pyson import Eval
+from trytond.transaction import Transaction
 
 import logging
 
 logger = logging.getLogger(__name__)
+
+
+#**********************************************************************
+class ContractItemObject(sequence_ordered(), ModelSQL, ModelView):
+    "Contract Item Object"
+    __name__ = 'real_estate.contract.item.object'
+
+    item = fields.Many2One('real_estate.contract.item', 'Item',
+        required=True, ondelete='CASCADE')
+    object = fields.Many2One('real_estate.base_object', 'Object',
+        required=True, ondelete='CASCADE',
+        domain=[('type', '=', 'object')])
+
+    @classmethod
+    def create(cls, vlist):
+        vlist = [v.copy() for v in vlist]
+        for vals in vlist:
+            if not vals.get('sequence'):
+                item_id = vals.get('item')
+                if item_id:
+                    existing = cls.search(
+                        [('item', '=', item_id)],
+                        order=[('sequence', 'DESC')], limit=1)
+                    max_seq = existing[0].sequence if existing else 0
+                else:
+                    max_seq = 0
+                vals['sequence'] = ((max_seq // 10) + 1) * 10
+        return super().create(vlist)
 
 
 #**********************************************************************
@@ -19,13 +48,8 @@ class ContractItem(sequence_ordered(), ModelSQL, ModelView, metaclass=PoolMeta):
 
     contract = fields.Many2One('real_estate.contract', 'Contract', required=True,
          path='path', ondelete='CASCADE')
-    object = fields.Many2One('real_estate.base_object', 'Object', required=True,
-            ondelete='CASCADE',
-            domain=[('type', 'in', ('object',)),
-                    ('type_of_use', '=', Eval('type_of_use', -1)),
-                    ('property', '=', Eval('property', -1)),
-                    ('company', '=', Eval('company', -1)),
-                    ],)
+    label = fields.Char("Label")
+    objects = fields.One2Many('real_estate.contract.item.object', 'item', 'Objects')
     valid_from = fields.Date('Valid from', required=True)
     valid_to = fields.Date('Valid to')
 
@@ -46,15 +70,16 @@ class ContractItem(sequence_ordered(), ModelSQL, ModelView, metaclass=PoolMeta):
         'Currency'), 'on_change_with_currency')
 
     children = fields.Function(
-        fields.One2Many('real_estate.base_object', None,
-                        'Children',)
-        , 'on_change_with_children', setter='set_children')
+        fields.One2Many('real_estate.base_object', None, 'Children'),
+        'on_change_with_children', setter='set_children')
 
-    @fields.depends('object')
+    @fields.depends('objects')
     def on_change_with_children(self, name=None):
-        if self.object:
-            return self.object.children
-        return []
+        children = []
+        for item_obj in (self.objects or []):
+            if item_obj.object:
+                children.extend(item_obj.object.children)
+        return children
 
     @fields.depends('contract', 'sequence')
     def on_change_with_sequence(self, name=None):
@@ -66,11 +91,21 @@ class ContractItem(sequence_ordered(), ModelSQL, ModelView, metaclass=PoolMeta):
 
         return self.contract.c_type.step_item if self.contract and self.contract.c_type else 1
 
-    @fields.depends('object')
+    @fields.depends('label', 'objects')
     def on_change_with_name(self, name=None):
-        if self.object:
-            return self.object.name + ' ( ' + self.object.object_number + ' )'
-        return f" - "
+        if self.label:
+            return self.label
+        first = self.objects[0].object if self.objects else None
+        if first:
+            return first.name + ' ( ' + (first.object_number or '') + ' )'
+        return ' - '
+
+    @fields.depends('label', 'objects')
+    def on_change_objects(self):
+        if not self.label and self.objects:
+            first = self.objects[0].object
+            if first:
+                self.label = first.name
 
     @fields.depends('contract', 'valid_from')
     def on_change_contract(self, name=None):
@@ -107,15 +142,16 @@ class ContractItem(sequence_ordered(), ModelSQL, ModelView, metaclass=PoolMeta):
             bool_op = 'OR'
 
         return [bool_op,
-            ('object.name',) + tuple(clause[1:]),
-            ('object.object_number',) + tuple(clause[1:]),
+            ('label',) + tuple(clause[1:]),
+            ('objects.object.name',) + tuple(clause[1:]),
+            ('objects.object.object_number',) + tuple(clause[1:]),
         ]
 
     @classmethod
     def validate_fields(cls, instances, fields):
         super().validate_fields(instances, fields)
         for item in instances:
-            if {'valid_from', 'valid_to', 'object'} & set(fields):
+            if {'valid_from', 'valid_to', 'objects'} & set(fields):
                 cls._check_occupancy_overlap(item)
             if 'valid_from' not in fields:
                 continue
@@ -144,37 +180,37 @@ class ContractItem(sequence_ordered(), ModelSQL, ModelView, metaclass=PoolMeta):
             return
         if not item.contract.c_type.occupancy:
             return
-        if not item.object:
+        if not item.objects:
             return
         contract_state = item.contract.state or 'draft'
         if contract_state == 'cancelled':
             return
 
-        # Use the already-computed occupancy table: it correctly accounts for
-        # termination dates, draft-state (under_negotiation), and only
-        # includes occupancy-type contracts.
         pool = Pool()
         BaseObjectOccupancy = pool.get('real_estate.base_object.occupancy')
 
-        domain = [
-            ('base_object', '=', item.object.id),
-            ('state', 'in', ('rented', 'under_negotiation')),
-            ('contract', '!=', item.contract.id),
-            ['OR', ('end_date', '=', None), ('end_date', '>=', item.valid_from)],
-        ]
-        if item.valid_to:
-            domain.append(('start_date', '<=', item.valid_to))
+        for item_obj in item.objects:
+            if not item_obj.object:
+                continue
+            domain = [
+                ('base_object', '=', item_obj.object.id),
+                ('state', 'in', ('rented', 'under_negotiation')),
+                ('contract', '!=', item.contract.id),
+                ['OR', ('end_date', '=', None), ('end_date', '>=', item.valid_from)],
+            ]
+            if item.valid_to:
+                domain.append(('start_date', '<=', item.valid_to))
 
-        if not BaseObjectOccupancy.search(domain):
-            return
+            if not BaseObjectOccupancy.search(domain):
+                continue
 
-        obj_name = item.object.rec_name
-        date_from = item.valid_from.isoformat() if item.valid_from else '?'
-        date_to = item.valid_to.isoformat() if item.valid_to else 'open'
+            obj_name = item_obj.object.rec_name
+            date_from = item.valid_from.isoformat() if item.valid_from else '?'
+            date_to = item.valid_to.isoformat() if item.valid_to else 'open'
 
-        raise ValidationError(
-            gettext('real_estate.msg_occupancy_overlap').format(
-                obj_name, date_from, date_to))
+            raise ValidationError(
+                gettext('real_estate.msg_occupancy_overlap').format(
+                    obj_name, date_from, date_to))
 
     @classmethod
     def create(cls, vlist):
@@ -203,14 +239,16 @@ class ContractItem(sequence_ordered(), ModelSQL, ModelView, metaclass=PoolMeta):
 
     @classmethod
     def delete(cls, records):
-        base_object_ids = {r.object.id for r in records if r.object}
+        base_object_ids = {
+            o.object.id for r in records for o in r.objects if o.object}
         super().delete(records)
         if base_object_ids:
             cls._refresh_occupancy_by_ids(base_object_ids)
 
     @classmethod
     def _refresh_occupancy(cls, items):
-        base_object_ids = {r.object.id for r in items if r.object}
+        base_object_ids = {
+            o.object.id for r in items for o in r.objects if o.object}
         cls._refresh_occupancy_by_ids(base_object_ids)
 
     @classmethod

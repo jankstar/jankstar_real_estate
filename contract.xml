@@ -202,6 +202,12 @@
             <field name="name">contract_view_list_object_item</field>
         </record>
 
+        <record model="ir.ui.view" id="contract_item_object_list">
+            <field name="model">real_estate.contract.item.object</field>
+            <field name="type">tree</field>
+            <field name="name">contract_item_object_list</field>
+        </record>
+
         <record model="ir.ui.view" id="contract_view_list_object_item_form">
             <field name="model">real_estate.contract.item</field>
             <field name="type">form</field>
@@ -465,6 +471,40 @@
     </record>
     <record model="ir.model.access" id="access_contract_item_billing">
         <field name="model">real_estate.contract.item</field>
+        <field name="group" ref="group_real_estate_billing"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_delete" eval="False"/>
+    </record>
+
+    <!-- ContractItemObject -->
+    <record model="ir.model.access" id="access_contract_item_object_admin">
+        <field name="model">real_estate.contract.item.object</field>
+        <field name="group" ref="group_real_estate_admin"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_delete" eval="True"/>
+    </record>
+    <record model="ir.model.access" id="access_contract_item_object_contract">
+        <field name="model">real_estate.contract.item.object</field>
+        <field name="group" ref="group_real_estate_contract"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_delete" eval="True"/>
+    </record>
+    <record model="ir.model.access" id="access_contract_item_object_object_group">
+        <field name="model">real_estate.contract.item.object</field>
+        <field name="group" ref="group_real_estate_object"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_delete" eval="False"/>
+    </record>
+    <record model="ir.model.access" id="access_contract_item_object_billing">
+        <field name="model">real_estate.contract.item.object</field>
         <field name="group" ref="group_real_estate_billing"/>
         <field name="perm_read" eval="True"/>
         <field name="perm_write" eval="False"/>
@@ -1005,7 +1045,7 @@
             <field name="name">Commercial rent (monthly)</field>
             <field name="sequence" >8000</field>
             <field name="types_of_use" eval="['commercial']" />
-            <field name="m_type" ref="measurement_living_space_type" />
+            <field name="m_type" ref="measurement_commercial_space_type" />
             <field name="default_quantity">1</field>
             <field name="rhythm">1</field>
             <field name="rhythm_type">monthly</field>

@@ -6,7 +6,7 @@ Datenbank vorhanden sein (Properties "Musterstraße 1-4" und "Musterstraße 5-8"
 
 Das Skript legt für jede Wirtschaftseinheit folgende Objekte an:
 
-  Je Wirtschaftseinheit (16 Wohnungen, 4 Stellplätze):
+  Je Wirtschaftseinheit (16 Wohnungen, 4 Stellplätze, 4 Gewerbeflächen):
   - Für 15 der 16 Wohnungen je einen Mietvertrag (1 Wohnung bleibt zufällig leer)
   - Vertragspartner (party.party): "Mieter N" (N zählt über alle WE durch)
       Sprache: Deutsch (ir.lang code='de')
@@ -29,6 +29,17 @@ Das Skript legt für jede Wirtschaftseinheit folgende Objekte an:
         - Vertragspartner: vorhandener Mieter (gleiche party, gleiche Adresse)
         - 1 ContractItem: nur der Stellplatz (sequence=10)
         - 1 Kondition Miete Stellplatz (sequence=10): 50,00 EUR, monatlich
+
+  Gewerbemietverträge (type_of_use='commercial'):
+  - Musterstraße 1-4: 1 Gewerbevertrag für alle 4 Gewerbeflächen
+      - Vertragspartner: "Gewerbemieter 1"
+      - 1 ContractItem (sequence=10) mit allen 4 Gewerbeobjekten
+      - Konditionen: Gewerbemiete (sequence=8000) 25,00 EUR/m² × 560 m²,
+        Betriebskosten (sequence=2000) und Heizkosten (sequence=3000) je zufällig 3–4 EUR
+  - Musterstraße 5-8: je 1 Gewerbevertrag pro Gewerbefläche (4 Verträge)
+      - Vertragspartner: "Gewerbemieter 2–5"
+      - Je 1 ContractItem (sequence=10) mit dem zugeordneten Gewerbeobjekt
+      - Konditionen: Gewerbemiete 25,00 EUR/m² × 140 m², NK und HK zufällig 3–4 EUR
 
 Das Skript ist idempotent: es bricht ab, wenn "Mieter 1" als Party
 bereits in der Datenbank existiert.
@@ -74,11 +85,26 @@ def get_company():
     return companies[0]
 
 
+USE_CLASS_SEQUENCE = {
+    'Apartment': 10,
+    'Office': 20,
+    'Retail': 30,
+    'Warehouse': 40,
+    'Parking': 50,
+    'Garage': 60,
+}
+
+
 def get_use_class(name: str):
     UseClass = Model.get('real_estate.use_class')
-    results = UseClass.find([('name', '=', name)])
+    seq = USE_CLASS_SEQUENCE.get(name)
+    if seq is None:
+        print(f'ERROR: Unbekannte Nutzungsklasse "{name}".', file=sys.stderr)
+        sys.exit(1)
+    results = UseClass.find([('sequence', '=', seq)])
     if not results:
-        print(f'ERROR: Nutzungsklasse "{name}" nicht gefunden.', file=sys.stderr)
+        print(f'ERROR: Nutzungsklasse sequence={seq} ("{name}") nicht gefunden.',
+              file=sys.stderr)
         sys.exit(1)
     return results[0]
 
@@ -117,13 +143,22 @@ def get_parking_spaces(property_obj, uc_parking):
     ], order=[('sequence', 'ASC')])
 
 
-def get_contract_type():
+def get_retail_objects(property_obj, uc_retail):
+    BaseObject = Model.get('real_estate.base_object')
+    return BaseObject.find([
+        ('property', '=', property_obj.id),
+        ('type', '=', 'object'),
+        ('use_class', '=', uc_retail.id),
+    ], order=[('sequence', 'ASC')])
+
+
+def get_contract_type(type_of_use: str = 'residential'):
     ContractType = Model.get('real_estate.contract.type')
     results = ContractType.find([
-        ('types_of_use', 'in', 'residential'),
+        ('types_of_use', 'in', type_of_use),
     ], order=[('sequence', 'ASC')], limit=1)
     if not results:
-        print('ERROR: Keine ContractType für type_of_use "residential" gefunden.',
+        print(f'ERROR: Keine ContractType für type_of_use "{type_of_use}" gefunden.',
               file=sys.stderr)
         sys.exit(1)
     return results[0]
@@ -169,12 +204,13 @@ def create_party(name: str, country, lang):
 
 
 def create_contract(company, property_obj, c_type, currency,
-                    partner, invoice_address, sequence: int):
+                    partner, invoice_address, sequence: int,
+                    type_of_use: str = 'residential'):
     Contract = Model.get('real_estate.contract')
     contract = Contract()
     contract.company = company
     contract.property = property_obj
-    contract.type_of_use = 'residential'
+    contract.type_of_use = type_of_use
     contract.c_type = c_type
     contract.currency = currency
     contract.start_date = START_DATE
@@ -188,12 +224,19 @@ def create_contract(company, property_obj, c_type, currency,
 
 def create_contract_item(contract, obj, sequence: int):
     ContractItem = Model.get('real_estate.contract.item')
+    ContractItemObject = Model.get('real_estate.contract.item.object')
     item = ContractItem()
     item.contract = contract
-    item.object = obj
+    item.label = obj.name
     item.valid_from = START_DATE
     item.sequence = sequence
     item.save()
+
+    item_obj = ContractItemObject()
+    item_obj.item = item
+    item_obj.object = obj
+    item_obj.save()
+
     print(f'    Item:          "{obj.name}" ab {START_DATE}')
     return item
 
@@ -214,6 +257,7 @@ def create_followup_contract(terminated_contract, company, property_obj, c_type,
     """Create a follow-up contract copying all items and terms from the predecessor."""
     Contract = Model.get('real_estate.contract')
     ContractItem = Model.get('real_estate.contract.item')
+    ContractItemObject = Model.get('real_estate.contract.item.object')
     ContractTerm = Model.get('real_estate.contract.term')
 
     contract = Contract()
@@ -234,12 +278,19 @@ def create_followup_contract(terminated_contract, company, property_obj, c_type,
     for old_item in terminated_contract.items:
         new_item = ContractItem()
         new_item.contract = contract
-        new_item.object = old_item.object
+        new_item.label = old_item.label
         new_item.valid_from = start_date
         new_item.sequence = old_item.sequence
         new_item.save()
+        for old_obj in old_item.objects:
+            new_obj = ContractItemObject()
+            new_obj.item = new_item
+            new_obj.object = Model.get('real_estate.base_object')(old_obj.object.id)
+            new_obj.sequence = old_obj.sequence
+            new_obj.save()
         item_map[old_item.id] = new_item
-        print(f'    Item: "{old_item.object.name}" ab {start_date}')
+        label = old_item.label or '–'
+        print(f'    Item: "{label}" ab {start_date}')
 
     # Copy terms with reference_item mapped to new items
     for old_term in terminated_contract.terms:
@@ -262,9 +313,41 @@ def create_followup_contract(terminated_contract, company, property_obj, c_type,
     return contract
 
 
+def create_contract_item_multi(contract, objects: list, label: str, sequence: int):
+    """Create a ContractItem with multiple ContractItemObjects."""
+    ContractItem = Model.get('real_estate.contract.item')
+    ContractItemObject = Model.get('real_estate.contract.item.object')
+    item = ContractItem()
+    item.contract = contract
+    item.label = label
+    item.valid_from = START_DATE
+    item.sequence = sequence
+    item.save()
+    for obj in objects:
+        item_obj = ContractItemObject()
+        item_obj.item = item
+        item_obj.object = obj
+        item_obj.save()
+    print(f'    Item:          "{label}" mit {len(objects)} Objekt(en) ab {START_DATE}')
+    return item
+
+
+def get_tax(name: str):
+    Tax = Model.get('account.tax')
+    results = Tax.find([('name', '=', name)])
+    if not results:
+        print(f'WARNUNG: Steuer "{name}" nicht gefunden – wird nicht zugeordnet.',
+              file=sys.stderr)
+        return None
+    return results[0]
+
+
 def create_contract_term(contract, term_type, reference_item,
-                         unit_price: Decimal, sequence: int) -> None:
+                         unit_price: Decimal, sequence: int,
+                         quantity: Decimal = Decimal(1),
+                         taxes=None) -> None:
     ContractTerm = Model.get('real_estate.contract.term')
+    Tax = Model.get('account.tax')
     term = ContractTerm()
     term.contract = contract
     term.term_type = term_type
@@ -272,11 +355,17 @@ def create_contract_term(contract, term_type, reference_item,
     term.valid_from = START_DATE
     term.rhythm = 1
     term.rhythm_type = 'monthly'
-    term.quantity = Decimal(1)
+    term.quantity = quantity
     term.unit_price = unit_price
     term.sequence = sequence
     term.save()
-    print(f'    Kondition:     {term_type.name}, EP={unit_price} EUR, monatlich')
+    if taxes:
+        term = ContractTerm(term.id)
+        term.taxes.extend([Tax(t.id) for t in taxes])
+        term.save()
+    tax_info = f', Steuer: {[t.name for t in taxes]}' if taxes else ''
+    print(f'    Kondition:     {term_type.name}, EP={unit_price} EUR, '
+          f'Menge={quantity}, monatlich{tax_info}')
 
 
 def main():
@@ -296,15 +385,18 @@ def main():
     company = get_company()
     currency = company.currency
     properties = get_properties()
-    c_type = get_contract_type()
+    c_type = get_contract_type('residential')
+    c_type_commercial = get_contract_type('commercial')
 
     uc_apartment = get_use_class('Apartment')
     uc_parking = get_use_class('Parking')
+    uc_retail = get_use_class('Retail')
 
-    tt_rent    = get_term_type(1000)  # Apartment rent
-    tt_nk      = get_term_type(2000)  # Betriebskosten
-    tt_hz      = get_term_type(3000)  # Heizkosten
-    tt_parking = get_term_type(1100)  # Miete Stellplatz
+    tt_rent       = get_term_type(1000)  # Apartment rent
+    tt_nk         = get_term_type(2000)  # Betriebskosten
+    tt_hz         = get_term_type(3000)  # Heizkosten
+    tt_parking    = get_term_type(1100)  # Miete Stellplatz
+    tt_commercial = get_term_type(8000)  # Gewerbemiete
 
     Country = Model.get('country.country')
     countries = Country.find([('code', '=', 'DE')])
@@ -483,6 +575,102 @@ def main():
             contract_seq += 10
             followup.click('running')
             print(f'  Folgevertrag id={followup.id} → running')
+
+    # --- Gewerbemietverträge ---
+    print(f'\n{"=" * 60}')
+    print('=== Gewerbemietverträge ===')
+    print(f'{"=" * 60}')
+
+    ust19 = get_tax('USt. 19% Umsatzsteuer voller Satz Waren Inland')
+    commercial_taxes = [ust19] if ust19 else []
+
+    gewerbe_mieter_nr = 1
+    COMMERCIAL_RENT = Decimal('25.00')
+    RETAIL_AREA = Decimal('140')
+
+    # Property 1: alle 4 Gewerbeobjekte in einem einzigen Vertrag
+    prop1 = properties[0]
+    retail_p1 = get_retail_objects(prop1, uc_retail)
+    print(f'\n--- {prop1.name}: 1 Gewerbevertrag für {len(retail_p1)} Objekte ---')
+
+    gm_party, gm_address = create_party(
+        name=f'Gewerbemieter {gewerbe_mieter_nr}',
+        country=country,
+        lang=de_lang,
+    )
+    gewerbe_mieter_nr += 1
+
+    g_contract = create_contract(
+        company=company,
+        property_obj=prop1,
+        c_type=c_type_commercial,
+        currency=currency,
+        partner=gm_party,
+        invoice_address=gm_address,
+        sequence=10,
+        type_of_use='commercial',
+    )
+    g_item = create_contract_item_multi(
+        g_contract, retail_p1,
+        label='Gewerbeflächen EG',
+        sequence=10,
+    )
+    qty_total = RETAIL_AREA * len(retail_p1)
+    create_contract_term(g_contract, tt_commercial, g_item,
+                         COMMERCIAL_RENT, sequence=10, quantity=qty_total,
+                         taxes=commercial_taxes)
+    create_contract_term(g_contract, tt_nk, g_item,
+                         Decimal(str(round(random.uniform(3, 4), 2))),
+                         sequence=20, quantity=qty_total,
+                         taxes=commercial_taxes)
+    create_contract_term(g_contract, tt_hz, g_item,
+                         Decimal(str(round(random.uniform(3, 4), 2))),
+                         sequence=30, quantity=qty_total,
+                         taxes=commercial_taxes)
+    g_contract.click('running')
+    print(f'  Vertrag id={g_contract.id} → running')
+
+    # Property 2: je ein Gewerbevertrag pro Gewerbeobjekt
+    prop2 = properties[1]
+    retail_p2 = get_retail_objects(prop2, uc_retail)
+    print(f'\n--- {prop2.name}: je 1 Gewerbevertrag pro Objekt ({len(retail_p2)}x) ---')
+
+    g_contract_seq = 10
+    for retail_obj in retail_p2:
+        print(f'\n  Objekt: {retail_obj.name}')
+        gm_party, gm_address = create_party(
+            name=f'Gewerbemieter {gewerbe_mieter_nr}',
+            country=country,
+            lang=de_lang,
+        )
+        gewerbe_mieter_nr += 1
+
+        g_contract = create_contract(
+            company=company,
+            property_obj=prop2,
+            c_type=c_type_commercial,
+            currency=currency,
+            partner=gm_party,
+            invoice_address=gm_address,
+            sequence=g_contract_seq,
+            type_of_use='commercial',
+        )
+        g_contract_seq += 10
+
+        g_item = create_contract_item(g_contract, retail_obj, sequence=10)
+        create_contract_term(g_contract, tt_commercial, g_item,
+                             COMMERCIAL_RENT, sequence=10, quantity=RETAIL_AREA,
+                             taxes=commercial_taxes)
+        create_contract_term(g_contract, tt_nk, g_item,
+                             Decimal(str(round(random.uniform(3, 4), 2))),
+                             sequence=20, quantity=RETAIL_AREA,
+                             taxes=commercial_taxes)
+        create_contract_term(g_contract, tt_hz, g_item,
+                             Decimal(str(round(random.uniform(3, 4), 2))),
+                             sequence=30, quantity=RETAIL_AREA,
+                             taxes=commercial_taxes)
+        g_contract.click('running')
+        print(f'  Vertrag id={g_contract.id} → running')
 
     print('\nFertig.')
 

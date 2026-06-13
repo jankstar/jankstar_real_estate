@@ -925,28 +925,61 @@ class ContractTerm(sequence_ordered(), ModelSQL, ModelView, TaxableMixin):
     def _calc_quantity(self):
         if self.term_type and self.term_type.m_type and self.reference_item:
             ref_item = Pool().get('real_estate.contract.item')(self.reference_item)
-            if ref_item.object and ref_item.object.measurements:
-                meas_sorted = sorted(ref_item.object.measurements, key=lambda x: x.valid_from, reverse=True)
-                for meas in meas_sorted:
-                    if meas.m_type == self.term_type.m_type \
-                        and (self.next_document_date is None or meas.valid_from <= self.next_document_date):
-                        self.quantity = meas.value
+            total = self._sum_measurements(
+                ref_item, self.term_type.m_type, self.next_document_date)
+            if total is not None:
+                self.quantity = total
 
     @fields.depends('term_type', 'reference_item', 'next_document_date', 'valid_from')
     def on_change_with_quantity(self, name=None):
-        if self.term_type is not None and self.term_type.m_type is not None and self.reference_item is not None:
+        if self.term_type is not None and self.term_type.m_type is not None \
+                and self.reference_item is not None:
             ref_item = Pool().get('real_estate.contract.item')(self.reference_item)
-            if ref_item.object is not None and ref_item.object.measurements:
-                meas_sorted = sorted(ref_item.object.measurements, key=lambda x: x.valid_from, reverse=True)
-                for meas in meas_sorted:
-                    if meas.m_type == self.term_type.m_type \
-                        and (self.next_document_date is None or meas.valid_from <= self.next_document_date):
-                        return meas.value
+            total = self._sum_measurements(
+                ref_item, self.term_type.m_type, self.next_document_date)
+            if total is not None:
+                return total
 
         if self.term_type and self.term_type.default_quantity:
             return self.term_type.default_quantity
 
         return Decimal(0)
+
+    @staticmethod
+    def _sum_measurements(ref_item, m_type, reference_date):
+        """Sum the most recent valid measurement of m_type across all objects
+        of the given ContractItem. Returns None when no object has a matching
+        measurement so the caller can fall back to the default quantity.
+
+        If no exact m_type match is found on an object but another measurement
+        with the same unit exists (e.g. commercial space instead of living
+        space, both in m²), that measurement is used as a fallback. This
+        allows NK/HK term types referencing living space to also work on
+        commercial objects that carry a commercial-space measurement."""
+        total = None
+        m_type_unit = m_type.unit if m_type else None
+        for item_obj in (ref_item.objects or []):
+            obj = item_obj.object
+            if not obj or not obj.measurements:
+                continue
+            meas_sorted = sorted(
+                obj.measurements, key=lambda x: x.valid_from, reverse=True)
+            found = False
+            for meas in meas_sorted:
+                if meas.m_type == m_type and (
+                        reference_date is None
+                        or meas.valid_from <= reference_date):
+                    total = (total or Decimal(0)) + Decimal(str(meas.value))
+                    found = True
+                    break
+            if not found and m_type_unit:
+                for meas in meas_sorted:
+                    if (meas.m_type and meas.m_type.unit == m_type_unit and (
+                            reference_date is None
+                            or meas.valid_from <= reference_date)):
+                        total = (total or Decimal(0)) + Decimal(str(meas.value))
+                        break
+        return total
 
     @fields.depends('contract', 'taxes', 'term_type')
     def on_change_with_taxes(self, name=None):

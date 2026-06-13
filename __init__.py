@@ -49,6 +49,7 @@ def register():
         contract_type.ContractTypeTax,
         contract_type.ContractType,
         contract_type.ContractTermType,
+        contract_item.ContractItemObject,
         contract_item.ContractItem,
         contract_term.ContractTermTax,
         contract_term.ContractTermCashFlow,

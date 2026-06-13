@@ -1360,9 +1360,25 @@ msgctxt "field:real_estate.contract.item,name:"
 msgid "Name"
 msgstr "Name Export"
 
-msgctxt "field:real_estate.contract.item,object:"
+msgctxt "field:real_estate.contract.item,label:"
+msgid "Label"
+msgstr "Bezeichnung"
+
+msgctxt "field:real_estate.contract.item,objects:"
+msgid "Objects"
+msgstr "Objekte"
+
+msgctxt "field:real_estate.contract.item.object,item:"
+msgid "Item"
+msgstr "Position"
+
+msgctxt "field:real_estate.contract.item.object,object:"
 msgid "Object"
 msgstr "Objekt"
+
+msgctxt "field:real_estate.contract.item.object,sequence:"
+msgid "Sequence"
+msgstr "Reihenfolge"
 
 msgctxt "field:real_estate.contract.item,property:"
 msgid "Property"
@@ -3699,6 +3715,10 @@ msgctxt "model:real_estate.contract.item,string:"
 msgid "Real Estate Contract Item"
 msgstr "Vertragsposition"
 
+msgctxt "model:real_estate.contract.item.object,string:"
+msgid "Contract Item Object"
+msgstr "Vertragsobjekt"
+
 msgctxt "model:real_estate.contract.line,string:"
 msgid "Real Estate Contract Line"
 msgstr "Immobilienvertrag Zeile"
@@ -3984,6 +4004,11 @@ msgctxt ""
 "model:real_estate.measurement.type,name:measurement_living_space_type"
 msgid "Living Space"
 msgstr "Wohnfläche"
+
+msgctxt ""
+"model:real_estate.measurement.type,name:measurement_commercial_space_type"
+msgid "Commercial Space"
+msgstr "Gewerbefläche"
 
 msgctxt ""
 "model:real_estate.measurement.type,name:measurement_number_of_rooms_type"

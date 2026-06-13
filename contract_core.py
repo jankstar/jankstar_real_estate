@@ -698,8 +698,9 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
         base_object_ids = set()
         for contract in contracts:
             for item in contract.items:
-                if item.object:
-                    base_object_ids.add(item.object.id)
+                for item_obj in item.objects:
+                    if item_obj.object:
+                        base_object_ids.add(item_obj.object.id)
         if base_object_ids:
             BaseObjectOccupancy.refresh(BaseObject.browse(list(base_object_ids)))
             ContractItem._trigger_billing_unit_selection(base_object_ids)
@@ -761,7 +762,12 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
 
     @fields.depends('company', 'items')
     def on_change_with_measurements(self, name=None):
-        return [measurement for item in self.items if item.object for measurement in item.object.measurements]
+        return [
+            measurement
+            for item in self.items
+            for item_obj in item.objects
+            if item_obj.object
+            for measurement in item_obj.object.measurements]
 
     @classmethod
     def get_cost_shares(cls, contracts, name):
@@ -941,10 +947,69 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
 
                 for cash_flow in term.cash_flow:
                     if cash_flow.document_date <= date and cash_flow.state == 'draft':
-                        ref_object = (
-                            term.reference_item.object
-                            if term.reference_item and term.reference_item.object
-                            else None)
+                        ref_item = term.reference_item
+                        m_type = (term.term_type.m_type
+                            if term.term_type else None)
+
+                        # Build per-object lines when measurement-based and
+                        # multiple objects are assigned; otherwise single line.
+                        if (ref_item and m_type
+                                and ref_item.objects
+                                and len(ref_item.objects) > 1):
+                            from .contract_term import ContractTerm
+                            per_obj_lines = []
+                            for item_obj in ref_item.objects:
+                                obj = item_obj.object
+                                if not obj:
+                                    continue
+                                obj_qty = ContractTerm._sum_measurements(
+                                    type('_R', (), {'objects': [item_obj]})(),
+                                    m_type,
+                                    cash_flow.document_date)
+                                if not obj_qty:
+                                    continue
+                                line = InvoiceLine(
+                                    type='line',
+                                    company=self.company.id,
+                                    party=self.contractual_partner.id,
+                                    invoice_type=self.c_type.invoice_type,
+                                    description=(
+                                        cash_flow.name + ' – ' + obj.name),
+                                    quantity=obj_qty,
+                                    unit=term.unit,
+                                    unit_price=term.unit_price,
+                                    account=l_account,
+                                    currency=self.currency.id,
+                                    taxes=list(taxes),
+                                    contract=self,
+                                    term=term,
+                                    base_object=obj.id,
+                                )
+                                line.save()
+                                per_obj_lines.append(line)
+                            if not per_obj_lines:
+                                # No object had a measurement — fall through to
+                                # single-line behaviour below
+                                pass
+                            else:
+                                cash_flow.state = 'done'
+                                cash_flow.posting_date = cash_flow.document_date
+                                cash_flow.create_moves_run_id = create_moves_run_id
+                                group = lines_by_date[cash_flow.posting_date]
+                                group['lines'].extend(per_obj_lines)
+                                if group['document_date'] is None:
+                                    group['document_date'] = cash_flow.document_date
+                                    group['due_date'] = cash_flow.due_date
+                                # link first line to cash_flow for traceability
+                                cash_flow.invoice_line = per_obj_lines[0]
+                                cash_flow.save()
+                                term.last_posting_date = cash_flow.posting_date
+                                continue
+
+                        # Default: single invoice line
+                        first_obj = (
+                            ref_item.objects[0].object
+                            if ref_item and ref_item.objects else None)
                         new_invoice_line = InvoiceLine(
                             type='line',
                             company=self.company.id,
@@ -959,7 +1024,7 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
                             taxes=list(taxes),
                             contract=self,
                             term=term,
-                            base_object=ref_object.id if ref_object else None,
+                            base_object=first_obj.id if first_obj else None,
                         )
                         new_invoice_line.save()
 

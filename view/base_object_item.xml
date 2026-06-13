@@ -6,14 +6,16 @@
             <label name="contract"/><field name="contract"/>
             <label name="company"/><field name="company" readonly="1"/>
             <newline/>
-            <label name="object"/><field name="object"/>
-            <label name="type_of_use"/><field name="type_of_use" readonly="1"/>
+            <label name="label"/><field name="label" colspan="3"/>
             <newline/>
-            <label name="name"/><field name="name" readonly="1"/>
+            <label name="type_of_use"/><field name="type_of_use" readonly="1"/>
             <label name="sequence"/><field name="sequence" colspan="1"/>
             <newline/>
             <label name="valid_from"/><field name="valid_from"/>
             <label name="valid_to"/><field name="valid_to"/>
+            <separator id="sep_objects" string="Objects" colspan="6"/>
+            <field name="objects" colspan="6"
+                view_ids="real_estate.contract_item_object_list"/>
         </page>
         <page string="Children" id="page_children" col="6">
             <newline/>

@@ -17,12 +17,11 @@
         <label name="invoice_date"/><field name="invoice_date" colspan="1"/>
         <field name="invoice_date_in_past" invisible="1"/>
         <newline/>
-        <label string=""
-            colspan="4"
-            states='{"invisible": {"__class__": "Not", "v": {"__class__": "Eval", "v": "invoice_date_in_past", "d": false}}}'/>
-        <label string="Achtung: Buchung in die Vergangenheit - strikte inkrementelle Buchung beachten."
-            colspan="4"
-            states='{"invisible": {"__class__": "Not", "v": {"__class__": "Eval", "v": "invoice_date_in_past", "d": false}}}'/>
+        <group col="4" id="gr_warn" colspan="4"
+            states='{"invisible": {"__class__": "Not", "v": {"__class__": "Eval", "v": "invoice_date_in_past", "d": false}}}'>
+            <label id="lbl_warn_empty" string="" colspan="4"/>
+            <label id="lbl_warn_text" string="Achtung: Buchung in die Vergangenheit - strikte inkrementelle Buchung beachten." colspan="4"/>
+        </group>
         <newline/>
         <label name="invoice_state"/><field name="invoice_state" colspan="1"/>
         <newline/>
