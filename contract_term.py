@@ -585,6 +585,17 @@ class ContractTerm(sequence_ordered(), ModelSQL, ModelView, TaxableMixin):
                 'invisible': (Eval('len(cash_flow)', 0) == 0),
             })
 
+    ## special data term type with measurement
+    _states_term_type_with_m_type= {
+            'invisible': (Eval('term_type_m_type', None) == None),
+            }
+
+    @classmethod
+    def view_attributes(cls):
+        return super().view_attributes() + [
+            ('/form/notebook/page[@id="page_measurements"]', 'states', cls._states_term_type_with_m_type),
+            ]
+
     @classmethod
     def get_rhythm_type(cls):
         pool = Pool()
@@ -959,13 +970,15 @@ class ContractTerm(sequence_ordered(), ModelSQL, ModelView, TaxableMixin):
         of the given ContractItem. Returns None when no object has a matching
         measurement so the caller can fall back to the default quantity.
 
-        If no exact m_type match is found on an object but another measurement
-        with the same unit exists (e.g. commercial space instead of living
-        space, both in m²), that measurement is used as a fallback. This
-        allows NK/HK term types referencing living space to also work on
-        commercial objects that carry a commercial-space measurement."""
+        If m_type is a group, all child types are included in the search.
+        If no exact m_type match is found on an object (and m_type is not a
+        group), a fallback checks for any measurement with the same unit."""
+        if not m_type:
+            return None
+        MeasurementType = Pool().get('real_estate.measurement.type')
+        effective_ids = set(MeasurementType.get_effective_ids(m_type))
+        m_type_unit = m_type.unit
         total = None
-        m_type_unit = m_type.unit if m_type else None
         for item_obj in (ref_item.objects or []):
             obj = item_obj.object
             if not obj or not obj.measurements:
@@ -974,13 +987,13 @@ class ContractTerm(sequence_ordered(), ModelSQL, ModelView, TaxableMixin):
                 obj.measurements, key=lambda x: x.valid_from, reverse=True)
             found = False
             for meas in meas_sorted:
-                if meas.m_type == m_type and (
+                if (meas.m_type and meas.m_type.id in effective_ids and (
                         reference_date is None
-                        or meas.valid_from <= reference_date):
+                        or meas.valid_from <= reference_date)):
                     total = (total or Decimal(0)) + Decimal(str(meas.value))
                     found = True
                     break
-            if not found and m_type_unit:
+            if not found and m_type_unit and not m_type.is_group:
                 for meas in meas_sorted:
                     if (meas.m_type and meas.m_type.unit == m_type_unit and (
                             reference_date is None
@@ -1072,7 +1085,7 @@ class ContractTerm(sequence_ordered(), ModelSQL, ModelView, TaxableMixin):
                 continue
             if not term.reference_item:
                 continue
-            m_type_id = term.term_type.m_type.id
+            effective_ids = set(term.term_type.m_type.get_hierarchy_ids())
             obj_ids = [
                 io.object.id
                 for io in (term.reference_item.objects or [])
@@ -1080,9 +1093,9 @@ class ContractTerm(sequence_ordered(), ModelSQL, ModelView, TaxableMixin):
             ]
             if not obj_ids:
                 continue
-            term_filters[term.id] = (m_type_id, obj_ids)
+            term_filters[term.id] = (effective_ids, obj_ids)
             all_obj_ids.update(obj_ids)
-            all_m_type_ids.add(m_type_id)
+            all_m_type_ids.update(effective_ids)
         if not all_obj_ids:
             return result
         measurements = Measurement.search([
@@ -1092,10 +1105,11 @@ class ContractTerm(sequence_ordered(), ModelSQL, ModelView, TaxableMixin):
         meas_index = {}
         for m in measurements:
             meas_index.setdefault((m.m_type.id, m.base_object.id), []).append(m.id)
-        for term_id, (m_type_id, obj_ids) in term_filters.items():
+        for term_id, (effective_ids, obj_ids) in term_filters.items():
             meas_ids = []
             for obj_id in obj_ids:
-                meas_ids.extend(meas_index.get((m_type_id, obj_id), []))
+                for m_type_id in effective_ids:
+                    meas_ids.extend(meas_index.get((m_type_id, obj_id), []))
             result[term_id] = meas_ids
         return result
 

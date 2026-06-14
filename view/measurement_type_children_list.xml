@@ -1,9 +1,9 @@
 <?xml version="1.0"?>
-<tree sequence="sequence">
+<tree>
     <field name="name"/>
-    <field name="is_group"/>
-    <field name="parent"/>
     <field name="unit"/>
     <field name="types" expand="1"/>
     <field name="default"/>
+    <field name="sequence"/>
+    <field name="no_print"/>
 </tree>

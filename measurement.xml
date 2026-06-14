@@ -56,6 +56,11 @@
             <field name="type">form</field>
             <field name="name">measurement_type_form</field>
         </record>
+        <record model="ir.ui.view" id="measurement_type_children_list">
+            <field name="model">real_estate.measurement.type</field>
+            <field name="type">tree</field>
+            <field name="name">measurement_type_children_list</field>
+        </record>
 
          <record model="res.group" id="group_real_estate_admin">
             <field name="name">Real Estate Administration</field>
@@ -187,10 +192,19 @@
             <field name="digits" eval="0"/>
         </record>
 
+        <record model="real_estate.measurement.type" id="measurement_usable_space_type">
+            <field name="name">Usable Space</field>
+            <field name="unit" ref="product.uom_square_meter"/>
+            <field name="sequence">05</field>
+            <field name="is_group" eval="True"/>
+            <field name="types" eval="['object']"/>
+        </record>
+
         <record model="real_estate.measurement.type" id="measurement_living_space_type">
             <field name="name">Living Space</field>
             <field name="unit" ref="product.uom_square_meter"/>
             <field name="sequence">10</field>
+            <field name="parent" ref="measurement_usable_space_type"/>
             <field name="types" eval="['object']"/>
         </record>
         <record model="real_estate.measurement.type" id="measurement_number_of_rooms_type">
@@ -204,6 +218,7 @@
             <field name="name">Commercial Space</field>
             <field name="unit" ref="product.uom_square_meter"/>
             <field name="sequence">15</field>
+            <field name="parent" ref="measurement_usable_space_type"/>
             <field name="types" eval="['object']"/>
         </record>
 

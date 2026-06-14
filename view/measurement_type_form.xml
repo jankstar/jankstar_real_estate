@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<form>
+<form col="4">
     <label name="name"/><field name="name"/>
     <label name="unit"/><field name="unit"/>
 
@@ -10,7 +10,16 @@
         <field name="default" xexpand="0" width="25"/>
         <label name="no_print"/>
         <field name="no_print" xexpand="0" width="25"/>
+        <label name="is_group"/>
+        <field name="is_group" xexpand="0" width="25"/>
         <label name="sequence"/><field name="sequence"/>
     </group>
     <label name="types"/><field name="types" yexpand="0"/>
+    <newline/>
+    <label name="parent"/>
+    <field name="parent"/>
+    <newline/>
+    <field name="children" colspan="4"
+        view_ids="real_estate.measurement_type_children_list"
+        states='{"invisible": {"__class__": "Not", "v": {"__class__": "Bool", "v": {"__class__": "Eval", "v": "is_group", "d": false}}}}'/>
 </form>

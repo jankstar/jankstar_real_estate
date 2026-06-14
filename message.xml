@@ -91,5 +91,11 @@
         <record model="ir.message" id="msg_billing_unit_draft_items">
             <field name="text">Cannot bill "%(name)s": unposted contract cash flow items exist in the settlement period. Post all pending items (CreateMoves) before billing.</field>
         </record>
+        <record model="ir.message" id="msg_measurement_type_cycle">
+            <field name="text">Measurement type "{}": circular reference detected in the group hierarchy!</field>
+        </record>
+        <record model="ir.message" id="msg_measurement_type_unit_mismatch">
+            <field name="text">Measurement type "{}": unit must match the group "{}". Group unit: {}, type unit: {}!</field>
+        </record>
     </data>
 </tryton>

@@ -6,7 +6,7 @@ from trytond.i18n import gettext, lazy_gettext
 from trytond.cache import Cache
 from trytond.pool import Pool, PoolMeta
 from trytond.transaction import Transaction
-from trytond.pyson import Bool, Eval, If, PYSONEncoder
+from trytond.pyson import Bool, Eval, If, Not, PYSONEncoder
 from sql import Column
 
 from .base_object import BaseObject
@@ -30,9 +30,80 @@ class MeasurementType(DeactivableMixin, sequence_ordered(), ModelSQL, ModelView)
     default = fields.Boolean(
         "Default",
         help="Check to use as default state for the type.")
-    
     no_print = fields.Boolean("No Print")
 
+    is_group = fields.Boolean("Measurement Group",
+        help="If set, this measurement type acts as a group container.")
+
+    parent = fields.Many2One(
+        'real_estate.measurement.type', "Group",
+        domain=[('is_group', '=', True)],
+        ondelete='RESTRICT')
+
+    children = fields.One2Many(
+        'real_estate.measurement.type', 'parent', "Measurement Types",
+        states={'invisible': Not(Bool(Eval('is_group', False)))})
+
+    def get_hierarchy_ids(self):
+        """Return self.id plus all descendant IDs recursively.
+        Includes group IDs and leaf IDs alike."""
+        result = [self.id]
+        for child in self.children:
+            result.extend(child.get_hierarchy_ids())
+        return result
+
+    @classmethod
+    def get_effective_ids(cls, m_type):
+        """Return effective leaf MeasurementType IDs for a given m_type.
+        Recursively resolves groups so that multi-level hierarchies are
+        fully expanded. For leaf types, returns [m_type.id]."""
+        if m_type is None:
+            return []
+        if m_type.is_group:
+            result = []
+            for child in m_type.children:
+                result.extend(cls.get_effective_ids(child))
+            return result
+        return [m_type.id]
+
+    @classmethod
+    def validate_fields(cls, records, fields):
+        super().validate_fields(records, fields)
+        if fields is None or {'parent'} & set(fields):
+            for record in records:
+                if record.parent:
+                    ancestor = record.parent
+                    seen = set()
+                    while ancestor:
+                        if ancestor.id == record.id:
+                            raise ValidationError(
+                                gettext('real_estate.msg_measurement_type_cycle',
+                                    record.name))
+                        if ancestor.id in seen:
+                            break
+                        seen.add(ancestor.id)
+                        ancestor = ancestor.parent
+        if fields is None or {'unit', 'parent', 'is_group'} & set(fields):
+            for record in records:
+                if record.parent:
+                    if record.unit.id != record.parent.unit.id:
+                        raise ValidationError(
+                            gettext('real_estate.msg_measurement_type_unit_mismatch',
+                                record.name,
+                                record.parent.name,
+                                record.parent.unit.symbol,
+                                record.unit.symbol))
+        if fields is None or {'unit', 'children', 'is_group'} & set(fields):
+            for record in records:
+                if record.is_group:
+                    for child in record.children:
+                        if child.unit.id != record.unit.id:
+                            raise ValidationError(
+                                gettext('real_estate.msg_measurement_type_unit_mismatch',
+                                    child.name,
+                                    record.name,
+                                    record.unit.symbol,
+                                    child.unit.symbol))
 
     @classmethod
     def get_types(cls):
@@ -106,7 +177,10 @@ class Measurement(DeactivableMixin, ModelSQL, ModelView, metaclass=PoolMeta):
     valid_from = fields.Date('From', required=True)
     m_type = fields.Many2One(
         'real_estate.measurement.type', "Measurement Type", required=True,
-        domain=[If(Bool(Eval('type')), ('types', 'in', Eval('type')), ())])
+        domain=[
+            If(Bool(Eval('type')), ('types', 'in', Eval('type')), ()),
+            ('is_group', '=', False),
+        ])
     value = fields.Float('Value', required=True)
     symbol = fields.Function(fields.Char("Symbol"), 
                                 'on_change_with_symbol') 

@@ -265,10 +265,14 @@ class SettlementUnit(DeactivableMixin, base_object.re_sequence_ordered(), ModelS
     def on_change_with_measurements(self, name=None):
         measurements = []
         if self.billing_unit and self.objects and self.allocation_rule == 'allocation_by_measurement':
-            measurements = Pool().get('real_estate.measurement').search([
-                ('base_object', 'in', [obj.id for obj in self.objects]),
-                ('m_type', '=', self.m_type),
-            ], order=[('base_object', 'ASC'), ('valid_from', 'DESC')])
+            pool = Pool()
+            MeasurementType = pool.get('real_estate.measurement.type')
+            effective_ids = MeasurementType.get_effective_ids(self.m_type)
+            if effective_ids:
+                measurements = pool.get('real_estate.measurement').search([
+                    ('base_object', 'in', [obj.id for obj in self.objects]),
+                    ('m_type', 'in', effective_ids),
+                ], order=[('base_object', 'ASC'), ('valid_from', 'DESC')])
         return measurements
 
     def on_change_with_invoice_lines(self, name=None):
@@ -483,9 +487,11 @@ class SettlementUnit(DeactivableMixin, base_object.re_sequence_ordered(), ModelS
             error_msg = None
 
             if self.allocation_rule == 'allocation_by_measurement':
+                MeasurementType = Pool().get('real_estate.measurement.type')
+                effective_ids = MeasurementType.get_effective_ids(self.m_type)
                 measurements = Measurement.search([
                     ('base_object', '=', cost_share.base_object.id),
-                    ('m_type', '=', self.m_type.id),
+                    ('m_type', 'in', effective_ids),
                     ('valid_from', '<=', cost_share.end_date),
                 ], order=[('valid_from', 'DESC')], limit=1)
                 if measurements:

@@ -2110,6 +2110,18 @@ msgctxt "field:real_estate.measurement.type,unit:"
 msgid "Unit"
 msgstr "Einheit"
 
+msgctxt "field:real_estate.measurement.type,is_group:"
+msgid "Measurement Group"
+msgstr "Bemessungsgruppe"
+
+msgctxt "field:real_estate.measurement.type,parent:"
+msgid "Group"
+msgstr "Gruppe"
+
+msgctxt "field:real_estate.measurement.type,children:"
+msgid "Measurement Types"
+msgstr "Bemessungstypen"
+
 msgctxt "field:real_estate.meter_reading,base_object:"
 msgid "Base Object"
 msgstr "Immobilienobjekt"
@@ -3337,6 +3349,19 @@ msgstr ""
 "\"%(name)s\" kann nicht abgerechnet werden: Im Abrechnungszeitraum existieren"
 " noch nicht gebuchte Sollstellungen. Bitte alle offenen Posten zuerst buchen"
 " (Sollstellung erzeugen)."
+
+msgctxt "model:ir.message,text:msg_measurement_type_cycle"
+msgid "Measurement type \"{}\": circular reference detected in the group hierarchy!"
+msgstr "Bemessungstyp \"{}\": Zirkuläre Referenz in der Gruppenhierarchie erkannt!"
+
+msgctxt "model:ir.message,text:msg_measurement_type_unit_mismatch"
+msgid ""
+"Measurement type \"{}\": unit must match the group \"{}\". Group unit: {}, "
+"type unit: {}!"
+msgstr ""
+"Bemessungstyp \"{}\": Einheit muss mit der Gruppe \"{}\" übereinstimmen. "
+"Gruppeneinheit: {}, Typeinheit: {}!"
+
 
 #, python-format
 msgctxt "model:ir.message,text:msg_billing_unit_has_errors"
