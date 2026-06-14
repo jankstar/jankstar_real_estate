@@ -4,7 +4,7 @@ from trytond.model import (sequence_ordered,
 from trytond.model.exceptions import ValidationError
 from trytond.i18n import gettext
 from trytond.pool import Pool, PoolMeta
-from trytond.pyson import Eval
+from trytond.pyson import Bool, Eval, If
 from trytond.transaction import Transaction
 
 import logging
@@ -19,9 +19,15 @@ class ContractItemObject(sequence_ordered(), ModelSQL, ModelView):
 
     item = fields.Many2One('real_estate.contract.item', 'Item',
         required=True, ondelete='CASCADE')
+    property = fields.Function(
+        fields.Many2One('real_estate.base_object', 'Property'),
+        'on_change_with_property')
     object = fields.Many2One('real_estate.base_object', 'Object',
         required=True, ondelete='CASCADE',
-        domain=[('type', '=', 'object')])
+        domain=[
+            ('type', '=', 'object'),
+            If(Bool(Eval('property')), ('property', '=', Eval('property')), ()),
+        ])
 
     @classmethod
     def create(cls, vlist):
@@ -69,6 +75,12 @@ class ContractItemObject(sequence_ordered(), ModelSQL, ModelView):
             if item_ids:
                 for item in ContractItem.browse(list(item_ids)):
                     ContractItem._check_occupancy_overlap(item)
+
+    @fields.depends('item')
+    def on_change_with_property(self, name=None):
+        if self.item and self.item.contract:
+            return self.item.contract.property
+        return None
 
     @classmethod
     def _refresh_occupancy_for_items(cls, records, extra_obj_ids=None):

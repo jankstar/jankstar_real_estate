@@ -349,6 +349,24 @@ Property Management
 ``real_estate.measurement.type``  (``measurement.py``)
    Named measurement type linked to a ``product.uom`` unit.
 
+   Supports a **group hierarchy**: a type with ``is_group = True`` acts as
+   a container grouping one or more child types via the ``parent`` Many2One
+   field. Multi-level hierarchies are supported — groups can themselves have
+   a parent group (e.g. *Gross Floor Area* → *Net Floor Area* → *Living Area*).
+
+   Constraints enforced at save time:
+
+   - All child types must share the same unit as their parent group.
+   - Circular references (a group referencing one of its own descendants
+     as parent) are rejected.
+   - Only **leaf** (non-group) types can be assigned to individual
+     ``real_estate.measurement`` records on ``BaseObject`` instances.
+
+   When a group type is referenced in ``ContractTermType.m_type`` or in
+   ``SettlementUnit.m_type``, the system automatically expands the group to
+   all descendant leaf type IDs at query time, so measurements of any child
+   type are included in the calculation.
+
 ``real_estate.measurement``  (``measurement.py``)
    Associates a numeric value and measurement type with a ``BaseObject``
    for a given validity period.
@@ -415,9 +433,19 @@ Contract Management
    - Cash flow tabs on the contract form: *Draft* (invoice state
      ``draft``/``validated``), *Pending* (``posted``), *Paid* (``paid``)
    - ``_refresh_occupancy_for_contracts`` updates occupancy records when
-     a contract starts or is terminated
+     a contract starts or is terminated; cancelled contracts are excluded
+     from occupancy calculations automatically
    - ``add_log`` appends timestamped ``ContractLog`` entries
    - ``next_item_sequence`` / ``next_term_sequence`` auto-increment helpers
+
+   **Cancellation:** the *Cancel* button transitions the contract to
+   *Cancelled*.  Before the transition:
+
+   - If any cash flow entry in state ``done`` (already invoiced) exists,
+     a ``ContractCancelWarning`` is shown explaining that existing postings
+     will **not** be reversed automatically.  The user must confirm to proceed.
+   - All cash flow entries still in state ``draft`` are deleted.
+   - Occupancy records are recalculated; the cancelled contract is excluded.
 
 ``real_estate.contract.log``  (``contract_core.py``)
    Append-only audit log attached to a contract (event name + description).
@@ -429,6 +457,11 @@ Contract Management
    BillingUnit selection and value-share calculation for the affected property.
    Validates that ``valid_from`` lies within the contract period and raises
    a warning (or error for active contracts) on overlapping occupancy.
+
+   Each ``ContractItem`` can reference one or more rental objects via the
+   ``real_estate.contract.item.object`` child model.  The object selector is
+   restricted to objects of type ``object`` that belong to the **same property**
+   as the contract, preventing cross-property assignments.
 
 ``real_estate.contract.term``  (``contract_term.py``)
    A recurring charge line on a contract (rent, operating cost advance, etc.).

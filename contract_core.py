@@ -2,6 +2,7 @@
 from trytond.model import (sequence_ordered,
     DeactivableMixin, ModelSQL, ModelView, Workflow, fields)
 from trytond.model.exceptions import ValidationError
+from trytond.exceptions import UserWarning
 from trytond.i18n import gettext
 from trytond.pool import Pool
 from trytond.transaction import Transaction
@@ -418,6 +419,10 @@ class GeneralLedgerAccountContract(_GeneralLedgerAccount):
             ]
 
 
+class ContractCancelWarning(UserWarning):
+    pass
+
+
 #**********************************************************************
 class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), ModelSQL, ModelView):
     "Contract - base class for contracts"
@@ -620,7 +625,7 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
             ))
         cls._buttons.update({
             'running': {
-                'invisible': (~Eval('state').in_(['draft', 'terminated'])),
+                'invisible': (~Eval('state').in_(['draft', 'terminated', 'cancelled'])),
                 'depends': ['state'],
                 },
             'terminate': {
@@ -632,7 +637,7 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
                 'depends': ['state'],
                 },
             'change_partner': {
-                'invisible': ~Eval('state').in_(['draft', 'cancelled']),
+                'invisible': ~Eval('state').in_(['running', 'terminated']),
                 'depends': ['state'],
                 },
             'open_party_ledger': {
@@ -678,8 +683,28 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
     @Workflow.transition('cancelled')
     @set_employee('cancelled_by')
     def cancel(cls, contrats):
+        pool = Pool()
+        CashFlow = pool.get('real_estate.contract.term.cash_flow')
+        Warning = pool.get('res.user.warning')
         for contract in contrats:
-            contract.add_log('state_change', f'contract state changed to cancelled')
+            done_flows = CashFlow.search([
+                ('term.contract', '=', contract.id),
+                ('state', '=', 'done'),
+            ], limit=1)
+            if done_flows:
+                key = Warning.format('cancel_contract_has_postings', [contract])
+                if Warning.check(key):
+                    raise ContractCancelWarning(
+                        key,
+                        gettext('real_estate.msg_cancel_contract_has_postings',
+                            contract.rec_name))
+            draft_flows = CashFlow.search([
+                ('term.contract', '=', contract.id),
+                ('state', '=', 'draft'),
+            ])
+            if draft_flows:
+                CashFlow.delete(draft_flows)
+            contract.add_log('state_change', 'contract state changed to cancelled')
             contract.state = 'cancelled'
             contract.save()
 
