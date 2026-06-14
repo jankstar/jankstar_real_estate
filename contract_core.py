@@ -108,6 +108,7 @@ class ContractContext(ModelView):
             ('type', '=', 'property'),
             ('company', '=', Eval('company', -1)),
         ])
+    c_type = fields.Many2One('real_estate.contract.type', 'Contract Type')
 
     @classmethod
     def default_company(cls):

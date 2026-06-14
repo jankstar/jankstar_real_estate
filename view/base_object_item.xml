@@ -17,6 +17,11 @@
             <field name="objects" colspan="6"
                 view_ids="real_estate.contract_item_object_list"/>
         </page>
+        <page string="Measurements" id="page_measurements" col="6">
+            <newline/>
+            <field name="measurements" readonly="1" colspan="6"
+                view_ids="real_estate.contract_item_measurement_tree"/>
+        </page>
         <page string="Children" id="page_children" col="6">
             <newline/>
             <field name="children" readonly="1" colspan="6"/>

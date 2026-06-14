@@ -771,53 +771,66 @@
             <field name="fixed_assets" eval="True"/>
         </record!-->
 
+        <record model="account.invoice.payment_term" id="payment_term_net3">
+            <field name="name">03 Tage netto</field>
+        </record>
+        <record model="account.invoice.payment_term.line" id="payment_term_net3_line1">
+            <field name="payment" ref="payment_term_net3"/>
+            <field name="sequence" eval="10"/>
+            <field name="type">remainder</field>
+        </record>
+        <record model="account.invoice.payment_term.line.delta" id="payment_term_net3_line1_delta1">
+            <field name="line" ref="payment_term_net3_line1"/>
+            <field name="sequence" eval="10"/>
+            <field name="days" eval="3"/>
+        </record>
 
         <record id="sequence_strict_10" model="ir.sequence.strict" >
-            <field name="name">10 - Buchungssatz</field>
+            <field name="name">25/1 - Buchungssatz</field>
             <field name="number_increment">1</field>
             <field name="number_next_internal">1</field>
-            <field name="padding">6</field>
-            <field name="prefix">10</field>
+            <field name="padding">5</field>
+            <field name="prefix">251</field>
             <field name="sequence_type" ref="account.sequence_type_account_move"/>
             <field name="type">incremental</field>
         </record>
 
         <record id="sequence_strict_20" model="ir.sequence.strict">
-            <field name="name">20 - Lieferantenrechnung</field>
+            <field name="name">25/2 - Lieferantenrechnung</field>
             <field name="number_increment">1</field>
             <field name="number_next_internal">1</field>
-            <field name="padding">6</field>
-            <field name="prefix">20</field>
+            <field name="padding">5</field>
+            <field name="prefix">252</field>
             <field name="sequence_type" ref="account_invoice.sequence_type_account_invoice"/>
             <field name="type">incremental</field>
         </record>
 
         <record id="sequence_strict_30" model="ir.sequence.strict">
-            <field name="name">30 - Kundenrechnung</field>
+            <field name="name">25/3 - Kundenrechnung</field>
             <field name="number_increment">1</field>
             <field name="number_next_internal">1</field>
-            <field name="padding">6</field>
-            <field name="prefix">30</field>
+            <field name="padding">5</field>
+            <field name="prefix">253</field>
             <field name="sequence_type" ref="account_invoice.sequence_type_account_invoice"/>
             <field name="type">incremental</field>
         </record>
 
         <record id="sequence_strict_29" model="ir.sequence.strict">
-            <field name="name">29 - Lieferantenrechnung Storno</field>
+            <field name="name">25/4 - Lieferantenrechnung Storno</field>
             <field name="number_increment">1</field>
             <field name="number_next_internal">1</field>
-            <field name="padding">6</field>
-            <field name="prefix">29</field>
+            <field name="padding">5</field>
+            <field name="prefix">254</field>
             <field name="sequence_type" ref="account_invoice.sequence_type_account_invoice"/>
             <field name="type">incremental</field>
         </record>
 
         <record id="sequence_strict_39" model="ir.sequence.strict">
-            <field name="name">39 - Kundenrechnung Storno</field>
+            <field name="name">25/5 - Kundenrechnung Storno</field>
             <field name="number_increment">1</field>
             <field name="number_next_internal">1</field>
-            <field name="padding">6</field>
-            <field name="prefix">39</field>
+            <field name="padding">5</field>
+            <field name="prefix">255</field>
             <field name="sequence_type" ref="account_invoice.sequence_type_account_invoice"/>
             <field name="type">incremental</field>
         </record>

@@ -39,7 +39,13 @@
         <label name="last_document_date"/><field name="last_document_date"/>
         <label name="last_posting_date"/><field name="last_posting_date"/>
     </page>
-    <page string="Accounting" id="accounting">  
+    <page string="Measurements" id="page_measurements"
+        states='{"invisible": {"__class__": "Not", "v": {"__class__": "Bool", "v": {"__class__": "Eval", "v": "term_type_m_type", "d": null}}}}'>
+        <newline/>
+        <field name="term_measurements" readonly="1" colspan="6"
+            view_ids="real_estate.contract_term_measurement_tree"/>
+    </page>
+    <page string="Accounting" id="accounting">
         <label name="account"/><field name="account"/>
         <label name="taxes_date"/><field name="taxes_date"/>
         <newline/>   

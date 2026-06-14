@@ -1292,6 +1292,10 @@ msgctxt "field:real_estate.contract.context,property:"
 msgid "Property"
 msgstr "Wirtschaftseinheit"
 
+msgctxt "field:real_estate.contract.context,c_type:"
+msgid "Contract Type"
+msgstr "Vertragsart"
+
 msgctxt "field:real_estate.contract.create_moves.start,action:"
 msgid "Action"
 msgstr "Aktion"
@@ -1363,6 +1367,10 @@ msgstr "Name Export"
 msgctxt "field:real_estate.contract.item,label:"
 msgid "Label"
 msgstr "Bezeichnung"
+
+msgctxt "field:real_estate.contract.item,measurements:"
+msgid "Measurements"
+msgstr "Bemessungen"
 
 msgctxt "field:real_estate.contract.item,objects:"
 msgid "Objects"
@@ -1603,6 +1611,14 @@ msgstr "abzugsfähiger Steuersatz"
 msgctxt "field:real_estate.contract.term,term_type:"
 msgid "Term Type"
 msgstr "Konditionstyp"
+
+msgctxt "field:real_estate.contract.term,term_type_m_type:"
+msgid "Term Measurement Type"
+msgstr "Bemessungstyp der Kondition"
+
+msgctxt "field:real_estate.contract.term,term_measurements:"
+msgid "Measurements"
+msgstr "Bemessungen"
 
 msgctxt "field:real_estate.contract.term,total_amount:"
 msgid "Total"

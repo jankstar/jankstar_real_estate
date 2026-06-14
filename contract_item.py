@@ -37,7 +37,51 @@ class ContractItemObject(sequence_ordered(), ModelSQL, ModelView):
                 else:
                     max_seq = 0
                 vals['sequence'] = ((max_seq // 10) + 1) * 10
-        return super().create(vlist)
+        records = super().create(vlist)
+        cls._refresh_occupancy_for_items(records)
+        return records
+
+    @classmethod
+    def write(cls, *args):
+        old_obj_ids = set()
+        actions = iter(args)
+        for records, _ in zip(actions, actions):
+            for r in records:
+                if r.object:
+                    old_obj_ids.add(r.object.id)
+        super().write(*args)
+        actions = iter(args)
+        all_records = []
+        for records, _ in zip(actions, actions):
+            all_records.extend(records)
+        cls._refresh_occupancy_for_items(cls.browse([r.id for r in all_records]),
+            extra_obj_ids=old_obj_ids)
+
+    @classmethod
+    def delete(cls, records):
+        obj_ids = {r.object.id for r in records if r.object}
+        item_ids = {r.item.id for r in records if r.item}
+        super().delete(records)
+        if obj_ids:
+            ContractItem = Pool().get('real_estate.contract.item')
+            ContractItem._refresh_occupancy_by_ids(obj_ids)
+            # re-validate remaining items that lost an object
+            if item_ids:
+                for item in ContractItem.browse(list(item_ids)):
+                    ContractItem._check_occupancy_overlap(item)
+
+    @classmethod
+    def _refresh_occupancy_for_items(cls, records, extra_obj_ids=None):
+        pool = Pool()
+        ContractItem = pool.get('real_estate.contract.item')
+        obj_ids = {r.object.id for r in records if r.object}
+        if extra_obj_ids:
+            obj_ids.update(extra_obj_ids)
+        parent_item_ids = {r.item.id for r in records if r.item}
+        for item in ContractItem.browse(list(parent_item_ids)):
+            ContractItem._check_occupancy_overlap(item)
+        if obj_ids:
+            ContractItem._refresh_occupancy_by_ids(obj_ids)
 
 
 #**********************************************************************
@@ -63,8 +107,8 @@ class ContractItem(sequence_ordered(), ModelSQL, ModelView, metaclass=PoolMeta):
     company = fields.Function(fields.Many2One('company.company', 'Company'),
         'on_change_with_company')
 
-    type_of_use = fields.Function(fields.Char("Type of Use"),
-        'on_change_with_type_of_use')
+    type_of_use = fields.Function(fields.Selection('get_type_of_use_selection',
+        "Type of Use"), 'on_change_with_type_of_use')
 
     currency = fields.Function(fields.Many2One('currency.currency',
         'Currency'), 'on_change_with_currency')
@@ -72,6 +116,10 @@ class ContractItem(sequence_ordered(), ModelSQL, ModelView, metaclass=PoolMeta):
     children = fields.Function(
         fields.One2Many('real_estate.base_object', None, 'Children'),
         'on_change_with_children', setter='set_children')
+
+    measurements = fields.Function(
+        fields.One2Many('real_estate.measurement', None, 'Measurements'),
+        'get_measurements')
 
     @fields.depends('objects')
     def on_change_with_children(self, name=None):
@@ -127,6 +175,37 @@ class ContractItem(sequence_ordered(), ModelSQL, ModelView, metaclass=PoolMeta):
         if self.contract:
             return self.contract.company
         return None
+
+    @classmethod
+    def get_measurements(cls, items, name):
+        pool = Pool()
+        Measurement = pool.get('real_estate.measurement')
+        result = {item.id: [] for item in items}
+        all_obj_ids = {
+            io.object.id
+            for item in items
+            for io in (item.objects or [])
+            if io.object
+        }
+        if not all_obj_ids:
+            return result
+        measurements = Measurement.search([('base_object', 'in', list(all_obj_ids))])
+        obj_to_meas = {}
+        for m in measurements:
+            obj_to_meas.setdefault(m.base_object.id, []).append(m.id)
+        for item in items:
+            meas_ids = []
+            for io in (item.objects or []):
+                if io.object:
+                    meas_ids.extend(obj_to_meas.get(io.object.id, []))
+            result[item.id] = meas_ids
+        return result
+
+    @classmethod
+    def get_type_of_use_selection(cls):
+        pool = Pool()
+        BaseObject = pool.get('real_estate.base_object')
+        return BaseObject.fields_get(['type_of_use'])['type_of_use']['selection']
 
     @fields.depends('contract')
     def on_change_with_type_of_use(self, name=None):

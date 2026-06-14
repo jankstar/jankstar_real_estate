@@ -52,6 +52,7 @@ htmlcov/
 .coverage.*
 .hypothesis/
 
- # Claude Code
+# Claude Code
 .claude/
 CLAUDE.md
+*.skill

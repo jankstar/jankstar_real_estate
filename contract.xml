@@ -28,7 +28,7 @@
             <field name="context"></field>
             <field name="context_model">real_estate.contract.context</field>
             <field name="context_domain"
-                eval="[('company', '=', Eval('company', -1)), If(Eval('property', None), [('property', '=', Eval('property', None))], [])]"
+                eval="[('company', '=', Eval('company', -1)), If(Eval('property', None), [('property', '=', Eval('property', None))], []), If(Eval('c_type', None), [('c_type', '=', Eval('c_type', None))], [])]"
                 pyson="1"/>
         </record>
 
@@ -206,6 +206,18 @@
             <field name="model">real_estate.contract.item.object</field>
             <field name="type">tree</field>
             <field name="name">contract_item_object_list</field>
+        </record>
+
+        <record model="ir.ui.view" id="contract_item_measurement_tree">
+            <field name="model">real_estate.measurement</field>
+            <field name="type">tree</field>
+            <field name="name">contract_item_measurement_tree</field>
+        </record>
+
+        <record model="ir.ui.view" id="contract_term_measurement_tree">
+            <field name="model">real_estate.measurement</field>
+            <field name="type">tree</field>
+            <field name="name">contract_term_measurement_tree</field>
         </record>
 
         <record model="ir.ui.view" id="contract_view_list_object_item_form">
@@ -920,13 +932,13 @@
 
         <record model="real_estate.contract.type" id="contract_rental_agreement_type">
             <field name="name">Rental agreement</field>
+            <field name="sequence">10</field>
             <field name="mark" >Debit</field>
             <field name="occupancy" eval="True"/>
             <field name="prefix" >1</field>
             <field name='start_number'>1000</field>
             <field name="step_term">10</field>
             <field name="step_item">10</field>
-            <field name="sequence">10</field>
             <field name="account_journal" ref="journal_rental_book"/> 
             <field name="invoice_type">out</field>
             <field name="types_of_use" eval="['residential']"/>
@@ -934,13 +946,13 @@
 
         <record model="real_estate.contract.type" id="contract_parking_space_lease_agreement_type">
             <field name="name">Parking Space Lease Agreement</field>
+            <field name="sequence">20</field>
             <field name="mark" >Debit</field>
             <field name="occupancy" eval="True"/>
             <field name="prefix" >2</field>
             <field name='start_number'>2000</field>
             <field name="step_term">10</field>
             <field name="step_item">10</field>
-            <field name="sequence">10</field>
             <field name="account_journal" ref="journal_rental_book"/> 
             <field name="invoice_type">out</field>
             <field name="types_of_use" eval="['residential']"/>
@@ -948,12 +960,12 @@
 
         <record model="real_estate.contract.type" id="contract_debit_costs_agreement_type">
             <field name="name">Debit Costs Agreement</field>
+            <field name="sequence">30</field>
             <field name="mark" >Debit</field>
             <field name="prefix" >3</field>
             <field name='start_number'>3000</field>
             <field name="step_term">10</field>
             <field name="step_item">10</field>
-            <field name="sequence">10</field>
             <field name="account_journal" ref="journal_rental_book"/>
             <field name="invoice_type">out</field>
             <field name="types_of_use" eval="['residential', 'commercial', 'property', 'internal']"/>
@@ -961,12 +973,12 @@
 
         <record model="real_estate.contract.type" id="contract_credit_costs_agreement_type">
             <field name="name">Credit Costs Agreement</field>
+            <field name="sequence">40</field> 
             <field name="mark" >Credit</field>
             <field name="prefix" >4</field>
             <field name='start_number'>4000</field>
             <field name="step_term">10</field>
             <field name="step_item">10</field>
-            <field name="sequence">10</field>
             <field name="account_journal" ref="journal_rental_book"/> 
             <field name="invoice_type">in</field>
             <field name="types_of_use" eval="['residential', 'commercial', 'property', 'internal']"/>
@@ -974,13 +986,13 @@
 
         <record model="real_estate.contract.type" id="contract_commercial_lease_agreement_type">
             <field name="name">Commercial lease agreement</field>
+            <field name="sequence">50</field>
             <field name="mark" >Debit</field>
             <field name="occupancy" eval="True"/>
             <field name="prefix" >5</field>
             <field name='start_number'>5000</field>
             <field name="step_term">10</field>
             <field name="step_item">10</field>
-            <field name="sequence">50</field>
             <field name="account_journal" ref="journal_rental_book"/> 
             <field name="invoice_type">out</field>
             <field name="types_of_use" eval="['commercial']"/>
@@ -988,13 +1000,13 @@
 
         <record model="real_estate.contract.type" id="contract_condominium_fee_agreement_type">
             <field name="name">Condominium fee agreement</field>
+            <field name="sequence">80</field>
             <field name="mark" >Debit</field>
             <field name="occupancy" eval="True"/>
             <field name="prefix" >8</field>
             <field name='start_number'>8000</field>
             <field name="step_term">10</field>
             <field name="step_item">10</field>
-            <field name="sequence">80</field>
             <field name="account_journal" ref="journal_rental_book"/> 
             <field name="invoice_type">out</field>
             <field name="types_of_use" eval="['property']"/>

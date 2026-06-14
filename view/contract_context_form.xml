@@ -3,4 +3,6 @@
     <label name="company"/><field name="company" colspan="2"/>
     <newline/>
     <label name="property"/><field name="property" colspan="2"/>
+    <newline/>
+    <label name="c_type"/><field name="c_type" colspan="2"/>
 </form>

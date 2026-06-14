@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<tree>
+    <field name="base_object"/>
+    <field name="valid_from"/>
+    <field name="m_type"/>
+    <field name="value" sum="1"/>
+    <field name="symbol"/>
+</tree>

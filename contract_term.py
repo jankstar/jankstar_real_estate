@@ -488,6 +488,14 @@ class ContractTerm(sequence_ordered(), ModelSQL, ModelView, TaxableMixin):
     invoice_type = fields.Function(fields.Char("Invoice Type"),
         'on_change_with_invoice_type')
 
+    term_type_m_type = fields.Function(
+        fields.Many2One('real_estate.measurement.type', "Term Measurement Type"),
+        'on_change_with_term_type_m_type')
+
+    term_measurements = fields.Function(
+        fields.One2Many('real_estate.measurement', None, "Measurements"),
+        'get_term_measurements')
+
     account = fields.Many2One('account.account', 'Account',
         ondelete='RESTRICT',
         states={
@@ -983,13 +991,14 @@ class ContractTerm(sequence_ordered(), ModelSQL, ModelView, TaxableMixin):
 
     @fields.depends('contract', 'taxes', 'term_type')
     def on_change_with_taxes(self, name=None):
-        if self.contract and self.term_type and len(self.taxes) == 0:
+        if (self.contract and self.contract.c_type
+                and self.term_type and len(self.taxes) == 0):
             ContractTermTypeTax = Pool().get('real_estate.contract.type.tax')
-            taxes = ContractTermTypeTax.search([
+            type_taxes = ContractTermTypeTax.search([
                 ('c_type', '=', self.contract.c_type.id),
                 ])
-            return taxes
-        return self.taxes
+            return [tt.tax for tt in type_taxes]
+        return list(self.taxes)
 
     @fields.depends('contract', 'valid_from',
                     'currency', 'property', 'company',
@@ -1043,6 +1052,52 @@ class ContractTerm(sequence_ordered(), ModelSQL, ModelView, TaxableMixin):
         if self.contract:
             return self.contract.type_of_use
         return None
+
+    @fields.depends('term_type')
+    def on_change_with_term_type_m_type(self, name=None):
+        if self.term_type and self.term_type.m_type:
+            return self.term_type.m_type.id
+        return None
+
+    @classmethod
+    def get_term_measurements(cls, terms, name):
+        pool = Pool()
+        Measurement = pool.get('real_estate.measurement')
+        result = {term.id: [] for term in terms}
+        term_filters = {}
+        all_obj_ids = set()
+        all_m_type_ids = set()
+        for term in terms:
+            if not term.term_type or not term.term_type.m_type:
+                continue
+            if not term.reference_item:
+                continue
+            m_type_id = term.term_type.m_type.id
+            obj_ids = [
+                io.object.id
+                for io in (term.reference_item.objects or [])
+                if io.object
+            ]
+            if not obj_ids:
+                continue
+            term_filters[term.id] = (m_type_id, obj_ids)
+            all_obj_ids.update(obj_ids)
+            all_m_type_ids.add(m_type_id)
+        if not all_obj_ids:
+            return result
+        measurements = Measurement.search([
+            ('base_object', 'in', list(all_obj_ids)),
+            ('m_type', 'in', list(all_m_type_ids)),
+        ])
+        meas_index = {}
+        for m in measurements:
+            meas_index.setdefault((m.m_type.id, m.base_object.id), []).append(m.id)
+        for term_id, (m_type_id, obj_ids) in term_filters.items():
+            meas_ids = []
+            for obj_id in obj_ids:
+                meas_ids.extend(meas_index.get((m_type_id, obj_id), []))
+            result[term_id] = meas_ids
+        return result
 
     @fields.depends('term_type')
     def on_change_with_account(self, name=None):

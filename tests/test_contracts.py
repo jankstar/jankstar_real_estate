@@ -37,7 +37,7 @@ Je Wirtschaftseinheit (16 Wohnungen, 4 Stellplätze):
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 GEWERBEMIETVERTRÄGE (type_of_use='commercial')
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  Vertragsart: erste ContractType für type_of_use 'commercial'
+  Vertragsart: ContractType sequence=50 für type_of_use 'commercial' (Gewerbemietevertrag)
   Startdatum: 01.01.2025, alle Verträge werden aktiviert (→ running).
   Steuer auf alle Konditionen: USt. 19% Umsatzsteuer voller Satz Waren Inland
 
@@ -176,13 +176,15 @@ def get_retail_objects(property_obj, uc_retail):
     ], order=[('sequence', 'ASC')])
 
 
-def get_contract_type(type_of_use: str = 'residential'):
+def get_contract_type(type_of_use: str = 'residential', sequence: int = None):
     ContractType = Model.get('real_estate.contract.type')
-    results = ContractType.find([
-        ('types_of_use', 'in', type_of_use),
-    ], order=[('sequence', 'ASC')], limit=1)
+    domain = [('types_of_use', 'in', type_of_use)]
+    if sequence is not None:
+        domain.append(('sequence', '=', sequence))
+    results = ContractType.find(domain, order=[('sequence', 'ASC')], limit=1)
     if not results:
-        print(f'ERROR: Keine ContractType für type_of_use "{type_of_use}" gefunden.',
+        print(f'ERROR: Keine ContractType für type_of_use "{type_of_use}"'
+              f'{f" sequence={sequence}" if sequence else ""} gefunden.',
               file=sys.stderr)
         sys.exit(1)
     return results[0]
@@ -410,7 +412,7 @@ def main():
     currency = company.currency
     properties = get_properties()
     c_type = get_contract_type('residential')
-    c_type_commercial = get_contract_type('commercial')
+    c_type_commercial = get_contract_type('commercial', sequence=50)
 
     uc_apartment = get_use_class('Apartment')
     uc_parking = get_use_class('Parking')
