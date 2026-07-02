@@ -1037,7 +1037,7 @@ class MeterReading(ModelSQL, ModelView):
             ], "Reading Type", required=True, sort=False)
 
     company = fields.Many2One('company.company', 'Company', required=True)
-    base_object = fields.Many2One('real_estate.base_object', 'Base Object', required=True, ondelete='CASCADE',
+    base_object = fields.Many2One('real_estate.base_object', 'Meter', required=True, ondelete='CASCADE',
         domain=[('type', '=', 'equipment'), ('e_type', '=', 'meters'),
                 ('company', '=', Eval('company', -1))],
         )
