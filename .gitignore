@@ -35,6 +35,7 @@ local.sqlite
 local.db
 .DS_Store
 *.xlsx
+translation.txt
 
 # IDE/Editor
 .vscode/

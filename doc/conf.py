@@ -48,7 +48,15 @@ def get_info():
 
 
 info = get_info()
-
+latex_engine = 'xelatex'
+latex_elements = {
+    'fontenc': r'''\usepackage{fontspec}''',
+    'fontpkg': r'''
+\setmainfont{Helvetica Neue}
+\setsansfont{Helvetica Neue}
+\setmonofont{Menlo}
+''',
+}
 html_theme = 'sphinx_book_theme'
 html_title = info['description']
 master_doc = 'index'

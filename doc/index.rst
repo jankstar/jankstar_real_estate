@@ -12,6 +12,7 @@ operating cost settlement, and German SKR04 accounting templates.
 
    setup
    configuration
+   usage
    design
    reference
    releases
@@ -712,8 +713,7 @@ Extensions to Core Modules
 Wizards
 =======
 
-``real_estate.contract.create_moves.wizard``  (``contract_wizard.py``,
-class ``CreateContractMovesWizard``)
+``real_estate.contract.create_moves.wizard``  (``contract_wizard.py``, class ``CreateContractMovesWizard``)
    Batch invoice generation wizard. Supports three actions:
 
    ``create``
@@ -736,8 +736,7 @@ class ``CreateContractMovesWizard``)
    calculates ``termination_date`` from the notice period
    (3 / 6 / 9 / 12 months to end of month).
 
-``real_estate.estimate_consumption.wizard``  (``base_object.py``,
-class ``EstimateConsumptionWizard``)
+``real_estate.estimate_consumption.wizard``  (``base_object.py``, class ``EstimateConsumptionWizard``)
    Two-step wizard launched from the *Meters* tab of any approved meter
    object. Estimates the meter reading for a chosen cut-off date and
    books it as an ``estimate`` reading.
