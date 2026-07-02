@@ -1,19 +1,20 @@
 """
-Offene Forderungen der Testmieter als Zahlungseingang buchen und ausgleichen.
+Offene Forderungen der Testmieter und Gewerbemieter als Zahlungseingang buchen
+und ausgleichen.
 
-Buchungssatz je Mieter:
+Buchungssatz je Vertragspartner:
     Soll 1800 Bank  an  Haben <Forderungskonto> + Partner
 
 Das Forderungskonto wird automatisch aus den offenen Buchungszeilen ermittelt
 (account.type.receivable = True). Nach dem Buchen werden alle offenen Posten
 auf dem Partnerkonto ausgeglichen (reconcile).
 
-Das Skript ist idempotent: Mieter ohne offene Forderungszeilen werden
+Das Skript ist idempotent: Partner ohne offene Forderungszeilen werden
 übersprungen.
 
 Voraussetzung: test_contracts.py muss ausgeführt worden sein und der Wizard
 "CreateContractMoves" muss mindestens einmal gelaufen sein, sodass gebuchte
-(posted) Ausgangsrechnungen für die Testmieter vorhanden sind.
+(posted) Ausgangsrechnungen für die Testpartner vorhanden sind.
 
 Verwendung:
     python tests/test_payment.py --database <Datenbankname> [--config <trytond.conf>]
@@ -86,12 +87,16 @@ def get_period(date, company):
     return periods[0]
 
 
-def get_test_tenants():
+def get_test_parties():
     Party = Model.get('party.party')
-    parties = Party.find([('name', 'ilike', 'Mieter %')],
-                         order=[('name', 'ASC')])
+    parties = Party.find(
+        ['OR',
+            [('name', 'ilike', 'Mieter %')],
+            [('name', 'ilike', 'Gewerbemieter %')],
+        ],
+        order=[('name', 'ASC')])
     if not parties:
-        print('ERROR: Keine Testmieter ("Mieter N") gefunden. '
+        print('ERROR: Keine Testpartner ("Mieter N" / "Gewerbemieter N") gefunden. '
               'Bitte zuerst test_contracts.py ausführen.', file=sys.stderr)
         sys.exit(1)
     return parties
@@ -203,8 +208,8 @@ def main():
     acc_bank = get_account('1800')
     journal = get_journal()
 
-    tenants = get_test_tenants()
-    print(f'{len(tenants)} Testmieter gefunden. '
+    tenants = get_test_parties()
+    print(f'{len(tenants)} Testpartner gefunden (Mieter + Gewerbemieter). '
           f'Journal: {journal.name} ({journal.type})\n')
 
     booked = 0

@@ -20,6 +20,5 @@
     <field name="parent"/>
     <newline/>
     <field name="children" colspan="4"
-        view_ids="real_estate.measurement_type_children_list"
-        states='{"invisible": {"__class__": "Not", "v": {"__class__": "Bool", "v": {"__class__": "Eval", "v": "is_group", "d": false}}}}'/>
+        view_ids="real_estate.measurement_type_children_list"/>
 </form>

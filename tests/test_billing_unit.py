@@ -9,20 +9,20 @@ Je Wirtschaftseinheit werden zwei Billing Units angelegt:
      d.h. sowohl Wohnungen als auch Gewerbeflächen (Einzelhandel) werden
      als Abrechnungsobjekte einbezogen.
 
-     Bemessungsbasierte Settlement Units (m_type=Wohnfläche, sequence=10):
-       Für Wohnungen wird die Wohnfläche herangezogen; für Einzelhandel-
-       Objekte greift der Fallback auf gleiche Einheit (m²), sodass die
-       Gewerbefläche verwendet wird.
+     Bemessungsbasierte Settlement Units (m_type=Nutzfläche):
+       Die Gruppe "Nutzfläche" umfasst alle untergeordneten Flächentypen
+       (z. B. Wohnfläche, Gewerbefläche), die bei der Berechnung automatisch
+       berücksichtigt werden.
 
-       100 Grundsteuer              — Bemessung Fläche m², Leerstand: Eigentümer
-       110 Gebäudeversicherung      — Bemessung Fläche m², Leerstand: Eigentümer
-       500 Straßenreinigung         — Bemessung Fläche m², Leerstand: Eigentümer
-       510 Müllabfuhr               — Bemessung Fläche m², Leerstand: Eigentümer
-       520 Hausreinigung            — Bemessung Fläche m², Leerstand: Eigentümer
-       600 Gartenpflege             — Bemessung Fläche m², Leerstand: Eigentümer
-       610 Hausstrom                — Bemessung Fläche m², Leerstand: Eigentümer
-       620 Schornsteinfeger         — Bemessung Fläche m², Leerstand: Eigentümer
-       700 Hausmeister              — Bemessung Fläche m², Leerstand: Eigentümer
+       100 Grundsteuer              — Bemessung Nutzfläche m², Leerstand: Eigentümer
+       110 Gebäudeversicherung      — Bemessung Nutzfläche m², Leerstand: Eigentümer
+       500 Straßenreinigung         — Bemessung Nutzfläche m², Leerstand: Eigentümer
+       510 Müllabfuhr               — Bemessung Nutzfläche m², Leerstand: Eigentümer
+       520 Hausreinigung            — Bemessung Nutzfläche m², Leerstand: Eigentümer
+       600 Gartenpflege             — Bemessung Nutzfläche m², Leerstand: Eigentümer
+       610 Hausstrom                — Bemessung Nutzfläche m², Leerstand: Eigentümer
+       620 Schornsteinfeger         — Bemessung Nutzfläche m², Leerstand: Eigentümer
+       700 Hausmeister              — Bemessung Nutzfläche m², Leerstand: Eigentümer
 
      Verbrauchsbasierte Settlement Unit (Zähler-Regex "Wasser Zähler"):
        Die Regex trifft sowohl Wohnungszähler ("Wasser Zähler 01" …) als
@@ -53,7 +53,7 @@ from proteus import Model, config
 
 START_DATE = datetime.date(2025, 1, 1)
 
-# Sequences of cost types allocated by measurement (Wohnfläche, by_owner vacancy)
+# Sequences of cost types allocated by measurement (Nutzfläche, by_owner vacancy)
 MEASUREMENT_SEQUENCES = [100, 110, 500, 510, 520, 600, 610, 620, 700]
 # Water: allocated by consumption (m³)
 WATER_SEQUENCE = 200
@@ -113,12 +113,11 @@ def get_cost_type(sequence: int):
     return results[0]
 
 
-def get_measurement_type_living_space():
+def get_measurement_type_usable_space():
     MType = Model.get('real_estate.measurement.type')
-    # sequence 10 = Living Space (Wohnfläche)
-    results = MType.find([('sequence', '=', 10)])
+    results = MType.find([('name', '=', 'Nutzfläche')])
     if not results:
-        print('ERROR: MeasurementType "Wohnfläche" (sequence=10) nicht gefunden.',
+        print('ERROR: MeasurementType "Nutzfläche" nicht gefunden.',
               file=sys.stderr)
         sys.exit(1)
     return results[0]
@@ -174,7 +173,7 @@ def create_su_measurement(bu, cost_type, m_type) -> None:
     su.reg_ex_object = 'Wohnung|Einzelhandel'
     su.save()
     print(f'    SU {su.sequence}: {cost_type.name} '
-          f'→ Wohnfläche / Leerstand: Eigentümer '
+          f'→ Nutzfläche / Leerstand: Eigentümer '
           f'/ Objekt-Regex: "Wohnung|Einzelhandel"')
 
 
@@ -229,7 +228,7 @@ def main():
         return
 
     # Stammdaten laden
-    m_type_wfl = get_measurement_type_living_space()
+    m_type_wfl = get_measurement_type_usable_space()
     uom_m3 = get_uom_m3()
 
     ct_measurement = [get_cost_type(seq) for seq in MEASUREMENT_SEQUENCES]
@@ -239,7 +238,7 @@ def main():
     tt_bk = get_term_type(2000)    # Betriebskosten
     tt_hz = get_term_type(3000)    # Heizkosten
 
-    print(f'Measurement Type: {m_type_wfl.name}')
+    print(f'Measurement Type (Nutzfläche): {m_type_wfl.name}')
     print(f'UoM: {uom_m3.symbol}')
     print()
 
