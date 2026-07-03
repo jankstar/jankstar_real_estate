@@ -1,25 +1,47 @@
 """
 Kreditoren-Rechnungen (Lieferantenrechnungen) für Demodaten anlegen und buchen.
 
-Voraussetzung: Die Kreditoren aus test_kreditor.py müssen bereits vorhanden sein.
+Voraussetzung: Die Kreditoren aus test_kreditor.py müssen bereits vorhanden sein
+sowie test_immo.py und test_billing_unit.py (für Settlement-Unit-Zuordnung).
 
 Das Skript legt folgende Rechnungen an und bucht sie (state=posted):
 
   Land Berlin — 1 Rechnung:
     - Datum: 15.03.2025
     - Position: "Grundsteuer 2025", 1 × 1.890,00 EUR, ohne Steuer
-    - Konto: 7680 (Grundsteuer)
+    - Konto: 7680 (Grundsteuer), Settlement Unit 100
 
-  Berliner Wasserbetriebe — 5 Rechnungen, monatlich zum 15. (Jan–Mai 2025):
-    - Position: "Wasserrechnung MM/YYYY", 1 × 261,00 EUR + 19 % VSt
-    - Konto: 5130
+  Allianz AG — 1 Rechnung:
+    - Datum: 15.02.2025
+    - Position: "Gebäudeversicherung 2025", 1 × 7.801,00 EUR + 19 % VSt
+    - Konto: 5130, Settlement Unit 110
 
-  BSR — 3 Rechnungen, alle 2 Monate zum 15. (Jan, Mrz, Mai 2025):
-    - Position 1: "Straßenreinigung", 1 × 45,00 EUR + 19 % VSt, Konto 5130
-    - Position 2: "Müll",             1 × 65,00 EUR + 19 % VSt, Konto 5130
+  Berliner Wasserbetriebe — 6 Rechnungen, 2-monatlich zum 15. (Jan–Nov 2025):
+    - Position: "Wasserrechnung MM/YYYY", 1 × 2.166,00 EUR + 19 % VSt
+    - Konto: 5130, Settlement Unit 200
 
-Das Skript ist idempotent: es bricht ab, wenn bereits eine Lieferantenrechnung
-für "Land Berlin" in der Datenbank vorhanden ist.
+  Gas AG — 6 Rechnungen, 2-monatlich zum 15. (Jan–Nov 2025):
+    - Position: "Gasrechnung MM/YYYY", 1 × 39.650,00 EUR + 19 % VSt
+    - Konto: 5130, Settlement Unit 300
+
+  BSR — 6 Rechnungen, 2-monatlich zum 15. (Jan–Nov 2025):
+    - Position 1: "Straßenreinigung", 1 × 433,00 EUR + 19 % VSt, Settlement Unit 500
+    - Position 2: "Müll",             1 × 541,00 EUR + 19 % VSt, Settlement Unit 510
+
+  Vattenfall — 6 Rechnungen, 2-monatlich zum 15. (Jan–Nov 2025):
+    - Position: "Hausstrom", 1 × 650,00 EUR + 19 % VSt, Settlement Unit 610
+
+  Reinigung Müller / B&O — je 12 Rechnungen, monatlich zum 25.:
+    - Hausreinigung 431,00 EUR + 19 % VSt (Settlement Unit 520)
+    - Hausmeister   758,00 EUR + 19 % VSt (Settlement Unit 700)
+
+  Gartenpflege GaLa — 1 Rechnung 15.02.2025, 3.250,00 EUR + 19 % VSt (SU 600)
+  Schornsteinfeger Krüger — 1 Rechnung 15.11.2025, 1.950,00 EUR + 19 % VSt (SU 620)
+  Vailand GmbH — 1 Rechnung 25.11.2025, 3.860,00 EUR + 19 % VSt (SU 310)
+
+Das Skript ist idempotent: bereits vorhandene Rechnungen (gleiche Party,
+Datum und Referenz) werden übersprungen. Die Referenz enthält jeweils den
+Property-Namen in eckigen Klammern, z.B. "Grundsteuer 2025 [Musterstraße 1-4]".
 
 Verwendung:
     python tests/test_invoices.py --database <Datenbankname> [--config <trytond.conf>]
@@ -78,17 +100,16 @@ def get_account(code: str):
     return results[0]
 
 
-def get_property():
+def get_properties():
     BaseObject = Model.get('real_estate.base_object')
-    results = BaseObject.find([
-        ('sequence', '=', 10),
-        ('type', '=', 'property'),
-    ])
+    results = BaseObject.find(
+        [('type', '=', 'property')],
+        order=[('sequence', 'ASC')])
     if not results:
-        print('ERROR: Property mit Sequence 10 nicht gefunden. Bitte zuerst test_immo.py ausführen.',
+        print('ERROR: Keine Properties gefunden. Bitte zuerst test_immo.py ausführen.',
               file=sys.stderr)
         sys.exit(1)
-    return results[0]
+    return results
 
 
 def get_settlement_unit(sequence: int, prop):
@@ -213,66 +234,156 @@ def main():
     cfg._context['company'] = company.id
 
     tax_19 = get_purchase_tax_19()
-    acc_7680 = get_account('7680')
-    acc_5130 = get_account('5130')
-
-    prop = get_property()
-    su_100 = get_settlement_unit(100, prop)   # Grundsteuer
-    su_200 = get_settlement_unit(200, prop)   # Wasserkosten
-    su_500 = get_settlement_unit(500, prop)   # Straßenreinigung
-    su_510 = get_settlement_unit(510, prop)   # Müll
+    acc_7680 = get_account('7680')  # Grundsteuer
+    acc_5130 = get_account('5130')  # Kosten
 
     print(f'Verwende Steuer: {tax_19.name} (rate={tax_19.rate})')
 
     land_berlin = get_party('Land Berlin')
+    allianz = get_party('Allianz AG')
     wasser = get_party('Berliner Wasserbetriebe')
     bsr = get_party('BSR')
+    reinigung_mueller = get_party('Reinigung Müller GmbH')
+    b_und_o = get_party('B&O GmbH')
+    gartenpflege = get_party('Gartenpflege GaLa')
+    schornsteinfeger = get_party('Schornsteinfeger Krüger')
+    vailand = get_party('Vailand GmbH')
+    vattenfall = get_party('Vattenfall GmbH')
+    gasag = get_party('Gas AG')
 
-    # Alle Rechnungen als Liste aufbauen und chronologisch sortieren
-    invoices_todo = []
+    properties = get_properties()
+    print(f'{len(properties)} Properties gefunden: {", ".join(p.name for p in properties)}')
 
-    invoices_todo.append((
-        datetime.date(2025, 3, 15), land_berlin,
-        'Grundsteuer 2025',
-        [{'description': 'Grundsteuer 2025', 'unit_price': Decimal('1890.00'),
-          'account': acc_7680, 'taxes': [],
-          'property': prop, 'settlement_unit': su_100}],
-    ))
+    for prop in properties:
+        tag = f'[{prop.name}]'
+        print(f'\nLege Rechnungen an für: {prop.name} ...')
 
-    for month in range(1, 6):
-        d = datetime.date(2025, month, 15)
-        label = d.strftime('%m/%Y')
+        su_100 = get_settlement_unit(100, prop)   # Grundsteuer
+        su_110 = get_settlement_unit(110, prop)   # Gebäudeversicherung
+        su_200 = get_settlement_unit(200, prop)   # Wasserkosten
+        su_300 = get_settlement_unit(300, prop)   # Heizkosten
+        su_310 = get_settlement_unit(310, prop)   # Heizung/Wartung
+        su_500 = get_settlement_unit(500, prop)   # Straßenreinigung
+        su_510 = get_settlement_unit(510, prop)   # Müll
+        su_520 = get_settlement_unit(520, prop)   # Hausreinigung
+        su_600 = get_settlement_unit(600, prop)   # Gartenpflege
+        su_610 = get_settlement_unit(610, prop)   # Hausstrom
+        su_620 = get_settlement_unit(620, prop)   # Schornsteinfeger
+        su_700 = get_settlement_unit(700, prop)   # Hausmeister
+
+        invoices_todo = []
+
         invoices_todo.append((
-            d, wasser,
-            f'Wasserrechnung {label}',
-            [{'description': f'Wasserrechnung {label}', 'unit_price': Decimal('261.00'),
+            datetime.date(2025, 3, 15), land_berlin,
+            f'Grundsteuer 2025 {tag}',
+            [{'description': 'Grundsteuer 2025', 'unit_price': Decimal('1890.00'),
+              'account': acc_7680, 'taxes': [],
+              'property': prop, 'settlement_unit': su_100}],
+        ))
+
+        invoices_todo.append((
+            datetime.date(2025, 2, 15), allianz,
+            f'Gebäudeversicherung 2025 {tag}',
+            [{'description': 'Gebäudeversicherung 2025', 'unit_price': Decimal('7801.00'),
               'account': acc_5130, 'taxes': [tax_19],
-              'property': prop, 'settlement_unit': su_200}],
+              'property': prop, 'settlement_unit': su_110}],
         ))
 
-    for month in [1, 3, 5]:
-        d = datetime.date(2025, month, 15)
-        label = d.strftime('%m/%Y')
+        for month in [1, 3, 5, 7, 9, 11]:
+            d = datetime.date(2025, month, 15)
+            label = d.strftime('%m/%Y')
+            invoices_todo.append((
+                d, wasser,
+                f'Wasserrechnung {label} {tag}',
+                [{'description': f'Wasserrechnung {label}', 'unit_price': Decimal('2166.00'),
+                  'account': acc_5130, 'taxes': [tax_19],
+                  'property': prop, 'settlement_unit': su_200}],
+            ))
+            invoices_todo.append((
+                d, gasag,
+                f'Gasrechnung {label} {tag}',
+                [{'description': f'Gasrechnung {label}', 'unit_price': Decimal('660.00'),
+                  'account': acc_5130, 'taxes': [tax_19],
+                  'property': prop, 'settlement_unit': su_300}],
+            ))
+
+        for month in [1, 3, 5, 7, 9, 11]:
+            d = datetime.date(2025, month, 15)
+            label = d.strftime('%m/%Y')
+            invoices_todo.append((
+                d, bsr,
+                f'BSR {label} {tag}',
+                [
+                    {'description': 'Straßenreinigung', 'unit_price': Decimal('433.00'),
+                     'account': acc_5130, 'taxes': [tax_19],
+                     'property': prop, 'settlement_unit': su_500},
+                    {'description': 'Müll', 'unit_price': Decimal('541.00'),
+                     'account': acc_5130, 'taxes': [tax_19],
+                     'property': prop, 'settlement_unit': su_510},
+                ],
+            ))
+            invoices_todo.append((
+                d, vattenfall,
+                f'Vattenfall {label} {tag}',
+                [
+                    {'description': 'Hausstrom', 'unit_price': Decimal('650.00'),
+                     'account': acc_5130, 'taxes': [tax_19],
+                     'property': prop, 'settlement_unit': su_610},
+                ],
+            ))
+
+        for month in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]:
+            d = datetime.date(2025, month, 25)
+            label = d.strftime('%m/%Y')
+            invoices_todo.append((
+                d, reinigung_mueller,
+                f'Reinigung {label} {tag}',
+                [
+                    {'description': 'Hausreinigung', 'unit_price': Decimal('431.00'),
+                     'account': acc_5130, 'taxes': [tax_19],
+                     'property': prop, 'settlement_unit': su_520},
+                ],
+            ))
+            invoices_todo.append((
+                d, b_und_o,
+                f'Hausmeister {label} {tag}',
+                [
+                    {'description': 'Hausmeister', 'unit_price': Decimal('758.00'),
+                     'account': acc_5130, 'taxes': [tax_19],
+                     'property': prop, 'settlement_unit': su_700},
+                ],
+            ))
+
         invoices_todo.append((
-            d, bsr,
-            f'BSR {label}',
-            [
-                {'description': 'Straßenreinigung', 'unit_price': Decimal('45.00'),
-                 'account': acc_5130, 'taxes': [tax_19],
-                 'property': prop, 'settlement_unit': su_500},
-                {'description': 'Müll', 'unit_price': Decimal('65.00'),
-                 'account': acc_5130, 'taxes': [tax_19],
-                 'property': prop, 'settlement_unit': su_510},
-            ],
+            datetime.date(2025, 2, 15), gartenpflege,
+            f'Gartenpflege 2025 {tag}',
+            [{'description': 'Gartenpflege 2025', 'unit_price': Decimal('3250.00'),
+              'account': acc_5130, 'taxes': [tax_19],
+              'property': prop, 'settlement_unit': su_600}],
         ))
 
-    invoices_todo.sort(key=lambda x: x[0])
+        invoices_todo.append((
+            datetime.date(2025, 11, 15), schornsteinfeger,
+            f'Schornsteinfeger 2025 {tag}',
+            [{'description': 'Schornsteinfeger 2025', 'unit_price': Decimal('1950.00'),
+              'account': acc_5130, 'taxes': [tax_19],
+              'property': prop, 'settlement_unit': su_620}],
+        ))
 
-    print('Lege Rechnungen an ...')
-    for invoice_date, party, reference, lines_data in invoices_todo:
-        create_and_post_invoice(company, party, invoice_date, reference, lines_data)
+        invoices_todo.append((
+            datetime.date(2025, 11, 25), vailand,
+            f'Vailand 2025 {tag}',
+            [{'description': 'Vailand 2025', 'unit_price': Decimal('3860.00'),
+              'account': acc_5130, 'taxes': [tax_19],
+              'property': prop, 'settlement_unit': su_310}],
+        ))
 
-    print('Fertig.')
+        invoices_todo.sort(key=lambda x: x[0])
+
+        for invoice_date, party, reference, lines_data in invoices_todo:
+            create_and_post_invoice(company, party, invoice_date, reference, lines_data)
+
+    print('\nFertig.')
 
 
 if __name__ == '__main__':

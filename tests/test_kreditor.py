@@ -3,12 +3,28 @@ Kreditoren (Lieferanten-Partner) für Demodaten im Tryton-Modul real_estate anle
 
 Das Skript legt folgende party.party-Datensätze als Kreditoren an:
 
-  - Land Berlin          (Grundsteuer)
+  - Land Berlin               (Grundsteuer)
       Klosterstraße 47, 10179 Berlin
-  - Berliner Wasserbetriebe (Wasserrechnung)
+  - Allianz AG                (Gebäudeversicherung)
+      Potsdamer Platz 1, 10785 Berlin
+  - Berliner Wasserbetriebe   (Wasserrechnung)
       Neue Jüdenstraße 1, 10179 Berlin
-  - BSR                  (Straßenreinigung und Müll)
+  - Gas AG                    (Heizkosten Gas)
+      Unter den Linden 10, 10117 Berlin
+  - BSR                       (Straßenreinigung und Müll)
       Ringbahnstraße 96, 12103 Berlin
+  - Reinigung Müller GmbH     (Hausreinigung)
+      Berliner Straße 12, 13507 Berlin
+  - B&O GmbH                  (Hausmeisterservice)
+      Tempelhofer Damm 2, 12101 Berlin
+  - Gartenpflege GaLa         (Gartenpflege)
+      Gärtnerstraße 5, 12623 Berlin
+  - Vattenfall GmbH           (Hausstrom)
+      Chausseestraße 23, 10115 Berlin
+  - Schornsteinfeger Krüger   (Schornsteinfegerleistungen)
+      Rauchstraße 7, 10787 Berlin
+  - Vailand GmbH              (Heizungswartung)
+      Wärmestraße 2, 14109 Berlin
 
 Jede Party erhält:
   - Kategorie 'Lieferant' (falls in der DB vorhanden)
@@ -36,6 +52,14 @@ KREDITOREN = [
         'city': 'Berlin',
     },
     {
+        'name': 'Allianz AG',
+        'comment': 'Gebäudeversicherung',
+        'street_name': 'Potsdamer Platz',
+        'building_number': '1',
+        'postal_code': '10785',
+        'city': 'Berlin',
+    },
+    {
         'name': 'Berliner Wasserbetriebe',
         'comment': 'Wasserrechnung',
         'street_name': 'Neue Jüdenstraße',
@@ -44,11 +68,67 @@ KREDITOREN = [
         'city': 'Berlin',
     },
     {
+        'name': 'Gas AG',
+        'comment': 'Heizkosten Gas',
+        'street_name': 'Unter den Linden',
+        'building_number': '10',
+        'postal_code': '10117',
+        'city': 'Berlin',
+    },
+    {
         'name': 'BSR',
         'comment': 'Straßenreinigung und Müll',
         'street_name': 'Ringbahnstraße',
         'building_number': '96',
         'postal_code': '12103',
+        'city': 'Berlin',
+    },
+    {
+        'name': 'Reinigung Müller GmbH',
+        'comment': 'Hausreinigung',
+        'street_name': 'Berliner Straße',
+        'building_number': '12',
+        'postal_code': '13507',
+        'city': 'Berlin',
+    },
+    {
+        'name': 'B&O GmbH',
+        'comment': 'Hausmeisterservice',
+        'street_name': 'Tempelhofer Damm',
+        'building_number': '2',
+        'postal_code': '12101',
+        'city': 'Berlin',
+    },
+    {
+        'name': 'Gartenpflege GaLa',
+        'comment': 'Gartenpflege',
+        'street_name': 'Gärtnerstraße',
+        'building_number': '5',
+        'postal_code': '12623',
+        'city': 'Berlin',
+    },
+    {
+        'name': 'Vattenfall GmbH',
+        'comment': 'Hausstrom',
+        'street_name': 'Chausseestraße',
+        'building_number': '23',
+        'postal_code': '10115',
+        'city': 'Berlin',
+    },
+    {
+        'name': 'Schornsteinfeger Krüger',
+        'comment': 'Schornsteinfegerleistungen',
+        'street_name': 'Rauchstraße',
+        'building_number': '7',
+        'postal_code': '10787',
+        'city': 'Berlin',
+    },
+    {
+        'name': 'Vailand GmbH',
+        'comment': 'Heizungswartung',
+        'street_name': 'Wärmestraße',
+        'building_number': '2',
+        'postal_code': '14109',
         'city': 'Berlin',
     },
 ]

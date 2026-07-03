@@ -176,7 +176,7 @@ class InvoiceLine(metaclass=PoolMeta):
     @fields.depends('invoice')
     def on_change_with_invoice_date(self, name=None):
         if self.invoice:
-            return self.invoice.invoice_date
+            return getattr(self.invoice, 'invoice_date', None)
         return None
 
     @fields.depends('taxes', 'unit_price', 'quantity', 'taxes_date', 'invoice')
@@ -185,15 +185,19 @@ class InvoiceLine(metaclass=PoolMeta):
             return Decimal(0)
         Tax = Pool().get('account.tax')
         date = (self.taxes_date
-            or (self.invoice.invoice_date if self.invoice else None))
+            or (getattr(self.invoice, 'invoice_date', None)
+                if self.invoice else None))
+        if date is None:
+            return Decimal(0)
         tax_list = Tax.compute(
             list(self.taxes),
             self.unit_price or Decimal(0),
             self.quantity or Decimal(0),
             date)
         total = sum(t['amount'] for t in tax_list)
-        if self.invoice and self.invoice.currency:
-            total = self.invoice.currency.round(total)
+        currency = getattr(self.invoice, 'currency', None) if self.invoice else None
+        if currency:
+            total = currency.round(total)
         return total
 
     @fields.depends('amount', 'taxes', 'unit_price', 'quantity', 'taxes_date', 'invoice')
