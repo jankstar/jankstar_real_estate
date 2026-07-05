@@ -91,6 +91,11 @@
         <record model="ir.message" id="msg_billing_unit_draft_items">
             <field name="text">Cannot bill "%(name)s": unposted contract cash flow items exist in the settlement period. Post all pending items (CreateMoves) before billing.</field>
         </record>
+        <record model="ir.message" id="msg_billing_unit_invoices_not_posted">
+            <field name="text">Cannot bill "%(name)s": the following advance payment invoices are not yet posted:
+%(details)s
+Please post all invoices before billing.</field>
+        </record>
         <record model="ir.message" id="msg_cancel_contract_has_postings">
             <field name="text">Contract "{}": existing postings (done cash flow items) will NOT be cancelled automatically. Only draft items have been deleted. Continue with cancellation?</field>
         </record>

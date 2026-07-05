@@ -370,6 +370,72 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
                         names=', '.join(u.name for u in missing)))
 
     @classmethod
+    def _check_invoices_posted(cls, billing_units):
+        """Verify all invoices in the settlement period are posted.
+
+        cash_flow_lines: advance payment invoices from contracts.
+        invoice_lines:   operating cost invoices from settlement units.
+        Raises ValidationError listing each unposted invoice.
+        """
+        CashFlowLine = Pool().get('real_estate.contract.term.cash_flow')
+
+        for bu in billing_units:
+            seen_invoices = set()
+            lines_info = []
+
+            # Advance payment lines: use _cash_flow_base_domain() (shared logic)
+            # and search only for unposted states — cash_flow_lines already
+            # filters for posted/paid so we must query the complement separately.
+            base_domain = bu._cash_flow_base_domain()
+            if base_domain is not None:
+                unposted_cf = CashFlowLine.search(
+                    base_domain + [('invoice_state', 'in', ['draft', 'validated'])])
+                for line in unposted_cf:
+                    inv = line.invoice
+                    inv_key = inv.id if inv else id(line)
+                    if inv_key in seen_invoices:
+                        continue
+                    seen_invoices.add(inv_key)
+                    contract_num = (line.term.contract.contract_number
+                        if line.term and line.term.contract else '?')
+                    if inv:
+                        inv_num = inv.number or inv.reference or f'ID {inv.id}'
+                        inv_state = inv.state
+                    else:
+                        inv_num = '—'
+                        inv_state = line.invoice_state or 'draft'
+                    date_str = (f'{line.document_date:%Y-%m-%d}'
+                        if line.document_date else '?')
+                    lines_info.append(
+                        f'  {contract_num} / {date_str}'
+                        f' / {inv_num} [{inv_state}]')
+
+            # Operating cost invoice lines: use bu.invoice_lines directly
+            for line in (bu.invoice_lines or []):
+                inv = line.invoice if line.invoice else None
+                if not inv or inv.state in ('posted', 'paid', 'cancelled'):
+                    continue
+                if inv.id in seen_invoices:
+                    continue
+                seen_invoices.add(inv.id)
+                su_name = (line.settlement_unit.name
+                    if line.settlement_unit else '?')
+                inv_num = inv.number or inv.reference or f'ID {inv.id}'
+                date_str = (f'{inv.invoice_date:%Y-%m-%d}'
+                    if inv.invoice_date else '?')
+                lines_info.append(
+                    f'  {su_name} / {date_str}'
+                    f' / {inv_num} [{inv.state}]')
+
+            if not lines_info:
+                continue
+
+            raise ValidationError(gettext(
+                'real_estate.msg_billing_unit_invoices_not_posted',
+                name=bu.name,
+                details='\n'.join(lines_info)))
+
+    @classmethod
     @ModelView.button
     @Workflow.transition('billed')
     def billing(cls, billing_units):
@@ -401,40 +467,15 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
             f"{datetime.datetime.now().strftime('%Y%m%d-%H%M%S')}"
             f"-U{Transaction().user}")
 
-        # c) Refuse billing if any settlement unit has error sub_state
+        # Refuse billing if any settlement unit has error sub_state
         error_units = [bu for bu in scope_units if bu.sub_state == 'error']
         if error_units:
             raise ValidationError(gettext(
                 'real_estate.msg_billing_unit_has_errors',
                 names=', '.join(bu.name for bu in error_units)))
 
-        # c) Re-verify no draft cash flow items exist at billing time
-        for bu in scope_units:
-            contract_ids = list({
-                r.contract.id
-                for r in SettlementResult.search([
-                    ('billing_unit', '=', bu.id),
-                    ('state', '=', 'approved'),
-                ])
-                if r.contract
-            })
-            if not contract_ids:
-                continue
-            draft_domain = [
-                ('term.contract', 'in', contract_ids),
-                ('invoice_state', '=', 'draft'),
-            ]
-            if bu.start_date:
-                draft_domain.append(('document_date', '>=', bu.start_date))
-            if bu.end_date:
-                draft_domain.append(('document_date', '<=', bu.end_date))
-            if bu.term_types_of_use:
-                draft_domain.append(('term.term_type', 'in',
-                    [int(t) for t in bu.term_types_of_use]))
-            if CashFlowLine.search(draft_domain, limit=1):
-                raise ValidationError(gettext(
-                    'real_estate.msg_billing_unit_draft_items',
-                    name=bu.name))
+        # Verify all advance payment invoices in the settlement period are posted
+        cls._check_invoices_posted(scope_units)
 
         cls.write(scope_units, {'billing_run_id': billing_run_id})
 
@@ -955,14 +996,13 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
             return []
         return CostShare.search([('settlement_unit', 'in', su_ids)])
 
-    @fields.depends('settlement_units', 'start_date', 'end_date',
-            'term_types_of_use', 'billing_type')
-    def on_change_with_cash_flow_lines(self, name=None):
-        """Collect contracts from cost_shares of all settlement_units.
-        Filter by term_types_of_use and document_date within start_date..end_date.
-        billing_type='actual_billing': only paid lines (invoice_state='paid').
-        billing_type='planned_billing': posted and paid lines only (excludes drafts and cancellations)."""
-        CashFlowLine = Pool().get('real_estate.contract.term.cash_flow')
+    def _cash_flow_base_domain(self):
+        """Return the base search domain for cash flow lines of this billing unit.
+
+        Covers: contracts from cost shares, billing period, term types of use.
+        Does NOT include an invoice_state filter — callers add that themselves.
+        Returns None when no contracts are found (nothing to search).
+        """
         CostShare = Pool().get('real_estate.cost_share')
         su_ids = [su.id for su in (self.settlement_units or []) if su.id]
         contract_ids = list({
@@ -971,19 +1011,31 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
             if cs.contract
         } if su_ids else set())
         if not contract_ids:
-            return []
+            return None
         domain = [('term.contract', 'in', contract_ids)]
         if self.term_types_of_use:
-            term_type_ids = [int(t) for t in self.term_types_of_use]
-            domain.append(('term.term_type', 'in', term_type_ids))
+            domain.append(('term.term_type', 'in',
+                [int(t) for t in self.term_types_of_use]))
         if self.start_date:
             domain.append(('document_date', '>=', self.start_date))
         if self.end_date:
             domain.append(('document_date', '<=', self.end_date))
+        return domain
+
+    @fields.depends('settlement_units', 'start_date', 'end_date',
+            'term_types_of_use', 'billing_type')
+    def on_change_with_cash_flow_lines(self, name=None):
+        """Return posted/paid cash flow lines for this billing unit.
+
+        planned_billing: posted and paid lines (excludes drafts and cancellations).
+        actual_billing:  paid lines only."""
+        CashFlowLine = Pool().get('real_estate.contract.term.cash_flow')
+        domain = self._cash_flow_base_domain()
+        if domain is None:
+            return []
         if self.billing_type == 'actual_billing':
             domain.append(('invoice_state', '=', 'paid'))
         else:
-            # planned_billing: posted (open) + paid only; excludes drafts and cancellations
             domain.append(('invoice_state', 'in', ['posted', 'paid']))
         return CashFlowLine.search(domain)
 
