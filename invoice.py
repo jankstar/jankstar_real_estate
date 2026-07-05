@@ -36,9 +36,24 @@ class InvoiceLine(metaclass=PoolMeta):
     """Invoice Line extension for real estate"""
     __name__ = 'account.invoice.line'
 
+    assignment_control = fields.Selection([
+            ('', 'All'),
+            ('contract', 'Contract'),
+            ('operating_costs', 'Operating Costs'),
+            ('settlement_result_contract', 'Settlement Result Contract'),
+            ('settlement_result_vacant', 'Settlement Result Vacant'),
+        ], 'Account Assignment Control',
+        sort=False,
+    )
+
     contract = fields.Many2One(
         'real_estate.contract', 'Contract',
-        states={'readonly': Eval('invoice_state') != 'draft'},
+        states={
+            'readonly': Eval('invoice_state') != 'draft',
+            'invisible': Eval('assignment_control', '').in_(
+                ['operating_costs', 'settlement_result_vacant']),
+        },
+        depends=['assignment_control'],
         domain=[
             If(Bool(Eval('company')),
                 ('company', '=', Eval('company', -1)),
@@ -48,7 +63,12 @@ class InvoiceLine(metaclass=PoolMeta):
 
     term = fields.Many2One(
         'real_estate.contract.term', 'Term',
-        states={'readonly': Eval('invoice_state') != 'draft'},
+        states={
+            'readonly': Eval('invoice_state') != 'draft',
+            'invisible': Eval('assignment_control', '').in_(
+                ['operating_costs', 'settlement_result_vacant']),
+        },
+        depends=['assignment_control'],
         domain=[
             If(Bool(Eval('contract')),
                 ('contract', '=', Eval('contract', -1)),
@@ -58,6 +78,10 @@ class InvoiceLine(metaclass=PoolMeta):
 
     base_object = fields.Many2One(
         'real_estate.base_object', 'Object',
+        states={
+            'invisible': Eval('assignment_control', '') == 'settlement_result_contract',
+        },
+        depends=['assignment_control'],
         domain=[
             If(Bool(Eval('company')),
                 ('company', '=', Eval('company', -1)),
@@ -87,6 +111,11 @@ class InvoiceLine(metaclass=PoolMeta):
 
     billing_unit = fields.Many2One(
         'real_estate.billing_unit', 'Billing Unit',
+        states={
+            'invisible': Eval('assignment_control', '').in_(
+                ['contract', 'operating_costs']),
+        },
+        depends=['assignment_control'],
         domain=[
             If(Bool(Eval('property')),
                 ('property', '=', Eval('property', -1)),
@@ -96,6 +125,12 @@ class InvoiceLine(metaclass=PoolMeta):
 
     settlement_unit = fields.Many2One(
         'real_estate.settlement_unit', 'Settlement Unit',
+        states={
+            'invisible': Eval('assignment_control', '').in_(
+                ['contract', 'settlement_result_contract',
+                    'settlement_result_vacant']),
+        },
+        depends=['assignment_control'],
         domain=[
             If(Bool(Eval('billing_unit')),
                 ('billing_unit', '=', Eval('billing_unit', -1)),
@@ -108,6 +143,12 @@ class InvoiceLine(metaclass=PoolMeta):
 
     service_period_from = fields.Date(
         'Service Period From',
+        states={
+            'invisible': Eval('assignment_control', '').in_(
+                ['contract', 'settlement_result_contract',
+                    'settlement_result_vacant']),
+        },
+        depends=['assignment_control'],
         domain=[
             If(Bool(Eval('service_period_from')) & Bool(Eval('service_period_to')),
                 ('service_period_from', '<=', Eval('service_period_to')),
@@ -117,6 +158,12 @@ class InvoiceLine(metaclass=PoolMeta):
 
     service_period_to = fields.Date(
         'Service Period To',
+        states={
+            'invisible': Eval('assignment_control', '').in_(
+                ['contract', 'settlement_result_contract',
+                    'settlement_result_vacant']),
+        },
+        depends=['assignment_control'],
         domain=[
             If(Bool(Eval('service_period_from')) & Bool(Eval('service_period_to')),
                 ('service_period_to', '>=', Eval('service_period_from')),
@@ -131,7 +178,17 @@ class InvoiceLine(metaclass=PoolMeta):
         ('abs3', 'Para. 3 - Craftsmen Services (e.g. Chimney Sweep)'),
     ], '§35a EStG',
         sort=False,
+        states={
+            'invisible': Eval('assignment_control', '').in_(
+                ['contract', 'settlement_result_contract',
+                    'settlement_result_vacant']),
+        },
+        depends=['assignment_control'],
     )
+
+    @classmethod
+    def default_assignment_control(cls):
+        return ''
 
     @classmethod
     def default_estg_35a(cls):
@@ -219,6 +276,7 @@ class InvoiceLine(metaclass=PoolMeta):
             line.base_object = self.base_object
             line.billing_unit = self.billing_unit
             line.settlement_unit = self.settlement_unit
+            line.assignment_control = self.assignment_control or ''
         return lines
 
     @classmethod
@@ -242,20 +300,55 @@ class AccountMoveLine(metaclass=PoolMeta):
     """Account Move Line extension for real estate"""
     __name__ = 'account.move.line'
 
+    assignment_control = fields.Selection([
+            ('', ''),
+            ('contract', 'Contract'),
+            ('operating_costs', 'Operating Costs'),
+            ('settlement_result_contract', 'Settlement Result Contract'),
+            ('settlement_result_vacant', 'Settlement Result Vacant'),
+        ], 'Account Assignment Control',
+        sort=False,
+    )
+
     contract = fields.Many2One('real_estate.contract', 'Contract',
-        ondelete='SET NULL')
+        ondelete='SET NULL',
+        states={
+            'invisible': Eval('assignment_control', '').in_(
+                ['operating_costs', 'settlement_result_vacant']),
+        },
+        depends=['assignment_control'])
 
     term = fields.Many2One('real_estate.contract.term', 'Term',
-        ondelete='SET NULL')
+        ondelete='SET NULL',
+        states={
+            'invisible': Eval('assignment_control', '').in_(
+                ['operating_costs', 'settlement_result_vacant']),
+        },
+        depends=['assignment_control'])
 
     base_object = fields.Many2One('real_estate.base_object', 'Object',
-        ondelete='SET NULL')
+        ondelete='SET NULL',
+        states={
+            'invisible': Eval('assignment_control', '') == 'settlement_result_contract',
+        },
+        depends=['assignment_control'])
 
     billing_unit = fields.Many2One('real_estate.billing_unit', 'Billing Unit',
-        ondelete='SET NULL')
+        ondelete='SET NULL',
+        states={
+            'invisible': Eval('assignment_control', '').in_(
+                ['contract', 'operating_costs']),
+        },
+        depends=['assignment_control'])
 
     settlement_unit = fields.Many2One('real_estate.settlement_unit',
-        'Settlement Unit', ondelete='SET NULL')
+        'Settlement Unit', ondelete='SET NULL',
+        states={
+            'invisible': Eval('assignment_control', '').in_(
+                ['contract', 'settlement_result_contract',
+                    'settlement_result_vacant']),
+        },
+        depends=['assignment_control'])
 
     property = fields.Function(
         fields.Many2One('real_estate.base_object', 'Property'),

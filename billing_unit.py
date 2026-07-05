@@ -517,6 +517,7 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
                         currency=contract.currency.id,
                         contract=contract.id,
                         term=term.id,
+                        assignment_control='settlement_result_contract',
                     )
                     adv_line.save()
                     invoice_lines.append(adv_line)
@@ -544,6 +545,7 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
                         currency=contract.currency.id,
                         contract=contract.id,
                         billing_unit=r.billing_unit.id,
+                        assignment_control='settlement_result_contract',
                     )
                     cost_line.save()
                     invoice_lines.append(cost_line)
@@ -638,6 +640,7 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
                         credit=Decimal(0),
                         description=f"Vacancy — {obj_name}",
                         base_object=r.base_object.id if r.base_object else None,
+                        assignment_control='settlement_result_vacant',
                     )
                     credit_line = AccountMoveLine(
                         move=move.id,
@@ -646,6 +649,7 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
                         credit=actual,
                         description=f"Vacancy — {r.billing_unit.name}",
                         billing_unit=r.billing_unit.id,
+                        assignment_control='settlement_result_vacant',
                     )
                     AccountMoveLine.save([debit_line, credit_line])
                     AccountMove.post([move])

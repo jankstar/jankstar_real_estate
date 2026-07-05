@@ -1010,6 +1010,7 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
                                     contract=self,
                                     term=term,
                                     base_object=obj.id,
+                                    assignment_control='contract',
                                 )
                                 line.save()
                                 per_obj_lines.append(line)
@@ -1051,6 +1052,7 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
                             contract=self,
                             term=term,
                             base_object=first_obj.id if first_obj else None,
+                            assignment_control='contract',
                         )
                         new_invoice_line.save()
 
