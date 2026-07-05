@@ -30,7 +30,7 @@ Je Wirtschaftseinheit werden zwei Billing Units angelegt:
 
        200 Wasserversorgung/Abwasser — Verbrauch m³, Leerstand: Eigentümer
 
-  2. "Heizkosten 2025" (calculation_method=rental_apartment)
+  2. "Heizkosten 2025" (calculation_method=rental_apartment, external_billing=True)
      Settlement Units (Objekt-Regex: "Wohnung|Einzelhandel"):
        300 Heizung (Brennstoff)     — externe Abrechnung
        310 Heizung (Wartung)        — externe Abrechnung
@@ -146,18 +146,20 @@ def get_term_type(sequence: int):
 # Billing Unit anlegen
 # ---------------------------------------------------------------------------
 
-def create_billing_unit(prop, description: str, term_type_ids: list) -> object:
+def create_billing_unit(prop, description: str, term_type_ids: list,
+        external_billing: bool = False) -> object:
     BillingUnit = Model.get('real_estate.billing_unit')
     bu = BillingUnit()
     bu.property = prop
     bu.start_date = START_DATE
     bu.calculation_method = 'rental_apartment'
     bu.billing_type = 'planned_billing'
+    bu.external_billing = external_billing
     bu.description = description
     if term_type_ids:
         bu.term_types_of_use = [str(tid) for tid in term_type_ids]
     bu.save()
-    print(f'  BillingUnit: "{bu.name}" id={bu.id}')
+    print(f'  BillingUnit: "{bu.name}" external_billing={external_billing} id={bu.id}')
     return bu
 
 
@@ -268,6 +270,7 @@ def main():
             prop=prop,
             description='Heizkosten 2025',
             term_type_ids=tt_ids_hz,
+            external_billing=True,
         )
 
         for ct in ct_heat:

@@ -302,7 +302,7 @@ def main():
             invoices_todo.append((
                 d, gasag,
                 f'Gasrechnung {label} {tag}',
-                [{'description': f'Gasrechnung {label}', 'unit_price': Decimal('660.00'),
+                [{'description': f'Gasrechnung {label}', 'unit_price': Decimal('6630.00'),
                   'account': acc_5130, 'taxes': [tax_19],
                   'property': prop, 'settlement_unit': su_300}],
             ))

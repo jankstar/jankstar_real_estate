@@ -58,6 +58,8 @@
                 <label name="calculation_method"/><field name="calculation_method"/>
                 <label name="billing_type"/><field name="billing_type"/>
                 <newline/>
+                <label name="external_billing"/><field name="external_billing" xexpand="0"/>
+                <newline/>
                 <label name="billing_run_id"/><field name="billing_run_id" colspan="4" readonly="1"/>
             </group>
             <group col="6" colspan="4" id="billing_unit_term_types">

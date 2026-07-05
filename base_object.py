@@ -437,7 +437,8 @@ class BaseObject(Workflow, DeactivableMixin, re_sequence_ordered(), tree(separat
         for obj in base_objects:
             if obj.type != 'property' or obj.state != 'approved':
                 continue
-            units = [bu for bu in obj.billing_units if bu.state == 'value_share']
+            units = [bu for bu in obj.billing_units
+                if bu.state in ('selection', 'value_share')]
             if units:
                 BillingUnit.compute_value_shares_button(units)
 

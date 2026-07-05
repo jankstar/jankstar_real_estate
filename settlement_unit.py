@@ -57,6 +57,10 @@ class SettlementUnit(DeactivableMixin, base_object.re_sequence_ordered(), ModelS
 
     currency = fields.Function(fields.Many2One('currency.currency', 'Currency'), 'on_change_with_currency')
 
+    billing_unit_external_billing = fields.Function(
+        fields.Boolean('External Billing (BU)'),
+        'on_change_with_billing_unit_external_billing')
+
     allocation_rule = fields.Selection([
             ('no_allocation', 'No allocation'),
             ('allocation_by_measurement', 'Allocation by measurement'),
@@ -64,6 +68,10 @@ class SettlementUnit(DeactivableMixin, base_object.re_sequence_ordered(), ModelS
             ('allocation_per_rental_unit', 'Allocation per rental unit'),
             ('allocation_from_external_billing', 'Allocation from external billing')
             ], "Allocation Rule", sort=False,
+            states={
+                'readonly': Eval('billing_unit_external_billing', False),
+            },
+            depends=['billing_unit_external_billing'],
             )
 
     vacancy = fields.Selection([
@@ -188,10 +196,21 @@ class SettlementUnit(DeactivableMixin, base_object.re_sequence_ordered(), ModelS
         CostShare = pool.get('real_estate.cost_share')
         return CostShare.fields_get(['state'])['state']['selection']
 
+    @fields.depends('billing_unit')
+    def on_change_with_billing_unit_external_billing(self, name=None):
+        if self.billing_unit:
+            return bool(self.billing_unit.external_billing)
+        return False
+
     @fields.depends('type', 'sequence')
     def on_change_type(self):
         if self.type and not self.sequence:
             self.sequence = self.type.sequence
+
+    @fields.depends('billing_unit', 'allocation_rule')
+    def on_change_billing_unit(self):
+        if self.billing_unit and self.billing_unit.external_billing:
+            self.allocation_rule = 'allocation_from_external_billing'
 
     @fields.depends('billing_unit')
     def on_change_with_state(self, name=None):
@@ -293,6 +312,25 @@ class SettlementUnit(DeactivableMixin, base_object.re_sequence_ordered(), ModelS
     @classmethod
     def set_measurements(cls, measurements, name, value):
         pass
+
+    @classmethod
+    def validate_fields(cls, units, field_names):
+        super().validate_fields(units, field_names)
+        if 'allocation_rule' not in (field_names or {}):
+            return
+        for su in units:
+            if not su.billing_unit:
+                continue
+            if su.billing_unit.external_billing:
+                if su.allocation_rule != 'allocation_from_external_billing':
+                    raise ValidationError(
+                        f"Settlement unit '{su.rec_name}': allocation rule must be "
+                        f"'Allocation from external billing' when external billing is set on the billing unit.")
+            else:
+                if su.allocation_rule == 'allocation_from_external_billing':
+                    raise ValidationError(
+                        f"Settlement unit '{su.rec_name}': allocation rule "
+                        f"'Allocation from external billing' is only allowed when external billing is set on the billing unit.")
 
     @fields.depends('type')
     def on_change_with_sequence(self, name=None):
@@ -693,30 +731,61 @@ class SettlementUnit(DeactivableMixin, base_object.re_sequence_ordered(), ModelS
             cost_share.save()
 
     def _compute_value_shares_external(self):
-        """For allocation_from_external_billing: use manually entered actual_costs
-        and planned_costs on each CostShare directly. No proportional distribution."""
+        """For allocation_from_external_billing.
+
+        Two modes depending on billing_unit.external_billing:
+
+        False (classic): actual_costs and planned_costs must be entered manually
+        on each CostShare. Missing value → error state.
+
+        True (BU-level external): costs stay zero on CostShares; time-based
+        value_share is calculated so proportions are available for reporting.
+        Actual costs are entered later directly on SettlementResult via
+        export/import.
+        """
         CostShare = Pool().get('real_estate.cost_share')
         cost_shares = CostShare.search([('settlement_unit', '=', self.id)])
-        total_actual = Decimal(0)
-        total_planned = Decimal(0)
-        has_error = False
-        for cs in cost_shares:
-            if cs.actual_costs is None:
-                cs.state = 'error'
-                cs.error_message = 'No actual costs entered for external billing.'
+
+        bu_external = (self.billing_unit.external_billing
+            if self.billing_unit else False)
+
+        if bu_external:
+            # BU-level external: CostShare amounts stay zero (no internal
+            # per-apartment allocation). actual_costs on the SettlementUnit
+            # is already set by selection_actual_costs() from invoices —
+            # do NOT overwrite it here.
+            for cs in cost_shares:
+                cs.value_share = 0.0
+                cs.actual_costs = Decimal(0)
+                cs.planned_costs = Decimal(0)
+                cs.state = 'value_share'
+                cs.error_message = ''
                 cs.save()
-                has_error = True
-                continue
-            cs.state = 'value_share'
-            cs.error_message = ''
-            cs.save()
-            total_actual += cs.actual_costs or Decimal(0)
-            total_planned += cs.planned_costs or Decimal(0)
-        if not has_error:
-            self.actual_costs = total_actual
-            self.planned_costs = total_planned
-            self.value_total = float(total_actual)
+            self.planned_costs = Decimal(0)
+            self.value_total = float(self.actual_costs or 0)
             self.save()
+        else:
+            # Classic mode: values must be entered per CostShare
+            total_actual = Decimal(0)
+            total_planned = Decimal(0)
+            has_error = False
+            for cs in cost_shares:
+                if cs.actual_costs is None:
+                    cs.state = 'error'
+                    cs.error_message = 'No actual costs entered for external billing.'
+                    cs.save()
+                    has_error = True
+                    continue
+                cs.state = 'value_share'
+                cs.error_message = ''
+                cs.save()
+                total_actual += cs.actual_costs or Decimal(0)
+                total_planned += cs.planned_costs or Decimal(0)
+            if not has_error:
+                self.actual_costs = total_actual
+                self.planned_costs = total_planned
+                self.value_total = float(total_actual)
+                self.save()
 
     def billing(self, selection_on=False):
         if self.state == 'billed':

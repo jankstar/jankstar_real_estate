@@ -219,6 +219,10 @@ class SettlementResult(ModelSQL, ModelView):
 
     billing_unit = fields.Many2One('real_estate.billing_unit', 'Billing Unit', required=True, ondelete='CASCADE')
 
+    billing_unit_external_billing = fields.Function(
+        fields.Boolean('External Billing'),
+        'on_change_with_billing_unit_external_billing')
+
     term = fields.Many2One('real_estate.contract.term', 'Term',
         ondelete='SET NULL',
         states={'readonly': True},
@@ -248,10 +252,12 @@ class SettlementResult(ModelSQL, ModelView):
         states={'readonly': True})
 
     planned_costs = Monetary('Planned Costs', currency='currency', digits='currency',
-        states={'readonly': True})
+        states={'readonly': ~Eval('billing_unit_external_billing', False)},
+        depends=['billing_unit_external_billing'])
 
     actual_costs = Monetary('Actual Costs', currency='currency', digits='currency',
-        states={'readonly': True})
+        states={'readonly': ~Eval('billing_unit_external_billing', False)},
+        depends=['billing_unit_external_billing'])
 
     advanced_payment = Monetary('Advanced Payment', currency='currency', digits='currency',
         states={'readonly': True})
@@ -293,3 +299,16 @@ class SettlementResult(ModelSQL, ModelView):
     @fields.depends('billing_unit')
     def on_change_with_currency(self, name=None):
         return self.billing_unit.currency if self.billing_unit else None
+
+    @fields.depends('billing_unit')
+    def on_change_with_billing_unit_external_billing(self, name=None):
+        if self.billing_unit:
+            return bool(self.billing_unit.external_billing)
+        return False
+
+    @fields.depends('actual_costs', 'advanced_payment')
+    def on_change_actual_costs(self):
+        if self.actual_costs is not None and self.advanced_payment is not None:
+            self.refund_receivable = self.actual_costs - self.advanced_payment
+        elif self.actual_costs is not None:
+            self.refund_receivable = self.actual_costs

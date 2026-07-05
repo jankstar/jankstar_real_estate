@@ -21,6 +21,8 @@ logger = logging.getLogger(__name__)
 
 class InvalidCalculationMethod(ValidationError):
     pass
+class InvalidExternalBillingRule(ValidationError):
+    pass
 class SelectionWarning(UserWarning):
     pass
 
@@ -102,6 +104,13 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
         ),
         )
 
+    external_billing = fields.Boolean('External Billing',
+        states={'readonly': Eval('state') != 'draft'},
+        help=(
+            "If set, all settlement units must use 'Allocation from external billing'. "
+            "The allocation rule on each settlement unit is locked accordingly."
+        ))
+
     billing_type = fields.Selection([
         ('planned_billing', 'Planned Billing'),
         ('actual_billing', 'Actual Billing'),
@@ -148,13 +157,13 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
             )
 
     invoice_lines = fields.Function(fields.One2Many('account.invoice.line', None, 'Invoice Lines'),
-        'on_change_with_invoice_lines')
+        'on_change_with_invoice_lines', setter='set_invoice_lines')
 
     cost_shares = fields.Function(fields.One2Many('real_estate.cost_share', None, 'Cost Shares'),
-        'on_change_with_cost_shares')
+        'on_change_with_cost_shares', setter='set_cost_shares')
 
     cash_flow_lines = fields.Function(fields.One2Many('real_estate.contract.term.cash_flow', None, 'Advanced Payment'),
-        'on_change_with_cash_flow_lines')
+        'on_change_with_cash_flow_lines', setter='set_cash_flow_lines')
 
     settlment_results = fields.One2Many('real_estate.settlement_result', 'billing_unit', 'Settlement Results')
 
@@ -323,8 +332,11 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
                 su.compute_value_shares()
             sus = SettlementUnit.browse(
                 [su.id for su in billing_unit.settlement_units])
+            # no_allocation SUs never reach sub_state 'value_share' — treat as done
             all_value_share = all(
-                su.sub_state == 'value_share' for su in sus)
+                su.sub_state == 'value_share'
+                or su.allocation_rule == 'no_allocation'
+                for su in sus)
             if all_value_share:
                 billing_unit.add_log('state_change',
                     'billing unit state changed to value_share')
@@ -332,7 +344,7 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
             billing_unit.save()
 
     @classmethod
-    def _check_chronological_order(cls, billing_units):
+    def _check_chronological_order(cls, billing_units, check_collective=False):
         by_property = {}
         for bu in billing_units:
             by_property.setdefault(bu.property.id, []).append(bu)
@@ -349,7 +361,7 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
                     'real_estate.msg_billing_unit_chronological_order',
                     names=', '.join(u.name for u in blocking)))
 
-            if prop.collective_billing:
+            if check_collective and prop.collective_billing:
                 same_start = [u for u in all_units
                               if u.start_date == min_start and u.state != 'billed']
                 missing = [u for u in same_start
@@ -374,7 +386,7 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
         CashFlowLine = pool.get('real_estate.contract.term.cash_flow')
         Date = pool.get('ir.date')
 
-        cls._check_chronological_order(billing_units)
+        cls._check_chronological_order(billing_units, check_collective=True)
 
         # Determine scope: if collective_billing, expand to all BUs with same start_date
         scope_units = list(billing_units)
@@ -725,6 +737,14 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
                     f"Billing unit {billing_unit.name} is not in state 'value_share'.")
             existing = SettlementResult.search(
                 [('billing_unit', '=', billing_unit.id)])
+            # For external billing: preserve manually entered costs before delete
+            preserved_costs = {}
+            if existing and billing_unit.external_billing:
+                for r in existing:
+                    k = (r.contract.id if r.contract else None,
+                         r.base_object.id if r.base_object else None)
+                    preserved_costs[k] = (
+                        r.actual_costs, r.planned_costs)
             if existing:
                 SettlementResult.delete(existing)
             groups = {}
@@ -849,6 +869,17 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
                     refund = None
                 term_ids = terms_by_contract.get(contract_id, set()) if contract_id else set()
                 term_id = term_ids.pop() if len(term_ids) == 1 else None
+                # Restore externally entered costs if available
+                if billing_unit.external_billing and preserved_costs:
+                    pk = (contract_id, base_object_id)
+                    if pk in preserved_costs:
+                        prev_actual, prev_planned = preserved_costs[pk]
+                        if prev_actual is not None:
+                            g['actual_costs'] = prev_actual
+                        if prev_planned is not None:
+                            g['planned_costs'] = prev_planned
+                        refund = (g['actual_costs'] - adv
+                            if adv is not None else None)
                 result = SettlementResult(
                     billing_unit=billing_unit.id,
                     contract=contract_id,
@@ -876,6 +907,16 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
     @staticmethod
     def default_billing_type():
         return 'planned_billing'
+
+    @staticmethod
+    def default_external_billing():
+        return False
+
+    @fields.depends('external_billing', 'settlement_units')
+    def on_change_external_billing(self):
+        if self.external_billing:
+            for su in (self.settlement_units or []):
+                su.allocation_rule = 'allocation_from_external_billing'
 
     @staticmethod
     def get_sub_states():
@@ -944,6 +985,18 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
             domain.append(('invoice_state', 'in', ['posted', 'paid']))
         return CashFlowLine.search(domain)
 
+    @classmethod
+    def set_invoice_lines(cls, records, name, value):
+        pass
+
+    @classmethod
+    def set_cost_shares(cls, records, name, value):
+        pass
+
+    @classmethod
+    def set_cash_flow_lines(cls, records, name, value):
+        pass
+
     def _get_cost_shares(self):
         """Returns all cost_shares across settlement_units, or [] if guard fails."""
         if self.state == 'draft':
@@ -955,23 +1008,36 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
         ]
         return shares
 
-    @fields.depends('state', 'settlement_units')
+    @fields.depends('state', 'settlement_units', 'external_billing', 'settlment_results')
     def on_change_with_sum_planned_costs(self, name=None):
+        if self.external_billing:
+            return sum(
+                (r.planned_costs or Decimal(0))
+                for r in (self.settlment_results or []))
         shares = self._get_cost_shares()
         if not shares:
             return Decimal(0)
         return sum((cs.planned_costs or Decimal(0)) for cs in shares)
 
-    @fields.depends('state', 'settlement_units')
+    @fields.depends('state', 'settlement_units', 'external_billing', 'settlment_results')
     def on_change_with_sum_actual_costs(self, name=None):
+        if self.external_billing:
+            return sum(
+                (r.actual_costs or Decimal(0))
+                for r in (self.settlment_results or []))
         shares = self._get_cost_shares()
         if not shares:
             return Decimal(0)
         return sum((cs.actual_costs or Decimal(0)) for cs in shares)
 
-    @fields.depends('state', 'settlement_units')
+    @fields.depends('state', 'settlement_units', 'external_billing', 'settlment_results')
     def on_change_with_sum_actual_cost_by_owner(self, name=None):
         """Cost shares without contract = costs borne by owner (vacancy/object)."""
+        if self.external_billing:
+            return sum(
+                (r.actual_costs or Decimal(0))
+                for r in (self.settlment_results or [])
+                if not r.contract)
         shares = self._get_cost_shares()
         if not shares:
             return Decimal(0)
@@ -981,9 +1047,14 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
             if not cs.contract
         )
 
-    @fields.depends('state', 'settlement_units')
+    @fields.depends('state', 'settlement_units', 'external_billing', 'settlment_results')
     def on_change_with_sum_actual_cost_by_allocation(self, name=None):
         """Cost shares with contract = costs allocated to tenants."""
+        if self.external_billing:
+            return sum(
+                (r.actual_costs or Decimal(0))
+                for r in (self.settlment_results or [])
+                if r.contract)
         shares = self._get_cost_shares()
         if not shares:
             return Decimal(0)
@@ -1002,9 +1073,14 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
             for line in (self.cash_flow_lines or [])
         )
 
-    @fields.depends('state', 'settlement_units', 'cash_flow_lines')
+    @fields.depends('state', 'settlement_units', 'cash_flow_lines',
+            'external_billing', 'settlment_results')
     def on_change_with_sum_refund_receivable(self, name=None):
         """Positive = tenant owes additional payment; negative = refund due to tenant."""
+        if self.external_billing:
+            return sum(
+                (r.refund_receivable or Decimal(0))
+                for r in (self.settlment_results or []))
         shares = self._get_cost_shares()
         if not shares:
             return Decimal(0)
@@ -1030,6 +1106,20 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
     def pre_validate(self):
         super().pre_validate()
         self.check_calculation_method()
+        self.check_external_billing_rule()
+
+    def check_external_billing_rule(self):
+        for su in (self.settlement_units or []):
+            if self.external_billing:
+                if su.allocation_rule != 'allocation_from_external_billing':
+                    raise InvalidExternalBillingRule(
+                        f"Settlement unit '{su.rec_name}': allocation rule must be "
+                        f"'Allocation from external billing' when external billing is set on the billing unit.")
+            else:
+                if su.allocation_rule == 'allocation_from_external_billing':
+                    raise InvalidExternalBillingRule(
+                        f"Settlement unit '{su.rec_name}': allocation rule "
+                        f"'Allocation from external billing' is only allowed when external billing is set on the billing unit.")
 
     @fields.depends('calculation_method', 'start_date')
     def check_calculation_method(self, name=None):
