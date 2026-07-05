@@ -127,8 +127,6 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
         ),
         )
 
-    planned_costs = fields.Function(Monetary('Planned Costs', currency='currency', digits='currency'),
-        'on_change_with_planned_costs')
 
     currency = fields.Function(fields.Many2One('currency.currency', 'Currency'), 'on_change_with_currency')
 
@@ -1189,11 +1187,6 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
     @fields.depends('company')
     def on_change_with_currency(self, name=None):
         return self.company.currency if self.company else None
-
-    @fields.depends('settlement_units')
-    def on_change_with_planned_costs(self, name=None):
-        if self.settlement_units:
-            return sum(settlement_unit.planned_costs for settlement_unit in self.settlement_units if settlement_unit.planned_costs)
 
     @classmethod
     def name_search(cls, name, clause):
