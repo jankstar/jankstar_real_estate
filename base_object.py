@@ -224,6 +224,11 @@ class BaseObject(Workflow, DeactivableMixin, re_sequence_ordered(), tree(separat
     billing_units = fields.One2Many('real_estate.billing_unit', 'property', 'Billing Units',
         states=_states_only_propperty)
 
+    next_billing_start_date = fields.Function(
+        fields.Date('Next Billing Start Date',
+            states=_states_only_propperty),
+        'on_change_with_next_billing_start_date')
+
     occupancy = fields.One2Many('real_estate.base_object.occupancy', 'base_object',
         'Occupancy',
         states={'invisible': Eval('type') != 'object'},
@@ -344,7 +349,7 @@ class BaseObject(Workflow, DeactivableMixin, re_sequence_ordered(), tree(separat
             ('/form/notebook/page[@id="page_occupancy"]', 'states', cls._states_only_object),
             ('/form/notebook/page[@id="page_equipment"]', 'states', cls._states_only_equipment),
             ('/form/notebook/page[@id="page_meter"]', 'states', cls._states_only_equipment_meter),
-            ('/form/notebook/page[@id="page_billing_unit"]', 'states', cls._states_only_propperty),
+            ('/form/notebook/page[@id="page_billing_unit"]', 'states', cls._states_only_propperty),      
             ]
 
 
@@ -696,6 +701,15 @@ class BaseObject(Workflow, DeactivableMixin, re_sequence_ordered(), tree(separat
                     return 'equipment'
         return self.type
                 
+
+    @fields.depends('billing_units')
+    def on_change_with_next_billing_start_date(self, name=None):
+        dates = [
+            bu.start_date
+            for bu in (self.billing_units or [])
+            if bu.state != 'billed' and bu.start_date
+        ]
+        return min(dates) if dates else None
 
     @fields.depends('parent', 'address')
     def on_change_with_address(self, name=None):

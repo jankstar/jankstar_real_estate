@@ -89,6 +89,7 @@ this repository contains the full copyright notices and license terms. -->
         <page string="Billing Units" id="page_billing_unit" col="6">
             <label name="billing_as"/><field name="billing_as"/>
             <label name="collective_billing"/><field name="collective_billing"/>
+            <label name="next_billing_start_date"/><field name="next_billing_start_date" readonly="1"/>
             <newline/>
             <field name="billing_units" colspan="6"
                 view_ids="real_estate.base_object_view_list_billing_unit"/>

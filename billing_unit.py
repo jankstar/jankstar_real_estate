@@ -77,6 +77,9 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
     collective_billing = fields.Function(fields.Boolean('Collective Billing'),
         'on_change_with_collective_billing')
 
+    is_next_billing = fields.Function(fields.Boolean('Is Next Billing'),
+        'on_change_with_is_next_billing')
+
     start_date = fields.Date('Start Date',
         states={
             'readonly': ((Eval('state') != 'draft')),
@@ -1156,6 +1159,26 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
     @fields.depends('property')
     def on_change_with_collective_billing(self, name=None):
         return bool(self.property.collective_billing) if self.property else False
+
+    @fields.depends('state', 'start_date', 'property')
+    def on_change_with_is_next_billing(self, name=None):
+        if self.state != 'value_share' or not self.start_date or not self.property:
+            return False
+        dates = [
+            bu.start_date
+            for bu in (self.property.billing_units or [])
+            if bu.state != 'billed' and bu.start_date
+        ]
+        next_date = min(dates) if dates else None
+        return next_date is not None and self.start_date == next_date
+
+    @classmethod
+    def view_attributes(cls):
+        return super().view_attributes() + [
+            ('/tree', 'visual',
+                If(Eval('is_next_billing', False), 'success', ''),
+                ['is_next_billing']),
+        ]
 
     def pre_validate(self):
         super().pre_validate()
