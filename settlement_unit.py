@@ -5,7 +5,7 @@ from trytond.model.exceptions import ValidationError
 from trytond.i18n import gettext
 from trytond.pool import Pool
 from trytond.transaction import Transaction
-from trytond.pyson import Bool, Eval
+from trytond.pyson import Bool, Eval, If
 from trytond.modules.currency.fields import Monetary
 
 import re
@@ -170,6 +170,9 @@ class SettlementUnit(DeactivableMixin, base_object.re_sequence_ordered(), ModelS
             ('//page[@id="page_meters"]', 'states', {
                 'invisible': Eval('allocation_rule') != 'allocation_by_consumption',
             }),
+            ('/tree', 'visual',
+                If(Eval('sub_state', '') == 'error', 'danger', ''),
+                ['sub_state']),
         ]
 
     @classmethod

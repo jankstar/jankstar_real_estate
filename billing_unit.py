@@ -143,6 +143,7 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
             ('approved', 'Approved'),
             ('selection', 'Selection'),
             ('value_share', 'Value Share'),
+            ('ready_for_billing', 'Ready for Billing'),
             ('billed', 'Billed'),
             ], "State", sort=False,
             )
@@ -203,7 +204,10 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
             ('draft', 'approved'),
             ('approved', 'selection'),
             ('selection', 'value_share'),
-            ('value_share', 'billed'),
+            ('value_share', 'ready_for_billing'),
+            ('ready_for_billing', 'billed'),
+            ('ready_for_billing', 'value_share'),
+            ('ready_for_billing', 'selection'),
             ('billed', 'value_share'),
             ))
 
@@ -217,16 +221,22 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
                     'depends': ['state'],
                     },
                 'compute_value_shares_button': {
-                    'invisible': ~Eval('state').in_(['selection', 'value_share']),
+                    'invisible': ~Eval('state').in_(
+                        ['selection', 'value_share', 'ready_for_billing']),
+                    'depends': ['state'],
+                    },
+                'compute_settlement_result': {
+                    'invisible': ~Eval('state').in_(
+                        ['value_share', 'ready_for_billing']),
+                    'depends': ['state'],
+                    },
+                'check_ready_for_billing': {
+                    'invisible': ~(Eval('state') == 'value_share'),
                     'depends': ['state'],
                     },
                 'billing': {
-                    'invisible': ~Eval('state').in_(['value_share']) | Bool(Eval('collective_billing')),
+                    'invisible': ~(Eval('state') == 'ready_for_billing') | Bool(Eval('collective_billing')),
                     'depends': ['state', 'collective_billing'],
-                    },
-                'compute_settlement_result': {
-                    'invisible': ~Eval('state').in_(['value_share']),
-                    'depends': ['state'],
                     },
                 'cancel': {
                     'invisible': ~Eval('state').in_(['billed']) | Bool(Eval('collective_billing')),
@@ -333,6 +343,15 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
                 su.compute_value_shares()
             sus = SettlementUnit.browse(
                 [su.id for su in billing_unit.settlement_units])
+            # Check explicitly for error sub_state before setting value_share
+            error_sus = [su for su in sus if su.sub_state == 'error']
+            if error_sus:
+                billing_unit.add_log('compute_value_shares',
+                    f'Cannot set value_share: {len(error_sus)} settlement unit(s) '
+                    f'have sub_state error: '
+                    + ', '.join(su.name or str(su.id) for su in error_sus))
+                billing_unit.save()
+                continue
             # no_allocation SUs never reach sub_state 'value_share' — treat as done
             all_value_share = all(
                 su.sub_state == 'value_share'
@@ -437,6 +456,78 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
                 'real_estate.msg_billing_unit_invoices_not_posted',
                 name=bu.name,
                 details='\n'.join(lines_info)))
+
+    @classmethod
+    @ModelView.button
+    @Workflow.transition('ready_for_billing')
+    def check_ready_for_billing(cls, billing_units):
+        """Validate billing unit is fully ready for billing and set state accordingly.
+
+        Checks: all invoices posted, settlement results exist, no zero actual
+        costs, and settlement result sum matches cost share sum.
+        """
+        pool = Pool()
+        SettlementResult = pool.get('real_estate.settlement_result')
+
+        cls._check_invoices_posted(billing_units)
+
+        for bu in billing_units:
+            # Check all settlement units have sub_state 'value_share' (no_allocation exempt)
+            error_sus = [su for su in (bu.settlement_units or [])
+                if su.sub_state == 'error']
+            if error_sus:
+                details = '\n'.join(
+                    f'  {su.name or str(su.id)}' for su in error_sus)
+                raise ValidationError(gettext(
+                    'real_estate.msg_billing_unit_settlement_unit_errors',
+                    name=bu.name, details=details))
+
+            not_value_share = [su for su in (bu.settlement_units or [])
+                if su.sub_state not in ('value_share',)
+                and (su.allocation_rule or '') != 'no_allocation']
+            if not_value_share:
+                details = '\n'.join(
+                    f'  {su.name or str(su.id)} [{su.sub_state or "?"}]'
+                    for su in not_value_share)
+                raise ValidationError(gettext(
+                    'real_estate.msg_billing_unit_settlement_units_not_ready',
+                    name=bu.name, details=details))
+
+            results = SettlementResult.search([
+                ('billing_unit', '=', bu.id),
+                ('state', '=', 'approved'),
+            ])
+
+            if not results:
+                raise ValidationError(gettext(
+                    'real_estate.msg_billing_unit_no_settlement_results',
+                    name=bu.name))
+
+            zero_results = [
+                r for r in results
+                if not r.actual_costs or r.actual_costs == Decimal(0)
+            ]
+            if zero_results:
+                details = '\n'.join(
+                    '  ' + (r.contract.rec_name if r.contract
+                        else (r.base_object.rec_name if r.base_object else '?'))
+                    for r in zero_results)
+                raise ValidationError(gettext(
+                    'real_estate.msg_billing_unit_zero_actual_costs',
+                    name=bu.name,
+                    details=details))
+
+            if not bu.external_billing:
+                sr_sum = sum(r.actual_costs or Decimal(0) for r in results)
+                cs_sum = sum(
+                    cs.actual_costs or Decimal(0)
+                    for cs in bu._get_cost_shares())
+                if sr_sum != cs_sum:
+                    raise ValidationError(gettext(
+                        'real_estate.msg_billing_unit_sum_mismatch',
+                        name=bu.name,
+                        sr_sum=str(sr_sum),
+                        bu_sum=str(cs_sum)))
 
     @classmethod
     @ModelView.button
@@ -773,12 +864,16 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
         For each unique combination of contract and base_object, create a settlement result record with
         aggregated planned and actual costs, and allocated advanced payment and refund/receivable amounts."""
         cls._check_chronological_order(billing_units)
+        # Reset ready_for_billing back to value_share before recomputing
+        ready_units = [bu for bu in billing_units if bu.state == 'ready_for_billing']
+        if ready_units:
+            cls.write(ready_units, {'state': 'value_share'})
         pool = Pool()
         SettlementResult = pool.get('real_estate.settlement_result')
         CostShare = pool.get('real_estate.cost_share')
         CashFlowLine = pool.get('real_estate.contract.term.cash_flow')
         for billing_unit in billing_units:
-            if billing_unit.state != 'value_share':
+            if billing_unit.state not in ('value_share',):
                 raise ValidationError(
                     f"Billing unit {billing_unit.name} is not in state 'value_share'.")
             existing = SettlementResult.search(
@@ -1162,7 +1257,8 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
 
     @fields.depends('state', 'start_date', 'property')
     def on_change_with_is_next_billing(self, name=None):
-        if self.state != 'value_share' or not self.start_date or not self.property:
+        if self.state not in ('value_share', 'ready_for_billing') \
+                or not self.start_date or not self.property:
             return False
         dates = [
             bu.start_date

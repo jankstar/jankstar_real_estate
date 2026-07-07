@@ -229,6 +229,7 @@ class BaseObject(Workflow, DeactivableMixin, re_sequence_ordered(), tree(separat
             states=_states_only_propperty),
         'on_change_with_next_billing_start_date')
 
+
     occupancy = fields.One2Many('real_estate.base_object.occupancy', 'base_object',
         'Occupancy',
         states={'invisible': Eval('type') != 'object'},
@@ -406,6 +407,12 @@ class BaseObject(Workflow, DeactivableMixin, re_sequence_ordered(), tree(separat
                         (Eval('state') == 'approved')),
                     'depends': ['type', 'state'],
                     },
+                'ready_for_billing_property': {
+                    'invisible': ~(
+                        (Eval('type') == 'property') &
+                        (Eval('state') == 'approved')),
+                    'depends': ['type', 'state'],
+                    },
                 'billing_property': {
                     'invisible': ~(
                         (Eval('type') == 'property') &
@@ -454,18 +461,51 @@ class BaseObject(Workflow, DeactivableMixin, re_sequence_ordered(), tree(separat
         for obj in base_objects:
             if obj.type != 'property' or obj.state != 'approved':
                 continue
-            units = [bu for bu in obj.billing_units if bu.state == 'value_share']
+            units = [bu for bu in obj.billing_units
+                if bu.state in ('value_share', 'ready_for_billing')]
             if units:
                 BillingUnit.compute_settlement_result(units)
 
     @classmethod
     @ModelView.button
-    def billing_property(cls, base_objects):
+    def ready_for_billing_property(cls, base_objects):
         BillingUnit = Pool().get('real_estate.billing_unit')
         for obj in base_objects:
             if obj.type != 'property' or obj.state != 'approved':
                 continue
-            units = [bu for bu in obj.billing_units if bu.state == 'value_share']
+            next_date = obj.next_billing_start_date
+            if not next_date:
+                continue
+            units = [bu for bu in obj.billing_units
+                if bu.state == 'value_share' and bu.start_date == next_date]
+            if units:
+                BillingUnit.check_ready_for_billing(units)
+
+    @classmethod
+    @ModelView.button
+    def billing_property(cls, base_objects):
+        pool = Pool()
+        BillingUnit = pool.get('real_estate.billing_unit')
+        for obj in base_objects:
+            if obj.type != 'property' or obj.state != 'approved':
+                continue
+            next_date = obj.next_billing_start_date
+            if not next_date:
+                continue
+            next_units = [bu for bu in obj.billing_units
+                if bu.start_date == next_date]
+            not_ready = [bu for bu in next_units
+                if bu.state != 'ready_for_billing']
+            if not_ready:
+                details = '\n'.join(
+                    f'  {bu.name} [{bu.state}]' for bu in not_ready)
+                raise ValidationError(gettext(
+                    'real_estate.msg_billing_property_not_ready',
+                    name=obj.rec_name,
+                    next_date=str(next_date),
+                    details=details))
+            units = [bu for bu in next_units
+                if bu.state == 'ready_for_billing']
             if units:
                 BillingUnit.billing(units)
 

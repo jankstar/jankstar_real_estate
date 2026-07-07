@@ -95,6 +95,7 @@ this repository contains the full copyright notices and license terms. -->
                 view_ids="real_estate.base_object_view_list_billing_unit"/>
             <button name="compute_value_shares" string="Compute Value Shares"/>
             <button name="compute_settlement_result_property" string="Compute Settlement Results"/>
+            <button name="ready_for_billing_property" string="Ready for Billing"/>
             <button name="billing_property" string="Billing"/>
             <button name="cancel_property" string="Cancel Billing"/>
         </page>

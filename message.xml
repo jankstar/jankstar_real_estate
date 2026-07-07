@@ -96,6 +96,32 @@
 %(details)s
 Please post all invoices before billing.</field>
         </record>
+        <record model="ir.message" id="msg_billing_unit_no_settlement_results">
+            <field name="text">Cannot set "Ready for Billing" for "%(name)s": no approved settlement results found. Please run "Compute Settlement Results" first.</field>
+        </record>
+        <record model="ir.message" id="msg_billing_unit_zero_actual_costs">
+            <field name="text">Cannot set "Ready for Billing" for "%(name)s": the following settlement results have actual costs of zero:
+%(details)s
+Please enter actual costs for all settlement results before proceeding.</field>
+        </record>
+        <record model="ir.message" id="msg_billing_unit_sum_mismatch">
+            <field name="text">Cannot set "Ready for Billing" for "%(name)s": sum of settlement result actual costs (%(sr_sum)s) does not match cost share sum (%(bu_sum)s). Please recompute settlement results.</field>
+        </record>
+        <record model="ir.message" id="msg_billing_unit_settlement_unit_errors">
+            <field name="text">Cannot set "Ready for Billing" for "%(name)s": the following settlement units have errors:
+%(details)s
+Fix all errors before proceeding.</field>
+        </record>
+        <record model="ir.message" id="msg_billing_unit_settlement_units_not_ready">
+            <field name="text">Cannot set "Ready for Billing" for "%(name)s": the following settlement units have not reached state "value_share":
+%(details)s
+Run "Compute Value Shares" for all settlement units first.</field>
+        </record>
+        <record model="ir.message" id="msg_billing_property_not_ready">
+            <field name="text">Billing of property "%(name)s" for period %(next_date)s aborted: the following billing units are not yet in state "Ready for Billing":
+%(details)s
+Either run "Ready for Billing" for each billing unit first, or bill individual billing units directly in the billing unit form.</field>
+        </record>
         <record model="ir.message" id="msg_cancel_contract_has_postings">
             <field name="text">Contract "{}": existing postings (done cash flow items) will NOT be cancelled automatically. Only draft items have been deleted. Continue with cancellation?</field>
         </record>
