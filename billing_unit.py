@@ -729,15 +729,23 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
 
             for r in results:
                 adv_line, cost_line = moves_by_result.get(r.id, (None, None))
-                BillingUnitMoves.create([{
+                base = {
                     'billing_unit': r.billing_unit.id,
                     'settlement_result': r.id,
                     'property': r.billing_unit.property.id,
                     'contract': contract.id,
-                    'moves_advanced_payment': adv_line.id if adv_line else None,
-                    'moves_actual_costs': cost_line.id if cost_line else None,
                     'billing_run_id': billing_run_id,
-                }])
+                }
+                if adv_line:
+                    BillingUnitMoves.create([{
+                        **base,
+                        'moves_advanced_payment': adv_line.id,
+                    }])
+                if cost_line:
+                    BillingUnitMoves.create([{
+                        **base,
+                        'moves_actual_costs': cost_line.id,
+                    }])
 
             SettlementResult.write(results, {
                 'state': 'billed',

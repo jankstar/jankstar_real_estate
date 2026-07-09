@@ -271,7 +271,7 @@ class SettlementResult(ModelSQL, ModelView):
 
     currency = fields.Function(fields.Many2One('currency.currency', 'Currency'), 'on_change_with_currency')
 
-    @fields.depends('start_date', 'end_date', 'contract', 'base_object')
+    @fields.depends('start_date', 'end_date', 'contract', 'base_object', 'id')
     def on_change_with_name(self, name=None):
         date_part = (
             f"{self.start_date:%Y-%m-%d}" if self.start_date else '?'
@@ -279,10 +279,10 @@ class SettlementResult(ModelSQL, ModelView):
             f"{self.end_date:%Y-%m-%d}" if self.end_date else '?'
         )
         if self.contract:
-            return f"{date_part} / {self.contract.rec_name}"
+            return f"{date_part} / {self.contract.rec_name} ({self.id})"
         elif self.base_object:
-            return f"{date_part} / {self.base_object.rec_name}"
-        return date_part
+            return f"{date_part} / {self.base_object.rec_name} ({self.id})"
+        return f"{date_part} ({self.id})"
 
     @classmethod
     def search_name(cls, name, clause):
@@ -290,6 +290,7 @@ class SettlementResult(ModelSQL, ModelView):
         return ['OR',
             ('contract', operator, value),
             ('base_object.name', operator, value),
+            ('id', operator, value),
         ]
 
     @staticmethod
