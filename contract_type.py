@@ -88,6 +88,10 @@ class ContractType(DeactivableMixin, base_object.re_sequence_ordered(), ModelSQL
             ],
         help="Credit account for operating costs in the settlement invoice.")
 
+    oc_mark = fields.Char("OC Mark",
+        help="Label used in operating cost settlement invoice descriptions, "
+             "e.g. 'Betriebskostenabrechnung 2025'.")
+
     prefix = fields.Char("Prefix", required=True)
 
     start_number = fields.Integer("Start Number", help='start contract number', required=True)

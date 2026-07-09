@@ -177,6 +177,12 @@
             sequence="50"
             id="menu_billing_unit_log"/>
 
+        <menuitem
+            parent="menu_real_estate_operation_costs"
+            action="wizard_billing_unit"
+            sequence="60"
+            id="menu_operation_costs_billing"/>
+
     <!-- Billing Unit Moves -->
         <record model="ir.ui.view" id="billing_unit_moves_tree_view">
             <field name="model">real_estate.billing_unit.moves</field>

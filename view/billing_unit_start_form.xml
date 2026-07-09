@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<form col="10">
+    <group col="4" id="gr_selection" string="Selection">
+        <label name="company"/><field name="company" colspan="1"/>
+        <newline/>
+        <label name="propertys" string=" "/><field name="propertys" colspan="1" width="200"/>
+        <newline/>
+        <label name="billing_units" string=" "/><field name="billing_units" colspan="1" width="200"/>
+    </group>
+    <newline/>
+    <group col="4" id="gr_execution" string="Execution">
+        <label name="date"/><field name="date"/>
+        <newline/>
+        <label name="invoice_date"/><field name="invoice_date" colspan="1"/>
+        <field name="invoice_date_in_past" invisible="1"/>
+        <newline/>
+        <group col="4" id="gr_warn" colspan="4"
+            states='{"invisible": {"__class__": "Not", "v": {"__class__": "Eval", "v": "invoice_date_in_past", "d": false}}}'>
+            <label id="lbl_warn_empty" string="" colspan="4"/>
+            <label id="lbl_warn_text" string="Achtung: Buchung in die Vergangenheit - strikte inkrementelle Buchung beachten." colspan="4"/>
+        </group>
+        <newline/>
+        <label name="invoice_state"/><field name="invoice_state" colspan="1"/>
+        <newline/>
+        <label name="execute_in_queue"/><field name="execute_in_queue" colspan="1"/>
+    </group>
+</form>

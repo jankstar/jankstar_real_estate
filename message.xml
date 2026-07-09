@@ -117,8 +117,13 @@ Fix all errors before proceeding.</field>
 %(details)s
 Run "Compute Value Shares" for all settlement units first.</field>
         </record>
-        <record model="ir.message" id="msg_billing_property_not_ready">
-            <field name="text">Billing of property "%(name)s" for period %(next_date)s aborted: the following billing units are not yet in state "Ready for Billing":
+        <record model="ir.message" id="msg_billing_collective_incomplete">
+            <field name="text">Cannot bill property "%(name)s" for period %(next_date)s: collective billing requires all billing units to be selected. The following billing units are missing from the selection:
+%(details)s
+Add all billing units of this period to the selection or remove the billing unit filter.</field>
+        </record>
+        <record model="ir.message" id="msg_billing_unit_not_ready">
+            <field name="text">Billing of "%(name)s" for period %(next_date)s aborted: the following billing units are not yet in state "Ready for Billing":
 %(details)s
 Either run "Ready for Billing" for each billing unit first, or bill individual billing units directly in the billing unit form.</field>
         </record>

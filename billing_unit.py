@@ -234,7 +234,7 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
                     'invisible': ~(Eval('state') == 'value_share'),
                     'depends': ['state'],
                     },
-                'billing': {
+                'billing_wizard': {
                     'invisible': ~(Eval('state') == 'ready_for_billing') | Bool(Eval('collective_billing')),
                     'depends': ['state', 'collective_billing'],
                     },
@@ -530,9 +530,13 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
                         bu_sum=str(cs_sum)))
 
     @classmethod
-    @ModelView.button
+    @ModelView.button_action('real_estate.wizard_billing_unit')
+    def billing_wizard(cls, billing_units):
+        pass
+
+    @classmethod
     @Workflow.transition('billed')
-    def billing(cls, billing_units):
+    def billing(cls, billing_units, invoice_state='draft', invoice_date=None):
         pool = Pool()
         Invoice = pool.get('account.invoice')
         InvoiceLine = pool.get('account.invoice.line')
@@ -551,11 +555,21 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
         if billing_units and billing_units[0].property.collective_billing:
             prop = billing_units[0].property
             min_start = min(bu.start_date for bu in billing_units)
-            scope_units = cls.search([
+            all_same_start = cls.search([
                 ('property', '=', prop.id),
                 ('start_date', '=', min_start),
                 ('state', '!=', 'billed'),
             ])
+            not_ready = [bu for bu in all_same_start
+                if bu.state != 'ready_for_billing']
+            if not_ready:
+                raise ValidationError(gettext(
+                    'real_estate.msg_billing_unit_not_ready',
+                    name=prop.rec_name,
+                    next_date=str(min_start),
+                    details='\n'.join(
+                        f'  {bu.name} [{bu.state}]' for bu in not_ready)))
+            scope_units = all_same_start
 
         billing_run_id = (
             f"{datetime.datetime.now().strftime('%Y%m%d-%H%M%S')}"
@@ -573,7 +587,7 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
 
         cls.write(scope_units, {'billing_run_id': billing_run_id})
 
-        today = Date.today()
+        billing_date = invoice_date or Date.today()
         config = AccountConfiguration(1)
 
         # Collect all approved settlement results for scope_units
@@ -626,69 +640,64 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
             invoice_lines = []
             moves_by_result = {}  # result.id -> (adv_line, cost_line)
 
-            # One advance payment line per term (aggregated over all results of that term)
-            by_term = {}
+            # Two lines per settlement result: advance payment dissolution + actual costs
             for r in results:
-                if r.term:
-                    by_term.setdefault(r.term.id, []).append(r)
+                r_advanced = r.advanced_payment or Decimal(0)
+                r_actual   = r.actual_costs or Decimal(0)
+                period_r   = (f"{r.start_date} – {r.end_date}"
+                              if r.start_date and r.end_date else '')
+                obj_name   = (r.base_object.rec_name
+                              if r.base_object else r.billing_unit.name)
+                term_taxes = ([t.id for t in r.term.taxes]
+                              if r.term and r.term.taxes else [])
 
-            adv_line_by_term = {}
-            for term_id, term_results in by_term.items():
-                term = term_results[0].term
-                term_advanced = sum(r.advanced_payment or Decimal(0) for r in term_results)
-                if term_advanced != Decimal(0) and term.account:
-                    adv_amount = -term_advanced if invoice_type == 'out' else term_advanced
+                # Line 1: Advance payment dissolution
+                adv_line = None
+                if r_advanced != Decimal(0) and r.term and r.term.account:
+                    adv_amount = -r_advanced if invoice_type == 'out' else r_advanced
                     adv_line = InvoiceLine(
                         type='line',
                         company=contract.company.id,
                         party=contract.contractual_partner.id,
                         invoice_type=invoice_type,
-                        description=f"{term.name} — Advance Payment",
+                        description=f"{r.term.name} — Advance Payment {period_r}",
                         quantity=Decimal(1),
                         unit_price=adv_amount,
-                        account=term.account.id,
+                        account=r.term.account.id,
+                        taxes=term_taxes,
                         currency=contract.currency.id,
                         contract=contract.id,
-                        term=term.id,
+                        term=r.term.id,
+                        billing_unit=r.billing_unit.id,
+                        base_object=r.base_object.id if r.base_object else None,
                         assignment_control='settlement_result_contract',
                     )
                     adv_line.save()
                     invoice_lines.append(adv_line)
-                    adv_line_by_term[term_id] = adv_line
-                else:
-                    adv_line_by_term[term_id] = None
 
-            # One cost line per settlement result (property from billing_unit)
-            cost_line_by_result = {}
-            for r in results:
-                r_actual = r.actual_costs or Decimal(0)
+                # Line 2: Actual costs (revenue/expense account from ContractType)
+                cost_line = None
                 if r_actual != Decimal(0) and c_type.account_billing_unit:
                     cost_amount = r_actual if invoice_type == 'out' else -r_actual
-                    description = (r.base_object.rec_name
-                        if r.base_object else r.billing_unit.name)
                     cost_line = InvoiceLine(
                         type='line',
                         company=contract.company.id,
                         party=contract.contractual_partner.id,
                         invoice_type=invoice_type,
-                        description=f"{description} — Operating Costs",
+                        description=f"{obj_name} — {c_type.oc_mark or 'Operating Costs'} {period_r}",
                         quantity=Decimal(1),
                         unit_price=cost_amount,
                         account=c_type.account_billing_unit.id,
+                        taxes=term_taxes,
                         currency=contract.currency.id,
                         contract=contract.id,
                         billing_unit=r.billing_unit.id,
+                        base_object=r.base_object.id if r.base_object else None,
                         assignment_control='settlement_result_contract',
                     )
                     cost_line.save()
                     invoice_lines.append(cost_line)
-                    cost_line_by_result[r.id] = cost_line
-                else:
-                    cost_line_by_result[r.id] = None
 
-            for r in results:
-                adv_line = adv_line_by_term.get(r.term.id) if r.term else None
-                cost_line = cost_line_by_result.get(r.id)
                 moves_by_result[r.id] = (adv_line, cost_line)
 
             if not invoice_lines:
@@ -702,19 +711,21 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
                 company=contract.company.id,
                 type=invoice_type,
                 party=contract.contractual_partner.id,
-                invoice_date=today,
+                invoice_date=billing_date,
                 journal=c_type.account_journal.id,
                 account=header_account,
                 invoice_address=contract.invoice_address,
                 currency=contract.currency.id,
                 payment_term=(contract.payment_term.id
                               if contract.payment_term else None),
-                description=f"Operating Cost Settlement {period_str}",
+                description=f"{c_type.oc_mark or 'Operating Cost Settlement'} {period_str}",
                 reference=contract.contract_number,
                 lines=invoice_lines,
                 contract=contract,
             )
             Invoice.save([invoice])
+            if invoice_state == 'posted':
+                Invoice.post([invoice])
 
             for r in results:
                 adv_line, cost_line = moves_by_result.get(r.id, (None, None))
@@ -752,13 +763,13 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
 
                     period = Pool().get('account.period')
                     period_rec = period.find(
-                        r.billing_unit.property.company.id, date=today)
+                        r.billing_unit.property.company.id, date=billing_date)
 
                     obj_name = (r.base_object.rec_name
                         if r.base_object else r.billing_unit.name)
                     move = AccountMove(
                         journal=vacancy_journal.id,
-                        date=today,
+                        date=billing_date,
                         period=period_rec,
                         company=r.billing_unit.property.company.id,
                         description=(

@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<form col="4">
+    <group col="4" id="gr_details" string="Execution">
+        <label name="date"/><field name="date"/>
+        <label name="invoice_state"/><field name="invoice_state"/>
+        <newline/>
+        <label name="execute_in_queue"/><field name="execute_in_queue"/>
+        <label name="n_properties"/><field name="n_properties"/>
+        <newline/>
+        <label name="n_billing_units"/><field name="n_billing_units"/>
+    </group>
+    <newline/>
+    <group col="4" id="gr_result" string="Matching Billing Units">
+        <label name="billing_units_count"/><field name="billing_units_count" colspan="3"/>
+    </group>
+</form>

@@ -617,6 +617,27 @@
             sequence="60"
             id="menu_meter_reading_form"/>
 
+        <!-- Billing Unit Wizard -->
+        <record model="ir.ui.view" id="billing_unit_start_view_form">
+            <field name="model">real_estate.billing_unit.start</field>
+            <field name="type">form</field>
+            <field name="name">billing_unit_start_form</field>
+        </record>
+        <record model="ir.ui.view" id="billing_unit_confirm_view_form">
+            <field name="model">real_estate.billing_unit.confirm</field>
+            <field name="type">form</field>
+            <field name="name">billing_unit_confirm_form</field>
+        </record>
+        <record model="ir.ui.view" id="billing_unit_result_view_form">
+            <field name="model">real_estate.billing_unit.result</field>
+            <field name="type">form</field>
+            <field name="name">billing_unit_result_form</field>
+        </record>
+        <record model="ir.action.wizard" id="wizard_billing_unit">
+            <field name="name">Operation Costs Billing</field>
+            <field name="wiz_name">real_estate.billing_unit.wizard</field>
+        </record>
+
         <!-- Estimate Consumption Wizard -->
         <record model="ir.ui.view" id="estimate_consumption_start_view_form">
             <field name="model">real_estate.estimate_consumption.start</field>

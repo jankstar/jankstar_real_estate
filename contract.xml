@@ -942,6 +942,7 @@
             <field name="account_journal" ref="journal_rental_book"/> 
             <field name="invoice_type">out</field>
             <field name="types_of_use" eval="['residential']"/>
+            <field name="oc_mark" >Operating Cost Settlement</field>
         </record>
 
         <record model="real_estate.contract.type" id="contract_parking_space_lease_agreement_type">
@@ -956,6 +957,7 @@
             <field name="account_journal" ref="journal_rental_book"/> 
             <field name="invoice_type">out</field>
             <field name="types_of_use" eval="['residential']"/>
+            <field name="oc_mark" >Operating Cost Settlement</field>
         </record>
 
         <record model="real_estate.contract.type" id="contract_debit_costs_agreement_type">
@@ -969,6 +971,7 @@
             <field name="account_journal" ref="journal_rental_book"/>
             <field name="invoice_type">out</field>
             <field name="types_of_use" eval="['residential', 'commercial', 'property', 'internal']"/>
+            <field name="oc_mark" >Operating Cost Settlement</field>
         </record>
 
         <record model="real_estate.contract.type" id="contract_credit_costs_agreement_type">
@@ -982,6 +985,7 @@
             <field name="account_journal" ref="journal_rental_book"/> 
             <field name="invoice_type">in</field>
             <field name="types_of_use" eval="['residential', 'commercial', 'property', 'internal']"/>
+            <field name="oc_mark" >Operating Cost Settlement</field>
         </record>
 
         <record model="real_estate.contract.type" id="contract_commercial_lease_agreement_type">
@@ -996,6 +1000,7 @@
             <field name="account_journal" ref="journal_rental_book"/> 
             <field name="invoice_type">out</field>
             <field name="types_of_use" eval="['commercial']"/>
+            <field name="oc_mark" >Operating Cost Settlement</field>
         </record>
 
         <record model="real_estate.contract.type" id="contract_condominium_fee_agreement_type">
@@ -1010,6 +1015,7 @@
             <field name="account_journal" ref="journal_rental_book"/> 
             <field name="invoice_type">out</field>
             <field name="types_of_use" eval="['property']"/>
+            <field name="oc_mark" >Operating Cost Settlement</field>
         </record>
 
         <!-- Term Types -->

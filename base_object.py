@@ -482,32 +482,96 @@ class BaseObject(Workflow, DeactivableMixin, re_sequence_ordered(), tree(separat
                 BillingUnit.check_ready_for_billing(units)
 
     @classmethod
-    @ModelView.button
+    @ModelView.button_action('real_estate.wizard_billing_unit')
     def billing_property(cls, base_objects):
+        pass
+
+    @classmethod
+    def call_billing(cls, property_ids, billing_unit_ids=None,
+            execute_in_queue=True, invoice_state='draft', invoice_date=None):
+        """Call do_billing in queue or directly based on execute_in_queue flag."""
+        _chunk_size = 1
+        chunks = [property_ids[i:i + _chunk_size]
+            for i in range(0, len(property_ids), _chunk_size)]
+        for chunk in chunks:
+            if execute_in_queue:
+                transaction = Transaction()
+                context = transaction.context
+                with transaction.set_context(
+                        queue_batch=context.get('queue_batch', True)):
+                    cls.__queue__.do_billing(
+                        chunk, billing_unit_ids, invoice_state, invoice_date)
+            else:
+                cls.do_billing(
+                    chunk, billing_unit_ids, invoice_state, invoice_date)
+
+    @classmethod
+    def do_billing(cls, property_ids, billing_unit_ids=None,
+            invoice_state='draft', invoice_date=None):
+        """Execute billing per property.
+
+        For each property all billing units with next_billing_start_date are
+        collected. With collective_billing the full set is always billed
+        together. Without collective_billing an optional billing_unit_ids
+        filter restricts which units are billed; if omitted all
+        ready_for_billing units are processed.
+        In all cases every unit that will be billed must be in state
+        ready_for_billing — otherwise a ValidationError is raised.
+        """
         pool = Pool()
         BillingUnit = pool.get('real_estate.billing_unit')
-        for obj in base_objects:
+        bu_filter = set(billing_unit_ids) if billing_unit_ids else None
+
+        for obj in cls.browse(property_ids):
             if obj.type != 'property' or obj.state != 'approved':
                 continue
             next_date = obj.next_billing_start_date
             if not next_date:
                 continue
-            next_units = [bu for bu in obj.billing_units
+            all_next_units = [bu for bu in obj.billing_units
                 if bu.start_date == next_date]
-            not_ready = [bu for bu in next_units
+            if not all_next_units:
+                continue
+
+            if obj.collective_billing:
+                if bu_filter is not None:
+                    # With collective billing all units must be in the filter
+                    missing = [bu for bu in all_next_units
+                        if bu.id not in bu_filter]
+                    if missing:
+                        details = '\n'.join(
+                            f'  {bu.name}' for bu in missing)
+                        raise ValidationError(gettext(
+                            'real_estate.msg_billing_collective_incomplete',
+                            name=obj.rec_name,
+                            next_date=str(next_date),
+                            details=details))
+                units_to_bill = all_next_units
+            elif bu_filter is not None:
+                # Bill only explicitly requested units for this property
+                units_to_bill = [bu for bu in all_next_units
+                    if bu.id in bu_filter]
+            else:
+                # Bill all ready units for this property
+                units_to_bill = [bu for bu in all_next_units
+                    if bu.state == 'ready_for_billing']
+
+            if not units_to_bill:
+                continue
+
+            not_ready = [bu for bu in units_to_bill
                 if bu.state != 'ready_for_billing']
             if not_ready:
                 details = '\n'.join(
                     f'  {bu.name} [{bu.state}]' for bu in not_ready)
                 raise ValidationError(gettext(
-                    'real_estate.msg_billing_property_not_ready',
+                    'real_estate.msg_billing_unit_not_ready',
                     name=obj.rec_name,
                     next_date=str(next_date),
                     details=details))
-            units = [bu for bu in next_units
-                if bu.state == 'ready_for_billing']
-            if units:
-                BillingUnit.billing(units)
+
+            BillingUnit.billing(units_to_bill,
+                invoice_state=invoice_state, invoice_date=invoice_date)
 
     @classmethod
     @ModelView.button

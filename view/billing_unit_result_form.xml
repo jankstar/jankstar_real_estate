@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<form col="4">
+    <label name="billing_units_count"/><field name="billing_units_count"/>
+    <label name="mode"/><field name="mode" colspan="3"/>
+    <newline/>
+    <label name="message" string=" "/>
+    <field name="message" colspan="3" widget="text" readonly="1"/>
+</form>

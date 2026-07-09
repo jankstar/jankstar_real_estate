@@ -16,6 +16,7 @@ from . import party
 from . import invoice
 from . import account_configuration
 from . import billing_unit
+from . import billing_unit_wizard
 from . import settlement_unit
 from . import settlement_result
 
@@ -59,6 +60,9 @@ def register():
         contract_wizard.CreateContractMovesConfirm,
         contract_wizard.CreateContractMovesResult,
         contract_wizard.TerminateContractStart,
+        billing_unit_wizard.BillingUnitStart,
+        billing_unit_wizard.BillingUnitConfirm,
+        billing_unit_wizard.BillingUnitResult,
         #sequence.Sequence,
         res.User,
         party.Party,
@@ -87,6 +91,7 @@ def register():
         contract_wizard.TerminateContractWizard,
         contract_wizard.ContractRunningWizard,
         base_object.EstimateConsumptionWizard,
+        billing_unit_wizard.BillingUnitWizard,
         module='real_estate', type_='wizard')
     Pool.register(
         base_object.BaseObjectReport,

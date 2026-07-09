@@ -78,9 +78,6 @@ class InvoiceLine(metaclass=PoolMeta):
 
     base_object = fields.Many2One(
         'real_estate.base_object', 'Object',
-        states={
-            'invisible': Eval('assignment_control', '') == 'settlement_result_contract',
-        },
         depends=['assignment_control'],
         domain=[
             If(Bool(Eval('company')),
@@ -328,9 +325,6 @@ class AccountMoveLine(metaclass=PoolMeta):
 
     base_object = fields.Many2One('real_estate.base_object', 'Object',
         ondelete='SET NULL',
-        states={
-            'invisible': Eval('assignment_control', '') == 'settlement_result_contract',
-        },
         depends=['assignment_control'])
 
     billing_unit = fields.Many2One('real_estate.billing_unit', 'Billing Unit',
