@@ -124,6 +124,9 @@ class ContractTermCashFlow(ModelView, ModelSQL):
     property = fields.Function(fields.Many2One('real_estate.base_object', 'Property'),
         'on_change_with_property', searcher='search_property')
 
+    base_object = fields.Function(fields.Many2One('real_estate.base_object', 'Object'),
+        'on_change_with_base_object', searcher='search_base_object')
+
     company = fields.Function(fields.Many2One('company.company', 'Company'),
         'on_change_with_company', searcher='search_company')
 
@@ -180,6 +183,16 @@ class ContractTermCashFlow(ModelView, ModelSQL):
         if self.term and self.term.contract:
             return self.term.contract.property
         return None
+
+    @fields.depends('invoice_line')
+    def on_change_with_base_object(self, name=None):
+        if self.invoice_line and self.invoice_line.base_object:
+            return self.invoice_line.base_object
+        return None
+
+    @classmethod
+    def search_base_object(cls, name, clause):
+        return [('invoice_line.base_object',) + tuple(clause[1:])]
 
     @fields.depends('term')
     def on_change_with_company(self, name=None):

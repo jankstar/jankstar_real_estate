@@ -517,6 +517,26 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
                     name=bu.name,
                     details=details))
 
+            # Settlement results with advance payment > 0 must have term and contract.
+            # If term is None it means multiple terms contributed — the billing unit
+            # configuration (term_types_of_use) must be narrowed so that exactly one
+            # advance payment term per contract is included.
+            missing_term = [
+                r for r in results
+                if (r.advanced_payment or Decimal(0)) != Decimal(0)
+                and (not r.term or not r.contract)
+            ]
+            if missing_term:
+                details = '\n'.join(
+                    f'  {r.contract.rec_name if r.contract else "?"}'
+                    f' / {r.base_object.rec_name if r.base_object else "?"}'
+                    f' [term: {"MISSING" if not r.term else r.term.name},'
+                    f' adv: {r.advanced_payment}]'
+                    for r in missing_term)
+                raise ValidationError(gettext(
+                    'real_estate.msg_billing_unit_settlement_result_missing_term',
+                    name=bu.name, details=details))
+
             if not bu.external_billing:
                 sr_sum = sum(r.actual_costs or Decimal(0) for r in results)
                 cs_sum = sum(
@@ -590,6 +610,18 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
         billing_date = invoice_date or Date.today()
         config = AccountConfiguration(1)
 
+        # Pre-compute (term, account) per (billing_unit_id, contract_id, object_id)
+        # from cash flow lines — fallback when SettlementResult.term is None.
+        term_account_by_bu_co = {}
+        for bu in scope_units:
+            for line in bu.cash_flow_lines:
+                if line.contract and line.term and line.term.account:
+                    key = (bu.id, line.contract.id,
+                        line.base_object.id if line.base_object else None)
+                    if key not in term_account_by_bu_co:
+                        term_account_by_bu_co[key] = (
+                            line.term, line.term.account)
+
         # Collect all approved settlement results for scope_units
         all_results = SettlementResult.search([
             ('billing_unit', 'in', [bu.id for bu in scope_units]),
@@ -648,32 +680,56 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
                               if r.start_date and r.end_date else '')
                 obj_name   = (r.base_object.rec_name
                               if r.base_object else r.billing_unit.name)
-                term_taxes = ([t.id for t in r.term.taxes]
-                              if r.term and r.term.taxes else [])
+
+                # Determine term and account for advance payment dissolution.
+                # r.term may be None when multiple terms contributed (computed
+                # as None in compute_settlement_result when len(term_ids) != 1).
+                # Fall back to the first term with an account found in cash flow lines.
+                adv_term = r.term
+                adv_account = (adv_term.account
+                               if adv_term and adv_term.account else None)
+                if r_advanced != Decimal(0) and adv_account is None:
+                    fallback = term_account_by_bu_co.get(
+                        (r.billing_unit.id, contract.id,
+                            r.base_object.id if r.base_object else None))
+                    if fallback:
+                        adv_term, adv_account = fallback
+
+                term_taxes = ([t.id for t in adv_term.taxes]
+                              if adv_term and adv_term.taxes else [])
 
                 # Line 1: Advance payment dissolution
                 adv_line = None
-                if r_advanced != Decimal(0) and r.term and r.term.account:
+                if r_advanced != Decimal(0) and adv_account:
                     adv_amount = -r_advanced if invoice_type == 'out' else r_advanced
                     adv_line = InvoiceLine(
                         type='line',
                         company=contract.company.id,
                         party=contract.contractual_partner.id,
                         invoice_type=invoice_type,
-                        description=f"{r.term.name} — Advance Payment {period_r}",
+                        description=(
+                            f"{adv_term.name} — Advance Payment {period_r}"
+                            if adv_term else f"Advance Payment {period_r}"),
                         quantity=Decimal(1),
                         unit_price=adv_amount,
-                        account=r.term.account.id,
+                        account=adv_account.id,
                         taxes=term_taxes,
                         currency=contract.currency.id,
                         contract=contract.id,
-                        term=r.term.id,
+                        term=adv_term.id if adv_term else None,
                         billing_unit=r.billing_unit.id,
                         base_object=r.base_object.id if r.base_object else None,
                         assignment_control='settlement_result_contract',
                     )
                     adv_line.save()
                     invoice_lines.append(adv_line)
+                elif r_advanced != Decimal(0):
+                    r.billing_unit.add_log('billing',
+                        f'Warning: no advance payment line for '
+                        f'{contract.contract_number}/{r.billing_unit.name}: '
+                        f'no term with clearing account found '
+                        f'(r.term={r.term}, adv={r_advanced})')
+                    r.billing_unit.save()
 
                 # Line 2: Actual costs (revenue/expense account from ContractType)
                 cost_line = None
@@ -934,16 +990,18 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
                     g['end_date'] = cs.end_date
                 g['planned_costs'] += cs.planned_costs or Decimal(0)
                 g['actual_costs'] += cs.actual_costs or Decimal(0)
-            advanced_by_contract = {}
-            terms_by_contract = {}
+            advanced_by_co = {}
+            terms_by_co = {}
             for line in (billing_unit.cash_flow_lines or []):
                 if line.contract:
-                    cid = line.contract.id
-                    advanced_by_contract[cid] = (
-                        advanced_by_contract.get(cid, Decimal(0))
+                    co_key = (
+                        line.contract.id,
+                        line.base_object.id if line.base_object else None)
+                    advanced_by_co[co_key] = (
+                        advanced_by_co.get(co_key, Decimal(0))
                         + (line.amount or Decimal(0)))
                     if line.term:
-                        terms_by_contract.setdefault(cid, set()).add(line.term.id)
+                        terms_by_co.setdefault(co_key, set()).add(line.term.id)
 
             # a) Check for draft invoice items in the settlement period.
             # Reset previous draft-error markers so the check is re-runnable.
@@ -1000,35 +1058,25 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
                         f'[draft] {len(draft_lines)} draft item(s) found for '
                         f'{len(draft_contract_ids)} contract(s) in {period_str}.')
 
-            contract_actual_totals = {}
-            contract_object_count = {}
-            for key, g in groups.items():
-                if key and key[0] == 'contract':
-                    cid = key[1]
-                    contract_actual_totals[cid] = (
-                        contract_actual_totals.get(cid, Decimal(0))
-                        + g['actual_costs'])
-                    contract_object_count[cid] = (
-                        contract_object_count.get(cid, 0) + 1)
+            # Keys consumed by the cost-share groups
+            consumed_co_keys = {
+                (g['contract'].id, g['base_object'].id if g['base_object'] else None)
+                for g in groups.values()
+                if g['contract']
+            }
             for key, g in groups.items():
                 contract_id = g['contract'].id if g['contract'] else None
                 base_object_id = g['base_object'].id if g['base_object'] else None
                 if contract_id:
-                    total_adv = advanced_by_contract.get(contract_id, Decimal(0))
-                    total_actual = contract_actual_totals.get(contract_id, Decimal(0))
-                    if total_actual > 0:
-                        adv = (total_adv * g['actual_costs'] / total_actual).quantize(
-                            Decimal('0.01'), rounding=ROUND_HALF_UP)
-                    else:
-                        n = contract_object_count.get(contract_id, 1)
-                        adv = (total_adv / n).quantize(
-                            Decimal('0.01'), rounding=ROUND_HALF_UP)
+                    co_key = (contract_id, base_object_id)
+                    adv = advanced_by_co.get(co_key, Decimal(0))
                     refund = g['actual_costs'] - adv
                 else:
                     adv = None
                     refund = None
-                term_ids = terms_by_contract.get(contract_id, set()) if contract_id else set()
-                term_id = term_ids.pop() if len(term_ids) == 1 else None
+                term_ids = (terms_by_co.get((contract_id, base_object_id), set())
+                    if contract_id else set())
+                term_id = next(iter(term_ids)) if len(term_ids) == 1 else None
                 # Restore externally entered costs if available
                 if billing_unit.external_billing and preserved_costs:
                     pk = (contract_id, base_object_id)
@@ -1053,8 +1101,37 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
                     refund_receivable=refund,
                 )
                 result.save()
+
+            # Fallback: advance payment lines whose (contract, object) key has
+            # no matching cost-share group (e.g. no base_object on old invoices,
+            # or multiple terms per object). Each unmatched key gets its own
+            # settlement result with actual_costs=0 and a full refund.
+            fallback_count = 0
+            for co_key, adv_amount in advanced_by_co.items():
+                if co_key in consumed_co_keys or not adv_amount:
+                    continue
+                fb_contract_id, fb_object_id = co_key
+                fb_term_ids = terms_by_co.get(co_key, set())
+                fb_term_id = (next(iter(fb_term_ids))
+                    if len(fb_term_ids) == 1 else None)
+                fallback = SettlementResult(
+                    billing_unit=billing_unit.id,
+                    contract=fb_contract_id,
+                    base_object=fb_object_id,
+                    term=fb_term_id,
+                    start_date=billing_unit.start_date,
+                    end_date=billing_unit.end_date,
+                    planned_costs=Decimal(0),
+                    actual_costs=Decimal(0),
+                    advanced_payment=adv_amount,
+                    refund_receivable=-adv_amount,
+                )
+                fallback.save()
+                fallback_count += 1
             billing_unit.add_log('compute_settlement_result',
-                f'Settlement results computed: {len(groups)} records created.')
+                f'Settlement results computed: {len(groups)} records created'
+                + (f', {fallback_count} fallback (unmatched advance payment)'
+                    if fallback_count else '') + '.')
 
     @staticmethod
     def default_state():
@@ -1485,6 +1562,33 @@ class BillingUnitMoves(ModelSQL, ModelView):
         'Owner Allocation Line', ondelete='SET NULL', states={'readonly': True})
 
     billing_run_id = fields.Char('Billing Run ID', readonly=True)
+
+    amount = fields.Function(
+        fields.Numeric('Amount', digits=(16, 2)),
+        'get_invoice_line_field')
+    currency = fields.Function(
+        fields.Many2One('currency.currency', 'Currency'),
+        'get_invoice_line_field')
+    invoice = fields.Function(
+        fields.Many2One('account.invoice', 'Invoice'),
+        'get_invoice_line_field')
+
+    @classmethod
+    def get_invoice_line_field(cls, records, name):
+        result = {}
+        for record in records:
+            line = record.moves_advanced_payment or record.moves_actual_costs
+            if name == 'amount':
+                result[record.id] = (
+                    line.amount if line and line.amount is not None
+                    else None)
+            elif name == 'currency':
+                result[record.id] = (
+                    line.currency.id if line and line.currency else None)
+            elif name == 'invoice':
+                result[record.id] = (
+                    line.invoice.id if line and line.invoice else None)
+        return result
 
 
 #**********************************************************************

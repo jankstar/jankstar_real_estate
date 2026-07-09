@@ -107,6 +107,11 @@ Please enter actual costs for all settlement results before proceeding.</field>
         <record model="ir.message" id="msg_billing_unit_sum_mismatch">
             <field name="text">Cannot set "Ready for Billing" for "%(name)s": sum of settlement result actual costs (%(sr_sum)s) does not match cost share sum (%(bu_sum)s). Please recompute settlement results.</field>
         </record>
+        <record model="ir.message" id="msg_billing_unit_settlement_result_missing_term">
+            <field name="text">Cannot set "Ready for Billing" for "%(name)s": the following settlement results have an advance payment but no term or contract assigned:
+%(details)s
+Please recompute settlement results or check cash flow line configuration. Each advance payment term type may only appear once per contract in this billing unit.</field>
+        </record>
         <record model="ir.message" id="msg_billing_unit_settlement_unit_errors">
             <field name="text">Cannot set "Ready for Billing" for "%(name)s": the following settlement units have errors:
 %(details)s

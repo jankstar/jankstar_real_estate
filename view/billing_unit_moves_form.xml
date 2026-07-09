@@ -13,5 +13,11 @@
     <newline/>
     <label name="moves_alloc_by_owner"/><field name="moves_alloc_by_owner" colspan="4" readonly="1"/>
     <newline/>
+    <label name="invoice"/><field name="invoice" colspan="4" readonly="1"/>
+    <newline/>
+    <label name="amount"/><field name="amount" colspan="2" readonly="1"/>
+    <newline/>
+    <label name="currency"/><field name="currency" colspan="2" readonly="1"/>
+    <newline/>
     <label name="billing_run_id"/><field name="billing_run_id" colspan="4" readonly="1"/>
 </form>
