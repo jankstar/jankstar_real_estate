@@ -769,6 +769,7 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
                 type=invoice_type,
                 party=contract.contractual_partner.id,
                 invoice_date=billing_date,
+                accounting_date=billing_date,
                 journal=c_type.account_journal.id,
                 account=header_account,
                 invoice_address=contract.invoice_address,
