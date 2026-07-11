@@ -23,6 +23,9 @@ class AccountConfigurationRealEstate(ModelSQL, CompanyValueMixin):
             ('type', 'in', ('revenue', 'expense', 'general')),
             ])
 
+    re_payment_term_billing = fields.Many2One(
+        'account.invoice.payment_term', 'Operating Cost Billing Payment Term')
+
 
 #**********************************************************************
 class AccountConfiguration(metaclass=PoolMeta):
@@ -44,9 +47,15 @@ class AccountConfiguration(metaclass=PoolMeta):
             ],
         help="Journal used for direct GL postings in vacancy settlements."))
 
+    re_payment_term_billing = fields.MultiValue(fields.Many2One(
+        'account.invoice.payment_term', 'Operating Cost Billing Payment Term',
+        help="Default payment term for operating cost settlement invoices, "
+             "used when the contract itself has no payment term set."))
+
     @classmethod
     def multivalue_model(cls, field):
         pool = Pool()
-        if field in {'re_account_allocation_by_owner', 're_journal_billing'}:
+        if field in {'re_account_allocation_by_owner', 're_journal_billing',
+                're_payment_term_billing'}:
             return pool.get('account.configuration.real_estate')
         return super().multivalue_model(field)

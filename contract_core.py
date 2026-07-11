@@ -569,6 +569,10 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
         fields.One2Many('real_estate.cost_share', None, 'Cost Shares', readonly=True),
         'get_cost_shares')
 
+    settlement_units = fields.Function(
+        fields.One2Many('real_estate.settlement_unit', None, 'Settlement Units', readonly=True),
+        'get_settlement_units')
+
     _states_termination = {
             'invisible': ((Eval('state') != 'terminated')),
             }
@@ -807,6 +811,45 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
         ])
         for share in shares:
             result[share.contract.id].append(share.id)
+        return result
+
+    @classmethod
+    def get_settlement_units(cls, contracts, name):
+        """Settlement units of the contract's property whose objects overlap
+        with the objects assigned to this contract via its items.
+
+        Billing units are restricted to the property's
+        ``next_billing_start_date`` (the earliest non-billed billing unit
+        start date); if the property has none, all its billing units are
+        considered.
+        """
+        pool = Pool()
+        BillingUnit = pool.get('real_estate.billing_unit')
+        result = {c.id: [] for c in contracts}
+        billing_units_by_property = {}
+        for contract in contracts:
+            if not contract.property:
+                continue
+            contract_object_ids = {
+                item_obj.object.id
+                for item in contract.items
+                for item_obj in item.objects
+                if item_obj.object}
+            if not contract_object_ids:
+                continue
+
+            property_id = contract.property.id
+            if property_id not in billing_units_by_property:
+                next_date = contract.property.next_billing_start_date
+                domain = [('property', '=', property_id)]
+                if next_date:
+                    domain.append(('start_date', '=', next_date))
+                billing_units_by_property[property_id] = BillingUnit.search(domain)
+
+            for bu in billing_units_by_property[property_id]:
+                for su in bu.settlement_units:
+                    if any(obj.id in contract_object_ids for obj in su.objects):
+                        result[contract.id].append(su.id)
         return result
 
     @classmethod

@@ -4,6 +4,8 @@
         <label name="date"/><field name="date"/>
         <label name="invoice_state"/><field name="invoice_state"/>
         <newline/>
+        <label name="payment_term"/><field name="payment_term"/>
+        <newline/>
         <label name="execute_in_queue"/><field name="execute_in_queue"/>
         <label name="n_properties"/><field name="n_properties"/>
         <newline/>

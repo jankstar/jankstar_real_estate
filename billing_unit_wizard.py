@@ -26,6 +26,12 @@ class BillingUnitStart(ModelView):
         ('draft', 'Draft'),
         ('posted', 'Posted'),
         ], 'Invoice State')
+    payment_term = fields.Many2One(
+        'account.invoice.payment_term', 'Payment Term',
+        help="Payment term written to all invoices created by this billing "
+             "run — it determines the invoice due date. Defaults to the "
+             "operating cost billing payment term from the account "
+             "configuration.")
     execute_in_queue = fields.Boolean('Execute in queue',
         help="If checked, billing will be processed in the background queue.")
     propertys = fields.Many2Many(
@@ -81,6 +87,13 @@ class BillingUnitStart(ModelView):
         return 'draft'
 
     @staticmethod
+    def default_payment_term():
+        AccountConfiguration = Pool().get('account.configuration')
+        config = AccountConfiguration(1)
+        return (config.re_payment_term_billing.id
+            if config.re_payment_term_billing else None)
+
+    @staticmethod
     def default_invoice_date_in_past():
         return False
 
@@ -115,6 +128,8 @@ class BillingUnitConfirm(ModelView):
     billing_units_count = fields.Integer('Matching Billing Units', readonly=True)
     date = fields.Date('Up to Date', readonly=True)
     invoice_state = fields.Char('Invoice State', readonly=True)
+    payment_term = fields.Many2One(
+        'account.invoice.payment_term', 'Payment Term', readonly=True)
     execute_in_queue = fields.Boolean('Execute in Queue', readonly=True)
     n_properties = fields.Integer('Properties Filter', readonly=True)
     n_billing_units = fields.Integer('Billing Units Filter', readonly=True)
@@ -186,6 +201,8 @@ class BillingUnitWizard(Wizard):
             'invoice_state': invoice_labels.get(
                 self.start.invoice_state or 'draft',
                 self.start.invoice_state or 'draft'),
+            'payment_term': (self.start.payment_term.id
+                if self.start.payment_term else None),
             'execute_in_queue': self.start.execute_in_queue,
             'n_properties': len(self.start.propertys) if self.start.propertys else 0,
             'n_billing_units': len(self.start.billing_units) if self.start.billing_units else 0,
@@ -205,7 +222,8 @@ class BillingUnitWizard(Wizard):
                     list(bu_id_filter) if bu_id_filter is not None else None,
                     self.start.execute_in_queue,
                     self.start.invoice_state or 'draft',
-                    self.start.invoice_date)
+                    self.start.invoice_date,
+                    self.start.payment_term.id if self.start.payment_term else None)
 
             self.result.billing_units_count = count
             if count == 0:

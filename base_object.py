@@ -488,7 +488,8 @@ class BaseObject(Workflow, DeactivableMixin, re_sequence_ordered(), tree(separat
 
     @classmethod
     def call_billing(cls, property_ids, billing_unit_ids=None,
-            execute_in_queue=True, invoice_state='draft', invoice_date=None):
+            execute_in_queue=True, invoice_state='draft', invoice_date=None,
+            payment_term=None):
         """Call do_billing in queue or directly based on execute_in_queue flag."""
         _chunk_size = 1
         chunks = [property_ids[i:i + _chunk_size]
@@ -500,14 +501,16 @@ class BaseObject(Workflow, DeactivableMixin, re_sequence_ordered(), tree(separat
                 with transaction.set_context(
                         queue_batch=context.get('queue_batch', True)):
                     cls.__queue__.do_billing(
-                        chunk, billing_unit_ids, invoice_state, invoice_date)
+                        chunk, billing_unit_ids, invoice_state, invoice_date,
+                        payment_term)
             else:
                 cls.do_billing(
-                    chunk, billing_unit_ids, invoice_state, invoice_date)
+                    chunk, billing_unit_ids, invoice_state, invoice_date,
+                    payment_term)
 
     @classmethod
     def do_billing(cls, property_ids, billing_unit_ids=None,
-            invoice_state='draft', invoice_date=None):
+            invoice_state='draft', invoice_date=None, payment_term=None):
         """Execute billing per property.
 
         For each property all billing units with next_billing_start_date are
@@ -571,7 +574,8 @@ class BaseObject(Workflow, DeactivableMixin, re_sequence_ordered(), tree(separat
                     details=details))
 
             BillingUnit.billing(units_to_bill,
-                invoice_state=invoice_state, invoice_date=invoice_date)
+                invoice_state=invoice_state, invoice_date=invoice_date,
+                payment_term=payment_term)
 
     @classmethod
     @ModelView.button

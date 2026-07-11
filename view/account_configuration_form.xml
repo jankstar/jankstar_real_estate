@@ -6,5 +6,7 @@
         <field name="re_account_allocation_by_owner"/>
         <label name="re_journal_billing"/>
         <field name="re_journal_billing"/>
+        <label name="re_payment_term_billing"/>
+        <field name="re_payment_term_billing"/>
     </xpath>
 </data>

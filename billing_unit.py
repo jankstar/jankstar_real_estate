@@ -556,7 +556,8 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
 
     @classmethod
     @Workflow.transition('billed')
-    def billing(cls, billing_units, invoice_state='draft', invoice_date=None):
+    def billing(cls, billing_units, invoice_state='draft', invoice_date=None,
+            payment_term=None):
         pool = Pool()
         Invoice = pool.get('account.invoice')
         InvoiceLine = pool.get('account.invoice.line')
@@ -772,8 +773,12 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
                 account=header_account,
                 invoice_address=contract.invoice_address,
                 currency=contract.currency.id,
-                payment_term=(contract.payment_term.id
-                              if contract.payment_term else None),
+                payment_term=(payment_term
+                              if payment_term
+                              else contract.payment_term.id
+                              if contract.payment_term
+                              else config.re_payment_term_billing.id
+                              if config.re_payment_term_billing else None),
                 description=f"{c_type.oc_mark or 'Operating Cost Settlement'} {period_str}",
                 reference=contract.contract_number,
                 lines=invoice_lines,

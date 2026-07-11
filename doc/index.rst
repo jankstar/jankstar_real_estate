@@ -86,9 +86,9 @@ The following master data must be set up before the module can be used:
    Default values for German BetrKV (§ 2) are loaded at module installation.
 
 ``account.configuration`` (real estate extension)
-   Default accounts for operating cost billing (actual costs, advances,
-   owner allocation). Configured via the account configuration form
-   extension added by ``account_configuration.py``.
+   Defaults for operating cost billing: vacancy cost account, vacancy
+   settlement journal, and default payment term. Configured via the account
+   configuration form extension added by ``account_configuration.py``.
 
 
 Access Control
@@ -312,9 +312,21 @@ Property Management
    - Meter readings (``MeterReading``) linked to equipment objects
    - ``billing_as`` / ``collective_billing`` flags to control how operating
      cost billing is aggregated at property level
+   - ``next_billing_start_date`` (function field, property only): the
+     earliest ``start_date`` among all non-``billed`` billing units of the
+     property. Drives the *ready for billing* checks and the green
+     line-color highlight in the billing unit list view.
    - Buttons ``compute_value_shares``, ``compute_settlement_result_property``,
-     and ``billing_property`` delegate bulk settlement actions to all
-     billing units of the property
+     and ``ready_for_billing_property`` delegate bulk settlement actions to
+     all billing units of the property that share ``next_billing_start_date``.
+     ``billing_property`` opens the ``real_estate.billing_unit.wizard``
+     instead of billing directly.
+   - ``call_billing`` / ``do_billing`` (classmethods) run the actual billing
+     for one or more properties, optionally in the background queue
+     (``execute_in_queue``). ``do_billing`` requires every billing unit that
+     would be billed to already be in state ``ready_for_billing``; with
+     ``collective_billing`` all billing units sharing the same start date
+     must be included together, otherwise a ``ValidationError`` is raised.
 
    *Rental object fields* (visible only for ``type = 'object'``):
 
@@ -411,6 +423,12 @@ Contract Management
    default taxes, accounting journal, number prefix, step sizes for item
    and term sequence numbers, and whether occupancy exclusivity is enforced.
 
+   ``oc_mark``
+      Free-text label used in operating cost settlement invoice descriptions
+      and invoice headers, e.g. ``"Betriebskostenabrechnung 2025"``. Falls
+      back to ``"Operating Cost Settlement"`` / ``"Operating Costs"`` when
+      empty.
+
 ``real_estate.contract.type.tax``  (``contract_type.py``)
    Many2Many relation table between ``ContractType`` and ``account.tax``.
 
@@ -499,6 +517,9 @@ Contract Management
 
    Stores ``posting_date``, ``document_date``, ``due_date``, and a link to
    the ``account.invoice.line`` once billed.
+   ``base_object`` (function field) is derived from the linked invoice line
+   and used to key advance payments to a (contract, object) pair during
+   operating cost settlement.
    ``create_moves_run_id`` (format ``YYYYMMDD-HHMMSS-U<userid>``) is set
    for all cash flow entries created in a single ``CreateContractMoves`` run,
    allowing traceability back to the wizard invocation.
@@ -535,7 +556,7 @@ Operating Cost Settlement
 ``real_estate.billing_unit``  (``billing_unit.py``)
    Annual (or period) operating cost settlement for one property.
 
-   *Workflow:* Draft → Approved → Selection → Value Share → Billed
+   *Workflow:* Draft → Approved → Selection → Value Share → Ready for Billing → Billed
 
    Two calculation methods:
 
@@ -554,34 +575,82 @@ Operating Cost Settlement
 
    ``selection``
       Identifies which contracts/objects are in scope for the billing period.
-      Available in states ``approved``, ``selection``, and ``value_share``
-      (can be re-run from ``value_share`` to revise the scope; existing
-      settlement results are deleted after confirmation).
+      Available in states ``approved``, ``selection``, ``value_share``, and
+      ``ready_for_billing`` (re-running from ``value_share`` /
+      ``ready_for_billing`` revises the scope; existing settlement results
+      are deleted after confirmation).
 
    ``compute_value_shares_button``
       Calculates allocation shares (``CostShare``) for each settlement unit.
-      If settlement results already exist for the billing unit, a confirmation
-      warning is shown before they are deleted and value shares are recomputed.
-      Does **not** automatically call ``compute_settlement_result``.
+      Available in states ``selection``, ``value_share``, and
+      ``ready_for_billing``. If settlement results already exist for the
+      billing unit, a confirmation warning is shown before they are deleted
+      and value shares are recomputed. Does **not** automatically call
+      ``compute_settlement_result``. If any settlement unit has
+      ``sub_state = error`` the billing unit is *not* advanced to
+      ``value_share``; the error is written to the billing unit log instead.
 
    ``compute_settlement_result``
-      Derives ``SettlementResult`` records per contract — actual costs,
-      advances paid (only ``posted``/``paid`` invoice lines), and the
-      resulting refund or additional receivable.
+      Derives ``SettlementResult`` records per (contract, base_object) pair —
+      actual costs, advances paid (only ``posted``/``paid`` invoice lines),
+      and the resulting refund or additional receivable. Advance payments
+      are matched to cost shares by the same (contract, object) key. If an
+      advance-payment cash flow line has no matching cost-share group
+      (e.g. no object on older invoices, or several terms for the same
+      object) a fallback ``SettlementResult`` with ``actual_costs = 0`` and
+      a full refund is created for it; the fallback count is logged.
       Sets affected ``CostShare`` records to state ``error`` if any
       cash flow entries in the period are still in ``draft``/``validated``
       state; the error message is prefixed with ``[draft]`` so it can be
       reset on re-run once the drafts are posted or deleted.
+      Resets a billing unit already in state ``ready_for_billing`` back to
+      ``value_share`` before recomputing.
 
-   ``billing``
-      Creates invoices/credit notes from the settlement results.
+   ``check_ready_for_billing``
+      Transitions ``value_share`` → ``ready_for_billing`` after validating:
+
+      - no settlement unit has ``sub_state = error``;
+      - every settlement unit (except ``no_allocation``) has reached
+        ``sub_state = value_share``;
+      - at least one ``approved`` ``SettlementResult`` exists and none has
+        ``actual_costs = 0``;
+      - every settlement result with a non-zero advance payment has both a
+        ``term`` and a ``contract`` (a missing term usually means several
+        term types contributed and the billing unit's term-type filter
+        needs narrowing);
+      - all advance-payment invoices are posted;
+      - (unless ``external_billing``) the sum of settlement result actual
+        costs matches the sum of cost share actual costs.
+
+      Any failed check raises a ``ValidationError`` listing the offending
+      records. Can also be triggered per property via
+      ``BaseObject.ready_for_billing_property`` for all billing units
+      sharing ``next_billing_start_date``.
+
+   ``billing_wizard`` / ``billing``
+      The form button ``billing_wizard`` opens the
+      ``real_estate.billing_unit.wizard`` (see *Wizards* below), which
+      calls the ``billing`` classmethod. ``billing`` creates, per
+      settlement result, up to two invoice lines — advance-payment
+      dissolution and actual costs — with taxes copied from the
+      advance-payment term, then one invoice per contract. Invoices are
+      created in state ``draft`` and posted immediately if the wizard's
+      ``invoice_state`` is ``posted``. Each invoice's ``payment_term`` (and
+      therefore its due date) is taken from the wizard's ``payment_term``
+      field when set; otherwise the contract's own payment term is used,
+      falling back to ``account.configuration``'s
+      ``re_payment_term_billing``.
       Refuses to proceed if ``sub_state`` is ``error`` or if draft cash
-      flow lines still exist in the settlement period.
+      flow lines still exist in the settlement period; with
+      ``collective_billing`` all billing units of the property sharing the
+      same start date must already be ``ready_for_billing``.
       Generates a ``billing_run_id`` (``YYYYMMDD-HHMMSS-U<userid>``) that
       is written to the billing unit and all ``BillingUnitMoves`` records
       of the same run, so every posting can be traced back to its run.
       Hidden when the property has ``collective_billing = True``; in that
-      case the action is triggered from the property form instead.
+      case the action is triggered from the property form instead
+      (``BaseObject.billing_property`` → same wizard →
+      ``BaseObject.do_billing``).
 
    ``billing_run_id``
       Char field set at the end of a successful ``billing()`` call,
@@ -591,15 +660,21 @@ Operating Cost Settlement
    Timestamped log entries attached to a billing unit.
 
 ``real_estate.billing_unit.moves``  (``billing_unit.py``)
-   One record per invoice or journal entry created by ``billing()``.
-   Links the billing unit to the contract, settlement result, and the
-   individual posting records:
+   One record per invoice line created by ``billing()`` — a separate
+   record for the advance-payment dissolution line and for the
+   actual-costs line of the same settlement result (not combined into one
+   record). Links the billing unit to the contract, settlement result,
+   and the individual posting record:
 
    - ``moves_advanced_payment`` — ``account.invoice.line`` that reverses
      the operating-cost advance (credit note line)
    - ``moves_actual_costs`` — ``account.invoice.line`` for the actual costs
    - ``moves_alloc_by_owner`` — ``account.move.line`` for the owner
      allocation journal entry
+
+   Function fields ``amount``, ``currency``, and ``invoice`` are derived
+   from whichever of ``moves_advanced_payment`` / ``moves_actual_costs`` is
+   set, for quick display in the tree view without opening the invoice line.
 
    ``billing_run_id`` ties all moves of one billing run together
    (same value as on the parent ``BillingUnit``).
@@ -682,6 +757,10 @@ Operating Cost Settlement
    to tenant, negative = additional receivable).
    Optionally links to the single ``ContractTerm`` that covered all advances
    when exactly one term was involved.
+   The display name includes the record id in parentheses
+   (e.g. ``"2026-01-01 – 2026-12-31 / Mieter 1 (42)"``) to disambiguate
+   several results for the same contract/object; the id is also searchable
+   via the name field.
 
 
 Extensions to Core Modules
@@ -692,7 +771,9 @@ Extensions to Core Modules
 
 ``account.invoice``  (``invoice.py``)
    Adds a ``contract`` Many2One field so invoices can be traced back to the
-   originating contract.
+   originating contract. Shown on the invoice form's *Other Info* tab
+   (view extension ``view/invoice_form.xml``, inherits
+   ``account_invoice.invoice_view_form``).
 
 ``account.invoice.line``  (``invoice.py``)
    Adds a ``term`` Many2One field linking invoice lines to the
@@ -703,8 +784,23 @@ Extensions to Core Modules
 
 ``account.configuration``  (``account_configuration.py``)
    Extends the standard account configuration with real-estate-specific
-   default accounts used during operating cost billing (actual costs account,
-   advance payment account, owner allocation account).
+   defaults used during operating cost billing:
+
+   ``re_account_allocation_by_owner``
+      Vacancy cost account (debit and credit side of vacancy postings).
+
+   ``re_journal_billing``
+      Journal used for direct GL postings in vacancy settlements.
+
+   ``re_payment_term_billing``
+      Default payment term for operating cost settlement invoices. Pre-fills
+      the ``payment_term`` field of the ``real_estate.billing_unit.wizard``;
+      also used directly by ``BillingUnit.billing()`` as a final fallback
+      when neither the wizard's ``payment_term`` nor the contract's own
+      payment term is set.
+
+   All three are per-company ``MultiValue`` fields backed by
+   ``account.configuration.real_estate``.
 
 ``res.user``  (``res.py``)
    Adds ``phone`` and ``mobile`` fields.
@@ -729,6 +825,34 @@ Wizards
 
    Can be filtered by property and/or contract list.
    Optional queue execution via ``execute_in_queue``.
+
+``real_estate.billing_unit.wizard``  (``billing_unit_wizard.py``, class ``BillingUnitWizard``)
+   Batch billing wizard, opened via the ``billing_wizard`` button on the
+   billing unit form or the ``billing_property`` button on the property form.
+
+   *Start* — ``date`` (default: last day of the current month), ``company``,
+   ``invoice_date`` (default: today; auto-set to the first of ``date``'s
+   month when ``date`` lies in the past), ``invoice_state``
+   (``draft`` / ``posted`` — invoices are posted immediately when
+   ``posted``), ``payment_term`` (default: ``account.configuration``'s
+   ``re_payment_term_billing``; written to every invoice created by the run
+   and therefore drives its due date — takes priority over the contract's
+   own payment term), ``execute_in_queue`` (default ``True``), optional
+   ``propertys`` / ``billing_units`` filters (pre-filled from the active
+   record when launched from a property or billing unit form/list).
+
+   *Confirm* — read-only summary of the matching billing unit count and the
+   selected filters before processing.
+
+   *Process* (``transition_do_billing``) — calls
+   ``BaseObject.call_billing`` for the resolved properties, which invokes
+   ``BaseObject.do_billing`` either directly or via the background queue.
+   Only billing units already in state ``ready_for_billing`` are billed;
+   with ``collective_billing`` all billing units of a property sharing the
+   same start date must be included, otherwise a ``ValidationError`` is
+   raised.
+
+   *Result* — reports how many billing units were queued or processed.
 
 ``real_estate.terminate_contract.wizard``  (``contract_wizard.py``)
    Sets a contract to *Terminated*, records ``terminated_by``,
@@ -797,6 +921,7 @@ Source Layout
    ├── base_object.py           # real_estate.base_object, occupancy, meter readings
    ├── billing_unit.py          # real_estate.billing_unit, billing_unit.moves,
    │                            #   billing_unit.log, cost_type, cost_category_group
+   ├── billing_unit_wizard.py   # real_estate.billing_unit.wizard (batch billing)
    ├── contract_core.py         # real_estate.contract, contract.log, account views
    ├── contract_item.py         # real_estate.contract.item
    ├── contract_term.py         # real_estate.contract.term, cash_flow, Quantitative
