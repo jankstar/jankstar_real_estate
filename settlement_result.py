@@ -45,6 +45,10 @@ class CostShare(DeactivableMixin, ModelSQL, ModelView):
         domain=[('type', '=', 'object')],
         states={'readonly': True})
 
+    allocation_rule = fields.Function(
+        fields.Selection('get_allocation_rules', 'Allocation Rule'),
+        'on_change_with_allocation_rule')
+
     value_share = fields.Float('Value Share', digits=(16, 4),
         states={'readonly': True},)
 
@@ -89,6 +93,17 @@ class CostShare(DeactivableMixin, ModelSQL, ModelView):
             ('contract', operator, value),
             ('base_object.name', operator, value),
         ]
+
+    @staticmethod
+    def get_allocation_rules():
+        pool = Pool()
+        SettlementUnit = pool.get('real_estate.settlement_unit')
+        return SettlementUnit.fields_get(
+            ['allocation_rule'])['allocation_rule']['selection']
+
+    @fields.depends('settlement_unit')
+    def on_change_with_allocation_rule(self, name=None):
+        return self.settlement_unit.allocation_rule if self.settlement_unit else None
 
     @fields.depends('settlement_unit')
     def on_change_with_external_billing(self, name=None):

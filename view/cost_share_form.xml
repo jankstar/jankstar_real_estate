@@ -3,6 +3,8 @@
     <label name="settlement_unit"/><field name="settlement_unit" colspan="2" readonly="1"/>
     <label name="state"/><field name="state" readonly="1"/>
     <newline/>
+    <label name="allocation_rule"/><field name="allocation_rule" colspan="4" readonly="1"/>
+    <newline/>
     <label name="base_object"/><field name="base_object" colspan="4" readonly="1"/>
     <newline/>
     <label name="contract"/><field name="contract" colspan="4" readonly="1"/>
