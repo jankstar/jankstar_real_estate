@@ -1583,6 +1583,19 @@ class BillingUnitMoves(ModelSQL, ModelView):
     def get_invoice_line_field(cls, records, name):
         result = {}
         for record in records:
+            if not record.contract and record.moves_alloc_by_owner:
+                owner_line = record.moves_alloc_by_owner
+                if name == 'amount':
+                    result[record.id] = (
+                        (owner_line.debit or Decimal(0))
+                        - (owner_line.credit or Decimal(0)))
+                elif name == 'currency':
+                    result[record.id] = (
+                        owner_line.currency.id if owner_line.currency else None)
+                elif name == 'invoice':
+                    result[record.id] = None
+                continue
+
             line = record.moves_advanced_payment or record.moves_actual_costs
             if name == 'amount':
                 result[record.id] = (

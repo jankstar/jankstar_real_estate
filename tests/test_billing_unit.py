@@ -3,7 +3,7 @@ Billing Units für die zwei Testimmobilien anlegen.
 
 Je Wirtschaftseinheit werden zwei Billing Units angelegt:
 
-  1. "Kalte Betriebskosten 2025" (calculation_method=rental_apartment)
+  1. "Kalte Betriebskosten" (calculation_method=rental_apartment)
 
      Alle Settlement Units verwenden Objekt-Regex "Wohnung|Einzelhandel",
      d.h. sowohl Wohnungen als auch Gewerbeflächen (Einzelhandel) werden
@@ -30,7 +30,7 @@ Je Wirtschaftseinheit werden zwei Billing Units angelegt:
 
        200 Wasserversorgung/Abwasser — Verbrauch m³, Leerstand: Eigentümer
 
-  2. "Heizkosten 2025" (calculation_method=rental_apartment, external_billing=True)
+  2. "Heizkosten" (calculation_method=rental_apartment, external_billing=True)
      Settlement Units (Objekt-Regex: "Wohnung|Einzelhandel"):
        300 Heizung (Brennstoff)     — externe Abrechnung
        310 Heizung (Wartung)        — externe Abrechnung
@@ -249,12 +249,12 @@ def main():
         print(f'Property: {prop.name}')
         print(f'{"=" * 60}')
 
-        # --- Billing Unit 1: Kalte Betriebskosten 2025 ---
-        print('\n--- Kalte Betriebskosten 2025 ---')
+        # --- Billing Unit 1: Kalte Betriebskosten ---
+        print('\n--- Kalte Betriebskosten ---')
         tt_ids_bk = [tt_bk.id] if tt_bk else []
         bu_bk = create_billing_unit(
             prop=prop,
-            description='Kalte Betriebskosten 2025',
+            description='Kalte Betriebskosten',
             term_type_ids=tt_ids_bk,
         )
 
@@ -263,12 +263,12 @@ def main():
 
         create_su_consumption(bu_bk, ct_water, uom_m3)
 
-        # --- Billing Unit 2: Heizkosten 2025 ---
-        print('\n--- Heizkosten 2025 ---')
+        # --- Billing Unit 2: Heizkosten ---
+        print('\n--- Heizkosten ---')
         tt_ids_hz = [tt_hz.id] if tt_hz else []
         bu_hz = create_billing_unit(
             prop=prop,
-            description='Heizkosten 2025',
+            description='Heizkosten',
             term_type_ids=tt_ids_hz,
             external_billing=True,
         )

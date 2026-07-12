@@ -679,6 +679,10 @@ Operating Cost Settlement
    Function fields ``amount``, ``currency``, and ``invoice`` are derived
    from whichever of ``moves_advanced_payment`` / ``moves_actual_costs`` is
    set, for quick display in the tree view without opening the invoice line.
+   For vacancy records (no ``contract``, but ``moves_alloc_by_owner`` set),
+   ``amount`` is instead computed as ``debit - credit`` of that
+   ``account.move.line``, ``currency`` from its own ``currency`` field, and
+   ``invoice`` stays empty (move lines have no invoice reference).
 
    ``billing_run_id`` ties all moves of one billing run together
    (same value as on the parent ``BillingUnit``).

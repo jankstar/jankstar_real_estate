@@ -4,7 +4,7 @@
     <field name="property"/>
     <field name="start_date" width="110"/>
     <field name="end_date" width="110" optional="1"/>
-    <field name="description"/>
+    <field name="name"/>
     <field name="sum_planned_costs" optional="1" sum="1"/>
     <field name="currency" optional="1"/>
     <field name="billing_type" optional="1"/>
