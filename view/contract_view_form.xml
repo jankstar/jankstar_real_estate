@@ -66,6 +66,7 @@
             <field name="terms" 
                 view_ids="real_estate.contract_view_list_object_term"/>        
         </page>
+
         <page string="Cash Flow" id="page_cash_flow">
             <newline/>
             <notebook colspan="8">
@@ -87,11 +88,22 @@
 
             </notebook>
         </page>
-        <page string="Cost Shares" id="page_cost_shares">
+        <page string="Operation Costs" id="page_operation_costs">
             <newline/>
-            <field name="cost_shares"
-                view_ids="real_estate.cost_share_list"
-                readonly="1"/>
+            <notebook colspan="8">
+                <page string="Settlement Units" id="page_settlement_units">
+                    <newline/>
+                    <field name="settlement_units"
+                        view_ids="real_estate.base_object_view_list_settlement_unit"
+                        readonly="1"/>
+                </page>
+                <page string="Cost Shares" id="page_cost_shares">
+                    <newline/>
+                    <field name="cost_shares"
+                        view_ids="real_estate.cost_share_list"
+                        readonly="1"/>
+                </page>
+            </notebook>
         </page>
         <page string="Measurements" id="page_measurements">
             <newline/>

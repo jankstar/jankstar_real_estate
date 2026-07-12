@@ -620,6 +620,8 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
     @classmethod
     def __setup__(cls):
         super().__setup__()
+        cls._order.insert(0, ('contract_number', 'ASC'))
+        cls._order.insert(0, ('start_date', 'ASC'))
         cls._transitions |= set((
             ('draft', 'running'),
             ('draft', 'cancelled'),
@@ -801,16 +803,24 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
 
     @classmethod
     def get_cost_shares(cls, contracts, name):
+        """Cost shares of this contract's settlement units (see
+        ``get_settlement_units``), restricted to those actually assigned to
+        this contract."""
         pool = Pool()
-        CostShare = pool.get('real_estate.cost_share')
+        SettlementUnit = pool.get('real_estate.settlement_unit')
         result = {c.id: [] for c in contracts}
-        contract_ids = [c.id for c in contracts]
-        shares = CostShare.search([
-            ('contract', 'in', contract_ids),
-            ('settlement_unit.billing_unit.state', 'not in', ['draft', 'billed']),
-        ])
-        for share in shares:
-            result[share.contract.id].append(share.id)
+        settlement_unit_ids = cls.get_settlement_units(contracts, 'settlement_units')
+        all_su_ids = {su_id for ids in settlement_unit_ids.values() for su_id in ids}
+        if not all_su_ids:
+            return result
+        settlement_units = SettlementUnit.browse(list(all_su_ids))
+        su_by_id = {su.id: su for su in settlement_units}
+        for contract in contracts:
+            for su_id in settlement_unit_ids.get(contract.id, []):
+                su = su_by_id[su_id]
+                for cs in su.cost_shares:
+                    if cs.contract and cs.contract.id == contract.id:
+                        result[contract.id].append(cs.id)
         return result
 
     @classmethod
@@ -820,8 +830,9 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
 
         Billing units are restricted to the property's
         ``next_billing_start_date`` (the earliest non-billed billing unit
-        start date); if the property has none, all its billing units are
-        considered.
+        start date). If the property has none set, the billing units in
+        state ``billed`` with the latest (most recent) ``start_date`` are
+        used instead — i.e. the most recently completed settlement period.
         """
         pool = Pool()
         BillingUnit = pool.get('real_estate.billing_unit')
@@ -843,8 +854,18 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
                 next_date = contract.property.next_billing_start_date
                 domain = [('property', '=', property_id)]
                 if next_date:
-                    domain.append(('start_date', '=', next_date))
-                billing_units_by_property[property_id] = BillingUnit.search(domain)
+                    units = BillingUnit.search(
+                        domain + [('start_date', '=', next_date)])
+                else:
+                    billed_domain = domain + [('state', '=', 'billed')]
+                    latest = BillingUnit.search(
+                        billed_domain, order=[('start_date', 'DESC')], limit=1)
+                    if latest:
+                        units = BillingUnit.search(billed_domain + [
+                            ('start_date', '=', latest[0].start_date)])
+                    else:
+                        units = []
+                billing_units_by_property[property_id] = units
 
             for bu in billing_units_by_property[property_id]:
                 for su in bu.settlement_units:
