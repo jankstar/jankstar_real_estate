@@ -790,6 +790,19 @@ Extensions to Core Modules
 ``account.move.line``  (``invoice.py``)
    Extended list view to include contract and term context for journal entries.
 
+``account.general_ledger.line``  (``invoice.py``, class ``GeneralLedgerLine``)
+   Adds ``contract``, ``term``, ``base_object``, ``billing_unit``, and
+   ``settlement_unit`` (all readonly Many2One) to Tryton's standard General
+   Ledger — Lines report (German: *Kontenblätter – Positionen*), so the
+   individual postings for an account can be filtered/traced back to the
+   originating real-estate contract, term, object, billing unit, or
+   settlement unit. No override of ``table_query`` is needed: it pulls any
+   non-Function field straight from the ``account.move.line`` table by
+   matching field name, and ``account.move.line`` already carries these same
+   fields (see above). Shown as optional columns in the tree view
+   (``view/general_ledger_line_list.xml``, inherits
+   ``account.general_ledger_line_view_list``).
+
 ``account.configuration``  (``account_configuration.py``)
    Extends the standard account configuration with real-estate-specific
    defaults used during operating cost billing:

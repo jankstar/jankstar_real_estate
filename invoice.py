@@ -18,9 +18,9 @@ class Invoice(metaclass=PoolMeta):
             },
         domain=[
             ('company', '=', Eval('company', -1)),
-            ]          
+            ]
         )  # CODE COMMENT: Link to the real estate contract
-    
+
     @classmethod
     def __setup__(cls):
         super(Invoice, cls).__setup__()
@@ -28,7 +28,7 @@ class Invoice(metaclass=PoolMeta):
         cls._sql_indexes.add(
             Index(table,
                 (Column(table, 'contract'), Index.Range(order='ASC NULLS FIRST')),
-                (table.id, Index.Range(order='ASC NULLS FIRST'))))  
+                (table.id, Index.Range(order='ASC NULLS FIRST'))))
 
 
 #**********************************************************************
@@ -375,3 +375,30 @@ class AccountMoveLine(metaclass=PoolMeta):
             if self.base_object.property:
                 return self.base_object.property
         return None
+
+
+#**********************************************************************
+class GeneralLedgerLine(metaclass=PoolMeta):
+    """General Ledger Line extension for real estate.
+
+    Mirrors the real-estate columns already present on ``account.move.line``
+    (same field names) so that ``GeneralLedgerLine.table_query`` — which
+    pulls any non-Function field straight from the move line table by name —
+    picks them up automatically without an override.
+    """
+    __name__ = 'account.general_ledger.line'
+
+    contract = fields.Many2One('real_estate.contract', 'Contract',
+        readonly=True)
+
+    term = fields.Many2One('real_estate.contract.term', 'Term',
+        readonly=True)
+
+    base_object = fields.Many2One('real_estate.base_object', 'Object',
+        readonly=True)
+
+    billing_unit = fields.Many2One('real_estate.billing_unit', 'Billing Unit',
+        readonly=True)
+
+    settlement_unit = fields.Many2One('real_estate.settlement_unit',
+        'Settlement Unit', readonly=True)

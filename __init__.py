@@ -69,6 +69,7 @@ def register():
         invoice.Invoice,
         invoice.InvoiceLine,
         invoice.AccountMoveLine,
+        invoice.GeneralLedgerLine,
         account_configuration.AccountConfigurationRealEstate,
         account_configuration.AccountConfiguration,
         billing_unit.CostCategoryGroup,
