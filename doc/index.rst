@@ -457,6 +457,18 @@ Contract Management
    - ``add_log`` appends timestamped ``ContractLog`` entries
    - ``next_item_sequence`` / ``next_term_sequence`` auto-increment helpers
 
+   ``settlement_units`` (Function field, ``get_settlement_units``)
+      The contract's *last valid* settlement units: settlement units of the
+      property's billing units whose objects overlap with the objects
+      assigned to this contract via its items. Billing units are restricted
+      to the property's ``next_billing_start_date`` (the earliest non-billed
+      billing unit start date); if the property has none set, the most
+      recently ``billed`` period is used instead. Used by
+      ``get_cost_shares`` (cost shares of these settlement units belonging
+      to the contract) and by ``real_estate.contract.annex4.report`` for the
+      Anlage 4 print (see *Reports* below) — the report intentionally reuses
+      this field instead of re-deriving the billing unit itself.
+
    **Cancellation:** the *Cancel* button transitions the contract to
    *Cancelled*.  Before the transition:
 
@@ -557,6 +569,12 @@ Operating Cost Settlement
    Annual (or period) operating cost settlement for one property.
 
    *Workflow:* Draft → Approved → Selection → Value Share → Ready for Billing → Billed
+
+   ``external_billing``
+      Boolean flag. When enabled, every settlement unit of the billing unit
+      is forced to ``allocation_rule = allocation_from_external_billing``
+      (see ``real_estate.settlement_unit`` below) and costs are entered
+      manually instead of being computed internally.
 
    Two calculation methods:
 
@@ -730,6 +748,13 @@ Operating Cost Settlement
       ``value_share`` = ``time_share / time_total``
       (full period = 1.0, half period = 0.5, etc.).
 
+   ``allocation_from_external_billing``
+      No internal calculation; ``planned_costs``/``actual_costs`` are entered
+      manually on the cost share. Automatically set on every settlement unit
+      of a billing unit when that billing unit's ``external_billing`` flag is
+      enabled (see ``real_estate.billing_unit`` below); the settlement unit's
+      ``allocation_rule`` then becomes read-only.
+
    Vacancy handling: unoccupied periods can be charged to the owner or left
    unallocated.
 
@@ -753,6 +778,13 @@ Operating Cost Settlement
    ``error_message`` describes the problem; entries set by
    ``compute_settlement_result`` carry a ``[draft]`` prefix and are
    automatically cleared on the next successful re-run.
+
+   ``allocation_rule`` / ``external_billing`` (Function fields, mirrored)
+      Mirrored from the parent ``settlement_unit``.
+      ``planned_costs``/``actual_costs`` are only editable
+      (``readonly`` otherwise) when ``external_billing`` is set, i.e. for
+      cost shares of a settlement unit with
+      ``allocation_rule = allocation_from_external_billing``.
 
 ``real_estate.settlement_result``  (``settlement_result.py``)
    Final settlement record per contract (or object) and billing unit.
@@ -784,11 +816,30 @@ Extensions to Core Modules
    ``account_invoice.invoice_view_form``).
 
 ``account.invoice.line``  (``invoice.py``)
-   Adds a ``term`` Many2One field linking invoice lines to the
-   ``ContractTerm`` that generated them.
+   Adds real-estate assignment fields, gated by ``assignment_control``
+   (Selection: *All*, ``contract``, ``operating_costs``,
+   ``settlement_result_contract``, ``settlement_result_vacant`` — controls
+   which of the fields below are visible/required for a given line):
 
-``account.move.line``  (``invoice.py``)
-   Extended list view to include contract and term context for journal entries.
+   - ``contract`` / ``term`` — the originating ``real_estate.contract`` /
+     ``ContractTerm``
+   - ``base_object`` — the real-estate object the line relates to
+   - ``billing_unit`` / ``settlement_unit`` — for operating-cost billing lines
+   - ``property`` (Function) — derived from ``billing_unit``/``settlement_unit``
+   - ``service_period_from`` / ``service_period_to`` — billed service period
+   - ``estg_35a`` (Selection) — German §35a EStG tax-deduction category
+     (household services / craftsmen services)
+   - ``invoice_date``, ``tax_amount``, ``total_amount`` (Function fields)
+
+   Indexed on ``contract``, ``term``, ``settlement_unit``, ``billing_unit``.
+
+``account.move.line``  (``invoice.py``, class ``AccountMoveLine``)
+   Mirrors the same real-estate fields as ``account.invoice.line`` above
+   (``assignment_control``, ``contract``, ``term``, ``base_object``,
+   ``billing_unit``, ``settlement_unit``, ``property``) directly on the
+   journal entry line, so postings can be traced/filtered without going
+   through the invoice line. Extended list view shows this context for
+   journal entries.
 
 ``account.general_ledger.line``  (``invoice.py``, class ``GeneralLedgerLine``)
    Adds ``contract``, ``term``, ``base_object``, ``billing_unit``, and
@@ -903,21 +954,30 @@ Wizards
 Reports
 =======
 
-HTML templates are located in ``report/``.
+ODT templates (OpenDocument Text) are located in ``report/`` and rendered via
+Genshi/relatorio; ``template_extension`` on the ``ir.action.report`` record is
+``odt``. Values are inserted with ``text:span py:content="..."`` rather than
+literal ``${...}`` interpolation (which relatorio escapes in ODT text), and
+control flow (``py:if``/``py:for``/``py:choose``) is written as attributes on
+the surrounding ODF elements. Superseded ``.html`` versions of these templates
+remain in ``report/`` for reference but are no longer registered.
 
 ``real_estate.contract.report``  (``contract_report.py``)
    General contract report.
-   Templates: ``contract_en.html``, ``contract_letter_de.html``.
+   Templates: ``contract_en.odt``, ``contract_letter_de.odt``.
 
 ``real_estate.contract.annex4.report``  (``contract_report.py``)
    Annex 4 – Betriebskostenaufstellung.
-   Template: ``anlage4_contract_de.html``.
+   Template: ``anlage4_contract_de.odt``.
    Renders grouped operating cost positions with BetrKV paragraph references
-   and allocation method labels.
+   and allocation method labels, sourced from the contract's own
+   ``settlement_units`` field (see ``real_estate.contract`` below) rather than
+   re-deriving the billing unit independently. Allocation labels are
+   translatable messages (``real_estate.msg_allocation_*`` in ``message.xml``).
 
 ``real_estate.base_object.report``  (``base_object.py``)
    Fact sheet for a property or object.
-   Template: ``fact_sheet.html``.
+   Template: ``fact_sheet.odt``.
 
 
 Accounting / SKR04

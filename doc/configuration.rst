@@ -36,22 +36,25 @@ Account Configuration
 =====================
 
 Open *Accounting → Configuration → Configuration* and fill in the
-real-estate-specific default accounts (added by this module):
+real-estate-specific defaults (added by this module via
+``account_configuration.py``, model ``account.configuration.real_estate``):
 
-``Account for operating cost — actual costs``
-   The expense account where actual operating costs are booked when the
-   annual billing creates the corresponding journal entry (e.g. 4120).
+``Vacancy Cost Account`` (``re_account_allocation_by_owner``)
+   Account used for direct GL postings of vacancy settlement results
+   (cost shares with no contract, i.e. the owner's share of unoccupied
+   periods) — both the debit and credit side of the posting.
 
-``Account for operating cost — advance payments``
-   The revenue account against which tenant advance payments are reversed
-   during billing (e.g. 4120 or a dedicated sub-account).
+``Operating Cost Settlement Journal`` (``re_journal_billing``)
+   Journal used for the vacancy GL postings above.
 
-``Account for operating cost — owner allocation``
-   The account used for the owner's share of costs in WEG billing
-   (e.g. a neutral clearing account).
+``Operating Cost Billing Payment Term`` (``re_payment_term_billing``)
+   Default payment term for operating cost settlement invoices, used
+   whenever the contract itself has no payment term set.
 
-These three accounts are required before the *Billing* step of a billing
-unit can be executed.
+``Vacancy Cost Account`` and ``Operating Cost Settlement Journal`` are
+required before vacancy results can be billed (see
+``BillingUnit.billing_wizard`` / ``billing`` in ``billing_unit.py``); tenant
+invoices are unaffected and use the contract's own accounts/journal.
 
 
 Use Classes **[auto]**
