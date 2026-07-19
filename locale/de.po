@@ -613,7 +613,7 @@ msgstr "Buchungen"
 
 msgctxt "field:real_estate.billing_unit,name:"
 msgid "Name"
-msgstr "Name Export"
+msgstr "Name"
 
 msgctxt "field:real_estate.billing_unit,planned_costs:"
 msgid "Planned Costs"
@@ -885,7 +885,7 @@ msgstr "Buchungszeilen"
 
 msgctxt "field:real_estate.contract,name:"
 msgid "Name"
-msgstr "Name Export"
+msgstr "Name"
 
 msgctxt "field:real_estate.contract,next_item_sequence:"
 msgid "Next Item Sequence"
@@ -1017,7 +1017,7 @@ msgstr "Zeilenzähler"
 
 msgctxt "field:real_estate.contract.account_contract,name:"
 msgid "Name"
-msgstr "Name Export"
+msgstr "Name"
 
 msgctxt "field:real_estate.contract.account_contract,party:"
 msgid "Party"
@@ -1173,7 +1173,7 @@ msgstr "Bemessungen"
 
 msgctxt "field:real_estate.contract.item,name:"
 msgid "Name"
-msgstr "Name Export"
+msgstr "Name"
 
 msgctxt "field:real_estate.contract.item,objects:"
 msgid "Objects"
@@ -1349,7 +1349,7 @@ msgstr "Rhythmus monatlich"
 
 msgctxt "field:real_estate.contract.term,name:"
 msgid "Name"
-msgstr "Name Export"
+msgstr "Name"
 
 msgctxt "field:real_estate.contract.term,next_document_date:"
 msgid "Next Document Date"
@@ -1501,7 +1501,7 @@ msgstr "Status Rechnung"
 
 msgctxt "field:real_estate.contract.term.cash_flow,name:"
 msgid "Name"
-msgstr "Name Export"
+msgstr "Name"
 
 msgctxt "field:real_estate.contract.term.cash_flow,posting_date:"
 msgid "Posting Date"
@@ -1625,7 +1625,7 @@ msgstr "Rhythmus monatlich"
 
 msgctxt "field:real_estate.contract.term.type,name:"
 msgid "Name"
-msgstr "Name Export"
+msgstr "Name"
 
 msgctxt "field:real_estate.contract.term.type,rhythm:"
 msgid "Rhythm (count)"
@@ -1677,7 +1677,7 @@ msgstr "Mark"
 
 msgctxt "field:real_estate.contract.type,name:"
 msgid "Name"
-msgstr "Name Export"
+msgstr "Name"
 
 msgctxt "field:real_estate.contract.type,occupancy:"
 msgid "Occupancy"
@@ -1733,7 +1733,7 @@ msgstr "Steuer"
 
 msgctxt "field:real_estate.cost_category_group,name:"
 msgid "Name"
-msgstr "Name Export"
+msgstr "Name"
 
 msgctxt "field:real_estate.cost_share,actual_costs:"
 msgid "Actual Costs"
@@ -1761,7 +1761,7 @@ msgstr "Fehlermeldung"
 
 msgctxt "field:real_estate.cost_share,name:"
 msgid "Name"
-msgstr "Name Export"
+msgstr "Name"
 
 msgctxt "field:real_estate.cost_share,planned_costs:"
 msgid "Planned Costs"
@@ -1837,7 +1837,7 @@ msgstr "Bemerkung"
 
 msgctxt "field:real_estate.cost_type,name:"
 msgid "Name"
-msgstr "Name Export"
+msgstr "Name"
 
 msgctxt "field:real_estate.cost_type,no_print:"
 msgid "No Print"
@@ -1925,7 +1925,7 @@ msgstr "Bemessungstype"
 
 msgctxt "field:real_estate.measurement,name:"
 msgid "Name"
-msgstr "Name Export"
+msgstr "Name"
 
 msgctxt "field:real_estate.measurement,no_print:"
 msgid "No Print"
@@ -1961,7 +1961,7 @@ msgstr "Bemessungsgruppe"
 
 msgctxt "field:real_estate.measurement.type,name:"
 msgid "Name"
-msgstr "Name Export"
+msgstr "Name"
 
 msgctxt "field:real_estate.measurement.type,no_print:"
 msgid "No Print"
@@ -2005,7 +2005,7 @@ msgstr "Zähler ID"
 
 msgctxt "field:real_estate.meter_reading,name:"
 msgid "Name"
-msgstr "Name Export"
+msgstr "Name"
 
 msgctxt "field:real_estate.meter_reading,reading_date:"
 msgid "Reading Date"
@@ -2053,7 +2053,7 @@ msgstr "Objekt"
 
 msgctxt "field:real_estate.object_party,name:"
 msgid "Name"
-msgstr "Name Export"
+msgstr "Name"
 
 msgctxt "field:real_estate.object_party,party:"
 msgid "Party"
@@ -2081,7 +2081,7 @@ msgstr "Default"
 
 msgctxt "field:real_estate.object_party.role,name:"
 msgid "Name"
-msgstr "Name Export"
+msgstr "Name"
 
 msgctxt "field:real_estate.object_party.role,types:"
 msgid "Types"
@@ -2125,7 +2125,7 @@ msgstr "Rechnung"
 
 msgctxt "field:real_estate.settlement_result,name:"
 msgid "Name"
-msgstr "Name Export"
+msgstr "Name"
 
 msgctxt "field:real_estate.settlement_result,planned_costs:"
 msgid "Planned Costs"
@@ -2237,7 +2237,7 @@ msgstr "Zähler"
 
 msgctxt "field:real_estate.settlement_unit,name:"
 msgid "Name"
-msgstr "Name Export"
+msgstr "Name"
 
 msgctxt "field:real_estate.settlement_unit,objects:"
 msgid "Objects"
@@ -3449,6 +3449,10 @@ msgstr "Abrechnungseinheit"
 msgctxt "model:ir.ui.menu,name:menu_billing_unit_log"
 msgid "Billing Unit Log"
 msgstr "Abrechnungseinheit Protokoll"
+
+msgctxt "model:ir.ui.menu,name:menu_operation_costs_billing"
+msgid "Operation Costs Billing"
+msgstr "Nebenkostenabrechnung"
 
 msgctxt "model:ir.ui.menu,name:menu_billing_unit_moves"
 msgid "Billing Unit Moves"
