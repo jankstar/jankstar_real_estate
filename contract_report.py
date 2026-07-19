@@ -2,7 +2,6 @@
 import re
 import datetime
 
-from trytond.pool import Pool
 from trytond.report import Report
 
 
@@ -70,6 +69,8 @@ class ContractAnnex4Report(Report):
             return 'nach Verbrauch (HeizkostenV)'
         elif rule == 'allocation_per_rental_unit':
             return 'je Wohneinheit'
+        elif rule == 'allocation_from_external_billing':
+            return 'externe Abrechnung (Verbrauch)'
         return '—'
 
     @classmethod
@@ -82,42 +83,35 @@ class ContractAnnex4Report(Report):
     @classmethod
     def get_context(cls, records, header, data):
         context = super().get_context(records, header, data)
-        pool = Pool()
-        BillingUnit = pool.get('real_estate.billing_unit')
         record = context['record']
         context['_format'] = cls._format
 
         bk_groups = []
-        if record.property:
-            billing_units = BillingUnit.search([
-                ('property', '=', record.property.id),
-                ('state', 'not in', ['draft', 'billed']),
-            ], order=[('start_date', 'DESC')], limit=1)
+        # use the contract's own settlement_units field (last valid
+        # settlement units, see Contract.get_settlement_units) instead of
+        # re-deriving the billing unit here
+        sus = [
+            su for su in record.settlement_units
+            if su.type and not su.type.no_print
+        ]
+        sus.sort(key=lambda su: (
+            su.type.category_group.sequence
+            if su.type.category_group else 9999,
+            su.type.sequence or 0,
+        ))
 
-            if billing_units:
-                bu = billing_units[0]
-                sus = [
-                    su for su in bu.settlement_units
-                    if su.type and not su.type.no_print
-                ]
-                sus.sort(key=lambda su: (
-                    su.type.category_group.sequence
-                    if su.type.category_group else 9999,
-                    su.type.sequence or 0,
-                ))
-
-                current_grp_name = None
-                for su in sus:
-                    grp = su.type.category_group
-                    grp_name = grp.name if grp else '(Sonstige)'
-                    if grp_name != current_grp_name:
-                        bk_groups.append({'name': grp_name, 'rows': []})
-                        current_grp_name = grp_name
-                    bk_groups[-1]['rows'].append({
-                        'betrKV_nr': cls._betrKV_nr(su.type.comment),
-                        'name': su.type.name or '',
-                        'allocation': cls._allocation_label(su),
-                    })
+        current_grp_name = None
+        for su in sus:
+            grp = su.type.category_group
+            grp_name = grp.name if grp else '(Sonstige)'
+            if grp_name != current_grp_name:
+                bk_groups.append({'name': grp_name, 'rows': []})
+                current_grp_name = grp_name
+            bk_groups[-1]['rows'].append({
+                'betrKV_nr': cls._betrKV_nr(su.type.comment),
+                'name': su.type.name or '',
+                'allocation': cls._allocation_label(su),
+            })
 
         context['bk_groups'] = bk_groups
         return context
