@@ -109,6 +109,13 @@
             <field name="perm_create" eval="False"/>
             <field name="perm_delete" eval="False"/>
         </record>
+        <record model="ir.model.access" id="access_object_party_default">
+            <field name="model">real_estate.object_party</field>
+            <field name="perm_read" eval="False"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
 
         <!-- ObjectPartyRole: Configuration → Admin only + beide Gruppen read -->
         <record model="ir.model.access" id="access_object_party_role_admin">
@@ -139,6 +146,13 @@
             <field name="model">real_estate.object_party.role</field>
             <field name="group" ref="group_real_estate_billing"/>
             <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_object_party_role_default">
+            <field name="model">real_estate.object_party.role</field>
+            <field name="perm_read" eval="False"/>
             <field name="perm_write" eval="False"/>
             <field name="perm_create" eval="False"/>
             <field name="perm_delete" eval="False"/>

@@ -111,21 +111,21 @@ class ObjectParty(ModelSQL, ModelView, metaclass=PoolMeta):
             return f"{self.party.name} ({self.role.name})"
         return f" - "
     
-    @fields.depends('base_object', 'type', 'valid_from')
+    @fields.depends('base_object', 'type', 'valid_from', '_parent_base_object.type')
     def on_change_base_object(self, name=None):
         logger.debug("on_change_base_object %s", self.base_object)
         if self.base_object != None:
             self.type = self.base_object.type
 
-    
-    @fields.depends('base_object')
+
+    @fields.depends('base_object', '_parent_base_object.type')
     def on_change_with_type(self, name=None):
         if self.base_object:
             return self.base_object.type
         return None
     
-    @fields.depends('base_object', 'valid_from')
-    def on_change_with_start_date(self, name=None):
+    @fields.depends('base_object', 'valid_from', '_parent_base_object.start_date')
+    def on_change_with_valid_from(self, name=None):
         if self.base_object != None and self.valid_from == None and hasattr(self.base_object, 'start_date'):
             return self.base_object.start_date
         return self.valid_from

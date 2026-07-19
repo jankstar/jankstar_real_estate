@@ -22,7 +22,8 @@ Module Dependencies
 ===================
 
 ``ir``, ``res``, ``company``, ``party``, ``product``, ``currency``, ``country``,
-``account``, ``account_invoice``, ``account_deposit``, ``account_payment_clearing``
+``account``, ``account_invoice``, ``account_deposit``, ``account_payment_clearing``,
+``account_tax_non_deductible``
 
 
 Installation

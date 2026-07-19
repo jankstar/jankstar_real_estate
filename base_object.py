@@ -121,13 +121,13 @@ class BaseObject(Workflow, DeactivableMixin, re_sequence_ordered(), tree(separat
             sort=False)
     
     type_of_use = fields.Selection([
+            ('', ''),
             ('residential', 'Residential'),
             ('commercial', 'Commercial'),
             ('property', 'Residential property'),
             ('internal', 'Internal Use'),
-            (None, 'None'),
             ],
-        "Type of Use", 
+        "Type of Use",
         translate=True,
         states={
             'invisible': Eval('type') != 'object',
@@ -328,14 +328,14 @@ class BaseObject(Workflow, DeactivableMixin, re_sequence_ordered(), tree(separat
 
     meter_id = fields.Function(fields.Char("Meter ID"), 
         'on_change_with_meter_id')
-    meter_last_value = fields.Function(Quantitative ("Last Value", unit='meter_unit',digits='meter_unit',), 
-        'on_change_with_last_meter_value')
-    meter_last_reading_date = fields.Function(fields.Date("Last Reading Date"), 
-        'on_change_with_last_meter_reading_date')
-    meter_last_reading_user = fields.Function(fields.Many2One('res.user', "Last Reading User"), 
-        'on_change_with_last_meter_reading_user')
-    meter_last_consumption = fields.Function(Quantitative("Last Consumption", unit='meter_unit',digits='meter_unit',), 
-        'on_change_with_last_meter_consumption')
+    meter_last_value = fields.Function(Quantitative ("Last Value", unit='meter_unit',digits='meter_unit',),
+        'on_change_with_meter_last_value')
+    meter_last_reading_date = fields.Function(fields.Date("Last Reading Date"),
+        'on_change_with_meter_last_reading_date')
+    meter_last_reading_user = fields.Function(fields.Many2One('res.user', "Last Reading User"),
+        'on_change_with_meter_last_reading_user')
+    meter_last_consumption = fields.Function(Quantitative("Last Consumption", unit='meter_unit',digits='meter_unit',),
+        'on_change_with_meter_last_consumption')
     
     meter_readings = fields.One2Many('real_estate.meter_reading', 'base_object', 'Meter Readings',
         domain=[('base_object', '=', Eval('id', -1))],
@@ -433,6 +433,30 @@ class BaseObject(Workflow, DeactivableMixin, re_sequence_ordered(), tree(separat
                     'depends': ['type', 'e_type', 'state'],
                     },
                 })
+
+    @classmethod
+    @ModelView.button
+    @Workflow.transition('draft')
+    def draft(cls, base_objects):
+        cls.write(list(base_objects), {'state': 'draft'})
+
+    @classmethod
+    @ModelView.button
+    @Workflow.transition('approved')
+    def approved(cls, base_objects):
+        cls.write(list(base_objects), {'state': 'approved'})
+
+    @classmethod
+    @ModelView.button
+    @Workflow.transition('locked')
+    def locked(cls, base_objects):
+        cls.write(list(base_objects), {'state': 'locked'})
+
+    @classmethod
+    @ModelView.button
+    @Workflow.transition('deactivated')
+    def deactivated(cls, base_objects):
+        cls.write(list(base_objects), {'state': 'deactivated'})
 
     @classmethod
     @ModelView.button
@@ -706,25 +730,25 @@ class BaseObject(Workflow, DeactivableMixin, re_sequence_ordered(), tree(separat
         if last_reading:
             return last_reading[0].meter_id  
             
-    def on_change_with_last_meter_value(self, name=None):
+    def on_change_with_meter_last_value(self, name=None):
         # get last meter id
         MeterReading = Pool().get('real_estate.meter_reading')
         last_reading = MeterReading.search([
             ('base_object', '=', self.id),
             ], order=[('reading_date', 'DESC'),('m_type', 'ASC')], limit=1)
         if last_reading:
-            return last_reading[0].value  
-    
-    def on_change_with_last_meter_reading_date(self, name=None):
+            return last_reading[0].value
+
+    def on_change_with_meter_last_reading_date(self, name=None):
         # get last meter id
         MeterReading = Pool().get('real_estate.meter_reading')
         last_reading = MeterReading.search([
             ('base_object', '=', self.id),
             ], order=[('reading_date', 'DESC'),('m_type', 'ASC')], limit=1)
         if last_reading:
-            return last_reading[0].reading_date  
-    
-    def on_change_with_last_meter_reading_user(self, name=None):
+            return last_reading[0].reading_date
+
+    def on_change_with_meter_last_reading_user(self, name=None):
         # get last meter id
         MeterReading = Pool().get('real_estate.meter_reading')
         last_reading = MeterReading.search([
@@ -732,8 +756,8 @@ class BaseObject(Workflow, DeactivableMixin, re_sequence_ordered(), tree(separat
             ], order=[('reading_date', 'DESC'),('m_type', 'ASC')], limit=1)
         if last_reading:
             return last_reading[0].reading_user
-    
-    def on_change_with_last_meter_consumption(self, name=None):
+
+    def on_change_with_meter_last_consumption(self, name=None):
         # get last meter id
         MeterReading = Pool().get('real_estate.meter_reading')
         last_reading = MeterReading.search([
@@ -759,20 +783,23 @@ class BaseObject(Workflow, DeactivableMixin, re_sequence_ordered(), tree(separat
             return self.use_class.has_parking_nr
         return False
 
-    @fields.depends('sequence', 'parent')
+    @fields.depends('sequence', 'parent', '_parent_parent.object_number')
     def on_change_with_object_number(self, name=None):
         if self.parent != None and self.parent.object_number != None:
             return f"{self.parent.object_number}/{self.sequence}"
         return f"{self.sequence}"
 
-    @fields.depends('parent', 'start_date')
+    @fields.depends('parent', 'start_date', '_parent_parent.start_date')
     def on_change_with_start_date(self, name=None):
         if self.parent != None and self.start_date == None and hasattr(self.parent, 'start_date'):
             return self.parent.start_date
         return self.start_date
-    
 
-    @fields.depends('parent', 'start_date', 'type', 'address', 'state')
+
+    @fields.depends(
+        'parent', 'start_date', 'type', 'address', 'state',
+        '_parent_parent.start_date', '_parent_parent.type',
+        '_parent_parent.address', '_parent_parent.state')
     def on_change_parent(self, name=None):
         if self.parent != None :
             if self.start_date == None:
@@ -793,7 +820,7 @@ class BaseObject(Workflow, DeactivableMixin, re_sequence_ordered(), tree(separat
             if self.state == None:
                 self.state = self.parent.state 
 
-    @fields.depends('parent', 'type')
+    @fields.depends('parent', 'type', '_parent_parent.type')
     def on_change_with_type(self, name=None):
         if self.type == None:
             if self.parent != None and hasattr(self.parent, 'type'):
@@ -819,13 +846,13 @@ class BaseObject(Workflow, DeactivableMixin, re_sequence_ordered(), tree(separat
         ]
         return min(dates) if dates else None
 
-    @fields.depends('parent', 'address')
+    @fields.depends('parent', 'address', '_parent_parent.address')
     def on_change_with_address(self, name=None):
         if self.parent != None and self.address == None and  hasattr(self.parent, 'address'):
             return self.parent.address
         return self.address
 
-    @fields.depends('parent', 'type')
+    @fields.depends('parent', 'type', '_parent_parent.parent')
     def on_change_with_property(self, name=None):
         if self.type == 'property':
             return None
@@ -1150,7 +1177,9 @@ class MeterReading(ModelSQL, ModelView):
     __name__ = 'real_estate.meter_reading'
 
 
-    name  = fields.Function(fields.Char("Name"), 'on_change_with_name')
+    name  = fields.Function(
+        fields.Char("Name"), 'on_change_with_name',
+        searcher='compute_name_search')
 
     m_type = fields.Selection([
             ('initial', 'initial, installation'),
@@ -1178,7 +1207,7 @@ class MeterReading(ModelSQL, ModelView):
     def default_company(cls):
         return Transaction().context.get('company')
 
-    @fields.depends('base_object')
+    @fields.depends('base_object', '_parent_base_object.company')
     def on_change_base_object(self):
         if self.base_object and self.base_object.company:
             self.company = self.base_object.company
@@ -1195,18 +1224,31 @@ class MeterReading(ModelSQL, ModelView):
     def default_m_type(cls):
         return 'reading'
 
-    @fields.depends('base_object')
+    @fields.depends('base_object', '_parent_base_object.meter_unit')
     def on_change_with_unit(self, name=None):
         if self.base_object and self.base_object.meter_unit:
             return self.base_object.meter_unit.id
         return None
-    
-    @fields.depends('base_object', 'reading_date', 'value', 'unit')
+
+    @fields.depends(
+        'base_object', 'reading_date', 'value', 'unit',
+        '_parent_base_object.compute_name')
     def on_change_with_name(self, name=None):
         return f"{self.base_object.compute_name if self.base_object else '?'}" +\
               f" - {self.reading_date}: {self.value} {self.unit.symbol if self.unit else ''}"
 
-    @fields.depends('base_object', 'reading_date','meter_id')
+    @classmethod
+    def compute_name_search(cls, name, clause):
+        if clause[1].startswith('!') or clause[1].startswith('not '):
+            bool_op = 'AND'
+        else:
+            bool_op = 'OR'
+        return [bool_op,
+            ('base_object.name',) + tuple(clause[1:]),
+            ('meter_id',) + tuple(clause[1:]),
+            ]
+
+    @fields.depends('base_object', 'reading_date', 'meter_id', '_parent_base_object.id')
     def on_change_with_meter_id(self, name=None):
         if self.meter_id:
              return self.meter_id
@@ -1221,7 +1263,9 @@ class MeterReading(ModelSQL, ModelView):
                 return last_reading[0].meter_id         
         return None
     
-    @fields.depends('base_object', 'reading_date', 'value', 'meter_id')
+    @fields.depends(
+        'base_object', 'reading_date', 'value', 'meter_id',
+        '_parent_base_object.meter_is_counter')
     def on_change_with_consumption(self, name=None):
         if self.base_object and self.base_object.meter_is_counter:
             # get last reading
@@ -1237,7 +1281,7 @@ class MeterReading(ModelSQL, ModelView):
 
         return 0
 
-    @fields.depends('base_object', 'value')
+    @fields.depends('base_object', 'value', '_parent_base_object.meter_no_decimals')
     def on_change_value(self):
         if (self.base_object and self.base_object.meter_no_decimals
                 and self.value is not None):

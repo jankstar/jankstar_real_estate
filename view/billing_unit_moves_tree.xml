@@ -1,14 +1,14 @@
 <?xml version="1.0"?>
 <tree creatable="0">
-    <field name="billing_unit" optional="show"/>
-    <field name="property" optional="show"/>
-    <field name="contract" optional="show"/>
-    <field name="settlement_result" optional="hide"/>
-    <field name="invoice" optional="show"/>
-    <field name="amount" optional="show" sum="1"/>
-    <field name="currency" optional="hide"/>
-    <field name="moves_advanced_payment" optional="hide"/>
-    <field name="moves_actual_costs" optional="hide"/>
-    <field name="moves_alloc_by_owner" optional="hide"/>
-    <field name="billing_run_id" optional="hide"/>
+    <field name="billing_unit" optional="0"/>
+    <field name="property" optional="0"/>
+    <field name="contract" optional="0"/>
+    <field name="settlement_result" optional="1"/>
+    <field name="invoice" optional="0"/>
+    <field name="amount" optional="0" sum="1"/>
+    <field name="currency" optional="1"/>
+    <field name="moves_advanced_payment" optional="1"/>
+    <field name="moves_actual_costs" optional="1"/>
+    <field name="moves_alloc_by_owner" optional="1"/>
+    <field name="billing_run_id" optional="1"/>
 </tree>

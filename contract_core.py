@@ -545,7 +545,7 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
 
     cash_flow_draft = fields.Function(
         fields.One2Many('real_estate.contract.term.cash_flow', None, 'Cash Flow draft', readonly=True),
-        'on_change_with_cash_flow', setter='set_cash_flow')
+        'on_change_with_cash_flow_draft', setter='set_cash_flow')
 
     cash_flow_pending = fields.One2Many('account.invoice', 'contract', 'Cash Flow Pending',
         filter=[('state', '=', 'posted')],
@@ -567,11 +567,11 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
 
     cost_shares = fields.Function(
         fields.One2Many('real_estate.cost_share', None, 'Cost Shares', readonly=True),
-        'get_cost_shares')
+        'get_cost_shares', setter='set_cost_shares')
 
     settlement_units = fields.Function(
         fields.One2Many('real_estate.settlement_unit', None, 'Settlement Units', readonly=True),
-        'get_settlement_units')
+        'get_settlement_units', setter='set_settlement_units')
 
     _states_termination = {
             'invisible': ((Eval('state') != 'terminated')),
@@ -890,7 +890,7 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
         return self.end_date
 
     @fields.depends('terms')
-    def on_change_with_cash_flow(self, name=None):
+    def on_change_with_cash_flow_draft(self, name=None):
         def _is_draft(cf):
             if not cf.invoice_line:
                 return True
@@ -945,9 +945,9 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
     def on_change_with_currency(self, name=None):
         return self.company.currency if self.company else None
 
-    @fields.depends('c_type', 'property', 'company')
+    @fields.depends('c_type', 'property', 'company', 'sequence')
     def on_change_with_sequence(self, name=None):
-        if (self.sequence is not None and self.sequence != 0):
+        if (getattr(self, 'sequence', None) is not None and self.sequence != 0):
             return self.sequence
         if self.c_type is not None and self.property is not None and self.company is not None:
             contracts = Pool().get('real_estate.contract').search([
@@ -994,6 +994,14 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
 
     @classmethod
     def set_measurements(cls, record, name, value):
+        pass
+
+    @classmethod
+    def set_cost_shares(cls, records, name, value):
+        pass
+
+    @classmethod
+    def set_settlement_units(cls, records, name, value):
         pass
 
     @classmethod

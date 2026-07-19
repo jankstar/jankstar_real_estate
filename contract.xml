@@ -354,6 +354,32 @@
         <field name="rule_group" ref="rule_group_contract_companies"/>
     </record>
 
+    <record model="ir.model.button" id="contract_running_button">
+        <field name="model">real_estate.contract</field>
+        <field name="name">running</field>
+        <field name="string">Running</field>
+    </record>
+    <record model="ir.model.button" id="contract_terminate_button">
+        <field name="model">real_estate.contract</field>
+        <field name="name">terminate</field>
+        <field name="string">Terminate</field>
+    </record>
+    <record model="ir.model.button" id="contract_cancel_button">
+        <field name="model">real_estate.contract</field>
+        <field name="name">cancel</field>
+        <field name="string">Cancel</field>
+    </record>
+    <record model="ir.model.button" id="contract_change_partner_button">
+        <field name="model">real_estate.contract</field>
+        <field name="name">change_partner</field>
+        <field name="string">Change Partner</field>
+    </record>
+    <record model="ir.model.button" id="contract_open_party_ledger_button">
+        <field name="model">real_estate.contract</field>
+        <field name="name">open_party_ledger</field>
+        <field name="string">Party Ledger</field>
+    </record>
+
     <!-- Contract: Contract group full access, Object group read -->
     <record model="ir.model.access" id="access_contract_user">
         <field name="model">real_estate.contract</field>
@@ -387,6 +413,13 @@
         <field name="perm_create" eval="False"/>
         <field name="perm_delete" eval="False"/>
     </record>
+        <record model="ir.model.access" id="access_contract_default">
+            <field name="model">real_estate.contract</field>
+            <field name="perm_read" eval="False"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
 
     <!-- ContractTerm -->
     <record model="ir.model.access" id="access_contract_term_contract_group">
@@ -421,6 +454,13 @@
         <field name="perm_create" eval="False"/>
         <field name="perm_delete" eval="False"/>
     </record>
+        <record model="ir.model.access" id="access_contract_term_default">
+            <field name="model">real_estate.contract.term</field>
+            <field name="perm_read" eval="False"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
 
     <!-- ContractTermTax -->
     <record model="ir.model.access" id="access_contract_term_tax_contract_group">
@@ -455,6 +495,13 @@
         <field name="perm_create" eval="False"/>
         <field name="perm_delete" eval="False"/>
     </record>
+        <record model="ir.model.access" id="access_contract_term_tax_default">
+            <field name="model">real_estate.contract.term.tax</field>
+            <field name="perm_read" eval="False"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
 
     <!-- ContractItem -->
     <record model="ir.model.access" id="access_contract_item_contract_group">
@@ -489,6 +536,13 @@
         <field name="perm_create" eval="False"/>
         <field name="perm_delete" eval="False"/>
     </record>
+        <record model="ir.model.access" id="access_contract_item_default">
+            <field name="model">real_estate.contract.item</field>
+            <field name="perm_read" eval="False"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
 
     <!-- ContractItemObject -->
     <record model="ir.model.access" id="access_contract_item_object_admin">
@@ -523,6 +577,13 @@
         <field name="perm_create" eval="False"/>
         <field name="perm_delete" eval="False"/>
     </record>
+        <record model="ir.model.access" id="access_contract_item_object_default">
+            <field name="model">real_estate.contract.item.object</field>
+            <field name="perm_read" eval="False"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
 
     <!-- ContractLog -->
     <record model="ir.model.access" id="access_contract_log_contract_group">
@@ -651,6 +712,13 @@
         <field name="perm_create" eval="False"/>
         <field name="perm_delete" eval="False"/>
     </record>
+        <record model="ir.model.access" id="access_contract_type_default">
+            <field name="model">real_estate.contract.type</field>
+            <field name="perm_read" eval="False"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
 
     <!-- ContractTermType: Configuration → Admin only + beide Gruppen read -->
     <record model="ir.model.access" id="access_contract_term_type_contract_group">
@@ -677,6 +745,13 @@
         <field name="perm_create" eval="False"/>
         <field name="perm_delete" eval="False"/>
     </record>
+        <record model="ir.model.access" id="access_contract_term_type_default">
+            <field name="model">real_estate.contract.term.type</field>
+            <field name="perm_read" eval="False"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
 
     <!-- AccountContract (internal link model) -->
     <record model="ir.model.access" id="access_contract_account_contract_contract_group">
@@ -711,6 +786,13 @@
         <field name="perm_create" eval="False"/>
         <field name="perm_delete" eval="False"/>
     </record>
+        <record model="ir.model.access" id="access_contract_account_contract_default">
+            <field name="model">real_estate.contract.account_contract</field>
+            <field name="perm_read" eval="False"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
 
     <!-- ContractTypeTax: Admin CRUD, contract read -->
     <record model="ir.model.access" id="access_contract_type_tax_admin">
@@ -729,6 +811,13 @@
         <field name="perm_create" eval="False"/>
         <field name="perm_delete" eval="False"/>
     </record>
+        <record model="ir.model.access" id="access_contract_type_tax_default">
+            <field name="model">real_estate.contract.type.tax</field>
+            <field name="perm_read" eval="False"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
 
     <record model="ir.ui.view" id="terminate_contract_view_form">
         <field name="model">real_estate.terminate_contract.start</field>
@@ -783,6 +872,13 @@
         <field name="type">tree</field>
         <field name="name">general_ledger_account_contract_list</field>
     </record>
+        <record model="ir.model.access" id="access_account_contract_default">
+            <field name="model">real_estate.account_contract</field>
+            <field name="perm_read" eval="False"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
 
     <record model="ir.action.act_window" id="act_general_ledger_account_contract_form_contract">
         <field name="name">Accounts</field>
@@ -812,6 +908,13 @@
             <field name="model">real_estate.contract.term.cash_flow</field>
             <field name="type">form</field>
             <field name="name">contract_term_cash_flow_form</field>
+        </record>
+        <record model="ir.model.access" id="access_contract_term_cash_flow_default">
+            <field name="model">real_estate.contract.term.cash_flow</field>
+            <field name="perm_read" eval="False"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
         </record>
 
         <record model="ir.ui.view" id="cash_flow_context_view_form">
@@ -881,6 +984,13 @@
             <field name="model">real_estate.contract.log</field>
             <field name="type">form</field>
             <field name="name">contract_log_form</field>
+        </record>
+        <record model="ir.model.access" id="access_contract_log_default">
+            <field name="model">real_estate.contract.log</field>
+            <field name="perm_read" eval="False"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
         </record>
 
         <record model="ir.ui.view" id="contract_log_context_view_form">

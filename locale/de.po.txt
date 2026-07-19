@@ -3392,6 +3392,42 @@ msgctxt "model:ir.message,text:msg_allocation_none"
 msgid "no allocation"
 msgstr "keine Umlage"
 
+#, python-format
+msgctxt "model:ir.message,text:msg_invoice_line_term_requires_contract"
+msgid "Term \"{term}\" is set but no contract is selected."
+msgstr "Konditionsposition \"{term}\" ist gesetzt, aber es ist kein Vertrag ausgewählt."
+
+#, python-format
+msgctxt "model:ir.message,text:msg_invoice_line_settlement_unit_requires_billing_unit"
+msgid ""
+"Settlement unit \"{settlement_unit}\" is set but the billing unit is "
+"missing or does not match (expected \"{billing_unit}\")."
+msgstr ""
+"Kostensammler \"{settlement_unit}\" ist gesetzt, aber die Abrechnungseinheit "
+"fehlt oder stimmt nicht überein (erwartet \"{billing_unit}\")."
+
+#, python-format
+msgctxt "model:ir.message,text:msg_invoice_line_object_not_in_contract"
+msgid "Object \"{object}\" does not belong to contract \"{contract}\"."
+msgstr "Objekt \"{object}\" gehört nicht zum Vertrag \"{contract}\"."
+
+msgctxt "model:ir.message,text:msg_invoice_line_billing_unit_billed_warning"
+msgid ""
+"Billing unit/settlement unit already billed. This invoice will not be "
+"considered in the settlement."
+msgstr ""
+"Abrechnungseinheit/Kostensammler bereits abgerechnet. Diese Rechnung wird "
+"nicht in der Abrechnung berücksichtigt."
+
+#, python-format
+msgctxt "model:ir.message,text:msg_invoice_line_billing_unit_billed_error"
+msgid ""
+"Cannot post: billing unit/settlement unit of line \"{line}\" is already "
+"billed. It will not be considered in the settlement."
+msgstr ""
+"Buchen nicht möglich: Abrechnungseinheit/Kostensammler der Zeile \"{line}\" "
+"ist bereits abgerechnet. Sie wird nicht in der Abrechnung berücksichtigt."
+
 
 #, python-format
 msgctxt "model:ir.message,text:msg_billing_unit_has_errors"

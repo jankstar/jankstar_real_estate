@@ -263,6 +263,13 @@
             <field name="perm_create" eval="False"/>
             <field name="perm_delete" eval="False"/>
         </record>
+        <record model="ir.model.access" id="access_cost_category_group_default">
+            <field name="model">real_estate.cost_category_group</field>
+            <field name="perm_read" eval="False"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
 
         <!-- CostType: admin+billing CRUD, contract+object read -->
         <record model="ir.model.access" id="access_cost_type_admin">
@@ -297,6 +304,49 @@
             <field name="perm_create" eval="False"/>
             <field name="perm_delete" eval="False"/>
         </record>
+        <record model="ir.model.access" id="access_cost_type_default">
+            <field name="model">real_estate.cost_type</field>
+            <field name="perm_read" eval="False"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+
+        <record model="ir.model.button" id="billing_unit_approved_button">
+            <field name="model">real_estate.billing_unit</field>
+            <field name="name">approved</field>
+            <field name="string">Approved</field>
+        </record>
+        <record model="ir.model.button" id="billing_unit_selection_button">
+            <field name="model">real_estate.billing_unit</field>
+            <field name="name">selection</field>
+            <field name="string">Selection</field>
+        </record>
+        <record model="ir.model.button" id="billing_unit_compute_value_shares_button_button">
+            <field name="model">real_estate.billing_unit</field>
+            <field name="name">compute_value_shares_button</field>
+            <field name="string">Compute Value Shares</field>
+        </record>
+        <record model="ir.model.button" id="billing_unit_compute_settlement_result_button">
+            <field name="model">real_estate.billing_unit</field>
+            <field name="name">compute_settlement_result</field>
+            <field name="string">Compute Settlement Results</field>
+        </record>
+        <record model="ir.model.button" id="billing_unit_check_ready_for_billing_button">
+            <field name="model">real_estate.billing_unit</field>
+            <field name="name">check_ready_for_billing</field>
+            <field name="string">Ready for Billing</field>
+        </record>
+        <record model="ir.model.button" id="billing_unit_billing_wizard_button">
+            <field name="model">real_estate.billing_unit</field>
+            <field name="name">billing_wizard</field>
+            <field name="string">Billing</field>
+        </record>
+        <record model="ir.model.button" id="billing_unit_cancel_button">
+            <field name="model">real_estate.billing_unit</field>
+            <field name="name">cancel</field>
+            <field name="string">Cancel Billing</field>
+        </record>
 
         <!-- BillingUnit: admin+billing CRUD, contract+object read -->
         <record model="ir.model.access" id="access_billing_unit_admin">
@@ -327,6 +377,13 @@
             <field name="model">real_estate.billing_unit</field>
             <field name="group" ref="group_real_estate_object"/>
             <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_billing_unit_default">
+            <field name="model">real_estate.billing_unit</field>
+            <field name="perm_read" eval="False"/>
             <field name="perm_write" eval="False"/>
             <field name="perm_create" eval="False"/>
             <field name="perm_delete" eval="False"/>
@@ -365,6 +422,13 @@
             <field name="perm_create" eval="False"/>
             <field name="perm_delete" eval="False"/>
         </record>
+        <record model="ir.model.access" id="access_billing_unit_log_default">
+            <field name="model">real_estate.billing_unit.log</field>
+            <field name="perm_read" eval="False"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
 
         <!-- BillingUnitMoves: admin+billing CRUD, contract+object read -->
         <record model="ir.model.access" id="access_billing_unit_moves_admin">
@@ -395,6 +459,13 @@
             <field name="model">real_estate.billing_unit.moves</field>
             <field name="group" ref="group_real_estate_object"/>
             <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_billing_unit_moves_default">
+            <field name="model">real_estate.billing_unit.moves</field>
+            <field name="perm_read" eval="False"/>
             <field name="perm_write" eval="False"/>
             <field name="perm_create" eval="False"/>
             <field name="perm_delete" eval="False"/>

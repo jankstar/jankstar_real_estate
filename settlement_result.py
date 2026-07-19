@@ -101,17 +101,17 @@ class CostShare(DeactivableMixin, ModelSQL, ModelView):
         return SettlementUnit.fields_get(
             ['allocation_rule'])['allocation_rule']['selection']
 
-    @fields.depends('settlement_unit')
+    @fields.depends('settlement_unit', '_parent_settlement_unit.allocation_rule')
     def on_change_with_allocation_rule(self, name=None):
         return self.settlement_unit.allocation_rule if self.settlement_unit else None
 
-    @fields.depends('settlement_unit')
+    @fields.depends('settlement_unit', '_parent_settlement_unit.allocation_rule')
     def on_change_with_external_billing(self, name=None):
         if self.settlement_unit:
             return self.settlement_unit.allocation_rule == 'allocation_from_external_billing'
         return False
 
-    @fields.depends('settlement_unit')
+    @fields.depends('settlement_unit', '_parent_settlement_unit.currency')
     def on_change_with_currency(self, name=None):
         return self.settlement_unit.currency if self.settlement_unit else None
 
@@ -312,11 +312,11 @@ class SettlementResult(ModelSQL, ModelView):
     def default_state():
         return 'approved'
 
-    @fields.depends('billing_unit')
+    @fields.depends('billing_unit', '_parent_billing_unit.currency')
     def on_change_with_currency(self, name=None):
         return self.billing_unit.currency if self.billing_unit else None
 
-    @fields.depends('billing_unit')
+    @fields.depends('billing_unit', '_parent_billing_unit.external_billing')
     def on_change_with_billing_unit_external_billing(self, name=None):
         if self.billing_unit:
             return bool(self.billing_unit.external_billing)

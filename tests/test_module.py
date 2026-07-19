@@ -24,6 +24,7 @@ class RealEstateTestCase(ModuleTestCase):
     "Test Real Estate module"
     module = 'real_estate'
 
+    @with_transaction()
     def test_betrkv_nr_extracts_paragraph_number(self):
         "ContractAnnex4Report._betrKV_nr extracts the '§ 2 Nr. N' reference"
         pool = Pool()

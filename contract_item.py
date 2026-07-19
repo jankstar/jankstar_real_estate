@@ -76,7 +76,7 @@ class ContractItemObject(sequence_ordered(), ModelSQL, ModelView):
                 for item in ContractItem.browse(list(item_ids)):
                     ContractItem._check_occupancy_overlap(item)
 
-    @fields.depends('item')
+    @fields.depends('item', '_parent_item.contract')
     def on_change_with_property(self, name=None):
         if self.item and self.item.contract:
             return self.item.contract.property
@@ -131,7 +131,7 @@ class ContractItem(sequence_ordered(), ModelSQL, ModelView, metaclass=PoolMeta):
 
     measurements = fields.Function(
         fields.One2Many('real_estate.measurement', None, 'Measurements'),
-        'get_measurements')
+        'get_measurements', setter='set_measurements')
 
     @fields.depends('objects')
     def on_change_with_children(self, name=None):
@@ -141,7 +141,9 @@ class ContractItem(sequence_ordered(), ModelSQL, ModelView, metaclass=PoolMeta):
                 children.extend(item_obj.object.children)
         return children
 
-    @fields.depends('contract', 'sequence')
+    @fields.depends(
+        'contract', 'sequence',
+        '_parent_contract.next_item_sequence', '_parent_contract.c_type')
     def on_change_with_sequence(self, name=None):
         if (self.sequence is not None and self.sequence != 0):
             return self.sequence
@@ -167,22 +169,22 @@ class ContractItem(sequence_ordered(), ModelSQL, ModelView, metaclass=PoolMeta):
             if first:
                 self.label = first.name
 
-    @fields.depends('contract', 'valid_from')
+    @fields.depends('contract', 'valid_from', '_parent_contract.start_date')
     def on_change_contract(self, name=None):
         if self.contract is not None and self.valid_from is None:
             self.valid_from = self.contract.start_date
 
-    @fields.depends('contract')
+    @fields.depends('contract', '_parent_contract.property')
     def on_change_with_property(self, name=None):
         if self.contract:
             return self.contract.property
         return None
 
-    @fields.depends('contract')
+    @fields.depends('contract', '_parent_contract.currency')
     def on_change_with_currency(self, name=None):
         return self.contract.currency if self.contract else None
 
-    @fields.depends('contract')
+    @fields.depends('contract', '_parent_contract.company')
     def on_change_with_company(self, name=None):
         if self.contract:
             return self.contract.company
@@ -219,7 +221,7 @@ class ContractItem(sequence_ordered(), ModelSQL, ModelView, metaclass=PoolMeta):
         BaseObject = pool.get('real_estate.base_object')
         return BaseObject.fields_get(['type_of_use'])['type_of_use']['selection']
 
-    @fields.depends('contract')
+    @fields.depends('contract', '_parent_contract.type_of_use')
     def on_change_with_type_of_use(self, name=None):
         if self.contract:
             return self.contract.type_of_use
@@ -263,6 +265,10 @@ class ContractItem(sequence_ordered(), ModelSQL, ModelView, metaclass=PoolMeta):
 
     @classmethod
     def set_children(cls, record, name, value):
+        pass
+
+    @classmethod
+    def set_measurements(cls, records, name, value):
         pass
 
     @classmethod

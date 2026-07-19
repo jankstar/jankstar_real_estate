@@ -5,6 +5,9 @@ trytond_currency<8.1,>=8.0
 trytond_country<8.1,>=8.0
 trytond_account<8.1,>=8.0
 trytond_account_invoice<8.1,>=8.0
+trytond_account_deposit<8.1,>=8.0
+trytond_account_payment_clearing<8.1,>=8.0
+trytond_account_tax_non_deductible<8.1,>=8.0
 trytond<8.1,>=8.0
 
 [test]

@@ -20,8 +20,10 @@ Navigate to *Real Estate → Properties*.
    types are available later.
 4. Optionally set **Billing as** and **Collective billing** to control how
    operating cost billing is aggregated across buildings.
-5. Click **Active** to transition the property from *Draft* to *Active*
-   (button on the form toolbar).
+5. Click **Approved** to transition the property from *Draft* to *Approved*
+   (button on the form toolbar). Further transitions are *Approved* →
+   *Locked* → *Deactivated* (and back from *Locked* to *Approved*, or
+   *Approved* to *Draft*).
 
 Under the property you can then create the sub-objects of the tree:
 
@@ -327,7 +329,32 @@ If any cash flow entries in the settlement period are still in state
 marked *error* with a ``[draft]`` prefix.  Post or delete those invoice
 drafts and re-run.
 
-7.6 Billing
+7.6 Ready for Billing
+-----------------------
+
+Click **Ready for Billing** to transition from *Value Share* to
+*Ready for Billing*. This validates, for every settlement unit and
+settlement result of the billing unit, that:
+
+- no settlement unit is in an error state;
+- every settlement unit (except *No allocation*) has completed its value
+  share calculation;
+- at least one approved settlement result exists and none has actual costs
+  of zero;
+- every settlement result with a non-zero advance payment has both a term
+  and a contract assigned (a missing term usually means several term types
+  contributed and the billing unit's term-type filter needs narrowing);
+- all advance-payment invoices are posted;
+- unless **External billing** is enabled, the sum of settlement result
+  actual costs matches the sum of cost share actual costs.
+
+Any failed check raises a validation error listing the offending records —
+fix the underlying data and click **Ready for Billing** again. Without this
+step the **Billing** button (7.7 below) does not appear. This step can also
+be triggered for all billing units sharing the same settlement period via
+the **Ready for Billing** button on the property form.
+
+7.7 Billing
 -----------
 
 Click **Billing** to create invoices and credit notes from the settlement
@@ -390,5 +417,8 @@ Typical Annual Workflow Summary
      - Compute Settlement Result
      - Billing unit form (button)
    * - 12
+     - Click Ready for Billing
+     - Billing unit form → button / property form
+   * - 13
      - Run Billing → post invoices / credit notes
      - Billing unit form → button / property form

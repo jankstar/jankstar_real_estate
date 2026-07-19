@@ -53,6 +53,8 @@ htmlcov/
 .coverage
 .coverage.*
 .hypothesis/
+TEST-*.xml
+coverage.xml
 
 # Claude Code
 .claude/

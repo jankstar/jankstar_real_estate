@@ -156,5 +156,20 @@ Either run "Ready for Billing" for each billing unit first, or bill individual b
         <record model="ir.message" id="msg_allocation_none">
             <field name="text">no allocation</field>
         </record>
+        <record model="ir.message" id="msg_invoice_line_term_requires_contract">
+            <field name="text">Term "{term}" is set but no contract is selected.</field>
+        </record>
+        <record model="ir.message" id="msg_invoice_line_settlement_unit_requires_billing_unit">
+            <field name="text">Settlement unit "{settlement_unit}" is set but the billing unit is missing or does not match (expected "{billing_unit}").</field>
+        </record>
+        <record model="ir.message" id="msg_invoice_line_object_not_in_contract">
+            <field name="text">Object "{object}" does not belong to contract "{contract}".</field>
+        </record>
+        <record model="ir.message" id="msg_invoice_line_billing_unit_billed_warning">
+            <field name="text">Billing unit/settlement unit already billed. This invoice will not be considered in the settlement.</field>
+        </record>
+        <record model="ir.message" id="msg_invoice_line_billing_unit_billed_error">
+            <field name="text">Cannot post: billing unit/settlement unit of line "{line}" is already billed. It will not be considered in the settlement.</field>
+        </record>
     </data>
 </tryton>

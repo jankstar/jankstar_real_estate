@@ -205,19 +205,21 @@ class Measurement(DeactivableMixin, ModelSQL, ModelView, metaclass=PoolMeta):
             return self.m_type.unit.symbol
         return f" - "
 
-    @fields.depends('m_type')
+    @fields.depends('m_type', 'no_print')
     def on_change_with_no_print(self, name=None):
         if self.m_type:
             return self.m_type.no_print
-        return self.no_print
+        return getattr(self, 'no_print', False)
     
-    @fields.depends('base_object')
+    @fields.depends('base_object', '_parent_base_object.type')
     def on_change_with_type(self, name=None):
         if self.base_object:
             return self.base_object.type
         return None
 
-    @fields.depends('base_object', 'type', 'valid_from')
+    @fields.depends(
+        'base_object', 'type', 'valid_from',
+        '_parent_base_object.type', '_parent_base_object.start_date')
     def on_change_base_object(self, name=None):
         if self.base_object != None:
             self.type = self.base_object.type

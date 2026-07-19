@@ -899,12 +899,20 @@ contract/object within a billing period.
    * - ``time_share``
      - Integer [F]
      - Days within the billing period
+   * - ``allocation_rule``
+     - Selection [F]
+     - Mirrored from the parent settlement unit
+   * - ``external_billing``
+     - Boolean [F]
+     - Mirrored from the parent settlement unit's billing unit
    * - ``planned_costs``
      - Monetary
-     - Budgeted cost for this share
+     - Budgeted cost for this share. Readonly unless ``external_billing``
+       is set (otherwise computed, not entered manually)
    * - ``actual_costs``
      - Monetary
-     - Real cost for this share
+     - Real cost for this share. Readonly unless ``external_billing``
+       is set (otherwise computed, not entered manually)
    * - ``error_message``
      - Char [R]
      - Human-readable error (set when state = error)
@@ -1007,14 +1015,27 @@ Extensions to Core Modules
    Adds ``contract`` (Many2One → ``real_estate.contract``).
 
 ``account.invoice.line``  (``invoice.py``)
-   Adds ``term`` (Many2One → ``real_estate.contract.term``) and
-   ``settlement_unit`` (Many2One → ``real_estate.settlement_unit``).
+   Adds real-estate assignment fields, gated by ``assignment_control``
+   (Selection: *All*, ``contract``, ``operating_costs``,
+   ``settlement_result_contract``, ``settlement_result_vacant``):
+   ``contract`` / ``term`` (originating contract / term), ``base_object``,
+   ``billing_unit`` / ``settlement_unit`` (for operating-cost lines),
+   ``property`` [F], ``service_period_from`` / ``service_period_to``,
+   ``estg_35a`` (Selection, German §35a EStG tax-deduction category), and
+   ``invoice_date`` / ``tax_amount`` / ``total_amount`` [F].
+
+``account.move.line``  (``invoice.py``, class ``AccountMoveLine``)
+   Mirrors the same fields as ``account.invoice.line`` above
+   (``assignment_control``, ``contract``, ``term``, ``base_object``,
+   ``billing_unit``, ``settlement_unit``, ``property`` [F]) directly on the
+   journal entry line.
 
 ``account.configuration``  (``account_configuration.py``)
-   Adds three default accounts for operating cost billing:
-   ``account_operation_cost_actual_costs``,
-   ``account_operation_cost_advanced_payment``,
-   ``account_operation_cost_alloc_by_owner``.
+   Adds three real-estate defaults, all Many2One:
+   ``re_account_allocation_by_owner`` (Vacancy Cost Account, used for direct
+   GL postings of vacancy settlement results), ``re_journal_billing``
+   (journal for those postings), and ``re_payment_term_billing`` (default
+   payment term for operating cost settlement invoices).
 
 ``res.user``  (``res.py``)
    Adds ``phone`` (Char) and ``mobile`` (Char).

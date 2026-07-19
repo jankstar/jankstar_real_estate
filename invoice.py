@@ -3,9 +3,16 @@ from decimal import Decimal
 from sql import Column
 
 from trytond.model import Index, ModelSQL, fields
+from trytond.model.exceptions import ValidationError
+from trytond.exceptions import UserWarning
+from trytond.i18n import gettext
 from trytond.modules.currency.fields import Monetary
 from trytond.pool import Pool, PoolMeta
 from trytond.pyson import Bool, Eval, If
+
+
+class InvoiceLineBillingUnitBilledWarning(UserWarning):
+    pass
 
 
 class Invoice(metaclass=PoolMeta):
@@ -29,6 +36,18 @@ class Invoice(metaclass=PoolMeta):
             Index(table,
                 (Column(table, 'contract'), Index.Range(order='ASC NULLS FIRST')),
                 (table.id, Index.Range(order='ASC NULLS FIRST'))))
+
+    @classmethod
+    def post(cls, invoices):
+        for invoice in invoices:
+            for line in invoice.lines:
+                if (getattr(line, 'assignment_control', None) == 'operating_costs'
+                        and getattr(line, 'billing_unit', None)
+                        and line.billing_unit.state == 'billed'):
+                    raise ValidationError(gettext(
+                        'real_estate.msg_invoice_line_billing_unit_billed_error',
+                        line=line.rec_name))
+        super().post(invoices)
 
 
 #**********************************************************************
@@ -109,8 +128,7 @@ class InvoiceLine(metaclass=PoolMeta):
     billing_unit = fields.Many2One(
         'real_estate.billing_unit', 'Billing Unit',
         states={
-            'invisible': Eval('assignment_control', '').in_(
-                ['contract', 'operating_costs']),
+            'invisible': Eval('assignment_control', '') == 'contract',
         },
         depends=['assignment_control'],
         domain=[
@@ -134,7 +152,9 @@ class InvoiceLine(metaclass=PoolMeta):
                 If(Bool(Eval('property')),
                     ('billing_unit.property', '=', Eval('property', -1)),
                     ())),
-            ('billing_unit.state', 'not in', ['draft', 'billed']),
+            ['OR',
+                ('id', '=', Eval('settlement_unit', -1)),
+                ('billing_unit.state', '!=', 'draft')],
         ]
     )
 
@@ -212,7 +232,11 @@ class InvoiceLine(metaclass=PoolMeta):
                 (Column(table, 'billing_unit'), Index.Range(order='ASC NULLS FIRST')),
                 (table.id, Index.Range(order='ASC NULLS FIRST'))))
 
-    @fields.depends('billing_unit', 'settlement_unit', 'term', 'base_object')
+    @fields.depends(
+        'billing_unit', 'settlement_unit', 'term', 'base_object',
+        '_parent_billing_unit.property', '_parent_settlement_unit.billing_unit',
+        '_parent_term.property', '_parent_base_object.type',
+        '_parent_base_object.property')
     def on_change_with_property(self, name=None):
         if self.billing_unit and self.billing_unit.property:
             return self.billing_unit.property
@@ -227,13 +251,15 @@ class InvoiceLine(metaclass=PoolMeta):
                 return self.base_object.property
         return None
 
-    @fields.depends('invoice')
+    @fields.depends('invoice', '_parent_invoice.invoice_date')
     def on_change_with_invoice_date(self, name=None):
         if self.invoice:
             return getattr(self.invoice, 'invoice_date', None)
         return None
 
-    @fields.depends('taxes', 'unit_price', 'quantity', 'taxes_date', 'invoice')
+    @fields.depends(
+        'taxes', 'unit_price', 'quantity', 'taxes_date', 'invoice',
+        '_parent_invoice.invoice_date', '_parent_invoice.currency')
     def on_change_with_tax_amount(self, name=None):
         if not self.taxes:
             return Decimal(0)
@@ -254,7 +280,9 @@ class InvoiceLine(metaclass=PoolMeta):
             total = currency.round(total)
         return total
 
-    @fields.depends('amount', 'taxes', 'unit_price', 'quantity', 'taxes_date', 'invoice')
+    @fields.depends(
+        'amount', 'taxes', 'unit_price', 'quantity', 'taxes_date', 'invoice',
+        '_parent_invoice.invoice_date', '_parent_invoice.currency')
     def on_change_with_total_amount(self, name=None):
         amount = self.amount or Decimal(0)
         tax_amount = self.on_change_with_tax_amount() or Decimal(0)
@@ -264,6 +292,11 @@ class InvoiceLine(metaclass=PoolMeta):
     def on_change_term(self):
         if self.term and self.term.contract:
             self.contract = self.term.contract
+
+    @fields.depends('settlement_unit', '_parent_settlement_unit.billing_unit')
+    def on_change_settlement_unit(self):
+        if self.settlement_unit and self.settlement_unit.billing_unit:
+            self.billing_unit = self.settlement_unit.billing_unit
 
     def get_move_lines(self):
         lines = super().get_move_lines()
@@ -279,6 +312,8 @@ class InvoiceLine(metaclass=PoolMeta):
     @classmethod
     def validate(cls, lines):
         super().validate(lines)
+        pool = Pool()
+        Warning = pool.get('res.user.warning')
         for line in lines:
             if (line.service_period_from and line.service_period_to
                     and line.service_period_from > line.service_period_to):
@@ -290,6 +325,39 @@ class InvoiceLine(metaclass=PoolMeta):
                 raise ValueError(
                     f'Term "{line.term.rec_name}" does not belong to'
                     f' contract "{line.contract.rec_name}".')
+            if line.term and not line.contract:
+                raise ValidationError(gettext(
+                    'real_estate.msg_invoice_line_term_requires_contract',
+                    term=line.term.rec_name))
+            if line.settlement_unit and (
+                    not line.billing_unit
+                    or line.billing_unit != line.settlement_unit.billing_unit):
+                raise ValidationError(gettext(
+                    'real_estate.msg_invoice_line_settlement_unit_requires_billing_unit',
+                    settlement_unit=line.settlement_unit.rec_name,
+                    billing_unit=(line.settlement_unit.billing_unit.rec_name
+                        if line.settlement_unit.billing_unit else '')))
+            if line.base_object and line.contract:
+                contract_object_ids = {
+                    item_obj.object.id
+                    for item in line.contract.items
+                    for item_obj in item.objects
+                    if item_obj.object}
+                if line.base_object.id not in contract_object_ids:
+                    raise ValidationError(gettext(
+                        'real_estate.msg_invoice_line_object_not_in_contract',
+                        object=line.base_object.rec_name,
+                        contract=line.contract.rec_name))
+            if (line.assignment_control == 'operating_costs'
+                    and line.invoice
+                    and line.invoice.state not in ('posted', 'paid')
+                    and line.billing_unit
+                    and line.billing_unit.state == 'billed'):
+                key = Warning.format(
+                    'invoice_line_billing_unit_billed', [line])
+                if Warning.check(key):
+                    raise InvoiceLineBillingUnitBilledWarning(key, gettext(
+                        'real_estate.msg_invoice_line_billing_unit_billed_warning'))
 
 
 #**********************************************************************
@@ -330,8 +398,7 @@ class AccountMoveLine(metaclass=PoolMeta):
     billing_unit = fields.Many2One('real_estate.billing_unit', 'Billing Unit',
         ondelete='SET NULL',
         states={
-            'invisible': Eval('assignment_control', '').in_(
-                ['contract', 'operating_costs']),
+            'invisible': Eval('assignment_control', '') == 'contract',
         },
         depends=['assignment_control'])
 
@@ -361,7 +428,11 @@ class AccountMoveLine(metaclass=PoolMeta):
                 (Column(table, 'billing_unit'), Index.Range(order='ASC NULLS FIRST')),
                 (table.id, Index.Range(order='ASC NULLS FIRST'))))
 
-    @fields.depends('billing_unit', 'settlement_unit', 'term', 'base_object')
+    @fields.depends(
+        'billing_unit', 'settlement_unit', 'term', 'base_object',
+        '_parent_billing_unit.property', '_parent_settlement_unit.billing_unit',
+        '_parent_term.property', '_parent_base_object.type',
+        '_parent_base_object.property')
     def on_change_with_property(self, name=None):
         if self.billing_unit and self.billing_unit.property:
             return self.billing_unit.property

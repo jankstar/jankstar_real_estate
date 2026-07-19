@@ -149,7 +149,7 @@ class SettlementUnit(DeactivableMixin, base_object.re_sequence_ordered(), ModelS
         'on_change_with_time_total')
 
     invoice_lines = fields.Function(fields.One2Many('account.invoice.line', 'settlement_unit', 'Invoice Lines'),
-        'on_change_with_invoice_lines')
+        'on_change_with_invoice_lines', setter='set_invoice_lines')
 
     @classmethod
     def delete(cls, settlement_units):
@@ -199,7 +199,7 @@ class SettlementUnit(DeactivableMixin, base_object.re_sequence_ordered(), ModelS
         CostShare = pool.get('real_estate.cost_share')
         return CostShare.fields_get(['state'])['state']['selection']
 
-    @fields.depends('billing_unit')
+    @fields.depends('billing_unit', '_parent_billing_unit.external_billing')
     def on_change_with_billing_unit_external_billing(self, name=None):
         if self.billing_unit:
             return bool(self.billing_unit.external_billing)
@@ -210,17 +210,17 @@ class SettlementUnit(DeactivableMixin, base_object.re_sequence_ordered(), ModelS
         if self.type and not self.sequence:
             self.sequence = self.type.sequence
 
-    @fields.depends('billing_unit', 'allocation_rule')
+    @fields.depends('billing_unit', 'allocation_rule', '_parent_billing_unit.external_billing')
     def on_change_billing_unit(self):
         if self.billing_unit and self.billing_unit.external_billing:
             self.allocation_rule = 'allocation_from_external_billing'
 
-    @fields.depends('billing_unit')
+    @fields.depends('billing_unit', '_parent_billing_unit.state')
     def on_change_with_state(self, name=None):
         return self.billing_unit.state if self.billing_unit else None
 
     def get_sub_state(self, name):
-        if self.allocation_rule == 'no_allocation':
+        if getattr(self, 'allocation_rule', None) == 'no_allocation':
             return 'no_allocation'
         if self.cost_shares:
             states = set(cs.state for cs in self.cost_shares)
@@ -234,23 +234,25 @@ class SettlementUnit(DeactivableMixin, base_object.re_sequence_ordered(), ModelS
                 return 'estimated_value_share'
             elif 'value_share' in states:
                 return 'value_share'
-        elif self.vacancy == 'no_allocation':
+        elif getattr(self, 'vacancy', None) == 'no_allocation':
             return 'no_allocation'
         return 'preparation'
 
-    @fields.depends('cost_shares')
+    @fields.depends('cost_shares', 'allocation_rule', 'vacancy')
     def on_change_with_sub_state(self, name=None):
         return self.get_sub_state(name)
 
-    @fields.depends('billing_unit')
+    @fields.depends('billing_unit', '_parent_billing_unit.property')
     def on_change_with_property(self, name=None):
         return self.billing_unit.property if self.billing_unit else None
 
-    @fields.depends('billing_unit')
+    @fields.depends('billing_unit', '_parent_billing_unit.property')
     def on_change_with_company(self, name=None):
         return self.billing_unit.property.company if self.billing_unit else None
 
-    @fields.depends('billing_unit', 'reg_ex_object', 'allocation_rule')
+    @fields.depends(
+        'billing_unit', 'reg_ex_object', 'allocation_rule',
+        '_parent_billing_unit.company', '_parent_billing_unit.property')
     def on_change_with_objects(self, name=None):
         objects = []
         if self.billing_unit and self.allocation_rule != 'no_allocation':
@@ -265,7 +267,9 @@ class SettlementUnit(DeactivableMixin, base_object.re_sequence_ordered(), ModelS
                 objects = [item for item in objects if pattern.search(item.name)]
         return objects
 
-    @fields.depends('billing_unit', 'reg_ex_meter', 'allocation_rule', 'objects', 'meter_unit')
+    @fields.depends(
+        'billing_unit', 'reg_ex_meter', 'allocation_rule', 'objects', 'meter_unit',
+        '_parent_billing_unit.company', '_parent_billing_unit.property')
     def on_change_with_meters(self, name=None):
         meters = []
         if self.billing_unit and self.objects and self.allocation_rule == 'allocation_by_consumption':
@@ -283,7 +287,9 @@ class SettlementUnit(DeactivableMixin, base_object.re_sequence_ordered(), ModelS
                 meters = [item for item in meters if pattern.search(item.name)]
         return meters
 
-    @fields.depends('billing_unit', 'm_type', 'allocation_rule', 'objects')
+    @fields.depends(
+        'billing_unit', 'm_type', 'allocation_rule', 'objects',
+        '_parent_billing_unit.company', '_parent_billing_unit.property')
     def on_change_with_measurements(self, name=None):
         measurements = []
         if self.billing_unit and self.objects and self.allocation_rule == 'allocation_by_measurement':
@@ -317,6 +323,10 @@ class SettlementUnit(DeactivableMixin, base_object.re_sequence_ordered(), ModelS
         pass
 
     @classmethod
+    def set_invoice_lines(cls, records, name, value):
+        pass
+
+    @classmethod
     def validate_fields(cls, units, field_names):
         super().validate_fields(units, field_names)
         if 'allocation_rule' not in (field_names or {}):
@@ -335,15 +345,16 @@ class SettlementUnit(DeactivableMixin, base_object.re_sequence_ordered(), ModelS
                         f"Settlement unit '{su.rec_name}': allocation rule "
                         f"'Allocation from external billing' is only allowed when external billing is set on the billing unit.")
 
-    @fields.depends('type')
+    @fields.depends('type', 'sequence')
     def on_change_with_sequence(self, name=None):
-        return self.type.sequence if (self.type and not self.sequence) else self.sequence
+        sequence = getattr(self, 'sequence', None)
+        return self.type.sequence if (self.type and not sequence) else sequence
 
-    @fields.depends('billing_unit')
+    @fields.depends('billing_unit', '_parent_billing_unit.start_date')
     def on_change_with_start_date(self, name=None):
         return self.billing_unit.start_date if self.billing_unit else None
 
-    @fields.depends('billing_unit')
+    @fields.depends('billing_unit', '_parent_billing_unit.end_date')
     def on_change_with_end_date(self, name=None):
         return self.billing_unit.end_date if self.billing_unit else None
 
@@ -351,11 +362,13 @@ class SettlementUnit(DeactivableMixin, base_object.re_sequence_ordered(), ModelS
     def on_change_with_name(self, name=None):
         return f"{self.sequence} - {self.type.name}" if self.type else f"{self.sequence} - ? "
 
-    @fields.depends('company')
+    @fields.depends('company', 'billing_unit', '_parent_billing_unit.property')
     def on_change_with_currency(self, name=None):
         return self.company.currency if self.company else None
 
-    @fields.depends('start_date', 'end_date')
+    @fields.depends(
+        'start_date', 'end_date', 'billing_unit',
+        '_parent_billing_unit.start_date', '_parent_billing_unit.end_date')
     def on_change_with_time_total(self, name=None):
         if self.start_date and self.end_date:
             return (self.end_date - self.start_date).days + 1

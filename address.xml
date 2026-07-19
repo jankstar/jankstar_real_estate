@@ -88,6 +88,13 @@
             <field name="perm_create" eval="False"/>
             <field name="perm_delete" eval="False"/>
         </record>
+        <record model="ir.model.access" id="access_address_default">
+            <field name="model">real_estate.address</field>
+            <field name="perm_read" eval="False"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
 
         <!--record model="ir.ui.view" id="address_format_view_list">
             <field name="model">real_estate.address.format</field>

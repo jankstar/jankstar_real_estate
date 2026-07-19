@@ -64,7 +64,7 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
     __rec_name__ = 'name'
 
     company = fields.Function(fields.Many2One('company.company', 'Company'),
-        'on_change_with_company')
+        'on_change_with_company', searcher='search_company')
 
     property = fields.Many2One('real_estate.base_object',
         "Property", required=True, path='path', ondelete='CASCADE',
@@ -1165,7 +1165,8 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
     def get_sub_states():
         pool = Pool()
         CostShare = pool.get('real_estate.cost_share')
-        return CostShare.fields_get(['state'])['state']['selection']
+        selection = CostShare.fields_get(['state'])['state']['selection']
+        return [('', '')] + selection
 
     @fields.depends('settlement_units')
     def on_change_with_sub_state(self, name=None):
@@ -1349,15 +1350,19 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
         )
         return allocation - advanced
 
-    @fields.depends('property')
+    @fields.depends('property', '_parent_property.company')
     def on_change_with_company(self, name=None):
         return self.property.company if self.property else None
 
-    @fields.depends('property')
+    @classmethod
+    def search_company(cls, name, clause):
+        return [('property.company',) + tuple(clause[1:])]
+
+    @fields.depends('property', '_parent_property.collective_billing')
     def on_change_with_collective_billing(self, name=None):
         return bool(self.property.collective_billing) if self.property else False
 
-    @fields.depends('state', 'start_date', 'property')
+    @fields.depends('state', 'start_date', 'property', '_parent_property.billing_units')
     def on_change_with_is_next_billing(self, name=None):
         if self.state not in ('value_share', 'ready_for_billing') \
                 or not self.start_date or not self.property:
@@ -1457,7 +1462,7 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
             return f"{self.description} - {self.start_date} / {self.end_date}"
         return f" ? "
 
-    @fields.depends('company')
+    @fields.depends('company', 'property', '_parent_property.company')
     def on_change_with_currency(self, name=None):
         return self.company.currency if self.company else None
 

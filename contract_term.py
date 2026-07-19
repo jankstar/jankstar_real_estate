@@ -172,13 +172,13 @@ class ContractTermCashFlow(ModelView, ModelSQL):
         Invoice = pool.get('account.invoice')
         return Invoice.fields_get(['state'])['state']['selection']
 
-    @fields.depends('term')
+    @fields.depends('term', '_parent_term.contract')
     def on_change_with_contract(self, name=None):
         if self.term:
             return self.term.contract
         return None
 
-    @fields.depends('term')
+    @fields.depends('term', '_parent_term.contract')
     def on_change_with_property(self, name=None):
         if self.term and self.term.contract:
             return self.term.contract.property
@@ -194,7 +194,7 @@ class ContractTermCashFlow(ModelView, ModelSQL):
     def search_base_object(cls, name, clause):
         return [('invoice_line.base_object',) + tuple(clause[1:])]
 
-    @fields.depends('term')
+    @fields.depends('term', '_parent_term.contract')
     def on_change_with_company(self, name=None):
         if self.term and self.term.contract:
             return self.term.contract.company
@@ -216,7 +216,9 @@ class ContractTermCashFlow(ModelView, ModelSQL):
             state = 'draft'
         return state
 
-    @fields.depends('term', 'invoice_line')
+    @fields.depends(
+        'term', 'invoice_line',
+        '_parent_term.name', '_parent_term.next_document_date')
     def on_change_with_name(self, name=None):
         if self.invoice_line:
             return f"{self.invoice_line.description}"
@@ -293,7 +295,7 @@ class ContractTermCashFlow(ModelView, ModelSQL):
                 ]
         return [('invoice_line.invoice.state',) + tuple(clause[1:])]
 
-    @fields.depends('term', 'invoice_line')
+    @fields.depends('term', 'invoice_line', '_parent_term.quantity')
     def on_change_with_quantity(self, name=None):
         if self.invoice_line:
             return self.invoice_line.quantity
@@ -301,7 +303,7 @@ class ContractTermCashFlow(ModelView, ModelSQL):
             return self.term.quantity
         return 0
 
-    @fields.depends('term', 'invoice_line')
+    @fields.depends('term', 'invoice_line', '_parent_term.unit')
     def on_change_with_unit(self, name=None):
         if self.invoice_line:
             return self.invoice_line.unit
@@ -309,7 +311,7 @@ class ContractTermCashFlow(ModelView, ModelSQL):
             return self.term.unit
         return None
 
-    @fields.depends('term', 'invoice_line')
+    @fields.depends('term', 'invoice_line', '_parent_term.unit_price')
     def on_change_with_unit_price(self, name=None):
         if self.invoice_line:
             return self.invoice_line.unit_price
@@ -317,7 +319,7 @@ class ContractTermCashFlow(ModelView, ModelSQL):
             return self.term.unit_price
         return Decimal(0)
 
-    @fields.depends('quantity', 'unit_price', 'currency')
+    @fields.depends('quantity', 'unit_price', 'currency', 'term', 'invoice_line')
     def on_change_with_amount(self, name=None):
         amount = (Decimal(str(self.quantity or 0))
             * (self.unit_price or Decimal(0)))
@@ -373,7 +375,7 @@ class ContractTermCashFlow(ModelView, ModelSQL):
                 del result[key]
         return result
 
-    @fields.depends('term', 'invoice_line')
+    @fields.depends('term', 'invoice_line', '_parent_term.contract')
     def on_change_with_currency(self, name=None):
         if self.invoice_line and self.invoice_line.currency:
             return self.invoice_line.currency
@@ -507,7 +509,7 @@ class ContractTerm(sequence_ordered(), ModelSQL, ModelView, TaxableMixin):
 
     term_measurements = fields.Function(
         fields.One2Many('real_estate.measurement', None, "Measurements"),
-        'get_term_measurements')
+        'get_term_measurements', setter='set_term_measurements')
 
     account = fields.Many2One('account.account', 'Account',
         ondelete='RESTRICT',
@@ -568,7 +570,7 @@ class ContractTerm(sequence_ordered(), ModelSQL, ModelView, TaxableMixin):
                             ['purchase', 'both'])
                     )],
             ],
-        depends={'invoice'})
+        depends={'invoice_type'})
     taxes_deductible_rate = fields.Numeric(
         "Taxes Deductible Rate", digits=(None, 10),
         domain=[
@@ -595,7 +597,7 @@ class ContractTerm(sequence_ordered(), ModelSQL, ModelView, TaxableMixin):
         ],
         states={
                 'readonly': True,
-                'invisible': (Eval('len(cash_flow)', 0) == 0),
+                'invisible': (Eval('cash_flow', []) == []),
             })
 
     ## special data term type with measurement
@@ -710,6 +712,13 @@ class ContractTerm(sequence_ordered(), ModelSQL, ModelView, TaxableMixin):
         Tax = pool.get('account.tax')
         Date = pool.get('ir.date')
 
+        if not self.currency:
+            return {
+                'untaxed_amount': Decimal(0),
+                'tax_amount': Decimal(0),
+                'total_amount': Decimal(0),
+                }
+
         amount = (Decimal(str(self.quantity or 0))
             * (self.unit_price or Decimal(0)))
         untaxed_amount = self.currency.round(amount)
@@ -793,7 +802,9 @@ class ContractTerm(sequence_ordered(), ModelSQL, ModelView, TaxableMixin):
                 return max(cf.posting_date for cf in done_cash_flows)
         return None
 
-    @fields.depends('contract', 'sequence')
+    @fields.depends(
+        'contract', 'sequence',
+        '_parent_contract.next_term_sequence', '_parent_contract.c_type')
     def on_change_with_sequence(self, name=None):
         if (self.sequence is not None and self.sequence != 0):
             return self.sequence
@@ -803,7 +814,9 @@ class ContractTerm(sequence_ordered(), ModelSQL, ModelView, TaxableMixin):
 
         return self.contract.c_type.step_term if self.contract and self.contract.c_type else 1
 
-    @fields.depends('taxes', 'unit_price', 'quantity', 'currency', 'taxes_date')
+    @fields.depends(
+        'taxes', 'unit_price', 'quantity', 'currency', 'taxes_date', 'contract',
+        '_parent_contract.currency')
     def on_change_with_untaxed_amount(self, name=None):
         result = self._get_taxes()
         return result['untaxed_amount'] or Decimal(0)
@@ -822,6 +835,7 @@ class ContractTerm(sequence_ordered(), ModelSQL, ModelView, TaxableMixin):
         'term_type', 'quantity', 'unit_price', 'currency', 'contract',
         'taxes_deductible_rate',
         'taxes',
+        '_parent_contract.c_type',
         methods=['_get_taxes'])
     def on_change_with_amount(self, name=None):
         if self.term_type and self.contract and self.contract.c_type:
@@ -849,7 +863,8 @@ class ContractTerm(sequence_ordered(), ModelSQL, ModelView, TaxableMixin):
             return Decimal(0)
 
     @fields.depends('next_document_date', 'contract', 'rhythm', 'rhythm_type',
-                    'unit_price')
+                    'unit_price',
+                    '_parent_contract.payment_term', '_parent_contract.currency')
     def _on_change_with_next_due_date(self, calc_document_date=None):
         if self.contract and self.contract.payment_term \
             and calc_document_date and self.unit_price:
@@ -862,12 +877,14 @@ class ContractTerm(sequence_ordered(), ModelSQL, ModelView, TaxableMixin):
             return calc_document_date
 
     @fields.depends('next_document_date', 'contract', 'rhythm', 'rhythm_type',
-                    'unit_price', methods=['_on_change_with_next_due_date'])
+                    'unit_price',
+                    '_parent_contract.payment_term', '_parent_contract.currency',
+                    methods=['_on_change_with_next_due_date'])
     def on_change_with_next_due_date(self, name=None):
         return self._on_change_with_next_due_date(calc_document_date=self.next_document_date)
 
     @fields.depends('rhythm', 'valid_from', 'last_document_date', 'rhythm_type', 'rhythm_start', 'contract',
-                    'unit_price')
+                    'unit_price', '_parent_contract.start_booking_date')
     def _next_document_date(self, calc_document_date=None):
         def _check_valid_to(i_date: datetime.date):
             if (self.valid_to is not None and self.valid_to < i_date and self.contract.start_booking_date < i_date) \
@@ -910,7 +927,8 @@ class ContractTerm(sequence_ordered(), ModelSQL, ModelView, TaxableMixin):
         return self.contract.start_booking_date if (self.contract and self.contract.start_booking_date) else self.valid_from
 
     @fields.depends('rhythm', 'valid_from', 'last_document_date', 'rhythm_type',
-                    'unit_price', methods=['_next_document_date'])
+                    'unit_price', 'contract', '_parent_contract.start_booking_date',
+                    methods=['_next_document_date'])
     def on_change_with_next_document_date(self, name=None):
         return self._next_document_date()
 
@@ -962,7 +980,9 @@ class ContractTerm(sequence_ordered(), ModelSQL, ModelView, TaxableMixin):
             if total is not None:
                 self.quantity = total
 
-    @fields.depends('term_type', 'reference_item', 'next_document_date', 'valid_from')
+    @fields.depends(
+        'term_type', 'reference_item', 'next_document_date', 'valid_from',
+        'contract', '_parent_contract.start_booking_date')
     def on_change_with_quantity(self, name=None):
         if self.term_type is not None and self.term_type.m_type is not None \
                 and self.reference_item is not None:
@@ -1015,7 +1035,7 @@ class ContractTerm(sequence_ordered(), ModelSQL, ModelView, TaxableMixin):
                         break
         return total
 
-    @fields.depends('contract', 'taxes', 'term_type')
+    @fields.depends('contract', 'taxes', 'term_type', '_parent_contract.c_type')
     def on_change_with_taxes(self, name=None):
         if (self.contract and self.contract.c_type
                 and self.term_type and len(self.taxes) == 0):
@@ -1028,7 +1048,10 @@ class ContractTerm(sequence_ordered(), ModelSQL, ModelView, TaxableMixin):
 
     @fields.depends('contract', 'valid_from',
                     'currency', 'property', 'company',
-                    'type_of_use')
+                    'type_of_use',
+                    '_parent_contract.start_date', '_parent_contract.currency',
+                    '_parent_contract.property', '_parent_contract.company',
+                    '_parent_contract.type_of_use')
     def on_change_contract(self, name=None):
         if self.contract is not None and self.valid_from is None:
             self.valid_from = self.contract.start_date
@@ -1038,42 +1061,44 @@ class ContractTerm(sequence_ordered(), ModelSQL, ModelView, TaxableMixin):
             self.company = self.contract.company
             self.type_of_use = self.contract.type_of_use
 
-    @fields.depends('contract')
+    @fields.depends('contract', '_parent_contract.currency')
     def on_change_with_currency(self, name=None):
         if self.contract:
             return self.contract.currency
         return None
 
-    @fields.depends('contract', 'valid_from', 'valid_to')
+    @fields.depends(
+        'contract', 'valid_from', 'valid_to', 'reference_item',
+        '_parent_contract.items')
     def on_change_with_reference_item(self, name=None):
-        if self.reference_item is None \
+        if getattr(self, 'reference_item', None) is None \
           and self.contract and self.contract.items:
             sorted_items = sorted(self.contract.items, key=lambda x: (x.valid_from), reverse=True)
 
             for item in sorted_items:
                 if item.valid_from <= self.valid_from and (item.valid_to is None or item.valid_to >= self.valid_from):
                     return item
-        return self.reference_item
+        return getattr(self, 'reference_item', None)
 
-    @fields.depends('contract')
+    @fields.depends('contract', '_parent_contract.c_type')
     def on_change_with_invoice_type(self, name=None):
         if self.contract and self.contract.c_type:
             return self.contract.c_type.invoice_type
         return None
 
-    @fields.depends('contract')
+    @fields.depends('contract', '_parent_contract.property')
     def on_change_with_property(self, name=None):
         if self.contract:
             return self.contract.property
         return None
 
-    @fields.depends('contract')
+    @fields.depends('contract', '_parent_contract.company')
     def on_change_with_company(self, name=None):
         if self.contract:
             return self.contract.company
         return None
 
-    @fields.depends('contract')
+    @fields.depends('contract', '_parent_contract.type_of_use')
     def on_change_with_type_of_use(self, name=None):
         if self.contract:
             return self.contract.type_of_use
@@ -1125,6 +1150,10 @@ class ContractTerm(sequence_ordered(), ModelSQL, ModelView, TaxableMixin):
                     meas_ids.extend(meas_index.get((m_type_id, obj_id), []))
             result[term_id] = meas_ids
         return result
+
+    @classmethod
+    def set_term_measurements(cls, records, name, value):
+        pass
 
     @fields.depends('term_type')
     def on_change_with_account(self, name=None):

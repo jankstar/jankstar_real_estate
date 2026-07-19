@@ -153,7 +153,10 @@ def create_and_post_invoice(
     """
     lines_data: Liste von Dicts mit Schlüsseln:
         description (str), unit_price (Decimal), account, taxes (list),
-        property (optional), settlement_unit (optional)
+        property (optional), settlement_unit (optional).
+    Ist settlement_unit gesetzt, wird billing_unit automatisch aus
+    settlement_unit.billing_unit mit übernommen (InvoiceLine.validate()
+    verlangt, dass beide gesetzt sind und zusammengehören).
     """
 
     Invoice = Model.get('account.invoice')
@@ -186,10 +189,11 @@ def create_and_post_invoice(
         if ld.get('taxes'):
             # Jede Steuer als frische Instanz laden, damit _group None bleibt
             line.taxes.extend(Tax(t.id) for t in ld['taxes'])
-        if ld.get('property'):
-            line.property = ld['property']
+        # if ld.get('property'):
+        #     line.property = ld['property']
         if ld.get('settlement_unit'):
             line.settlement_unit = ld['settlement_unit']
+            line.billing_unit = ld['settlement_unit'].billing_unit
         line.save()
         lines.append(line)
 

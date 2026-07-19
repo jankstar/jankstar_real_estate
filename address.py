@@ -145,10 +145,10 @@ class Address(
         super().__register__(module_name)
 
     @classmethod
-    def default_county(cls):
+    def default_country(cls):
         lCompany = Transaction().context.get('company')
         if lCompany:
-            return lCompany.county  
+            return lCompany.country
         return Transaction().context.get('country')
 
     @fields.depends('street')

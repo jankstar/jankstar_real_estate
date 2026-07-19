@@ -678,6 +678,62 @@
             <field name="act_window" ref="act_open_child_base_object"/>
         </record>
 
+        <record model="ir.model.button" id="base_object_draft_button">
+            <field name="model">real_estate.base_object</field>
+            <field name="name">draft</field>
+            <field name="string">Draft</field>
+        </record>
+        <record model="ir.model.button" id="base_object_approved_button">
+            <field name="model">real_estate.base_object</field>
+            <field name="name">approved</field>
+            <field name="string">Approved</field>
+        </record>
+        <record model="ir.model.button" id="base_object_locked_button">
+            <field name="model">real_estate.base_object</field>
+            <field name="name">locked</field>
+            <field name="string">Locked</field>
+        </record>
+        <record model="ir.model.button" id="base_object_deactivated_button">
+            <field name="model">real_estate.base_object</field>
+            <field name="name">deactivated</field>
+            <field name="string">Deactivated</field>
+        </record>
+        <record model="ir.model.button" id="base_object_refresh_occupancy_button">
+            <field name="model">real_estate.base_object</field>
+            <field name="name">refresh_occupancy</field>
+            <field name="string">Refresh Occupancy</field>
+        </record>
+        <record model="ir.model.button" id="base_object_compute_value_shares_button">
+            <field name="model">real_estate.base_object</field>
+            <field name="name">compute_value_shares</field>
+            <field name="string">Compute Value Shares</field>
+        </record>
+        <record model="ir.model.button" id="base_object_compute_settlement_result_property_button">
+            <field name="model">real_estate.base_object</field>
+            <field name="name">compute_settlement_result_property</field>
+            <field name="string">Compute Settlement Results</field>
+        </record>
+        <record model="ir.model.button" id="base_object_ready_for_billing_property_button">
+            <field name="model">real_estate.base_object</field>
+            <field name="name">ready_for_billing_property</field>
+            <field name="string">Ready for Billing</field>
+        </record>
+        <record model="ir.model.button" id="base_object_billing_property_button">
+            <field name="model">real_estate.base_object</field>
+            <field name="name">billing_property</field>
+            <field name="string">Billing</field>
+        </record>
+        <record model="ir.model.button" id="base_object_cancel_property_button">
+            <field name="model">real_estate.base_object</field>
+            <field name="name">cancel_property</field>
+            <field name="string">Cancel Billing</field>
+        </record>
+        <record model="ir.model.button" id="base_object_estimate_consumption_button">
+            <field name="model">real_estate.base_object</field>
+            <field name="name">estimate_consumption</field>
+            <field name="string">Estimate Consumption</field>
+        </record>
+
         <!-- BaseObject: Object group full access -->
         <record model="ir.model.access" id="access_base_object">
             <field name="model">real_estate.base_object</field>
@@ -742,6 +798,13 @@
             <field name="model">real_estate.meter_reading</field>
             <field name="group" ref="group_real_estate_billing"/>
             <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_meter_reading_default">
+            <field name="model">real_estate.meter_reading</field>
+            <field name="perm_read" eval="False"/>
             <field name="perm_write" eval="False"/>
             <field name="perm_create" eval="False"/>
             <field name="perm_delete" eval="False"/>
@@ -832,6 +895,13 @@
             <field name="perm_create" eval="False"/>
             <field name="perm_delete" eval="False"/>
         </record>
+        <record model="ir.model.access" id="access_base_object_occupancy_default">
+            <field name="model">real_estate.base_object.occupancy</field>
+            <field name="perm_read" eval="False"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
 
       <record model="ir.action.report" id="report_base_object">
          <field name="name">Fact Sheet</field>
@@ -840,6 +910,13 @@
          <field name="report">real_estate/report/fact_sheet.odt</field>
          <field name="template_extension">odt</field>
       </record>
+        <record model="ir.model.access" id="access_base_object_default">
+            <field name="model">real_estate.base_object</field>
+            <field name="perm_read" eval="False"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
 
       <record model="ir.action.keyword" id="report_base_object_keyword">
          <field name="keyword">form_print</field>
