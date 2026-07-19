@@ -3372,6 +3372,26 @@ msgstr ""
 "Bemessungstyp \"{}\": Einheit muss mit der Gruppe \"{}\" übereinstimmen. "
 "Gruppeneinheit: {}, Typeinheit: {}!"
 
+msgctxt "model:ir.message,text:msg_allocation_by_consumption_with_unit"
+msgid "by consumption ({}, HeizkostenV)"
+msgstr "nach Verbrauch ({}, HeizkostenV)"
+
+msgctxt "model:ir.message,text:msg_allocation_by_consumption"
+msgid "by consumption (HeizkostenV)"
+msgstr "nach Verbrauch (HeizkostenV)"
+
+msgctxt "model:ir.message,text:msg_allocation_per_rental_unit"
+msgid "per rental unit"
+msgstr "je Mieteinheit"
+
+msgctxt "model:ir.message,text:msg_allocation_from_external_billing"
+msgid "external billing (consumption)"
+msgstr "externe Abrechnung (Verbrauch)"
+
+msgctxt "model:ir.message,text:msg_allocation_none"
+msgid "no allocation"
+msgstr "keine Umlage"
+
 
 #, python-format
 msgctxt "model:ir.message,text:msg_billing_unit_has_errors"

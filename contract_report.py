@@ -2,6 +2,7 @@
 import re
 import datetime
 
+from trytond.i18n import gettext
 from trytond.report import Report
 
 
@@ -65,12 +66,16 @@ class ContractAnnex4Report(Report):
             return su.m_type.name
         elif rule == 'allocation_by_consumption':
             if su.meter_unit:
-                return 'nach Verbrauch (%s, HeizkostenV)' % su.meter_unit.symbol
-            return 'nach Verbrauch (HeizkostenV)'
+                return gettext(
+                    'real_estate.msg_allocation_by_consumption_with_unit',
+                    ).format(su.meter_unit.symbol)
+            return gettext('real_estate.msg_allocation_by_consumption')
         elif rule == 'allocation_per_rental_unit':
-            return 'je Wohneinheit'
+            return gettext('real_estate.msg_allocation_per_rental_unit')
         elif rule == 'allocation_from_external_billing':
-            return 'externe Abrechnung (Verbrauch)'
+            return gettext('real_estate.msg_allocation_from_external_billing')
+        elif rule == 'no_allocation':
+            return gettext('real_estate.msg_allocation_none')
         return '—'
 
     @classmethod

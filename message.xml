@@ -141,5 +141,20 @@ Either run "Ready for Billing" for each billing unit first, or bill individual b
         <record model="ir.message" id="msg_measurement_type_unit_mismatch">
             <field name="text">Measurement type "{}": unit must match the group "{}". Group unit: {}, type unit: {}!</field>
         </record>
+        <record model="ir.message" id="msg_allocation_by_consumption_with_unit">
+            <field name="text">by consumption ({}, HeizkostenV)</field>
+        </record>
+        <record model="ir.message" id="msg_allocation_by_consumption">
+            <field name="text">by consumption (HeizkostenV)</field>
+        </record>
+        <record model="ir.message" id="msg_allocation_per_rental_unit">
+            <field name="text">per rental unit</field>
+        </record>
+        <record model="ir.message" id="msg_allocation_from_external_billing">
+            <field name="text">external billing (consumption)</field>
+        </record>
+        <record model="ir.message" id="msg_allocation_none">
+            <field name="text">no allocation</field>
+        </record>
     </data>
 </tryton>
