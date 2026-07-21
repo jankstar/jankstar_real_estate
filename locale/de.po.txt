@@ -303,6 +303,10 @@ msgctxt "view:real_estate.base_object:"
 msgid "Cancel Billing"
 msgstr "Storno Abrechnung"
 
+msgctxt "view:real_estate.billing_unit:"
+msgid "Duplicate for Next Period"
+msgstr "Für Folgeperiode duplizieren"
+
 msgctxt "view:real_estate.base_object:"
 msgid "Billing Units"
 msgstr "Abrechnungseinheiten"
@@ -318,6 +322,30 @@ msgstr "Abrechnungseinheiten"
 msgctxt "field:real_estate.base_object,billing_units:"
 msgid "Cost Group"
 msgstr "Kostengruppe"
+
+msgctxt "view:real_estate.base_object:"
+msgid "Billing Unit"
+msgstr "Abrechnungseinheit"
+
+msgctxt "view:real_estate.base_object,billing_units_open:"
+msgid "Billing Unit"
+msgstr "Abrechnungseinheit"
+
+msgctxt "field:real_estate.base_object,billing_units_open:"
+msgid "Billing Unit"
+msgstr "Abrechnungseinheit"
+
+msgctxt "view:real_estate.base_object:"
+msgid "Billing Unit (billed)"
+msgstr "Abrechnungseinheit (abgerechnet)"
+
+msgctxt "view:real_estate.base_object,billing_units_billed:"
+msgid "Billing Unit (billed)"
+msgstr "Abrechnungseinheit (abgerechnet)"
+
+msgctxt "field:real_estate.base_object,billing_units_billed:"
+msgid "Billing Unit (billed)"
+msgstr "Abrechnungseinheit (abgerechnet)"
 
 msgctxt "field:real_estate.base_object,children:"
 msgid "Children"
@@ -728,6 +756,10 @@ msgctxt "field:real_estate.billing_unit,end_date:"
 msgid "End Date"
 msgstr "Endedatum"
 
+msgctxt "field:real_estate.billing_unit,has_successor:"
+msgid "Has Successor"
+msgstr "Hat Nachfolger"
+
 msgctxt "view:real_estate.billing_unit:"
 msgid "Invoice Lines"
 msgstr "Rechnungen"
@@ -759,6 +791,10 @@ msgstr "Name Export"
 msgctxt "field:real_estate.billing_unit,planned_costs:"
 msgid "Planned Costs"
 msgstr "Plankosten"
+
+msgctxt "field:real_estate.billing_unit,predecessor:"
+msgid "Predecessor"
+msgstr "Vorgänger"
 
 msgctxt "field:real_estate.billing_unit,property:"
 msgid "Property"
@@ -2398,6 +2434,10 @@ msgctxt "field:real_estate.settlement_unit,planned_costs:"
 msgid "Planned Costs"
 msgstr "Plankosten"
 
+msgctxt "field:real_estate.settlement_unit,predecessor:"
+msgid "Predecessor"
+msgstr "Vorgänger"
+
 msgctxt "field:real_estate.settlement_unit,property:"
 msgid "Property"
 msgstr "Wirtschaftseinheit"
@@ -3427,6 +3467,16 @@ msgid ""
 msgstr ""
 "Buchen nicht möglich: Abrechnungseinheit/Kostensammler der Zeile \"{line}\" "
 "ist bereits abgerechnet. Sie wird nicht in der Abrechnung berücksichtigt."
+
+
+#, python-format
+msgctxt "model:ir.message,text:msg_billing_unit_already_has_successor"
+msgid ""
+"Cannot duplicate \"%(name)s\": a billing unit for the next period already "
+"exists (predecessor is set)."
+msgstr ""
+"Duplizieren nicht möglich: \"%(name)s\": es existiert bereits eine "
+"Abrechnungseinheit für die Folgeperiode (Vorgänger ist bereits gesetzt)."
 
 
 #, python-format

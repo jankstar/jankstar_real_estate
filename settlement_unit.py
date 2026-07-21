@@ -44,6 +44,9 @@ class SettlementUnit(DeactivableMixin, base_object.re_sequence_ordered(), ModelS
 
     comment = fields.Text("Comment")
 
+    predecessor = fields.Many2One('real_estate.settlement_unit', "Predecessor",
+        readonly=True)
+
     name = fields.Function(fields.Char("Name"), 'on_change_with_name',
         searcher='name_search')
 

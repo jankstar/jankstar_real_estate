@@ -35,6 +35,8 @@
             <label name="value_total"/><field name="value_total"/>
             <label name="time_total"/><field name="time_total"/>
             <newline/>
+            <label name="predecessor"/><field name="predecessor" readonly="1"/>
+            <newline/>
             <separator name="comment" colspan="6"/>
             <field name="comment" colspan="6"/>
         </page>

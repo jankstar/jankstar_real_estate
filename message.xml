@@ -171,5 +171,8 @@ Either run "Ready for Billing" for each billing unit first, or bill individual b
         <record model="ir.message" id="msg_invoice_line_billing_unit_billed_error">
             <field name="text">Cannot post: billing unit/settlement unit of line "{line}" is already billed. It will not be considered in the settlement.</field>
         </record>
+        <record model="ir.message" id="msg_billing_unit_already_has_successor">
+            <field name="text">Cannot duplicate "%(name)s": a billing unit for the next period already exists (predecessor is set).</field>
+        </record>
     </data>
 </tryton>

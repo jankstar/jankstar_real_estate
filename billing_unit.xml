@@ -347,6 +347,11 @@
             <field name="name">cancel</field>
             <field name="string">Cancel Billing</field>
         </record>
+        <record model="ir.model.button" id="billing_unit_duplicate_next_period_button">
+            <field name="model">real_estate.billing_unit</field>
+            <field name="name">duplicate_next_period</field>
+            <field name="string">Duplicate for Next Period</field>
+        </record>
 
         <!-- BillingUnit: admin+billing CRUD, contract+object read -->
         <record model="ir.model.access" id="access_billing_unit_admin">

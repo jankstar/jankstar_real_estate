@@ -135,6 +135,12 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
 
     description = fields.Char('Description', required=True)
 
+    predecessor = fields.Many2One('real_estate.billing_unit', "Predecessor",
+        readonly=True)
+
+    has_successor = fields.Function(
+        fields.Boolean("Has Successor"), 'on_change_with_has_successor')
+
     name = fields.Function(fields.Char("Name"), 'on_change_with_name',
         searcher='name_search')
 
@@ -241,6 +247,10 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
                 'cancel': {
                     'invisible': ~Eval('state').in_(['billed']) | Bool(Eval('collective_billing')),
                     'depends': ['state', 'collective_billing'],
+                    },
+                'duplicate_next_period': {
+                    'invisible': Bool(Eval('has_successor')),
+                    'depends': ['has_successor'],
                     },
                 })
 
@@ -939,6 +949,61 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
 
     @classmethod
     @ModelView.button
+    def duplicate_next_period(cls, billing_units):
+        """Create a new billing unit for the period following each template.
+
+        start_date is set to the day after the template's end_date; end_date
+        is derived automatically (on_change_with_end_date always yields a
+        full year), so no explicit duration calculation is needed.
+        Settlement units are copied along with the billing unit, with
+        planned_costs taken from the template's actual_costs. term_types_of_use
+        is copied too, since approval requires at least one term type to be set.
+        """
+        pool = Pool()
+        SettlementUnit = pool.get('real_estate.settlement_unit')
+
+        for template in billing_units:
+            existing = cls.search([('predecessor', '=', template.id)], limit=1)
+            if existing:
+                raise ValidationError(gettext(
+                    'real_estate.msg_billing_unit_already_has_successor',
+                    name=template.name))
+
+            new_bu = cls(
+                property=template.property,
+                start_date=template.end_date + relativedelta(days=1),
+                description=template.description,
+                calculation_method=template.calculation_method,
+                billing_type=template.billing_type,
+                external_billing=template.external_billing,
+                term_types_of_use=template.term_types_of_use,
+                state='draft',
+                predecessor=template,
+            )
+            new_bu.save()
+
+            for su in template.settlement_units:
+                new_su = SettlementUnit(
+                    billing_unit=new_bu,
+                    sequence=su.sequence,
+                    type=su.type,
+                    allocation_rule=su.allocation_rule,
+                    vacancy=su.vacancy,
+                    m_type=su.m_type,
+                    planned_costs=su.actual_costs,
+                    comment=su.comment,
+                    meter_unit=su.meter_unit,
+                    reg_ex_object=su.reg_ex_object,
+                    reg_ex_meter=su.reg_ex_meter,
+                    predecessor=su,
+                )
+                new_su.save()
+
+            template.add_log('duplicate_next_period',
+                f'Created successor billing unit {new_bu.name} for next period.')
+
+    @classmethod
+    @ModelView.button
     def compute_settlement_result(cls, billing_units):
         """Compute settlement result based on cost shares and cash flow lines of all settlement units.
         Checks chronological order before processing.
@@ -1374,6 +1439,12 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
         ]
         next_date = min(dates) if dates else None
         return next_date is not None and self.start_date == next_date
+
+    @fields.depends('id')
+    def on_change_with_has_successor(self, name=None):
+        if not self.id or self.id < 0:
+            return False
+        return bool(self.search([('predecessor', '=', self.id)], limit=1))
 
     @classmethod
     def view_attributes(cls):

@@ -61,6 +61,8 @@
                 <label name="external_billing"/><field name="external_billing" xexpand="0"/>
                 <newline/>
                 <label name="billing_run_id"/><field name="billing_run_id" colspan="4" readonly="1"/>
+                <newline/>
+                <label name="predecessor"/><field name="predecessor" colspan="4" readonly="1"/>
             </group>
             <group col="6" colspan="4" id="billing_unit_term_types">
                 <label name="term_types_of_use"/><field name="term_types_of_use"/>
@@ -78,5 +80,6 @@
     <button name="check_ready_for_billing" string="Ready for Billing" colspan="1"/>
     <button name="billing_wizard" string="Billing" colspan="1"/>
     <button name="cancel" string="Cancel Billing" colspan="1"/>
+    <button name="duplicate_next_period" string="Duplicate for Next Period" colspan="1"/>
 
 </form>

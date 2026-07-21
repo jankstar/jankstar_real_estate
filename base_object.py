@@ -224,6 +224,17 @@ class BaseObject(Workflow, DeactivableMixin, re_sequence_ordered(), tree(separat
     billing_units = fields.One2Many('real_estate.billing_unit', 'property', 'Billing Units',
         states=_states_only_propperty)
 
+    billing_units_open = fields.One2Many('real_estate.billing_unit', 'property',
+        'Billing Unit',
+        filter=[('state', '!=', 'billed')],
+        states=_states_only_propperty)
+
+    billing_units_billed = fields.One2Many('real_estate.billing_unit', 'property',
+        'Billing Unit (billed)',
+        filter=[('state', '=', 'billed')],
+        readonly=True,
+        states=_states_only_propperty)
+
     next_billing_start_date = fields.Function(
         fields.Date('Next Billing Start Date',
             states=_states_only_propperty),
