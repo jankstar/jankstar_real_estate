@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<form col="2">
+    <label name="company"/><field name="company"/>
+    <label name="property"/><field name="property"/>
+    <label name="billing_run_id"/><field name="billing_run_id"/>
+    <label name="invoice_date"/><field name="invoice_date"/>
+</form>

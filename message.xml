@@ -174,5 +174,8 @@ Either run "Ready for Billing" for each billing unit first, or bill individual b
         <record model="ir.message" id="msg_billing_unit_already_has_successor">
             <field name="text">Cannot duplicate "%(name)s": a billing unit for the next period already exists (predecessor is set).</field>
         </record>
+        <record model="ir.message" id="msg_cancel_billing_no_units_found">
+            <field name="text">No billed billing units found for billing run ID "%(billing_run_id)s".</field>
+        </record>
     </data>
 </tryton>

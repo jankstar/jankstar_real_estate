@@ -613,15 +613,9 @@ class BaseObject(Workflow, DeactivableMixin, re_sequence_ordered(), tree(separat
                 payment_term=payment_term)
 
     @classmethod
-    @ModelView.button
+    @ModelView.button_action('real_estate.wizard_cancel_billing')
     def cancel_property(cls, base_objects):
-        BillingUnit = Pool().get('real_estate.billing_unit')
-        for obj in base_objects:
-            if obj.type != 'property' or obj.state != 'approved':
-                continue
-            units = [bu for bu in obj.billing_units if bu.state == 'billed']
-            if units:
-                BillingUnit.cancel(units)
+        pass
 
     @classmethod
     @ModelView.button_action('real_estate.wizard_estimate_consumption')

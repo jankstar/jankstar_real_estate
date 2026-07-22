@@ -1015,13 +1015,16 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
             ('contractual_partner.name',) + tuple(clause[1:]),
         ]
 
-    def _create_moves(self, terms, date, invoice_state='draft', invoice_date=None):
+    def _create_moves(self, terms, date, invoice_state='draft', invoice_date=None, run_id=None):
         self.add_log('process', f'start quere contract {self.id} at {date}')
         if not terms:
             self.add_log('process', f'stop quere contract {self.id} at {date} - no terms')
             return
 
-        create_moves_run_id = (
+        # run_id is normally generated once per property by the caller
+        # (call_create_moves), so all contracts of that property share it.
+        # Fall back to a freshly generated one for direct/standalone calls.
+        create_moves_run_id = run_id or (
             f"{datetime.datetime.now().strftime('%Y%m%d-%H%M%S')}"
             f"-U{Transaction().user}")
 
@@ -1202,6 +1205,18 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
     def call_create_moves(cls, contract_ids, date, action='re_calc', execute_in_queue=True, invoice_state='draft', invoice_date=None):
         """call create_moves in queue or directly based on execute_in_queue flag"""
         if len(contract_ids) > 0:
+            # One run ID per property, generated once for this whole wizard
+            # invocation (before chunking/queueing), so that all contracts
+            # of the same property share the same create_moves_run_id even
+            # if they end up in different chunks/queued jobs.
+            property_run_ids = {}
+            for contract in cls.browse(contract_ids):
+                prop_id = str(contract.property.id)
+                if prop_id not in property_run_ids:
+                    property_run_ids[prop_id] = (
+                        f"{datetime.datetime.now().strftime('%Y%m%d-%H%M%S')}"
+                        f"-U{Transaction().user}")
+
             chunks = [contract_ids[i:i+_chunk_size] for i in range(0, len(contract_ids), _chunk_size)]
             for chunk in chunks:
                 if execute_in_queue:
@@ -1209,13 +1224,18 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
                     context = transaction.context
                     with transaction.set_context(
                         queue_batch=context.get('queue_batch', True)):
-                        cls.__queue__.create_moves(chunk, date, action, invoice_state, invoice_date)
+                        cls.__queue__.create_moves(
+                            chunk, date, action, invoice_state, invoice_date,
+                            property_run_ids)
                 else:
-                    cls.create_moves(chunk, date, action, invoice_state, invoice_date)
+                    cls.create_moves(
+                        chunk, date, action, invoice_state, invoice_date,
+                        property_run_ids)
 
     @classmethod
-    def create_moves(cls, contract_ids, date, action='re_calc', invoice_state='draft', invoice_date=None):
+    def create_moves(cls, contract_ids, date, action='re_calc', invoice_state='draft', invoice_date=None, property_run_ids=None):
         """Calculate and Create all account move on contract before a date."""
+        property_run_ids = property_run_ids or {}
         for contract_id in contract_ids:
             contract = cls(contract_id)
             contract.add_log('process', f'start "create_moves" with date {date} and action {action}')
@@ -1246,7 +1266,10 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
                     process_terms.append(term.id)
 
             if len(process_terms) > 0 and action in ('create', 're_calc_and_create'):
-                cls._create_moves(contract, process_terms, date, invoice_state, invoice_date)
+                run_id = property_run_ids.get(str(contract.property.id))
+                cls._create_moves(
+                    contract, process_terms, date, invoice_state,
+                    invoice_date, run_id)
 
             contract.add_log('process', f'"create_moves" finished')
             contract.save()

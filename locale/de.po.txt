@@ -3480,6 +3480,15 @@ msgstr ""
 
 
 #, python-format
+msgctxt "model:ir.message,text:msg_cancel_billing_no_units_found"
+msgid ""
+"No billed billing units found for billing run ID \"%(billing_run_id)s\"."
+msgstr ""
+"Keine abgerechneten Abrechnungseinheiten für die Abrechnungslauf-ID "
+"\"%(billing_run_id)s\" gefunden."
+
+
+#, python-format
 msgctxt "model:ir.message,text:msg_billing_unit_has_errors"
 msgid ""
 "Cannot bill: settlement unit(s) have errors in \"%(names)s\". Fix all errors"
@@ -4927,3 +4936,39 @@ msgctxt ""
 "wizard_button:real_estate.terminate_contract.wizard,start,terminate_contract:"
 msgid "OK"
 msgstr "OK"
+
+msgctxt "wizard_button:real_estate.cancel_billing.wizard,start,end:"
+msgid "Cancel"
+msgstr "Abbruch"
+
+msgctxt "wizard_button:real_estate.cancel_billing.wizard,start,do_cancel:"
+msgid "OK"
+msgstr "OK"
+
+msgctxt "field:real_estate.cancel_billing.start,company:"
+msgid "Company"
+msgstr "Gesellschaft"
+
+msgctxt "field:real_estate.cancel_billing.start,property:"
+msgid "Property"
+msgstr "Wirtschaftseinheit"
+
+msgctxt "field:real_estate.cancel_billing.start,billing_run_id:"
+msgid "Billing Run ID"
+msgstr "Abrechnungslauf-ID"
+
+msgctxt "field:real_estate.cancel_billing.start,invoice_date:"
+msgid "Invoice Date"
+msgstr "Rechnungsdatum"
+
+msgctxt "model:real_estate.cancel_billing.start,name:"
+msgid "Cancel Billing - Start"
+msgstr "Abrechnung stornieren - Start"
+
+msgctxt "model:real_estate.cancel_billing.wizard,name:"
+msgid "Cancel Billing Wizard"
+msgstr "Assistent Abrechnung stornieren"
+
+msgctxt "model:ir.action.wizard,name:wizard_cancel_billing"
+msgid "Cancel Billing"
+msgstr "Storno Abrechnung"

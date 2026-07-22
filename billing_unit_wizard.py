@@ -247,3 +247,106 @@ class BillingUnitWizard(Wizard):
             'mode': self.result.mode,
             'message': self.result.message,
         }
+
+
+#**********************************************************************
+class CancelBillingStart(ModelView):
+    'Cancel Billing - Start'
+    __name__ = 'real_estate.cancel_billing.start'
+
+    company = fields.Many2One('company.company', 'Company', required=True)
+    property = fields.Many2One('real_estate.base_object', 'Property',
+        domain=[
+            ('type', '=', 'property'),
+            ('company', '=', Eval('company', -1)),
+        ])
+    billing_run_id = fields.Selection('get_billing_run_ids', 'Billing Run ID',
+        required=True,
+        help="Only billing run IDs of billed billing units matching "
+             "Company/Property above are shown. All billed billing units "
+             "with this billing run ID will be cancelled.")
+    invoice_date = fields.Date('Invoice Date', required=True,
+        help="Reference date for this cancellation, recorded in the "
+             "billing unit log. The date of the reversal accounting "
+             "move itself is determined automatically by the "
+             "accounting module.")
+
+    @fields.depends('company', 'property')
+    def get_billing_run_ids(self):
+        pool = Pool()
+        BillingUnit = pool.get('real_estate.billing_unit')
+        domain = [('state', '=', 'billed'), ('billing_run_id', '!=', None)]
+        if self.company:
+            domain.append(('company', '=', self.company.id))
+        if self.property:
+            domain.append(('property', '=', self.property.id))
+        units = BillingUnit.search(domain)
+        run_ids = sorted({u.billing_run_id for u in units if u.billing_run_id})
+        return [(run_id, run_id) for run_id in run_ids]
+
+    @staticmethod
+    def default_invoice_date():
+        return Pool().get('ir.date').today()
+
+    @classmethod
+    def default_company(cls):
+        pool = Pool()
+        context = Transaction().context
+        active_id = context.get('active_id')
+        active_model = context.get('active_model')
+        if active_id and active_model == 'real_estate.base_object':
+            prop = pool.get('real_estate.base_object')(active_id)
+            return prop.company.id if prop.company else None
+        if active_id and active_model == 'real_estate.billing_unit':
+            billing_unit = pool.get('real_estate.billing_unit')(active_id)
+            return billing_unit.company.id if billing_unit.company else None
+        user = pool.get('res.user')(Transaction().user)
+        return user.company.id if user.company else None
+
+    @classmethod
+    def default_property(cls):
+        pool = Pool()
+        context = Transaction().context
+        active_id = context.get('active_id')
+        active_model = context.get('active_model')
+        if active_id and active_model == 'real_estate.base_object':
+            return active_id
+        if active_id and active_model == 'real_estate.billing_unit':
+            billing_unit = pool.get('real_estate.billing_unit')(active_id)
+            return billing_unit.property.id if billing_unit.property else None
+        return None
+
+
+#**********************************************************************
+class CancelBillingWizard(Wizard):
+    'Cancel Billing Wizard'
+    __name__ = 'real_estate.cancel_billing.wizard'
+
+    start = StateView('real_estate.cancel_billing.start',
+        'real_estate.cancel_billing_start_view_form', [
+            Button('Cancel', 'end', 'tryton-cancel'),
+            Button('OK', 'do_cancel', 'tryton-ok', True),
+        ])
+    do_cancel = StateTransition()
+
+    def transition_do_cancel(self):
+        pool = Pool()
+        BillingUnit = pool.get('real_estate.billing_unit')
+
+        units = BillingUnit.search([
+            ('billing_run_id', '=', self.start.billing_run_id),
+            ('state', '=', 'billed'),
+        ])
+        if not units:
+            raise ValidationError(gettext(
+                'real_estate.msg_cancel_billing_no_units_found',
+                billing_run_id=self.start.billing_run_id))
+
+        BillingUnit.cancel_units(units)
+        for unit in units:
+            unit.add_log('cancel_billing_wizard',
+                f'Billing cancelled via wizard (billing_run_id='
+                f'{self.start.billing_run_id}). Reference invoice date: '
+                f'{self.start.invoice_date}.')
+
+        return 'end'

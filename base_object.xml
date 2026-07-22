@@ -638,6 +638,17 @@
             <field name="wiz_name">real_estate.billing_unit.wizard</field>
         </record>
 
+        <!-- Cancel Billing Wizard -->
+        <record model="ir.ui.view" id="cancel_billing_start_view_form">
+            <field name="model">real_estate.cancel_billing.start</field>
+            <field name="type">form</field>
+            <field name="name">cancel_billing_start_form</field>
+        </record>
+        <record model="ir.action.wizard" id="wizard_cancel_billing">
+            <field name="name">Cancel Billing</field>
+            <field name="wiz_name">real_estate.cancel_billing.wizard</field>
+        </record>
+
         <!-- Estimate Consumption Wizard -->
         <record model="ir.ui.view" id="estimate_consumption_start_view_form">
             <field name="model">real_estate.estimate_consumption.start</field>

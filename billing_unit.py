@@ -896,9 +896,13 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
             bu.add_log('billing', 'Billing completed.')
 
     @classmethod
-    @ModelView.button
-    @Workflow.transition('value_share')
+    @ModelView.button_action('real_estate.wizard_cancel_billing')
     def cancel(cls, billing_units):
+        pass
+
+    @classmethod
+    @Workflow.transition('value_share')
+    def cancel_units(cls, billing_units):
         pool = Pool()
         Invoice = pool.get('account.invoice')
         SettlementResult = pool.get('real_estate.settlement_result')
@@ -926,10 +930,39 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
             if m.moves_actual_costs and m.moves_actual_costs.invoice:
                 invoice_ids.add(m.moves_actual_costs.invoice.id)
 
-        # Cancel invoices
+        # 'posted' and 'paid' invoices are always reversed via a credit note
+        # (never cancelled directly). Only when the original is still open
+        # ('posted') is it also reconciled against the new credit note's
+        # matching line — a 'paid' original is already fully settled, so its
+        # credit note remains its own open item (e.g. for a later refund
+        # payment or offsetting against a future invoice). Everything else
+        # (typically 'draft', with no posted move yet) is simply cancelled;
+        # an already 'cancelled' invoice is left untouched.
         if invoice_ids:
+            MoveLine = pool.get('account.move.line')
             invoices = Invoice.browse(list(invoice_ids))
-            Invoice.cancel(invoices)
+            to_credit = [i for i in invoices if i.state in ('posted', 'paid')]
+            to_cancel = [
+                i for i in invoices if i.state not in ('posted', 'paid', 'cancelled')]
+
+            if to_cancel:
+                Invoice.cancel(to_cancel)
+
+            if to_credit:
+                new_invoices = Invoice.credit(to_credit, refund=False)
+                Invoice.post(new_invoices)
+
+                for invoice, new_invoice in zip(to_credit, new_invoices):
+                    if invoice.state != 'posted':
+                        continue
+                    open_lines = [
+                        line for line in
+                        list(invoice.lines_to_pay) + list(new_invoice.lines_to_pay)
+                        if not line.reconciliation]
+                    if open_lines and sum(
+                            line.debit - line.credit
+                            for line in open_lines) == Decimal(0):
+                        MoveLine.reconcile(open_lines)
 
         # Delete BillingUnitMoves
         BillingUnitMoves.delete(all_moves)
@@ -942,8 +975,10 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
         if results:
             SettlementResult.write(results, {'state': 'approved', 'invoice': None})
 
-        # Transition all scope units back to value_share
-        cls.write(scope_units, {'state': 'value_share'})
+        # Transition all scope units back to value_share and clear the
+        # billing run reference, so a repeated lookup by billing_run_id
+        # (e.g. via the Cancel Billing wizard) no longer matches them.
+        cls.write(scope_units, {'state': 'value_share', 'billing_run_id': None})
         for bu in scope_units:
             bu.add_log('cancel', 'Billing cancelled.')
 

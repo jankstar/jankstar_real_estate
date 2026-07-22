@@ -63,6 +63,7 @@ def register():
         billing_unit_wizard.BillingUnitStart,
         billing_unit_wizard.BillingUnitConfirm,
         billing_unit_wizard.BillingUnitResult,
+        billing_unit_wizard.CancelBillingStart,
         #sequence.Sequence,
         res.User,
         party.Party,
@@ -93,6 +94,7 @@ def register():
         contract_wizard.ContractRunningWizard,
         base_object.EstimateConsumptionWizard,
         billing_unit_wizard.BillingUnitWizard,
+        billing_unit_wizard.CancelBillingWizard,
         module='real_estate', type_='wizard')
     Pool.register(
         base_object.BaseObjectReport,
