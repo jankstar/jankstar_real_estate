@@ -130,6 +130,7 @@ tryton.cfg
 ./view/billing_unit_moves_tree.xml
 ./view/billing_unit_result_form.xml
 ./view/billing_unit_start_form.xml
+./view/cancel_billing_start_form.xml
 ./view/cash_flow_context_form.xml
 ./view/contract_context_form.xml
 ./view/contract_create_moves_confirm_form.xml
@@ -140,6 +141,11 @@ tryton.cfg
 ./view/contract_log_context_form.xml
 ./view/contract_log_form.xml
 ./view/contract_log_tree.xml
+./view/contract_term_adjustment_confirm_form.xml
+./view/contract_term_adjustment_form.xml
+./view/contract_term_adjustment_result_form.xml
+./view/contract_term_adjustment_start_form.xml
+./view/contract_term_adjustment_tree.xml
 ./view/contract_term_cash_flow_form.xml
 ./view/contract_term_cash_flow_tree.xml
 ./view/contract_term_form.xml
@@ -336,6 +342,7 @@ view/billing_unit_moves_form.xml
 view/billing_unit_moves_tree.xml
 view/billing_unit_result_form.xml
 view/billing_unit_start_form.xml
+view/cancel_billing_start_form.xml
 view/cash_flow_context_form.xml
 view/contract_context_form.xml
 view/contract_create_moves_confirm_form.xml
@@ -346,6 +353,11 @@ view/contract_item_object_list.xml
 view/contract_log_context_form.xml
 view/contract_log_form.xml
 view/contract_log_tree.xml
+view/contract_term_adjustment_confirm_form.xml
+view/contract_term_adjustment_form.xml
+view/contract_term_adjustment_result_form.xml
+view/contract_term_adjustment_start_form.xml
+view/contract_term_adjustment_tree.xml
 view/contract_term_cash_flow_form.xml
 view/contract_term_cash_flow_tree.xml
 view/contract_term_form.xml
