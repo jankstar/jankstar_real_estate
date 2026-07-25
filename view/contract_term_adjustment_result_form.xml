@@ -1,0 +1,5 @@
+<?xml version="1.0"?>
+<form col="2">
+    <label name="processed"/><field name="processed"/>
+    <label name="message"/><field name="message" colspan="2"/>
+</form>

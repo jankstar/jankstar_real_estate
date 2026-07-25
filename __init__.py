@@ -56,6 +56,7 @@ def register():
         contract_term.ContractTermCashFlow,
         contract_term.ContractTermCashFlowContext,
         contract_term.ContractTerm,
+        contract_term.ContractTermAdjustment,
         contract_wizard.CreateContractMovesStart,
         contract_wizard.CreateContractMovesConfirm,
         contract_wizard.CreateContractMovesResult,
@@ -64,6 +65,9 @@ def register():
         billing_unit_wizard.BillingUnitConfirm,
         billing_unit_wizard.BillingUnitResult,
         billing_unit_wizard.CancelBillingStart,
+        contract_wizard.ContractTermAdjustmentStart,
+        contract_wizard.ContractTermAdjustmentConfirm,
+        contract_wizard.ContractTermAdjustmentResult,
         #sequence.Sequence,
         res.User,
         party.Party,
@@ -95,6 +99,7 @@ def register():
         base_object.EstimateConsumptionWizard,
         billing_unit_wizard.BillingUnitWizard,
         billing_unit_wizard.CancelBillingWizard,
+        contract_wizard.ContractTermAdjustmentWizard,
         module='real_estate', type_='wizard')
     Pool.register(
         base_object.BaseObjectReport,

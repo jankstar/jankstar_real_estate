@@ -902,7 +902,7 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
 
     @classmethod
     @Workflow.transition('value_share')
-    def cancel_units(cls, billing_units):
+    def cancel_units(cls, billing_units, invoice_date=None):
         pool = Pool()
         Invoice = pool.get('account.invoice')
         SettlementResult = pool.get('real_estate.settlement_result')
@@ -949,7 +949,8 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
                 Invoice.cancel(to_cancel)
 
             if to_credit:
-                new_invoices = Invoice.credit(to_credit, refund=False)
+                new_invoices = Invoice.credit(
+                    to_credit, refund=False, invoice_date=invoice_date)
                 Invoice.post(new_invoices)
 
                 for invoice, new_invoice in zip(to_credit, new_invoices):

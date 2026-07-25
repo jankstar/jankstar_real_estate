@@ -867,6 +867,113 @@
         action="wizard_create_moves"
         id="menu_create_moves"/>
 
+    <!-- Contract Term Adjustment Wizard -->
+    <record model="ir.ui.view" id="contract_term_adjustment_start_view_form">
+        <field name="model">real_estate.contract_term_adjustment.start</field>
+        <field name="type">form</field>
+        <field name="name">contract_term_adjustment_start_form</field>
+    </record>
+    <record model="ir.ui.view" id="contract_term_adjustment_confirm_view_form">
+        <field name="model">real_estate.contract_term_adjustment.confirm</field>
+        <field name="type">form</field>
+        <field name="name">contract_term_adjustment_confirm_form</field>
+    </record>
+    <record model="ir.ui.view" id="contract_term_adjustment_result_view_form">
+        <field name="model">real_estate.contract_term_adjustment.result</field>
+        <field name="type">form</field>
+        <field name="name">contract_term_adjustment_result_form</field>
+    </record>
+
+    <record model="ir.action.wizard" id="wizard_contract_term_adjustment">
+        <field name="name">Adjustment of Contract Terms</field>
+        <field name="wiz_name">real_estate.contract_term_adjustment.wizard</field>
+    </record>
+
+    <!-- ContractTermAdjustment standalone menu -->
+    <record model="ir.ui.view" id="contract_term_adjustment_view_tree">
+        <field name="model">real_estate.contract.term.adjustment</field>
+        <field name="type">tree</field>
+        <field name="name">contract_term_adjustment_tree</field>
+    </record>
+    <record model="ir.ui.view" id="contract_term_adjustment_view_form">
+        <field name="model">real_estate.contract.term.adjustment</field>
+        <field name="type">form</field>
+        <field name="name">contract_term_adjustment_form</field>
+    </record>
+
+    <record model="ir.action.act_window" id="act_contract_term_adjustment">
+        <field name="name">Contract Term Adjustments</field>
+        <field name="res_model">real_estate.contract.term.adjustment</field>
+    </record>
+    <record model="ir.action.act_window.view" id="act_contract_term_adjustment_view1">
+        <field name="sequence" eval="10"/>
+        <field name="view" ref="contract_term_adjustment_view_tree"/>
+        <field name="act_window" ref="act_contract_term_adjustment"/>
+    </record>
+    <record model="ir.action.act_window.view" id="act_contract_term_adjustment_view2">
+        <field name="sequence" eval="20"/>
+        <field name="view" ref="contract_term_adjustment_view_form"/>
+        <field name="act_window" ref="act_contract_term_adjustment"/>
+    </record>
+
+    <menuitem
+        parent="menu_real_estate_contracts"
+        sequence="95"
+        name="Adjustment"
+        id="menu_real_estate_contracts_adjustment"/>
+
+    <menuitem
+        parent="menu_real_estate_contracts_adjustment"
+        sequence="10"
+        action="wizard_contract_term_adjustment"
+        id="menu_contract_term_adjustment"/>
+
+    <menuitem
+        parent="menu_real_estate_contracts_adjustment"
+        action="act_contract_term_adjustment"
+        sequence="20"
+        id="menu_contract_term_adjustment_list"/>
+
+    <record model="ir.model.access" id="access_contract_term_adjustment_contract_group">
+        <field name="model">real_estate.contract.term.adjustment</field>
+        <field name="group" ref="group_real_estate_contract"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_delete" eval="True"/>
+    </record>
+    <record model="ir.model.access" id="access_contract_term_adjustment_admin">
+        <field name="model">real_estate.contract.term.adjustment</field>
+        <field name="group" ref="group_real_estate_admin"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_delete" eval="True"/>
+    </record>
+    <record model="ir.model.access" id="access_contract_term_adjustment_object_group">
+        <field name="model">real_estate.contract.term.adjustment</field>
+        <field name="group" ref="group_real_estate_object"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_delete" eval="False"/>
+    </record>
+    <record model="ir.model.access" id="access_contract_term_adjustment_billing">
+        <field name="model">real_estate.contract.term.adjustment</field>
+        <field name="group" ref="group_real_estate_billing"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_delete" eval="False"/>
+    </record>
+    <record model="ir.model.access" id="access_contract_term_adjustment_default">
+        <field name="model">real_estate.contract.term.adjustment</field>
+        <field name="perm_read" eval="False"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_delete" eval="False"/>
+    </record>
+
     <record model="ir.ui.view" id="general_ledger_account_contract_view_list">
         <field name="model">real_estate.account_contract</field>
         <field name="type">tree</field>

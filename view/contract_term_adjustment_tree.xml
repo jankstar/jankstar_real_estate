@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<tree>
+    <field name="state" width="80"/>
+    <field name="adjustment_mode" width="100" optional="1"/>
+    <field name="company" optional="1"/>
+    <field name="property"/>
+    <field name="contract"/>
+    <field name="term_old"/>
+    <field name="term_new"/>
+    <field name="valid_from_old" optional="1"/>
+    <field name="amount_old"/>
+    <field name="valid_from_new" optional="1"/>
+    <field name="amount_new"/>
+    <field name="settlement_result" optional="1"/>
+</tree>

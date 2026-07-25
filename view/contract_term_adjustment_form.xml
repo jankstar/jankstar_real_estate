@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<form col="4">
+    <label name="state"/><field name="state"/>
+    <label name="adjustment_mode"/><field name="adjustment_mode"/>
+    <newline/>
+    <label name="company"/><field name="company" readonly="1"/>
+    <label name="property"/><field name="property" readonly="1"/>
+    <newline/>
+    <label name="contract"/><field name="contract" readonly="1" colspan="3"/>
+    <newline/>
+    <label name="settlement_result"/><field name="settlement_result" colspan="3"/>
+    <newline/>
+    <separator name="term_old" colspan="4"/>
+    <label name="term_old"/><field name="term_old" colspan="3"/>
+    <newline/>
+    <label name="valid_from_old"/><field name="valid_from_old" readonly="1"/>
+    <label name="valid_to_old"/><field name="valid_to_old" readonly="1"/>
+    <newline/>
+    <label name="amount_old"/><field name="amount_old" readonly="1"/>
+    <label name="tax_amount_old"/><field name="tax_amount_old" readonly="1"/>
+    <newline/>
+    <label name="total_amount_old"/><field name="total_amount_old" readonly="1"/>
+    <newline/>
+    <separator name="term_new" colspan="4"/>
+    <label name="term_new"/><field name="term_new" colspan="3"/>
+    <newline/>
+    <label name="valid_from_new"/><field name="valid_from_new" readonly="1"/>
+    <label name="valid_to_new"/><field name="valid_to_new" readonly="1"/>
+    <newline/>
+    <label name="amount_new"/><field name="amount_new" readonly="1"/>
+    <label name="tax_amount_new"/><field name="tax_amount_new" readonly="1"/>
+    <newline/>
+    <label name="total_amount_new"/><field name="total_amount_new" readonly="1"/>
+    <newline/>
+    <field name="currency" invisible="1"/>
+</form>

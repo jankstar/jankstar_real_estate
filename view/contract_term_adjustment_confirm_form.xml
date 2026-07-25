@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<form col="2">
+    <label name="procedure"/><field name="procedure"/>
+    <label name="adjustment_mode"/><field name="adjustment_mode"/>
+    <label name="company"/><field name="company"/>
+    <label name="property"/><field name="property"/>
+    <label name="valid_from_new"/><field name="valid_from_new"/>
+    <label name="billing_run_id"/><field name="billing_run_id"/>
+    <label name="no_terminated_contracts"/><field name="no_terminated_contracts"/>
+    <label name="no_future_terms"/><field name="no_future_terms"/>
+    <label name="no_booked_terms"/><field name="no_booked_terms"/>
+    <label name="only_rhythm_monthly_1"/><field name="only_rhythm_monthly_1"/>
+    <label name="max_adjustment_percent"/><field name="max_adjustment_percent"/>
+    <label name="max_adjustment_absolute"/><field name="max_adjustment_absolute"/>
+</form>

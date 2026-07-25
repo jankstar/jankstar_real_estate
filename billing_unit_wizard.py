@@ -342,7 +342,7 @@ class CancelBillingWizard(Wizard):
                 'real_estate.msg_cancel_billing_no_units_found',
                 billing_run_id=self.start.billing_run_id))
 
-        BillingUnit.cancel_units(units)
+        BillingUnit.cancel_units(units, invoice_date=self.start.invoice_date)
         for unit in units:
             unit.add_log('cancel_billing_wizard',
                 f'Billing cancelled via wizard (billing_run_id='

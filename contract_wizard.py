@@ -6,11 +6,13 @@ from trytond.pyson import Eval
 from trytond.wizard import (
     Button, StateTransition, StateView, Wizard)
 from trytond.transaction import check_access, without_check_access
+from trytond.modules.currency.fields import Monetary
 
 from dateutil.relativedelta import relativedelta
 
 import datetime
 import calendar
+from decimal import Decimal
 
 
 #**********************************************************************
@@ -365,3 +367,300 @@ class ContractRunningWizard(Wizard):
         if contracts:
             Contract.running(contracts)
         return 'end'
+
+
+#**********************************************************************
+class ContractTermAdjustmentStart(ModelView):
+    'Contract Term Adjustment - Start'
+    __name__ = 'real_estate.contract_term_adjustment.start'
+
+    procedure = fields.Selection([
+        ('operation_costs_billing', 'Operation Costs Billing'),
+        ('operation_costs_plan', 'Operation Costs Plan'),
+        ('free_adjustment', 'Free Adjustment'),
+        ], 'Adjustment Procedure', required=True, sort=False,
+        help="Operation Costs Billing: adjust advance payments based on an "
+             "operating cost billing run. Operation Costs Plan: adjust "
+             "advance payments based on an operating cost plan. Free "
+             "Adjustment: adjust by a free percentage or absolute value.")
+    adjustment_mode = fields.Selection('get_adjustment_mode',
+        'Adjustment Mode', sort=False,
+        states={
+            'invisible': Eval('procedure') != 'free_adjustment',
+            'required': Eval('procedure') == 'free_adjustment',
+        })
+
+    company = fields.Many2One('company.company', 'Company', required=True)
+    property = fields.Many2One('real_estate.base_object', 'Property',
+        domain=[
+            ('type', '=', 'property'),
+            ('company', '=', Eval('company', -1)),
+        ])
+
+    valid_from_new = fields.Date('Valid From (New Term)', required=True,
+        help="Effective date from which the new, adjusted term is valid. "
+             "The old term is closed the day before this date.")
+
+    billing_run_id = fields.Selection('get_billing_run_ids', 'Billing Run ID',
+        states={
+            'invisible': Eval('procedure') != 'operation_costs_billing',
+            'required': Eval('procedure') == 'operation_costs_billing',
+        },
+        help="Only billing run IDs of billed billing units matching "
+             "Company/Property above are shown.")
+
+    no_terminated_contracts = fields.Boolean('No Contracts with Termination',
+        states={'invisible': Eval('procedure') != 'operation_costs_billing'},
+        help="Do not adjust terms of contracts that already have a "
+             "termination (Kündigung) set.")
+    no_future_terms = fields.Boolean('No Future Terms',
+        states={'invisible': Eval('procedure') != 'operation_costs_billing'},
+        help="Do not adjust terms that already have a future condition "
+             "scheduled (a later term with a later valid_from already "
+             "exists).")
+    no_booked_terms = fields.Boolean('Do Not Adjust Booked Terms',
+        states={'invisible': Eval('procedure') != 'operation_costs_billing'},
+        help="Do not adjust terms that already have booked (posted) cash "
+             "flow entries for the affected period.")
+    only_rhythm_monthly_1 = fields.Boolean('Only Rhythm Monthly x1',
+        states={'invisible': Eval('procedure') != 'operation_costs_billing'},
+        help="Only adjust terms with rhythm type 'monthly' and rhythm "
+             "count 1.")
+    max_adjustment_percent = fields.Numeric('Max Adjustment %',
+        digits=(None, 2),
+        states={'invisible': Eval('procedure') != 'operation_costs_billing'},
+        help="Maximum allowed adjustment, expressed as a percentage of the "
+             "current amount.")
+    currency = fields.Function(
+        fields.Many2One('currency.currency', 'Currency'),
+        'on_change_with_currency')
+    max_adjustment_absolute = Monetary('Max Adjustment Absolute',
+        currency='currency', digits='currency',
+        states={'invisible': Eval('procedure') != 'operation_costs_billing'},
+        help="Maximum allowed adjustment, expressed as an absolute amount.")
+
+    @classmethod
+    def get_adjustment_mode(cls):
+        pool = Pool()
+        Adjustment = pool.get('real_estate.contract.term.adjustment')
+        return Adjustment.fields_get(
+            ['adjustment_mode'])['adjustment_mode']['selection']
+
+    @fields.depends('company', 'property')
+    def get_billing_run_ids(self):
+        pool = Pool()
+        BillingUnit = pool.get('real_estate.billing_unit')
+        domain = [('state', '=', 'billed'), ('billing_run_id', '!=', None)]
+        if self.company:
+            domain.append(('company', '=', self.company.id))
+        if self.property:
+            domain.append(('property', '=', self.property.id))
+        units = BillingUnit.search(domain)
+        run_ids = sorted({u.billing_run_id for u in units if u.billing_run_id})
+        return [(run_id, run_id) for run_id in run_ids]
+
+    @fields.depends('company')
+    def on_change_with_currency(self, name=None):
+        if self.company and self.company.currency:
+            return self.company.currency.id
+        return None
+
+    @staticmethod
+    def default_procedure():
+        return 'operation_costs_billing'
+
+    @staticmethod
+    def default_valid_from_new():
+        return Pool().get('ir.date').today()
+
+    @staticmethod
+    def default_no_terminated_contracts():
+        return True
+
+    @staticmethod
+    def default_no_future_terms():
+        return True
+
+    @staticmethod
+    def default_no_booked_terms():
+        return True
+
+    @staticmethod
+    def default_only_rhythm_monthly_1():
+        return True
+
+    @staticmethod
+    def default_max_adjustment_percent():
+        return Decimal('10')
+
+    @staticmethod
+    def default_max_adjustment_absolute():
+        return Decimal('50')
+
+    @classmethod
+    def default_company(cls):
+        pool = Pool()
+        context = Transaction().context
+        active_id = context.get('active_id')
+        active_model = context.get('active_model')
+        if active_id and active_model == 'real_estate.base_object':
+            prop = pool.get('real_estate.base_object')(active_id)
+            return prop.company.id if prop.company else None
+        user = pool.get('res.user')(Transaction().user)
+        return user.company.id if user.company else None
+
+    @classmethod
+    def default_property(cls):
+        context = Transaction().context
+        active_id = context.get('active_id')
+        active_model = context.get('active_model')
+        if active_id and active_model == 'real_estate.base_object':
+            return active_id
+        return None
+
+
+#**********************************************************************
+class ContractTermAdjustmentConfirm(ModelView):
+    'Contract Term Adjustment - Confirm'
+    __name__ = 'real_estate.contract_term_adjustment.confirm'
+
+    procedure = fields.Char('Adjustment Procedure', readonly=True)
+    adjustment_mode = fields.Char('Adjustment Mode', readonly=True)
+    company = fields.Many2One('company.company', 'Company', readonly=True)
+    property = fields.Many2One('real_estate.base_object', 'Property',
+        readonly=True)
+    valid_from_new = fields.Date('Valid From (New Term)', readonly=True)
+    billing_run_id = fields.Char('Billing Run ID', readonly=True)
+    no_terminated_contracts = fields.Boolean('No Contracts with Termination',
+        readonly=True)
+    no_future_terms = fields.Boolean('No Future Terms', readonly=True)
+    no_booked_terms = fields.Boolean('Do Not Adjust Booked Terms',
+        readonly=True)
+    only_rhythm_monthly_1 = fields.Boolean('Only Rhythm Monthly x1',
+        readonly=True)
+    max_adjustment_percent = fields.Numeric('Max Adjustment %', readonly=True)
+    max_adjustment_absolute = fields.Numeric('Max Adjustment Absolute',
+        readonly=True)
+
+
+#**********************************************************************
+class ContractTermAdjustmentResult(ModelView):
+    'Contract Term Adjustment - Result'
+    __name__ = 'real_estate.contract_term_adjustment.result'
+
+    processed = fields.Integer('Processed', readonly=True)
+    message = fields.Text('Message', readonly=True)
+
+
+#**********************************************************************
+class ContractTermAdjustmentWizard(Wizard):
+    'Contract Term Adjustment Wizard'
+    __name__ = 'real_estate.contract_term_adjustment.wizard'
+
+    start = StateView('real_estate.contract_term_adjustment.start',
+        'real_estate.contract_term_adjustment_start_view_form', [
+            Button('Cancel', 'end', 'tryton-cancel'),
+            Button('OK', 'confirm', 'tryton-ok', True),
+        ])
+    confirm = StateView('real_estate.contract_term_adjustment.confirm',
+        'real_estate.contract_term_adjustment_confirm_view_form', [
+            Button('Cancel', 'end', 'tryton-cancel'),
+            Button('Process', 'do_adjustment', 'tryton-ok', True),
+        ])
+    do_adjustment = StateTransition()
+    result = StateView('real_estate.contract_term_adjustment.result',
+        'real_estate.contract_term_adjustment_result_view_form', [
+            Button('Close', 'end', 'tryton-ok', True),
+        ])
+
+    _procedure_labels = {
+        'operation_costs_billing': 'Operation Costs Billing',
+        'operation_costs_plan': 'Operation Costs Plan',
+        'free_adjustment': 'Free Adjustment',
+    }
+    _adjustment_mode_labels = {
+        'percentage': 'Percentage',
+        'absolute': 'Absolute',
+    }
+
+    def default_confirm(self, fields):
+        return {
+            'procedure': self._procedure_labels.get(
+                self.start.procedure, self.start.procedure or ''),
+            'adjustment_mode': self._adjustment_mode_labels.get(
+                self.start.adjustment_mode,
+                self.start.adjustment_mode or ''),
+            'company': self.start.company.id if self.start.company else None,
+            'property': self.start.property.id if self.start.property else None,
+            'valid_from_new': self.start.valid_from_new,
+            'billing_run_id': self.start.billing_run_id or '',
+            'no_terminated_contracts': self.start.no_terminated_contracts,
+            'no_future_terms': self.start.no_future_terms,
+            'no_booked_terms': self.start.no_booked_terms,
+            'only_rhythm_monthly_1': self.start.only_rhythm_monthly_1,
+            'max_adjustment_percent': self.start.max_adjustment_percent,
+            'max_adjustment_absolute': self.start.max_adjustment_absolute,
+        }
+
+    def transition_do_adjustment(self):
+        result = self._adjustment()
+        self.result.processed = result.get('processed', 0)
+        self.result.message = result.get('message', '')
+        return 'result'
+
+    def _adjustment_operation_costs_billing(self):
+        # Implementation for operation costs billing adjustment
+        return {
+            'processed': 0,
+            'message': (
+                f'Adjustment processing for procedure '
+                f'"{self.start.procedure}" is not yet implemented.'),
+        }
+
+    def _adjustment_operation_costs_plan(self):
+        # Implementation for operation costs plan adjustment
+        return {
+            'processed': 0,
+            'message': (
+                f'Adjustment processing for procedure '
+                f'"{self.start.procedure}" is not yet implemented.'),
+        }
+
+    def _adjustment_free_adjustment(self):
+        # Implementation for free adjustment
+        return {
+            'processed': 0,
+            'message': (
+                f'Adjustment processing for procedure '
+                f'"{self.start.procedure}" is not yet implemented.'),
+        }
+
+    def _adjustment(self):
+        """Placeholder for the term adjustment processing.
+
+        Selection logic and write-back to ContractTerm are not yet
+        specified and will be added in a later step.
+        """
+
+
+        match self.start.procedure:
+            case 'operation_costs_billing':
+                return self._adjustment_operation_costs_billing()
+            case 'operation_costs_plan':
+                return self._adjustment_operation_costs_plan()
+            case 'free_adjustment':
+                return self._adjustment_free_adjustment()
+            case _: 
+
+                return {
+                    'processed': 0,
+                    'message': (
+                        f'Adjustment processing for procedure '
+                        f'"{self.start.procedure}" is not yet implemented.'),
+        }
+
+    def default_result(self, fields):
+        return {
+            'processed': self.result.processed,
+            'message': self.result.message,
+        }
