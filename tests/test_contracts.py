@@ -176,6 +176,45 @@ def get_retail_objects(property_obj, uc_retail):
     ], order=[('sequence', 'ASC')])
 
 
+def get_admin_user():
+    User = Model.get('res.user')
+    admin_users = User.find([('login', '=', 'admin')])
+    if not admin_users:
+        print('WARNUNG: Benutzer "admin" nicht gefunden.', file=sys.stderr)
+        return None
+    return admin_users[0]
+
+
+def get_measurement_type(name: str):
+    MeasurementType = Model.get('real_estate.measurement.type')
+    results = MeasurementType.find([('name', '=', name)])
+    if not results:
+        print(f'WARNUNG: Bemessungstyp "{name}" nicht gefunden.', file=sys.stderr)
+        return None
+    return results[0]
+
+
+def get_water_meter(base_object):
+    BaseObject = Model.get('real_estate.base_object')
+    results = BaseObject.find([
+        ('parent', '=', base_object.id),
+        ('type', '=', 'equipment'),
+        ('e_type', '=', 'meters'),
+    ], limit=1)
+    return results[0] if results else None
+
+
+def get_measurement_value(base_object, m_type):
+    if m_type is None:
+        return None
+    Measurement = Model.get('real_estate.measurement')
+    results = Measurement.find([
+        ('base_object', '=', base_object.id),
+        ('m_type', '=', m_type.id),
+    ])
+    return results[0].value if results else None
+
+
 def get_contract_type(type_of_use: str = 'residential', sequence: int = None):
     ContractType = Model.get('real_estate.contract.type')
     domain = [('types_of_use', 'in', type_of_use)]
@@ -267,7 +306,62 @@ def create_contract_item(contract, obj, sequence: int):
     return item
 
 
-def terminate_contract(contract, termination_date, receipt_date):
+def record_meter_reading(contract, reading_date, t_wfl, admin_user):
+    """Record a water meter reading (Messbeleg) for the rental object(s) of a
+    contract, dated on the given reading_date (contract termination or
+    start of a new tenancy). The consumption is computed linearly over
+    time: 10 m³/year per 100 m² of living area."""
+    MeterReading = Model.get('real_estate.meter_reading')
+    seen_object_ids = set()
+    for item in contract.items:
+        for item_obj in item.objects:
+            obj = item_obj.object
+            if obj.id in seen_object_ids:
+                continue
+            seen_object_ids.add(obj.id)
+
+            meter = get_water_meter(obj)
+            if meter is None:
+                continue
+
+            area = get_measurement_value(obj, t_wfl)
+            if area is None:
+                print(f'    WARNUNG: Keine Wohnflächen-Bemessung für "{obj.name}" '
+                      f'gefunden – Ablesung übersprungen.', file=sys.stderr)
+                continue
+
+            last = MeterReading.find(
+                [('base_object', '=', meter.id)],
+                order=[('reading_date', 'DESC')], limit=1)
+            if not last:
+                print(f'    WARNUNG: Keine vorherige Ablesung für Zähler '
+                      f'"{meter.name}" gefunden – Ablesung übersprungen.',
+                      file=sys.stderr)
+                continue
+            last_reading = last[0]
+
+            days_elapsed = (reading_date - last_reading.reading_date).days
+            if days_elapsed <= 0:
+                continue
+
+            annual_consumption = Decimal(str(area)) / Decimal(100) * Decimal(10)
+            consumption = annual_consumption * Decimal(days_elapsed) / Decimal(365)
+            new_value = (last_reading.value + consumption).quantize(Decimal('1'))
+
+            reading = MeterReading()
+            reading.base_object = meter
+            reading.m_type = 'reading'
+            reading.meter_id = last_reading.meter_id
+            reading.reading_date = reading_date
+            reading.reading_user = admin_user
+            reading.value = new_value
+            reading.save()
+            print(f'    Messbeleg: Zähler "{meter.name}" '
+                  f'{last_reading.value} → {new_value} m³ '
+                  f'(+{consumption:.1f} m³ seit {last_reading.reading_date})')
+
+
+def terminate_contract(contract, termination_date, receipt_date, t_wfl, admin_user):
     contract.state = 'terminated'
     contract.terminated_by_type = 'tenant'
     contract.receipt_of_termination_notice = receipt_date
@@ -276,10 +370,12 @@ def terminate_contract(contract, termination_date, receipt_date):
     contract.save()
     print(f'  Vertrag id={contract.id} → terminated per {termination_date} '
           f'(Eingang Kündigung: {receipt_date})')
+    record_meter_reading(contract, termination_date, t_wfl, admin_user)
 
 
 def create_followup_contract(terminated_contract, company, property_obj, c_type,
-                             currency, partner, invoice_address, start_date, sequence):
+                             currency, partner, invoice_address, start_date, sequence,
+                             t_wfl, admin_user):
     """Create a follow-up contract copying all items and terms from the predecessor."""
     Contract = Model.get('real_estate.contract')
     ContractItem = Model.get('real_estate.contract.item')
@@ -335,6 +431,12 @@ def create_followup_contract(terminated_contract, company, property_obj, c_type,
         new_term.save()
         print(f'    Kondition: {old_term.term_type.name}, '
               f'EP={old_term.unit_price} EUR')
+
+    # Übergabe-Ablesung bei Mietbeginn – nicht für Verträge, die (wie alle
+    # Erstverträge) am START_DATE beginnen, dafür existiert bereits die
+    # initiale Ablesung aus test_immo.py.
+    if start_date != START_DATE:
+        record_meter_reading(contract, start_date, t_wfl, admin_user)
 
     return contract
 
@@ -423,6 +525,9 @@ def main():
     tt_hz         = get_term_type(3000)  # Heizkosten
     tt_parking    = get_term_type(1100)  # Miete Stellplatz
     tt_commercial = get_term_type(8000)  # Gewerbemiete
+
+    t_wfl = get_measurement_type('Wohnfläche')
+    admin_user = get_admin_user()
 
     Country = Model.get('country.country')
     countries = Country.find([('code', '=', 'DE')])
@@ -548,7 +653,7 @@ def main():
         to_terminate = random.sample(all_contracts, n_term)
         print(f'\n--- Verträge kündigen ({n_term}x) ---')
         for c, (term_date, receipt_date) in zip(to_terminate, TERMINATIONS):
-            terminate_contract(c, term_date, receipt_date)
+            terminate_contract(c, term_date, receipt_date, t_wfl, admin_user)
 
         # Follow-up contract for the 31.05.2025 termination
         if n_term > 0:
@@ -571,6 +676,8 @@ def main():
                 invoice_address=address,
                 start_date=followup_start,
                 sequence=contract_seq,
+                t_wfl=t_wfl,
+                admin_user=admin_user,
             )
             contract_seq += 10
             followup.click('running')
@@ -597,6 +704,8 @@ def main():
                 invoice_address=address,
                 start_date=followup_start,
                 sequence=contract_seq,
+                t_wfl=t_wfl,
+                admin_user=admin_user,
             )
             contract_seq += 10
             followup.click('running')
