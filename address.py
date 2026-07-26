@@ -146,9 +146,13 @@ class Address(
 
     @classmethod
     def default_country(cls):
-        lCompany = Transaction().context.get('company')
-        if lCompany:
-            return lCompany.country
+        company_id = Transaction().context.get('company')
+        if company_id:
+            company = Pool().get('company.company')(company_id)
+            if company.party:
+                for address in company.party.addresses:
+                    if address.country:
+                        return address.country.id
         return Transaction().context.get('country')
 
     @fields.depends('street')

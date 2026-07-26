@@ -648,7 +648,11 @@ class ContractTerm(sequence_ordered(), ModelSQL, ModelView, TaxableMixin):
         pool = Pool()
         InvoiceLine = pool.get('account.invoice.line')
         CashFlow = pool.get('real_estate.contract.term.cash_flow')
-        invoice_lines = InvoiceLine.search([('term', '=', self.id), ('invoice.state', '!=', 'cancelled')])
+        invoice_lines = InvoiceLine.search([
+            ('term', '=', self.id),
+            ('invoice.state', '!=', 'cancelled'),
+            ('assignment_control', '=', 'contract'),
+            ])
 
         for cash_flow in self.cash_flow:
             CashFlow.delete([cash_flow])
