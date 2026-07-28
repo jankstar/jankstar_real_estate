@@ -154,6 +154,28 @@ class SettlementUnit(DeactivableMixin, base_object.re_sequence_ordered(), ModelS
     invoice_lines = fields.Function(fields.One2Many('account.invoice.line', 'settlement_unit', 'Invoice Lines'),
         'on_change_with_invoice_lines', setter='set_invoice_lines')
 
+    option_rate_method = fields.Selection([
+            ('fix_0', 'Fix: Option Rate 0.0 %'),
+            ('fix_100', 'Fix: Option Rate 100.0 %'),
+            ('dynamic_measurement', 'Dynamic Measurement'),
+            ], "Option Rate Method", required=True, sort=False)
+
+    option_measurement_type = fields.Many2One(
+        'real_estate.measurement.type', "Option Measurement Type",
+        ondelete='RESTRICT',
+        domain=[('is_group', '=', False)],
+        states={
+            'invisible': Eval('option_rate_method') != 'dynamic_measurement',
+            'required': Eval('option_rate_method') == 'dynamic_measurement',
+            })
+
+    option_rates = fields.One2Many('real_estate.option_rate', 'settlement_unit',
+        "Option Rates")
+
+    purchase_taxes_expense = fields.Function(
+        fields.Boolean("Purchase Taxes as Expense"),
+        'on_change_with_purchase_taxes_expense')
+
     @classmethod
     def delete(cls, settlement_units):
         for su in settlement_units:
@@ -173,6 +195,9 @@ class SettlementUnit(DeactivableMixin, base_object.re_sequence_ordered(), ModelS
             ('//page[@id="page_meters"]', 'states', {
                 'invisible': Eval('allocation_rule') != 'allocation_by_consumption',
             }),
+            ('//page[@id="page_option_rate"]', 'states', {
+                'invisible': Bool(Eval('purchase_taxes_expense', False)),
+            }),
             ('/tree', 'visual',
                 If(Eval('sub_state', '') == 'error', 'danger', ''),
                 ['sub_state']),
@@ -189,6 +214,16 @@ class SettlementUnit(DeactivableMixin, base_object.re_sequence_ordered(), ModelS
     @staticmethod
     def default_vacancy():
         return 'no_allocation'
+
+    @staticmethod
+    def default_option_rate_method():
+        return 'fix_0'
+
+    @fields.depends('company', '_parent_company.purchase_taxes_expense')
+    def on_change_with_purchase_taxes_expense(self, name=None):
+        if self.company:
+            return self.company.purchase_taxes_expense
+        return False
 
     @staticmethod
     def get_states():

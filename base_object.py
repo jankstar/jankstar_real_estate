@@ -353,6 +353,34 @@ class BaseObject(Workflow, DeactivableMixin, re_sequence_ordered(), tree(separat
         states=_states_only_equipment_meter,
         )
 
+    ## Option rate (VAT deduction option) - not applicable to equipment
+    _states_only_option_rate = {
+            'invisible': (Eval('type') == 'equipment')
+                | Bool(Eval('purchase_taxes_expense', False)),
+            }
+
+    option_rate_method = fields.Selection([
+            ('fix_0', 'Fix: Option Rate 0.0 %'),
+            ('fix_100', 'Fix: Option Rate 100.0 %'),
+            ('dynamic_measurement', 'Dynamic Measurement'),
+            ], "Option Rate Method", required=True, sort=False)
+
+    option_measurement_type = fields.Many2One(
+        'real_estate.measurement.type', "Option Measurement Type",
+        ondelete='RESTRICT',
+        domain=[('is_group', '=', False)],
+        states={
+            'invisible': Eval('option_rate_method') != 'dynamic_measurement',
+            'required': Eval('option_rate_method') == 'dynamic_measurement',
+            })
+
+    option_rates = fields.One2Many('real_estate.option_rate', 'base_object',
+        "Option Rates")
+
+    purchase_taxes_expense = fields.Function(
+        fields.Boolean("Purchase Taxes as Expense"),
+        'on_change_with_purchase_taxes_expense')
+
     @classmethod
     def view_attributes(cls):
         return super().view_attributes() + [
@@ -361,7 +389,8 @@ class BaseObject(Workflow, DeactivableMixin, re_sequence_ordered(), tree(separat
             ('/form/notebook/page[@id="page_occupancy"]', 'states', cls._states_only_object),
             ('/form/notebook/page[@id="page_equipment"]', 'states', cls._states_only_equipment),
             ('/form/notebook/page[@id="page_meter"]', 'states', cls._states_only_equipment_meter),
-            ('/form/notebook/page[@id="page_billing_unit"]', 'states', cls._states_only_propperty),      
+            ('/form/notebook/page[@id="page_billing_unit"]', 'states', cls._states_only_propperty),
+            ('/form/notebook/page[@id="page_option_rate"]', 'states', cls._states_only_option_rate),
             ]
 
 
@@ -650,7 +679,10 @@ class BaseObject(Workflow, DeactivableMixin, re_sequence_ordered(), tree(separat
     def default_meter_no_decimals(cls):
         return True
 
-    
+    @staticmethod
+    def default_option_rate_method():
+        return 'fix_0'
+
     @classmethod
     def date2string(cls, date):
         User = Pool().get('res.user')
@@ -703,7 +735,13 @@ class BaseObject(Workflow, DeactivableMixin, re_sequence_ordered(), tree(separat
                             self.name,
                             self.year_of_construction,)
                         )
-            
+
+            if 'option_rate_method' in fields:
+                if self.type == 'object' and self.option_rate_method == 'dynamic_measurement':
+                    raise ValidationError(
+                        gettext("real_estate.msg_option_rate_method_dynamic_not_allowed_for_object",).format(
+                            self.name,)
+                        )
 
 
 
@@ -800,6 +838,20 @@ class BaseObject(Workflow, DeactivableMixin, re_sequence_ordered(), tree(separat
             return self.parent.start_date
         return self.start_date
 
+
+    @fields.depends('type', 'type_of_use')
+    def on_change_type_of_use(self):
+        if self.type == 'object':
+            if self.type_of_use == 'commercial':
+                self.option_rate_method = 'fix_100'
+            else:
+                self.option_rate_method = 'fix_0'
+
+    @fields.depends('company', '_parent_company.purchase_taxes_expense')
+    def on_change_with_purchase_taxes_expense(self, name=None):
+        if self.company:
+            return self.company.purchase_taxes_expense
+        return False
 
     @fields.depends(
         'parent', 'start_date', 'type', 'address', 'state',

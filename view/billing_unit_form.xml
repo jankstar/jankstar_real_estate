@@ -67,7 +67,16 @@
             <group col="6" colspan="4" id="billing_unit_term_types">
                 <label name="term_types_of_use"/><field name="term_types_of_use"/>
             </group>
-      
+
+        </page>
+
+        <page string="Option Rate" id="page_option_rate" col="2">
+            <label name="option_rate_method"/><field name="option_rate_method"/>
+            <newline/>
+            <label name="option_measurement_type"/><field name="option_measurement_type"/>
+            <newline/>
+            <field name="option_rates" colspan="2"
+                view_ids="real_estate.option_rate_view_tree"/>
         </page>
 
     </notebook>

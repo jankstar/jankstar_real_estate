@@ -1,0 +1,5 @@
+<?xml version="1.0"?>
+<form col="2">
+    <label name="valid_from"/><field name="valid_from"/>
+    <label name="option_rate"/><field name="option_rate"/>
+</form>

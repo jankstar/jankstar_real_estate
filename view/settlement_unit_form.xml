@@ -55,6 +55,14 @@
             <field name="meters" colspan="4"
                 view_ids="real_estate.settlement_unit_meter_tree"/>
         </page>
+        <page string="Option Rate" id="page_option_rate" col="2">
+            <label name="option_rate_method"/><field name="option_rate_method"/>
+            <newline/>
+            <label name="option_measurement_type"/><field name="option_measurement_type"/>
+            <newline/>
+            <field name="option_rates" colspan="2"
+                view_ids="real_estate.option_rate_view_tree"/>
+        </page>
     </notebook>
 
     <group colspan="6" id="settlement_unit_base_cost_shares">

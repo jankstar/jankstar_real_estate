@@ -121,6 +121,14 @@ this repository contains the full copyright notices and license terms. -->
                 view_ids="real_estate.base_object_view_list_measurement"/>
         </page>
 
+        <page string="Option Rate" id="page_option_rate" col="4">
+            <label name="option_rate_method"/><field name="option_rate_method"/>
+            <label name="option_measurement_type"/><field name="option_measurement_type"/>
+            <newline/>
+            <field name="option_rates" colspan="2"
+                view_ids="real_estate.option_rate_view_tree"/>
+        </page>
+
         <page name="parties" col="1">
             <field name="parties" 
                 view_ids="real_estate.base_object_view_list_object_party"/>

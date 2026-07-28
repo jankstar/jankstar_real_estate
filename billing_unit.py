@@ -57,6 +57,7 @@ class CostType(DeactivableMixin, sequence_ordered(), ModelSQL, ModelView):
     def default_reading_post_days():
         return 7
 
+
 #**********************************************************************
 class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, ModelView):
     """Billing Unit, e.g. operating cost settlement for a year, WEG annual statement, etc."""
@@ -202,6 +203,46 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
     sum_refund_receivable = fields.Function(
         Monetary('Sum Refund/Receivable', currency='currency', digits='currency'),
         'on_change_with_sum_refund_receivable')
+
+    option_rate_method = fields.Selection([
+            ('fix_0', 'Fix: Option Rate 0.0 %'),
+            ('fix_100', 'Fix: Option Rate 100.0 %'),
+            ('dynamic_measurement', 'Dynamic Measurement'),
+            ], "Option Rate Method", required=True, sort=False)
+
+    option_measurement_type = fields.Many2One(
+        'real_estate.measurement.type', "Option Measurement Type",
+        ondelete='RESTRICT',
+        domain=[('is_group', '=', False)],
+        states={
+            'invisible': Eval('option_rate_method') != 'dynamic_measurement',
+            'required': Eval('option_rate_method') == 'dynamic_measurement',
+            })
+
+    option_rates = fields.One2Many('real_estate.option_rate', 'billing_unit',
+        "Option Rates")
+
+    purchase_taxes_expense = fields.Function(
+        fields.Boolean("Purchase Taxes as Expense"),
+        'on_change_with_purchase_taxes_expense')
+
+    @classmethod
+    def view_attributes(cls):
+        return super().view_attributes() + [
+            ('//page[@id="page_option_rate"]', 'states', {
+                'invisible': Bool(Eval('purchase_taxes_expense', False)),
+            }),
+            ]
+
+    @fields.depends('company', '_parent_company.purchase_taxes_expense')
+    def on_change_with_purchase_taxes_expense(self, name=None):
+        if self.company:
+            return self.company.purchase_taxes_expense
+        return False
+
+    @staticmethod
+    def default_option_rate_method():
+        return 'fix_0'
 
     @classmethod
     def __setup__(cls):
