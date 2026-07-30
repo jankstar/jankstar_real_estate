@@ -263,58 +263,6 @@ msgctxt "field:real_estate.base_object,billing_as:"
 msgid "Billing as"
 msgstr "Abrechnung als"
 
-msgctxt "view:real_estate.billing_unit:"
-msgid "Approved"
-msgstr "Freigeben"
-
-msgctxt "view:real_estate.billing_unit:"
-msgid "Selection"
-msgstr "Auswählen"
-
-msgctxt "view:real_estate.billing_unit:"
-msgid "Compute Value Shares"
-msgstr "Kostenanteile berechnen"
-
-msgctxt "view:real_estate.base_object:"
-msgid "Compute Value Shares"
-msgstr "Kostenanteile berechnen"
-
-msgctxt "view:real_estate.billing_unit:"
-msgid "Compute Settlement Results"
-msgstr "Abrechnungsergebis berechnen"
-
-msgctxt "view:real_estate.base_object:"
-msgid "Compute Settlement Results"
-msgstr "Abrechnungsergebis berechnen"
-
-msgctxt "view:real_estate.billing_unit:"
-msgid "Billing"
-msgstr "Abrechnen/Buchen"
-
-msgctxt "view:real_estate.base_object:"
-msgid "Billing"
-msgstr "Abrechnen/Buchen"
-
-msgctxt "view:real_estate.billing_unit:"
-msgid "Cancel Billing"
-msgstr "Storno Abrechnung"
-
-msgctxt "view:real_estate.base_object:"
-msgid "Cancel Billing"
-msgstr "Storno Abrechnung"
-
-msgctxt "view:real_estate.billing_unit:"
-msgid "Duplicate for Next Period"
-msgstr "Für Folgeperiode duplizieren"
-
-msgctxt "view:real_estate.base_object:"
-msgid "Billing Units"
-msgstr "Abrechnungseinheiten"
-
-msgctxt "view:real_estate.base_object,billing_units:"
-msgid "Billing Units"
-msgstr "Abrechnungseinheiten"
-
 msgctxt "field:real_estate.base_object,billing_units:"
 msgid "Billing Units"
 msgstr "Abrechnungseinheiten"
@@ -322,30 +270,6 @@ msgstr "Abrechnungseinheiten"
 msgctxt "field:real_estate.base_object,billing_units:"
 msgid "Cost Group"
 msgstr "Kostengruppe"
-
-msgctxt "view:real_estate.base_object:"
-msgid "Billing Unit"
-msgstr "Abrechnungseinheit"
-
-msgctxt "view:real_estate.base_object,billing_units_open:"
-msgid "Billing Unit"
-msgstr "Abrechnungseinheit"
-
-msgctxt "field:real_estate.base_object,billing_units_open:"
-msgid "Billing Unit"
-msgstr "Abrechnungseinheit"
-
-msgctxt "view:real_estate.base_object:"
-msgid "Billing Unit (billed)"
-msgstr "Abrechnungseinheit (abgerechnet)"
-
-msgctxt "view:real_estate.base_object,billing_units_billed:"
-msgid "Billing Unit (billed)"
-msgstr "Abrechnungseinheit (abgerechnet)"
-
-msgctxt "field:real_estate.base_object,billing_units_billed:"
-msgid "Billing Unit (billed)"
-msgstr "Abrechnungseinheit (abgerechnet)"
 
 msgctxt "field:real_estate.base_object,children:"
 msgid "Children"
@@ -360,18 +284,6 @@ msgid "Comment"
 msgstr "Bemerkung"
 
 msgctxt "field:real_estate.base_object,company:"
-msgid "Company"
-msgstr "Gesellschaft"
-
-msgctxt "field:real_estate.base_object.context, company:"
-msgid "Company"
-msgstr "Gesellschaft"
-
-msgctxt "field:real_estate.base_object.context, property:"
-msgid "Property"
-msgstr "Wirtschaftseinheit"
-
-msgctxt "field:real_estate.base_object.company.context, company:"
 msgid "Company"
 msgstr "Gesellschaft"
 
@@ -415,10 +327,6 @@ msgctxt "field:real_estate.base_object,meter_is_counter:"
 msgid "Is Counter"
 msgstr "kumulativer Zähler"
 
-msgctxt "field:real_estate.base_object,meter_no_decimals:"
-msgid "Integer Values"
-msgstr "Ganzzahlige Werte"
-
 msgctxt "field:real_estate.base_object,meter_last_consumption:"
 msgid "Last Consumption"
 msgstr "letzter Verbrauch"
@@ -450,6 +358,10 @@ msgstr "letzter Messwert"
 msgctxt "field:real_estate.base_object,meter_last_value:"
 msgid "Last Value"
 msgstr "letzter Messwert"
+
+msgctxt "field:real_estate.base_object,meter_no_decimals:"
+msgid "Integer Values"
+msgstr "Ganzzahlige Werte"
 
 msgctxt "field:real_estate.base_object,meter_readings:"
 msgid "Meter Readings"
@@ -547,9 +459,21 @@ msgctxt "field:real_estate.base_object,year_of_construction:"
 msgid "Year of Construction"
 msgstr "Baujahr"
 
+msgctxt "field:real_estate.base_object.company.context, company:"
+msgid "Company"
+msgstr "Gesellschaft"
+
 msgctxt "field:real_estate.base_object.company.context,company:"
 msgid "Company"
 msgstr "Gesellschaft"
+
+msgctxt "field:real_estate.base_object.context, company:"
+msgid "Company"
+msgstr "Gesellschaft"
+
+msgctxt "field:real_estate.base_object.context, property:"
+msgid "Property"
+msgstr "Wirtschaftseinheit"
 
 msgctxt "field:real_estate.base_object.context,company:"
 msgid "Company"
@@ -574,70 +498,6 @@ msgstr "Übergeordnetes Objekt"
 msgctxt "field:real_estate.base_object.equipment.context,property:"
 msgid "Property"
 msgstr "Wirtschaftseinheit"
-
-msgctxt "field:real_estate.estimate_consumption.result,consumption:"
-msgid "Consumption"
-msgstr "Verbrauch"
-
-msgctxt "field:real_estate.estimate_consumption.result,estimated_value:"
-msgid "Estimated Value"
-msgstr "Geschätzter Zählerstand"
-
-msgctxt "field:real_estate.estimate_consumption.result,meter:"
-msgid "Meter"
-msgstr "Zähler"
-
-msgctxt "field:real_estate.estimate_consumption.result,meter_id:"
-msgid "Meter ID"
-msgstr "Zähler ID"
-
-msgctxt "field:real_estate.estimate_consumption.result,per_date:"
-msgid "Per Date"
-msgstr "Per Datum"
-
-msgctxt "field:real_estate.estimate_consumption.result,reading1_date:"
-msgid "Reading 1 Date"
-msgstr "Ablesung 1 Datum"
-
-msgctxt "field:real_estate.estimate_consumption.result,reading1_value:"
-msgid "Reading 1 Value"
-msgstr "Ablesung 1 Wert"
-
-msgctxt "field:real_estate.estimate_consumption.result,reading2_date:"
-msgid "Reading 2 Date"
-msgstr "Ablesung 2 Datum"
-
-msgctxt "field:real_estate.estimate_consumption.result,reading2_value:"
-msgid "Reading 2 Value"
-msgstr "Ablesung 2 Wert"
-
-msgctxt "field:real_estate.estimate_consumption.result,reason:"
-msgid "Reason"
-msgstr "Begründung"
-
-msgctxt "field:real_estate.estimate_consumption.start,meter:"
-msgid "Meter"
-msgstr "Zähler"
-
-msgctxt "field:real_estate.estimate_consumption.start,meter_factor:"
-msgid "Factor"
-msgstr "Faktor"
-
-msgctxt "field:real_estate.estimate_consumption.start,meter_id:"
-msgid "Meter ID"
-msgstr "Zähler ID"
-
-msgctxt "field:real_estate.estimate_consumption.start,meter_unit:"
-msgid "Unit"
-msgstr "Einheit"
-
-msgctxt "field:real_estate.estimate_consumption.start,per_date:"
-msgid "Per Date"
-msgstr "Per Datum"
-
-msgctxt "field:real_estate.estimate_consumption.start,reason:"
-msgid "Reason"
-msgstr "Begründung"
 
 msgctxt "field:real_estate.base_object.occupancy,base_object:"
 msgid "Object"
@@ -695,15 +555,6 @@ msgctxt "field:real_estate.base_object.occupancy.context,to_date:"
 msgid "To Date"
 msgstr "Enddatum"
 
-msgctxt "view:real_estate.billing_unit:"
-msgid "Billing"
-msgstr "Abrechnung"
-
-msgctxt "view:real_estate.billing_unit:"
-msgid "Cancel Billing"
-msgstr "Abrechnung stornieren"
-
-
 msgctxt "field:real_estate.billing_unit,base_object:"
 msgid "Base Object"
 msgstr "Immobilienobjekt"
@@ -719,14 +570,6 @@ msgstr "Abrechnungsart"
 msgctxt "field:real_estate.billing_unit,calculation_method:"
 msgid "Calculation Method"
 msgstr "Berechnungsmethode"
-
-msgctxt "view:real_estate.billing_unit:"
-msgid "Advanced Payment"
-msgstr "Vorauszahlungen"
-
-msgctxt "view:real_estate.billing_unit,cash_flow_lines:"
-msgid "Advanced Payment"
-msgstr "Vorauszahlungen"
 
 msgctxt "field:real_estate.billing_unit,cash_flow_lines:"
 msgid "Advanced Payment"
@@ -744,6 +587,10 @@ msgctxt "field:real_estate.billing_unit,company:"
 msgid "Company"
 msgstr "Gesellschaft"
 
+msgctxt "field:real_estate.billing_unit,cost_shares:"
+msgid "Cost Shares"
+msgstr "Kostenanteile"
+
 msgctxt "field:real_estate.billing_unit,currency:"
 msgid "Currency"
 msgstr "Währung"
@@ -756,29 +603,9 @@ msgctxt "field:real_estate.billing_unit,end_date:"
 msgid "End Date"
 msgstr "Endedatum"
 
-msgctxt "field:real_estate.billing_unit,has_successor:"
-msgid "Has Successor"
-msgstr "Hat Nachfolger"
-
-msgctxt "view:real_estate.billing_unit:"
-msgid "Invoice Lines"
-msgstr "Rechnungen"
-
-msgctxt "view:real_estate.billing_unit,invoice_lines:"
-msgid "Invoice Lines"
-msgstr "Rechnungen"
-
 msgctxt "field:real_estate.billing_unit,invoice_lines:"
 msgid "Invoice Lines"
 msgstr "Rechnungen"
-
-msgctxt "view:real_estate.billing_unit:"
-msgid "Moves"
-msgstr "Buchungen"
-
-msgctxt "view:real_estate.billing_unit,moves:"
-msgid "Moves"
-msgstr "Buchungen"
 
 msgctxt "field:real_estate.billing_unit,moves:"
 msgid "Moves"
@@ -786,39 +613,19 @@ msgstr "Buchungen"
 
 msgctxt "field:real_estate.billing_unit,name:"
 msgid "Name"
-msgstr "Name Export"
+msgstr "Name"
 
 msgctxt "field:real_estate.billing_unit,planned_costs:"
 msgid "Planned Costs"
 msgstr "Plankosten"
 
-msgctxt "field:real_estate.billing_unit,predecessor:"
-msgid "Predecessor"
-msgstr "Vorgänger"
-
 msgctxt "field:real_estate.billing_unit,property:"
 msgid "Property"
 msgstr "Wirtschaftseinheit"
 
-msgctxt "view:real_estate.billing_unit:"
-msgid "Settlement Units"
-msgstr "Kostensammler"
-
-msgctxt "view:real_estate.billing_unit,settlement_units:"
-msgid "Settlement Units"
-msgstr "Kostensammler"
-
 msgctxt "field:real_estate.billing_unit,settlement_units:"
 msgid "Settlement Units"
 msgstr "Kostensammler"
-
-msgctxt "view:real_estate.billing_unit:"
-msgid "Settlement Results"
-msgstr "Abrechnungsergebnis"
-
-msgctxt "view:real_estate.billing_unit,settlment_results:"
-msgid "Settlement Results"
-msgstr "Abrechnungsergebnis"
 
 msgctxt "field:real_estate.billing_unit,settlment_results:"
 msgid "Settlement Results"
@@ -868,28 +675,8 @@ msgctxt "field:real_estate.billing_unit,term_types_of_use:"
 msgid "Term Types"
 msgstr "Konditionstyp"
 
-msgctxt "view:real_estate.billing_unit:"
-msgid "Value Shares"
-msgstr "Kostenanteile"
-
-msgctxt "view:real_estate.billing_unit,value_shares:"
-msgid "Value Shares"
-msgstr "Kostenanteile"
-
 msgctxt "field:real_estate.billing_unit,value_shares:"
 msgid "Value Shares"
-msgstr "Kostenanteile"
-
-msgctxt "view:real_estate.billing_unit:"
-msgid "Cost Shares"
-msgstr "Kostenanteile"
-
-msgctxt "view:real_estate.billing_unit,cost_shares:"
-msgid "Cost Shares"
-msgstr "Kostenanteile"
-
-msgctxt "field:real_estate.billing_unit,cost_shares:"
-msgid "Cost Shares"
 msgstr "Kostenanteile"
 
 msgctxt "field:real_estate.billing_unit.context,company:"
@@ -1000,26 +787,6 @@ msgctxt "field:real_estate.billing_unit.moves.context,to_date:"
 msgid "To Date"
 msgstr "Enddatum"
 
-msgctxt "view:real_estate.contract:"
-msgid "Running"
-msgstr "Aktivieren"
-
-msgctxt "view:real_estate.contract:"
-msgid "Terminate"
-msgstr "Kündigen"
-
-msgctxt "view:real_estate.contract:"
-msgid "Cancel"
-msgstr "Aktivierung zurücksetzten"
-
-msgctxt "view:real_estate.contract:"
-msgid "Change Partner"
-msgstr "Partner wechseln"
-
-msgctxt "view:real_estate.contract:"
-msgid "Party Ledger"
-msgstr "Kontenblatt"
-
 msgctxt "field:real_estate.contract,address_partner:"
 msgid "Address Partner"
 msgstr "Adresse Partner"
@@ -1118,7 +885,7 @@ msgstr "Buchungszeilen"
 
 msgctxt "field:real_estate.contract,name:"
 msgid "Name"
-msgstr "Name Export"
+msgstr "Name"
 
 msgctxt "field:real_estate.contract,next_item_sequence:"
 msgid "Next Item Sequence"
@@ -1250,7 +1017,7 @@ msgstr "Zeilenzähler"
 
 msgctxt "field:real_estate.contract.account_contract,name:"
 msgid "Name"
-msgstr "Name Export"
+msgstr "Name"
 
 msgctxt "field:real_estate.contract.account_contract,party:"
 msgid "Party"
@@ -1320,6 +1087,10 @@ msgctxt "field:real_estate.contract.cash_flow,unit_price:"
 msgid "Unit Price"
 msgstr "Einheitspreis (EP)"
 
+msgctxt "field:real_estate.contract.context,c_type:"
+msgid "Contract Type"
+msgstr "Vertragsart"
+
 msgctxt "field:real_estate.contract.context,company:"
 msgid "Company"
 msgstr "Gesellschaft"
@@ -1327,10 +1098,6 @@ msgstr "Gesellschaft"
 msgctxt "field:real_estate.contract.context,property:"
 msgid "Property"
 msgstr "Wirtschaftseinheit"
-
-msgctxt "field:real_estate.contract.context,c_type:"
-msgid "Contract Type"
-msgstr "Vertragsart"
 
 msgctxt "field:real_estate.contract.create_moves.start,action:"
 msgid "Action"
@@ -1396,10 +1163,6 @@ msgctxt "field:real_estate.contract.item,currency:"
 msgid "Currency"
 msgstr "Währung"
 
-msgctxt "field:real_estate.contract.item,name:"
-msgid "Name"
-msgstr "Name Export"
-
 msgctxt "field:real_estate.contract.item,label:"
 msgid "Label"
 msgstr "Bezeichnung"
@@ -1408,21 +1171,13 @@ msgctxt "field:real_estate.contract.item,measurements:"
 msgid "Measurements"
 msgstr "Bemessungen"
 
+msgctxt "field:real_estate.contract.item,name:"
+msgid "Name"
+msgstr "Name"
+
 msgctxt "field:real_estate.contract.item,objects:"
 msgid "Objects"
 msgstr "Objekte"
-
-msgctxt "field:real_estate.contract.item.object,item:"
-msgid "Item"
-msgstr "Position"
-
-msgctxt "field:real_estate.contract.item.object,object:"
-msgid "Object"
-msgstr "Objekt"
-
-msgctxt "field:real_estate.contract.item.object,sequence:"
-msgid "Sequence"
-msgstr "Reihenfolge"
 
 msgctxt "field:real_estate.contract.item,property:"
 msgid "Property"
@@ -1439,6 +1194,18 @@ msgstr "gültig ab"
 msgctxt "field:real_estate.contract.item,valid_to:"
 msgid "Valid to"
 msgstr "gültig bis"
+
+msgctxt "field:real_estate.contract.item.object,item:"
+msgid "Item"
+msgstr "Position"
+
+msgctxt "field:real_estate.contract.item.object,object:"
+msgid "Object"
+msgstr "Objekt"
+
+msgctxt "field:real_estate.contract.item.object,sequence:"
+msgid "Sequence"
+msgstr "Reihenfolge"
 
 msgctxt "field:real_estate.contract.line,accumulated_depreciation:"
 msgid "Accumulated Depreciation"
@@ -1582,7 +1349,7 @@ msgstr "Rhythmus monatlich"
 
 msgctxt "field:real_estate.contract.term,name:"
 msgid "Name"
-msgstr "Name Export"
+msgstr "Name"
 
 msgctxt "field:real_estate.contract.term,next_document_date:"
 msgid "Next Document Date"
@@ -1644,6 +1411,10 @@ msgctxt "field:real_estate.contract.term,taxes_deductible_rate:"
 msgid "Taxes Deductible Rate"
 msgstr "abzugsfähiger Steuersatz"
 
+msgctxt "field:real_estate.contract.term,term_measurements:"
+msgid "Measurements"
+msgstr "Bemessungen"
+
 msgctxt "field:real_estate.contract.term,term_type:"
 msgid "Term Type"
 msgstr "Konditionstyp"
@@ -1651,10 +1422,6 @@ msgstr "Konditionstyp"
 msgctxt "field:real_estate.contract.term,term_type_m_type:"
 msgid "Term Measurement Type"
 msgstr "Bemessungstyp der Kondition"
-
-msgctxt "field:real_estate.contract.term,term_measurements:"
-msgid "Measurements"
-msgstr "Bemessungen"
 
 msgctxt "field:real_estate.contract.term,total_amount:"
 msgid "Total"
@@ -1734,7 +1501,7 @@ msgstr "Status Rechnung"
 
 msgctxt "field:real_estate.contract.term.cash_flow,name:"
 msgid "Name"
-msgstr "Name Export"
+msgstr "Name"
 
 msgctxt "field:real_estate.contract.term.cash_flow,posting_date:"
 msgid "Posting Date"
@@ -1858,7 +1625,7 @@ msgstr "Rhythmus monatlich"
 
 msgctxt "field:real_estate.contract.term.type,name:"
 msgid "Name"
-msgstr "Name Export"
+msgstr "Name"
 
 msgctxt "field:real_estate.contract.term.type,rhythm:"
 msgid "Rhythm (count)"
@@ -1910,7 +1677,7 @@ msgstr "Mark"
 
 msgctxt "field:real_estate.contract.type,name:"
 msgid "Name"
-msgstr "Name Export"
+msgstr "Name"
 
 msgctxt "field:real_estate.contract.type,occupancy:"
 msgid "Occupancy"
@@ -1966,7 +1733,7 @@ msgstr "Steuer"
 
 msgctxt "field:real_estate.cost_category_group,name:"
 msgid "Name"
-msgstr "Name Export"
+msgstr "Name"
 
 msgctxt "field:real_estate.cost_share,actual_costs:"
 msgid "Actual Costs"
@@ -1994,7 +1761,7 @@ msgstr "Fehlermeldung"
 
 msgctxt "field:real_estate.cost_share,name:"
 msgid "Name"
-msgstr "Name Export"
+msgstr "Name"
 
 msgctxt "field:real_estate.cost_share,planned_costs:"
 msgid "Planned Costs"
@@ -2070,29 +1837,83 @@ msgstr "Bemerkung"
 
 msgctxt "field:real_estate.cost_type,name:"
 msgid "Name"
-msgstr "Name Export"
+msgstr "Name"
 
 msgctxt "field:real_estate.cost_type,no_print:"
 msgid "No Print"
 msgstr "kein Ausdruck"
 
-msgctxt "field:real_estate.cost_type,reading_pre_days:"
-msgid "Valid Reading Pre-Days"
-msgstr "Gültiger Messwert Vorerfassung (Tage)"
-
 msgctxt "field:real_estate.cost_type,reading_post_days:"
 msgid "Valid Reading Post-Days"
 msgstr "Gültiger Messwert Nacherfassung (Tage)"
 
-#, python-format
-msgctxt "model:ir.message,text:msg_no_start_reading"
-msgid "No start reading for \"%(name)s\" on %(date)s (window: -%(pre)d/+%(post)d days)."
-msgstr "Messwert für Anfangsverbrauch für \"%(name)s\" zum %(date)s nicht ermittelt (Fenster: −%(pre)d/+%(post)d Tage)."
+msgctxt "field:real_estate.cost_type,reading_pre_days:"
+msgid "Valid Reading Pre-Days"
+msgstr "Gültiger Messwert Vorerfassung (Tage)"
 
-#, python-format
-msgctxt "model:ir.message,text:msg_no_end_reading"
-msgid "No end reading for \"%(name)s\" on %(date)s (window: -%(pre)d/+%(post)d days)."
-msgstr "Messwert für Endverbrauch für \"%(name)s\" zum %(date)s nicht ermittelt (Fenster: −%(pre)d/+%(post)d Tage)."
+msgctxt "field:real_estate.estimate_consumption.result,consumption:"
+msgid "Consumption"
+msgstr "Verbrauch"
+
+msgctxt "field:real_estate.estimate_consumption.result,estimated_value:"
+msgid "Estimated Value"
+msgstr "Geschätzter Zählerstand"
+
+msgctxt "field:real_estate.estimate_consumption.result,meter:"
+msgid "Meter"
+msgstr "Zähler"
+
+msgctxt "field:real_estate.estimate_consumption.result,meter_id:"
+msgid "Meter ID"
+msgstr "Zähler ID"
+
+msgctxt "field:real_estate.estimate_consumption.result,per_date:"
+msgid "Per Date"
+msgstr "Per Datum"
+
+msgctxt "field:real_estate.estimate_consumption.result,reading1_date:"
+msgid "Reading 1 Date"
+msgstr "Ablesung 1 Datum"
+
+msgctxt "field:real_estate.estimate_consumption.result,reading1_value:"
+msgid "Reading 1 Value"
+msgstr "Ablesung 1 Wert"
+
+msgctxt "field:real_estate.estimate_consumption.result,reading2_date:"
+msgid "Reading 2 Date"
+msgstr "Ablesung 2 Datum"
+
+msgctxt "field:real_estate.estimate_consumption.result,reading2_value:"
+msgid "Reading 2 Value"
+msgstr "Ablesung 2 Wert"
+
+msgctxt "field:real_estate.estimate_consumption.result,reason:"
+msgid "Reason"
+msgstr "Begründung"
+
+msgctxt "field:real_estate.estimate_consumption.start,meter:"
+msgid "Meter"
+msgstr "Zähler"
+
+msgctxt "field:real_estate.estimate_consumption.start,meter_factor:"
+msgid "Factor"
+msgstr "Faktor"
+
+msgctxt "field:real_estate.estimate_consumption.start,meter_id:"
+msgid "Meter ID"
+msgstr "Zähler ID"
+
+msgctxt "field:real_estate.estimate_consumption.start,meter_unit:"
+msgid "Unit"
+msgstr "Einheit"
+
+msgctxt "field:real_estate.estimate_consumption.start,per_date:"
+msgid "Per Date"
+msgstr "Per Datum"
+
+msgctxt "field:real_estate.estimate_consumption.start,reason:"
+msgid "Reason"
+msgstr "Begründung"
 
 msgctxt "field:real_estate.measurement,base_object:"
 msgid "Base Object"
@@ -2104,7 +1925,7 @@ msgstr "Bemessungstype"
 
 msgctxt "field:real_estate.measurement,name:"
 msgid "Name"
-msgstr "Name Export"
+msgstr "Name"
 
 msgctxt "field:real_estate.measurement,no_print:"
 msgid "No Print"
@@ -2126,17 +1947,29 @@ msgctxt "field:real_estate.measurement,value:"
 msgid "Value"
 msgstr "Wert"
 
+msgctxt "field:real_estate.measurement.type,children:"
+msgid "Measurement Types"
+msgstr "Bemessungstypen"
+
 msgctxt "field:real_estate.measurement.type,default:"
 msgid "Default"
 msgstr "Default"
 
+msgctxt "field:real_estate.measurement.type,is_group:"
+msgid "Measurement Group"
+msgstr "Bemessungsgruppe"
+
 msgctxt "field:real_estate.measurement.type,name:"
 msgid "Name"
-msgstr "Name Export"
+msgstr "Name"
 
 msgctxt "field:real_estate.measurement.type,no_print:"
 msgid "No Print"
 msgstr "kein Ausdruck"
+
+msgctxt "field:real_estate.measurement.type,parent:"
+msgid "Group"
+msgstr "Gruppe"
 
 msgctxt "field:real_estate.measurement.type,types:"
 msgid "Types"
@@ -2145,18 +1978,6 @@ msgstr "Typen"
 msgctxt "field:real_estate.measurement.type,unit:"
 msgid "Unit"
 msgstr "Einheit"
-
-msgctxt "field:real_estate.measurement.type,is_group:"
-msgid "Measurement Group"
-msgstr "Bemessungsgruppe"
-
-msgctxt "field:real_estate.measurement.type,parent:"
-msgid "Group"
-msgstr "Gruppe"
-
-msgctxt "field:real_estate.measurement.type,children:"
-msgid "Measurement Types"
-msgstr "Bemessungstypen"
 
 msgctxt "field:real_estate.meter_reading,base_object:"
 msgid "Base Object"
@@ -2184,7 +2005,7 @@ msgstr "Zähler ID"
 
 msgctxt "field:real_estate.meter_reading,name:"
 msgid "Name"
-msgstr "Name Export"
+msgstr "Name"
 
 msgctxt "field:real_estate.meter_reading,reading_date:"
 msgid "Reading Date"
@@ -2232,7 +2053,7 @@ msgstr "Objekt"
 
 msgctxt "field:real_estate.object_party,name:"
 msgid "Name"
-msgstr "Name Export"
+msgstr "Name"
 
 msgctxt "field:real_estate.object_party,party:"
 msgid "Party"
@@ -2260,7 +2081,7 @@ msgstr "Default"
 
 msgctxt "field:real_estate.object_party.role,name:"
 msgid "Name"
-msgstr "Name Export"
+msgstr "Name"
 
 msgctxt "field:real_estate.object_party.role,types:"
 msgid "Types"
@@ -2304,7 +2125,7 @@ msgstr "Rechnung"
 
 msgctxt "field:real_estate.settlement_result,name:"
 msgid "Name"
-msgstr "Name Export"
+msgstr "Name"
 
 msgctxt "field:real_estate.settlement_result,planned_costs:"
 msgid "Planned Costs"
@@ -2394,14 +2215,6 @@ msgctxt "field:real_estate.settlement_unit,end_date:"
 msgid "End Date"
 msgstr "Endedatum"
 
-msgctxt "view:real_estate.settlement_unit:"
-msgid "Invoice Lines"
-msgstr "Rechnungen"
-
-msgctxt "view:real_estate.settlement_unit,invoice_lines:"
-msgid "Invoice Lines"
-msgstr "Rechnungen"
-
 msgctxt "field:real_estate.settlement_unit,invoice_lines:"
 msgid "Invoice Lines"
 msgstr "Rechnungen"
@@ -2424,7 +2237,7 @@ msgstr "Zähler"
 
 msgctxt "field:real_estate.settlement_unit,name:"
 msgid "Name"
-msgstr "Name Export"
+msgstr "Name"
 
 msgctxt "field:real_estate.settlement_unit,objects:"
 msgid "Objects"
@@ -2433,10 +2246,6 @@ msgstr "Objekte"
 msgctxt "field:real_estate.settlement_unit,planned_costs:"
 msgid "Planned Costs"
 msgstr "Plankosten"
-
-msgctxt "field:real_estate.settlement_unit,predecessor:"
-msgid "Predecessor"
-msgstr "Vorgänger"
 
 msgctxt "field:real_estate.settlement_unit,property:"
 msgid "Property"
@@ -2518,6 +2327,26 @@ msgstr "Kündigungsdatum"
 msgctxt "field:real_estate.terminate_contract.start,termination_date_calc:"
 msgid "Termination Date"
 msgstr "Kündigungsdatum"
+
+msgctxt "field:real_estate.use_class,active:"
+msgid "Active"
+msgstr "Aktiv"
+
+msgctxt "field:real_estate.use_class,has_basement_nr:"
+msgid "Has Basement Number"
+msgstr "Kellerabteilnummer"
+
+msgctxt "field:real_estate.use_class,has_parking_nr:"
+msgid "Has Parking Number"
+msgstr "Stellplatznummer"
+
+msgctxt "field:real_estate.use_class,name:"
+msgid "Name"
+msgstr "Bezeichnung"
+
+msgctxt "field:real_estate.use_class,sequence:"
+msgid "Sequence"
+msgstr "Reihenfolge"
 
 msgctxt "field:res.user,mobile:"
 msgid "Mobile"
@@ -3151,10 +2980,6 @@ msgctxt "model:ir.action,name:act_object_party_role"
 msgid "Object Party Roles"
 msgstr "Partnerrolle"
 
-msgctxt "model:ir.action,name:act_use_class"
-msgid "Use Classes"
-msgstr "Nutzung Mietobjekt"
-
 msgctxt "model:ir.action,name:act_object_party_tree"
 msgid "Object Parties"
 msgstr "Partner zum Objekt"
@@ -3178,6 +3003,14 @@ msgstr "Abrechnungsergebnis"
 msgctxt "model:ir.action,name:act_settlement_unit_tree"
 msgid "Settlement Units"
 msgstr "Kostensammler"
+
+msgctxt "model:ir.action,name:act_use_class"
+msgid "Use Classes"
+msgstr "Nutzung Mietobjekt"
+
+msgctxt "model:ir.action,name:act_use_class"
+msgid "Use Classes"
+msgstr "Nutzungsklassen"
 
 msgctxt "model:ir.action,name:report_base_object"
 msgid "Fact Sheet"
@@ -3264,7 +3097,8 @@ msgctxt "model:ir.action.act_window.domain,name:act_equipment_form_domain_all"
 msgid "All"
 msgstr "Alle"
 
-msgctxt "model:ir.action.act_window.domain,name:act_equipment_form_domain_approved"
+msgctxt ""
+"model:ir.action.act_window.domain,name:act_equipment_form_domain_approved"
 msgid "Approved"
 msgstr "Aktiv"
 
@@ -3330,30 +3164,11 @@ msgctxt ""
 msgid "Locked"
 msgstr "Gesperrt"
 
-#, python-format
-#, python-format
-msgctxt "model:ir.message,text:msg_selection_invalid_state"
-msgid "Cannot run selection for \"%(name)s\": not allowed in state '%(state)s'."
-msgstr "Selektion für \"%(name)s\" nicht möglich: im Status '%(state)s' nicht erlaubt."
+msgctxt "model:ir.action.wizard,name:wizard_estimate_consumption"
+msgid "Estimate Consumption"
+msgstr "Verbrauch schätzen"
 
 #, python-format
-msgctxt "model:ir.message,text:msg_selection_reset_warning"
-msgid ""
-"Selection for \"%(name)s\": existing cost shares and settlement results will "
-"be deleted. Continue?"
-msgstr ""
-"Selektion für \"%(name)s\": vorhandene Kostenanteile und Abrechnungsergebnisse "
-"werden gelöscht. Fortfahren?"
-
-#, python-format
-msgctxt "model:ir.message,text:msg_value_share_reset_warning"
-msgid ""
-"Computing value shares for \"%(name)s\": existing settlement results will be "
-"deleted. Continue?"
-msgstr ""
-"Kostenanteile berechnen für \"%(name)s\": vorhandene Abrechnungsergebnisse "
-"werden gelöscht. Weiter?"
-
 msgctxt "model:ir.message,text:msg_billing_unit_chronological_order"
 msgid ""
 "The following billing units must be billed first (chronological order): "
@@ -3386,9 +3201,18 @@ msgid ""
 "Cannot bill \"%(name)s\": unposted contract cash flow items exist in the "
 "settlement period. Post all pending items (CreateMoves) before billing."
 msgstr ""
-"\"%(name)s\" kann nicht abgerechnet werden: Im Abrechnungszeitraum existieren"
-" noch nicht gebuchte Sollstellungen. Bitte alle offenen Posten zuerst buchen"
-" (Sollstellung erzeugen)."
+"\"%(name)s\" kann nicht abgerechnet werden: Im Abrechnungszeitraum "
+"existieren noch nicht gebuchte Sollstellungen. Bitte alle offenen Posten "
+"zuerst buchen (Sollstellung erzeugen)."
+
+#, python-format
+msgctxt "model:ir.message,text:msg_billing_unit_has_errors"
+msgid ""
+"Cannot bill: settlement unit(s) have errors in \"%(names)s\". Fix all errors"
+" before billing."
+msgstr ""
+"Abrechnung nicht möglich: Abrechnungseinheit(en) \"%(names)s\" enthalten "
+"Fehler. Bitte alle Fehler beheben."
 
 msgctxt "model:ir.message,text:msg_cancel_contract_has_postings"
 msgid ""
@@ -3399,103 +3223,6 @@ msgstr ""
 "Vertrag \"{}\": Vorhandene Buchungen (gebuchte Cashflow-Einträge) werden "
 "NICHT automatisch storniert. Nur Entwürfe wurden gelöscht. Stornierung "
 "fortsetzen?"
-
-msgctxt "model:ir.message,text:msg_measurement_type_cycle"
-msgid "Measurement type \"{}\": circular reference detected in the group hierarchy!"
-msgstr "Bemessungstyp \"{}\": Zirkuläre Referenz in der Gruppenhierarchie erkannt!"
-
-msgctxt "model:ir.message,text:msg_measurement_type_unit_mismatch"
-msgid ""
-"Measurement type \"{}\": unit must match the group \"{}\". Group unit: {}, "
-"type unit: {}!"
-msgstr ""
-"Bemessungstyp \"{}\": Einheit muss mit der Gruppe \"{}\" übereinstimmen. "
-"Gruppeneinheit: {}, Typeinheit: {}!"
-
-msgctxt "model:ir.message,text:msg_allocation_by_consumption_with_unit"
-msgid "by consumption ({}, HeizkostenV)"
-msgstr "nach Verbrauch ({}, HeizkostenV)"
-
-msgctxt "model:ir.message,text:msg_allocation_by_consumption"
-msgid "by consumption (HeizkostenV)"
-msgstr "nach Verbrauch (HeizkostenV)"
-
-msgctxt "model:ir.message,text:msg_allocation_per_rental_unit"
-msgid "per rental unit"
-msgstr "je Mieteinheit"
-
-msgctxt "model:ir.message,text:msg_allocation_from_external_billing"
-msgid "external billing (consumption)"
-msgstr "externe Abrechnung (Verbrauch)"
-
-msgctxt "model:ir.message,text:msg_allocation_none"
-msgid "no allocation"
-msgstr "keine Umlage"
-
-#, python-format
-msgctxt "model:ir.message,text:msg_invoice_line_term_requires_contract"
-msgid "Term \"{term}\" is set but no contract is selected."
-msgstr "Konditionsposition \"{term}\" ist gesetzt, aber es ist kein Vertrag ausgewählt."
-
-#, python-format
-msgctxt "model:ir.message,text:msg_invoice_line_settlement_unit_requires_billing_unit"
-msgid ""
-"Settlement unit \"{settlement_unit}\" is set but the billing unit is "
-"missing or does not match (expected \"{billing_unit}\")."
-msgstr ""
-"Kostensammler \"{settlement_unit}\" ist gesetzt, aber die Abrechnungseinheit "
-"fehlt oder stimmt nicht überein (erwartet \"{billing_unit}\")."
-
-#, python-format
-msgctxt "model:ir.message,text:msg_invoice_line_object_not_in_contract"
-msgid "Object \"{object}\" does not belong to contract \"{contract}\"."
-msgstr "Objekt \"{object}\" gehört nicht zum Vertrag \"{contract}\"."
-
-msgctxt "model:ir.message,text:msg_invoice_line_billing_unit_billed_warning"
-msgid ""
-"Billing unit/settlement unit already billed. This invoice will not be "
-"considered in the settlement."
-msgstr ""
-"Abrechnungseinheit/Kostensammler bereits abgerechnet. Diese Rechnung wird "
-"nicht in der Abrechnung berücksichtigt."
-
-#, python-format
-msgctxt "model:ir.message,text:msg_invoice_line_billing_unit_billed_error"
-msgid ""
-"Cannot post: billing unit/settlement unit of line \"{line}\" is already "
-"billed. It will not be considered in the settlement."
-msgstr ""
-"Buchen nicht möglich: Abrechnungseinheit/Kostensammler der Zeile \"{line}\" "
-"ist bereits abgerechnet. Sie wird nicht in der Abrechnung berücksichtigt."
-
-
-#, python-format
-msgctxt "model:ir.message,text:msg_billing_unit_already_has_successor"
-msgid ""
-"Cannot duplicate \"%(name)s\": a billing unit for the next period already "
-"exists (predecessor is set)."
-msgstr ""
-"Duplizieren nicht möglich: \"%(name)s\": es existiert bereits eine "
-"Abrechnungseinheit für die Folgeperiode (Vorgänger ist bereits gesetzt)."
-
-
-#, python-format
-msgctxt "model:ir.message,text:msg_cancel_billing_no_units_found"
-msgid ""
-"No billed billing units found for billing run ID \"%(billing_run_id)s\"."
-msgstr ""
-"Keine abgerechneten Abrechnungseinheiten für die Abrechnungslauf-ID "
-"\"%(billing_run_id)s\" gefunden."
-
-
-#, python-format
-msgctxt "model:ir.message,text:msg_billing_unit_has_errors"
-msgid ""
-"Cannot bill: settlement unit(s) have errors in \"%(names)s\". Fix all errors"
-" before billing."
-msgstr ""
-"Abrechnung nicht möglich: Abrechnungseinheit(en) \"%(names)s\" enthalten"
-" Fehler. Bitte alle Fehler beheben."
 
 msgctxt ""
 "model:ir.message,text:msg_duplicate_meter_reading_for_same_date_and_meter_id"
@@ -3548,11 +3275,19 @@ msgid ""
 "date ({})!"
 msgstr ""
 
-msgctxt "model:ir.message,text:msg_meter_value_must_be_integer"
-msgid "Meter reading value {} for point {} must be an integer (no decimal places)!"
+msgctxt "model:ir.message,text:msg_measurement_type_cycle"
+msgid ""
+"Measurement type \"{}\": circular reference detected in the group hierarchy!"
 msgstr ""
-"Der Zählerstand {} für den Messpunkt {} muss eine ganze Zahl sein (keine "
-"Nachkommastellen erlaubt)!"
+"Bemessungstyp \"{}\": Zirkuläre Referenz in der Gruppenhierarchie erkannt!"
+
+msgctxt "model:ir.message,text:msg_measurement_type_unit_mismatch"
+msgid ""
+"Measurement type \"{}\": unit must match the group \"{}\". Group unit: {}, "
+"type unit: {}!"
+msgstr ""
+"Bemessungstyp \"{}\": Einheit muss mit der Gruppe \"{}\" übereinstimmen. "
+"Gruppeneinheit: {}, Typeinheit: {}!"
 
 msgctxt "model:ir.message,text:msg_meter_id_must_be_same_as_last_reading"
 msgid "Meter ID {} must be the same as last reading for point {}!"
@@ -3568,6 +3303,31 @@ msgid ""
 msgstr ""
 "Der Zählerstand {} muss für den Messpiunkt {} größer sein als der letzte "
 "Zählerstand {}!"
+
+msgctxt "model:ir.message,text:msg_meter_value_must_be_integer"
+msgid ""
+"Meter reading value {} for point {} must be an integer (no decimal places)!"
+msgstr ""
+"Der Zählerstand {} für den Messpunkt {} muss eine ganze Zahl sein (keine "
+"Nachkommastellen erlaubt)!"
+
+#, python-format
+msgctxt "model:ir.message,text:msg_no_end_reading"
+msgid ""
+"No end reading for \"%(name)s\" on %(date)s (window: -%(pre)d/+%(post)d "
+"days)."
+msgstr ""
+"Messwert für Endverbrauch für \"%(name)s\" zum %(date)s nicht ermittelt "
+"(Fenster: −%(pre)d/+%(post)d Tage)."
+
+#, python-format
+msgctxt "model:ir.message,text:msg_no_start_reading"
+msgid ""
+"No start reading for \"%(name)s\" on %(date)s (window: -%(pre)d/+%(post)d "
+"days)."
+msgstr ""
+"Messwert für Anfangsverbrauch für \"%(name)s\" zum %(date)s nicht ermittelt "
+"(Fenster: −%(pre)d/+%(post)d Tage)."
 
 msgctxt "model:ir.message,text:msg_occupancy_overlap"
 msgid ""
@@ -3586,14 +3346,30 @@ msgid "Dear Sir or Madam"
 msgstr "Sehr geehrte Damen und Herren"
 
 #, python-format
+msgctxt "model:ir.message,text:msg_selection_invalid_state"
+msgid "Cannot run selection for \"%(name)s\": not allowed in state '%(state)s'."
+msgstr ""
+"Selektion für \"%(name)s\" nicht möglich: im Status '%(state)s' nicht "
+"erlaubt."
+
+#, python-format
+msgctxt "model:ir.message,text:msg_selection_reset_warning"
+msgid ""
+"Selection for \"%(name)s\": existing cost shares and settlement results will"
+" be deleted. Continue?"
+msgstr ""
+"Selektion für \"%(name)s\": vorhandene Kostenanteile und "
+"Abrechnungsergebnisse werden gelöscht. Fortfahren?"
+
+#, python-format
 msgctxt "model:ir.message,text:msg_settlement_unit_delete_not_draft"
 msgid ""
 "Cannot delete settlement unit \"%(name)s\": deletion is only allowed when "
 "the billing unit is in state 'Draft' (current state: %(state)s)."
 msgstr ""
 "Abrechnungsposition \"%(name)s\" kann nicht gelöscht werden: Löschen ist nur"
-" erlaubt, wenn die Abrechnungseinheit im Status 'Entwurf' ist "
-"(aktueller Status: %(state)s)."
+" erlaubt, wenn die Abrechnungseinheit im Status 'Entwurf' ist (aktueller "
+"Status: %(state)s)."
 
 msgctxt "model:ir.message,text:msg_settlement_units_error"
 msgid ""
@@ -3616,6 +3392,15 @@ msgid ""
 "Term \"{}\": Valid from ({}) must not be before the contract start date "
 "({})!"
 msgstr ""
+
+#, python-format
+msgctxt "model:ir.message,text:msg_value_share_reset_warning"
+msgid ""
+"Computing value shares for \"%(name)s\": existing settlement results will be"
+" deleted. Continue?"
+msgstr ""
+"Kostenanteile berechnen für \"%(name)s\": vorhandene Abrechnungsergebnisse "
+"werden gelöscht. Weiter?"
 
 msgctxt "model:ir.message,text:msg_year_of_construction_must_be_4_digits"
 msgid "{}: Year of construction ({}) must be a number with 4 digits!"
@@ -3665,6 +3450,10 @@ msgctxt "model:ir.ui.menu,name:menu_billing_unit_log"
 msgid "Billing Unit Log"
 msgstr "Abrechnungseinheit Protokoll"
 
+msgctxt "model:ir.ui.menu,name:menu_operation_costs_billing"
+msgid "Operation Costs Billing"
+msgstr "Nebenkostenabrechnung"
+
 msgctxt "model:ir.ui.menu,name:menu_billing_unit_moves"
 msgid "Billing Unit Moves"
 msgstr "Abrechnungseinheit Belege"
@@ -3697,6 +3486,10 @@ msgctxt "model:ir.ui.menu,name:menu_cost_category_group"
 msgid "Cost Category Groups"
 msgstr "Kostenartengruppe"
 
+msgctxt "model:ir.ui.menu,name:menu_cost_share"
+msgid "Cost Shares"
+msgstr "Kostenanteile"
+
 msgctxt "model:ir.ui.menu,name:menu_cost_type"
 msgid "Cost Types"
 msgstr "Typ Kostensammler"
@@ -3705,17 +3498,9 @@ msgctxt "model:ir.ui.menu,name:menu_create_moves"
 msgid "Create Contract Moves"
 msgstr "Soll/Habenstellung"
 
-msgctxt "model:ir.action.wizard,name:wizard_estimate_consumption"
-msgid "Estimate Consumption"
-msgstr "Verbrauch schätzen"
-
 msgctxt "model:ir.ui.menu,name:menu_equipment_form"
 msgid "Equipment"
 msgstr "Equipment"
-
-msgctxt "model:ir.ui.menu,name:menu_meter_reading_form"
-msgid "Meter Readings"
-msgstr "Messbelege"
 
 msgctxt "model:ir.ui.menu,name:menu_land_form"
 msgid "Land"
@@ -3724,6 +3509,10 @@ msgstr "Grundstück"
 msgctxt "model:ir.ui.menu,name:menu_measurement_type"
 msgid "Measurement Types"
 msgstr "Bemessungstype"
+
+msgctxt "model:ir.ui.menu,name:menu_meter_reading_form"
+msgid "Meter Readings"
+msgstr "Messbelege"
 
 msgctxt "model:ir.ui.menu,name:menu_object_form"
 msgid "Rental Object"
@@ -3784,10 +3573,6 @@ msgstr "Abrechnungsergebnis"
 msgctxt "model:ir.ui.menu,name:menu_settlement_unit"
 msgid "Settlement Units"
 msgstr "Kostensammler"
-
-msgctxt "model:ir.ui.menu,name:menu_cost_share"
-msgid "Cost Shares"
-msgstr "Kostenanteile"
 
 msgctxt "model:product.uom,name:uom_re_euro_unit"
 msgid "Euro"
@@ -4007,58 +3792,6 @@ msgctxt "model:real_estate.cost_category_group,string:"
 msgid "Real Estate Cost Category Group"
 msgstr ""
 
-msgctxt "model:real_estate.use_class,string:"
-msgid "Use Class"
-msgstr "Nutzungsklasse"
-
-msgctxt "field:real_estate.use_class,name:"
-msgid "Name"
-msgstr "Bezeichnung"
-
-msgctxt "field:real_estate.use_class,has_basement_nr:"
-msgid "Has Basement Number"
-msgstr "Kellerabteilnummer"
-
-msgctxt "field:real_estate.use_class,has_parking_nr:"
-msgid "Has Parking Number"
-msgstr "Stellplatznummer"
-
-msgctxt "field:real_estate.use_class,sequence:"
-msgid "Sequence"
-msgstr "Reihenfolge"
-
-msgctxt "field:real_estate.use_class,active:"
-msgid "Active"
-msgstr "Aktiv"
-
-msgctxt "model:real_estate.use_class,name:use_class_apartment"
-msgid "Apartment"
-msgstr "Wohnung"
-
-msgctxt "model:real_estate.use_class,name:use_class_office"
-msgid "Office"
-msgstr "Büro"
-
-msgctxt "model:real_estate.use_class,name:use_class_retail"
-msgid "Retail"
-msgstr "Einzelhandel"
-
-msgctxt "model:real_estate.use_class,name:use_class_warehouse"
-msgid "Warehouse"
-msgstr "Lager"
-
-msgctxt "model:real_estate.use_class,name:use_class_parking"
-msgid "Parking"
-msgstr "Stellplatz"
-
-msgctxt "model:real_estate.use_class,name:use_class_garage"
-msgid "Garage"
-msgstr "Garage"
-
-msgctxt "model:ir.action,name:act_use_class"
-msgid "Use Classes"
-msgstr "Nutzungsklassen"
-
 msgctxt "model:real_estate.cost_share,string:"
 msgid "Real Estate Cost Share"
 msgstr "Kostensammler"
@@ -4152,9 +3885,26 @@ msgctxt "model:real_estate.cost_type,string:"
 msgid "Real Estate Cost Type"
 msgstr "Kostensammler Typ"
 
+msgctxt "model:real_estate.estimate_consumption.result,string:"
+msgid "Estimate Consumption Result"
+msgstr "Verbrauchsschätzung Ergebnis"
+
+msgctxt "model:real_estate.estimate_consumption.start,string:"
+msgid "Estimate Consumption Start"
+msgstr "Verbrauchsschätzung Start"
+
+msgctxt "model:real_estate.estimate_consumption.wizard,string:"
+msgid "Estimate Consumption"
+msgstr "Verbrauch schätzen"
+
 msgctxt "model:real_estate.measurement,string:"
 msgid "Real Estate Measurement"
 msgstr "Immobilienbemessung"
+
+msgctxt ""
+"model:real_estate.measurement.type,name:measurement_commercial_space_type"
+msgid "Commercial Space"
+msgstr "Gewerbefläche"
 
 msgctxt ""
 "model:real_estate.measurement.type,name:measurement_gross_floor_area_type"
@@ -4170,11 +3920,6 @@ msgctxt ""
 "model:real_estate.measurement.type,name:measurement_living_space_type"
 msgid "Living Space"
 msgstr "Wohnfläche"
-
-msgctxt ""
-"model:real_estate.measurement.type,name:measurement_commercial_space_type"
-msgid "Commercial Space"
-msgstr "Gewerbefläche"
 
 msgctxt ""
 "model:real_estate.measurement.type,name:measurement_number_of_rooms_type"
@@ -4194,18 +3939,6 @@ msgstr "Anzahl Objekte"
 msgctxt "model:real_estate.measurement.type,string:"
 msgid "Real Estate Measurement Type"
 msgstr "Immobilien Bemessungstyp"
-
-msgctxt "model:real_estate.estimate_consumption.result,string:"
-msgid "Estimate Consumption Result"
-msgstr "Verbrauchsschätzung Ergebnis"
-
-msgctxt "model:real_estate.estimate_consumption.start,string:"
-msgid "Estimate Consumption Start"
-msgstr "Verbrauchsschätzung Start"
-
-msgctxt "model:real_estate.estimate_consumption.wizard,string:"
-msgid "Estimate Consumption"
-msgstr "Verbrauch schätzen"
 
 msgctxt "model:real_estate.meter_reading,string:"
 msgid "Real Estate Meter Reading"
@@ -4259,6 +3992,34 @@ msgstr ""
 msgctxt "model:real_estate.terminate_contract.start,string:"
 msgid "Real Estate Terminate Contract Start"
 msgstr ""
+
+msgctxt "model:real_estate.use_class,name:use_class_apartment"
+msgid "Apartment"
+msgstr "Wohnung"
+
+msgctxt "model:real_estate.use_class,name:use_class_garage"
+msgid "Garage"
+msgstr "Garage"
+
+msgctxt "model:real_estate.use_class,name:use_class_office"
+msgid "Office"
+msgstr "Büro"
+
+msgctxt "model:real_estate.use_class,name:use_class_parking"
+msgid "Parking"
+msgstr "Stellplatz"
+
+msgctxt "model:real_estate.use_class,name:use_class_retail"
+msgid "Retail"
+msgstr "Einzelhandel"
+
+msgctxt "model:real_estate.use_class,name:use_class_warehouse"
+msgid "Warehouse"
+msgstr "Lager"
+
+msgctxt "model:real_estate.use_class,string:"
+msgid "Use Class"
+msgstr "Nutzungsklasse"
 
 msgctxt "model:res.group,name:group_real_estate_admin"
 msgid "Real Estate Administration"
@@ -4497,24 +4258,24 @@ msgid "Rented"
 msgstr "vermietet"
 
 msgctxt "selection:real_estate.base_object.occupancy,state:"
-msgid "Vacant"
-msgstr "leerstehend"
-
-msgctxt "selection:real_estate.base_object.occupancy,state:"
 msgid "Under Negotiation"
 msgstr "in Verhandlung"
+
+msgctxt "selection:real_estate.base_object.occupancy,state:"
+msgid "Vacant"
+msgstr "leerstehend"
 
 msgctxt "selection:real_estate.base_object.occupancy.context,state:"
 msgid "Rented"
 msgstr "vermietet"
 
 msgctxt "selection:real_estate.base_object.occupancy.context,state:"
-msgid "Vacant"
-msgstr "leerstehend"
-
-msgctxt "selection:real_estate.base_object.occupancy.context,state:"
 msgid "Under Negotiation"
 msgstr "in Verhandlung"
+
+msgctxt "selection:real_estate.base_object.occupancy.context,state:"
+msgid "Vacant"
+msgstr "leerstehend"
 
 msgctxt "selection:real_estate.billing_unit,billing_type:"
 msgid "Actual Billing"
@@ -4828,9 +4589,33 @@ msgctxt "selection:real_estate.terminate_contract.start,terminated_by:"
 msgid "Landlord"
 msgstr "Eigentümer"
 
+msgctxt "view:real_estate.base_object,billing_units:"
+msgid "Billing Units"
+msgstr "Abrechnungseinheiten"
+
+msgctxt "view:real_estate.base_object:"
+msgid "Billing"
+msgstr "Abrechnen/Buchen"
+
+msgctxt "view:real_estate.base_object:"
+msgid "Billing Units"
+msgstr "Abrechnungseinheiten"
+
 msgctxt "view:real_estate.base_object:"
 msgid "Building"
 msgstr "Gebäude"
+
+msgctxt "view:real_estate.base_object:"
+msgid "Cancel Billing"
+msgstr "Storno Abrechnung"
+
+msgctxt "view:real_estate.base_object:"
+msgid "Compute Settlement Results"
+msgstr "Abrechnungsergebis berechnen"
+
+msgctxt "view:real_estate.base_object:"
+msgid "Compute Value Shares"
+msgstr "Kostenanteile berechnen"
 
 msgctxt "view:real_estate.base_object:"
 msgid "Cost Groups"
@@ -4852,9 +4637,97 @@ msgctxt "view:real_estate.base_object:"
 msgid "Rental Object"
 msgstr "Immobilienobjekt"
 
+msgctxt "view:real_estate.billing_unit,cash_flow_lines:"
+msgid "Advanced Payment"
+msgstr "Vorauszahlungen"
+
+msgctxt "view:real_estate.billing_unit,cost_shares:"
+msgid "Cost Shares"
+msgstr "Kostenanteile"
+
+msgctxt "view:real_estate.billing_unit,invoice_lines:"
+msgid "Invoice Lines"
+msgstr "Rechnungen"
+
+msgctxt "view:real_estate.billing_unit,moves:"
+msgid "Moves"
+msgstr "Buchungen"
+
+msgctxt "view:real_estate.billing_unit,settlement_units:"
+msgid "Settlement Units"
+msgstr "Kostensammler"
+
+msgctxt "view:real_estate.billing_unit,settlment_results:"
+msgid "Settlement Results"
+msgstr "Abrechnungsergebnis"
+
+msgctxt "view:real_estate.billing_unit,value_shares:"
+msgid "Value Shares"
+msgstr "Kostenanteile"
+
+msgctxt "view:real_estate.billing_unit:"
+msgid "Advanced Payment"
+msgstr "Vorauszahlungen"
+
+msgctxt "view:real_estate.billing_unit:"
+msgid "Approved"
+msgstr "Freigeben"
+
+msgctxt "view:real_estate.billing_unit:"
+msgid "Billing"
+msgstr "Abrechnen/Buchen"
+
+msgctxt "view:real_estate.billing_unit:"
+msgid "Billing"
+msgstr "Abrechnung"
+
+msgctxt "view:real_estate.billing_unit:"
+msgid "Cancel Billing"
+msgstr "Storno Abrechnung"
+
+msgctxt "view:real_estate.billing_unit:"
+msgid "Cancel Billing"
+msgstr "Abrechnung stornieren"
+
+msgctxt "view:real_estate.billing_unit:"
+msgid "Compute Settlement Results"
+msgstr "Abrechnungsergebis berechnen"
+
+msgctxt "view:real_estate.billing_unit:"
+msgid "Compute Value Shares"
+msgstr "Kostenanteile berechnen"
+
 msgctxt "view:real_estate.billing_unit:"
 msgid "Cost Objects"
 msgstr "Kostensammler"
+
+msgctxt "view:real_estate.billing_unit:"
+msgid "Cost Shares"
+msgstr "Kostenanteile"
+
+msgctxt "view:real_estate.billing_unit:"
+msgid "Invoice Lines"
+msgstr "Rechnungen"
+
+msgctxt "view:real_estate.billing_unit:"
+msgid "Moves"
+msgstr "Buchungen"
+
+msgctxt "view:real_estate.billing_unit:"
+msgid "Selection"
+msgstr "Auswählen"
+
+msgctxt "view:real_estate.billing_unit:"
+msgid "Settlement Results"
+msgstr "Abrechnungsergebnis"
+
+msgctxt "view:real_estate.billing_unit:"
+msgid "Settlement Units"
+msgstr "Kostensammler"
+
+msgctxt "view:real_estate.billing_unit:"
+msgid "Value Shares"
+msgstr "Kostenanteile"
 
 msgctxt "view:real_estate.contract,measurements:"
 msgid "Measurements"
@@ -4881,8 +4754,16 @@ msgid "General"
 msgstr "Allg. Daten"
 
 msgctxt "view:real_estate.contract:"
+msgid "Cancel"
+msgstr "Aktivierung zurücksetzten"
+
+msgctxt "view:real_estate.contract:"
 msgid "Cash Flow"
 msgstr "Finanzstrom"
+
+msgctxt "view:real_estate.contract:"
+msgid "Change Partner"
+msgstr "Partner wechseln"
 
 msgctxt "view:real_estate.contract:"
 msgid "General"
@@ -4901,12 +4782,37 @@ msgid "Meters"
 msgstr "Zähler"
 
 msgctxt "view:real_estate.contract:"
+msgid "Party Ledger"
+msgstr "Kontenblatt"
+
+msgctxt "view:real_estate.contract:"
+msgid "Running"
+msgstr "Aktivieren"
+
+msgctxt "view:real_estate.contract:"
+msgid "Terminate"
+msgstr "Kündigen"
+
+msgctxt "view:real_estate.contract:"
 msgid "Terms"
 msgstr "Konditionen"
 
-msgctxt "wizard_button:real_estate.contract.create_moves.wizard,start,create_moves:"
+msgctxt "view:real_estate.settlement_unit,invoice_lines:"
+msgid "Invoice Lines"
+msgstr "Rechnungen"
+
+msgctxt "view:real_estate.settlement_unit:"
+msgid "Invoice Lines"
+msgstr "Rechnungen"
+
+msgctxt ""
+"wizard_button:real_estate.contract.create_moves.wizard,start,create_moves:"
 msgid "OK"
 msgstr "OK"
+
+msgctxt "wizard_button:real_estate.contract.create_moves.wizard,start,end:"
+msgid "Cancel"
+msgstr "Abbruch"
 
 msgctxt "wizard_button:real_estate.estimate_consumption.wizard,result,book:"
 msgid "Book"
@@ -4924,10 +4830,6 @@ msgctxt "wizard_button:real_estate.estimate_consumption.wizard,start,result:"
 msgid "OK"
 msgstr "OK"
 
-msgctxt "wizard_button:real_estate.contract.create_moves.wizard,start,end:"
-msgid "Cancel"
-msgstr "Abbruch"
-
 msgctxt "wizard_button:real_estate.terminate_contract.wizard,start,end:"
 msgid "Cancel"
 msgstr "Abbruch"
@@ -4936,39 +4838,3 @@ msgctxt ""
 "wizard_button:real_estate.terminate_contract.wizard,start,terminate_contract:"
 msgid "OK"
 msgstr "OK"
-
-msgctxt "wizard_button:real_estate.cancel_billing.wizard,start,end:"
-msgid "Cancel"
-msgstr "Abbruch"
-
-msgctxt "wizard_button:real_estate.cancel_billing.wizard,start,do_cancel:"
-msgid "OK"
-msgstr "OK"
-
-msgctxt "field:real_estate.cancel_billing.start,company:"
-msgid "Company"
-msgstr "Gesellschaft"
-
-msgctxt "field:real_estate.cancel_billing.start,property:"
-msgid "Property"
-msgstr "Wirtschaftseinheit"
-
-msgctxt "field:real_estate.cancel_billing.start,billing_run_id:"
-msgid "Billing Run ID"
-msgstr "Abrechnungslauf-ID"
-
-msgctxt "field:real_estate.cancel_billing.start,invoice_date:"
-msgid "Invoice Date"
-msgstr "Rechnungsdatum"
-
-msgctxt "model:real_estate.cancel_billing.start,name:"
-msgid "Cancel Billing - Start"
-msgstr "Abrechnung stornieren - Start"
-
-msgctxt "model:real_estate.cancel_billing.wizard,name:"
-msgid "Cancel Billing Wizard"
-msgstr "Assistent Abrechnung stornieren"
-
-msgctxt "model:ir.action.wizard,name:wizard_cancel_billing"
-msgid "Cancel Billing"
-msgstr "Storno Abrechnung"
