@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<form col="2">
+    <label name="n_created"/><field name="n_created"/>
+    <label name="n_updated"/><field name="n_updated"/>
+    <label name="n_unchanged"/><field name="n_unchanged"/>
+    <label name="n_skipped"/><field name="n_skipped"/>
+    <label name="message"/><field name="message" colspan="2"/>
+</form>

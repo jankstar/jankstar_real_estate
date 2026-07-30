@@ -53,5 +53,33 @@
             <field name="perm_delete" eval="False"/>
         </record>
 
+        <!-- Option Rate Update Wizard -->
+        <record model="ir.ui.view" id="option_rate_update_start_view_form">
+            <field name="model">real_estate.option_rate_update.start</field>
+            <field name="type">form</field>
+            <field name="name">option_rate_update_start_form</field>
+        </record>
+        <record model="ir.ui.view" id="option_rate_update_confirm_view_form">
+            <field name="model">real_estate.option_rate_update.confirm</field>
+            <field name="type">form</field>
+            <field name="name">option_rate_update_confirm_form</field>
+        </record>
+        <record model="ir.ui.view" id="option_rate_update_result_view_form">
+            <field name="model">real_estate.option_rate_update.result</field>
+            <field name="type">form</field>
+            <field name="name">option_rate_update_result_form</field>
+        </record>
+
+        <record model="ir.action.wizard" id="wizard_option_rate_update">
+            <field name="name">Update Option Rates</field>
+            <field name="wiz_name">real_estate.option_rate_update.wizard</field>
+        </record>
+
+        <menuitem
+            parent="menu_real_estate_masta_data"
+            action="wizard_option_rate_update"
+            sequence="70"
+            id="menu_option_rate_update"/>
+
     </data>
 </tryton>

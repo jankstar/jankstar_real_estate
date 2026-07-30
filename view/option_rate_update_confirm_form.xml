@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<form col="2">
+    <label name="cutoff_date"/><field name="cutoff_date"/>
+    <label name="effective_date"/><field name="effective_date"/>
+    <label name="n_base_objects"/><field name="n_base_objects"/>
+    <label name="n_billing_units"/><field name="n_billing_units"/>
+    <label name="n_settlement_units"/><field name="n_settlement_units"/>
+    <label name="n_expanded"/><field name="n_expanded"/>
+</form>

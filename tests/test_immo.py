@@ -35,8 +35,9 @@ Das Skript ist idempotent: es bricht ab, wenn eine Property mit dem Namen
 Nutzungsklassen (real_estate.use_class) werden per Sequenznummer gesucht
 (sprachunabhängig): Apartment=10, Retail=30, Parking=50.
 
-Bemessungstypen werden per deutschem Namen gesucht – der Benutzer "admin" muss
-daher in Tryton auf die Sprache Deutsch gestellt sein.
+Bemessungstypen (real_estate.measurement.type) werden per Sequenznummer
+gesucht (sprachunabhängig): Usable Space=5, Wohnfläche=10, Gewerbefläche=15,
+Anzahl Räume=20, Bruttogeschossfläche [BHF]=30.
 
 Verwendung:
     python tests/test_immo.py --database <Datenbankname> [--config <trytond.conf>]
@@ -80,11 +81,15 @@ def get_company():
     return companies[0]
 
 
-def get_measurement_type(name: str):
+def get_measurement_type_by_sequence(sequence: int):
+    # Per sequence gesucht (sprachunabhängig) - eine Namenssuche würde im
+    # deutschen Sprachkontext des admin-Benutzers fehlschlagen, sobald für
+    # einen Bemessungstyp keine deutsche Übersetzung hinterlegt ist.
     MeasurementType = Model.get('real_estate.measurement.type')
-    results = MeasurementType.find([('name', '=', name)])
+    results = MeasurementType.find([('sequence', '=', sequence)])
     if not results:
-        print(f'ERROR: Bemessungstyp "{name}" nicht gefunden.', file=sys.stderr)
+        print(f'ERROR: Bemessungstyp mit sequence={sequence} nicht gefunden.',
+              file=sys.stderr)
         sys.exit(1)
     return results[0]
 
@@ -98,6 +103,7 @@ def create_base_object(
     type_of_use: str | None = None,
     use_class=None,
     floor: int | None = None,
+    usable_space_type=None,
 ) -> object:
     BaseObject = Model.get('real_estate.base_object')
     obj = BaseObject()
@@ -115,6 +121,16 @@ def create_base_object(
         obj.use_class = use_class
     if floor is not None:
         obj.floor = floor
+
+    # Option Rate (Optionssatz Vorsteuerabzug)
+    if obj_type in ('property', 'building', 'land'):
+        obj.option_rate_method = 'dynamic_measurement'
+        if usable_space_type is not None:
+            obj.option_measurement_type = usable_space_type
+    elif obj_type == 'object':
+        obj.option_rate_method = (
+            'fix_100' if type_of_use == 'commercial' else 'fix_0')
+
     obj.save()
     print(f'  Erstellt: [{obj_type:10}] {name} (id={obj.id})')
     return obj
@@ -227,7 +243,7 @@ def create_meter(parent, name: str, sequence: int, company, uom, admin_user) -> 
 
 
 def create_land_with_parking(prop_name: str, prop, company, sequence: int,
-                             uc_parking) -> None:
+                             uc_parking, usable_space_type=None) -> None:
     """Create one land entry with 4 parking spaces under the given property."""
     land = create_base_object(
         name=f'{prop_name} – Grundstück',
@@ -235,6 +251,7 @@ def create_land_with_parking(prop_name: str, prop, company, sequence: int,
         company=company,
         sequence=sequence,
         parent=prop,
+        usable_space_type=usable_space_type,
     )
     for i in range(1, 5):
         sp = create_base_object(
@@ -253,7 +270,8 @@ def create_land_with_parking(prop_name: str, prop, company, sequence: int,
 def create_building(house_nr: int, building_seq: int, prop, company,
                     country, t_bgf, t_raume, t_wfl, t_gwfl, uom_m3, admin_user,
                     apt_start_nr: int, uc_apartment,
-                    retail_start_nr: int, uc_retail) -> tuple:
+                    retail_start_nr: int, uc_retail,
+                    usable_space_type=None) -> tuple:
     """Create one building with 1 retail space (EG) and 4 apartments (1.OG/2.OG).
     Returns (next_apt_nr, next_retail_nr)."""
     address = create_re_address(house_nr, country)
@@ -264,6 +282,7 @@ def create_building(house_nr: int, building_seq: int, prop, company,
         company=company,
         sequence=building_seq,
         parent=prop,
+        usable_space_type=usable_space_type,
     )
     building.address = address
     building.save()
@@ -349,10 +368,11 @@ def main():
     uc_parking = get_use_class('Parking')
     uc_retail = get_use_class('Retail')
 
-    t_bgf = get_measurement_type('Bruttogeschossfläche [BHF]')
-    t_raume = get_measurement_type('Anzahl Räume')
-    t_wfl = get_measurement_type('Wohnfläche')
-    t_gwfl = get_measurement_type('Gewerbefläche')
+    t_wfl = get_measurement_type_by_sequence(10)     # Wohnfläche
+    t_gwfl = get_measurement_type_by_sequence(15)    # Gewerbefläche
+    t_raume = get_measurement_type_by_sequence(20)   # Anzahl Räume
+    t_bgf = get_measurement_type_by_sequence(30)     # Bruttogeschossfläche [BHF]
+    t_usable_space = get_measurement_type_by_sequence(5)   # Usable Space
 
     country_de = get_country('DE')
     if not country_de:
@@ -365,6 +385,7 @@ def main():
         t_bgf=t_bgf, t_raume=t_raume, t_wfl=t_wfl, t_gwfl=t_gwfl,
         uom_m3=uom_m3, admin_user=admin_user,
         uc_apartment=uc_apartment, uc_retail=uc_retail,
+        usable_space_type=t_usable_space,
     )
 
     # Wirtschaftseinheit 1: Musterstraße 1-4
@@ -372,6 +393,7 @@ def main():
     prop1 = create_base_object(
         name='Musterstraße 1-4', obj_type='property',
         company=company, sequence=10,
+        usable_space_type=t_usable_space,
     )
     apt_nr = 1
     retail_nr = 1
@@ -384,13 +406,14 @@ def main():
         )
     print('\n--- Grundstück Musterstraße 1-4 ---')
     create_land_with_parking('Musterstraße 1-4', prop1, company, sequence=50,
-                             uc_parking=uc_parking)
+                             uc_parking=uc_parking, usable_space_type=t_usable_space)
 
     # Wirtschaftseinheit 2: Musterstraße 5-8
     print('\n=== Wirtschaftseinheit: Musterstraße 5-8 ===')
     prop2 = create_base_object(
         name='Musterstraße 5-8', obj_type='property',
         company=company, sequence=20,
+        usable_space_type=t_usable_space,
     )
     apt_nr = 1
     retail_nr = 1
@@ -403,7 +426,7 @@ def main():
         )
     print('\n--- Grundstück Musterstraße 5-8 ---')
     create_land_with_parking('Musterstraße 5-8', prop2, company, sequence=50,
-                             uc_parking=uc_parking)
+                             uc_parking=uc_parking, usable_space_type=t_usable_space)
 
     print('\nFertig.')
 

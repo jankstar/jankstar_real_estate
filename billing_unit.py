@@ -213,7 +213,8 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
     option_measurement_type = fields.Many2One(
         'real_estate.measurement.type', "Option Measurement Type",
         ondelete='RESTRICT',
-        domain=[('is_group', '=', False)],
+        help="If a measurement group is selected, all its child "
+             "measurement types are summed per rental object.",
         states={
             'invisible': Eval('option_rate_method') != 'dynamic_measurement',
             'required': Eval('option_rate_method') == 'dynamic_measurement',

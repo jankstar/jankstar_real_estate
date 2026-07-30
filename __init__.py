@@ -20,6 +20,7 @@ from . import billing_unit_wizard
 from . import settlement_unit
 from . import settlement_result
 from . import option_rate
+from . import option_rate_wizard
 
 __all__ = ['register']
 
@@ -93,6 +94,9 @@ def register():
         settlement_result.CostShare,
         settlement_result.SettlementResult,
         option_rate.OptionRate,
+        option_rate_wizard.OptionRateUpdateStart,
+        option_rate_wizard.OptionRateUpdateConfirm,
+        option_rate_wizard.OptionRateUpdateResult,
         module='real_estate', type_='model')
     Pool.register(
         contract_wizard.CreateContractMovesWizard,
@@ -102,6 +106,7 @@ def register():
         billing_unit_wizard.BillingUnitWizard,
         billing_unit_wizard.CancelBillingWizard,
         contract_wizard.ContractTermAdjustmentWizard,
+        option_rate_wizard.OptionRateUpdateWizard,
         module='real_estate', type_='wizard')
     Pool.register(
         base_object.BaseObjectReport,

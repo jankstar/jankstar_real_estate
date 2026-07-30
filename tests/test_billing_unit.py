@@ -114,10 +114,12 @@ def get_cost_type(sequence: int):
 
 
 def get_measurement_type_usable_space():
+    # Per sequence gesucht (robuster gegenüber Übersetzungen): die Gruppe
+    # "Usable Space" (sequence=05) fasst Wohnfläche/Gewerbefläche zusammen.
     MType = Model.get('real_estate.measurement.type')
-    results = MType.find([('name', '=', 'Nutzfläche')])
+    results = MType.find([('sequence', '=', 5)])
     if not results:
-        print('ERROR: MeasurementType "Nutzfläche" nicht gefunden.',
+        print('ERROR: MeasurementType "Usable Space" (sequence=5) nicht gefunden.',
               file=sys.stderr)
         sys.exit(1)
     return results[0]
@@ -147,7 +149,7 @@ def get_term_type(sequence: int):
 # ---------------------------------------------------------------------------
 
 def create_billing_unit(prop, description: str, term_type_ids: list,
-        external_billing: bool = False) -> object:
+        usable_space_type, external_billing: bool = False) -> object:
     BillingUnit = Model.get('real_estate.billing_unit')
     bu = BillingUnit()
     bu.property = prop
@@ -158,12 +160,14 @@ def create_billing_unit(prop, description: str, term_type_ids: list,
     bu.description = description
     if term_type_ids:
         bu.term_types_of_use = [str(tid) for tid in term_type_ids]
+    bu.option_rate_method = 'dynamic_measurement'
+    bu.option_measurement_type = usable_space_type
     bu.save()
     print(f'  BillingUnit: "{bu.name}" external_billing={external_billing} id={bu.id}')
     return bu
 
 
-def create_su_measurement(bu, cost_type, m_type) -> None:
+def create_su_measurement(bu, cost_type, m_type, usable_space_type) -> None:
     SU = Model.get('real_estate.settlement_unit')
     su = SU()
     su.billing_unit = bu
@@ -173,13 +177,15 @@ def create_su_measurement(bu, cost_type, m_type) -> None:
     su.m_type = m_type
     su.vacancy = 'by_owner'
     su.reg_ex_object = 'Wohnung|Einzelhandel'
+    su.option_rate_method = 'dynamic_measurement'
+    su.option_measurement_type = usable_space_type
     su.save()
     print(f'    SU {su.sequence}: {cost_type.name} '
           f'→ Nutzfläche / Leerstand: Eigentümer '
           f'/ Objekt-Regex: "Wohnung|Einzelhandel"')
 
 
-def create_su_consumption(bu, cost_type, meter_unit) -> None:
+def create_su_consumption(bu, cost_type, meter_unit, usable_space_type) -> None:
     SU = Model.get('real_estate.settlement_unit')
     su = SU()
     su.billing_unit = bu
@@ -190,13 +196,15 @@ def create_su_consumption(bu, cost_type, meter_unit) -> None:
     su.vacancy = 'by_owner'
     su.reg_ex_object = 'Wohnung|Einzelhandel'
     su.reg_ex_meter = 'Wasser Zähler'
+    su.option_rate_method = 'dynamic_measurement'
+    su.option_measurement_type = usable_space_type
     su.save()
     print(f'    SU {su.sequence}: {cost_type.name} '
           f'→ Verbrauch {meter_unit.symbol} / Leerstand: Eigentümer '
           f'/ Objekt-Regex: "Wohnung|Einzelhandel" / Zähler-Regex: "Wasser Zähler"')
 
 
-def create_su_external(bu, cost_type) -> None:
+def create_su_external(bu, cost_type, usable_space_type) -> None:
     SU = Model.get('real_estate.settlement_unit')
     su = SU()
     su.billing_unit = bu
@@ -204,6 +212,8 @@ def create_su_external(bu, cost_type) -> None:
     su.sequence = cost_type.sequence
     su.allocation_rule = 'allocation_from_external_billing'
     su.reg_ex_object = 'Wohnung|Einzelhandel'
+    su.option_rate_method = 'dynamic_measurement'
+    su.option_measurement_type = usable_space_type
     su.save()
     print(f'    SU {su.sequence}: {cost_type.name} '
           f'→ externe Abrechnung / Objekt-Regex: "Wohnung|Einzelhandel"')
@@ -256,12 +266,13 @@ def main():
             prop=prop,
             description='Kalte Betriebskosten',
             term_type_ids=tt_ids_bk,
+            usable_space_type=m_type_wfl,
         )
 
         for ct in ct_measurement:
-            create_su_measurement(bu_bk, ct, m_type_wfl)
+            create_su_measurement(bu_bk, ct, m_type_wfl, usable_space_type=m_type_wfl)
 
-        create_su_consumption(bu_bk, ct_water, uom_m3)
+        create_su_consumption(bu_bk, ct_water, uom_m3, usable_space_type=m_type_wfl)
 
         # --- Billing Unit 2: Heizkosten ---
         print('\n--- Heizkosten ---')
@@ -270,11 +281,12 @@ def main():
             prop=prop,
             description='Heizkosten',
             term_type_ids=tt_ids_hz,
+            usable_space_type=m_type_wfl,
             external_billing=True,
         )
 
         for ct in ct_heat:
-            create_su_external(bu_hz, ct)
+            create_su_external(bu_hz, ct, usable_space_type=m_type_wfl)
 
         print()
 
