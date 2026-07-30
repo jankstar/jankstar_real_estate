@@ -379,6 +379,10 @@ msgctxt "field:real_estate.base_object,name:"
 msgid "Name"
 msgstr "Name"
 
+msgctxt "field:real_estate.base_object,next_billing_start_date:"
+msgid "Next Billing Start Date"
+msgstr "nächstes Abrechnungs-Startdatum"
+
 msgctxt "field:real_estate.base_object,no_print:"
 msgid "Do not print this equipment in reports"
 msgstr "Dieses Gerät nicht in Berichten ausdrucken"
@@ -398,6 +402,18 @@ msgstr "Nr."
 msgctxt "field:real_estate.base_object,occupancy:"
 msgid "Occupancy"
 msgstr "Belegung/Leerstand"
+
+msgctxt "field:real_estate.base_object,option_measurement_type:"
+msgid "Option Measurement Type"
+msgstr "Optionssatzmethode Bemessung"
+
+msgctxt "field:real_estate.base_object,option_rate_method:"
+msgid "Option Rate Method"
+msgstr "Optionssatzmethode"
+
+msgctxt "field:real_estate.base_object,option_rates:"
+msgid "Option Rates"
+msgstr "Optionssatz"
 
 msgctxt "field:real_estate.base_object,parent:"
 msgid "Parent"
@@ -603,9 +619,21 @@ msgctxt "field:real_estate.billing_unit,end_date:"
 msgid "End Date"
 msgstr "Endedatum"
 
+msgctxt "field:real_estate.billing_unit,external_billing:"
+msgid "External Billing"
+msgstr "externe Abrechnung"
+
+msgctxt "field:real_estate.billing_unit,has_successor:"
+msgid "Has Successor"
+msgstr "hat Nachfolger"
+
 msgctxt "field:real_estate.billing_unit,invoice_lines:"
 msgid "Invoice Lines"
 msgstr "Rechnungen"
+
+msgctxt "field:real_estate.billing_unit,is_next_billing:"
+msgid "Is Next Billing"
+msgstr "ist nächste Abrechnung"
 
 msgctxt "field:real_estate.billing_unit,moves:"
 msgid "Moves"
@@ -615,9 +643,25 @@ msgctxt "field:real_estate.billing_unit,name:"
 msgid "Name"
 msgstr "Name"
 
+msgctxt "field:real_estate.billing_unit,option_measurement_type:"
+msgid "Option Measurement Type"
+msgstr "Optionssatzmethode Bemessung"
+
+msgctxt "field:real_estate.billing_unit,option_rate_method:"
+msgid "Option Rate Method"
+msgstr "Optionssatzmethode"
+
+msgctxt "field:real_estate.billing_unit,option_rates:"
+msgid "Option Rates"
+msgstr "Optionssatz"
+
 msgctxt "field:real_estate.billing_unit,planned_costs:"
 msgid "Planned Costs"
 msgstr "Plankosten"
+
+msgctxt "field:real_estate.billing_unit,predecessor:"
+msgid "Predecessor"
+msgstr "Vorgänger"
 
 msgctxt "field:real_estate.billing_unit,property:"
 msgid "Property"
@@ -2204,6 +2248,10 @@ msgid "Company"
 msgstr "Gesellschaft"
 
 msgctxt "field:real_estate.settlement_unit,cost_shares:"
+msgid "Cost Shares"
+msgstr "Kostenverteilung"
+
+msgctxt "field:real_estate.settlement_unit,cost_shares:"
 msgid "Settlement Units"
 msgstr "Abrechnungseinheiten"
 
@@ -2243,6 +2291,14 @@ msgctxt "field:real_estate.settlement_unit,objects:"
 msgid "Objects"
 msgstr "Objekte"
 
+msgctxt "field:real_estate.settlement_unit,option_rate_method:"
+msgid "Option Rate Method"
+msgstr "Optionssatzmehthode"
+
+msgctxt "field:real_estate.settlement_unit,option_rates:"
+msgid "Option Rates"
+msgstr "Optionssatz"
+
 msgctxt "field:real_estate.settlement_unit,planned_costs:"
 msgid "Planned Costs"
 msgstr "Plankosten"
@@ -2250,6 +2306,10 @@ msgstr "Plankosten"
 msgctxt "field:real_estate.settlement_unit,property:"
 msgid "Property"
 msgstr "Wirtschaftseinheit"
+
+msgctxt "field:real_estate.settlement_unit,purchase_taxes_expense:"
+msgid "Purchase Taxes as Expense"
+msgstr "Steuer als Aufwand"
 
 msgctxt "field:real_estate.settlement_unit,reg_ex_meter:"
 msgid "Reg. Ex. Meter"
@@ -2423,6 +2483,23 @@ msgstr ""
 "Hausgelder werden verrechnet; Rücklagenbeiträge und nicht umlagefähige "
 "Kosten verbleiben beim jeweiligen Eigentümer."
 
+msgctxt "help:real_estate.billing_unit,external_billing:"
+msgid ""
+"If set, all settlement units must use 'Allocation from external billing'. "
+"The allocation rule on each settlement unit is locked accordingly."
+msgstr ""
+"Wenn diese Option aktiviert ist, müssen alle Abrechnungseinheiten die "
+"„Zuordnung aus externer Abrechnung“ verwenden. Die Zuordnungsregel für jede "
+"Abrechnungseinheit wird entsprechend gesperrt."
+
+msgctxt "help:real_estate.billing_unit,option_measurement_type:"
+msgid ""
+"If a measurement group is selected, all its child measurement types are "
+"summed per rental object."
+msgstr ""
+"Wenn eine Messgruppe ausgewählt ist, werden alle zugehörigen Messarten pro "
+"Mietobjekt summiert."
+
 msgctxt "help:real_estate.billing_unit,term_types_of_use:"
 msgid "The term type which can use this billing unit."
 msgstr "Konditionsart, die mit dieser Abrechnungseinheit genutzt werden kann"
@@ -2587,6 +2664,14 @@ msgstr "Der Objekttyp, für den diese Rolle verwendet werden kann."
 msgctxt "help:real_estate.object_party.role,types:"
 msgid "The type of object which can use this role."
 msgstr "Der Objekttyp, für den diese Rolle verwendet werden kann."
+
+msgctxt "help:real_estate.settlement_unit,option_measurement_type:"
+msgid ""
+"If a measurement group is selected, all its child measurement types are "
+"summed per rental object."
+msgstr ""
+"Wenn eine Messgruppe ausgewählt ist, werden alle zugehörigen Messarten pro "
+"Mietobjekt summiert."
 
 msgctxt "help:real_estate.settlement_unit,reg_ex_meter:"
 msgid ""
@@ -3006,11 +3091,11 @@ msgstr "Kostensammler"
 
 msgctxt "model:ir.action,name:act_use_class"
 msgid "Use Classes"
-msgstr "Nutzung Mietobjekt"
+msgstr "Nutzungsklassen"
 
 msgctxt "model:ir.action,name:act_use_class"
 msgid "Use Classes"
-msgstr "Nutzungsklassen"
+msgstr "Nutzung Mietobjekt"
 
 msgctxt "model:ir.action,name:report_base_object"
 msgid "Fact Sheet"
@@ -3214,6 +3299,17 @@ msgstr ""
 "Abrechnung nicht möglich: Abrechnungseinheit(en) \"%(names)s\" enthalten "
 "Fehler. Bitte alle Fehler beheben."
 
+#, python-format
+msgctxt "model:ir.message,text:msg_billing_unit_settlement_unit_errors"
+msgid ""
+"Cannot set \"Ready for Billing\" for \"%(name)s\": the following settlement units have errors:\n"
+"%(details)s\n"
+"Fix all errors before proceeding."
+msgstr ""
+"„Bereit zur Abrechnung“ kann für „%(name)s“ nicht festgelegt werden: Die "
+"folgenden Abrechnungseinheiten weisen Fehler auf: %(details)s Beheben Sie "
+"alle Fehler, bevor Sie fortfahren."
+
 msgctxt "model:ir.message,text:msg_cancel_contract_has_postings"
 msgid ""
 "Contract \"{}\": existing postings (done cash flow items) will NOT be "
@@ -3341,6 +3437,15 @@ msgid ""
 "{}. Do you want to proceed anyway?"
 msgstr ""
 
+msgctxt ""
+"model:ir.message,text:msg_option_rate_method_dynamic_not_allowed_for_object"
+msgid ""
+"{}: Option rate method \"Dynamic Measurement\" is not allowed for a rental "
+"object (only fixed rates are allowed)."
+msgstr ""
+"{}: Die Optionssatzmethode „Dynamische Ermittlung“ ist für ein Mietobjekt "
+"nicht zulässig (es sind nur feste Sätze zulässig)."
+
 msgctxt "model:ir.message,text:msg_salutation"
 msgid "Dear Sir or Madam"
 msgstr "Sehr geehrte Damen und Herren"
@@ -3450,10 +3555,6 @@ msgctxt "model:ir.ui.menu,name:menu_billing_unit_log"
 msgid "Billing Unit Log"
 msgstr "Abrechnungseinheit Protokoll"
 
-msgctxt "model:ir.ui.menu,name:menu_operation_costs_billing"
-msgid "Operation Costs Billing"
-msgstr "Nebenkostenabrechnung"
-
 msgctxt "model:ir.ui.menu,name:menu_billing_unit_moves"
 msgid "Billing Unit Moves"
 msgstr "Abrechnungseinheit Belege"
@@ -3461,6 +3562,10 @@ msgstr "Abrechnungseinheit Belege"
 msgctxt "model:ir.ui.menu,name:menu_building_form"
 msgid "Building"
 msgstr "Gebäude"
+
+msgctxt "model:ir.ui.menu,name:menu_cancel_billing"
+msgid "Cancel Billing"
+msgstr "Storno Abrechnung"
 
 msgctxt "model:ir.ui.menu,name:menu_contract_form"
 msgid "Contract"
@@ -3525,6 +3630,14 @@ msgstr "Partner zum Objekt"
 msgctxt "model:ir.ui.menu,name:menu_object_party_role"
 msgid "Object Party Roles"
 msgstr "Partnerrolle"
+
+msgctxt "model:ir.ui.menu,name:menu_operation_costs_billing"
+msgid "Operation Costs Billing"
+msgstr "Nebenkostenabrechnung"
+
+msgctxt "model:ir.ui.menu,name:menu_option_rate_update"
+msgid "Update Option Rates"
+msgstr "Berechnung Optionssatz"
 
 msgctxt "model:ir.ui.menu,name:menu_real_estate"
 msgid "Real Estate"
@@ -3714,8 +3827,8 @@ msgstr "gewerbliche Miete (monatlich)"
 
 msgctxt ""
 "model:real_estate.contract.term.type,name:contract_term_type_operating_costs"
-msgid "Operating costs (monthly)"
-msgstr "Betriebskosten (monatlich)"
+msgid "AP for Operating costs (monthly)"
+msgstr "Betriebskosten VZ (monatlich)"
 
 msgctxt ""
 "model:real_estate.contract.term.type,name:contract_term_type_parking_space_rent"
@@ -4093,6 +4206,18 @@ msgctxt "selection:real_estate.base_object,e_type:"
 msgid "Technical Building Equipment"
 msgstr "Technische Gebäudeausstattung [TGA]"
 
+msgctxt "selection:real_estate.base_object,option_rate_method:"
+msgid "Dynamic Measurement"
+msgstr "dynamisch über Bemessung"
+
+msgctxt "selection:real_estate.base_object,option_rate_method:"
+msgid "Fix: Option Rate 0.0 %"
+msgstr "Optionssatz 0,0 % fix"
+
+msgctxt "selection:real_estate.base_object,option_rate_method:"
+msgid "Fix: Option Rate 100.0 %"
+msgstr "Optionssatz 100,0% fix"
+
 msgctxt "selection:real_estate.base_object,state:"
 msgid "Approved"
 msgstr "Aktiv"
@@ -4293,6 +4418,26 @@ msgctxt "selection:real_estate.billing_unit,calculation_method:"
 msgid "WEG Billing"
 msgstr "WEG Abrechnung"
 
+msgctxt "selection:real_estate.billing_unit,option_rate_method:"
+msgid "Dynamic Measurement"
+msgstr "dynamisch über Bemessung"
+
+msgctxt "selection:real_estate.billing_unit,option_rate_method:"
+msgid "Fix: Option Rate 0.0 %"
+msgstr "Optionssatz 0,0 % fix"
+
+msgctxt "selection:real_estate.billing_unit,option_rate_method:"
+msgid "Fix: Option Rate 0.0 %"
+msgstr "Optionssatz 0,0 % fix"
+
+msgctxt "selection:real_estate.billing_unit,option_rate_method:"
+msgid "Fix: Option Rate 100.0 %"
+msgstr "Optionssatz 100,0% fix"
+
+msgctxt "selection:real_estate.billing_unit,option_rate_method:"
+msgid "Fix: Option Rate 100.0 %"
+msgstr "Optionssatz 100,0% fix"
+
 msgctxt "selection:real_estate.billing_unit,state:"
 msgid "Approved"
 msgstr "freigegeben"
@@ -4308,6 +4453,10 @@ msgstr "Entwurf"
 msgctxt "selection:real_estate.billing_unit,state:"
 msgid "Estimated Value Share"
 msgstr "geschätzt Aufgeteilt"
+
+msgctxt "selection:real_estate.billing_unit,state:"
+msgid "Ready for Billing"
+msgstr "fertig zur Abrechnung"
 
 msgctxt "selection:real_estate.billing_unit,state:"
 msgid "Selection"
@@ -4570,12 +4719,40 @@ msgid "Allocation by measurement"
 msgstr "Umlage nach Bemessung"
 
 msgctxt "selection:real_estate.settlement_unit,allocation_rule:"
+msgid "Allocation from external billing"
+msgstr "Umlage durch externe Abrechnung"
+
+msgctxt "selection:real_estate.settlement_unit,allocation_rule:"
 msgid "Allocation per rental unit"
 msgstr "Umlage per Mietobjekt"
 
 msgctxt "selection:real_estate.settlement_unit,allocation_rule:"
 msgid "No allocation"
 msgstr "keine Umlage"
+
+msgctxt "selection:real_estate.settlement_unit,option_rate_method:"
+msgid "Dynamic Measurement"
+msgstr "dynamisch über Bemessung"
+
+msgctxt "selection:real_estate.settlement_unit,option_rate_method:"
+msgid "Dynamic Measurement"
+msgstr "dynamisch über Bemessung"
+
+msgctxt "selection:real_estate.settlement_unit,option_rate_method:"
+msgid "Fix: Option Rate 0.0 %"
+msgstr "Optionssatz 0,0 % fix"
+
+msgctxt "selection:real_estate.settlement_unit,option_rate_method:"
+msgid "Fix: Option Rate 0.0 %"
+msgstr "Optionssatz 0,0% fix"
+
+msgctxt "selection:real_estate.settlement_unit,option_rate_method:"
+msgid "Fix: Option Rate 100.0 %"
+msgstr "Optionssatz 100,0% fix"
+
+msgctxt "selection:real_estate.settlement_unit,option_rate_method:"
+msgid "Fix: Option Rate 100.0 %"
+msgstr "Optionssatz 100,0% fix"
 
 msgctxt "selection:real_estate.settlement_unit,vacancy:"
 msgid "Allocation by owner"
@@ -4634,6 +4811,14 @@ msgid "Meters"
 msgstr "Zähler"
 
 msgctxt "view:real_estate.base_object:"
+msgid "Occupancy"
+msgstr "Belegung"
+
+msgctxt "view:real_estate.base_object:"
+msgid "Option Rate"
+msgstr "Optionssatz"
+
+msgctxt "view:real_estate.base_object:"
 msgid "Rental Object"
 msgstr "Immobilienobjekt"
 
@@ -4660,6 +4845,10 @@ msgstr "Kostensammler"
 msgctxt "view:real_estate.billing_unit,settlment_results:"
 msgid "Settlement Results"
 msgstr "Abrechnungsergebnis"
+
+msgctxt "view:real_estate.billing_unit,option_rate:"
+msgid "Option Rate"
+msgstr "Optionssatz"
 
 msgctxt "view:real_estate.billing_unit,value_shares:"
 msgid "Value Shares"
@@ -4722,12 +4911,28 @@ msgid "Settlement Results"
 msgstr "Abrechnungsergebnis"
 
 msgctxt "view:real_estate.billing_unit:"
+msgid "Option Rate"
+msgstr "Optionssatz"
+
+msgctxt "view:real_estate.billing_unit:"
 msgid "Settlement Units"
 msgstr "Kostensammler"
 
 msgctxt "view:real_estate.billing_unit:"
 msgid "Value Shares"
 msgstr "Kostenanteile"
+
+msgctxt "view:real_estate.settlement_unit:"
+msgid "Option Rate"
+msgstr "Optionssatz"
+
+msgctxt "view:real_estate.settlement_unit:"
+msgid "Measurements"
+msgstr "Bemessungen"
+
+msgctxt "view:real_estate.settlement_unit:"
+msgid "Objects"
+msgstr "Mietobjekte"
 
 msgctxt "view:real_estate.contract,measurements:"
 msgid "Measurements"

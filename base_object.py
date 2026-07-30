@@ -376,7 +376,8 @@ class BaseObject(Workflow, DeactivableMixin, re_sequence_ordered(), tree(separat
             })
 
     option_rates = fields.One2Many('real_estate.option_rate', 'base_object',
-        "Option Rates")
+        "Option Rates",
+        readonly=True,)
 
     purchase_taxes_expense = fields.Function(
         fields.Boolean("Purchase Taxes as Expense"),

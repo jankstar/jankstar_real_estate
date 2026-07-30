@@ -221,7 +221,8 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
             })
 
     option_rates = fields.One2Many('real_estate.option_rate', 'billing_unit',
-        "Option Rates")
+        "Option Rates",
+        readonly=True)
 
     purchase_taxes_expense = fields.Function(
         fields.Boolean("Purchase Taxes as Expense"),
