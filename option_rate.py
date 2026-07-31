@@ -8,6 +8,18 @@ from trytond.pool import Pool
 
 
 #**********************************************************************
+class OptionRateContext(ModelView):
+    'Option Rate Context'
+    __name__ = 'real_estate.option_rate.context'
+
+    base_object = fields.Many2One('real_estate.base_object', 'Base Object',
+        domain=[('type', 'in', ('property', 'building', 'land', 'object'))])
+    billing_unit = fields.Many2One('real_estate.billing_unit', 'Billing Unit')
+    settlement_unit = fields.Many2One('real_estate.settlement_unit',
+        'Settlement Unit')
+
+
+#**********************************************************************
 class OptionRate(ModelSQL, ModelView):
     'Option Rate'
     __name__ = 'real_estate.option_rate'

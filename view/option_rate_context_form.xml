@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<form col="2">
+    <label name="base_object"/>
+    <field name="base_object"/>
+    <label name="billing_unit"/>
+    <field name="billing_unit"/>
+    <label name="settlement_unit"/>
+    <field name="settlement_unit"/>
+</form>

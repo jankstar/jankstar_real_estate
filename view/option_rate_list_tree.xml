@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<tree creatable="0">
+    <field name="base_object"/>
+    <field name="settlement_unit"/>
+    <field name="billing_unit"/>
+    <field name="valid_from"/>
+    <field name="option_rate"/>
+</tree>

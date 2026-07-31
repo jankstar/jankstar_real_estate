@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<form col="2" creatable="0">
+    <label name="base_object"/><field name="base_object" readonly="1"/>
+    <label name="settlement_unit"/><field name="settlement_unit" readonly="1"/>
+    <label name="billing_unit"/><field name="billing_unit" readonly="1"/>
+    <label name="valid_from"/><field name="valid_from" readonly="1"/>
+    <label name="option_rate"/><field name="option_rate" readonly="1"/>
+</form>

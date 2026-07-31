@@ -93,6 +93,7 @@ def register():
         settlement_result.SettlementResultContext,
         settlement_result.CostShare,
         settlement_result.SettlementResult,
+        option_rate.OptionRateContext,
         option_rate.OptionRate,
         option_rate_wizard.OptionRateUpdateStart,
         option_rate_wizard.OptionRateUpdateConfirm,

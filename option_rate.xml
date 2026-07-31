@@ -25,17 +25,17 @@
             <field name="model">real_estate.option_rate</field>
             <field name="group" ref="group_real_estate_contract"/>
             <field name="perm_read" eval="True"/>
-            <field name="perm_write" eval="True"/>
-            <field name="perm_create" eval="True"/>
-            <field name="perm_delete" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
         </record>
         <record model="ir.model.access" id="access_option_rate_billing_group">
             <field name="model">real_estate.option_rate</field>
             <field name="group" ref="group_real_estate_billing"/>
             <field name="perm_read" eval="True"/>
-            <field name="perm_write" eval="True"/>
-            <field name="perm_create" eval="True"/>
-            <field name="perm_delete" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
         </record>
         <record model="ir.model.access" id="access_option_rate_admin">
             <field name="model">real_estate.option_rate</field>
@@ -80,6 +80,49 @@
             action="wizard_option_rate_update"
             sequence="70"
             id="menu_option_rate_update"/>
+
+        <!-- Option Rate standalone list, as a child of the update wizard menu -->
+        <record model="ir.ui.view" id="option_rate_view_list_tree">
+            <field name="model">real_estate.option_rate</field>
+            <field name="type">tree</field>
+            <field name="name">option_rate_list_tree</field>
+        </record>
+        <record model="ir.ui.view" id="option_rate_view_list_form">
+            <field name="model">real_estate.option_rate</field>
+            <field name="type">form</field>
+            <field name="name">option_rate_list_form</field>
+        </record>
+
+        <record model="ir.ui.view" id="option_rate_context_view_form">
+            <field name="model">real_estate.option_rate.context</field>
+            <field name="type">form</field>
+            <field name="name">option_rate_context_form</field>
+        </record>
+
+        <record model="ir.action.act_window" id="act_option_rate">
+            <field name="name">Option Rates</field>
+            <field name="res_model">real_estate.option_rate</field>
+            <field name="context_model">real_estate.option_rate.context</field>
+            <field name="context_domain"
+                eval="[If(Eval('base_object', None), [('base_object', '=', Eval('base_object', None))], []), If(Eval('billing_unit', None), [('billing_unit', '=', Eval('billing_unit', None))], []), If(Eval('settlement_unit', None), [('settlement_unit', '=', Eval('settlement_unit', None))], [])]"
+                pyson="1"/>
+        </record>
+        <record model="ir.action.act_window.view" id="act_option_rate_view1">
+            <field name="sequence" eval="10"/>
+            <field name="view" ref="option_rate_view_list_tree"/>
+            <field name="act_window" ref="act_option_rate"/>
+        </record>
+        <record model="ir.action.act_window.view" id="act_option_rate_view2">
+            <field name="sequence" eval="20"/>
+            <field name="view" ref="option_rate_view_list_form"/>
+            <field name="act_window" ref="act_option_rate"/>
+        </record>
+
+        <menuitem
+            parent="menu_option_rate_update"
+            action="act_option_rate"
+            sequence="10"
+            id="menu_option_rate_list"/>
 
     </data>
 </tryton>
