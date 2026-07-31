@@ -110,12 +110,25 @@ multiple groups.
    Intended for facility managers who maintain the property master data
    but do not manage contracts or run settlements.
 
+   *Exception:* also has full CRUD on ``real_estate.option_rate`` (in
+   addition to ``group_real_estate_admin``), since option rates are
+   maintained together with the property/object master data via the
+   *Update Option Rates* wizard — see *Option Rate* below. The
+   ``group_real_estate_contract`` and ``group_real_estate_billing`` groups
+   remain read-only on it.
+
 ``group_real_estate_contract`` — **Real Estate Contract**
    Full CRUD on contract data (``contract``, ``contract.term``,
    ``contract.item``, ``contract.log``, ``contract.term.cash_flow``,
    ``contract.term.tax``, ``account_contract``).
    Read-only access to property, billing, and configuration models.
    Intended for property managers / letting agents.
+
+   *Exception:* also has full CRUD on
+   ``real_estate.contract.term.adjustment`` (in addition to
+   ``group_real_estate_admin``) — see *Contract Term Adjustment* below. The
+   ``group_real_estate_object`` and ``group_real_estate_billing`` groups
+   remain read-only on it.
 
 ``group_real_estate_billing`` — **Real Estate Billing**
    Full CRUD on all operating cost and settlement models
@@ -152,6 +165,11 @@ Permission matrix (``C`` = CRUD · ``R`` = read · ``—`` = no access):
      - C
      - C
      - C
+     - R
+   * - ``real_estate.option_rate``
+     - C
+     - C
+     - R
      - R
    * - ``real_estate.meter_reading``
      - C
@@ -214,6 +232,11 @@ Permission matrix (``C`` = CRUD · ``R`` = read · ``—`` = no access):
      - C
      - R
    * - ``real_estate.contract.term.cash_flow``
+     - C
+     - R
+     - C
+     - R
+   * - ``real_estate.contract.term.adjustment``
      - C
      - R
      - C
@@ -543,6 +566,34 @@ Contract Management
    sets ``quantitative=True`` in its field definition so the UI renders the
    associated unit symbol.
 
+``real_estate.contract.term.adjustment``  (``contract_term.py``)
+   History record documenting a single old-term → new-term adjustment
+   (e.g. a rent/advance-payment change following an operating cost billing
+   run, an operating cost plan, or a free percentage/absolute change).
+
+   *States:* ``draft`` · ``approved``
+
+   Key fields: ``adjustment_mode`` (``percentage`` / ``absolute``),
+   ``term_old`` (required, ``ondelete='RESTRICT'``), ``term_new``
+   (``ondelete='RESTRICT'``, set once the replacement term exists), and an
+   optional ``settlement_result`` link when the adjustment originates from
+   an operating cost billing run.
+
+   Function fields mirror ``company`` / ``property`` / ``contract`` from
+   ``term_old``, and ``valid_from`` / ``valid_to`` / ``amount`` /
+   ``tax_amount`` / ``total_amount`` from both ``term_old`` (suffix
+   ``_old``) and ``term_new`` (suffix ``_new``), so a reviewer can compare
+   the before/after amounts without opening either term individually.
+
+   Browseable read-only via the *Contract Term Adjustments* menu entry
+   under *Contracts → Adjustment*.
+
+   .. note::
+      Only the data model and its history/comparison fields exist so far —
+      nothing currently creates these records. See the *Adjustment of
+      Contract Terms* wizard (below, under *Wizards*), which defines the
+      full input mask but still has placeholder processing logic only.
+
 
 Operating Cost Settlement
 --------------------------
@@ -804,6 +855,83 @@ Operating Cost Settlement
    via the name field.
 
 
+Option Rate (Input VAT Deduction)
+----------------------------------
+
+Tracks, over time, what percentage of input VAT (Vorsteuer) on purchase invoices
+related to a real estate object is deductible ("optiert") rather than treated
+as a final cost (added to the gross expense) — relevant wherever the property
+owner can opt for VAT liability on rent (§ 9 UStG). Applies to
+``real_estate.base_object`` (property / building / land / rental object),
+``real_estate.settlement_unit``, and ``real_estate.billing_unit``.
+
+.. note::
+   This currently only stores and calculates the option rate history itself.
+   Nothing yet consumes it to populate ``account.invoice.line.taxes_deductible_rate``
+   or otherwise affect VAT postings — that link was analysed but not
+   implemented.
+
+``real_estate.option_rate``  (``option_rate.py``)
+   History-versioned option rate record, valid from a given date. Has three
+   mutually exclusive Many2One reference fields — ``base_object``,
+   ``settlement_unit``, ``billing_unit`` (all ``ondelete='CASCADE'``) — exactly
+   one of which must be set (enforced in ``validate()``); a unique SQL
+   constraint prevents two records for the same reference and ``valid_from``.
+   ``option_rate`` is a percentage (``digits=(5, 2)``, domain 0–100).
+
+Fields added to ``real_estate.base_object``, ``real_estate.settlement_unit``,
+and ``real_estate.billing_unit`` (identical on all three):
+
+   ``option_rate_method``
+      Required selection: ``fix_0`` (always 0 %), ``fix_100`` (always 100 %),
+      or ``dynamic_measurement`` (calculated — see the wizard below).
+      Defaults to ``fix_0``. On a rental object (``base_object`` with
+      ``type = 'object'``), changing ``type_of_use`` auto-sets it to
+      ``fix_100`` for ``commercial`` and ``fix_0`` otherwise
+      (``on_change_type_of_use``); ``dynamic_measurement`` is rejected by
+      ``validate_fields`` for rental objects — only property/building/land/
+      settlement unit/billing unit may use it.
+
+   ``option_measurement_type``
+      Many2One to ``real_estate.measurement.type``, required only for
+      ``dynamic_measurement``. May reference a measurement **group**: all of
+      its descendant leaf types are then summed per rental object (see the
+      group hierarchy under ``real_estate.measurement.type`` above).
+
+   ``option_rates``
+      One2Many (readonly) to the object's own ``real_estate.option_rate``
+      history.
+
+   ``purchase_taxes_expense``
+      Function field mirroring the pre-existing ``company.purchase_taxes_expense``
+      field (added by ``account_invoice``). When set on the object's company,
+      all input VAT is always booked as an expense (fully gross) —
+      equivalent to a permanent option rate of 0 % — and the *Option Rate*
+      notebook page is hidden on the form (also always hidden for
+      ``type = 'equipment'``).
+
+   Shown as a dedicated *Option Rate* page on the ``base_object``,
+   ``settlement_unit``, and ``billing_unit`` forms (``page_option_rate``).
+
+``real_estate.option_rate_update.wizard``  (see *Wizards* below)
+   Batch recalculation entry point; see the *Wizards* section for the full
+   selection/calculation logic.
+
+**Selection / filter screen and standalone list.** Menu:
+*Real Estate → Master Data → Update Option Rates*, with a child menu item
+*Option Rates* opening a read-only list of all ``real_estate.option_rate``
+records (both list and form views are fully non-editable —
+``creatable="0"`` plus ``readonly="1"`` on every field; this applies only to
+the standalone list, not to the ``option_rates`` tab embedded in the
+base_object/settlement_unit/billing_unit forms, which remains editable
+there). A *Selektion* context form — modelled on the *Occupancy* context
+pattern (``real_estate.option_rate.context``, class ``OptionRateContext``) —
+sits above the list with three optional filter fields, ``base_object``,
+``billing_unit``, ``settlement_unit``; whichever one is set narrows the list
+via ``context_domain`` (PYSON, evaluated independently per field, so any
+combination — or none — can be applied).
+
+
 Extensions to Core Modules
 ---------------------------
 
@@ -951,6 +1079,88 @@ Wizards
    The value is rounded to the meter's UOM digit precision (integer if
    ``meter_no_decimals`` is set) before saving.
 
+``real_estate.option_rate_update.wizard``  (``option_rate_wizard.py``, class ``OptionRateUpdateWizard``)
+   Recomputes and books option rates (see *Option Rate* above) for a
+   selection of base objects, billing units, and/or settlement units, as of
+   a cut-off date.
+
+   *Start* — ``base_objects`` (Many2Many, restricted to
+   property/building/land/rental object; an approved property/building/land
+   is expanded to its building/land/rental-object descendants, and an
+   approved property additionally cascades to its billing units and their
+   settlement units), ``billing_units`` (expanded to their settlement
+   units), ``settlement_units``, ``cutoff_date`` (default: today — booked
+   option rates are always dated on the first of this month).
+
+   *Confirm* — read-only counts of the directly selected base objects /
+   billing units / settlement units, and the total number of objects that
+   will actually be processed after expansion (``n_expanded``).
+
+   *Process* (``OptionRate.process_update``) — for every expanded object:
+
+   - Objects with ``option_rate_method`` ``fix_0`` / ``fix_100`` are booked
+     at 0 % / 100 % directly, without looking at any sub-objects.
+   - ``dynamic_measurement`` objects are calculated from their approved
+     rental objects: for a rental object, itself; for a property/building/
+     land, its approved rental-object descendants regardless of how many
+     buildings/land lie in between (a non-approved intermediate object
+     excludes its whole subtree — both from booking and as a calculation
+     basis); for a settlement unit, its existing ``objects`` function field
+     (i.e. whatever it already resolves to via its own allocation
+     rule/regex — read-only here, never modified by this wizard); for a
+     billing unit, the union of ``objects`` across all its settlement units
+     that are not ``draft``/``billed``, deduplicated. Each contributing
+     rental object is weighted by its measurement value (leaf types under
+     ``option_measurement_type`` summed if it is a group) at the cut-off
+     date, and contributes its own current option rate (its latest
+     ``option_rate`` record at or before the cut-off date, else its own
+     ``fix_0``/``fix_100`` default). The new rate is the resulting weighted
+     average, rounded to 2 decimals.
+   - Base objects not in state ``approved``, and billing/settlement units
+     in state ``draft`` or ``billed``, are excluded entirely.
+   - A new dated ``option_rate`` record is only written when the computed
+     rate differs from the current one; a record already dated on the
+     cut-off month's first day is updated in place rather than duplicated.
+
+   *Result* — counts of created / updated / unchanged / skipped records,
+   plus a per-record detail log.
+
+   Menu: *Real Estate → Master Data → Update Option Rates*.
+
+``real_estate.contract_term_adjustment.wizard``  (``contract_wizard.py``, class ``ContractTermAdjustmentWizard``)
+   .. note::
+      **Skeleton only.** The *Start* → *Confirm* → *Process* → *Result*
+      flow and every field below already work end-to-end, but the actual
+      selection of contracts/terms and the write-back to ``ContractTerm`` /
+      ``real_estate.contract.term.adjustment`` are not implemented yet.
+      ``transition_do_adjustment`` dispatches by ``procedure`` to one of
+      three placeholder methods (``_adjustment_operation_costs_billing``,
+      ``_adjustment_operation_costs_plan``, ``_adjustment_free_adjustment``),
+      each of which currently just returns ``processed = 0`` and a
+      "not yet implemented" message without changing any data.
+
+   *Start* — ``procedure`` (``operation_costs_billing`` / ``operation_costs_plan``
+   / ``free_adjustment``, required), ``company``, ``property`` (defaulted
+   from the active property record when launched from a property
+   form/list), ``valid_from_new`` (effective date of the replacement term —
+   the old term is intended to close the day before). Only for
+   ``free_adjustment``: ``adjustment_mode`` (``percentage`` / ``absolute``).
+   Only for ``operation_costs_billing``: ``billing_run_id`` (Selection,
+   populated from ``billed`` billing units matching ``company``/``property``),
+   guard flags ``no_terminated_contracts``, ``no_future_terms``,
+   ``no_booked_terms``, ``only_rhythm_monthly_1`` (all default ``True``),
+   and caps ``max_adjustment_percent`` (default 10 %) /
+   ``max_adjustment_absolute`` (default 50, in the company currency).
+
+   *Confirm* — read-only echo of every *Start* value (no match count, since
+   selection logic does not exist yet).
+
+   *Result* — ``processed`` count and a details message.
+
+   Menu: *Real Estate → Contracts → Adjustment* (submenu with the wizard
+   itself and a read-only list of ``real_estate.contract.term.adjustment``
+   records).
+
 
 Reports
 =======
@@ -1013,6 +1223,8 @@ Source Layout
    ├── invoice.py               # extensions to account.invoice / invoice.line
    ├── measurement.py           # real_estate.measurement.type, measurement
    ├── object_party.py          # real_estate.object_party, object_party.role
+   ├── option_rate.py           # real_estate.option_rate, option_rate.context
+   ├── option_rate_wizard.py    # real_estate.option_rate_update.wizard
    ├── party.py                 # extension to party.party
    ├── res.py                   # extension to res.user
    ├── settlement_result.py     # real_estate.settlement_result, cost_share
