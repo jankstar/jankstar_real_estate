@@ -3135,11 +3135,7 @@ msgstr "Kostensammler"
 
 msgctxt "model:ir.action,name:act_use_class"
 msgid "Use Classes"
-msgstr "Nutzungsklassen"
-
-msgctxt "model:ir.action,name:act_use_class"
-msgid "Use Classes"
-msgstr "Nutzung Mietobjekt"
+msgstr "Nutzungsarten"
 
 msgctxt "model:ir.action,name:report_base_object"
 msgid "Fact Sheet"
@@ -3671,6 +3667,10 @@ msgctxt "model:ir.ui.menu,name:menu_object_parties_form"
 msgid "Object Parties"
 msgstr "Partner zum Objekt"
 
+msgctxt "model:ir.ui.menu,name:menu_use_class"
+msgid "Use Classes"
+msgstr "Nutzungsarten"
+
 msgctxt "model:ir.ui.menu,name:menu_object_party_role"
 msgid "Object Party Roles"
 msgstr "Partnerrolle"
@@ -3678,6 +3678,10 @@ msgstr "Partnerrolle"
 msgctxt "model:ir.ui.menu,name:menu_operation_costs_billing"
 msgid "Operation Costs Billing"
 msgstr "Nebenkostenabrechnung"
+
+msgctxt "model:ir.ui.menu,name:menu_option_rate_list"
+msgid "Option Rates"
+msgstr "Liste Optionssätze"
 
 msgctxt "model:ir.ui.menu,name:menu_option_rate_update"
 msgid "Update Option Rates"
@@ -3695,9 +3699,17 @@ msgctxt "model:ir.ui.menu,name:menu_real_estate_configuration"
 msgid "Configuration"
 msgstr "Konfiguration"
 
-msgctxt "model:ir.ui.menu,name:menu_real_estate_contracts"
-msgid "Contracts"
-msgstr "Verträge"
+msgctxt "model:ir.ui.menu,name:menu_real_estate_contracts_adjustment"
+msgid "Adjustment"
+msgstr "Anpassung Konditionen"
+
+msgctxt "model:ir.ui.menu,name:menu_contract_term_adjustment"
+msgid "Adjustment of Contract Terms"
+msgstr "Anpassung Konditionen ausführen"
+
+msgctxt "model:ir.ui.menu,name:menu_contract_term_adjustment_list"
+msgid "Contract Term Adjustments"
+msgstr "Liste Anpassung Konditionen"
 
 msgctxt "model:ir.ui.menu,name:menu_real_estate_form"
 msgid "Property"
