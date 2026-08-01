@@ -119,9 +119,9 @@
         </record>
 
         <menuitem
-            parent="menu_option_rate_update"
+            parent="menu_real_estate_masta_data"
             action="act_option_rate"
-            sequence="10"
+            sequence="80"
             id="menu_option_rate_list"/>
 
     </data>
