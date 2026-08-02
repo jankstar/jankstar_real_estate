@@ -136,6 +136,22 @@ class OptionRate(ModelSQL, ModelView):
         return records[0] if records else None
 
     @classmethod
+    def get_current_rate_fraction(cls, ref_field, record, date):
+        """Current option rate for record (a base_object, settlement_unit,
+        or billing_unit - whichever ref_field names) as of date, expressed
+        as a 0..1 fraction (e.g. for account.invoice.line.taxes_deductible_rate).
+        Returns None if unknown (option_rate_method is dynamic_measurement
+        and no rate has ever been booked for record via the update wizard)."""
+        current = cls._current_rate(ref_field, record.id, date)
+        if current:
+            return current.option_rate / Decimal(100)
+        if record.option_rate_method == 'fix_100':
+            return Decimal(1)
+        if record.option_rate_method == 'fix_0':
+            return Decimal(0)
+        return None
+
+    @classmethod
     def _rental_object_rate(cls, rental_object, cutoff_date):
         current = cls._current_rate(
             'base_object', rental_object.id, cutoff_date)

@@ -865,11 +865,39 @@ owner can opt for VAT liability on rent (§ 9 UStG). Applies to
 ``real_estate.base_object`` (property / building / land / rental object),
 ``real_estate.settlement_unit``, and ``real_estate.billing_unit``.
 
-.. note::
-   This currently only stores and calculates the option rate history itself.
-   Nothing yet consumes it to populate ``account.invoice.line.taxes_deductible_rate``
-   or otherwise affect VAT postings — that link was analysed but not
-   implemented.
+``account.invoice.line.taxes_deductible_rate`` auto-fill  (``invoice.py``)
+   For purchase invoice lines (``invoice_type = 'in'``), the core
+   ``taxes_deductible_rate`` field (0–1 fraction of input VAT that is
+   deductible; core already forces it to ``0`` when
+   ``company.purchase_taxes_expense`` is set, via its own
+   ``on_change_company``) is auto-filled from the applicable option rate,
+   divided by 100. Applies both interactively (``on_change_base_object`` /
+   ``on_change_settlement_unit`` / ``on_change_billing_unit``) and to
+   programmatic line creation (``InvoiceLine.create()`` override) — the
+   latter only fills the field when the caller did **not** pass
+   ``taxes_deductible_rate`` explicitly, so an explicit value is never
+   overridden.
+
+   The real-estate reference used is picked by
+   ``InvoiceLine._option_rate_priority()`` in order of specificity:
+   ``base_object`` → ``settlement_unit`` → ``billing_unit`` → the derived
+   ``property`` (as a ``base_object`` reference, last-resort fallback via
+   ``on_change_with_property`` / ``term.property``) — the first of these
+   that is set on the line wins.
+   ``OptionRate.get_current_rate_fraction(ref_field, record, date)`` then
+   returns the record's latest ``option_rate`` at or before that date
+   (``taxes_date`` if set, else the invoice's ``invoice_date``, else
+   today), divided by 100; falling back to ``1``/``0`` for
+   ``fix_100``/``fix_0`` if no history record exists yet, or ``None``
+   (leaving the field untouched) for ``dynamic_measurement`` with no
+   booked history.
+
+   The auto-fill is skipped entirely (field left at its core default of
+   ``1``) when: the line is not a purchase line, or the company has
+   ``purchase_taxes_expense`` set (core's own logic already governs that
+   case). The line's ``contract`` field has no bearing on this logic and
+   is ignored — a real-estate reference is used whenever present, even on
+   a line that also carries a ``contract``.
 
 ``real_estate.option_rate``  (``option_rate.py``)
    History-versioned option rate record, valid from a given date. Has three

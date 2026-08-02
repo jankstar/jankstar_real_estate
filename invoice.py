@@ -9,6 +9,7 @@ from trytond.i18n import gettext
 from trytond.modules.currency.fields import Monetary
 from trytond.pool import Pool, PoolMeta
 from trytond.pyson import Bool, Eval, If
+from trytond.transaction import Transaction
 
 
 class InvoiceLineBillingUnitBilledWarning(UserWarning):
@@ -293,10 +294,139 @@ class InvoiceLine(metaclass=PoolMeta):
         if self.term and self.term.contract:
             self.contract = self.term.contract
 
-    @fields.depends('settlement_unit', '_parent_settlement_unit.billing_unit')
+    @fields.depends(
+        'settlement_unit', '_parent_settlement_unit.billing_unit',
+        methods=['_set_taxes_deductible_rate_from_option_rate'])
     def on_change_settlement_unit(self):
         if self.settlement_unit and self.settlement_unit.billing_unit:
             self.billing_unit = self.settlement_unit.billing_unit
+        self._set_taxes_deductible_rate_from_option_rate()
+
+    @staticmethod
+    def _option_rate_priority(base_object, settlement_unit, billing_unit,
+            property_):
+        """Pick the real-estate reference to use for the option rate
+        lookup, in order of specificity: base_object, settlement_unit,
+        billing_unit, property (the derived property base_object, as a
+        last-resort fallback). Returns (ref_field, record) matching
+        real_estate.option_rate's own reference field names, or
+        (None, None) if none of the four is set."""
+        if base_object:
+            return 'base_object', base_object
+        if settlement_unit:
+            return 'settlement_unit', settlement_unit
+        if billing_unit:
+            return 'billing_unit', billing_unit
+        if property_:
+            return 'base_object', property_
+        return None, None
+
+    @fields.depends(
+        'base_object', 'settlement_unit', 'billing_unit',
+        'company', 'taxes_date', 'invoice', 'invoice_type',
+        '_parent_base_object.option_rate_method',
+        '_parent_settlement_unit.option_rate_method',
+        '_parent_billing_unit.option_rate_method',
+        '_parent_company.purchase_taxes_expense',
+        '_parent_invoice.invoice_date', '_parent_invoice.type',
+        methods=['on_change_with_property'])
+    def _set_taxes_deductible_rate_from_option_rate(self):
+        """Auto-fill taxes_deductible_rate from the applicable option rate
+        (see _option_rate_priority), unless: the line is not a purchase
+        line, or the company always books input VAT as an expense
+        (purchase_taxes_expense - matches core's own on_change_company,
+        which already forces the rate to 0 in that case). The contract
+        field is ignored - it has no bearing on this logic."""
+        invoice_type = (
+            self.invoice.type if self.invoice else self.invoice_type)
+        if invoice_type != 'in':
+            return
+        if self.company and self.company.purchase_taxes_expense:
+            return
+        ref_field, record = self._option_rate_priority(
+            self.base_object, self.settlement_unit, self.billing_unit,
+            self.on_change_with_property())
+        if not record:
+            return
+        date = (self.taxes_date
+            or (self.invoice.invoice_date if self.invoice else None)
+            or Pool().get('ir.date').today())
+        rate = Pool().get('real_estate.option_rate').get_current_rate_fraction(
+            ref_field, record, date)
+        if rate is not None:
+            self.taxes_deductible_rate = rate
+
+    @fields.depends(methods=['_set_taxes_deductible_rate_from_option_rate'])
+    def on_change_base_object(self):
+        self._set_taxes_deductible_rate_from_option_rate()
+
+    @fields.depends(methods=['_set_taxes_deductible_rate_from_option_rate'])
+    def on_change_billing_unit(self):
+        self._set_taxes_deductible_rate_from_option_rate()
+
+    @classmethod
+    def create(cls, vlist):
+        """Auto-fill taxes_deductible_rate on programmatic creation (e.g.
+        proteus scripts, future automated invoice-line creation) the same
+        way on_change_* does interactively - see
+        _set_taxes_deductible_rate_from_option_rate for the applicable
+        conditions and reference priority (the contract field is ignored).
+        Never overrides a value the caller passed explicitly."""
+        pool = Pool()
+        BaseObject = pool.get('real_estate.base_object')
+        SettlementUnit = pool.get('real_estate.settlement_unit')
+        BillingUnit = pool.get('real_estate.billing_unit')
+        ContractTerm = pool.get('real_estate.contract.term')
+        OptionRate = pool.get('real_estate.option_rate')
+        Company = pool.get('company.company')
+        Invoice = pool.get('account.invoice')
+        Date = pool.get('ir.date')
+
+        vlist = [dict(values) for values in vlist]
+        for values in vlist:
+            if 'taxes_deductible_rate' in values:
+                continue
+
+            invoice_id = values.get('invoice')
+            invoice_type = values.get('invoice_type')
+            if not invoice_type and invoice_id:
+                invoice_type = Invoice(invoice_id).type
+            if invoice_type != 'in':
+                continue
+
+            company_id = (
+                values.get('company') or Transaction().context.get('company'))
+            if not company_id or Company(company_id).purchase_taxes_expense:
+                continue
+
+            base_object = (BaseObject(values['base_object'])
+                if values.get('base_object') else None)
+            settlement_unit = (SettlementUnit(values['settlement_unit'])
+                if values.get('settlement_unit') else None)
+            billing_unit = (BillingUnit(values['billing_unit'])
+                if values.get('billing_unit') else None)
+            property_ = None
+            if (not (base_object or settlement_unit or billing_unit)
+                    and values.get('term')):
+                property_ = ContractTerm(values['term']).property or None
+
+            ref_field, record = cls._option_rate_priority(
+                base_object, settlement_unit, billing_unit, property_)
+            if not record:
+                continue
+
+            date = values.get('taxes_date')
+            if not date and invoice_id:
+                date = Invoice(invoice_id).invoice_date
+            if not date:
+                date = Date.today()
+
+            rate = OptionRate.get_current_rate_fraction(
+                ref_field, record, date)
+            if rate is not None:
+                values['taxes_deductible_rate'] = rate
+
+        return super().create(vlist)
 
     def get_move_lines(self):
         lines = super().get_move_lines()
