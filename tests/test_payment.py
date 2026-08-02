@@ -1,20 +1,30 @@
 """
-Offene Forderungen der Testmieter und Gewerbemieter als Zahlungseingang buchen
-und ausgleichen.
+Offene Forderungen der Testmieter/Gewerbemieter als Zahlungseingang und offene
+Verbindlichkeiten der Testkreditoren als Zahlungsausgang buchen und
+ausgleichen.
 
-Buchungssatz je Vertragspartner:
+Buchungssatz Forderungen (Zahlungseingang) je Vertragspartner:
     Soll 1800 Bank  an  Haben <Forderungskonto> + Partner
 
-Das Forderungskonto wird automatisch aus den offenen Buchungszeilen ermittelt
-(account.type.receivable = True). Nach dem Buchen werden alle offenen Posten
-auf dem Partnerkonto ausgeglichen (reconcile).
+Buchungssatz Verbindlichkeiten (Zahlungsausgang) je Kreditor:
+    Soll <Verbindlichkeitenkonto> + Partner  an  Haben 1800 Bank
 
-Das Skript ist idempotent: Partner ohne offene Forderungszeilen werden
-übersprungen.
+Beide Konten werden automatisch aus den offenen Buchungszeilen ermittelt
+(account.type.receivable bzw. account.type.payable = True). Nach dem Buchen
+werden jeweils alle offenen Posten auf dem Partnerkonto ausgeglichen
+(reconcile).
 
-Voraussetzung: test_contracts.py muss ausgeführt worden sein und der Wizard
-"CreateContractMoves" muss mindestens einmal gelaufen sein, sodass gebuchte
-(posted) Ausgangsrechnungen für die Testpartner vorhanden sind.
+Das Skript ist idempotent: Parteien ohne offene Forderungs-/
+Verbindlichkeitszeilen werden übersprungen.
+
+Voraussetzung Forderungen: test_contracts.py muss ausgeführt worden sein und
+der Wizard "CreateContractMoves" muss mindestens einmal gelaufen sein, sodass
+gebuchte (posted) Ausgangsrechnungen für die Testpartner vorhanden sind.
+
+Voraussetzung Verbindlichkeiten: test_kreditor.py und test_invoices.py müssen
+ausgeführt worden sein; die von test_invoices.py angelegten Rechnungen bleiben
+im Status "draft" und müssen vor diesem Skript manuell gebucht (posted)
+werden, sonst existieren keine offenen Verbindlichkeitszeilen.
 
 Verwendung:
     python tests/test_payment.py --database <Datenbankname> [--config <trytond.conf>]
@@ -113,6 +123,34 @@ def get_open_receivable_lines(party):
     ])
 
 
+def get_open_payable_lines(party):
+    """Find all unreconciled posted payable lines for a party."""
+    MoveLine = Model.get('account.move.line')
+    return MoveLine.find([
+        ('party', '=', party.id),
+        ('account.type.payable', '=', True),
+        ('reconciliation', '=', None),
+        ('move.state', '=', 'posted'),
+    ])
+
+
+def get_creditor_parties():
+    """All parties that currently have at least one open (unreconciled,
+    posted) payable move line."""
+    MoveLine = Model.get('account.move.line')
+    Party = Model.get('party.party')
+    lines = MoveLine.find([
+        ('account.type.payable', '=', True),
+        ('reconciliation', '=', None),
+        ('move.state', '=', 'posted'),
+        ('party', '!=', None),
+    ])
+    party_ids = sorted({line.party.id for line in lines})
+    if not party_ids:
+        return []
+    return Party.find([('id', 'in', party_ids)], order=[('name', 'ASC')])
+
+
 # ---------------------------------------------------------------------------
 # Buchung und Ausgleich
 # ---------------------------------------------------------------------------
@@ -180,6 +218,71 @@ def book_payment(company, party, open_lines, acc_bank, journal):
     return posted_recv_lines[0], payment_date
 
 
+def book_payable_payment(company, party, open_lines, acc_bank, journal):
+    """
+    Erstellt einen Buchungssatz Verbindlichkeiten an Bank für den Kreditor.
+    Das Verbindlichkeitenkonto wird aus den offenen Zeilen ermittelt.
+    Gibt die Soll-Zeile auf dem Verbindlichkeitenkonto zurück (für den
+    Ausgleich).
+    """
+    Move = Model.get('account.move')
+    MoveLine = Model.get('account.move.line')
+
+    # A liability is a credit balance, opposite sign of a receivable.
+    total = sum((line.credit - line.debit) for line in open_lines)
+    if total <= Decimal('0'):
+        print(f'  {party.name}: Saldo nicht positiv ({total:.2f}) — übersprungen.')
+        return None, None
+
+    # Payable account from the open lines (all lines should share the same account)
+    payable_account = open_lines[0].account
+
+    payment_date = max(line.date for line in open_lines)
+    period = get_period(payment_date, company)
+    description = f'Zahlungsausgang {party.name}'
+
+    move = Move()
+    move.company = company
+    move.journal = journal
+    move.date = payment_date
+    move.period = period
+    move.description = description
+    move.save()
+
+    payable_line = MoveLine()
+    payable_line.move = move
+    payable_line.account = payable_account
+    payable_line.party = party
+    payable_line.debit = total
+    payable_line.credit = Decimal('0')
+    payable_line.description = description
+    payable_line.save()
+
+    bank_line = MoveLine()
+    bank_line.move = move
+    bank_line.account = acc_bank
+    bank_line.debit = Decimal('0')
+    bank_line.credit = total
+    bank_line.description = description
+    bank_line.save()
+
+    Move(move.id).click('post')
+
+    posted_payable_lines = MoveLine.find([
+        ('move', '=', move.id),
+        ('account', '=', payable_account.id),
+    ])
+    if not posted_payable_lines:
+        print(f'  ERROR: Soll-Zeile auf {payable_account.code} nach Buchung nicht gefunden '
+              f'(Move id={move.id}).', file=sys.stderr)
+        return None, None
+
+    print(f'  Konto: {payable_account.code} {payable_account.name}')
+    print(f'  Gebucht: {total:.2f} EUR am {payment_date} '
+          f'(Move id={move.id}, Journal: {journal.name})')
+    return posted_payable_lines[0], payment_date
+
+
 def reconcile(open_lines, payment_line, date):
     Reconciliation = Model.get('account.move.reconciliation')
     MoveLine = Model.get('account.move.line')
@@ -235,7 +338,36 @@ def main():
         else:
             skipped += 1
 
-    print(f'\nFertig. Gebucht: {booked}, übersprungen: {skipped}.')
+    print(f'\nForderungen fertig. Gebucht: {booked}, übersprungen: {skipped}.\n')
+
+    creditors = get_creditor_parties()
+    print(f'{len(creditors)} Kreditoren mit offenen Verbindlichkeiten gefunden.\n')
+
+    booked_payable = 0
+    skipped_payable = 0
+
+    for party in creditors:
+        open_lines = get_open_payable_lines(party)
+        if not open_lines:
+            print(f'  {party.name}: keine offenen Verbindlichkeiten — übersprungen.')
+            skipped_payable += 1
+            continue
+
+        total = sum((line.credit - line.debit) for line in open_lines)
+        print(f'{party.name}: {len(open_lines)} offene Posten, Summe {total:.2f} EUR')
+
+        payment_line, payment_date = book_payable_payment(
+            company, party, open_lines, acc_bank, journal,
+        )
+        if payment_line:
+            reconcile(open_lines, payment_line, payment_date)
+            print(f'  → Offene Posten ausgeglichen.')
+            booked_payable += 1
+        else:
+            skipped_payable += 1
+
+    print(f'\nVerbindlichkeiten fertig. Gebucht: {booked_payable}, '
+          f'übersprungen: {skipped_payable}.')
 
 
 if __name__ == '__main__':

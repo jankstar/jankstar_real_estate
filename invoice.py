@@ -259,23 +259,19 @@ class InvoiceLine(metaclass=PoolMeta):
         return None
 
     @fields.depends(
-        'taxes', 'unit_price', 'quantity', 'taxes_date', 'invoice',
-        '_parent_invoice.invoice_date', '_parent_invoice.currency')
+        'taxes', 'unit_price', 'quantity', 'taxes_deductible_rate',
+        'taxes_date', 'invoice', 'invoice_type',
+        '_parent_invoice.invoice_date', '_parent_invoice.currency',
+        '_parent_invoice.type', '_parent_invoice.company',
+        methods=['_get_taxes'])
     def on_change_with_tax_amount(self, name=None):
+        # Uses _get_taxes() (core) rather than Tax.compute() on the raw
+        # unit_price, so the non-deductible share of the tax (folded into
+        # amount via taxes_deductible_rate, see core's on_change_with_amount)
+        # is not counted a second time here.
         if not self.taxes:
             return Decimal(0)
-        Tax = Pool().get('account.tax')
-        date = (self.taxes_date
-            or (getattr(self.invoice, 'invoice_date', None)
-                if self.invoice else None))
-        if date is None:
-            return Decimal(0)
-        tax_list = Tax.compute(
-            list(self.taxes),
-            self.unit_price or Decimal(0),
-            self.quantity or Decimal(0),
-            date)
-        total = sum(t['amount'] for t in tax_list)
+        total = sum(t.amount for t in self._get_taxes().values())
         currency = getattr(self.invoice, 'currency', None) if self.invoice else None
         if currency:
             total = currency.round(total)
