@@ -71,11 +71,17 @@
         </page>
 
         <page string="Option Rate" id="page_option_rate" col="4">
-            <label name="option_rate_method"/><field name="option_rate_method"/>
-            <label name="option_measurement_type"/><field name="option_measurement_type"/>
-            <newline/>
-            <field name="option_rates" colspan="2"
-                view_ids="real_estate.option_rate_view_tree"/>
+            <group id="base_object_option_rate" yalign="0">
+                <label name="option_rate_method"/><field name="option_rate_method" />
+                <newline/>
+                <label name="option_measurement_type"/><field name="option_measurement_type"/>
+                <newline/>
+                <label name="option_rate_value"/><field name="option_rate_value" />
+            </group>
+            <group id="base_object_option_rate_list">
+                <field name="option_rates" 
+                    view_ids="real_estate.option_rate_view_tree"/>
+            </group>
         </page>
 
     </notebook>

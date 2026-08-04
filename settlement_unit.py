@@ -157,6 +157,7 @@ class SettlementUnit(DeactivableMixin, base_object.re_sequence_ordered(), ModelS
     option_rate_method = fields.Selection([
             ('fix_0', 'Fix: Option Rate 0.0 %'),
             ('fix_100', 'Fix: Option Rate 100.0 %'),
+            ('fix_value', 'Fix: Option Rate by Value'),
             ('dynamic_measurement', 'Dynamic Measurement'),
             ], "Option Rate Method", required=True, sort=False)
 
@@ -168,6 +169,17 @@ class SettlementUnit(DeactivableMixin, base_object.re_sequence_ordered(), ModelS
         states={
             'invisible': Eval('option_rate_method') != 'dynamic_measurement',
             'required': Eval('option_rate_method') == 'dynamic_measurement',
+            })
+
+    option_rate_value = fields.Numeric(
+        "Option Rate Value", digits=(5, 2),
+        domain=[
+            ('option_rate_value', '>=', 0),
+            ('option_rate_value', '<=', 100),
+            ],
+        states={
+            'invisible': Eval('option_rate_method') != 'fix_value',
+            'required': Eval('option_rate_method') == 'fix_value',
             })
 
     option_rates = fields.One2Many('real_estate.option_rate', 'settlement_unit',

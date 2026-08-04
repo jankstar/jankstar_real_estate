@@ -149,6 +149,8 @@ class OptionRate(ModelSQL, ModelView):
             return Decimal(1)
         if record.option_rate_method == 'fix_0':
             return Decimal(0)
+        if record.option_rate_method == 'fix_value':
+            return (record.option_rate_value or Decimal(0)) / Decimal(100)
         return None
 
     @classmethod
@@ -159,6 +161,8 @@ class OptionRate(ModelSQL, ModelView):
             return current.option_rate
         if rental_object.option_rate_method == 'fix_100':
             return Decimal(100)
+        if rental_object.option_rate_method == 'fix_value':
+            return rental_object.option_rate_value or Decimal(0)
         return Decimal(0)
 
     @classmethod
@@ -244,6 +248,8 @@ class OptionRate(ModelSQL, ModelView):
             return Decimal(0)
         if record.option_rate_method == 'fix_100':
             return Decimal(100)
+        if record.option_rate_method == 'fix_value':
+            return record.option_rate_value or Decimal(0)
         # dynamic_measurement
         m_type = record.option_measurement_type
         if not m_type:
