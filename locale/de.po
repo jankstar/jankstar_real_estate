@@ -3486,7 +3486,7 @@ msgstr "Vertrag Brief  (de)"
 #, fuzzy
 msgctxt "model:ir.action,name:wizard_billing_unit"
 msgid "Operation Costs Billing"
-msgstr "Nebenkostenabrechnung"
+msgstr "Betriebskostenabrechnung"
 
 #, fuzzy
 msgctxt "model:ir.action,name:wizard_cancel_billing"
@@ -4294,7 +4294,7 @@ msgstr "Partnerrolle"
 
 msgctxt "model:ir.ui.menu,name:menu_operation_costs_billing"
 msgid "Operation Costs Billing"
-msgstr "Nebenkostenabrechnung"
+msgstr "Betriebskostenabrechnung"
 
 msgctxt "model:ir.ui.menu,name:menu_option_rate_list"
 msgid "Option Rates"
@@ -4334,7 +4334,7 @@ msgstr "Stammdaten"
 
 msgctxt "model:ir.ui.menu,name:menu_real_estate_operation_costs"
 msgid "Operation Costs"
-msgstr "Nebenkosten"
+msgstr "Betriebskosten"
 
 msgctxt "model:ir.ui.menu,name:menu_real_estate_parties"
 msgid "Parties"
@@ -5386,7 +5386,7 @@ msgstr ""
 #, fuzzy
 msgctxt "selection:real_estate.contract_term_adjustment.start,procedure:"
 msgid "Operation Costs Billing"
-msgstr "Nebenkostenabrechnung"
+msgstr "Betriebskostenabrechnung"
 
 msgctxt "selection:real_estate.contract_term_adjustment.start,procedure:"
 msgid "Operation Costs Plan"

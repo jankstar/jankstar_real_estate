@@ -321,47 +321,27 @@ class ContractTermCashFlow(ModelView, ModelSQL):
 
     @fields.depends('quantity', 'unit_price', 'currency', 'term', 'invoice_line')
     def on_change_with_amount(self, name=None):
+        # Once an invoice_line is booked, its own amount (which already
+        # accounts for taxes_deductible_rate, see InvoiceLine) is the
+        # single source of truth - never recompute it here.
+        if self.invoice_line:
+            return self.invoice_line.amount or Decimal(0)
         amount = (Decimal(str(self.quantity or 0))
             * (self.unit_price or Decimal(0)))
         if self.currency:
             return self.currency.round(amount)
         return amount
 
-    def _get_invoice_line_taxes(self) -> dict:
-        pool = Pool()
-        Tax = pool.get('account.tax')
-        Date = pool.get('ir.date')
-
-        amount = (Decimal(str(self.quantity or 0))
-            * (self.unit_price or Decimal(0)))
-        untaxed_amount = self.currency.round(amount)
-        tax_amount = untaxed_amount
-        total_amount = untaxed_amount
-
-        if self.invoice_line:
-            tax_lines = Tax.compute(
-                self.invoice_line.taxes,
-                self.unit_price or 0,
-                self.quantity or Decimal(0),
-                self.invoice_line.taxes_date or Date.today(),
-                )
-            tax_amt = sum(line['amount'] for line in tax_lines)
-            tax_amount = self.currency.round(tax_amt)
-            total_amount = self.currency.round(amount + tax_amt)
-        return {
-            'untaxed_amount': untaxed_amount,
-            'tax_amount': tax_amount,
-            'total_amount': total_amount,
-            }
-
-    @fields.depends('term', 'invoice_line', 'amount')
+    @fields.depends('term', 'invoice_line')
     def get_amount_and_tax(self, names=None):
         total_amount = Decimal(0)
         tax_amount = Decimal(0)
         if self.invoice_line:
-            my_tax = self._get_invoice_line_taxes()
-            tax_amount = my_tax['tax_amount'] or Decimal(0)
-            total_amount = self.amount + tax_amount
+            # Read straight from invoice_line - never recompute the tax
+            # here (would double-count the non-deductible VAT share
+            # already folded into invoice_line.amount, see InvoiceLine).
+            tax_amount = self.invoice_line.tax_amount or Decimal(0)
+            total_amount = self.invoice_line.total_amount or Decimal(0)
         elif self.term:
             total_amount = self.term.total_amount
             tax_amount = self.term.tax_amount

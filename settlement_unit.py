@@ -516,7 +516,6 @@ class SettlementUnit(DeactivableMixin, base_object.re_sequence_ordered(), ModelS
         and write the result into actual_costs."""
         pool = Pool()
         InvoiceLine = pool.get('account.invoice.line')
-        Tax = pool.get('account.tax')
         lines = InvoiceLine.search([
             ('settlement_unit', '=', self.id),
             ('invoice.state', '!=', 'cancelled'),
@@ -524,25 +523,15 @@ class SettlementUnit(DeactivableMixin, base_object.re_sequence_ordered(), ModelS
         actual = Decimal(0)
         for line in lines:
             amount = line.amount or Decimal(0)
-            tax_amount = Decimal(0)
-            if line.taxes:
-                tax_date = (line.invoice.invoice_date
-                    if line.invoice and line.invoice.invoice_date
-                    else datetime.date.today())
-                computed = Tax.compute(
-                    list(line.taxes),
-                    line.unit_price or Decimal(0),
-                    line.quantity or Decimal(0),
-                    tax_date,
-                )
-                tax_amount = sum(
-                    Decimal(str(t['amount'])) for t in computed
-                )
-
             if self.property and self.property.billing_as == 'commercial':
                 actual += amount
             else:
-                actual += amount + tax_amount
+                # line.tax_amount is InvoiceLine's own computed field and
+                # already accounts for taxes_deductible_rate - recomputing
+                # the tax from unit_price here would double-count the
+                # non-deductible share, which is already folded into
+                # line.amount by core.
+                actual += amount + (line.tax_amount or Decimal(0))
         self.actual_costs = actual.quantize(Decimal('0.01'))
         self.save()
 
