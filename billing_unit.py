@@ -254,6 +254,10 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
             return self.company.purchase_taxes_expense
         return False
 
+    @classmethod
+    def default_option_rate_value(cls):
+        return 0.0
+
     @staticmethod
     def default_option_rate_method():
         return 'fix_0'

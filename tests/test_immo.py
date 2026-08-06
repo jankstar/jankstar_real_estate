@@ -122,6 +122,10 @@ def create_base_object(
     if floor is not None:
         obj.floor = floor
 
+    if obj_type == 'building':
+        obj.year_of_construction = '1920'
+        obj.number_of_floors = 2
+
     # Option Rate (Optionssatz Vorsteuerabzug)
     if obj_type in ('property', 'building', 'land'):
         obj.option_rate_method = 'dynamic_measurement'

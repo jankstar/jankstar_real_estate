@@ -217,6 +217,14 @@ class SettlementUnit(DeactivableMixin, base_object.re_sequence_ordered(), ModelS
         ]
 
     @classmethod
+    def default_option_rate_value(cls):
+        return 0.0
+
+    @classmethod
+    def default_option_rate_method(cls):
+        return 'fix_0'
+
+    @classmethod
     def default_company(cls):
         return Transaction().context.get('company')
 

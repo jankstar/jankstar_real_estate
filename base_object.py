@@ -665,6 +665,11 @@ class BaseObject(Workflow, DeactivableMixin, re_sequence_ordered(), tree(separat
     def estimate_consumption(cls, base_objects):
         pass
 
+
+    @classmethod
+    def default_option_rate_value(cls):
+        return 0.0
+    
     @classmethod
     def default_company(cls):
         return Transaction().context.get('company')

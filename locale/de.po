@@ -2173,7 +2173,7 @@ msgstr "Einheit"
 #, fuzzy
 msgctxt "field:real_estate.meter_reading,base_object:"
 msgid "Meter"
-msgstr "Immobilienobjekt"
+msgstr "Zähler"
 
 msgctxt "field:real_estate.meter_reading,comment:"
 msgid "Comment"
@@ -2757,14 +2757,6 @@ msgstr ""
 "Wenn eine Messgruppe ausgewählt ist, werden alle zugehörigen Messarten pro "
 "Mietobjekt summiert."
 
-msgctxt "help:real_estate.billing_unit,option_measurement_type:"
-msgid ""
-"If a measurement group is selected, all its child measurement types are "
-"summed per rental object."
-msgstr ""
-"Wenn eine Messgruppe ausgewählt ist, werden alle zugehörigen Messarten pro "
-"Mietobjekt summiert."
-
 msgctxt "help:real_estate.billing_unit,term_types_of_use:"
 msgid "The term type which can use this billing unit."
 msgstr "Konditionsart, die mit dieser Abrechnungseinheit genutzt werden kann"
@@ -2961,14 +2953,6 @@ msgctxt "help:real_estate.measurement.type,default:"
 msgid "Check to use as default state for the type."
 msgstr "Als Standardstatus für den Typ verwenden."
 
-msgctxt "help:real_estate.measurement.type,default:"
-msgid "Check to use as default state for the type."
-msgstr "Als Standardstatus für den Typ verwenden."
-
-msgctxt "help:real_estate.measurement.type,default:"
-msgid "Check to use as default state for the type."
-msgstr "Als Standardstatus für den Typ verwenden."
-
 msgctxt "help:real_estate.measurement.type,is_group:"
 msgid "If set, this measurement type acts as a group container."
 msgstr ""
@@ -2977,21 +2961,9 @@ msgctxt "help:real_estate.measurement.type,types:"
 msgid "The type of object which can use this measurement."
 msgstr "Der Objekttyp, für den diese Bemessung verwendet werden kann."
 
-msgctxt "help:real_estate.measurement.type,types:"
-msgid "The type of object which can use this measurement."
-msgstr "Der Objekttyp, für den diese Bemessung verwendet werden kann."
-
-msgctxt "help:real_estate.measurement.type,types:"
-msgid "The type of object which can use this measurement."
-msgstr "Der Objekttyp, für den diese Bemessung verwendet werden kann."
-
 msgctxt "help:real_estate.object_party.role,default:"
 msgid "Check to use as default state for the type."
 msgstr "Als Standardstatus für den Typ verwenden."
-
-msgctxt "help:real_estate.object_party.role,types:"
-msgid "The type of object which can use this role."
-msgstr "Der Objekttyp, für den diese Rolle verwendet werden kann."
 
 msgctxt "help:real_estate.object_party.role,types:"
 msgid "The type of object which can use this role."
@@ -3014,14 +2986,6 @@ msgstr ""
 msgctxt "help:real_estate.option_rate_update.start,cutoff_date:"
 msgid "The new option rate is dated on the first day of this month."
 msgstr ""
-
-msgctxt "help:real_estate.settlement_unit,option_measurement_type:"
-msgid ""
-"If a measurement group is selected, all its child measurement types are "
-"summed per rental object."
-msgstr ""
-"Wenn eine Messgruppe ausgewählt ist, werden alle zugehörigen Messarten pro "
-"Mietobjekt summiert."
 
 msgctxt "help:real_estate.settlement_unit,option_measurement_type:"
 msgid ""
@@ -3436,7 +3400,7 @@ msgstr "Zähler Ablesungen "
 
 msgctxt "model:ir.action,name:act_object_form"
 msgid "Rental Object"
-msgstr "Immobilienobjekt"
+msgstr "Mietobjekt"
 
 msgctxt "model:ir.action,name:act_object_item_tree"
 msgid "Contract Items"
@@ -4294,7 +4258,7 @@ msgstr "Messbelege"
 
 msgctxt "model:ir.ui.menu,name:menu_object_form"
 msgid "Rental Object"
-msgstr "Immobilienobjekt"
+msgstr "Mietobjekt"
 
 msgctxt "model:ir.ui.menu,name:menu_object_parties_form"
 msgid "Object Parties"
@@ -4330,7 +4294,7 @@ msgstr "Konfiguration"
 
 msgctxt "model:ir.ui.menu,name:menu_real_estate_contracts"
 msgid "Contracts"
-msgstr ""
+msgstr "Verträge"
 
 msgctxt "model:ir.ui.menu,name:menu_real_estate_contracts_adjustment"
 msgid "Adjustment"
@@ -4991,28 +4955,12 @@ msgid "Deactivated"
 msgstr "Deaktiviert"
 
 msgctxt "selection:real_estate.base_object,state:"
-msgid "Deactivated"
-msgstr "Deaktiviert"
-
-msgctxt "selection:real_estate.base_object,state:"
-msgid "Draft"
-msgstr "Entwurf"
-
-msgctxt "selection:real_estate.base_object,state:"
 msgid "Draft"
 msgstr "Entwurf"
 
 msgctxt "selection:real_estate.base_object,state:"
 msgid "Locked"
 msgstr "Gesperrt"
-
-msgctxt "selection:real_estate.base_object,state:"
-msgid "Locked"
-msgstr "Gesperrt"
-
-msgctxt "selection:real_estate.base_object,type:"
-msgid "Building"
-msgstr "Gebäude"
 
 msgctxt "selection:real_estate.base_object,type:"
 msgid "Building"
@@ -5027,32 +4975,12 @@ msgid "Land"
 msgstr "Grundstück"
 
 msgctxt "selection:real_estate.base_object,type:"
-msgid "Land"
-msgstr "Grundstück"
-
-msgctxt "selection:real_estate.base_object,type:"
-msgid "Property"
-msgstr "Wirtschaftseinheit"
-
-msgctxt "selection:real_estate.base_object,type:"
-msgid "Property"
-msgstr "Wirtschaftseinheit"
-
-msgctxt "selection:real_estate.base_object,type:"
 msgid "Property"
 msgstr "Wirtschaftseinheit"
 
 msgctxt "selection:real_estate.base_object,type:"
 msgid "Rental Object"
-msgstr "Immobilienobjekt"
-
-msgctxt "selection:real_estate.base_object,type:"
-msgid "Rental Object"
-msgstr "Immobilienobjekt"
-
-msgctxt "selection:real_estate.base_object,type_of_use:"
-msgid "Commercial"
-msgstr "Gewerbe"
+msgstr "Mietobjekt"
 
 msgctxt "selection:real_estate.base_object,type_of_use:"
 msgid "Commercial"
@@ -5063,28 +4991,8 @@ msgid "Internal Use"
 msgstr "Interne Nutzung"
 
 msgctxt "selection:real_estate.base_object,type_of_use:"
-msgid "Internal Use"
-msgstr "Interne Nutzung"
-
-msgctxt "selection:real_estate.base_object,type_of_use:"
 msgid "Residential"
 msgstr "Wohnimmobilie"
-
-msgctxt "selection:real_estate.base_object,type_of_use:"
-msgid "Residential"
-msgstr "Wohnimmobilie"
-
-msgctxt "selection:real_estate.base_object,type_of_use:"
-msgid "Residential"
-msgstr "Wohnimmobilie"
-
-msgctxt "selection:real_estate.base_object,type_of_use:"
-msgid "Residential property"
-msgstr "Wohneigentum"
-
-msgctxt "selection:real_estate.base_object,type_of_use:"
-msgid "Residential property"
-msgstr "Wohneigentum"
 
 msgctxt "selection:real_estate.base_object,type_of_use:"
 msgid "Residential property"
@@ -5155,14 +5063,6 @@ msgid "Fix: Option Rate 0.0 %"
 msgstr "Optionssatz 0,0 % fix"
 
 msgctxt "selection:real_estate.billing_unit,option_rate_method:"
-msgid "Fix: Option Rate 0.0 %"
-msgstr "Optionssatz 0,0 % fix"
-
-msgctxt "selection:real_estate.billing_unit,option_rate_method:"
-msgid "Fix: Option Rate 100.0 %"
-msgstr "Optionssatz 100,0% fix"
-
-msgctxt "selection:real_estate.billing_unit,option_rate_method:"
 msgid "Fix: Option Rate 100.0 %"
 msgstr "Optionssatz 100,0% fix"
 
@@ -5213,36 +5113,8 @@ msgid "Draft"
 msgstr "Entwurf"
 
 msgctxt "selection:real_estate.contract,state:"
-msgid "Draft"
-msgstr "Entwurf"
-
-msgctxt "selection:real_estate.contract,state:"
-msgid "Draft"
-msgstr "Entwurf"
-
-msgctxt "selection:real_estate.contract,state:"
-msgid "Draft"
-msgstr "Entwurf"
-
-msgctxt "selection:real_estate.contract,state:"
 msgid "Running"
 msgstr "Aktiv"
-
-msgctxt "selection:real_estate.contract,state:"
-msgid "Running"
-msgstr "Aktiv"
-
-msgctxt "selection:real_estate.contract,state:"
-msgid "Running"
-msgstr "Aktiv"
-
-msgctxt "selection:real_estate.contract,state:"
-msgid "Terminated"
-msgstr "Beendet"
-
-msgctxt "selection:real_estate.contract,state:"
-msgid "Terminated"
-msgstr "Beendet"
 
 msgctxt "selection:real_estate.contract,state:"
 msgid "Terminated"
@@ -5485,20 +5357,8 @@ msgid "Dynamic Measurement"
 msgstr "dynamisch über Bemessung"
 
 msgctxt "selection:real_estate.settlement_unit,option_rate_method:"
-msgid "Dynamic Measurement"
-msgstr "dynamisch über Bemessung"
-
-msgctxt "selection:real_estate.settlement_unit,option_rate_method:"
 msgid "Fix: Option Rate 0.0 %"
 msgstr "Optionssatz 0,0 % fix"
-
-msgctxt "selection:real_estate.settlement_unit,option_rate_method:"
-msgid "Fix: Option Rate 0.0 %"
-msgstr "Optionssatz 0,0% fix"
-
-msgctxt "selection:real_estate.settlement_unit,option_rate_method:"
-msgid "Fix: Option Rate 100.0 %"
-msgstr "Optionssatz 100,0% fix"
 
 msgctxt "selection:real_estate.settlement_unit,option_rate_method:"
 msgid "Fix: Option Rate 100.0 %"
@@ -5570,7 +5430,7 @@ msgstr "Optionssatz"
 
 msgctxt "view:real_estate.base_object:"
 msgid "Rental Object"
-msgstr "Immobilienobjekt"
+msgstr "Mietobjekt"
 
 msgctxt "view:real_estate.billing_unit:"
 msgid "Advanced Payment"
@@ -5582,19 +5442,11 @@ msgstr "Freigeben"
 
 msgctxt "view:real_estate.billing_unit:"
 msgid "Billing"
-msgstr "Abrechnen/Buchen"
-
-msgctxt "view:real_estate.billing_unit:"
-msgid "Billing"
 msgstr "Abrechnung"
 
 msgctxt "view:real_estate.billing_unit:"
 msgid "Cancel Billing"
 msgstr "Storno Abrechnung"
-
-msgctxt "view:real_estate.billing_unit:"
-msgid "Cancel Billing"
-msgstr "Abrechnung stornieren"
 
 msgctxt "view:real_estate.billing_unit:"
 msgid "Compute Settlement Results"
