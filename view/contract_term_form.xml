@@ -36,9 +36,17 @@
         <label name="next_document_date"/><field name="next_document_date"/>
         <label name="next_due_date"/><field name="next_due_date"/>
         
-        <newline/>   
+        <newline/>
         <label name="last_document_date"/><field name="last_document_date"/>
         <label name="last_posting_date"/><field name="last_posting_date"/>
+
+        <newline/>
+        <group string="Value per Measurement" id="value_per_measurement" col="4" colspan="6">
+            <label name="term_type_info_m_type"/><field name="term_type_info_m_type" readonly="1"/>
+            <newline/>
+            <label name="info_measurement_value"/><field name="info_measurement_value" readonly="1"/>
+            <label name="value_per_measurement"/><field name="value_per_measurement" readonly="1"/>
+        </group>
     </page>
     <page string="Measurements" id="page_measurements">
         <newline/>

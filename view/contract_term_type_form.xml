@@ -15,8 +15,11 @@
     <newline/>
     <group colspan="2" col="-1" id="m_type">
         <label name="default_quantity"/><field name="default_quantity" />
+        <newline/>
         <label name="m_type"/><field name="m_type" />
-    </group>    
+        <newline/>
+        <label name="info_m_type"/><field name="info_m_type" />
+    </group>
     <newline/>
     <group colspan="2" col="-1" id="rhythm">
         <label name="rhythm"/><field name="rhythm" />

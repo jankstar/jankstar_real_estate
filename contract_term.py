@@ -491,6 +491,25 @@ class ContractTerm(sequence_ordered(), ModelSQL, ModelView, TaxableMixin):
         fields.One2Many('real_estate.measurement', None, "Measurements"),
         'get_term_measurements', setter='set_term_measurements')
 
+    term_type_info_m_type = fields.Function(
+        fields.Many2One(
+            'real_estate.measurement.type', "Value per Measurement"),
+        'on_change_with_term_type_info_m_type')
+
+    info_measurement_value = fields.Function(
+        Quantitative(
+            "Measurement Value", unit='info_measurement_unit',
+            digits='info_measurement_unit'),
+        'on_change_with_info_measurement_value')
+
+    info_measurement_unit = fields.Function(
+        fields.Many2One('product.uom', "Measurement Unit"),
+        'on_change_with_info_measurement_unit')
+
+    value_per_measurement = fields.Function(
+        Monetary("Value per Measurement", currency='currency', digits='currency'),
+        'on_change_with_value_per_measurement')
+
     account = fields.Many2One('account.account', 'Account',
         ondelete='RESTRICT',
         states={
@@ -585,10 +604,17 @@ class ContractTerm(sequence_ordered(), ModelSQL, ModelView, TaxableMixin):
             'invisible': (Eval('term_type_m_type', None) == None),
             }
 
+    ## value per measurement group, only shown when the term type has an
+    ## informative measurement type configured
+    _states_term_type_with_info_m_type = {
+            'invisible': (Eval('term_type_info_m_type', None) == None),
+            }
+
     @classmethod
     def view_attributes(cls):
         return super().view_attributes() + [
             ('/form/notebook/page[@id="page_measurements"]', 'states', cls._states_term_type_with_m_type),
+            ('//group[@id="value_per_measurement"]', 'states', cls._states_term_type_with_info_m_type),
             ]
 
     @classmethod
@@ -1093,6 +1119,47 @@ class ContractTerm(sequence_ordered(), ModelSQL, ModelView, TaxableMixin):
         if self.term_type and self.term_type.m_type:
             return self.term_type.m_type.id
         return None
+
+    @fields.depends('term_type')
+    def on_change_with_term_type_info_m_type(self, name=None):
+        if self.term_type and self.term_type.info_m_type:
+            return self.term_type.info_m_type.id
+        return None
+
+    @fields.depends('term_type', 'reference_item', 'next_document_date')
+    def on_change_with_info_measurement_value(self, name=None):
+        # Same reference date as the quantity calculation (see
+        # on_change_with_quantity / _sum_measurements) for consistency.
+        if (self.term_type and self.term_type.info_m_type
+                and self.reference_item):
+            ref_item = Pool().get('real_estate.contract.item')(
+                self.reference_item)
+            total = self._sum_measurements(
+                ref_item, self.term_type.info_m_type, self.next_document_date)
+            if total is not None:
+                return total
+        return None
+
+    @fields.depends('term_type')
+    def on_change_with_info_measurement_unit(self, name=None):
+        if self.term_type and self.term_type.info_m_type:
+            return self.term_type.info_m_type.unit
+        return None
+
+    @fields.depends(
+        'term_type', 'quantity', 'unit_price', 'currency', 'contract',
+        'taxes_deductible_rate', 'taxes', 'reference_item',
+        'next_document_date', '_parent_contract.c_type',
+        methods=['on_change_with_amount', 'on_change_with_info_measurement_value'])
+    def on_change_with_value_per_measurement(self, name=None):
+        value = self.on_change_with_info_measurement_value()
+        if not value:
+            return None
+        amount = self.on_change_with_amount() or Decimal(0)
+        result = amount / Decimal(str(value))
+        if self.currency:
+            return self.currency.round(result)
+        return result
 
     @classmethod
     def get_term_measurements(cls, terms, name):

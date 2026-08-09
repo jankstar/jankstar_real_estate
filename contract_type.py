@@ -138,6 +138,13 @@ class ContractTermType(DeactivableMixin, base_object.re_sequence_ordered(), Mode
     m_type = fields.Many2One('real_estate.measurement.type', "Measurement Type",
         )
 
+    info_m_type = fields.Many2One(
+        'real_estate.measurement.type', "Informative Measurement Type",
+        ondelete='RESTRICT',
+        help="Optional - only used to back-calculate and display a value "
+             "per measurement unit (e.g. price per m²) on the term. Has no "
+             "effect on quantity or the booked amount.")
+
     default_quantity = fields.Float('Default Quantity', digits=price_digits,)
 
     account = fields.Many2One('account.account', 'Account',
