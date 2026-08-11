@@ -4,10 +4,10 @@ Verbindlichkeiten der Testkreditoren als Zahlungsausgang buchen und
 ausgleichen.
 
 Buchungssatz Forderungen (Zahlungseingang) je Vertragspartner:
-    Soll 1800 Bank  an  Haben <Forderungskonto> + Partner
+    Soll 2740 Bank  an  Haben <Forderungskonto> + Partner
 
 Buchungssatz Verbindlichkeiten (Zahlungsausgang) je Kreditor:
-    Soll <Verbindlichkeitenkonto> + Partner  an  Haben 1800 Bank
+    Soll <Verbindlichkeitenkonto> + Partner  an  Haben 2740 Bank
 
 Beide Konten werden automatisch aus den offenen Buchungszeilen ermittelt
 (account.type.receivable bzw. account.type.payable = True). Nach dem Buchen
@@ -308,7 +308,7 @@ def main():
     company = get_company()
     cfg._context['company'] = company.id
 
-    acc_bank = get_account('1800')
+    acc_bank = get_account('2740')
     journal = get_journal()
 
     tenants = get_test_parties()

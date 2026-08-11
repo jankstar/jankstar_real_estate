@@ -9,20 +9,20 @@ Das Skript legt folgende Rechnungen an und bucht sie (state=posted):
   Land Berlin — 1 Rechnung:
     - Datum: 15.03.2025
     - Position: "Grundsteuer 2025", 1 × 1.890,00 EUR, ohne Steuer
-    - Konto: 7680 (Grundsteuer), Settlement Unit 100
+    - Konto: 8910 (Grundsteuer), Settlement Unit 100
 
   Allianz AG — 1 Rechnung:
     - Datum: 15.02.2025
     - Position: "Gebäudeversicherung 2025", 1 × 7.801,00 EUR + 19 % VSt
-    - Konto: 5130, Settlement Unit 110
+    - Konto: 8020 (Andere Betriebskosten), Settlement Unit 110
 
   Berliner Wasserbetriebe — 6 Rechnungen, 2-monatlich zum 15. (Jan–Nov 2025):
     - Position: "Wasserrechnung MM/YYYY", 1 × 2.166,00 EUR + 19 % VSt
-    - Konto: 5130, Settlement Unit 200
+    - Konto: 8020 (Andere Betriebskosten), Settlement Unit 200
 
   Gas AG — 6 Rechnungen, 2-monatlich zum 15. (Jan–Nov 2025):
     - Position: "Gasrechnung MM/YYYY", 1 × 39.650,00 EUR + 19 % VSt
-    - Konto: 5130, Settlement Unit 300
+    - Konto: 8020 (Andere Betriebskosten), Settlement Unit 300
 
   BSR — 6 Rechnungen, 2-monatlich zum 15. (Jan–Nov 2025):
     - Position 1: "Straßenreinigung", 1 × 433,00 EUR + 19 % VSt, Settlement Unit 500
@@ -238,8 +238,8 @@ def main():
     cfg._context['company'] = company.id
 
     tax_19 = get_purchase_tax_19()
-    acc_7680 = get_account('7680')  # Grundsteuer
-    acc_5130 = get_account('5130')  # Kosten
+    acc_grundsteuer = get_account('8910')  # Grundsteuer
+    acc_kosten = get_account('8020')  # Kosten (Andere Betriebskosten)
 
     print(f'Verwende Steuer: {tax_19.name} (rate={tax_19.rate})')
 
@@ -281,7 +281,7 @@ def main():
             datetime.date(2025, 3, 15), land_berlin,
             f'Grundsteuer 2025 {tag}',
             [{'description': 'Grundsteuer 2025', 'unit_price': Decimal('1890.00'),
-              'account': acc_7680, 'taxes': [],
+              'account': acc_grundsteuer, 'taxes': [],
               'property': prop, 'settlement_unit': su_100}],
         ))
 
@@ -289,7 +289,7 @@ def main():
             datetime.date(2025, 2, 15), allianz,
             f'Gebäudeversicherung 2025 {tag}',
             [{'description': 'Gebäudeversicherung 2025', 'unit_price': Decimal('7801.00'),
-              'account': acc_5130, 'taxes': [tax_19],
+              'account': acc_kosten, 'taxes': [tax_19],
               'property': prop, 'settlement_unit': su_110}],
         ))
 
@@ -300,14 +300,14 @@ def main():
                 d, wasser,
                 f'Wasserrechnung {label} {tag}',
                 [{'description': f'Wasserrechnung {label}', 'unit_price': Decimal('2166.00'),
-                  'account': acc_5130, 'taxes': [tax_19],
+                  'account': acc_kosten, 'taxes': [tax_19],
                   'property': prop, 'settlement_unit': su_200}],
             ))
             invoices_todo.append((
                 d, gasag,
                 f'Gasrechnung {label} {tag}',
                 [{'description': f'Gasrechnung {label}', 'unit_price': Decimal('6630.00'),
-                  'account': acc_5130, 'taxes': [tax_19],
+                  'account': acc_kosten, 'taxes': [tax_19],
                   'property': prop, 'settlement_unit': su_300}],
             ))
 
@@ -319,10 +319,10 @@ def main():
                 f'BSR {label} {tag}',
                 [
                     {'description': 'Straßenreinigung', 'unit_price': Decimal('433.00'),
-                     'account': acc_5130, 'taxes': [tax_19],
+                     'account': acc_kosten, 'taxes': [tax_19],
                      'property': prop, 'settlement_unit': su_500},
                     {'description': 'Müll', 'unit_price': Decimal('541.00'),
-                     'account': acc_5130, 'taxes': [tax_19],
+                     'account': acc_kosten, 'taxes': [tax_19],
                      'property': prop, 'settlement_unit': su_510},
                 ],
             ))
@@ -331,7 +331,7 @@ def main():
                 f'Vattenfall {label} {tag}',
                 [
                     {'description': 'Hausstrom', 'unit_price': Decimal('650.00'),
-                     'account': acc_5130, 'taxes': [tax_19],
+                     'account': acc_kosten, 'taxes': [tax_19],
                      'property': prop, 'settlement_unit': su_610},
                 ],
             ))
@@ -344,7 +344,7 @@ def main():
                 f'Reinigung {label} {tag}',
                 [
                     {'description': 'Hausreinigung', 'unit_price': Decimal('431.00'),
-                     'account': acc_5130, 'taxes': [tax_19],
+                     'account': acc_kosten, 'taxes': [tax_19],
                      'property': prop, 'settlement_unit': su_520},
                 ],
             ))
@@ -353,7 +353,7 @@ def main():
                 f'Hausmeister {label} {tag}',
                 [
                     {'description': 'Hausmeister', 'unit_price': Decimal('758.00'),
-                     'account': acc_5130, 'taxes': [tax_19],
+                     'account': acc_kosten, 'taxes': [tax_19],
                      'property': prop, 'settlement_unit': su_700},
                 ],
             ))
@@ -362,7 +362,7 @@ def main():
             datetime.date(2025, 2, 15), gartenpflege,
             f'Gartenpflege 2025 {tag}',
             [{'description': 'Gartenpflege 2025', 'unit_price': Decimal('3250.00'),
-              'account': acc_5130, 'taxes': [tax_19],
+              'account': acc_kosten, 'taxes': [tax_19],
               'property': prop, 'settlement_unit': su_600}],
         ))
 
@@ -370,7 +370,7 @@ def main():
             datetime.date(2025, 11, 15), schornsteinfeger,
             f'Schornsteinfeger 2025 {tag}',
             [{'description': 'Schornsteinfeger 2025', 'unit_price': Decimal('1950.00'),
-              'account': acc_5130, 'taxes': [tax_19],
+              'account': acc_kosten, 'taxes': [tax_19],
               'property': prop, 'settlement_unit': su_620}],
         ))
 
@@ -378,7 +378,7 @@ def main():
             datetime.date(2025, 11, 25), vailand,
             f'Vailand 2025 {tag}',
             [{'description': 'Vailand 2025', 'unit_price': Decimal('3860.00'),
-              'account': acc_5130, 'taxes': [tax_19],
+              'account': acc_kosten, 'taxes': [tax_19],
               'property': prop, 'settlement_unit': su_310}],
         ))
 
