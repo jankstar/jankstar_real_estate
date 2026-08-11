@@ -1,0 +1,3398 @@
+<?xml version="1.0" ?>
+<!-- This file is part of the real_estate module for Tryton.
+ Alternative German chart of accounts for the housing industry
+ ("Kontenrahmen der Wohnungswirtschaft" / WoWi), generated from
+ Kontenplan.md. Mirrors the skr04/ template conventions but uses a
+ distinct wowi_* record-id prefix to avoid collisions.
+ The COPYRIGHT file at the top level of
+ this repository contains the full copyright notices and license terms.-->
+<tryton>
+    <data>
+        <record id="wowi_root" model="account.account.template">
+            <field name="name">Kontenrahmen der Wohnungswirtschaft (WoWi)</field>
+            <field name="type" ref="wowi_type_root"/>
+            <field name="closed" eval="True"/>
+        </record>
+        <record id="wowi_view_k0" model="account.account.template">
+            <field name="name">Klasse 0: Anlagevermögen</field>
+            <field name="parent" ref="wowi_root"/>
+        </record>
+        <record id="wowi_view_g_00" model="account.account.template">
+            <field name="name">Grundstücke und grundstücksgleiche Rechte mit Wohnbauten</field>
+            <field name="parent" ref="wowi_view_k0"/>
+        </record>
+        <record id="wowi_view_u_000" model="account.account.template">
+            <field name="name">Grundstückskosten</field>
+            <field name="parent" ref="wowi_view_g_00"/>
+        </record>
+        <record id="wowi_account_0000" model="account.account.template">
+            <field name="name">Grundstückskosten</field>
+            <field name="parent" ref="wowi_view_u_000"/>
+            <field name="code">0000</field>
+            <field name="type" ref="wowi_type_u_000"/>
+        </record>
+        <record id="wowi_view_u_001" model="account.account.template">
+            <field name="name">Gebäudekosten</field>
+            <field name="parent" ref="wowi_view_g_00"/>
+        </record>
+        <record id="wowi_account_0010" model="account.account.template">
+            <field name="name">Gebäudekosten</field>
+            <field name="parent" ref="wowi_view_u_001"/>
+            <field name="code">0010</field>
+            <field name="type" ref="wowi_type_u_001"/>
+        </record>
+        <record id="wowi_view_u_002" model="account.account.template">
+            <field name="name">Betriebsvorrichtungen</field>
+            <field name="parent" ref="wowi_view_g_00"/>
+        </record>
+        <record id="wowi_account_0020" model="account.account.template">
+            <field name="name">Betriebsvorrichtungen</field>
+            <field name="parent" ref="wowi_view_u_002"/>
+            <field name="code">0020</field>
+            <field name="type" ref="wowi_type_u_002"/>
+        </record>
+        <record id="wowi_view_u_003" model="account.account.template">
+            <field name="name">Garagen</field>
+            <field name="parent" ref="wowi_view_g_00"/>
+        </record>
+        <record id="wowi_account_0030" model="account.account.template">
+            <field name="name">Garagen</field>
+            <field name="parent" ref="wowi_view_u_003"/>
+            <field name="code">0030</field>
+            <field name="type" ref="wowi_type_u_003"/>
+        </record>
+        <record id="wowi_view_u_004" model="account.account.template">
+            <field name="name">Außenanlagen</field>
+            <field name="parent" ref="wowi_view_g_00"/>
+        </record>
+        <record id="wowi_account_0040" model="account.account.template">
+            <field name="name">Außenanlagen</field>
+            <field name="parent" ref="wowi_view_u_004"/>
+            <field name="code">0040</field>
+            <field name="type" ref="wowi_type_u_004"/>
+        </record>
+        <record id="wowi_view_g_01" model="account.account.template">
+            <field name="name">Grundstücke und grundstücksgleiche Rechte mit Geschäfts- und anderen Bauten</field>
+            <field name="parent" ref="wowi_view_k0"/>
+        </record>
+        <record id="wowi_view_u_010" model="account.account.template">
+            <field name="name">Grundstückskosten</field>
+            <field name="parent" ref="wowi_view_g_01"/>
+        </record>
+        <record id="wowi_account_0100" model="account.account.template">
+            <field name="name">Grundstückskosten</field>
+            <field name="parent" ref="wowi_view_u_010"/>
+            <field name="code">0100</field>
+            <field name="type" ref="wowi_type_u_010"/>
+        </record>
+        <record id="wowi_view_u_011" model="account.account.template">
+            <field name="name">Gebäudekosten</field>
+            <field name="parent" ref="wowi_view_g_01"/>
+        </record>
+        <record id="wowi_account_0110" model="account.account.template">
+            <field name="name">Gebäudekosten</field>
+            <field name="parent" ref="wowi_view_u_011"/>
+            <field name="code">0110</field>
+            <field name="type" ref="wowi_type_u_011"/>
+        </record>
+        <record id="wowi_view_u_012" model="account.account.template">
+            <field name="name">Betriebsvorrichtungen</field>
+            <field name="parent" ref="wowi_view_g_01"/>
+        </record>
+        <record id="wowi_account_0120" model="account.account.template">
+            <field name="name">Betriebsvorrichtungen</field>
+            <field name="parent" ref="wowi_view_u_012"/>
+            <field name="code">0120</field>
+            <field name="type" ref="wowi_type_u_012"/>
+        </record>
+        <record id="wowi_view_u_013" model="account.account.template">
+            <field name="name">Garagen</field>
+            <field name="parent" ref="wowi_view_g_01"/>
+        </record>
+        <record id="wowi_account_0130" model="account.account.template">
+            <field name="name">Garagen</field>
+            <field name="parent" ref="wowi_view_u_013"/>
+            <field name="code">0130</field>
+            <field name="type" ref="wowi_type_u_013"/>
+        </record>
+        <record id="wowi_view_u_014" model="account.account.template">
+            <field name="name">Außenanlagen</field>
+            <field name="parent" ref="wowi_view_g_01"/>
+        </record>
+        <record id="wowi_account_0140" model="account.account.template">
+            <field name="name">Außenanlagen</field>
+            <field name="parent" ref="wowi_view_u_014"/>
+            <field name="code">0140</field>
+            <field name="type" ref="wowi_type_u_014"/>
+        </record>
+        <record id="wowi_view_g_02" model="account.account.template">
+            <field name="name">Grundstücke und grundstücksgleiche Rechte ohne Bauten</field>
+            <field name="parent" ref="wowi_view_k0"/>
+        </record>
+        <record id="wowi_view_u_020" model="account.account.template">
+            <field name="name">noch nicht erschlossen</field>
+            <field name="parent" ref="wowi_view_g_02"/>
+        </record>
+        <record id="wowi_account_0200" model="account.account.template">
+            <field name="name">noch nicht erschlossen</field>
+            <field name="parent" ref="wowi_view_u_020"/>
+            <field name="code">0200</field>
+            <field name="type" ref="wowi_type_u_020"/>
+        </record>
+        <record id="wowi_view_u_021" model="account.account.template">
+            <field name="name">im Zustand der Erschließung (durch Dritte)</field>
+            <field name="parent" ref="wowi_view_g_02"/>
+        </record>
+        <record id="wowi_account_0210" model="account.account.template">
+            <field name="name">im Zustand der Erschließung (durch Dritte)</field>
+            <field name="parent" ref="wowi_view_u_021"/>
+            <field name="code">0210</field>
+            <field name="type" ref="wowi_type_u_021"/>
+        </record>
+        <record id="wowi_view_u_022" model="account.account.template">
+            <field name="name">erschlossen (durch Dritte / erschlossen erworben)</field>
+            <field name="parent" ref="wowi_view_g_02"/>
+        </record>
+        <record id="wowi_account_0220" model="account.account.template">
+            <field name="name">erschlossen (durch Dritte / erschlossen erworben)</field>
+            <field name="parent" ref="wowi_view_u_022"/>
+            <field name="code">0220</field>
+            <field name="type" ref="wowi_type_u_022"/>
+        </record>
+        <record id="wowi_view_u_025" model="account.account.template">
+            <field name="name">im Zustand der Erschließung (eigene Erschließung)</field>
+            <field name="parent" ref="wowi_view_g_02"/>
+        </record>
+        <record id="wowi_account_0250" model="account.account.template">
+            <field name="name">im Zustand der Erschließung (eigene Erschließung)</field>
+            <field name="parent" ref="wowi_view_u_025"/>
+            <field name="code">0250</field>
+            <field name="type" ref="wowi_type_u_025"/>
+        </record>
+        <record id="wowi_view_u_026" model="account.account.template">
+            <field name="name">erschlossen (eigene Erschließung)</field>
+            <field name="parent" ref="wowi_view_g_02"/>
+        </record>
+        <record id="wowi_account_0260" model="account.account.template">
+            <field name="name">erschlossen (eigene Erschließung)</field>
+            <field name="parent" ref="wowi_view_u_026"/>
+            <field name="code">0260</field>
+            <field name="type" ref="wowi_type_u_026"/>
+        </record>
+        <record id="wowi_view_g_03" model="account.account.template">
+            <field name="name">Grundstücke mit Erbbaurechten Dritter sowie Bauten auf fremden Grundstücken</field>
+            <field name="parent" ref="wowi_view_k0"/>
+        </record>
+        <record id="wowi_view_u_030" model="account.account.template">
+            <field name="name">Grundstücke mit Erbbaurechten Dritter</field>
+            <field name="parent" ref="wowi_view_g_03"/>
+        </record>
+        <record id="wowi_account_0300" model="account.account.template">
+            <field name="name">Grundstücke mit Erbbaurechten Dritter</field>
+            <field name="parent" ref="wowi_view_u_030"/>
+            <field name="code">0300</field>
+            <field name="type" ref="wowi_type_u_030"/>
+        </record>
+        <record id="wowi_view_u_031" model="account.account.template">
+            <field name="name">Bauten auf fremden Grundstücken</field>
+            <field name="parent" ref="wowi_view_g_03"/>
+        </record>
+        <record id="wowi_account_0311" model="account.account.template">
+            <field name="name">Gebäudekosten</field>
+            <field name="parent" ref="wowi_view_u_031"/>
+            <field name="code">0311</field>
+            <field name="type" ref="wowi_type_u_031"/>
+        </record>
+        <record id="wowi_account_0312" model="account.account.template">
+            <field name="name">Betriebsvorrichtungen</field>
+            <field name="parent" ref="wowi_view_u_031"/>
+            <field name="code">0312</field>
+            <field name="type" ref="wowi_type_u_031"/>
+        </record>
+        <record id="wowi_account_0313" model="account.account.template">
+            <field name="name">Garagen</field>
+            <field name="parent" ref="wowi_view_u_031"/>
+            <field name="code">0313</field>
+            <field name="type" ref="wowi_type_u_031"/>
+        </record>
+        <record id="wowi_account_0314" model="account.account.template">
+            <field name="name">Außenanlagen</field>
+            <field name="parent" ref="wowi_view_u_031"/>
+            <field name="code">0314</field>
+            <field name="type" ref="wowi_type_u_031"/>
+        </record>
+        <record id="wowi_account_0315" model="account.account.template">
+            <field name="name">Hof- und Wegbefestigungen</field>
+            <field name="parent" ref="wowi_view_u_031"/>
+            <field name="code">0315</field>
+            <field name="type" ref="wowi_type_u_031"/>
+        </record>
+        <record id="wowi_view_g_04" model="account.account.template">
+            <field name="name">Technische Anlagen und Maschinen (TAM)</field>
+            <field name="parent" ref="wowi_view_k0"/>
+        </record>
+        <record id="wowi_view_u_040" model="account.account.template">
+            <field name="name">Geringwertige Wirtschaftsgüter / GWG</field>
+            <field name="parent" ref="wowi_view_g_04"/>
+        </record>
+        <record id="wowi_account_0400" model="account.account.template">
+            <field name="name">Geringwertige Wirtschaftsgüter / GWG</field>
+            <field name="parent" ref="wowi_view_u_040"/>
+            <field name="code">0400</field>
+            <field name="type" ref="wowi_type_u_040"/>
+        </record>
+        <record id="wowi_view_u_041" model="account.account.template">
+            <field name="name">Sonstige Wirtschaftsgüter (TAM)</field>
+            <field name="parent" ref="wowi_view_g_04"/>
+        </record>
+        <record id="wowi_account_0410" model="account.account.template">
+            <field name="name">Sonstige Wirtschaftsgüter (TAM)</field>
+            <field name="parent" ref="wowi_view_u_041"/>
+            <field name="code">0410</field>
+            <field name="type" ref="wowi_type_u_041"/>
+        </record>
+        <record id="wowi_view_g_05" model="account.account.template">
+            <field name="name">Andere Anlagen, Betriebs- und Geschäftsausstattung (BGA)</field>
+            <field name="parent" ref="wowi_view_k0"/>
+        </record>
+        <record id="wowi_view_u_050" model="account.account.template">
+            <field name="name">Geringwertige Wirtschaftsgüter / GWG</field>
+            <field name="parent" ref="wowi_view_g_05"/>
+        </record>
+        <record id="wowi_account_0500" model="account.account.template">
+            <field name="name">Geringwertige Wirtschaftsgüter / GWG</field>
+            <field name="parent" ref="wowi_view_u_050"/>
+            <field name="code">0500</field>
+            <field name="type" ref="wowi_type_u_050"/>
+        </record>
+        <record id="wowi_view_u_051" model="account.account.template">
+            <field name="name">Sonstige Wirtschaftsgüter (BGA)</field>
+            <field name="parent" ref="wowi_view_g_05"/>
+        </record>
+        <record id="wowi_account_0510" model="account.account.template">
+            <field name="name">Sonstige Wirtschaftsgüter (BGA)</field>
+            <field name="parent" ref="wowi_view_u_051"/>
+            <field name="code">0510</field>
+            <field name="type" ref="wowi_type_u_051"/>
+        </record>
+        <record id="wowi_view_g_06" model="account.account.template">
+            <field name="name">Anlagen im Bau</field>
+            <field name="parent" ref="wowi_view_k0"/>
+        </record>
+        <record id="wowi_view_u_061" model="account.account.template">
+            <field name="name">Kosten des Baugrundstücks</field>
+            <field name="parent" ref="wowi_view_g_06"/>
+        </record>
+        <record id="wowi_account_0610" model="account.account.template">
+            <field name="name">Kosten des Baugrundstücks</field>
+            <field name="parent" ref="wowi_view_u_061"/>
+            <field name="code">0610</field>
+            <field name="type" ref="wowi_type_u_061"/>
+        </record>
+        <record id="wowi_view_u_062" model="account.account.template">
+            <field name="name">Kosten der Erschließung</field>
+            <field name="parent" ref="wowi_view_g_06"/>
+        </record>
+        <record id="wowi_account_0620" model="account.account.template">
+            <field name="name">Kosten der Erschließung</field>
+            <field name="parent" ref="wowi_view_u_062"/>
+            <field name="code">0620</field>
+            <field name="type" ref="wowi_type_u_062"/>
+        </record>
+        <record id="wowi_view_u_063" model="account.account.template">
+            <field name="name">Kosten des Bauwerks</field>
+            <field name="parent" ref="wowi_view_g_06"/>
+        </record>
+        <record id="wowi_account_0630" model="account.account.template">
+            <field name="name">Kosten des Bauwerks</field>
+            <field name="parent" ref="wowi_view_u_063"/>
+            <field name="code">0630</field>
+            <field name="type" ref="wowi_type_u_063"/>
+        </record>
+        <record id="wowi_view_u_064" model="account.account.template">
+            <field name="name">Kosten des Geräts</field>
+            <field name="parent" ref="wowi_view_g_06"/>
+        </record>
+        <record id="wowi_account_0640" model="account.account.template">
+            <field name="name">Kosten des Geräts</field>
+            <field name="parent" ref="wowi_view_u_064"/>
+            <field name="code">0640</field>
+            <field name="type" ref="wowi_type_u_064"/>
+        </record>
+        <record id="wowi_view_u_065" model="account.account.template">
+            <field name="name">Kosten der Außenanlagen</field>
+            <field name="parent" ref="wowi_view_g_06"/>
+        </record>
+        <record id="wowi_account_0650" model="account.account.template">
+            <field name="name">Kosten der Außenanlagen</field>
+            <field name="parent" ref="wowi_view_u_065"/>
+            <field name="code">0650</field>
+            <field name="type" ref="wowi_type_u_065"/>
+        </record>
+        <record id="wowi_view_u_066" model="account.account.template">
+            <field name="name">Kosten für zusätzliche Maßnahmen</field>
+            <field name="parent" ref="wowi_view_g_06"/>
+        </record>
+        <record id="wowi_account_0660" model="account.account.template">
+            <field name="name">Kosten für zusätzliche Maßnahmen</field>
+            <field name="parent" ref="wowi_view_u_066"/>
+            <field name="code">0660</field>
+            <field name="type" ref="wowi_type_u_066"/>
+        </record>
+        <record id="wowi_view_u_067" model="account.account.template">
+            <field name="name">Baunebenkosten</field>
+            <field name="parent" ref="wowi_view_g_06"/>
+        </record>
+        <record id="wowi_account_0670" model="account.account.template">
+            <field name="name">Baunebenkosten</field>
+            <field name="parent" ref="wowi_view_u_067"/>
+            <field name="code">0670</field>
+            <field name="type" ref="wowi_type_u_067"/>
+        </record>
+        <record id="wowi_view_u_069" model="account.account.template">
+            <field name="name">Baukostenminderungen</field>
+            <field name="parent" ref="wowi_view_g_06"/>
+        </record>
+        <record id="wowi_account_0690" model="account.account.template">
+            <field name="name">Baukostenminderungen</field>
+            <field name="parent" ref="wowi_view_u_069"/>
+            <field name="code">0690</field>
+            <field name="type" ref="wowi_type_u_069"/>
+        </record>
+        <record id="wowi_view_g_07" model="account.account.template">
+            <field name="name">Bauvorbereitungskosten und geleistete Anzahlungen</field>
+            <field name="parent" ref="wowi_view_k0"/>
+        </record>
+        <record id="wowi_view_u_070" model="account.account.template">
+            <field name="name">Bauvorbereitungskosten</field>
+            <field name="parent" ref="wowi_view_g_07"/>
+        </record>
+        <record id="wowi_account_0700" model="account.account.template">
+            <field name="name">Bauvorbereitungskosten</field>
+            <field name="parent" ref="wowi_view_u_070"/>
+            <field name="code">0700</field>
+            <field name="type" ref="wowi_type_u_070"/>
+        </record>
+        <record id="wowi_view_u_077" model="account.account.template">
+            <field name="name">Geleistete Anzahlungen</field>
+            <field name="parent" ref="wowi_view_g_07"/>
+        </record>
+        <record id="wowi_account_0770" model="account.account.template">
+            <field name="name">Geleistete Anzahlungen</field>
+            <field name="parent" ref="wowi_view_u_077"/>
+            <field name="code">0770</field>
+            <field name="type" ref="wowi_type_u_077"/>
+        </record>
+        <record id="wowi_view_g_08" model="account.account.template">
+            <field name="name">Finanzanlagen</field>
+            <field name="parent" ref="wowi_view_k0"/>
+        </record>
+        <record id="wowi_view_u_085" model="account.account.template">
+            <field name="name">Wertpapiere des Anlagevermögens</field>
+            <field name="parent" ref="wowi_view_g_08"/>
+        </record>
+        <record id="wowi_account_0850" model="account.account.template">
+            <field name="name">Wertpapiere des Anlagevermögens</field>
+            <field name="parent" ref="wowi_view_u_085"/>
+            <field name="code">0850</field>
+            <field name="type" ref="wowi_type_u_085"/>
+        </record>
+        <record id="wowi_view_u_087" model="account.account.template">
+            <field name="name">Sonstige Ausleihungen</field>
+            <field name="parent" ref="wowi_view_g_08"/>
+        </record>
+        <record id="wowi_account_0870" model="account.account.template">
+            <field name="name">Sonstige Ausleihungen</field>
+            <field name="parent" ref="wowi_view_u_087"/>
+            <field name="code">0870</field>
+            <field name="type" ref="wowi_type_u_087"/>
+        </record>
+        <record id="wowi_view_g_09" model="account.account.template">
+            <field name="name">Immaterielle Vermögensgegenstände</field>
+            <field name="parent" ref="wowi_view_k0"/>
+        </record>
+        <record id="wowi_account_0900" model="account.account.template">
+            <field name="name">Immaterielle Vermögensgegenstände</field>
+            <field name="parent" ref="wowi_view_g_09"/>
+            <field name="code">0900</field>
+            <field name="type" ref="wowi_type_g_09"/>
+        </record>
+        <record id="wowi_view_k1" model="account.account.template">
+            <field name="name">Klasse 1: Zum Verkauf bestimmte Grundstücke und andere Vorräte</field>
+            <field name="parent" ref="wowi_root"/>
+        </record>
+        <record id="wowi_view_g_10" model="account.account.template">
+            <field name="name">Grundstücke und grundstücksgleiche Rechte ohne Bauten noch nicht erschlossen / durch Dritte erschlossen oder erschlossen erworben</field>
+            <field name="parent" ref="wowi_view_k1"/>
+        </record>
+        <record id="wowi_view_u_100" model="account.account.template">
+            <field name="name">noch nicht erschlossen</field>
+            <field name="parent" ref="wowi_view_g_10"/>
+        </record>
+        <record id="wowi_account_1000" model="account.account.template">
+            <field name="name">noch nicht erschlossen</field>
+            <field name="parent" ref="wowi_view_u_100"/>
+            <field name="code">1000</field>
+            <field name="type" ref="wowi_type_u_100"/>
+        </record>
+        <record id="wowi_view_u_101" model="account.account.template">
+            <field name="name">im Zustand der Erschließung (durch Dritte)</field>
+            <field name="parent" ref="wowi_view_g_10"/>
+        </record>
+        <record id="wowi_account_1010" model="account.account.template">
+            <field name="name">im Zustand der Erschließung (durch Dritte)</field>
+            <field name="parent" ref="wowi_view_u_101"/>
+            <field name="code">1010</field>
+            <field name="type" ref="wowi_type_u_101"/>
+        </record>
+        <record id="wowi_view_u_102" model="account.account.template">
+            <field name="name">erschlossen erworben / durch Dritte erschlossen</field>
+            <field name="parent" ref="wowi_view_g_10"/>
+        </record>
+        <record id="wowi_account_1020" model="account.account.template">
+            <field name="name">erschlossen erworben / durch Dritte erschlossen</field>
+            <field name="parent" ref="wowi_view_u_102"/>
+            <field name="code">1020</field>
+            <field name="type" ref="wowi_type_u_102"/>
+        </record>
+        <record id="wowi_view_g_11" model="account.account.template">
+            <field name="name">Grundstücke und grundstücksgleiche Rechte ohne Bauten selbst erschlossen</field>
+            <field name="parent" ref="wowi_view_k1"/>
+        </record>
+        <record id="wowi_view_u_110" model="account.account.template">
+            <field name="name">im Zustand der Erschließung (eigene)</field>
+            <field name="parent" ref="wowi_view_g_11"/>
+        </record>
+        <record id="wowi_account_1100" model="account.account.template">
+            <field name="name">im Zustand der Erschließung (eigene)</field>
+            <field name="parent" ref="wowi_view_u_110"/>
+            <field name="code">1100</field>
+            <field name="type" ref="wowi_type_u_110"/>
+        </record>
+        <record id="wowi_view_u_111" model="account.account.template">
+            <field name="name">erschlossen / eigene Erschließung</field>
+            <field name="parent" ref="wowi_view_g_11"/>
+        </record>
+        <record id="wowi_account_1110" model="account.account.template">
+            <field name="name">erschlossen / eigene Erschließung</field>
+            <field name="parent" ref="wowi_view_u_111"/>
+            <field name="code">1110</field>
+            <field name="type" ref="wowi_type_u_111"/>
+        </record>
+        <record id="wowi_view_g_12" model="account.account.template">
+            <field name="name">Bauvorbereitungskosten</field>
+            <field name="parent" ref="wowi_view_k1"/>
+        </record>
+        <record id="wowi_account_1200" model="account.account.template">
+            <field name="name">Bauvorbereitungskosten</field>
+            <field name="parent" ref="wowi_view_g_12"/>
+            <field name="code">1200</field>
+            <field name="type" ref="wowi_type_g_12"/>
+        </record>
+        <record id="wowi_view_g_13" model="account.account.template">
+            <field name="name">Grundstücke und grundstücksgleiche Rechte mit unfertigen Bauten</field>
+            <field name="parent" ref="wowi_view_k1"/>
+        </record>
+        <record id="wowi_account_1300" model="account.account.template">
+            <field name="name">Grundstücke und grundstücksgleiche Rechte mit unfertigen Bauten</field>
+            <field name="parent" ref="wowi_view_g_13"/>
+            <field name="code">1300</field>
+            <field name="type" ref="wowi_type_g_13"/>
+        </record>
+        <record id="wowi_view_g_14" model="account.account.template">
+            <field name="name">Grundstücke und grundstücksgleiche Rechte mit fertigen Bauten</field>
+            <field name="parent" ref="wowi_view_k1"/>
+        </record>
+        <record id="wowi_view_u_140" model="account.account.template">
+            <field name="name">Grundstücke mit fertigen Bauten / selbst errichtet</field>
+            <field name="parent" ref="wowi_view_g_14"/>
+        </record>
+        <record id="wowi_account_1400" model="account.account.template">
+            <field name="name">Grundstücke mit fertigen Bauten / selbst errichtet</field>
+            <field name="parent" ref="wowi_view_u_140"/>
+            <field name="code">1400</field>
+            <field name="type" ref="wowi_type_u_140"/>
+        </record>
+        <record id="wowi_view_u_145" model="account.account.template">
+            <field name="name">Grundstücke mit fertigen Bauten / bebaut erworben</field>
+            <field name="parent" ref="wowi_view_g_14"/>
+        </record>
+        <record id="wowi_account_1450" model="account.account.template">
+            <field name="name">Grundstücke mit fertigen Bauten / bebaut erworben</field>
+            <field name="parent" ref="wowi_view_u_145"/>
+            <field name="code">1450</field>
+            <field name="type" ref="wowi_type_u_145"/>
+        </record>
+        <record id="wowi_view_g_15" model="account.account.template">
+            <field name="name">Noch nicht abgerechnete Betriebskosten</field>
+            <field name="parent" ref="wowi_view_k1"/>
+        </record>
+        <record id="wowi_view_u_150" model="account.account.template">
+            <field name="name">Noch nicht abgerechnete Beheizungs- und Warmwasserkosten</field>
+            <field name="parent" ref="wowi_view_g_15"/>
+        </record>
+        <record id="wowi_account_1500" model="account.account.template">
+            <field name="name">Noch nicht abgerechnete Beheizungs- und Warmwasserkosten</field>
+            <field name="parent" ref="wowi_view_u_150"/>
+            <field name="code">1500</field>
+            <field name="type" ref="wowi_type_u_150"/>
+        </record>
+        <record id="wowi_view_u_151" model="account.account.template">
+            <field name="name">Noch nicht abgerechnete andere Betriebskosten</field>
+            <field name="parent" ref="wowi_view_g_15"/>
+        </record>
+        <record id="wowi_account_1510" model="account.account.template">
+            <field name="name">Noch nicht abgerechnete andere Betriebskosten</field>
+            <field name="parent" ref="wowi_view_u_151"/>
+            <field name="code">1510</field>
+            <field name="type" ref="wowi_type_u_151"/>
+        </record>
+        <record id="wowi_view_g_16" model="account.account.template">
+            <field name="name">Andere unfertige Leistungen</field>
+            <field name="parent" ref="wowi_view_k1"/>
+        </record>
+        <record id="wowi_view_u_160" model="account.account.template">
+            <field name="name">Noch nicht abgerechnete Betreuungsleistungen</field>
+            <field name="parent" ref="wowi_view_g_16"/>
+        </record>
+        <record id="wowi_account_1600" model="account.account.template">
+            <field name="name">Noch nicht abgerechnete Betreuungsleistungen</field>
+            <field name="parent" ref="wowi_view_u_160"/>
+            <field name="code">1600</field>
+            <field name="type" ref="wowi_type_u_160"/>
+        </record>
+        <record id="wowi_view_u_161" model="account.account.template">
+            <field name="name">Unfertige Bauleistungen auf fremdem Grund und Boden</field>
+            <field name="parent" ref="wowi_view_g_16"/>
+        </record>
+        <record id="wowi_account_1610" model="account.account.template">
+            <field name="name">Unfertige Bauleistungen auf fremdem Grund und Boden</field>
+            <field name="parent" ref="wowi_view_u_161"/>
+            <field name="code">1610</field>
+            <field name="type" ref="wowi_type_u_161"/>
+        </record>
+        <record id="wowi_view_u_169" model="account.account.template">
+            <field name="name">Andere unfertige Leistungen</field>
+            <field name="parent" ref="wowi_view_g_16"/>
+        </record>
+        <record id="wowi_account_1690" model="account.account.template">
+            <field name="name">Andere unfertige Leistungen</field>
+            <field name="parent" ref="wowi_view_u_169"/>
+            <field name="code">1690</field>
+            <field name="type" ref="wowi_type_u_169"/>
+        </record>
+        <record id="wowi_view_g_17" model="account.account.template">
+            <field name="name">Andere Vorräte</field>
+            <field name="parent" ref="wowi_view_k1"/>
+        </record>
+        <record id="wowi_view_u_170" model="account.account.template">
+            <field name="name">Heizmaterial</field>
+            <field name="parent" ref="wowi_view_g_17"/>
+        </record>
+        <record id="wowi_account_1700" model="account.account.template">
+            <field name="name">Heizmaterial</field>
+            <field name="parent" ref="wowi_view_u_170"/>
+            <field name="code">1700</field>
+            <field name="type" ref="wowi_type_u_170"/>
+        </record>
+        <record id="wowi_view_u_171" model="account.account.template">
+            <field name="name">Reparaturmaterial und sonstige Materialvorräte</field>
+            <field name="parent" ref="wowi_view_g_17"/>
+        </record>
+        <record id="wowi_account_1710" model="account.account.template">
+            <field name="name">Reparaturmaterial und sonstige Materialvorräte</field>
+            <field name="parent" ref="wowi_view_u_171"/>
+            <field name="code">1710</field>
+            <field name="type" ref="wowi_type_u_171"/>
+        </record>
+        <record id="wowi_view_g_18" model="account.account.template">
+            <field name="name">Geleistete Anzahlungen</field>
+            <field name="parent" ref="wowi_view_k1"/>
+        </record>
+        <record id="wowi_view_u_180" model="account.account.template">
+            <field name="name">Anzahlungen auf zum Verkauf bestimmte Grundstücke</field>
+            <field name="parent" ref="wowi_view_g_18"/>
+        </record>
+        <record id="wowi_account_1800" model="account.account.template">
+            <field name="name">Anzahlungen auf zum Verkauf bestimmte Grundstücke</field>
+            <field name="parent" ref="wowi_view_u_180"/>
+            <field name="code">1800</field>
+            <field name="type" ref="wowi_type_u_180"/>
+        </record>
+        <record id="wowi_view_u_181" model="account.account.template">
+            <field name="name">Andere Anzahlungen</field>
+            <field name="parent" ref="wowi_view_g_18"/>
+        </record>
+        <record id="wowi_account_1810" model="account.account.template">
+            <field name="name">Andere Anzahlungen</field>
+            <field name="parent" ref="wowi_view_u_181"/>
+            <field name="code">1810</field>
+            <field name="type" ref="wowi_type_u_181"/>
+        </record>
+        <record id="wowi_view_k2" model="account.account.template">
+            <field name="name">Klasse 2: Forderungen / Sonstige Vermögensgegenstände / Wertpapiere / Flüssige Mittel / ARA</field>
+            <field name="parent" ref="wowi_root"/>
+        </record>
+        <record id="wowi_view_g_20" model="account.account.template">
+            <field name="name">Forderungen aus Vermietung und Verpachtung</field>
+            <field name="parent" ref="wowi_view_k2"/>
+        </record>
+        <record id="wowi_view_u_200" model="account.account.template">
+            <field name="name">Mietforderungen</field>
+            <field name="parent" ref="wowi_view_g_20"/>
+        </record>
+        <record id="wowi_account_2000" model="account.account.template">
+            <field name="name">Mietenkontokorrent-Sammelkonto</field>
+            <field name="parent" ref="wowi_view_u_200"/>
+            <field name="code">2000</field>
+            <field name="type" ref="wowi_type_u_200"/>
+        </record>
+        <record id="wowi_account_2001" model="account.account.template">
+            <field name="name">Forderungen an ehemalige Mieter</field>
+            <field name="parent" ref="wowi_view_u_200"/>
+            <field name="code">2001</field>
+            <field name="type" ref="wowi_type_u_200"/>
+        </record>
+        <record id="wowi_account_2002" model="account.account.template">
+            <field name="name">Forderungen aus abgerechneten Umlagen</field>
+            <field name="parent" ref="wowi_view_u_200"/>
+            <field name="code">2002</field>
+            <field name="type" ref="wowi_type_u_200"/>
+        </record>
+        <record id="wowi_account_2003" model="account.account.template">
+            <field name="name">Forderungen aus Verpachtung</field>
+            <field name="parent" ref="wowi_view_u_200"/>
+            <field name="code">2003</field>
+            <field name="type" ref="wowi_type_u_200"/>
+        </record>
+        <record id="wowi_account_2004" model="account.account.template">
+            <field name="name">Zweifelhafte Mietforderungen</field>
+            <field name="parent" ref="wowi_view_u_200"/>
+            <field name="code">2004</field>
+            <field name="type" ref="wowi_type_u_200"/>
+        </record>
+        <record id="wowi_account_2090" model="account.account.template">
+            <field name="name">Einzelwertberichtigung (EWB)</field>
+            <field name="parent" ref="wowi_view_u_200"/>
+            <field name="code">2090</field>
+            <field name="type" ref="wowi_type_u_200"/>
+        </record>
+        <record id="wowi_account_2095" model="account.account.template">
+            <field name="name">Pauschalwertberichtigung (PWB)</field>
+            <field name="parent" ref="wowi_view_u_200"/>
+            <field name="code">2095</field>
+            <field name="type" ref="wowi_type_u_200"/>
+        </record>
+        <record id="wowi_view_g_21" model="account.account.template">
+            <field name="name">Forderungen aus dem Verkauf von Grundstücken</field>
+            <field name="parent" ref="wowi_view_k2"/>
+        </record>
+        <record id="wowi_view_u_210" model="account.account.template">
+            <field name="name">Forderungen aus Verkauf von Grundstücken</field>
+            <field name="parent" ref="wowi_view_g_21"/>
+        </record>
+        <record id="wowi_account_2100" model="account.account.template">
+            <field name="name">Forderungen aus Verkauf von Grundstücken</field>
+            <field name="parent" ref="wowi_view_u_210"/>
+            <field name="code">2100</field>
+            <field name="type" ref="wowi_type_u_210"/>
+        </record>
+        <record id="wowi_view_u_215" model="account.account.template">
+            <field name="name">Zweifelhafte Forderungen aus Verkauf von Grundstücken</field>
+            <field name="parent" ref="wowi_view_g_21"/>
+        </record>
+        <record id="wowi_account_2150" model="account.account.template">
+            <field name="name">Zweifelhafte Forderungen aus Verkauf von Grundstücken</field>
+            <field name="parent" ref="wowi_view_u_215"/>
+            <field name="code">2150</field>
+            <field name="type" ref="wowi_type_u_215"/>
+        </record>
+        <record id="wowi_view_u_219" model="account.account.template">
+            <field name="name">Wertberichtigungen zu Forderungen aus Verkauf von Grundstücken</field>
+            <field name="parent" ref="wowi_view_g_21"/>
+        </record>
+        <record id="wowi_account_2190" model="account.account.template">
+            <field name="name">Wertberichtigungen zu Forderungen aus Verkauf von Grundstücken</field>
+            <field name="parent" ref="wowi_view_u_219"/>
+            <field name="code">2190</field>
+            <field name="type" ref="wowi_type_u_219"/>
+        </record>
+        <record id="wowi_view_g_22" model="account.account.template">
+            <field name="name">Forderungen aus der Betreuungstätigkeit</field>
+            <field name="parent" ref="wowi_view_k2"/>
+        </record>
+        <record id="wowi_view_u_220" model="account.account.template">
+            <field name="name">Forderungen aus Betreuungstätigkeit</field>
+            <field name="parent" ref="wowi_view_g_22"/>
+        </record>
+        <record id="wowi_account_2200" model="account.account.template">
+            <field name="name">Forderungen aus Betreuungstätigkeit</field>
+            <field name="parent" ref="wowi_view_u_220"/>
+            <field name="code">2200</field>
+            <field name="type" ref="wowi_type_u_220"/>
+        </record>
+        <record id="wowi_view_u_225" model="account.account.template">
+            <field name="name">Zweifelhafte Forderungen aus Betreuungstätigkeit</field>
+            <field name="parent" ref="wowi_view_g_22"/>
+        </record>
+        <record id="wowi_account_2250" model="account.account.template">
+            <field name="name">Zweifelhafte Forderungen aus Betreuungstätigkeit</field>
+            <field name="parent" ref="wowi_view_u_225"/>
+            <field name="code">2250</field>
+            <field name="type" ref="wowi_type_u_225"/>
+        </record>
+        <record id="wowi_view_u_229" model="account.account.template">
+            <field name="name">Wertberichtigungen zu Forderungen aus Betreuungstätigkeit</field>
+            <field name="parent" ref="wowi_view_g_22"/>
+        </record>
+        <record id="wowi_account_2290" model="account.account.template">
+            <field name="name">Wertberichtigungen zu Forderungen aus Betreuungstätigkeit</field>
+            <field name="parent" ref="wowi_view_u_229"/>
+            <field name="code">2290</field>
+            <field name="type" ref="wowi_type_u_229"/>
+        </record>
+        <record id="wowi_view_g_23" model="account.account.template">
+            <field name="name">Forderungen aus anderen Lieferungen und Leistungen</field>
+            <field name="parent" ref="wowi_view_k2"/>
+        </record>
+        <record id="wowi_view_u_230" model="account.account.template">
+            <field name="name">Forderungen aus anderen Lieferungen und Leistungen</field>
+            <field name="parent" ref="wowi_view_g_23"/>
+        </record>
+        <record id="wowi_account_2300" model="account.account.template">
+            <field name="name">Forderungen aus anderen Lieferungen und Leistungen</field>
+            <field name="parent" ref="wowi_view_u_230"/>
+            <field name="code">2300</field>
+            <field name="type" ref="wowi_type_u_230"/>
+        </record>
+        <record id="wowi_view_u_234" model="account.account.template">
+            <field name="name">Forderungen aus Inventarverkäufen</field>
+            <field name="parent" ref="wowi_view_g_23"/>
+        </record>
+        <record id="wowi_account_2340" model="account.account.template">
+            <field name="name">Forderungen aus Inventarverkäufen</field>
+            <field name="parent" ref="wowi_view_u_234"/>
+            <field name="code">2340</field>
+            <field name="type" ref="wowi_type_u_234"/>
+        </record>
+        <record id="wowi_view_u_235" model="account.account.template">
+            <field name="name">Zweifelhafte Forderungen aus anderen Lieferungen und Leistungen</field>
+            <field name="parent" ref="wowi_view_g_23"/>
+        </record>
+        <record id="wowi_account_2350" model="account.account.template">
+            <field name="name">Zweifelhafte Forderungen aus anderen Lieferungen und Leistungen</field>
+            <field name="parent" ref="wowi_view_u_235"/>
+            <field name="code">2350</field>
+            <field name="type" ref="wowi_type_u_235"/>
+        </record>
+        <record id="wowi_view_u_239" model="account.account.template">
+            <field name="name">Wertberichtigungen zu Forderungen aus anderen Lieferungen und Leistungen</field>
+            <field name="parent" ref="wowi_view_g_23"/>
+        </record>
+        <record id="wowi_account_2390" model="account.account.template">
+            <field name="name">Wertberichtigungen zu Forderungen aus anderen Lieferungen und Leistungen</field>
+            <field name="parent" ref="wowi_view_u_239"/>
+            <field name="code">2390</field>
+            <field name="type" ref="wowi_type_u_239"/>
+        </record>
+        <record id="wowi_view_g_24" model="account.account.template">
+            <field name="name">Unternehmensrechtliche Sonderposten</field>
+            <field name="parent" ref="wowi_view_k2"/>
+        </record>
+        <record id="wowi_account_2400" model="account.account.template">
+            <field name="name">Unternehmensrechtliche Sonderposten</field>
+            <field name="parent" ref="wowi_view_g_24"/>
+            <field name="code">2400</field>
+            <field name="type" ref="wowi_type_g_24"/>
+        </record>
+        <record id="wowi_view_g_25" model="account.account.template">
+            <field name="name">Sonstige Vermögensgegenstände</field>
+            <field name="parent" ref="wowi_view_k2"/>
+        </record>
+        <record id="wowi_view_u_250" model="account.account.template">
+            <field name="name">Kostenvorschüsse (Gerichts- und Rechtsanwaltskosten)</field>
+            <field name="parent" ref="wowi_view_g_25"/>
+        </record>
+        <record id="wowi_account_2500" model="account.account.template">
+            <field name="name">Kostenvorschüsse (Gerichts- und Rechtsanwaltskosten)</field>
+            <field name="parent" ref="wowi_view_u_250"/>
+            <field name="code">2500</field>
+            <field name="type" ref="wowi_type_u_250"/>
+        </record>
+        <record id="wowi_view_u_251" model="account.account.template">
+            <field name="name">Forderungen an Arbeitnehmer aus Lohn-, Gehalts- und Reisekostenvorschüssen</field>
+            <field name="parent" ref="wowi_view_g_25"/>
+        </record>
+        <record id="wowi_account_2510" model="account.account.template">
+            <field name="name">Forderungen an Arbeitnehmer aus Lohn-, Gehalts- und Reisekostenvorschüssen</field>
+            <field name="parent" ref="wowi_view_u_251"/>
+            <field name="code">2510</field>
+            <field name="type" ref="wowi_type_u_251"/>
+        </record>
+        <record id="wowi_view_u_252" model="account.account.template">
+            <field name="name">Schadenersatzansprüche gegenüber Versicherungen</field>
+            <field name="parent" ref="wowi_view_g_25"/>
+        </record>
+        <record id="wowi_account_2520" model="account.account.template">
+            <field name="name">Schadenersatzansprüche gegenüber Versicherungen</field>
+            <field name="parent" ref="wowi_view_u_252"/>
+            <field name="code">2520</field>
+            <field name="type" ref="wowi_type_u_252"/>
+        </record>
+        <record id="wowi_view_u_253" model="account.account.template">
+            <field name="name">Forderungen an das Finanzamt (Steuerüberzahlungen, Erstattungsansprüche)</field>
+            <field name="parent" ref="wowi_view_g_25"/>
+        </record>
+        <record id="wowi_account_2530" model="account.account.template">
+            <field name="name">Forderungen an das Finanzamt (Steuerüberzahlungen, Erstattungsansprüche)</field>
+            <field name="parent" ref="wowi_view_u_253"/>
+            <field name="code">2530</field>
+            <field name="type" ref="wowi_type_u_253"/>
+        </record>
+        <!-- Added: per-rate VAT accounts (not in Kontenplan.md), needed for tax_template.xml -->
+        <record id="wowi_account_2531" model="account.account.template">
+            <field name="name">Abziehbare Vorsteuer 7 %</field>
+            <field name="parent" ref="wowi_view_u_253"/>
+            <field name="code">2531</field>
+            <field name="type" ref="wowi_type_u_253"/>
+        </record>
+        <record id="wowi_account_2532" model="account.account.template">
+            <field name="name">Abziehbare Vorsteuer aus innergemeinschaftlichem Erwerb</field>
+            <field name="parent" ref="wowi_view_u_253"/>
+            <field name="code">2532</field>
+            <field name="type" ref="wowi_type_u_253"/>
+        </record>
+        <record id="wowi_account_2533" model="account.account.template">
+            <field name="name">Abziehbare Vorsteuer aus innergemeinschaftlichem Erwerb 19%</field>
+            <field name="parent" ref="wowi_view_u_253"/>
+            <field name="code">2533</field>
+            <field name="type" ref="wowi_type_u_253"/>
+        </record>
+        <record id="wowi_account_2534" model="account.account.template">
+            <field name="name">Abziehbare Vorsteuer 19 %</field>
+            <field name="parent" ref="wowi_view_u_253"/>
+            <field name="code">2534</field>
+            <field name="type" ref="wowi_type_u_253"/>
+        </record>
+        <record id="wowi_account_2535" model="account.account.template">
+            <field name="name">Abziehbare Vorsteuer nach § 13b UStG 19 %</field>
+            <field name="parent" ref="wowi_view_u_253"/>
+            <field name="code">2535</field>
+            <field name="type" ref="wowi_type_u_253"/>
+        </record>
+        <record id="wowi_account_2536" model="account.account.template">
+            <field name="name">Abziehbare Vorsteuer nach § 13b UStG</field>
+            <field name="parent" ref="wowi_view_u_253"/>
+            <field name="code">2536</field>
+            <field name="type" ref="wowi_type_u_253"/>
+        </record>
+        <record id="wowi_account_2537" model="account.account.template">
+            <field name="name">Bezahlte Einfuhrumsatzsteuer</field>
+            <field name="parent" ref="wowi_view_u_253"/>
+            <field name="code">2537</field>
+            <field name="type" ref="wowi_type_u_253"/>
+        </record>
+        <record id="wowi_account_2538" model="account.account.template">
+            <field name="name">Abziehbare Vorsteuer</field>
+            <field name="parent" ref="wowi_view_u_253"/>
+            <field name="code">2538</field>
+            <field name="type" ref="wowi_type_u_253"/>
+        </record>
+        <record id="wowi_view_u_257" model="account.account.template">
+            <field name="name">Rückständige und aufgelaufene Aufwandssubventionen (sofern keine Gegenleistungsverpflichtung besteht)</field>
+            <field name="parent" ref="wowi_view_g_25"/>
+        </record>
+        <record id="wowi_account_2570" model="account.account.template">
+            <field name="name">Rückständige und aufgelaufene Aufwandssubventionen (sofern keine Gegenleistungsverpflichtung besteht)</field>
+            <field name="parent" ref="wowi_view_u_257"/>
+            <field name="code">2570</field>
+            <field name="type" ref="wowi_type_u_257"/>
+        </record>
+        <record id="wowi_view_u_259" model="account.account.template">
+            <field name="name">Andere Vermögensgegenstände</field>
+            <field name="parent" ref="wowi_view_g_25"/>
+        </record>
+        <record id="wowi_account_2590" model="account.account.template">
+            <field name="name">Andere Vermögensgegenstände</field>
+            <field name="parent" ref="wowi_view_u_259"/>
+            <field name="code">2590</field>
+            <field name="type" ref="wowi_type_u_259"/>
+        </record>
+        <record id="wowi_view_g_26" model="account.account.template">
+            <field name="name">Wertpapiere</field>
+            <field name="parent" ref="wowi_view_k2"/>
+        </record>
+        <record id="wowi_view_u_260" model="account.account.template">
+            <field name="name">Anteile an verbundenen Unternehmen</field>
+            <field name="parent" ref="wowi_view_g_26"/>
+        </record>
+        <record id="wowi_account_2600" model="account.account.template">
+            <field name="name">Anteile an verbundenen Unternehmen</field>
+            <field name="parent" ref="wowi_view_u_260"/>
+            <field name="code">2600</field>
+            <field name="type" ref="wowi_type_u_260"/>
+        </record>
+        <record id="wowi_view_u_262" model="account.account.template">
+            <field name="name">Sonstige Wertpapiere</field>
+            <field name="parent" ref="wowi_view_g_26"/>
+        </record>
+        <record id="wowi_account_2620" model="account.account.template">
+            <field name="name">Sonstige Wertpapiere</field>
+            <field name="parent" ref="wowi_view_u_262"/>
+            <field name="code">2620</field>
+            <field name="type" ref="wowi_type_u_262"/>
+        </record>
+        <record id="wowi_view_g_27" model="account.account.template">
+            <field name="name">Flüssige Mittel</field>
+            <field name="parent" ref="wowi_view_k2"/>
+        </record>
+        <record id="wowi_view_u_270" model="account.account.template">
+            <field name="name">Schecks</field>
+            <field name="parent" ref="wowi_view_g_27"/>
+        </record>
+        <record id="wowi_account_2700" model="account.account.template">
+            <field name="name">Schecks</field>
+            <field name="parent" ref="wowi_view_u_270"/>
+            <field name="code">2700</field>
+            <field name="type" ref="wowi_type_u_270"/>
+        </record>
+        <record id="wowi_view_u_271" model="account.account.template">
+            <field name="name">Kassenbestand</field>
+            <field name="parent" ref="wowi_view_g_27"/>
+        </record>
+        <record id="wowi_account_2710" model="account.account.template">
+            <field name="name">Kassenbestand</field>
+            <field name="parent" ref="wowi_view_u_271"/>
+            <field name="code">2710</field>
+            <field name="type" ref="wowi_type_u_271"/>
+        </record>
+        <record id="wowi_view_u_274" model="account.account.template">
+            <field name="name">Guthaben bei Kreditinstituten</field>
+            <field name="parent" ref="wowi_view_g_27"/>
+        </record>
+        <record id="wowi_account_2740" model="account.account.template">
+            <field name="name">Guthaben bei Kreditinstituten</field>
+            <field name="parent" ref="wowi_view_u_274"/>
+            <field name="code">2740</field>
+            <field name="type" ref="wowi_type_u_274"/>
+        </record>
+        <record id="wowi_view_g_28" model="account.account.template">
+            <field name="name">Bausparguthaben</field>
+            <field name="parent" ref="wowi_view_k2"/>
+        </record>
+        <record id="wowi_account_2800" model="account.account.template">
+            <field name="name">Bausparguthaben</field>
+            <field name="parent" ref="wowi_view_g_28"/>
+            <field name="code">2800</field>
+            <field name="type" ref="wowi_type_g_28"/>
+        </record>
+        <record id="wowi_view_g_29" model="account.account.template">
+            <field name="name">Aktive Rechnungsabgrenzungsposten, Aktive latente Steuern und Aktiver Unterschiedsbetrag aus der Vermögensverrechnung</field>
+            <field name="parent" ref="wowi_view_k2"/>
+        </record>
+        <record id="wowi_view_u_290" model="account.account.template">
+            <field name="name">Geldbeschaffungskosten</field>
+            <field name="parent" ref="wowi_view_g_29"/>
+        </record>
+        <record id="wowi_account_2900" model="account.account.template">
+            <field name="name">Geldbeschaffungskosten</field>
+            <field name="parent" ref="wowi_view_u_290"/>
+            <field name="code">2900</field>
+            <field name="type" ref="wowi_type_u_290"/>
+        </record>
+        <record id="wowi_view_u_291" model="account.account.template">
+            <field name="name">Andere Rechnungsabgrenzungsposten</field>
+            <field name="parent" ref="wowi_view_g_29"/>
+        </record>
+        <record id="wowi_account_2910" model="account.account.template">
+            <field name="name">Andere Rechnungsabgrenzungsposten</field>
+            <field name="parent" ref="wowi_view_u_291"/>
+            <field name="code">2910</field>
+            <field name="type" ref="wowi_type_u_291"/>
+        </record>
+        <record id="wowi_view_k3" model="account.account.template">
+            <field name="name">Klasse 3: Eigenkapital/Rückstellungen</field>
+            <field name="parent" ref="wowi_root"/>
+        </record>
+        <record id="wowi_view_g_30" model="account.account.template">
+            <field name="name">Gezeichnetes Kapital (Grundkapital, Stammkapital, Geschäftsguthaben)</field>
+            <field name="parent" ref="wowi_view_k3"/>
+        </record>
+        <record id="wowi_view_u_300" model="account.account.template">
+            <field name="name">Grundkapital / Stammkapital / Geschäftskapital</field>
+            <field name="parent" ref="wowi_view_g_30"/>
+        </record>
+        <record id="wowi_account_3000" model="account.account.template">
+            <field name="name">Grundkapital / Stammkapital / Geschäftskapital</field>
+            <field name="parent" ref="wowi_view_u_300"/>
+            <field name="code">3000</field>
+            <field name="type" ref="wowi_type_u_300"/>
+        </record>
+        <record id="wowi_view_u_301" model="account.account.template">
+            <field name="name">EK</field>
+            <field name="parent" ref="wowi_view_g_30"/>
+        </record>
+        <record id="wowi_account_3010" model="account.account.template">
+            <field name="name">Privateinlagen</field>
+            <field name="parent" ref="wowi_view_u_301"/>
+            <field name="code">3010</field>
+            <field name="type" ref="wowi_type_u_301"/>
+        </record>
+        <record id="wowi_account_3011" model="account.account.template">
+            <field name="name">Privatentnahmen</field>
+            <field name="parent" ref="wowi_view_u_301"/>
+            <field name="code">3011</field>
+            <field name="type" ref="wowi_type_u_301"/>
+        </record>
+        <record id="wowi_view_g_31" model="account.account.template">
+            <field name="name">Ausstehende Einlagen auf das gezeichnete Kapital</field>
+            <field name="parent" ref="wowi_view_k3"/>
+        </record>
+        <record id="wowi_account_3100" model="account.account.template">
+            <field name="name">Ausstehende Einlagen auf das gezeichnete Kapital</field>
+            <field name="parent" ref="wowi_view_g_31"/>
+            <field name="code">3100</field>
+            <field name="type" ref="wowi_type_g_31"/>
+        </record>
+        <record id="wowi_view_g_32" model="account.account.template">
+            <field name="name">Kapitalrücklagen</field>
+            <field name="parent" ref="wowi_view_k3"/>
+        </record>
+        <record id="wowi_account_3200" model="account.account.template">
+            <field name="name">Kapitalrücklagen</field>
+            <field name="parent" ref="wowi_view_g_32"/>
+            <field name="code">3200</field>
+            <field name="type" ref="wowi_type_g_32"/>
+        </record>
+        <record id="wowi_view_g_33" model="account.account.template">
+            <field name="name">Gewinnrücklagen/Ergebnisrücklagen</field>
+            <field name="parent" ref="wowi_view_k3"/>
+        </record>
+        <record id="wowi_view_u_330" model="account.account.template">
+            <field name="name">Gesetzliche Rücklage</field>
+            <field name="parent" ref="wowi_view_g_33"/>
+        </record>
+        <record id="wowi_account_3300" model="account.account.template">
+            <field name="name">Gesetzliche Rücklage</field>
+            <field name="parent" ref="wowi_view_u_330"/>
+            <field name="code">3300</field>
+            <field name="type" ref="wowi_type_u_330"/>
+        </record>
+        <record id="wowi_view_u_331" model="account.account.template">
+            <field name="name">Rücklage für eigene Anteile</field>
+            <field name="parent" ref="wowi_view_g_33"/>
+        </record>
+        <record id="wowi_account_3310" model="account.account.template">
+            <field name="name">Rücklage für eigene Anteile</field>
+            <field name="parent" ref="wowi_view_u_331"/>
+            <field name="code">3310</field>
+            <field name="type" ref="wowi_type_u_331"/>
+        </record>
+        <record id="wowi_view_u_332" model="account.account.template">
+            <field name="name">Gesellschaftsvertragliche/Satzungsmäßige Rücklage</field>
+            <field name="parent" ref="wowi_view_g_33"/>
+        </record>
+        <record id="wowi_account_3320" model="account.account.template">
+            <field name="name">Gesellschaftsvertragliche/Satzungsmäßige Rücklage</field>
+            <field name="parent" ref="wowi_view_u_332"/>
+            <field name="code">3320</field>
+            <field name="type" ref="wowi_type_u_332"/>
+        </record>
+        <record id="wowi_view_u_333" model="account.account.template">
+            <field name="name">Bauerneuerungsrücklage</field>
+            <field name="parent" ref="wowi_view_g_33"/>
+        </record>
+        <record id="wowi_account_3330" model="account.account.template">
+            <field name="name">Bauerneuerungsrücklage</field>
+            <field name="parent" ref="wowi_view_u_333"/>
+            <field name="code">3330</field>
+            <field name="type" ref="wowi_type_u_333"/>
+        </record>
+        <record id="wowi_view_u_334" model="account.account.template">
+            <field name="name">Andere Gewinnrücklagen / Andere Ergebnisrücklagen</field>
+            <field name="parent" ref="wowi_view_g_33"/>
+        </record>
+        <record id="wowi_account_3340" model="account.account.template">
+            <field name="name">Andere Gewinnrücklagen / Andere Ergebnisrücklagen</field>
+            <field name="parent" ref="wowi_view_u_334"/>
+            <field name="code">3340</field>
+            <field name="type" ref="wowi_type_u_334"/>
+        </record>
+        <record id="wowi_view_u_335" model="account.account.template">
+            <field name="name">Sonderrücklage gemäß § 27 Abs. 2 DMBilG (D-Markbilanzgesetz)</field>
+            <field name="parent" ref="wowi_view_g_33"/>
+        </record>
+        <record id="wowi_account_3350" model="account.account.template">
+            <field name="name">Sonderrücklage gemäß § 27 Abs. 2 DMBilG (D-Markbilanzgesetz)</field>
+            <field name="parent" ref="wowi_view_u_335"/>
+            <field name="code">3350</field>
+            <field name="type" ref="wowi_type_u_335"/>
+        </record>
+        <record id="wowi_view_g_34" model="account.account.template">
+            <field name="name">Ergebnis</field>
+            <field name="parent" ref="wowi_view_k3"/>
+        </record>
+        <record id="wowi_view_u_340" model="account.account.template">
+            <field name="name">Gewinnvortrag/Verlustvortrag</field>
+            <field name="parent" ref="wowi_view_g_34"/>
+        </record>
+        <record id="wowi_account_3400" model="account.account.template">
+            <field name="name">Gewinnvortrag/Verlustvortrag</field>
+            <field name="parent" ref="wowi_view_u_340"/>
+            <field name="code">3400</field>
+            <field name="type" ref="wowi_type_u_340"/>
+        </record>
+        <record id="wowi_view_u_341" model="account.account.template">
+            <field name="name">Jahresüberschuss/Jahresfehlbetrag</field>
+            <field name="parent" ref="wowi_view_g_34"/>
+        </record>
+        <record id="wowi_account_3410" model="account.account.template">
+            <field name="name">Jahresüberschuss/Jahresfehlbetrag</field>
+            <field name="parent" ref="wowi_view_u_341"/>
+            <field name="code">3410</field>
+            <field name="type" ref="wowi_type_u_341"/>
+        </record>
+        <record id="wowi_view_u_342" model="account.account.template">
+            <field name="name">Bilanzgewinn/Bilanzverlust</field>
+            <field name="parent" ref="wowi_view_g_34"/>
+        </record>
+        <record id="wowi_account_3420" model="account.account.template">
+            <field name="name">Bilanzgewinn/Bilanzverlust</field>
+            <field name="parent" ref="wowi_view_u_342"/>
+            <field name="code">3420</field>
+            <field name="type" ref="wowi_type_u_342"/>
+        </record>
+        <record id="wowi_view_g_35" model="account.account.template">
+            <field name="name">Sonderposten</field>
+            <field name="parent" ref="wowi_view_k3"/>
+        </record>
+        <record id="wowi_view_u_350" model="account.account.template">
+            <field name="name">Sonderposten mit Rücklagenanteil</field>
+            <field name="parent" ref="wowi_view_g_35"/>
+        </record>
+        <record id="wowi_account_3500" model="account.account.template">
+            <field name="name">Sonderposten mit Rücklagenanteil</field>
+            <field name="parent" ref="wowi_view_u_350"/>
+            <field name="code">3500</field>
+            <field name="type" ref="wowi_type_u_350"/>
+        </record>
+        <record id="wowi_view_u_351" model="account.account.template">
+            <field name="name">Sonderposten mit Rücklagenanteil</field>
+            <field name="parent" ref="wowi_view_g_35"/>
+        </record>
+        <record id="wowi_account_3510" model="account.account.template">
+            <field name="name">Sonderposten mit Rücklagenanteil</field>
+            <field name="parent" ref="wowi_view_u_351"/>
+            <field name="code">3510</field>
+            <field name="type" ref="wowi_type_u_351"/>
+        </record>
+        <record id="wowi_view_u_352" model="account.account.template">
+            <field name="name">Sonderposten mit Rücklagenanteil</field>
+            <field name="parent" ref="wowi_view_g_35"/>
+        </record>
+        <record id="wowi_account_3520" model="account.account.template">
+            <field name="name">Sonderposten mit Rücklagenanteil</field>
+            <field name="parent" ref="wowi_view_u_352"/>
+            <field name="code">3520</field>
+            <field name="type" ref="wowi_type_u_352"/>
+        </record>
+        <record id="wowi_view_u_353" model="account.account.template">
+            <field name="name">Sonderposten mit Rücklagenanteil</field>
+            <field name="parent" ref="wowi_view_g_35"/>
+        </record>
+        <record id="wowi_account_3530" model="account.account.template">
+            <field name="name">Sonderposten mit Rücklagenanteil</field>
+            <field name="parent" ref="wowi_view_u_353"/>
+            <field name="code">3530</field>
+            <field name="type" ref="wowi_type_u_353"/>
+        </record>
+        <record id="wowi_view_u_354" model="account.account.template">
+            <field name="name">Sonderposten für Investitionszulagen und -zuschüsse zum Anlagevermögen</field>
+            <field name="parent" ref="wowi_view_g_35"/>
+        </record>
+        <record id="wowi_account_3540" model="account.account.template">
+            <field name="name">Sonderposten für Investitionszulagen und -zuschüsse zum Anlagevermögen</field>
+            <field name="parent" ref="wowi_view_u_354"/>
+            <field name="code">3540</field>
+            <field name="type" ref="wowi_type_u_354"/>
+        </record>
+        <record id="wowi_view_u_355" model="account.account.template">
+            <field name="name">Sonstige Sonderposten</field>
+            <field name="parent" ref="wowi_view_g_35"/>
+        </record>
+        <record id="wowi_account_3550" model="account.account.template">
+            <field name="name">Sonstige Sonderposten</field>
+            <field name="parent" ref="wowi_view_u_355"/>
+            <field name="code">3550</field>
+            <field name="type" ref="wowi_type_u_355"/>
+        </record>
+        <record id="wowi_view_g_36" model="account.account.template">
+            <field name="name">Rückstellungen für Pensionen und ähnliche Verpflichtungen</field>
+            <field name="parent" ref="wowi_view_k3"/>
+        </record>
+        <record id="wowi_account_3600" model="account.account.template">
+            <field name="name">Rückstellungen für Pensionen und ähnliche Verpflichtungen</field>
+            <field name="parent" ref="wowi_view_g_36"/>
+            <field name="code">3600</field>
+            <field name="type" ref="wowi_type_g_36"/>
+        </record>
+        <record id="wowi_view_g_37" model="account.account.template">
+            <field name="name">Steuerrückstellungen</field>
+            <field name="parent" ref="wowi_view_k3"/>
+        </record>
+        <record id="wowi_view_u_370" model="account.account.template">
+            <field name="name">Rückstellungen für Körperschaftsteuer</field>
+            <field name="parent" ref="wowi_view_g_37"/>
+        </record>
+        <record id="wowi_account_3700" model="account.account.template">
+            <field name="name">Rückstellungen für Körperschaftsteuer</field>
+            <field name="parent" ref="wowi_view_u_370"/>
+            <field name="code">3700</field>
+            <field name="type" ref="wowi_type_u_370"/>
+        </record>
+        <record id="wowi_view_u_371" model="account.account.template">
+            <field name="name">Rückstellungen für Gewerbesteuer</field>
+            <field name="parent" ref="wowi_view_g_37"/>
+        </record>
+        <record id="wowi_account_3710" model="account.account.template">
+            <field name="name">Rückstellungen für Gewerbesteuer</field>
+            <field name="parent" ref="wowi_view_u_371"/>
+            <field name="code">3710</field>
+            <field name="type" ref="wowi_type_u_371"/>
+        </record>
+        <record id="wowi_view_u_373" model="account.account.template">
+            <field name="name">Rückstellungen für Sonstige Steuern</field>
+            <field name="parent" ref="wowi_view_g_37"/>
+        </record>
+        <record id="wowi_account_3730" model="account.account.template">
+            <field name="name">Rückstellungen für Sonstige Steuern</field>
+            <field name="parent" ref="wowi_view_u_373"/>
+            <field name="code">3730</field>
+            <field name="type" ref="wowi_type_u_373"/>
+        </record>
+        <record id="wowi_view_g_39" model="account.account.template">
+            <field name="name">Sonstige Rückstellungen</field>
+            <field name="parent" ref="wowi_view_k3"/>
+        </record>
+        <record id="wowi_view_u_390" model="account.account.template">
+            <field name="name">Rückstellungen für unterlassene Instandhaltung / Nachholung in den ersten drei Monaten des Folgejahres</field>
+            <field name="parent" ref="wowi_view_g_39"/>
+        </record>
+        <record id="wowi_account_3900" model="account.account.template">
+            <field name="name">Rückstellungen für unterlassene Instandhaltung / Nachholung in den ersten drei Monaten des Folgejahres</field>
+            <field name="parent" ref="wowi_view_u_390"/>
+            <field name="code">3900</field>
+            <field name="type" ref="wowi_type_u_390"/>
+        </record>
+        <record id="wowi_view_u_391" model="account.account.template">
+            <field name="name">Rückstellungen für unterlassene Instandhaltung (4.-12. Monat)</field>
+            <field name="parent" ref="wowi_view_g_39"/>
+        </record>
+        <record id="wowi_account_3910" model="account.account.template">
+            <field name="name">Rückstellungen für unterlassene Instandhaltung (4.-12. Monat)</field>
+            <field name="parent" ref="wowi_view_u_391"/>
+            <field name="code">3910</field>
+            <field name="type" ref="wowi_type_u_391"/>
+        </record>
+        <record id="wowi_view_u_392" model="account.account.template">
+            <field name="name">Rückstellungen für Abraumbeseitigung</field>
+            <field name="parent" ref="wowi_view_g_39"/>
+        </record>
+        <record id="wowi_account_3920" model="account.account.template">
+            <field name="name">Rückstellungen für Abraumbeseitigung</field>
+            <field name="parent" ref="wowi_view_u_392"/>
+            <field name="code">3920</field>
+            <field name="type" ref="wowi_type_u_392"/>
+        </record>
+        <record id="wowi_view_u_393" model="account.account.template">
+            <field name="name">Rückstellungen für drohende Verluste aus schwebenden Geschäften</field>
+            <field name="parent" ref="wowi_view_g_39"/>
+        </record>
+        <record id="wowi_account_3930" model="account.account.template">
+            <field name="name">Rückstellungen für drohende Verluste aus schwebenden Geschäften</field>
+            <field name="parent" ref="wowi_view_u_393"/>
+            <field name="code">3930</field>
+            <field name="type" ref="wowi_type_u_393"/>
+        </record>
+        <record id="wowi_view_u_394" model="account.account.template">
+            <field name="name">Rückstellungen für Gewährleistungsverpflichtungen</field>
+            <field name="parent" ref="wowi_view_g_39"/>
+        </record>
+        <record id="wowi_account_3940" model="account.account.template">
+            <field name="name">Rückstellungen für Gewährleistungsverpflichtungen</field>
+            <field name="parent" ref="wowi_view_u_394"/>
+            <field name="code">3940</field>
+            <field name="type" ref="wowi_type_u_394"/>
+        </record>
+        <record id="wowi_view_u_395" model="account.account.template">
+            <field name="name">Rückstellungen auf Kosten der Hausbewirtschaftung</field>
+            <field name="parent" ref="wowi_view_g_39"/>
+        </record>
+        <record id="wowi_account_3950" model="account.account.template">
+            <field name="name">Rückstellungen für Kosten der Hausbewirtschaftung / Betriebskosten</field>
+            <field name="parent" ref="wowi_view_u_395"/>
+            <field name="code">3950</field>
+            <field name="type" ref="wowi_type_u_395"/>
+        </record>
+        <record id="wowi_account_3955" model="account.account.template">
+            <field name="name">Rückstellungen für Kosten der Hausbewirtschaftung / Instandhaltungskosten</field>
+            <field name="parent" ref="wowi_view_u_395"/>
+            <field name="code">3955</field>
+            <field name="type" ref="wowi_type_u_395"/>
+        </record>
+        <record id="wowi_view_u_396" model="account.account.template">
+            <field name="name">Rückstellungen für Abschluss-, Prüfungs- und Veröffentlichungskosten sowie Aufbewahrungskosten</field>
+            <field name="parent" ref="wowi_view_g_39"/>
+        </record>
+        <record id="wowi_account_3960" model="account.account.template">
+            <field name="name">Rückstellungen für Abschluss-, Prüfungs- und Veröffentlichungskosten sowie Aufbewahrungskosten</field>
+            <field name="parent" ref="wowi_view_u_396"/>
+            <field name="code">3960</field>
+            <field name="type" ref="wowi_type_u_396"/>
+        </record>
+        <record id="wowi_view_u_397" model="account.account.template">
+            <field name="name">Rückstellungen für sonstige Verwaltungskosten (Urlaub, Jubiläum, Altersteilzeit)</field>
+            <field name="parent" ref="wowi_view_g_39"/>
+        </record>
+        <record id="wowi_account_3970" model="account.account.template">
+            <field name="name">Rückstellungen für sonstige Verwaltungskosten (Urlaub, Jubiläum, Altersteilzeit)</field>
+            <field name="parent" ref="wowi_view_u_397"/>
+            <field name="code">3970</field>
+            <field name="type" ref="wowi_type_u_397"/>
+        </record>
+        <record id="wowi_view_u_398" model="account.account.template">
+            <field name="name">Rückstellungen für noch anfallende Baukosten</field>
+            <field name="parent" ref="wowi_view_g_39"/>
+        </record>
+        <record id="wowi_account_3980" model="account.account.template">
+            <field name="name">Rückstellungen für noch anfallende Baukosten</field>
+            <field name="parent" ref="wowi_view_u_398"/>
+            <field name="code">3980</field>
+            <field name="type" ref="wowi_type_u_398"/>
+        </record>
+        <record id="wowi_view_u_399" model="account.account.template">
+            <field name="name">Rückstellungen für erbrachte Bauleistungen</field>
+            <field name="parent" ref="wowi_view_g_39"/>
+        </record>
+        <record id="wowi_account_3990" model="account.account.template">
+            <field name="name">Rückstellungen für erbrachte Bauleistungen</field>
+            <field name="parent" ref="wowi_view_u_399"/>
+            <field name="code">3990</field>
+            <field name="type" ref="wowi_type_u_399"/>
+        </record>
+        <record id="wowi_view_k4" model="account.account.template">
+            <field name="name">Klasse 4: Verbindlichkeiten/PRA</field>
+            <field name="parent" ref="wowi_root"/>
+        </record>
+        <record id="wowi_view_g_40" model="account.account.template">
+            <field name="name">Anleihen und Spareinlagen</field>
+            <field name="parent" ref="wowi_view_k4"/>
+        </record>
+        <record id="wowi_view_u_400" model="account.account.template">
+            <field name="name">Anleihen</field>
+            <field name="parent" ref="wowi_view_g_40"/>
+        </record>
+        <record id="wowi_account_4000" model="account.account.template">
+            <field name="name">Anleihen</field>
+            <field name="parent" ref="wowi_view_u_400"/>
+            <field name="code">4000</field>
+            <field name="type" ref="wowi_type_u_400"/>
+        </record>
+        <record id="wowi_view_u_401" model="account.account.template">
+            <field name="name">Spareinlagen</field>
+            <field name="parent" ref="wowi_view_g_40"/>
+        </record>
+        <record id="wowi_account_4010" model="account.account.template">
+            <field name="name">Spareinlagen</field>
+            <field name="parent" ref="wowi_view_u_401"/>
+            <field name="code">4010</field>
+            <field name="type" ref="wowi_type_u_401"/>
+        </record>
+        <record id="wowi_view_u_402" model="account.account.template">
+            <field name="name">Verbindlichkeiten aus Sparbriefen</field>
+            <field name="parent" ref="wowi_view_g_40"/>
+        </record>
+        <record id="wowi_account_4020" model="account.account.template">
+            <field name="name">Verbindlichkeiten aus Sparbriefen</field>
+            <field name="parent" ref="wowi_view_u_402"/>
+            <field name="code">4020</field>
+            <field name="type" ref="wowi_type_u_402"/>
+        </record>
+        <record id="wowi_view_g_41" model="account.account.template">
+            <field name="name">Verbindlichkeiten gegenüber Kreditinstituten</field>
+            <field name="parent" ref="wowi_view_k4"/>
+        </record>
+        <record id="wowi_view_u_410" model="account.account.template">
+            <field name="name">Objektfinanzierungsmittel für das Anlagevermögen</field>
+            <field name="parent" ref="wowi_view_g_41"/>
+        </record>
+        <record id="wowi_account_4100" model="account.account.template">
+            <field name="name">Objektfinanzierungsmittel für das Anlagevermögen</field>
+            <field name="parent" ref="wowi_view_u_410"/>
+            <field name="code">4100</field>
+            <field name="type" ref="wowi_type_u_410"/>
+        </record>
+        <record id="wowi_view_u_411" model="account.account.template">
+            <field name="name">Objektfinanzierungsmittel für das Umlaufvermögen</field>
+            <field name="parent" ref="wowi_view_g_41"/>
+        </record>
+        <record id="wowi_account_4110" model="account.account.template">
+            <field name="name">Objektfinanzierungsmittel für das Umlaufvermögen</field>
+            <field name="parent" ref="wowi_view_u_411"/>
+            <field name="code">4110</field>
+            <field name="type" ref="wowi_type_u_411"/>
+        </record>
+        <record id="wowi_view_u_412" model="account.account.template">
+            <field name="name">Unternehmensfinanzierungsmittel</field>
+            <field name="parent" ref="wowi_view_g_41"/>
+        </record>
+        <record id="wowi_account_4120" model="account.account.template">
+            <field name="name">Unternehmensfinanzierungsmittel</field>
+            <field name="parent" ref="wowi_view_u_412"/>
+            <field name="code">4120</field>
+            <field name="type" ref="wowi_type_u_412"/>
+        </record>
+        <record id="wowi_view_u_413" model="account.account.template">
+            <field name="name">Grundstücksankaufkredite für das Anlagevermögen</field>
+            <field name="parent" ref="wowi_view_g_41"/>
+        </record>
+        <record id="wowi_account_4130" model="account.account.template">
+            <field name="name">Grundstücksankaufkredite für das Anlagevermögen</field>
+            <field name="parent" ref="wowi_view_u_413"/>
+            <field name="code">4130</field>
+            <field name="type" ref="wowi_type_u_413"/>
+        </record>
+        <record id="wowi_view_u_414" model="account.account.template">
+            <field name="name">Grundstücksankaufkredite für das Umlaufvermögen</field>
+            <field name="parent" ref="wowi_view_g_41"/>
+        </record>
+        <record id="wowi_account_4140" model="account.account.template">
+            <field name="name">Grundstücksankaufkredite für das Umlaufvermögen</field>
+            <field name="parent" ref="wowi_view_u_414"/>
+            <field name="code">4140</field>
+            <field name="type" ref="wowi_type_u_414"/>
+        </record>
+        <record id="wowi_view_u_415" model="account.account.template">
+            <field name="name">Bauzwischenkredite für das Anlagevermögen</field>
+            <field name="parent" ref="wowi_view_g_41"/>
+        </record>
+        <record id="wowi_account_4150" model="account.account.template">
+            <field name="name">Bauzwischenkredite für das Anlagevermögen</field>
+            <field name="parent" ref="wowi_view_u_415"/>
+            <field name="code">4150</field>
+            <field name="type" ref="wowi_type_u_415"/>
+        </record>
+        <record id="wowi_view_u_416" model="account.account.template">
+            <field name="name">Bauzwischenkredite für das Umlaufvermögen</field>
+            <field name="parent" ref="wowi_view_g_41"/>
+        </record>
+        <record id="wowi_account_4160" model="account.account.template">
+            <field name="name">Bauzwischenkredite für das Umlaufvermögen</field>
+            <field name="parent" ref="wowi_view_u_416"/>
+            <field name="code">4160</field>
+            <field name="type" ref="wowi_type_u_416"/>
+        </record>
+        <record id="wowi_view_u_419" model="account.account.template">
+            <field name="name">Sonstige Verbindlichkeiten gegenüber Kreditinstituten</field>
+            <field name="parent" ref="wowi_view_g_41"/>
+        </record>
+        <record id="wowi_account_4190" model="account.account.template">
+            <field name="name">Sonstige Verbindlichkeiten gegenüber Kreditinstituten</field>
+            <field name="parent" ref="wowi_view_u_419"/>
+            <field name="code">4190</field>
+            <field name="type" ref="wowi_type_u_419"/>
+        </record>
+        <record id="wowi_view_g_42" model="account.account.template">
+            <field name="name">Verbindlichkeiten gegenüber anderen Kreditgebern</field>
+            <field name="parent" ref="wowi_view_k4"/>
+        </record>
+        <record id="wowi_view_u_420" model="account.account.template">
+            <field name="name">Objektfinanzierungsmittel für das Anlagevermögen</field>
+            <field name="parent" ref="wowi_view_g_42"/>
+        </record>
+        <record id="wowi_account_4200" model="account.account.template">
+            <field name="name">Objektfinanzierungsmittel für das Anlagevermögen</field>
+            <field name="parent" ref="wowi_view_u_420"/>
+            <field name="code">4200</field>
+            <field name="type" ref="wowi_type_u_420"/>
+        </record>
+        <record id="wowi_view_u_421" model="account.account.template">
+            <field name="name">Objektfinanzierungsmittel für das Umlaufvermögen</field>
+            <field name="parent" ref="wowi_view_g_42"/>
+        </record>
+        <record id="wowi_account_4210" model="account.account.template">
+            <field name="name">Objektfinanzierungsmittel für das Umlaufvermögen</field>
+            <field name="parent" ref="wowi_view_u_421"/>
+            <field name="code">4210</field>
+            <field name="type" ref="wowi_type_u_421"/>
+        </record>
+        <record id="wowi_view_u_422" model="account.account.template">
+            <field name="name">Unternehmensfinanzierungsmittel</field>
+            <field name="parent" ref="wowi_view_g_42"/>
+        </record>
+        <record id="wowi_account_4220" model="account.account.template">
+            <field name="name">Unternehmensfinanzierungsmittel</field>
+            <field name="parent" ref="wowi_view_u_422"/>
+            <field name="code">4220</field>
+            <field name="type" ref="wowi_type_u_422"/>
+        </record>
+        <record id="wowi_view_u_423" model="account.account.template">
+            <field name="name">Grundstückankaufkredite für das Anlagevermögen</field>
+            <field name="parent" ref="wowi_view_g_42"/>
+        </record>
+        <record id="wowi_account_4230" model="account.account.template">
+            <field name="name">Grundstückankaufkredite für das Anlagevermögen</field>
+            <field name="parent" ref="wowi_view_u_423"/>
+            <field name="code">4230</field>
+            <field name="type" ref="wowi_type_u_423"/>
+        </record>
+        <record id="wowi_view_u_424" model="account.account.template">
+            <field name="name">Grundstückankaufkredite für das Umlaufvermögen</field>
+            <field name="parent" ref="wowi_view_g_42"/>
+        </record>
+        <record id="wowi_account_4240" model="account.account.template">
+            <field name="name">Grundstückankaufkredite für das Umlaufvermögen</field>
+            <field name="parent" ref="wowi_view_u_424"/>
+            <field name="code">4240</field>
+            <field name="type" ref="wowi_type_u_424"/>
+        </record>
+        <record id="wowi_view_u_425" model="account.account.template">
+            <field name="name">Bauzwischenkredite für das Anlagevermögen</field>
+            <field name="parent" ref="wowi_view_g_42"/>
+        </record>
+        <record id="wowi_account_4250" model="account.account.template">
+            <field name="name">Bauzwischenkredite für das Anlagevermögen</field>
+            <field name="parent" ref="wowi_view_u_425"/>
+            <field name="code">4250</field>
+            <field name="type" ref="wowi_type_u_425"/>
+        </record>
+        <record id="wowi_view_u_426" model="account.account.template">
+            <field name="name">Bauzwischenkredite für das Umlaufvermögen</field>
+            <field name="parent" ref="wowi_view_g_42"/>
+        </record>
+        <record id="wowi_account_4260" model="account.account.template">
+            <field name="name">Bauzwischenkredite für das Umlaufvermögen</field>
+            <field name="parent" ref="wowi_view_u_426"/>
+            <field name="code">4260</field>
+            <field name="type" ref="wowi_type_u_426"/>
+        </record>
+        <record id="wowi_view_u_429" model="account.account.template">
+            <field name="name">Sonstige Verbindlichkeiten gegenüber anderen Kreditgebern</field>
+            <field name="parent" ref="wowi_view_g_42"/>
+        </record>
+        <record id="wowi_account_4290" model="account.account.template">
+            <field name="name">Sonstige Verbindlichkeiten gegenüber anderen Kreditgebern</field>
+            <field name="parent" ref="wowi_view_u_429"/>
+            <field name="code">4290</field>
+            <field name="type" ref="wowi_type_u_429"/>
+        </record>
+        <record id="wowi_view_g_43" model="account.account.template">
+            <field name="name">Erhaltene Anzahlungen</field>
+            <field name="parent" ref="wowi_view_k4"/>
+        </record>
+        <record id="wowi_view_u_430" model="account.account.template">
+            <field name="name">Anzahlungen auf Verkaufsgrundstücke</field>
+            <field name="parent" ref="wowi_view_g_43"/>
+        </record>
+        <record id="wowi_account_4300" model="account.account.template">
+            <field name="name">Anzahlungen auf Verkaufsgrundstücke</field>
+            <field name="parent" ref="wowi_view_u_430"/>
+            <field name="code">4300</field>
+            <field name="type" ref="wowi_type_u_430"/>
+        </record>
+        <record id="wowi_view_u_431" model="account.account.template">
+            <field name="name">Anzahlungen auf unfertige Leistungen (Betriebskostenvorauszahlungen)</field>
+            <field name="parent" ref="wowi_view_g_43"/>
+        </record>
+        <record id="wowi_account_4310" model="account.account.template">
+            <field name="name">Anzahlungen auf unfertige Leistungen (Betriebskostenvorauszahlungen)</field>
+            <field name="parent" ref="wowi_view_u_431"/>
+            <field name="code">4310</field>
+            <field name="type" ref="wowi_type_u_431"/>
+        </record>
+        <record id="wowi_view_u_439" model="account.account.template">
+            <field name="name">Sonstige Anzahlungen</field>
+            <field name="parent" ref="wowi_view_g_43"/>
+        </record>
+        <record id="wowi_account_4390" model="account.account.template">
+            <field name="name">Sonstige Anzahlungen</field>
+            <field name="parent" ref="wowi_view_u_439"/>
+            <field name="code">4390</field>
+            <field name="type" ref="wowi_type_u_439"/>
+        </record>
+        <record id="wowi_view_g_44" model="account.account.template">
+            <field name="name">Verbindlichkeiten aus Vermietung und Lieferungen und Leistungen</field>
+            <field name="parent" ref="wowi_view_k4"/>
+        </record>
+        <record id="wowi_view_u_440" model="account.account.template">
+            <field name="name">Verbindlichkeiten aus Vermietung</field>
+            <field name="parent" ref="wowi_view_g_44"/>
+        </record>
+        <record id="wowi_account_4400" model="account.account.template">
+            <field name="name">Verbindlichkeiten aus Vermietung</field>
+            <field name="parent" ref="wowi_view_u_440"/>
+            <field name="code">4400</field>
+            <field name="type" ref="wowi_type_u_440"/>
+        </record>
+        <record id="wowi_view_u_441" model="account.account.template">
+            <field name="name">Verbindlichkeiten aus Betreuungstätigkeit</field>
+            <field name="parent" ref="wowi_view_g_44"/>
+        </record>
+        <record id="wowi_account_4410" model="account.account.template">
+            <field name="name">Verbindlichkeiten aus Betreuungstätigkeit</field>
+            <field name="parent" ref="wowi_view_u_441"/>
+            <field name="code">4410</field>
+            <field name="type" ref="wowi_type_u_441"/>
+        </record>
+        <record id="wowi_view_u_442" model="account.account.template">
+            <field name="name">Verbindlichkeiten aus Lieferungen und Leistungen</field>
+            <field name="parent" ref="wowi_view_g_44"/>
+        </record>
+        <record id="wowi_account_4420" model="account.account.template">
+            <field name="name">Verbindlichkeiten aus Lieferungen und Leistungen</field>
+            <field name="parent" ref="wowi_view_u_442"/>
+            <field name="code">4420</field>
+            <field name="type" ref="wowi_type_u_442"/>
+        </record>
+        <record id="wowi_view_g_45" model="account.account.template">
+            <field name="name">Verbindlichkeiten aus der Annahme gezogener und der Ausstellung eigener Wechsel</field>
+            <field name="parent" ref="wowi_view_k4"/>
+        </record>
+        <record id="wowi_account_4500" model="account.account.template">
+            <field name="name">Verbindlichkeiten aus der Annahme gezogener und der Ausstellung eigener Wechsel</field>
+            <field name="parent" ref="wowi_view_g_45"/>
+            <field name="code">4500</field>
+            <field name="type" ref="wowi_type_g_45"/>
+        </record>
+        <record id="wowi_view_g_46" model="account.account.template">
+            <field name="name">Unternehmensrechtliche Sonderposten</field>
+            <field name="parent" ref="wowi_view_k4"/>
+        </record>
+        <record id="wowi_view_u_462" model="account.account.template">
+            <field name="name">Verbindlichkeiten gegenüber Gesellschaftern</field>
+            <field name="parent" ref="wowi_view_g_46"/>
+        </record>
+        <record id="wowi_account_4620" model="account.account.template">
+            <field name="name">Verbindlichkeiten gegenüber Gesellschaftern</field>
+            <field name="parent" ref="wowi_view_u_462"/>
+            <field name="code">4620</field>
+            <field name="type" ref="wowi_type_u_462"/>
+        </record>
+        <record id="wowi_view_g_47" model="account.account.template">
+            <field name="name">Sonstige Verbindlichkeiten</field>
+            <field name="parent" ref="wowi_view_k4"/>
+        </record>
+        <record id="wowi_view_u_470" model="account.account.template">
+            <field name="name">Verbindlichkeiten aus Steuern</field>
+            <field name="parent" ref="wowi_view_g_47"/>
+        </record>
+        <record id="wowi_account_4700" model="account.account.template">
+            <field name="name">Verbindlichkeiten aus Steuern</field>
+            <field name="parent" ref="wowi_view_u_470"/>
+            <field name="code">4700</field>
+            <field name="type" ref="wowi_type_u_470"/>
+        </record>
+        <!-- Added: per-rate VAT accounts (not in Kontenplan.md), needed for tax_template.xml -->
+        <record id="wowi_account_4701" model="account.account.template">
+            <field name="name">Umsatzsteuer 7 %</field>
+            <field name="parent" ref="wowi_view_u_470"/>
+            <field name="code">4701</field>
+            <field name="type" ref="wowi_type_u_470"/>
+        </record>
+        <record id="wowi_account_4702" model="account.account.template">
+            <field name="name">Umsatzsteuer aus innergemeinschaftlichem Erwerb</field>
+            <field name="parent" ref="wowi_view_u_470"/>
+            <field name="code">4702</field>
+            <field name="type" ref="wowi_type_u_470"/>
+        </record>
+        <record id="wowi_account_4703" model="account.account.template">
+            <field name="name">Umsatzsteuer aus innergemeinschaftlichem Erwerb 19 %</field>
+            <field name="parent" ref="wowi_view_u_470"/>
+            <field name="code">4703</field>
+            <field name="type" ref="wowi_type_u_470"/>
+        </record>
+        <record id="wowi_account_4704" model="account.account.template">
+            <field name="name">Umsatzsteuer 19 %</field>
+            <field name="parent" ref="wowi_view_u_470"/>
+            <field name="code">4704</field>
+            <field name="type" ref="wowi_type_u_470"/>
+        </record>
+        <record id="wowi_account_4705" model="account.account.template">
+            <field name="name">Umsatzsteuer</field>
+            <field name="parent" ref="wowi_view_u_470"/>
+            <field name="code">4705</field>
+            <field name="type" ref="wowi_type_u_470"/>
+        </record>
+        <record id="wowi_view_u_471" model="account.account.template">
+            <field name="name">Verbindlichkeiten im Rahmen der sozialen Sicherheit</field>
+            <field name="parent" ref="wowi_view_g_47"/>
+        </record>
+        <record id="wowi_account_4710" model="account.account.template">
+            <field name="name">Verbindlichkeiten im Rahmen der sozialen Sicherheit</field>
+            <field name="parent" ref="wowi_view_u_471"/>
+            <field name="code">4710</field>
+            <field name="type" ref="wowi_type_u_471"/>
+        </record>
+        <record id="wowi_view_u_472" model="account.account.template">
+            <field name="name">Verbindlichkeiten gegenüber Mitgliedern (eG)</field>
+            <field name="parent" ref="wowi_view_g_47"/>
+        </record>
+        <record id="wowi_account_4720" model="account.account.template">
+            <field name="name">Verbindlichkeiten gegenüber Mitgliedern (eG)</field>
+            <field name="parent" ref="wowi_view_u_472"/>
+            <field name="code">4720</field>
+            <field name="type" ref="wowi_type_u_472"/>
+        </record>
+        <record id="wowi_view_u_473" model="account.account.template">
+            <field name="name">Verbindlichkeiten aus Löhnen und Gehältern</field>
+            <field name="parent" ref="wowi_view_g_47"/>
+        </record>
+        <record id="wowi_account_4730" model="account.account.template">
+            <field name="name">Verbindlichkeiten aus Löhnen und Gehältern</field>
+            <field name="parent" ref="wowi_view_u_473"/>
+            <field name="code">4730</field>
+            <field name="type" ref="wowi_type_u_473"/>
+        </record>
+        <record id="wowi_view_u_474" model="account.account.template">
+            <field name="name">Verbindlichkeiten aus Vermögenswirksamen Leistungen</field>
+            <field name="parent" ref="wowi_view_g_47"/>
+        </record>
+        <record id="wowi_account_4740" model="account.account.template">
+            <field name="name">Verbindlichkeiten aus Vermögenswirksamen Leistungen</field>
+            <field name="parent" ref="wowi_view_u_474"/>
+            <field name="code">4740</field>
+            <field name="type" ref="wowi_type_u_474"/>
+        </record>
+        <record id="wowi_view_u_479" model="account.account.template">
+            <field name="name">Andere sonstige Verbindlichkeiten</field>
+            <field name="parent" ref="wowi_view_g_47"/>
+        </record>
+        <record id="wowi_account_4790" model="account.account.template">
+            <field name="name">Andere sonstige Verbindlichkeiten</field>
+            <field name="parent" ref="wowi_view_u_479"/>
+            <field name="code">4790</field>
+            <field name="type" ref="wowi_type_u_479"/>
+        </record>
+        <record id="wowi_view_g_49" model="account.account.template">
+            <field name="name">Passive Rechnungsabgrenzungsposten und Passive latente Steuern</field>
+            <field name="parent" ref="wowi_view_k4"/>
+        </record>
+        <record id="wowi_account_4900" model="account.account.template">
+            <field name="name">Passive Rechnungsabgrenzungsposten und Passive latente Steuern</field>
+            <field name="parent" ref="wowi_view_g_49"/>
+            <field name="code">4900</field>
+            <field name="type" ref="wowi_type_g_49"/>
+        </record>
+        <record id="wowi_view_k6" model="account.account.template">
+            <field name="name">Klasse 6: Erträge</field>
+            <field name="parent" ref="wowi_root"/>
+        </record>
+        <record id="wowi_view_g_60" model="account.account.template">
+            <field name="name">Umsatzerlöse aus der Hausbewirtschaftung</field>
+            <field name="parent" ref="wowi_view_k6"/>
+        </record>
+        <record id="wowi_view_u_600" model="account.account.template">
+            <field name="name">Sollmieten</field>
+            <field name="parent" ref="wowi_view_g_60"/>
+        </record>
+        <record id="wowi_account_6000" model="account.account.template">
+            <field name="name">Sollmieten</field>
+            <field name="parent" ref="wowi_view_u_600"/>
+            <field name="code">6000</field>
+            <field name="type" ref="wowi_type_u_600"/>
+        </record>
+        <record id="wowi_view_u_601" model="account.account.template">
+            <field name="name">Umlagen (Erträge aus der Betriebskostenabrechnung des Vorjahres)</field>
+            <field name="parent" ref="wowi_view_g_60"/>
+        </record>
+        <record id="wowi_account_6010" model="account.account.template">
+            <field name="name">Umlagen (Erträge aus der Betriebskostenabrechnung des Vorjahres)</field>
+            <field name="parent" ref="wowi_view_u_601"/>
+            <field name="code">6010</field>
+            <field name="type" ref="wowi_type_u_601"/>
+        </record>
+        <record id="wowi_view_u_602" model="account.account.template">
+            <field name="name">Gebühren und Zuschläge</field>
+            <field name="parent" ref="wowi_view_g_60"/>
+        </record>
+        <record id="wowi_account_6020" model="account.account.template">
+            <field name="name">Gebühren und Zuschläge</field>
+            <field name="parent" ref="wowi_view_u_602"/>
+            <field name="code">6020</field>
+            <field name="type" ref="wowi_type_u_602"/>
+        </record>
+        <record id="wowi_view_u_603" model="account.account.template">
+            <field name="name">Miet-, Zins- und Aufwendungszuschüsse</field>
+            <field name="parent" ref="wowi_view_g_60"/>
+        </record>
+        <record id="wowi_account_6030" model="account.account.template">
+            <field name="name">Miet-, Zins- und Aufwendungszuschüsse</field>
+            <field name="parent" ref="wowi_view_u_603"/>
+            <field name="code">6030</field>
+            <field name="type" ref="wowi_type_u_603"/>
+        </record>
+        <record id="wowi_view_u_605" model="account.account.template">
+            <field name="name">Pachterlöse</field>
+            <field name="parent" ref="wowi_view_g_60"/>
+        </record>
+        <record id="wowi_account_6050" model="account.account.template">
+            <field name="name">Pachterlöse</field>
+            <field name="parent" ref="wowi_view_u_605"/>
+            <field name="code">6050</field>
+            <field name="type" ref="wowi_type_u_605"/>
+        </record>
+        <record id="wowi_view_u_606" model="account.account.template">
+            <field name="name">Erlöse aus Sondereinrichtungen</field>
+            <field name="parent" ref="wowi_view_g_60"/>
+        </record>
+        <record id="wowi_account_6060" model="account.account.template">
+            <field name="name">Erlöse aus Sondereinrichtungen</field>
+            <field name="parent" ref="wowi_view_u_606"/>
+            <field name="code">6060</field>
+            <field name="type" ref="wowi_type_u_606"/>
+        </record>
+        <record id="wowi_view_u_607" model="account.account.template">
+            <field name="name">Erträge aus Mieterbelastung</field>
+            <field name="parent" ref="wowi_view_g_60"/>
+        </record>
+        <record id="wowi_account_6070" model="account.account.template">
+            <field name="name">Erträge aus Mieterbelastung</field>
+            <field name="parent" ref="wowi_view_u_607"/>
+            <field name="code">6070</field>
+            <field name="type" ref="wowi_type_u_607"/>
+        </record>
+        <record id="wowi_view_u_609" model="account.account.template">
+            <field name="name">Erlösschmälerungen</field>
+            <field name="parent" ref="wowi_view_g_60"/>
+        </record>
+        <record id="wowi_account_6090" model="account.account.template">
+            <field name="name">Erlösschmälerungen</field>
+            <field name="parent" ref="wowi_view_u_609"/>
+            <field name="code">6090</field>
+            <field name="type" ref="wowi_type_u_609"/>
+        </record>
+        <record id="wowi_view_g_61" model="account.account.template">
+            <field name="name">Umsatzerlöse aus dem Verkauf von Grundstücken</field>
+            <field name="parent" ref="wowi_view_k6"/>
+        </record>
+        <record id="wowi_view_u_610" model="account.account.template">
+            <field name="name">Umsatzerlöse aus dem Verkauf bebauter Grundstücke des Umlaufvermögens</field>
+            <field name="parent" ref="wowi_view_g_61"/>
+        </record>
+        <record id="wowi_account_6100" model="account.account.template">
+            <field name="name">Umsatzerlöse aus dem Verkauf bebauter Grundstücke des Umlaufvermögens</field>
+            <field name="parent" ref="wowi_view_u_610"/>
+            <field name="code">6100</field>
+            <field name="type" ref="wowi_type_u_610"/>
+        </record>
+        <record id="wowi_view_u_611" model="account.account.template">
+            <field name="name">Umsatzerlöse aus dem Verkauf unbebauter Grundstücke des Umlaufvermögens</field>
+            <field name="parent" ref="wowi_view_g_61"/>
+        </record>
+        <record id="wowi_account_6110" model="account.account.template">
+            <field name="name">Umsatzerlöse aus dem Verkauf unbebauter Grundstücke des Umlaufvermögens</field>
+            <field name="parent" ref="wowi_view_u_611"/>
+            <field name="code">6110</field>
+            <field name="type" ref="wowi_type_u_611"/>
+        </record>
+        <record id="wowi_view_g_62" model="account.account.template">
+            <field name="name">Umsatzerlöse aus Betreuungstätigkeit</field>
+            <field name="parent" ref="wowi_view_k6"/>
+        </record>
+        <record id="wowi_view_u_620" model="account.account.template">
+            <field name="name">Umsatzerlöse aus Baubetreuung</field>
+            <field name="parent" ref="wowi_view_g_62"/>
+        </record>
+        <record id="wowi_account_6200" model="account.account.template">
+            <field name="name">Umsatzerlöse aus Baubetreuung</field>
+            <field name="parent" ref="wowi_view_u_620"/>
+            <field name="code">6200</field>
+            <field name="type" ref="wowi_type_u_620"/>
+        </record>
+        <record id="wowi_view_u_621" model="account.account.template">
+            <field name="name">Umsatzerlöse aus verwaltungsmäßiger Betreuung</field>
+            <field name="parent" ref="wowi_view_g_62"/>
+        </record>
+        <record id="wowi_account_6210" model="account.account.template">
+            <field name="name">Umsatzerlöse aus verwaltungsmäßiger Betreuung</field>
+            <field name="parent" ref="wowi_view_u_621"/>
+            <field name="code">6210</field>
+            <field name="type" ref="wowi_type_u_621"/>
+        </record>
+        <record id="wowi_view_u_629" model="account.account.template">
+            <field name="name">Umsatzerlöse aus sonstiger Betreuungstätigkeit</field>
+            <field name="parent" ref="wowi_view_g_62"/>
+        </record>
+        <record id="wowi_account_6290" model="account.account.template">
+            <field name="name">Umsatzerlöse aus sonstiger Betreuungstätigkeit</field>
+            <field name="parent" ref="wowi_view_u_629"/>
+            <field name="code">6290</field>
+            <field name="type" ref="wowi_type_u_629"/>
+        </record>
+        <record id="wowi_view_g_63" model="account.account.template">
+            <field name="name">Umsatzerlöse aus anderen Lieferungen und Leistungen</field>
+            <field name="parent" ref="wowi_view_k6"/>
+        </record>
+        <record id="wowi_account_6300" model="account.account.template">
+            <field name="name">Umsatzerlöse aus anderen Lieferungen und Leistungen</field>
+            <field name="parent" ref="wowi_view_g_63"/>
+            <field name="code">6300</field>
+            <field name="type" ref="wowi_type_g_63"/>
+        </record>
+        <record id="wowi_view_g_64" model="account.account.template">
+            <field name="name">Erhöhung oder Verminderung des Bestandes an zum Verkauf bestimmten Grundstücken mit fertigen und unfertigen Bauten sowie unfertigen Leistungen</field>
+            <field name="parent" ref="wowi_view_k6"/>
+        </record>
+        <record id="wowi_view_u_640" model="account.account.template">
+            <field name="name">Bestandserhöhung aus aktivierten Fremdkosten</field>
+            <field name="parent" ref="wowi_view_g_64"/>
+        </record>
+        <record id="wowi_account_6400" model="account.account.template">
+            <field name="name">Bestandserhöhung aus aktivierten Fremdkosten</field>
+            <field name="parent" ref="wowi_view_u_640"/>
+            <field name="code">6400</field>
+            <field name="type" ref="wowi_type_u_640"/>
+        </record>
+        <record id="wowi_view_u_641" model="account.account.template">
+            <field name="name">Bestandserhöhung aus der Übernahme unbebauter Grundstücke in die Bebauung</field>
+            <field name="parent" ref="wowi_view_g_64"/>
+        </record>
+        <record id="wowi_account_6410" model="account.account.template">
+            <field name="name">Bestandserhöhung aus der Übernahme unbebauter Grundstücke in die Bebauung</field>
+            <field name="parent" ref="wowi_view_u_641"/>
+            <field name="code">6410</field>
+            <field name="type" ref="wowi_type_u_641"/>
+        </record>
+        <record id="wowi_view_u_642" model="account.account.template">
+            <field name="name">Bestandserhöhung aus aktivierten eigenen Architekten- und Verwaltungsleistungen</field>
+            <field name="parent" ref="wowi_view_g_64"/>
+        </record>
+        <record id="wowi_account_6420" model="account.account.template">
+            <field name="name">Bestandserhöhung aus aktivierten eigenen Architekten- und Verwaltungsleistungen</field>
+            <field name="parent" ref="wowi_view_u_642"/>
+            <field name="code">6420</field>
+            <field name="type" ref="wowi_type_u_642"/>
+        </record>
+        <record id="wowi_view_u_643" model="account.account.template">
+            <field name="name">Bestandserhöhungen aus aktivierten Fremdzinsen und sonstigen Aktivierungen</field>
+            <field name="parent" ref="wowi_view_g_64"/>
+        </record>
+        <record id="wowi_account_6430" model="account.account.template">
+            <field name="name">Bestandserhöhungen aus aktivierten Fremdzinsen</field>
+            <field name="parent" ref="wowi_view_u_643"/>
+            <field name="code">6430</field>
+            <field name="type" ref="wowi_type_u_643"/>
+        </record>
+        <record id="wowi_account_6431" model="account.account.template">
+            <field name="name">Bestandserhöhungen aus sonstigen Aktivierungen</field>
+            <field name="parent" ref="wowi_view_u_643"/>
+            <field name="code">6431</field>
+            <field name="type" ref="wowi_type_u_643"/>
+        </record>
+        <record id="wowi_view_u_644" model="account.account.template">
+            <field name="name">Bestandsverminderungen aus Veräußerungen</field>
+            <field name="parent" ref="wowi_view_g_64"/>
+        </record>
+        <record id="wowi_account_6440" model="account.account.template">
+            <field name="name">Bestandsverminderungen aus Veräußerungen</field>
+            <field name="parent" ref="wowi_view_u_644"/>
+            <field name="code">6440</field>
+            <field name="type" ref="wowi_type_u_644"/>
+        </record>
+        <record id="wowi_view_u_645" model="account.account.template">
+            <field name="name">Wertminderungen bei Verkaufsobjekten</field>
+            <field name="parent" ref="wowi_view_g_64"/>
+        </record>
+        <record id="wowi_account_6450" model="account.account.template">
+            <field name="name">Wertminderungen bei Verkaufsobjekten</field>
+            <field name="parent" ref="wowi_view_u_645"/>
+            <field name="code">6450</field>
+            <field name="type" ref="wowi_type_u_645"/>
+        </record>
+        <record id="wowi_view_u_646" model="account.account.template">
+            <field name="name">Bestandserhöhungen bei noch nicht abgerechneten Betriebskosten</field>
+            <field name="parent" ref="wowi_view_g_64"/>
+        </record>
+        <record id="wowi_account_6460" model="account.account.template">
+            <field name="name">Bestandserhöhungen bei noch nicht abgerechneten Betriebskosten</field>
+            <field name="parent" ref="wowi_view_u_646"/>
+            <field name="code">6460</field>
+            <field name="type" ref="wowi_type_u_646"/>
+        </record>
+        <record id="wowi_view_u_647" model="account.account.template">
+            <field name="name">Bestandserhöhungen bei anderen unfertigen Leistungen</field>
+            <field name="parent" ref="wowi_view_g_64"/>
+        </record>
+        <record id="wowi_account_6470" model="account.account.template">
+            <field name="name">Bestandserhöhungen bei anderen unfertigen Leistungen</field>
+            <field name="parent" ref="wowi_view_u_647"/>
+            <field name="code">6470</field>
+            <field name="type" ref="wowi_type_u_647"/>
+        </record>
+        <record id="wowi_view_u_648" model="account.account.template">
+            <field name="name">Bestandsverminderungen bei noch nicht abgerechneten Betriebskosten</field>
+            <field name="parent" ref="wowi_view_g_64"/>
+        </record>
+        <record id="wowi_account_6480" model="account.account.template">
+            <field name="name">Bestandsverminderungen bei noch nicht abgerechneten Betriebskosten</field>
+            <field name="parent" ref="wowi_view_u_648"/>
+            <field name="code">6480</field>
+            <field name="type" ref="wowi_type_u_648"/>
+        </record>
+        <record id="wowi_view_u_649" model="account.account.template">
+            <field name="name">Bestandsverminderungen bei anderen unfertigen Leistungen</field>
+            <field name="parent" ref="wowi_view_g_64"/>
+        </record>
+        <record id="wowi_account_6490" model="account.account.template">
+            <field name="name">Bestandsverminderungen bei anderen unfertigen Leistungen</field>
+            <field name="parent" ref="wowi_view_u_649"/>
+            <field name="code">6490</field>
+            <field name="type" ref="wowi_type_u_649"/>
+        </record>
+        <record id="wowi_view_g_65" model="account.account.template">
+            <field name="name">Andere aktivierte Eigenleistungen</field>
+            <field name="parent" ref="wowi_view_k6"/>
+        </record>
+        <record id="wowi_view_u_650" model="account.account.template">
+            <field name="name">Aktivierte eigene Architekten- und Verwaltungsleistungen</field>
+            <field name="parent" ref="wowi_view_g_65"/>
+        </record>
+        <record id="wowi_account_6500" model="account.account.template">
+            <field name="name">Aktivierte eigene Architekten- und Verwaltungsleistungen</field>
+            <field name="parent" ref="wowi_view_u_650"/>
+            <field name="code">6500</field>
+            <field name="type" ref="wowi_type_u_650"/>
+        </record>
+        <record id="wowi_view_u_659" model="account.account.template">
+            <field name="name">Sonstige aktivierte Eigenleistungen</field>
+            <field name="parent" ref="wowi_view_g_65"/>
+        </record>
+        <record id="wowi_account_6590" model="account.account.template">
+            <field name="name">Aktivierte Fremdzinsen</field>
+            <field name="parent" ref="wowi_view_u_659"/>
+            <field name="code">6590</field>
+            <field name="type" ref="wowi_type_u_659"/>
+        </record>
+        <record id="wowi_account_6591" model="account.account.template">
+            <field name="name">Aktivierte Grundsteuer</field>
+            <field name="parent" ref="wowi_view_u_659"/>
+            <field name="code">6591</field>
+            <field name="type" ref="wowi_type_u_659"/>
+        </record>
+        <record id="wowi_account_6592" model="account.account.template">
+            <field name="name">Aktivierte Erbbauzinsen</field>
+            <field name="parent" ref="wowi_view_u_659"/>
+            <field name="code">6592</field>
+            <field name="type" ref="wowi_type_u_659"/>
+        </record>
+        <record id="wowi_view_g_66" model="account.account.template">
+            <field name="name">Sonstige betriebliche Erträge</field>
+            <field name="parent" ref="wowi_view_k6"/>
+        </record>
+        <record id="wowi_view_u_660" model="account.account.template">
+            <field name="name">Erträge aus Anlageverkäufen</field>
+            <field name="parent" ref="wowi_view_g_66"/>
+        </record>
+        <record id="wowi_account_6600" model="account.account.template">
+            <field name="name">Erträge aus Anlageverkäufen</field>
+            <field name="parent" ref="wowi_view_u_660"/>
+            <field name="code">6600</field>
+            <field name="type" ref="wowi_type_u_660"/>
+        </record>
+        <record id="wowi_view_u_661" model="account.account.template">
+            <field name="name">Erträge aus Zuschreibungen</field>
+            <field name="parent" ref="wowi_view_g_66"/>
+        </record>
+        <record id="wowi_account_6610" model="account.account.template">
+            <field name="name">Erträge aus Zuschreibungen</field>
+            <field name="parent" ref="wowi_view_u_661"/>
+            <field name="code">6610</field>
+            <field name="type" ref="wowi_type_u_661"/>
+        </record>
+        <record id="wowi_view_u_662" model="account.account.template">
+            <field name="name">Erträge aus der Auflösung von Rückstellungen</field>
+            <field name="parent" ref="wowi_view_g_66"/>
+        </record>
+        <record id="wowi_account_6620" model="account.account.template">
+            <field name="name">Erträge aus der Auflösung von Rückstellungen</field>
+            <field name="parent" ref="wowi_view_u_662"/>
+            <field name="code">6620</field>
+            <field name="type" ref="wowi_type_u_662"/>
+        </record>
+        <record id="wowi_view_u_663" model="account.account.template">
+            <field name="name">Eintrittsgelder und Bearbeitungsgebühren</field>
+            <field name="parent" ref="wowi_view_g_66"/>
+        </record>
+        <record id="wowi_account_6630" model="account.account.template">
+            <field name="name">Eintrittsgelder und Bearbeitungsgebühren</field>
+            <field name="parent" ref="wowi_view_u_663"/>
+            <field name="code">6630</field>
+            <field name="type" ref="wowi_type_u_663"/>
+        </record>
+        <record id="wowi_view_u_666" model="account.account.template">
+            <field name="name">Erträge aus früheren Jahren</field>
+            <field name="parent" ref="wowi_view_g_66"/>
+        </record>
+        <record id="wowi_account_6660" model="account.account.template">
+            <field name="name">Erträge aus früheren Jahren</field>
+            <field name="parent" ref="wowi_view_u_666"/>
+            <field name="code">6660</field>
+            <field name="type" ref="wowi_type_u_666"/>
+        </record>
+        <record id="wowi_view_u_667" model="account.account.template">
+            <field name="name">Erträge aus der Auflösung von Wertberichtigungen</field>
+            <field name="parent" ref="wowi_view_g_66"/>
+        </record>
+        <record id="wowi_account_6675" model="account.account.template">
+            <field name="name">Erträge aus der Auflösung von Wertberichtigungen (EWB)</field>
+            <field name="parent" ref="wowi_view_u_667"/>
+            <field name="code">6675</field>
+            <field name="type" ref="wowi_type_u_667"/>
+        </record>
+        <record id="wowi_account_6676" model="account.account.template">
+            <field name="name">Erträge aus der Auflösung von Wertberichtigungen (PWB)</field>
+            <field name="parent" ref="wowi_view_u_667"/>
+            <field name="code">6676</field>
+            <field name="type" ref="wowi_type_u_667"/>
+        </record>
+        <record id="wowi_view_u_669" model="account.account.template">
+            <field name="name">Verschiedene sonstige Erträge (auch außerordentlich)</field>
+            <field name="parent" ref="wowi_view_g_66"/>
+        </record>
+        <record id="wowi_account_6690" model="account.account.template">
+            <field name="name">Zinszuschüsse</field>
+            <field name="parent" ref="wowi_view_u_669"/>
+            <field name="code">6690</field>
+            <field name="type" ref="wowi_type_u_669"/>
+        </record>
+        <record id="wowi_account_6691" model="account.account.template">
+            <field name="name">Baukostenzuschüsse</field>
+            <field name="parent" ref="wowi_view_u_669"/>
+            <field name="code">6691</field>
+            <field name="type" ref="wowi_type_u_669"/>
+        </record>
+        <record id="wowi_account_6692" model="account.account.template">
+            <field name="name">Instandhaltungskostenzuschüsse</field>
+            <field name="parent" ref="wowi_view_u_669"/>
+            <field name="code">6692</field>
+            <field name="type" ref="wowi_type_u_669"/>
+        </record>
+        <record id="wowi_account_6695" model="account.account.template">
+            <field name="name">Sonstige Zuwendungen</field>
+            <field name="parent" ref="wowi_view_u_669"/>
+            <field name="code">6695</field>
+            <field name="type" ref="wowi_type_u_669"/>
+        </record>
+        <record id="wowi_account_6698" model="account.account.template">
+            <field name="name">Versicherungsentschädigungen und Entschädigungen für unterlassene Schönheitsreparaturen</field>
+            <field name="parent" ref="wowi_view_u_669"/>
+            <field name="code">6698</field>
+            <field name="type" ref="wowi_type_u_669"/>
+        </record>
+        <record id="wowi_account_6699" model="account.account.template">
+            <field name="name">Außergewöhnliche Erträge</field>
+            <field name="parent" ref="wowi_view_u_669"/>
+            <field name="code">6699</field>
+            <field name="type" ref="wowi_type_u_669"/>
+        </record>
+        <record id="wowi_view_g_67" model="account.account.template">
+            <field name="name">Erträge aus Beteiligungen, aus anderen Wertpapieren und Ausleihungen des Finanzanlagevermögens</field>
+            <field name="parent" ref="wowi_view_k6"/>
+        </record>
+        <record id="wowi_view_u_676" model="account.account.template">
+            <field name="name">Erträge aus sonstigen Ausleihungen</field>
+            <field name="parent" ref="wowi_view_g_67"/>
+        </record>
+        <record id="wowi_account_6760" model="account.account.template">
+            <field name="name">Erträge aus sonstigen Ausleihungen</field>
+            <field name="parent" ref="wowi_view_u_676"/>
+            <field name="code">6760</field>
+            <field name="type" ref="wowi_type_u_676"/>
+        </record>
+        <record id="wowi_view_g_68" model="account.account.template">
+            <field name="name">Sonstige Zinsen und ähnliche Erträge</field>
+            <field name="parent" ref="wowi_view_k6"/>
+        </record>
+        <record id="wowi_view_u_687" model="account.account.template">
+            <field name="name">aus verbundenen Unternehmen</field>
+            <field name="parent" ref="wowi_view_g_68"/>
+        </record>
+        <record id="wowi_account_6870" model="account.account.template">
+            <field name="name">aus verbundenen Unternehmen</field>
+            <field name="parent" ref="wowi_view_u_687"/>
+            <field name="code">6870</field>
+            <field name="type" ref="wowi_type_u_687"/>
+        </record>
+        <record id="wowi_view_u_688" model="account.account.template">
+            <field name="name">aus sonstigen Wertpapieren des Umlaufvermögens</field>
+            <field name="parent" ref="wowi_view_g_68"/>
+        </record>
+        <record id="wowi_account_6880" model="account.account.template">
+            <field name="name">aus sonstigen Wertpapieren des Umlaufvermögens</field>
+            <field name="parent" ref="wowi_view_u_688"/>
+            <field name="code">6880</field>
+            <field name="type" ref="wowi_type_u_688"/>
+        </record>
+        <record id="wowi_view_u_689" model="account.account.template">
+            <field name="name">Andere Zinsen und ähnliche Erträge</field>
+            <field name="parent" ref="wowi_view_g_68"/>
+        </record>
+        <record id="wowi_account_6898" model="account.account.template">
+            <field name="name">Zinserträge aus der Abzinsung von Rückstellungen</field>
+            <field name="parent" ref="wowi_view_u_689"/>
+            <field name="code">6898</field>
+            <field name="type" ref="wowi_type_u_689"/>
+        </record>
+        <record id="wowi_view_g_69" model="account.account.template">
+            <field name="name">Außerordentliche Erträge</field>
+            <field name="parent" ref="wowi_view_k6"/>
+        </record>
+        <record id="wowi_account_6900" model="account.account.template">
+            <field name="name">Außerordentliche Erträge</field>
+            <field name="parent" ref="wowi_view_g_69"/>
+            <field name="code">6900</field>
+            <field name="type" ref="wowi_type_g_69"/>
+        </record>
+        <record id="wowi_view_k7" model="account.account.template">
+            <field name="name">Klasse 7: Bautätigkeit</field>
+            <field name="parent" ref="wowi_root"/>
+        </record>
+        <record id="wowi_view_g_70" model="account.account.template">
+            <field name="name">Bauten des Anlagevermögens</field>
+            <field name="parent" ref="wowi_view_k7"/>
+        </record>
+        <record id="wowi_view_u_700" model="account.account.template">
+            <field name="name">Kosten der Bauvorbereitung</field>
+            <field name="parent" ref="wowi_view_g_70"/>
+        </record>
+        <record id="wowi_account_7000" model="account.account.template">
+            <field name="name">Kosten der Bauvorbereitung</field>
+            <field name="parent" ref="wowi_view_u_700"/>
+            <field name="code">7000</field>
+            <field name="type" ref="wowi_type_u_700"/>
+        </record>
+        <record id="wowi_view_u_701" model="account.account.template">
+            <field name="name">Kosten des Baugrundstücks</field>
+            <field name="parent" ref="wowi_view_g_70"/>
+        </record>
+        <record id="wowi_account_7010" model="account.account.template">
+            <field name="name">Kosten des Baugrundstücks</field>
+            <field name="parent" ref="wowi_view_u_701"/>
+            <field name="code">7010</field>
+            <field name="type" ref="wowi_type_u_701"/>
+        </record>
+        <record id="wowi_view_u_702" model="account.account.template">
+            <field name="name">Kosten der Erschließung und Herrichtung</field>
+            <field name="parent" ref="wowi_view_g_70"/>
+        </record>
+        <record id="wowi_account_7020" model="account.account.template">
+            <field name="name">Kosten der Erschließung und Herrichtung</field>
+            <field name="parent" ref="wowi_view_u_702"/>
+            <field name="code">7020</field>
+            <field name="type" ref="wowi_type_u_702"/>
+        </record>
+        <record id="wowi_view_u_703" model="account.account.template">
+            <field name="name">Kosten des Bauwerks – Baukonstruktionen</field>
+            <field name="parent" ref="wowi_view_g_70"/>
+        </record>
+        <record id="wowi_account_7030" model="account.account.template">
+            <field name="name">Kosten des Bauwerks – Baukonstruktionen</field>
+            <field name="parent" ref="wowi_view_u_703"/>
+            <field name="code">7030</field>
+            <field name="type" ref="wowi_type_u_703"/>
+        </record>
+        <record id="wowi_view_u_704" model="account.account.template">
+            <field name="name">Kosten des Bauwerks – Technische Anlagen</field>
+            <field name="parent" ref="wowi_view_g_70"/>
+        </record>
+        <record id="wowi_account_7040" model="account.account.template">
+            <field name="name">Kosten des Bauwerks – Technische Anlagen</field>
+            <field name="parent" ref="wowi_view_u_704"/>
+            <field name="code">7040</field>
+            <field name="type" ref="wowi_type_u_704"/>
+        </record>
+        <record id="wowi_view_u_705" model="account.account.template">
+            <field name="name">Kosten der Außenanlagen und Freiflächen</field>
+            <field name="parent" ref="wowi_view_g_70"/>
+        </record>
+        <record id="wowi_account_7050" model="account.account.template">
+            <field name="name">Kosten der Außenanlagen und Freiflächen</field>
+            <field name="parent" ref="wowi_view_u_705"/>
+            <field name="code">7050</field>
+            <field name="type" ref="wowi_type_u_705"/>
+        </record>
+        <record id="wowi_view_u_706" model="account.account.template">
+            <field name="name">Kosten der Ausstattungen und Kunstwerke</field>
+            <field name="parent" ref="wowi_view_g_70"/>
+        </record>
+        <record id="wowi_account_7060" model="account.account.template">
+            <field name="name">Kosten der Ausstattungen und Kunstwerke</field>
+            <field name="parent" ref="wowi_view_u_706"/>
+            <field name="code">7060</field>
+            <field name="type" ref="wowi_type_u_706"/>
+        </record>
+        <record id="wowi_view_u_707" model="account.account.template">
+            <field name="name">Baunebenkosten</field>
+            <field name="parent" ref="wowi_view_g_70"/>
+        </record>
+        <record id="wowi_account_7070" model="account.account.template">
+            <field name="name">Baunebenkosten</field>
+            <field name="parent" ref="wowi_view_u_707"/>
+            <field name="code">7070</field>
+            <field name="type" ref="wowi_type_u_707"/>
+        </record>
+        <record id="wowi_view_u_709" model="account.account.template">
+            <field name="name">Baukostenminderungen</field>
+            <field name="parent" ref="wowi_view_g_70"/>
+        </record>
+        <record id="wowi_account_7090" model="account.account.template">
+            <field name="name">Baukostenminderungen</field>
+            <field name="parent" ref="wowi_view_u_709"/>
+            <field name="code">7090</field>
+            <field name="type" ref="wowi_type_u_709"/>
+        </record>
+        <record id="wowi_view_g_71" model="account.account.template">
+            <field name="name">Bauten des Umlaufvermögens</field>
+            <field name="parent" ref="wowi_view_k7"/>
+        </record>
+        <record id="wowi_view_u_710" model="account.account.template">
+            <field name="name">Kosten der Bauvorbereitung</field>
+            <field name="parent" ref="wowi_view_g_71"/>
+        </record>
+        <record id="wowi_account_7100" model="account.account.template">
+            <field name="name">Kosten der Bauvorbereitung</field>
+            <field name="parent" ref="wowi_view_u_710"/>
+            <field name="code">7100</field>
+            <field name="type" ref="wowi_type_u_710"/>
+        </record>
+        <record id="wowi_view_u_711" model="account.account.template">
+            <field name="name">Kosten des Baugrundstücks</field>
+            <field name="parent" ref="wowi_view_g_71"/>
+        </record>
+        <record id="wowi_account_7110" model="account.account.template">
+            <field name="name">Kosten des Baugrundstücks</field>
+            <field name="parent" ref="wowi_view_u_711"/>
+            <field name="code">7110</field>
+            <field name="type" ref="wowi_type_u_711"/>
+        </record>
+        <record id="wowi_view_u_712" model="account.account.template">
+            <field name="name">Kosten der Erschließung und Herrichtung</field>
+            <field name="parent" ref="wowi_view_g_71"/>
+        </record>
+        <record id="wowi_account_7120" model="account.account.template">
+            <field name="name">Kosten der Erschließung und Herrichtung</field>
+            <field name="parent" ref="wowi_view_u_712"/>
+            <field name="code">7120</field>
+            <field name="type" ref="wowi_type_u_712"/>
+        </record>
+        <record id="wowi_view_u_713" model="account.account.template">
+            <field name="name">Kosten des Bauwerks – Baukonstruktionen</field>
+            <field name="parent" ref="wowi_view_g_71"/>
+        </record>
+        <record id="wowi_account_7130" model="account.account.template">
+            <field name="name">Kosten des Bauwerks – Baukonstruktionen</field>
+            <field name="parent" ref="wowi_view_u_713"/>
+            <field name="code">7130</field>
+            <field name="type" ref="wowi_type_u_713"/>
+        </record>
+        <record id="wowi_view_u_714" model="account.account.template">
+            <field name="name">Kosten des Bauwerks – Technische Anlagen</field>
+            <field name="parent" ref="wowi_view_g_71"/>
+        </record>
+        <record id="wowi_account_7140" model="account.account.template">
+            <field name="name">Kosten des Bauwerks – Technische Anlagen</field>
+            <field name="parent" ref="wowi_view_u_714"/>
+            <field name="code">7140</field>
+            <field name="type" ref="wowi_type_u_714"/>
+        </record>
+        <record id="wowi_view_u_715" model="account.account.template">
+            <field name="name">Kosten der Außenanlagen und Freiflächen</field>
+            <field name="parent" ref="wowi_view_g_71"/>
+        </record>
+        <record id="wowi_account_7150" model="account.account.template">
+            <field name="name">Kosten der Außenanlagen und Freiflächen</field>
+            <field name="parent" ref="wowi_view_u_715"/>
+            <field name="code">7150</field>
+            <field name="type" ref="wowi_type_u_715"/>
+        </record>
+        <record id="wowi_view_u_716" model="account.account.template">
+            <field name="name">Kosten der Ausstattungen und Kunstwerke</field>
+            <field name="parent" ref="wowi_view_g_71"/>
+        </record>
+        <record id="wowi_account_7160" model="account.account.template">
+            <field name="name">Kosten der Ausstattungen und Kunstwerke</field>
+            <field name="parent" ref="wowi_view_u_716"/>
+            <field name="code">7160</field>
+            <field name="type" ref="wowi_type_u_716"/>
+        </record>
+        <record id="wowi_view_u_717" model="account.account.template">
+            <field name="name">Baunebenkosten</field>
+            <field name="parent" ref="wowi_view_g_71"/>
+        </record>
+        <record id="wowi_account_7170" model="account.account.template">
+            <field name="name">Baunebenkosten</field>
+            <field name="parent" ref="wowi_view_u_717"/>
+            <field name="code">7170</field>
+            <field name="type" ref="wowi_type_u_717"/>
+        </record>
+        <record id="wowi_view_u_719" model="account.account.template">
+            <field name="name">Baukostenminderungen</field>
+            <field name="parent" ref="wowi_view_g_71"/>
+        </record>
+        <record id="wowi_account_7190" model="account.account.template">
+            <field name="name">Baukostenminderungen</field>
+            <field name="parent" ref="wowi_view_u_719"/>
+            <field name="code">7190</field>
+            <field name="type" ref="wowi_type_u_719"/>
+        </record>
+        <record id="wowi_view_g_72" model="account.account.template">
+            <field name="name">Betreuungskosten</field>
+            <field name="parent" ref="wowi_view_k7"/>
+        </record>
+        <record id="wowi_view_u_720" model="account.account.template">
+            <field name="name">Kosten der Bauvorbereitung</field>
+            <field name="parent" ref="wowi_view_g_72"/>
+        </record>
+        <record id="wowi_account_7200" model="account.account.template">
+            <field name="name">Kosten der Bauvorbereitung</field>
+            <field name="parent" ref="wowi_view_u_720"/>
+            <field name="code">7200</field>
+            <field name="type" ref="wowi_type_u_720"/>
+        </record>
+        <record id="wowi_view_u_721" model="account.account.template">
+            <field name="name">Kosten des Baugrundstücks</field>
+            <field name="parent" ref="wowi_view_g_72"/>
+        </record>
+        <record id="wowi_account_7210" model="account.account.template">
+            <field name="name">Kosten des Baugrundstücks</field>
+            <field name="parent" ref="wowi_view_u_721"/>
+            <field name="code">7210</field>
+            <field name="type" ref="wowi_type_u_721"/>
+        </record>
+        <record id="wowi_view_u_722" model="account.account.template">
+            <field name="name">Kosten der Erschließung</field>
+            <field name="parent" ref="wowi_view_g_72"/>
+        </record>
+        <record id="wowi_account_7220" model="account.account.template">
+            <field name="name">Kosten der Erschließung</field>
+            <field name="parent" ref="wowi_view_u_722"/>
+            <field name="code">7220</field>
+            <field name="type" ref="wowi_type_u_722"/>
+        </record>
+        <record id="wowi_view_u_723" model="account.account.template">
+            <field name="name">Kosten des Bauwerks</field>
+            <field name="parent" ref="wowi_view_g_72"/>
+        </record>
+        <record id="wowi_account_7230" model="account.account.template">
+            <field name="name">Kosten des Bauwerks</field>
+            <field name="parent" ref="wowi_view_u_723"/>
+            <field name="code">7230</field>
+            <field name="type" ref="wowi_type_u_723"/>
+        </record>
+        <record id="wowi_view_u_724" model="account.account.template">
+            <field name="name">Kosten des Geräts</field>
+            <field name="parent" ref="wowi_view_g_72"/>
+        </record>
+        <record id="wowi_account_7240" model="account.account.template">
+            <field name="name">Kosten des Geräts</field>
+            <field name="parent" ref="wowi_view_u_724"/>
+            <field name="code">7240</field>
+            <field name="type" ref="wowi_type_u_724"/>
+        </record>
+        <record id="wowi_view_u_725" model="account.account.template">
+            <field name="name">Kosten der Außenanlagen</field>
+            <field name="parent" ref="wowi_view_g_72"/>
+        </record>
+        <record id="wowi_account_7250" model="account.account.template">
+            <field name="name">Kosten der Außenanlagen</field>
+            <field name="parent" ref="wowi_view_u_725"/>
+            <field name="code">7250</field>
+            <field name="type" ref="wowi_type_u_725"/>
+        </record>
+        <record id="wowi_view_u_726" model="account.account.template">
+            <field name="name">Kosten der zusätzlichen Maßnahmen</field>
+            <field name="parent" ref="wowi_view_g_72"/>
+        </record>
+        <record id="wowi_account_7260" model="account.account.template">
+            <field name="name">Kosten der zusätzlichen Maßnahmen</field>
+            <field name="parent" ref="wowi_view_u_726"/>
+            <field name="code">7260</field>
+            <field name="type" ref="wowi_type_u_726"/>
+        </record>
+        <record id="wowi_view_u_727" model="account.account.template">
+            <field name="name">Baunebenkosten</field>
+            <field name="parent" ref="wowi_view_g_72"/>
+        </record>
+        <record id="wowi_account_7270" model="account.account.template">
+            <field name="name">Baunebenkosten</field>
+            <field name="parent" ref="wowi_view_u_727"/>
+            <field name="code">7270</field>
+            <field name="type" ref="wowi_type_u_727"/>
+        </record>
+        <record id="wowi_view_u_729" model="account.account.template">
+            <field name="name">Baukostenminderungen</field>
+            <field name="parent" ref="wowi_view_g_72"/>
+        </record>
+        <record id="wowi_account_7290" model="account.account.template">
+            <field name="name">Baukostenminderungen</field>
+            <field name="parent" ref="wowi_view_u_729"/>
+            <field name="code">7290</field>
+            <field name="type" ref="wowi_type_u_729"/>
+        </record>
+        <record id="wowi_view_k8" model="account.account.template">
+            <field name="name">Klasse 8: Aufwendungen</field>
+            <field name="parent" ref="wowi_root"/>
+        </record>
+        <record id="wowi_view_g_80" model="account.account.template">
+            <field name="name">Aufwendungen für Hausbewirtschaftung</field>
+            <field name="parent" ref="wowi_view_k8"/>
+        </record>
+        <record id="wowi_view_u_800" model="account.account.template">
+            <field name="name">Betriebskosten</field>
+            <field name="parent" ref="wowi_view_g_80"/>
+        </record>
+        <record id="wowi_account_8000" model="account.account.template">
+            <field name="name">Kosten der Wasserversorgung</field>
+            <field name="parent" ref="wowi_view_u_800"/>
+            <field name="code">8000</field>
+            <field name="type" ref="wowi_type_u_800"/>
+        </record>
+        <record id="wowi_account_8001" model="account.account.template">
+            <field name="name">Kosten der Entwässerung</field>
+            <field name="parent" ref="wowi_view_u_800"/>
+            <field name="code">8001</field>
+            <field name="type" ref="wowi_type_u_800"/>
+        </record>
+        <record id="wowi_account_8002" model="account.account.template">
+            <field name="name">Kosten der Beheizung</field>
+            <field name="parent" ref="wowi_view_u_800"/>
+            <field name="code">8002</field>
+            <field name="type" ref="wowi_type_u_800"/>
+        </record>
+        <record id="wowi_account_8003" model="account.account.template">
+            <field name="name">Kosten der Warmwasserversorgung</field>
+            <field name="parent" ref="wowi_view_u_800"/>
+            <field name="code">8003</field>
+            <field name="type" ref="wowi_type_u_800"/>
+        </record>
+        <record id="wowi_account_8004" model="account.account.template">
+            <field name="name">Kosten des Betriebs des Personen- oder Lastenaufzugs</field>
+            <field name="parent" ref="wowi_view_u_800"/>
+            <field name="code">8004</field>
+            <field name="type" ref="wowi_type_u_800"/>
+        </record>
+        <record id="wowi_account_8005" model="account.account.template">
+            <field name="name">Kosten der Straßenreinigung</field>
+            <field name="parent" ref="wowi_view_u_800"/>
+            <field name="code">8005</field>
+            <field name="type" ref="wowi_type_u_800"/>
+        </record>
+        <record id="wowi_account_8006" model="account.account.template">
+            <field name="name">Kosten der Müllbeseitigung</field>
+            <field name="parent" ref="wowi_view_u_800"/>
+            <field name="code">8006</field>
+            <field name="type" ref="wowi_type_u_800"/>
+        </record>
+        <record id="wowi_account_8007" model="account.account.template">
+            <field name="name">Kosten der Gebäudereinigung</field>
+            <field name="parent" ref="wowi_view_u_800"/>
+            <field name="code">8007</field>
+            <field name="type" ref="wowi_type_u_800"/>
+        </record>
+        <record id="wowi_account_8008" model="account.account.template">
+            <field name="name">Kosten der Ungezieferbekämpfung</field>
+            <field name="parent" ref="wowi_view_u_800"/>
+            <field name="code">8008</field>
+            <field name="type" ref="wowi_type_u_800"/>
+        </record>
+        <record id="wowi_account_8009" model="account.account.template">
+            <field name="name">Kosten der Gartenpflege</field>
+            <field name="parent" ref="wowi_view_u_800"/>
+            <field name="code">8009</field>
+            <field name="type" ref="wowi_type_u_800"/>
+        </record>
+        <record id="wowi_account_8010" model="account.account.template">
+            <field name="name">Kosten für Spielplätze</field>
+            <field name="parent" ref="wowi_view_u_800"/>
+            <field name="code">8010</field>
+            <field name="type" ref="wowi_type_u_800"/>
+        </record>
+        <record id="wowi_account_8011" model="account.account.template">
+            <field name="name">Kosten der Beleuchtung</field>
+            <field name="parent" ref="wowi_view_u_800"/>
+            <field name="code">8011</field>
+            <field name="type" ref="wowi_type_u_800"/>
+        </record>
+        <record id="wowi_account_8012" model="account.account.template">
+            <field name="name">Kosten für Schornsteinreinigung</field>
+            <field name="parent" ref="wowi_view_u_800"/>
+            <field name="code">8012</field>
+            <field name="type" ref="wowi_type_u_800"/>
+        </record>
+        <record id="wowi_account_8013" model="account.account.template">
+            <field name="name">Kosten für Sach- und Haftpflichtversicherung</field>
+            <field name="parent" ref="wowi_view_u_800"/>
+            <field name="code">8013</field>
+            <field name="type" ref="wowi_type_u_800"/>
+        </record>
+        <record id="wowi_account_8014" model="account.account.template">
+            <field name="name">Kosten für fremde Hauswartleistungen</field>
+            <field name="parent" ref="wowi_view_u_800"/>
+            <field name="code">8014</field>
+            <field name="type" ref="wowi_type_u_800"/>
+        </record>
+        <record id="wowi_account_8015" model="account.account.template">
+            <field name="name">Kosten des Betriebs der Gemeinschafts-Antennenanlage</field>
+            <field name="parent" ref="wowi_view_u_800"/>
+            <field name="code">8015</field>
+            <field name="type" ref="wowi_type_u_800"/>
+        </record>
+        <record id="wowi_account_8016" model="account.account.template">
+            <field name="name">Kosten des Betriebs Breitbandkabelnetz/Verteilanlagen</field>
+            <field name="parent" ref="wowi_view_u_800"/>
+            <field name="code">8016</field>
+            <field name="type" ref="wowi_type_u_800"/>
+        </record>
+        <record id="wowi_account_8017" model="account.account.template">
+            <field name="name">Kosten des Betriebs der maschinellen Wascheinrichtungen</field>
+            <field name="parent" ref="wowi_view_u_800"/>
+            <field name="code">8017</field>
+            <field name="type" ref="wowi_type_u_800"/>
+        </record>
+        <record id="wowi_account_8020" model="account.account.template">
+            <field name="name">Andere Betriebskosten</field>
+            <field name="parent" ref="wowi_view_u_800"/>
+            <field name="code">8020</field>
+            <field name="type" ref="wowi_type_u_800"/>
+        </record>
+        <record id="wowi_view_u_805" model="account.account.template">
+            <field name="name">Instandhaltungskosten</field>
+            <field name="parent" ref="wowi_view_g_80"/>
+        </record>
+        <record id="wowi_account_8050" model="account.account.template">
+            <field name="name">Kosten der baulichen Instandhaltung</field>
+            <field name="parent" ref="wowi_view_u_805"/>
+            <field name="code">8050</field>
+            <field name="type" ref="wowi_type_u_805"/>
+        </record>
+        <record id="wowi_account_8051" model="account.account.template">
+            <field name="name">Kosten für Schönheitsreparaturen</field>
+            <field name="parent" ref="wowi_view_u_805"/>
+            <field name="code">8051</field>
+            <field name="type" ref="wowi_type_u_805"/>
+        </record>
+        <record id="wowi_account_8052" model="account.account.template">
+            <field name="name">Kosten der Instandhaltung unternehmenseigener Straßen und Wege</field>
+            <field name="parent" ref="wowi_view_u_805"/>
+            <field name="code">8052</field>
+            <field name="type" ref="wowi_type_u_805"/>
+        </record>
+        <record id="wowi_account_8053" model="account.account.template">
+            <field name="name">Kosten der Instandhaltung für Gemeinschaftsanlagen und Folgeeinrichtungen</field>
+            <field name="parent" ref="wowi_view_u_805"/>
+            <field name="code">8053</field>
+            <field name="type" ref="wowi_type_u_805"/>
+        </record>
+        <record id="wowi_account_8055" model="account.account.template">
+            <field name="name">Instandhaltungskosten/Mieterbelastung</field>
+            <field name="parent" ref="wowi_view_u_805"/>
+            <field name="code">8055</field>
+            <field name="type" ref="wowi_type_u_805"/>
+        </record>
+        <record id="wowi_account_8056" model="account.account.template">
+            <field name="name">Instandhaltungskosten/Versicherungsbelastung</field>
+            <field name="parent" ref="wowi_view_u_805"/>
+            <field name="code">8056</field>
+            <field name="type" ref="wowi_type_u_805"/>
+        </record>
+        <record id="wowi_account_8059" model="account.account.template">
+            <field name="name">Instandhaltungskosten / Belastung sonstiger Dritter</field>
+            <field name="parent" ref="wowi_view_u_805"/>
+            <field name="code">8059</field>
+            <field name="type" ref="wowi_type_u_805"/>
+        </record>
+        <record id="wowi_account_8060" model="account.account.template">
+            <field name="name">Andere Instandhaltungskosten</field>
+            <field name="parent" ref="wowi_view_u_805"/>
+            <field name="code">8060</field>
+            <field name="type" ref="wowi_type_u_805"/>
+        </record>
+        <record id="wowi_view_u_808" model="account.account.template">
+            <field name="name">Zuführung zur Rückstellung für unterlassene Instandhaltung</field>
+            <field name="parent" ref="wowi_view_g_80"/>
+        </record>
+        <record id="wowi_account_8080" model="account.account.template">
+            <field name="name">Zuführung zur Rückstellung für unterlassene Instandhaltung</field>
+            <field name="parent" ref="wowi_view_u_808"/>
+            <field name="code">8080</field>
+            <field name="type" ref="wowi_type_u_808"/>
+        </record>
+        <record id="wowi_view_u_809" model="account.account.template">
+            <field name="name">Andere Aufwendungen der Hausbewirtschaftung</field>
+            <field name="parent" ref="wowi_view_g_80"/>
+        </record>
+        <record id="wowi_account_8090" model="account.account.template">
+            <field name="name">Pachtaufwendungen</field>
+            <field name="parent" ref="wowi_view_u_809"/>
+            <field name="code">8090</field>
+            <field name="type" ref="wowi_type_u_809"/>
+        </record>
+        <record id="wowi_account_8091" model="account.account.template">
+            <field name="name">Fremdkosten für Miet- und Räumungsklagen</field>
+            <field name="parent" ref="wowi_view_u_809"/>
+            <field name="code">8091</field>
+            <field name="type" ref="wowi_type_u_809"/>
+        </record>
+        <record id="wowi_account_8092" model="account.account.template">
+            <field name="name">Fremdkosten für von Unternehmen betriebene Gemeinschaftseinrichtungen</field>
+            <field name="parent" ref="wowi_view_u_809"/>
+            <field name="code">8092</field>
+            <field name="type" ref="wowi_type_u_809"/>
+        </record>
+        <record id="wowi_account_8093" model="account.account.template">
+            <field name="name">Erbbauzinsen</field>
+            <field name="parent" ref="wowi_view_u_809"/>
+            <field name="code">8093</field>
+            <field name="type" ref="wowi_type_u_809"/>
+        </record>
+        <record id="wowi_account_8094" model="account.account.template">
+            <field name="name">Vertriebskosten</field>
+            <field name="parent" ref="wowi_view_u_809"/>
+            <field name="code">8094</field>
+            <field name="type" ref="wowi_type_u_809"/>
+        </record>
+        <record id="wowi_account_8098" model="account.account.template">
+            <field name="name">Aufwand Versicherungsbelastung</field>
+            <field name="parent" ref="wowi_view_u_809"/>
+            <field name="code">8098</field>
+            <field name="type" ref="wowi_type_u_809"/>
+        </record>
+        <record id="wowi_account_8099" model="account.account.template">
+            <field name="name">Aufwand Mieterbelastung</field>
+            <field name="parent" ref="wowi_view_u_809"/>
+            <field name="code">8099</field>
+            <field name="type" ref="wowi_type_u_809"/>
+        </record>
+        <record id="wowi_view_g_81" model="account.account.template">
+            <field name="name">Aufwendungen für Verkaufsgrundstücke</field>
+            <field name="parent" ref="wowi_view_k8"/>
+        </record>
+        <record id="wowi_view_u_810" model="account.account.template">
+            <field name="name">Fremdkosten</field>
+            <field name="parent" ref="wowi_view_g_81"/>
+        </record>
+        <record id="wowi_account_8100" model="account.account.template">
+            <field name="name">Kosten der Bauvorbereitung</field>
+            <field name="parent" ref="wowi_view_u_810"/>
+            <field name="code">8100</field>
+            <field name="type" ref="wowi_type_u_810"/>
+        </record>
+        <record id="wowi_account_8102" model="account.account.template">
+            <field name="name">Kosten der Erschließung und Herrichtung</field>
+            <field name="parent" ref="wowi_view_u_810"/>
+            <field name="code">8102</field>
+            <field name="type" ref="wowi_type_u_810"/>
+        </record>
+        <record id="wowi_account_8103" model="account.account.template">
+            <field name="name">Kosten des Bauwerks – Baukonstruktionen</field>
+            <field name="parent" ref="wowi_view_u_810"/>
+            <field name="code">8103</field>
+            <field name="type" ref="wowi_type_u_810"/>
+        </record>
+        <record id="wowi_account_8104" model="account.account.template">
+            <field name="name">Kosten des Bauwerks – Technische Anlagen</field>
+            <field name="parent" ref="wowi_view_u_810"/>
+            <field name="code">8104</field>
+            <field name="type" ref="wowi_type_u_810"/>
+        </record>
+        <record id="wowi_account_8105" model="account.account.template">
+            <field name="name">Kosten der Außenanlagen und Freiflächen</field>
+            <field name="parent" ref="wowi_view_u_810"/>
+            <field name="code">8105</field>
+            <field name="type" ref="wowi_type_u_810"/>
+        </record>
+        <record id="wowi_account_8106" model="account.account.template">
+            <field name="name">Kosten für Ausstattungen und Kunstwerke</field>
+            <field name="parent" ref="wowi_view_u_810"/>
+            <field name="code">8106</field>
+            <field name="type" ref="wowi_type_u_810"/>
+        </record>
+        <record id="wowi_account_8107" model="account.account.template">
+            <field name="name">Baunebenkosten</field>
+            <field name="parent" ref="wowi_view_u_810"/>
+            <field name="code">8107</field>
+            <field name="type" ref="wowi_type_u_810"/>
+        </record>
+        <record id="wowi_view_u_811" model="account.account.template">
+            <field name="name">Buchwert der in die Bebauung übernommenen unbebauten Grundstücke</field>
+            <field name="parent" ref="wowi_view_g_81"/>
+        </record>
+        <record id="wowi_account_8110" model="account.account.template">
+            <field name="name">Buchwert der in die Bebauung übernommenen unbebauten Grundstücke</field>
+            <field name="parent" ref="wowi_view_u_811"/>
+            <field name="code">8110</field>
+            <field name="type" ref="wowi_type_u_811"/>
+        </record>
+        <record id="wowi_view_u_812" model="account.account.template">
+            <field name="name">Buchwert der verkauften unbebauten Grundstücke</field>
+            <field name="parent" ref="wowi_view_g_81"/>
+        </record>
+        <record id="wowi_account_8120" model="account.account.template">
+            <field name="name">Buchwert der verkauften unbebauten Grundstücke</field>
+            <field name="parent" ref="wowi_view_u_812"/>
+            <field name="code">8120</field>
+            <field name="type" ref="wowi_type_u_812"/>
+        </record>
+        <record id="wowi_view_u_813" model="account.account.template">
+            <field name="name">Buchwert bebaut erworbener Grundstücke</field>
+            <field name="parent" ref="wowi_view_g_81"/>
+        </record>
+        <record id="wowi_account_8130" model="account.account.template">
+            <field name="name">Buchwert bebaut erworbener Grundstücke</field>
+            <field name="parent" ref="wowi_view_u_813"/>
+            <field name="code">8130</field>
+            <field name="type" ref="wowi_type_u_813"/>
+        </record>
+        <record id="wowi_view_u_814" model="account.account.template">
+            <field name="name">Zuführung zur Rückstellung für noch anfallende Kosten</field>
+            <field name="parent" ref="wowi_view_g_81"/>
+        </record>
+        <record id="wowi_account_8140" model="account.account.template">
+            <field name="name">Zuführung zur Rückstellung für noch anfallende Kosten</field>
+            <field name="parent" ref="wowi_view_u_814"/>
+            <field name="code">8140</field>
+            <field name="type" ref="wowi_type_u_814"/>
+        </record>
+        <record id="wowi_view_u_815" model="account.account.template">
+            <field name="name">Laufende Aufwendungen für Eigentumsobjekte während des Vorhaltezeitraums</field>
+            <field name="parent" ref="wowi_view_g_81"/>
+        </record>
+        <record id="wowi_account_8150" model="account.account.template">
+            <field name="name">Laufende Aufwendungen für Eigentumsobjekte während des Vorhaltezeitraums</field>
+            <field name="parent" ref="wowi_view_u_815"/>
+            <field name="code">8150</field>
+            <field name="type" ref="wowi_type_u_815"/>
+        </record>
+        <record id="wowi_view_u_817" model="account.account.template">
+            <field name="name">Vertriebskosten</field>
+            <field name="parent" ref="wowi_view_g_81"/>
+        </record>
+        <record id="wowi_account_8170" model="account.account.template">
+            <field name="name">Vertriebskosten</field>
+            <field name="parent" ref="wowi_view_u_817"/>
+            <field name="code">8170</field>
+            <field name="type" ref="wowi_type_u_817"/>
+        </record>
+        <record id="wowi_view_u_818" model="account.account.template">
+            <field name="name">Abschreibungen auf Grundstücke und grundstücksgleiche Rechte des Umlaufvermögens</field>
+            <field name="parent" ref="wowi_view_g_81"/>
+        </record>
+        <record id="wowi_account_8180" model="account.account.template">
+            <field name="name">Abschreibungen auf Grundstücke und grundstücksgleiche Rechte ohne Bauten des Umlaufvermögens (noch nicht erschlossen, durch Dritte erschlossen oder erschlossen erworben)</field>
+            <field name="parent" ref="wowi_view_u_818"/>
+            <field name="code">8180</field>
+            <field name="type" ref="wowi_type_u_818"/>
+        </record>
+        <record id="wowi_account_8185" model="account.account.template">
+            <field name="name">Abschreibungen auf bebaut erworbene Grundstücke des Umlaufvermögens</field>
+            <field name="parent" ref="wowi_view_u_818"/>
+            <field name="code">8185</field>
+            <field name="type" ref="wowi_type_u_818"/>
+        </record>
+        <record id="wowi_view_u_819" model="account.account.template">
+            <field name="name">Sonstige Aufwendungen für Verkaufsgrundstücke</field>
+            <field name="parent" ref="wowi_view_g_81"/>
+        </record>
+        <record id="wowi_account_8190" model="account.account.template">
+            <field name="name">Sonstige Aufwendungen für Verkaufsgrundstücke</field>
+            <field name="parent" ref="wowi_view_u_819"/>
+            <field name="code">8190</field>
+            <field name="type" ref="wowi_type_u_819"/>
+        </record>
+        <record id="wowi_view_g_82" model="account.account.template">
+            <field name="name">Aufwendungen für andere Lieferungen und Leistungen</field>
+            <field name="parent" ref="wowi_view_k8"/>
+        </record>
+        <record id="wowi_view_u_820" model="account.account.template">
+            <field name="name">Fremdkosten für die Baubetreuung</field>
+            <field name="parent" ref="wowi_view_g_82"/>
+        </record>
+        <record id="wowi_account_8200" model="account.account.template">
+            <field name="name">Fremdkosten für die Baubetreuung</field>
+            <field name="parent" ref="wowi_view_u_820"/>
+            <field name="code">8200</field>
+            <field name="type" ref="wowi_type_u_820"/>
+        </record>
+        <record id="wowi_view_u_821" model="account.account.template">
+            <field name="name">Fremdkosten für die Verwaltungsbetreuung</field>
+            <field name="parent" ref="wowi_view_g_82"/>
+        </record>
+        <record id="wowi_account_8210" model="account.account.template">
+            <field name="name">Fremdkosten für die Verwaltungsbetreuung</field>
+            <field name="parent" ref="wowi_view_u_821"/>
+            <field name="code">8210</field>
+            <field name="type" ref="wowi_type_u_821"/>
+        </record>
+        <record id="wowi_view_u_822" model="account.account.template">
+            <field name="name">Kosten für die Geschäftsbesorgung durch Dritte</field>
+            <field name="parent" ref="wowi_view_g_82"/>
+        </record>
+        <record id="wowi_account_8220" model="account.account.template">
+            <field name="name">Kosten für die Geschäftsbesorgung durch Dritte</field>
+            <field name="parent" ref="wowi_view_u_822"/>
+            <field name="code">8220</field>
+            <field name="type" ref="wowi_type_u_822"/>
+        </record>
+        <record id="wowi_view_u_829" model="account.account.template">
+            <field name="name">Aufwendungen für andere Sach- und Dienstleistungen</field>
+            <field name="parent" ref="wowi_view_g_82"/>
+        </record>
+        <record id="wowi_account_8290" model="account.account.template">
+            <field name="name">Aufwendungen für andere Sach- und Dienstleistungen</field>
+            <field name="parent" ref="wowi_view_u_829"/>
+            <field name="code">8290</field>
+            <field name="type" ref="wowi_type_u_829"/>
+        </record>
+        <record id="wowi_view_g_83" model="account.account.template">
+            <field name="name">Personalaufwand</field>
+            <field name="parent" ref="wowi_view_k8"/>
+        </record>
+        <record id="wowi_view_u_830" model="account.account.template">
+            <field name="name">Löhne und Gehälter</field>
+            <field name="parent" ref="wowi_view_g_83"/>
+        </record>
+        <record id="wowi_account_8300" model="account.account.template">
+            <field name="name">Löhne und Gehälter</field>
+            <field name="parent" ref="wowi_view_u_830"/>
+            <field name="code">8300</field>
+            <field name="type" ref="wowi_type_u_830"/>
+        </record>
+        <record id="wowi_view_u_831" model="account.account.template">
+            <field name="name">Soziale Abgaben</field>
+            <field name="parent" ref="wowi_view_g_83"/>
+        </record>
+        <record id="wowi_account_8310" model="account.account.template">
+            <field name="name">Soziale Abgaben</field>
+            <field name="parent" ref="wowi_view_u_831"/>
+            <field name="code">8310</field>
+            <field name="type" ref="wowi_type_u_831"/>
+        </record>
+        <record id="wowi_view_u_832" model="account.account.template">
+            <field name="name">Aufwendungen für Altersversorgung</field>
+            <field name="parent" ref="wowi_view_g_83"/>
+        </record>
+        <record id="wowi_account_8320" model="account.account.template">
+            <field name="name">Zuführung zu Pensionsrückstellungen</field>
+            <field name="parent" ref="wowi_view_u_832"/>
+            <field name="code">8320</field>
+            <field name="type" ref="wowi_type_u_832"/>
+        </record>
+        <record id="wowi_account_8321" model="account.account.template">
+            <field name="name">Pensionszahlungen</field>
+            <field name="parent" ref="wowi_view_u_832"/>
+            <field name="code">8321</field>
+            <field name="type" ref="wowi_type_u_832"/>
+        </record>
+        <record id="wowi_account_8322" model="account.account.template">
+            <field name="name">Zahlungen an Lebensversicherungen und Pensionskassen</field>
+            <field name="parent" ref="wowi_view_u_832"/>
+            <field name="code">8322</field>
+            <field name="type" ref="wowi_type_u_832"/>
+        </record>
+        <record id="wowi_view_u_833" model="account.account.template">
+            <field name="name">Aufwendungen für Unterstützung</field>
+            <field name="parent" ref="wowi_view_g_83"/>
+        </record>
+        <record id="wowi_account_8330" model="account.account.template">
+            <field name="name">Aufwendungen für Unterstützung</field>
+            <field name="parent" ref="wowi_view_u_833"/>
+            <field name="code">8330</field>
+            <field name="type" ref="wowi_type_u_833"/>
+        </record>
+        <record id="wowi_view_u_834" model="account.account.template">
+            <field name="name">Vermögenswirksame Leistungen</field>
+            <field name="parent" ref="wowi_view_g_83"/>
+        </record>
+        <record id="wowi_account_8340" model="account.account.template">
+            <field name="name">Vermögenswirksame Leistungen</field>
+            <field name="parent" ref="wowi_view_u_834"/>
+            <field name="code">8340</field>
+            <field name="type" ref="wowi_type_u_834"/>
+        </record>
+        <record id="wowi_view_g_84" model="account.account.template">
+            <field name="name">Abschreibungen</field>
+            <field name="parent" ref="wowi_view_k8"/>
+        </record>
+        <record id="wowi_view_u_840" model="account.account.template">
+            <field name="name">Abschreibungen auf immaterielle Vermögensgegenstände des Anlagevermögens und Sachanlagen</field>
+            <field name="parent" ref="wowi_view_g_84"/>
+        </record>
+        <record id="wowi_account_8400" model="account.account.template">
+            <field name="name">Abschreibungen auf immaterielle Vermögensgegenstände des Anlagevermögens und Sachanlagen</field>
+            <field name="parent" ref="wowi_view_u_840"/>
+            <field name="code">8400</field>
+            <field name="type" ref="wowi_type_u_840"/>
+        </record>
+        <record id="wowi_view_u_841" model="account.account.template">
+            <field name="name">Abschreibungen auf Vermögensgegenstände des Umlaufvermögens (soweit üblich)</field>
+            <field name="parent" ref="wowi_view_g_84"/>
+        </record>
+        <record id="wowi_account_8410" model="account.account.template">
+            <field name="name">Abschreibungen auf Vermögensgegenstände des Umlaufvermögens (soweit üblich)</field>
+            <field name="parent" ref="wowi_view_u_841"/>
+            <field name="code">8410</field>
+            <field name="type" ref="wowi_type_u_841"/>
+        </record>
+        <record id="wowi_view_g_85" model="account.account.template">
+            <field name="name">Sonstige betriebliche Aufwendungen</field>
+            <field name="parent" ref="wowi_view_k8"/>
+        </record>
+        <record id="wowi_view_u_850" model="account.account.template">
+            <field name="name">Sächliche Verwaltungsaufwendungen</field>
+            <field name="parent" ref="wowi_view_g_85"/>
+        </record>
+        <record id="wowi_account_8500" model="account.account.template">
+            <field name="name">Sächliche Verwaltungsaufwendungen</field>
+            <field name="parent" ref="wowi_view_u_850"/>
+            <field name="code">8500</field>
+            <field name="type" ref="wowi_type_u_850"/>
+        </record>
+        <record id="wowi_view_u_851" model="account.account.template">
+            <field name="name">Freiwillige soziale Aufwendungen und Aufwendungen für Gemeinschaftspflege</field>
+            <field name="parent" ref="wowi_view_g_85"/>
+        </record>
+        <record id="wowi_account_8510" model="account.account.template">
+            <field name="name">Freiwillige soziale Aufwendungen und Aufwendungen für Gemeinschaftspflege</field>
+            <field name="parent" ref="wowi_view_u_851"/>
+            <field name="code">8510</field>
+            <field name="type" ref="wowi_type_u_851"/>
+        </record>
+        <record id="wowi_view_u_852" model="account.account.template">
+            <field name="name">Erbbauzins und andere Aufwendungen für unbebaute Grundstücke</field>
+            <field name="parent" ref="wowi_view_g_85"/>
+        </record>
+        <record id="wowi_account_8520" model="account.account.template">
+            <field name="name">Erbbauzins und andere Aufwendungen für unbebaute Grundstücke</field>
+            <field name="parent" ref="wowi_view_u_852"/>
+            <field name="code">8520</field>
+            <field name="type" ref="wowi_type_u_852"/>
+        </record>
+        <record id="wowi_view_u_853" model="account.account.template">
+            <field name="name">Genossenschaftliche Rückvergütungen</field>
+            <field name="parent" ref="wowi_view_g_85"/>
+        </record>
+        <record id="wowi_account_8530" model="account.account.template">
+            <field name="name">Genossenschaftliche Rückvergütungen</field>
+            <field name="parent" ref="wowi_view_u_853"/>
+            <field name="code">8530</field>
+            <field name="type" ref="wowi_type_u_853"/>
+        </record>
+        <record id="wowi_view_u_854" model="account.account.template">
+            <field name="name">Verluste aus dem Abgang von Gegenständen des Anlagevermögens</field>
+            <field name="parent" ref="wowi_view_g_85"/>
+        </record>
+        <record id="wowi_account_8540" model="account.account.template">
+            <field name="name">Verluste aus dem Abgang von Gegenständen des Anlagevermögens</field>
+            <field name="parent" ref="wowi_view_u_854"/>
+            <field name="code">8540</field>
+            <field name="type" ref="wowi_type_u_854"/>
+        </record>
+        <record id="wowi_view_u_855" model="account.account.template">
+            <field name="name">Abschreibungen auf Forderungen und sonstige Vermögensgegenstände</field>
+            <field name="parent" ref="wowi_view_g_85"/>
+        </record>
+        <record id="wowi_account_8550" model="account.account.template">
+            <field name="name">Abschreibungen auf Forderungen</field>
+            <field name="parent" ref="wowi_view_u_855"/>
+            <field name="code">8550</field>
+            <field name="type" ref="wowi_type_u_855"/>
+        </record>
+        <record id="wowi_account_8555" model="account.account.template">
+            <field name="name">Zuführung zu Wertberichtigungen zu Forderungen</field>
+            <field name="parent" ref="wowi_view_u_855"/>
+            <field name="code">8555</field>
+            <field name="type" ref="wowi_type_u_855"/>
+        </record>
+        <record id="wowi_view_u_856" model="account.account.template">
+            <field name="name">Spenden</field>
+            <field name="parent" ref="wowi_view_g_85"/>
+        </record>
+        <record id="wowi_account_8560" model="account.account.template">
+            <field name="name">Spenden</field>
+            <field name="parent" ref="wowi_view_u_856"/>
+            <field name="code">8560</field>
+            <field name="type" ref="wowi_type_u_856"/>
+        </record>
+        <record id="wowi_view_u_857" model="account.account.template">
+            <field name="name">Einstellung in Wertberichtigungen</field>
+            <field name="parent" ref="wowi_view_g_85"/>
+        </record>
+        <record id="wowi_account_8575" model="account.account.template">
+            <field name="name">Einstellung in Einzelwertberichtigungen (EWB)</field>
+            <field name="parent" ref="wowi_view_u_857"/>
+            <field name="code">8575</field>
+            <field name="type" ref="wowi_type_u_857"/>
+        </record>
+        <record id="wowi_account_8576" model="account.account.template">
+            <field name="name">Einstellung in Pauschalwertberichtigungen (PWB)</field>
+            <field name="parent" ref="wowi_view_u_857"/>
+            <field name="code">8576</field>
+            <field name="type" ref="wowi_type_u_857"/>
+        </record>
+        <record id="wowi_view_u_859" model="account.account.template">
+            <field name="name">Verschiedene sonstige Aufwendungen</field>
+            <field name="parent" ref="wowi_view_g_85"/>
+        </record>
+        <record id="wowi_account_8599" model="account.account.template">
+            <field name="name">Außergewöhnliche Aufwendungen</field>
+            <field name="parent" ref="wowi_view_u_859"/>
+            <field name="code">8599</field>
+            <field name="type" ref="wowi_type_u_859"/>
+        </record>
+        <record id="wowi_view_g_86" model="account.account.template">
+            <field name="name">Abschreibungen auf Finanzanlagen/Wertpapiere des Umlaufvermögens</field>
+            <field name="parent" ref="wowi_view_k8"/>
+        </record>
+        <record id="wowi_view_u_860" model="account.account.template">
+            <field name="name">Abschreibungen auf Finanzanlagen</field>
+            <field name="parent" ref="wowi_view_g_86"/>
+        </record>
+        <record id="wowi_account_8600" model="account.account.template">
+            <field name="name">Abschreibungen auf Finanzanlagen</field>
+            <field name="parent" ref="wowi_view_u_860"/>
+            <field name="code">8600</field>
+            <field name="type" ref="wowi_type_u_860"/>
+        </record>
+        <record id="wowi_view_u_868" model="account.account.template">
+            <field name="name">Abschreibungen auf Wertpapiere des Umlaufvermögens</field>
+            <field name="parent" ref="wowi_view_g_86"/>
+        </record>
+        <record id="wowi_account_8680" model="account.account.template">
+            <field name="name">Abschreibungen auf Wertpapiere des Umlaufvermögens</field>
+            <field name="parent" ref="wowi_view_u_868"/>
+            <field name="code">8680</field>
+            <field name="type" ref="wowi_type_u_868"/>
+        </record>
+        <record id="wowi_view_g_87" model="account.account.template">
+            <field name="name">Zinsen und ähnliche Aufwendungen</field>
+            <field name="parent" ref="wowi_view_k8"/>
+        </record>
+        <record id="wowi_view_u_870" model="account.account.template">
+            <field name="name">Zinsen auf Anleihen</field>
+            <field name="parent" ref="wowi_view_g_87"/>
+        </record>
+        <record id="wowi_account_8700" model="account.account.template">
+            <field name="name">Zinsen auf Anleihen</field>
+            <field name="parent" ref="wowi_view_u_870"/>
+            <field name="code">8700</field>
+            <field name="type" ref="wowi_type_u_870"/>
+        </record>
+        <record id="wowi_view_u_871" model="account.account.template">
+            <field name="name">Zinsen auf Spareinlagen und Sparbriefe</field>
+            <field name="parent" ref="wowi_view_g_87"/>
+        </record>
+        <record id="wowi_account_8710" model="account.account.template">
+            <field name="name">Zinsen auf Spareinlagen und Sparbriefe</field>
+            <field name="parent" ref="wowi_view_u_871"/>
+            <field name="code">8710</field>
+            <field name="type" ref="wowi_type_u_871"/>
+        </record>
+        <record id="wowi_view_u_872" model="account.account.template">
+            <field name="name">Zinsen auf Verbindlichkeiten gegenüber Kreditinstituten</field>
+            <field name="parent" ref="wowi_view_g_87"/>
+        </record>
+        <record id="wowi_account_8720" model="account.account.template">
+            <field name="name">Zinsen auf Verbindlichkeiten gegenüber Kreditinstituten</field>
+            <field name="parent" ref="wowi_view_u_872"/>
+            <field name="code">8720</field>
+            <field name="type" ref="wowi_type_u_872"/>
+        </record>
+        <record id="wowi_view_u_873" model="account.account.template">
+            <field name="name">Zinsen auf Verbindlichkeiten gegenüber anderen Kreditgebern</field>
+            <field name="parent" ref="wowi_view_g_87"/>
+        </record>
+        <record id="wowi_account_8730" model="account.account.template">
+            <field name="name">Zinsen auf Verbindlichkeiten gegenüber anderen Kreditgebern</field>
+            <field name="parent" ref="wowi_view_u_873"/>
+            <field name="code">8730</field>
+            <field name="type" ref="wowi_type_u_873"/>
+        </record>
+        <record id="wowi_view_u_874" model="account.account.template">
+            <field name="name">Zinsen auf übrige Verbindlichkeiten und andere Zinsaufwendungen</field>
+            <field name="parent" ref="wowi_view_g_87"/>
+        </record>
+        <record id="wowi_account_8740" model="account.account.template">
+            <field name="name">Zinsen auf übrige Verbindlichkeiten und andere Zinsaufwendungen</field>
+            <field name="parent" ref="wowi_view_u_874"/>
+            <field name="code">8740</field>
+            <field name="type" ref="wowi_type_u_874"/>
+        </record>
+        <record id="wowi_view_u_875" model="account.account.template">
+            <field name="name">Abschreibungen auf Geldbeschaffungskosten/Disagio</field>
+            <field name="parent" ref="wowi_view_g_87"/>
+        </record>
+        <record id="wowi_account_8750" model="account.account.template">
+            <field name="name">Abschreibungen auf Geldbeschaffungskosten/Disagio</field>
+            <field name="parent" ref="wowi_view_u_875"/>
+            <field name="code">8750</field>
+            <field name="type" ref="wowi_type_u_875"/>
+        </record>
+        <record id="wowi_view_u_876" model="account.account.template">
+            <field name="name">Zinsen und ähnliche Aufwendungen für Verbindlichkeiten gegenüber verbundenen Unternehmen</field>
+            <field name="parent" ref="wowi_view_g_87"/>
+        </record>
+        <record id="wowi_account_8760" model="account.account.template">
+            <field name="name">Zinsen und ähnliche Aufwendungen für Verbindlichkeiten gegenüber verbundenen Unternehmen</field>
+            <field name="parent" ref="wowi_view_u_876"/>
+            <field name="code">8760</field>
+            <field name="type" ref="wowi_type_u_876"/>
+        </record>
+        <record id="wowi_view_u_879" model="account.account.template">
+            <field name="name">Andere Zinsen und ähnliche Aufwendungen</field>
+            <field name="parent" ref="wowi_view_g_87"/>
+        </record>
+        <record id="wowi_account_8798" model="account.account.template">
+            <field name="name">Zinsaufwendungen aus der Abzinsung von Rückstellungen</field>
+            <field name="parent" ref="wowi_view_u_879"/>
+            <field name="code">8798</field>
+            <field name="type" ref="wowi_type_u_879"/>
+        </record>
+        <record id="wowi_view_g_88" model="account.account.template">
+            <field name="name">Aufwendungen aus Verlustübernahmen</field>
+            <field name="parent" ref="wowi_view_k8"/>
+        </record>
+        <record id="wowi_view_u_880" model="account.account.template">
+            <field name="name">Aufwendungen aus Verlustübernahmen</field>
+            <field name="parent" ref="wowi_view_g_88"/>
+        </record>
+        <record id="wowi_account_8800" model="account.account.template">
+            <field name="name">Aufwendungen aus Verlustübernahmen</field>
+            <field name="parent" ref="wowi_view_u_880"/>
+            <field name="code">8800</field>
+            <field name="type" ref="wowi_type_u_880"/>
+        </record>
+        <record id="wowi_view_g_89" model="account.account.template">
+            <field name="name">Steuern</field>
+            <field name="parent" ref="wowi_view_k8"/>
+        </record>
+        <record id="wowi_view_u_890" model="account.account.template">
+            <field name="name">Steuern vom Einkommen und vom Ertrag</field>
+            <field name="parent" ref="wowi_view_g_89"/>
+        </record>
+        <record id="wowi_account_8900" model="account.account.template">
+            <field name="name">Körperschaftsteuer</field>
+            <field name="parent" ref="wowi_view_u_890"/>
+            <field name="code">8900</field>
+            <field name="type" ref="wowi_type_u_890"/>
+        </record>
+        <record id="wowi_account_8901" model="account.account.template">
+            <field name="name">Kapitalertragsteuer</field>
+            <field name="parent" ref="wowi_view_u_890"/>
+            <field name="code">8901</field>
+            <field name="type" ref="wowi_type_u_890"/>
+        </record>
+        <record id="wowi_account_8903" model="account.account.template">
+            <field name="name">Gewerbeertragsteuer</field>
+            <field name="parent" ref="wowi_view_u_890"/>
+            <field name="code">8903</field>
+            <field name="type" ref="wowi_type_u_890"/>
+        </record>
+        <record id="wowi_account_8909" model="account.account.template">
+            <field name="name">Steuererstattungen/-nachzahlungen für frühere Jahre</field>
+            <field name="parent" ref="wowi_view_u_890"/>
+            <field name="code">8909</field>
+            <field name="type" ref="wowi_type_u_890"/>
+        </record>
+        <record id="wowi_view_u_891" model="account.account.template">
+            <field name="name">Sonstige Steuern</field>
+            <field name="parent" ref="wowi_view_g_89"/>
+        </record>
+        <record id="wowi_account_8910" model="account.account.template">
+            <field name="name">Grundsteuer</field>
+            <field name="parent" ref="wowi_view_u_891"/>
+            <field name="code">8910</field>
+            <field name="type" ref="wowi_type_u_891"/>
+        </record>
+        <record id="wowi_account_8911" model="account.account.template">
+            <field name="name">Kraftfahrzeugsteuer</field>
+            <field name="parent" ref="wowi_view_u_891"/>
+            <field name="code">8911</field>
+            <field name="type" ref="wowi_type_u_891"/>
+        </record>
+        <record id="wowi_account_8919" model="account.account.template">
+            <field name="name">Steuererstattungen/-nachzahlungen für frühere Jahre</field>
+            <field name="parent" ref="wowi_view_u_891"/>
+            <field name="code">8919</field>
+            <field name="type" ref="wowi_type_u_891"/>
+        </record>
+        <record id="wowi_view_k9" model="account.account.template">
+            <field name="name">Klasse 9: Abschlusskonten/Verrechnungskosten</field>
+            <field name="parent" ref="wowi_root"/>
+        </record>
+        <record id="wowi_view_g_98" model="account.account.template">
+            <field name="name">Abschlusskonten</field>
+            <field name="parent" ref="wowi_view_k9"/>
+        </record>
+        <record id="wowi_view_u_980" model="account.account.template">
+            <field name="name">Eröffnungsbilanzkonten</field>
+            <field name="parent" ref="wowi_view_g_98"/>
+        </record>
+        <record id="wowi_account_9800" model="account.account.template">
+            <field name="name">Eröffnungsbilanzkonten</field>
+            <field name="parent" ref="wowi_view_u_980"/>
+            <field name="code">9800</field>
+            <field name="type" ref="wowi_type_u_980"/>
+        </record>
+        <record id="wowi_view_u_982" model="account.account.template">
+            <field name="name">Jahresüberschuss/Jahresfehlbetrag</field>
+            <field name="parent" ref="wowi_view_g_98"/>
+        </record>
+        <record id="wowi_account_9820" model="account.account.template">
+            <field name="name">Jahresüberschuss/Jahresfehlbetrag</field>
+            <field name="parent" ref="wowi_view_u_982"/>
+            <field name="code">9820</field>
+            <field name="type" ref="wowi_type_u_982"/>
+        </record>
+        <record id="wowi_view_u_983" model="account.account.template">
+            <field name="name">Entnahme aus Rücklagen</field>
+            <field name="parent" ref="wowi_view_g_98"/>
+        </record>
+        <record id="wowi_account_9830" model="account.account.template">
+            <field name="name">Entnahme aus Rücklagen</field>
+            <field name="parent" ref="wowi_view_u_983"/>
+            <field name="code">9830</field>
+            <field name="type" ref="wowi_type_u_983"/>
+        </record>
+        <record id="wowi_view_u_984" model="account.account.template">
+            <field name="name">Einstellung in Rücklagen</field>
+            <field name="parent" ref="wowi_view_g_98"/>
+        </record>
+        <record id="wowi_account_9840" model="account.account.template">
+            <field name="name">Einstellung in Rücklagen</field>
+            <field name="parent" ref="wowi_view_u_984"/>
+            <field name="code">9840</field>
+            <field name="type" ref="wowi_type_u_984"/>
+        </record>
+        <record id="wowi_view_u_985" model="account.account.template">
+            <field name="name">Ergebnisverwendungskonto</field>
+            <field name="parent" ref="wowi_view_g_98"/>
+        </record>
+        <record id="wowi_account_9850" model="account.account.template">
+            <field name="name">Ergebnisverwendungskonto</field>
+            <field name="parent" ref="wowi_view_u_985"/>
+            <field name="code">9850</field>
+            <field name="type" ref="wowi_type_u_985"/>
+        </record>
+        <record id="wowi_view_u_989" model="account.account.template">
+            <field name="name">Schlussbilanzkonten</field>
+            <field name="parent" ref="wowi_view_g_98"/>
+        </record>
+        <record id="wowi_account_9890" model="account.account.template">
+            <field name="name">Schlussbilanzkonten</field>
+            <field name="parent" ref="wowi_view_u_989"/>
+            <field name="code">9890</field>
+            <field name="type" ref="wowi_type_u_989"/>
+        </record>
+
+    </data>
+</tryton>

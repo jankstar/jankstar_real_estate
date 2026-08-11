@@ -1,0 +1,2280 @@
+<?xml version="1.0" ?>
+<!-- This file is part of the real_estate module for Tryton.
+ Alternative German chart of accounts for the housing industry
+ ("Kontenrahmen der Wohnungswirtschaft" / WoWi), generated from
+ Kontenplan.md. Mirrors the skr04/ template conventions but uses a
+ distinct wowi_* record-id prefix to avoid collisions.
+ The COPYRIGHT file at the top level of
+ this repository contains the full copyright notices and license terms.-->
+<tryton>
+    <data>
+
+        <record id="wowi_type_root" model="account.account.type.template">
+            <field name="name">Kontenrahmen der Wohnungswirtschaft (WoWi)</field>
+            <field eval="10" name="sequence"/>
+        </record>
+        <record id="wowi_type_balance_assets" model="account.account.type.template">
+            <field name="name">Aktiva (Anlage- und Umlaufvermögen, Forderungen, liquide Mittel)</field>
+            <field name="parent" ref="wowi_type_root"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+            <field name="assets" eval="True"/>
+        </record>
+        <record id="wowi_type_balance_liabilities" model="account.account.type.template">
+            <field name="name">Passiva (Eigenkapital, Rückstellungen, Verbindlichkeiten)</field>
+            <field name="parent" ref="wowi_type_root"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+        </record>
+        <record id="wowi_type_income" model="account.account.type.template">
+            <field name="name">Erträge und Aufwendungen</field>
+            <field name="parent" ref="wowi_type_root"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">income</field>
+        </record>
+        <record id="wowi_type_closing" model="account.account.type.template">
+            <field name="name">Abschlusskonten</field>
+            <field name="parent" ref="wowi_type_root"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+        </record>
+        <record id="wowi_type_k0" model="account.account.type.template">
+            <field name="name">Klasse 0: Anlagevermögen</field>
+            <field name="parent" ref="wowi_type_balance_assets"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+            <field name="assets" eval="True"/>
+        </record>
+        <record id="wowi_type_g_00" model="account.account.type.template">
+            <field name="name">Grundstücke und grundstücksgleiche Rechte mit Wohnbauten</field>
+            <field name="parent" ref="wowi_type_k0"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+            <field name="assets" eval="True"/>
+        </record>
+        <record id="wowi_type_u_000" model="account.account.type.template">
+            <field name="name">Grundstückskosten</field>
+            <field name="parent" ref="wowi_type_g_00"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+            <field name="assets" eval="True"/>
+        </record>
+        <record id="wowi_type_u_001" model="account.account.type.template">
+            <field name="name">Gebäudekosten</field>
+            <field name="parent" ref="wowi_type_g_00"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+            <field name="assets" eval="True"/>
+        </record>
+        <record id="wowi_type_u_002" model="account.account.type.template">
+            <field name="name">Betriebsvorrichtungen</field>
+            <field name="parent" ref="wowi_type_g_00"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+            <field name="assets" eval="True"/>
+        </record>
+        <record id="wowi_type_u_003" model="account.account.type.template">
+            <field name="name">Garagen</field>
+            <field name="parent" ref="wowi_type_g_00"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+            <field name="assets" eval="True"/>
+        </record>
+        <record id="wowi_type_u_004" model="account.account.type.template">
+            <field name="name">Außenanlagen</field>
+            <field name="parent" ref="wowi_type_g_00"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+            <field name="assets" eval="True"/>
+        </record>
+        <record id="wowi_type_g_01" model="account.account.type.template">
+            <field name="name">Grundstücke und grundstücksgleiche Rechte mit Geschäfts- und anderen Bauten</field>
+            <field name="parent" ref="wowi_type_k0"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+            <field name="assets" eval="True"/>
+        </record>
+        <record id="wowi_type_u_010" model="account.account.type.template">
+            <field name="name">Grundstückskosten</field>
+            <field name="parent" ref="wowi_type_g_01"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+            <field name="assets" eval="True"/>
+        </record>
+        <record id="wowi_type_u_011" model="account.account.type.template">
+            <field name="name">Gebäudekosten</field>
+            <field name="parent" ref="wowi_type_g_01"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+            <field name="assets" eval="True"/>
+        </record>
+        <record id="wowi_type_u_012" model="account.account.type.template">
+            <field name="name">Betriebsvorrichtungen</field>
+            <field name="parent" ref="wowi_type_g_01"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+            <field name="assets" eval="True"/>
+        </record>
+        <record id="wowi_type_u_013" model="account.account.type.template">
+            <field name="name">Garagen</field>
+            <field name="parent" ref="wowi_type_g_01"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+            <field name="assets" eval="True"/>
+        </record>
+        <record id="wowi_type_u_014" model="account.account.type.template">
+            <field name="name">Außenanlagen</field>
+            <field name="parent" ref="wowi_type_g_01"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+            <field name="assets" eval="True"/>
+        </record>
+        <record id="wowi_type_g_02" model="account.account.type.template">
+            <field name="name">Grundstücke und grundstücksgleiche Rechte ohne Bauten</field>
+            <field name="parent" ref="wowi_type_k0"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+            <field name="assets" eval="True"/>
+        </record>
+        <record id="wowi_type_u_020" model="account.account.type.template">
+            <field name="name">noch nicht erschlossen</field>
+            <field name="parent" ref="wowi_type_g_02"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+            <field name="assets" eval="True"/>
+        </record>
+        <record id="wowi_type_u_021" model="account.account.type.template">
+            <field name="name">im Zustand der Erschließung (durch Dritte)</field>
+            <field name="parent" ref="wowi_type_g_02"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+            <field name="assets" eval="True"/>
+        </record>
+        <record id="wowi_type_u_022" model="account.account.type.template">
+            <field name="name">erschlossen (durch Dritte / erschlossen erworben)</field>
+            <field name="parent" ref="wowi_type_g_02"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+            <field name="assets" eval="True"/>
+        </record>
+        <record id="wowi_type_u_025" model="account.account.type.template">
+            <field name="name">im Zustand der Erschließung (eigene Erschließung)</field>
+            <field name="parent" ref="wowi_type_g_02"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+            <field name="assets" eval="True"/>
+        </record>
+        <record id="wowi_type_u_026" model="account.account.type.template">
+            <field name="name">erschlossen (eigene Erschließung)</field>
+            <field name="parent" ref="wowi_type_g_02"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+            <field name="assets" eval="True"/>
+        </record>
+        <record id="wowi_type_g_03" model="account.account.type.template">
+            <field name="name">Grundstücke mit Erbbaurechten Dritter sowie Bauten auf fremden Grundstücken</field>
+            <field name="parent" ref="wowi_type_k0"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+            <field name="assets" eval="True"/>
+        </record>
+        <record id="wowi_type_u_030" model="account.account.type.template">
+            <field name="name">Grundstücke mit Erbbaurechten Dritter</field>
+            <field name="parent" ref="wowi_type_g_03"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+            <field name="assets" eval="True"/>
+        </record>
+        <record id="wowi_type_u_031" model="account.account.type.template">
+            <field name="name">Bauten auf fremden Grundstücken</field>
+            <field name="parent" ref="wowi_type_g_03"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+            <field name="assets" eval="True"/>
+        </record>
+        <record id="wowi_type_g_04" model="account.account.type.template">
+            <field name="name">Technische Anlagen und Maschinen (TAM)</field>
+            <field name="parent" ref="wowi_type_k0"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+            <field name="assets" eval="True"/>
+        </record>
+        <record id="wowi_type_u_040" model="account.account.type.template">
+            <field name="name">Geringwertige Wirtschaftsgüter / GWG</field>
+            <field name="parent" ref="wowi_type_g_04"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+            <field name="assets" eval="True"/>
+        </record>
+        <record id="wowi_type_u_041" model="account.account.type.template">
+            <field name="name">Sonstige Wirtschaftsgüter (TAM)</field>
+            <field name="parent" ref="wowi_type_g_04"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+            <field name="assets" eval="True"/>
+        </record>
+        <record id="wowi_type_g_05" model="account.account.type.template">
+            <field name="name">Andere Anlagen, Betriebs- und Geschäftsausstattung (BGA)</field>
+            <field name="parent" ref="wowi_type_k0"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+            <field name="assets" eval="True"/>
+        </record>
+        <record id="wowi_type_u_050" model="account.account.type.template">
+            <field name="name">Geringwertige Wirtschaftsgüter / GWG</field>
+            <field name="parent" ref="wowi_type_g_05"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+            <field name="assets" eval="True"/>
+        </record>
+        <record id="wowi_type_u_051" model="account.account.type.template">
+            <field name="name">Sonstige Wirtschaftsgüter (BGA)</field>
+            <field name="parent" ref="wowi_type_g_05"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+            <field name="assets" eval="True"/>
+        </record>
+        <record id="wowi_type_g_06" model="account.account.type.template">
+            <field name="name">Anlagen im Bau</field>
+            <field name="parent" ref="wowi_type_k0"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+            <field name="assets" eval="True"/>
+        </record>
+        <record id="wowi_type_u_061" model="account.account.type.template">
+            <field name="name">Kosten des Baugrundstücks</field>
+            <field name="parent" ref="wowi_type_g_06"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+            <field name="assets" eval="True"/>
+        </record>
+        <record id="wowi_type_u_062" model="account.account.type.template">
+            <field name="name">Kosten der Erschließung</field>
+            <field name="parent" ref="wowi_type_g_06"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+            <field name="assets" eval="True"/>
+        </record>
+        <record id="wowi_type_u_063" model="account.account.type.template">
+            <field name="name">Kosten des Bauwerks</field>
+            <field name="parent" ref="wowi_type_g_06"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+            <field name="assets" eval="True"/>
+        </record>
+        <record id="wowi_type_u_064" model="account.account.type.template">
+            <field name="name">Kosten des Geräts</field>
+            <field name="parent" ref="wowi_type_g_06"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+            <field name="assets" eval="True"/>
+        </record>
+        <record id="wowi_type_u_065" model="account.account.type.template">
+            <field name="name">Kosten der Außenanlagen</field>
+            <field name="parent" ref="wowi_type_g_06"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+            <field name="assets" eval="True"/>
+        </record>
+        <record id="wowi_type_u_066" model="account.account.type.template">
+            <field name="name">Kosten für zusätzliche Maßnahmen</field>
+            <field name="parent" ref="wowi_type_g_06"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+            <field name="assets" eval="True"/>
+        </record>
+        <record id="wowi_type_u_067" model="account.account.type.template">
+            <field name="name">Baunebenkosten</field>
+            <field name="parent" ref="wowi_type_g_06"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+            <field name="assets" eval="True"/>
+        </record>
+        <record id="wowi_type_u_069" model="account.account.type.template">
+            <field name="name">Baukostenminderungen</field>
+            <field name="parent" ref="wowi_type_g_06"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+            <field name="assets" eval="True"/>
+        </record>
+        <record id="wowi_type_g_07" model="account.account.type.template">
+            <field name="name">Bauvorbereitungskosten und geleistete Anzahlungen</field>
+            <field name="parent" ref="wowi_type_k0"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+            <field name="assets" eval="True"/>
+        </record>
+        <record id="wowi_type_u_070" model="account.account.type.template">
+            <field name="name">Bauvorbereitungskosten</field>
+            <field name="parent" ref="wowi_type_g_07"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+            <field name="assets" eval="True"/>
+        </record>
+        <record id="wowi_type_u_077" model="account.account.type.template">
+            <field name="name">Geleistete Anzahlungen</field>
+            <field name="parent" ref="wowi_type_g_07"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+            <field name="assets" eval="True"/>
+            <field name="receivable" eval="True"/>
+        </record>
+        <record id="wowi_type_g_08" model="account.account.type.template">
+            <field name="name">Finanzanlagen</field>
+            <field name="parent" ref="wowi_type_k0"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+            <field name="assets" eval="True"/>
+        </record>
+        <record id="wowi_type_u_085" model="account.account.type.template">
+            <field name="name">Wertpapiere des Anlagevermögens</field>
+            <field name="parent" ref="wowi_type_g_08"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+            <field name="assets" eval="True"/>
+        </record>
+        <record id="wowi_type_u_087" model="account.account.type.template">
+            <field name="name">Sonstige Ausleihungen</field>
+            <field name="parent" ref="wowi_type_g_08"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+            <field name="assets" eval="True"/>
+        </record>
+        <record id="wowi_type_g_09" model="account.account.type.template">
+            <field name="name">Immaterielle Vermögensgegenstände</field>
+            <field name="parent" ref="wowi_type_k0"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+            <field name="assets" eval="True"/>
+        </record>
+        <record id="wowi_type_k1" model="account.account.type.template">
+            <field name="name">Klasse 1: Zum Verkauf bestimmte Grundstücke und andere Vorräte</field>
+            <field name="parent" ref="wowi_type_balance_assets"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+            <field name="assets" eval="True"/>
+        </record>
+        <record id="wowi_type_g_10" model="account.account.type.template">
+            <field name="name">Grundstücke und grundstücksgleiche Rechte ohne Bauten noch nicht erschlossen / durch Dritte erschlossen oder erschlossen erworben</field>
+            <field name="parent" ref="wowi_type_k1"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+            <field name="assets" eval="True"/>
+        </record>
+        <record id="wowi_type_u_100" model="account.account.type.template">
+            <field name="name">noch nicht erschlossen</field>
+            <field name="parent" ref="wowi_type_g_10"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+            <field name="assets" eval="True"/>
+        </record>
+        <record id="wowi_type_u_101" model="account.account.type.template">
+            <field name="name">im Zustand der Erschließung (durch Dritte)</field>
+            <field name="parent" ref="wowi_type_g_10"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+            <field name="assets" eval="True"/>
+        </record>
+        <record id="wowi_type_u_102" model="account.account.type.template">
+            <field name="name">erschlossen erworben / durch Dritte erschlossen</field>
+            <field name="parent" ref="wowi_type_g_10"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+            <field name="assets" eval="True"/>
+        </record>
+        <record id="wowi_type_g_11" model="account.account.type.template">
+            <field name="name">Grundstücke und grundstücksgleiche Rechte ohne Bauten selbst erschlossen</field>
+            <field name="parent" ref="wowi_type_k1"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+            <field name="assets" eval="True"/>
+        </record>
+        <record id="wowi_type_u_110" model="account.account.type.template">
+            <field name="name">im Zustand der Erschließung (eigene)</field>
+            <field name="parent" ref="wowi_type_g_11"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+            <field name="assets" eval="True"/>
+        </record>
+        <record id="wowi_type_u_111" model="account.account.type.template">
+            <field name="name">erschlossen / eigene Erschließung</field>
+            <field name="parent" ref="wowi_type_g_11"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+            <field name="assets" eval="True"/>
+        </record>
+        <record id="wowi_type_g_12" model="account.account.type.template">
+            <field name="name">Bauvorbereitungskosten</field>
+            <field name="parent" ref="wowi_type_k1"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+            <field name="assets" eval="True"/>
+        </record>
+        <record id="wowi_type_g_13" model="account.account.type.template">
+            <field name="name">Grundstücke und grundstücksgleiche Rechte mit unfertigen Bauten</field>
+            <field name="parent" ref="wowi_type_k1"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+            <field name="assets" eval="True"/>
+        </record>
+        <record id="wowi_type_g_14" model="account.account.type.template">
+            <field name="name">Grundstücke und grundstücksgleiche Rechte mit fertigen Bauten</field>
+            <field name="parent" ref="wowi_type_k1"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+            <field name="assets" eval="True"/>
+        </record>
+        <record id="wowi_type_u_140" model="account.account.type.template">
+            <field name="name">Grundstücke mit fertigen Bauten / selbst errichtet</field>
+            <field name="parent" ref="wowi_type_g_14"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+            <field name="assets" eval="True"/>
+        </record>
+        <record id="wowi_type_u_145" model="account.account.type.template">
+            <field name="name">Grundstücke mit fertigen Bauten / bebaut erworben</field>
+            <field name="parent" ref="wowi_type_g_14"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+            <field name="assets" eval="True"/>
+        </record>
+        <record id="wowi_type_g_15" model="account.account.type.template">
+            <field name="name">Noch nicht abgerechnete Betriebskosten</field>
+            <field name="parent" ref="wowi_type_k1"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+            <field name="assets" eval="True"/>
+        </record>
+        <record id="wowi_type_u_150" model="account.account.type.template">
+            <field name="name">Noch nicht abgerechnete Beheizungs- und Warmwasserkosten</field>
+            <field name="parent" ref="wowi_type_g_15"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+            <field name="assets" eval="True"/>
+        </record>
+        <record id="wowi_type_u_151" model="account.account.type.template">
+            <field name="name">Noch nicht abgerechnete andere Betriebskosten</field>
+            <field name="parent" ref="wowi_type_g_15"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+            <field name="assets" eval="True"/>
+        </record>
+        <record id="wowi_type_g_16" model="account.account.type.template">
+            <field name="name">Andere unfertige Leistungen</field>
+            <field name="parent" ref="wowi_type_k1"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+            <field name="assets" eval="True"/>
+        </record>
+        <record id="wowi_type_u_160" model="account.account.type.template">
+            <field name="name">Noch nicht abgerechnete Betreuungsleistungen</field>
+            <field name="parent" ref="wowi_type_g_16"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+            <field name="assets" eval="True"/>
+        </record>
+        <record id="wowi_type_u_161" model="account.account.type.template">
+            <field name="name">Unfertige Bauleistungen auf fremdem Grund und Boden</field>
+            <field name="parent" ref="wowi_type_g_16"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+            <field name="assets" eval="True"/>
+        </record>
+        <record id="wowi_type_u_169" model="account.account.type.template">
+            <field name="name">Andere unfertige Leistungen</field>
+            <field name="parent" ref="wowi_type_g_16"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+            <field name="assets" eval="True"/>
+        </record>
+        <record id="wowi_type_g_17" model="account.account.type.template">
+            <field name="name">Andere Vorräte</field>
+            <field name="parent" ref="wowi_type_k1"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+            <field name="assets" eval="True"/>
+        </record>
+        <record id="wowi_type_u_170" model="account.account.type.template">
+            <field name="name">Heizmaterial</field>
+            <field name="parent" ref="wowi_type_g_17"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+            <field name="assets" eval="True"/>
+        </record>
+        <record id="wowi_type_u_171" model="account.account.type.template">
+            <field name="name">Reparaturmaterial und sonstige Materialvorräte</field>
+            <field name="parent" ref="wowi_type_g_17"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+            <field name="assets" eval="True"/>
+        </record>
+        <record id="wowi_type_g_18" model="account.account.type.template">
+            <field name="name">Geleistete Anzahlungen</field>
+            <field name="parent" ref="wowi_type_k1"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+            <field name="assets" eval="True"/>
+        </record>
+        <record id="wowi_type_u_180" model="account.account.type.template">
+            <field name="name">Anzahlungen auf zum Verkauf bestimmte Grundstücke</field>
+            <field name="parent" ref="wowi_type_g_18"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+            <field name="assets" eval="True"/>
+            <field name="receivable" eval="True"/>
+        </record>
+        <record id="wowi_type_u_181" model="account.account.type.template">
+            <field name="name">Andere Anzahlungen</field>
+            <field name="parent" ref="wowi_type_g_18"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+            <field name="assets" eval="True"/>
+            <field name="receivable" eval="True"/>
+        </record>
+        <record id="wowi_type_k2" model="account.account.type.template">
+            <field name="name">Klasse 2: Forderungen / Sonstige Vermögensgegenstände / Wertpapiere / Flüssige Mittel / ARA</field>
+            <field name="parent" ref="wowi_type_balance_assets"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+            <field name="assets" eval="True"/>
+        </record>
+        <record id="wowi_type_g_20" model="account.account.type.template">
+            <field name="name">Forderungen aus Vermietung und Verpachtung</field>
+            <field name="parent" ref="wowi_type_k2"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+            <field name="assets" eval="True"/>
+        </record>
+        <record id="wowi_type_u_200" model="account.account.type.template">
+            <field name="name">Mietforderungen</field>
+            <field name="parent" ref="wowi_type_g_20"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+            <field name="assets" eval="True"/>
+            <field name="receivable" eval="True"/>
+        </record>
+        <record id="wowi_type_g_21" model="account.account.type.template">
+            <field name="name">Forderungen aus dem Verkauf von Grundstücken</field>
+            <field name="parent" ref="wowi_type_k2"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+            <field name="assets" eval="True"/>
+        </record>
+        <record id="wowi_type_u_210" model="account.account.type.template">
+            <field name="name">Forderungen aus Verkauf von Grundstücken</field>
+            <field name="parent" ref="wowi_type_g_21"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+            <field name="assets" eval="True"/>
+            <field name="receivable" eval="True"/>
+        </record>
+        <record id="wowi_type_u_215" model="account.account.type.template">
+            <field name="name">Zweifelhafte Forderungen aus Verkauf von Grundstücken</field>
+            <field name="parent" ref="wowi_type_g_21"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+            <field name="assets" eval="True"/>
+            <field name="receivable" eval="True"/>
+        </record>
+        <record id="wowi_type_u_219" model="account.account.type.template">
+            <field name="name">Wertberichtigungen zu Forderungen aus Verkauf von Grundstücken</field>
+            <field name="parent" ref="wowi_type_g_21"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+            <field name="assets" eval="True"/>
+            <field name="receivable" eval="True"/>
+        </record>
+        <record id="wowi_type_g_22" model="account.account.type.template">
+            <field name="name">Forderungen aus der Betreuungstätigkeit</field>
+            <field name="parent" ref="wowi_type_k2"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+            <field name="assets" eval="True"/>
+        </record>
+        <record id="wowi_type_u_220" model="account.account.type.template">
+            <field name="name">Forderungen aus Betreuungstätigkeit</field>
+            <field name="parent" ref="wowi_type_g_22"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+            <field name="assets" eval="True"/>
+            <field name="receivable" eval="True"/>
+        </record>
+        <record id="wowi_type_u_225" model="account.account.type.template">
+            <field name="name">Zweifelhafte Forderungen aus Betreuungstätigkeit</field>
+            <field name="parent" ref="wowi_type_g_22"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+            <field name="assets" eval="True"/>
+            <field name="receivable" eval="True"/>
+        </record>
+        <record id="wowi_type_u_229" model="account.account.type.template">
+            <field name="name">Wertberichtigungen zu Forderungen aus Betreuungstätigkeit</field>
+            <field name="parent" ref="wowi_type_g_22"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+            <field name="assets" eval="True"/>
+            <field name="receivable" eval="True"/>
+        </record>
+        <record id="wowi_type_g_23" model="account.account.type.template">
+            <field name="name">Forderungen aus anderen Lieferungen und Leistungen</field>
+            <field name="parent" ref="wowi_type_k2"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+            <field name="assets" eval="True"/>
+        </record>
+        <record id="wowi_type_u_230" model="account.account.type.template">
+            <field name="name">Forderungen aus anderen Lieferungen und Leistungen</field>
+            <field name="parent" ref="wowi_type_g_23"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+            <field name="assets" eval="True"/>
+            <field name="receivable" eval="True"/>
+        </record>
+        <record id="wowi_type_u_234" model="account.account.type.template">
+            <field name="name">Forderungen aus Inventarverkäufen</field>
+            <field name="parent" ref="wowi_type_g_23"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+            <field name="assets" eval="True"/>
+            <field name="receivable" eval="True"/>
+        </record>
+        <record id="wowi_type_u_235" model="account.account.type.template">
+            <field name="name">Zweifelhafte Forderungen aus anderen Lieferungen und Leistungen</field>
+            <field name="parent" ref="wowi_type_g_23"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+            <field name="assets" eval="True"/>
+            <field name="receivable" eval="True"/>
+        </record>
+        <record id="wowi_type_u_239" model="account.account.type.template">
+            <field name="name">Wertberichtigungen zu Forderungen aus anderen Lieferungen und Leistungen</field>
+            <field name="parent" ref="wowi_type_g_23"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+            <field name="assets" eval="True"/>
+            <field name="receivable" eval="True"/>
+        </record>
+        <record id="wowi_type_g_24" model="account.account.type.template">
+            <field name="name">Unternehmensrechtliche Sonderposten</field>
+            <field name="parent" ref="wowi_type_k2"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+            <field name="assets" eval="True"/>
+        </record>
+        <record id="wowi_type_g_25" model="account.account.type.template">
+            <field name="name">Sonstige Vermögensgegenstände</field>
+            <field name="parent" ref="wowi_type_k2"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+            <field name="assets" eval="True"/>
+        </record>
+        <record id="wowi_type_u_250" model="account.account.type.template">
+            <field name="name">Kostenvorschüsse (Gerichts- und Rechtsanwaltskosten)</field>
+            <field name="parent" ref="wowi_type_g_25"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+            <field name="assets" eval="True"/>
+        </record>
+        <record id="wowi_type_u_251" model="account.account.type.template">
+            <field name="name">Forderungen an Arbeitnehmer aus Lohn-, Gehalts- und Reisekostenvorschüssen</field>
+            <field name="parent" ref="wowi_type_g_25"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+            <field name="assets" eval="True"/>
+        </record>
+        <record id="wowi_type_u_252" model="account.account.type.template">
+            <field name="name">Schadenersatzansprüche gegenüber Versicherungen</field>
+            <field name="parent" ref="wowi_type_g_25"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+            <field name="assets" eval="True"/>
+        </record>
+        <record id="wowi_type_u_253" model="account.account.type.template">
+            <field name="name">Forderungen an das Finanzamt (Steuerüberzahlungen, Erstattungsansprüche)</field>
+            <field name="parent" ref="wowi_type_g_25"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+            <field name="assets" eval="True"/>
+        </record>
+        <record id="wowi_type_u_257" model="account.account.type.template">
+            <field name="name">Rückständige und aufgelaufene Aufwandssubventionen (sofern keine Gegenleistungsverpflichtung besteht)</field>
+            <field name="parent" ref="wowi_type_g_25"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+            <field name="assets" eval="True"/>
+        </record>
+        <record id="wowi_type_u_259" model="account.account.type.template">
+            <field name="name">Andere Vermögensgegenstände</field>
+            <field name="parent" ref="wowi_type_g_25"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+            <field name="assets" eval="True"/>
+        </record>
+        <record id="wowi_type_g_26" model="account.account.type.template">
+            <field name="name">Wertpapiere</field>
+            <field name="parent" ref="wowi_type_k2"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+            <field name="assets" eval="True"/>
+        </record>
+        <record id="wowi_type_u_260" model="account.account.type.template">
+            <field name="name">Anteile an verbundenen Unternehmen</field>
+            <field name="parent" ref="wowi_type_g_26"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+            <field name="assets" eval="True"/>
+        </record>
+        <record id="wowi_type_u_262" model="account.account.type.template">
+            <field name="name">Sonstige Wertpapiere</field>
+            <field name="parent" ref="wowi_type_g_26"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+            <field name="assets" eval="True"/>
+        </record>
+        <record id="wowi_type_g_27" model="account.account.type.template">
+            <field name="name">Flüssige Mittel</field>
+            <field name="parent" ref="wowi_type_k2"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+            <field name="assets" eval="True"/>
+        </record>
+        <record id="wowi_type_u_270" model="account.account.type.template">
+            <field name="name">Schecks</field>
+            <field name="parent" ref="wowi_type_g_27"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+            <field name="assets" eval="True"/>
+        </record>
+        <record id="wowi_type_u_271" model="account.account.type.template">
+            <field name="name">Kassenbestand</field>
+            <field name="parent" ref="wowi_type_g_27"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+            <field name="assets" eval="True"/>
+        </record>
+        <record id="wowi_type_u_274" model="account.account.type.template">
+            <field name="name">Guthaben bei Kreditinstituten</field>
+            <field name="parent" ref="wowi_type_g_27"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+            <field name="assets" eval="True"/>
+        </record>
+        <record id="wowi_type_g_28" model="account.account.type.template">
+            <field name="name">Bausparguthaben</field>
+            <field name="parent" ref="wowi_type_k2"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+            <field name="assets" eval="True"/>
+        </record>
+        <record id="wowi_type_g_29" model="account.account.type.template">
+            <field name="name">Aktive Rechnungsabgrenzungsposten, Aktive latente Steuern und Aktiver Unterschiedsbetrag aus der Vermögensverrechnung</field>
+            <field name="parent" ref="wowi_type_k2"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+            <field name="assets" eval="True"/>
+        </record>
+        <record id="wowi_type_u_290" model="account.account.type.template">
+            <field name="name">Geldbeschaffungskosten</field>
+            <field name="parent" ref="wowi_type_g_29"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+            <field name="assets" eval="True"/>
+        </record>
+        <record id="wowi_type_u_291" model="account.account.type.template">
+            <field name="name">Andere Rechnungsabgrenzungsposten</field>
+            <field name="parent" ref="wowi_type_g_29"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+            <field name="assets" eval="True"/>
+        </record>
+        <record id="wowi_type_k3" model="account.account.type.template">
+            <field name="name">Klasse 3: Eigenkapital/Rückstellungen</field>
+            <field name="parent" ref="wowi_type_balance_liabilities"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+        </record>
+        <record id="wowi_type_g_30" model="account.account.type.template">
+            <field name="name">Gezeichnetes Kapital (Grundkapital, Stammkapital, Geschäftsguthaben)</field>
+            <field name="parent" ref="wowi_type_k3"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+        </record>
+        <record id="wowi_type_u_300" model="account.account.type.template">
+            <field name="name">Grundkapital / Stammkapital / Geschäftskapital</field>
+            <field name="parent" ref="wowi_type_g_30"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+        </record>
+        <record id="wowi_type_u_301" model="account.account.type.template">
+            <field name="name">EK</field>
+            <field name="parent" ref="wowi_type_g_30"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+        </record>
+        <record id="wowi_type_g_31" model="account.account.type.template">
+            <field name="name">Ausstehende Einlagen auf das gezeichnete Kapital</field>
+            <field name="parent" ref="wowi_type_k3"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+        </record>
+        <record id="wowi_type_g_32" model="account.account.type.template">
+            <field name="name">Kapitalrücklagen</field>
+            <field name="parent" ref="wowi_type_k3"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+        </record>
+        <record id="wowi_type_g_33" model="account.account.type.template">
+            <field name="name">Gewinnrücklagen/Ergebnisrücklagen</field>
+            <field name="parent" ref="wowi_type_k3"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+        </record>
+        <record id="wowi_type_u_330" model="account.account.type.template">
+            <field name="name">Gesetzliche Rücklage</field>
+            <field name="parent" ref="wowi_type_g_33"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+        </record>
+        <record id="wowi_type_u_331" model="account.account.type.template">
+            <field name="name">Rücklage für eigene Anteile</field>
+            <field name="parent" ref="wowi_type_g_33"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+        </record>
+        <record id="wowi_type_u_332" model="account.account.type.template">
+            <field name="name">Gesellschaftsvertragliche/Satzungsmäßige Rücklage</field>
+            <field name="parent" ref="wowi_type_g_33"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+        </record>
+        <record id="wowi_type_u_333" model="account.account.type.template">
+            <field name="name">Bauerneuerungsrücklage</field>
+            <field name="parent" ref="wowi_type_g_33"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+        </record>
+        <record id="wowi_type_u_334" model="account.account.type.template">
+            <field name="name">Andere Gewinnrücklagen / Andere Ergebnisrücklagen</field>
+            <field name="parent" ref="wowi_type_g_33"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+        </record>
+        <record id="wowi_type_u_335" model="account.account.type.template">
+            <field name="name">Sonderrücklage gemäß § 27 Abs. 2 DMBilG (D-Markbilanzgesetz)</field>
+            <field name="parent" ref="wowi_type_g_33"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+        </record>
+        <record id="wowi_type_g_34" model="account.account.type.template">
+            <field name="name">Ergebnis</field>
+            <field name="parent" ref="wowi_type_k3"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+        </record>
+        <record id="wowi_type_u_340" model="account.account.type.template">
+            <field name="name">Gewinnvortrag/Verlustvortrag</field>
+            <field name="parent" ref="wowi_type_g_34"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+        </record>
+        <record id="wowi_type_u_341" model="account.account.type.template">
+            <field name="name">Jahresüberschuss/Jahresfehlbetrag</field>
+            <field name="parent" ref="wowi_type_g_34"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+        </record>
+        <record id="wowi_type_u_342" model="account.account.type.template">
+            <field name="name">Bilanzgewinn/Bilanzverlust</field>
+            <field name="parent" ref="wowi_type_g_34"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+        </record>
+        <record id="wowi_type_g_35" model="account.account.type.template">
+            <field name="name">Sonderposten</field>
+            <field name="parent" ref="wowi_type_k3"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+        </record>
+        <record id="wowi_type_u_350" model="account.account.type.template">
+            <field name="name">Sonderposten mit Rücklagenanteil</field>
+            <field name="parent" ref="wowi_type_g_35"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+        </record>
+        <record id="wowi_type_u_351" model="account.account.type.template">
+            <field name="name">Sonderposten mit Rücklagenanteil</field>
+            <field name="parent" ref="wowi_type_g_35"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+        </record>
+        <record id="wowi_type_u_352" model="account.account.type.template">
+            <field name="name">Sonderposten mit Rücklagenanteil</field>
+            <field name="parent" ref="wowi_type_g_35"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+        </record>
+        <record id="wowi_type_u_353" model="account.account.type.template">
+            <field name="name">Sonderposten mit Rücklagenanteil</field>
+            <field name="parent" ref="wowi_type_g_35"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+        </record>
+        <record id="wowi_type_u_354" model="account.account.type.template">
+            <field name="name">Sonderposten für Investitionszulagen und -zuschüsse zum Anlagevermögen</field>
+            <field name="parent" ref="wowi_type_g_35"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+        </record>
+        <record id="wowi_type_u_355" model="account.account.type.template">
+            <field name="name">Sonstige Sonderposten</field>
+            <field name="parent" ref="wowi_type_g_35"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+        </record>
+        <record id="wowi_type_g_36" model="account.account.type.template">
+            <field name="name">Rückstellungen für Pensionen und ähnliche Verpflichtungen</field>
+            <field name="parent" ref="wowi_type_k3"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+        </record>
+        <record id="wowi_type_g_37" model="account.account.type.template">
+            <field name="name">Steuerrückstellungen</field>
+            <field name="parent" ref="wowi_type_k3"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+        </record>
+        <record id="wowi_type_u_370" model="account.account.type.template">
+            <field name="name">Rückstellungen für Körperschaftsteuer</field>
+            <field name="parent" ref="wowi_type_g_37"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+        </record>
+        <record id="wowi_type_u_371" model="account.account.type.template">
+            <field name="name">Rückstellungen für Gewerbesteuer</field>
+            <field name="parent" ref="wowi_type_g_37"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+        </record>
+        <record id="wowi_type_u_373" model="account.account.type.template">
+            <field name="name">Rückstellungen für Sonstige Steuern</field>
+            <field name="parent" ref="wowi_type_g_37"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+        </record>
+        <record id="wowi_type_g_39" model="account.account.type.template">
+            <field name="name">Sonstige Rückstellungen</field>
+            <field name="parent" ref="wowi_type_k3"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+        </record>
+        <record id="wowi_type_u_390" model="account.account.type.template">
+            <field name="name">Rückstellungen für unterlassene Instandhaltung / Nachholung in den ersten drei Monaten des Folgejahres</field>
+            <field name="parent" ref="wowi_type_g_39"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+        </record>
+        <record id="wowi_type_u_391" model="account.account.type.template">
+            <field name="name">Rückstellungen für unterlassene Instandhaltung (4.-12. Monat)</field>
+            <field name="parent" ref="wowi_type_g_39"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+        </record>
+        <record id="wowi_type_u_392" model="account.account.type.template">
+            <field name="name">Rückstellungen für Abraumbeseitigung</field>
+            <field name="parent" ref="wowi_type_g_39"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+        </record>
+        <record id="wowi_type_u_393" model="account.account.type.template">
+            <field name="name">Rückstellungen für drohende Verluste aus schwebenden Geschäften</field>
+            <field name="parent" ref="wowi_type_g_39"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+        </record>
+        <record id="wowi_type_u_394" model="account.account.type.template">
+            <field name="name">Rückstellungen für Gewährleistungsverpflichtungen</field>
+            <field name="parent" ref="wowi_type_g_39"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+        </record>
+        <record id="wowi_type_u_395" model="account.account.type.template">
+            <field name="name">Rückstellungen auf Kosten der Hausbewirtschaftung</field>
+            <field name="parent" ref="wowi_type_g_39"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+        </record>
+        <record id="wowi_type_u_396" model="account.account.type.template">
+            <field name="name">Rückstellungen für Abschluss-, Prüfungs- und Veröffentlichungskosten sowie Aufbewahrungskosten</field>
+            <field name="parent" ref="wowi_type_g_39"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+        </record>
+        <record id="wowi_type_u_397" model="account.account.type.template">
+            <field name="name">Rückstellungen für sonstige Verwaltungskosten (Urlaub, Jubiläum, Altersteilzeit)</field>
+            <field name="parent" ref="wowi_type_g_39"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+        </record>
+        <record id="wowi_type_u_398" model="account.account.type.template">
+            <field name="name">Rückstellungen für noch anfallende Baukosten</field>
+            <field name="parent" ref="wowi_type_g_39"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+        </record>
+        <record id="wowi_type_u_399" model="account.account.type.template">
+            <field name="name">Rückstellungen für erbrachte Bauleistungen</field>
+            <field name="parent" ref="wowi_type_g_39"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+        </record>
+        <record id="wowi_type_k4" model="account.account.type.template">
+            <field name="name">Klasse 4: Verbindlichkeiten/PRA</field>
+            <field name="parent" ref="wowi_type_balance_liabilities"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+        </record>
+        <record id="wowi_type_g_40" model="account.account.type.template">
+            <field name="name">Anleihen und Spareinlagen</field>
+            <field name="parent" ref="wowi_type_k4"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+        </record>
+        <record id="wowi_type_u_400" model="account.account.type.template">
+            <field name="name">Anleihen</field>
+            <field name="parent" ref="wowi_type_g_40"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+        </record>
+        <record id="wowi_type_u_401" model="account.account.type.template">
+            <field name="name">Spareinlagen</field>
+            <field name="parent" ref="wowi_type_g_40"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+        </record>
+        <record id="wowi_type_u_402" model="account.account.type.template">
+            <field name="name">Verbindlichkeiten aus Sparbriefen</field>
+            <field name="parent" ref="wowi_type_g_40"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+        </record>
+        <record id="wowi_type_g_41" model="account.account.type.template">
+            <field name="name">Verbindlichkeiten gegenüber Kreditinstituten</field>
+            <field name="parent" ref="wowi_type_k4"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+        </record>
+        <record id="wowi_type_u_410" model="account.account.type.template">
+            <field name="name">Objektfinanzierungsmittel für das Anlagevermögen</field>
+            <field name="parent" ref="wowi_type_g_41"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+        </record>
+        <record id="wowi_type_u_411" model="account.account.type.template">
+            <field name="name">Objektfinanzierungsmittel für das Umlaufvermögen</field>
+            <field name="parent" ref="wowi_type_g_41"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+        </record>
+        <record id="wowi_type_u_412" model="account.account.type.template">
+            <field name="name">Unternehmensfinanzierungsmittel</field>
+            <field name="parent" ref="wowi_type_g_41"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+        </record>
+        <record id="wowi_type_u_413" model="account.account.type.template">
+            <field name="name">Grundstücksankaufkredite für das Anlagevermögen</field>
+            <field name="parent" ref="wowi_type_g_41"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+        </record>
+        <record id="wowi_type_u_414" model="account.account.type.template">
+            <field name="name">Grundstücksankaufkredite für das Umlaufvermögen</field>
+            <field name="parent" ref="wowi_type_g_41"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+        </record>
+        <record id="wowi_type_u_415" model="account.account.type.template">
+            <field name="name">Bauzwischenkredite für das Anlagevermögen</field>
+            <field name="parent" ref="wowi_type_g_41"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+        </record>
+        <record id="wowi_type_u_416" model="account.account.type.template">
+            <field name="name">Bauzwischenkredite für das Umlaufvermögen</field>
+            <field name="parent" ref="wowi_type_g_41"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+        </record>
+        <record id="wowi_type_u_419" model="account.account.type.template">
+            <field name="name">Sonstige Verbindlichkeiten gegenüber Kreditinstituten</field>
+            <field name="parent" ref="wowi_type_g_41"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+        </record>
+        <record id="wowi_type_g_42" model="account.account.type.template">
+            <field name="name">Verbindlichkeiten gegenüber anderen Kreditgebern</field>
+            <field name="parent" ref="wowi_type_k4"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+        </record>
+        <record id="wowi_type_u_420" model="account.account.type.template">
+            <field name="name">Objektfinanzierungsmittel für das Anlagevermögen</field>
+            <field name="parent" ref="wowi_type_g_42"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+        </record>
+        <record id="wowi_type_u_421" model="account.account.type.template">
+            <field name="name">Objektfinanzierungsmittel für das Umlaufvermögen</field>
+            <field name="parent" ref="wowi_type_g_42"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+        </record>
+        <record id="wowi_type_u_422" model="account.account.type.template">
+            <field name="name">Unternehmensfinanzierungsmittel</field>
+            <field name="parent" ref="wowi_type_g_42"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+        </record>
+        <record id="wowi_type_u_423" model="account.account.type.template">
+            <field name="name">Grundstückankaufkredite für das Anlagevermögen</field>
+            <field name="parent" ref="wowi_type_g_42"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+        </record>
+        <record id="wowi_type_u_424" model="account.account.type.template">
+            <field name="name">Grundstückankaufkredite für das Umlaufvermögen</field>
+            <field name="parent" ref="wowi_type_g_42"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+        </record>
+        <record id="wowi_type_u_425" model="account.account.type.template">
+            <field name="name">Bauzwischenkredite für das Anlagevermögen</field>
+            <field name="parent" ref="wowi_type_g_42"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+        </record>
+        <record id="wowi_type_u_426" model="account.account.type.template">
+            <field name="name">Bauzwischenkredite für das Umlaufvermögen</field>
+            <field name="parent" ref="wowi_type_g_42"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+        </record>
+        <record id="wowi_type_u_429" model="account.account.type.template">
+            <field name="name">Sonstige Verbindlichkeiten gegenüber anderen Kreditgebern</field>
+            <field name="parent" ref="wowi_type_g_42"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+        </record>
+        <record id="wowi_type_g_43" model="account.account.type.template">
+            <field name="name">Erhaltene Anzahlungen</field>
+            <field name="parent" ref="wowi_type_k4"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+        </record>
+        <record id="wowi_type_u_430" model="account.account.type.template">
+            <field name="name">Anzahlungen auf Verkaufsgrundstücke</field>
+            <field name="parent" ref="wowi_type_g_43"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+        </record>
+        <record id="wowi_type_u_431" model="account.account.type.template">
+            <field name="name">Anzahlungen auf unfertige Leistungen (Betriebskostenvorauszahlungen)</field>
+            <field name="parent" ref="wowi_type_g_43"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+        </record>
+        <record id="wowi_type_u_439" model="account.account.type.template">
+            <field name="name">Sonstige Anzahlungen</field>
+            <field name="parent" ref="wowi_type_g_43"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+        </record>
+        <record id="wowi_type_g_44" model="account.account.type.template">
+            <field name="name">Verbindlichkeiten aus Vermietung und Lieferungen und Leistungen</field>
+            <field name="parent" ref="wowi_type_k4"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+        </record>
+        <record id="wowi_type_u_440" model="account.account.type.template">
+            <field name="name">Verbindlichkeiten aus Vermietung</field>
+            <field name="parent" ref="wowi_type_g_44"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+            <field name="payable" eval="True"/>
+        </record>
+        <record id="wowi_type_u_441" model="account.account.type.template">
+            <field name="name">Verbindlichkeiten aus Betreuungstätigkeit</field>
+            <field name="parent" ref="wowi_type_g_44"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+            <field name="payable" eval="True"/>
+        </record>
+        <record id="wowi_type_u_442" model="account.account.type.template">
+            <field name="name">Verbindlichkeiten aus Lieferungen und Leistungen</field>
+            <field name="parent" ref="wowi_type_g_44"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+            <field name="payable" eval="True"/>
+        </record>
+        <record id="wowi_type_g_45" model="account.account.type.template">
+            <field name="name">Verbindlichkeiten aus der Annahme gezogener und der Ausstellung eigener Wechsel</field>
+            <field name="parent" ref="wowi_type_k4"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+        </record>
+        <record id="wowi_type_g_46" model="account.account.type.template">
+            <field name="name">Unternehmensrechtliche Sonderposten</field>
+            <field name="parent" ref="wowi_type_k4"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+        </record>
+        <record id="wowi_type_u_462" model="account.account.type.template">
+            <field name="name">Verbindlichkeiten gegenüber Gesellschaftern</field>
+            <field name="parent" ref="wowi_type_g_46"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+        </record>
+        <record id="wowi_type_g_47" model="account.account.type.template">
+            <field name="name">Sonstige Verbindlichkeiten</field>
+            <field name="parent" ref="wowi_type_k4"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+        </record>
+        <record id="wowi_type_u_470" model="account.account.type.template">
+            <field name="name">Verbindlichkeiten aus Steuern</field>
+            <field name="parent" ref="wowi_type_g_47"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+        </record>
+        <record id="wowi_type_u_471" model="account.account.type.template">
+            <field name="name">Verbindlichkeiten im Rahmen der sozialen Sicherheit</field>
+            <field name="parent" ref="wowi_type_g_47"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+        </record>
+        <record id="wowi_type_u_472" model="account.account.type.template">
+            <field name="name">Verbindlichkeiten gegenüber Mitgliedern (eG)</field>
+            <field name="parent" ref="wowi_type_g_47"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+        </record>
+        <record id="wowi_type_u_473" model="account.account.type.template">
+            <field name="name">Verbindlichkeiten aus Löhnen und Gehältern</field>
+            <field name="parent" ref="wowi_type_g_47"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+        </record>
+        <record id="wowi_type_u_474" model="account.account.type.template">
+            <field name="name">Verbindlichkeiten aus Vermögenswirksamen Leistungen</field>
+            <field name="parent" ref="wowi_type_g_47"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+        </record>
+        <record id="wowi_type_u_479" model="account.account.type.template">
+            <field name="name">Andere sonstige Verbindlichkeiten</field>
+            <field name="parent" ref="wowi_type_g_47"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+        </record>
+        <record id="wowi_type_g_49" model="account.account.type.template">
+            <field name="name">Passive Rechnungsabgrenzungsposten und Passive latente Steuern</field>
+            <field name="parent" ref="wowi_type_k4"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+        </record>
+        <record id="wowi_type_k6" model="account.account.type.template">
+            <field name="name">Klasse 6: Erträge</field>
+            <field name="parent" ref="wowi_type_income"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">income</field>
+            <field name="revenue" eval="True"/>
+        </record>
+        <record id="wowi_type_g_60" model="account.account.type.template">
+            <field name="name">Umsatzerlöse aus der Hausbewirtschaftung</field>
+            <field name="parent" ref="wowi_type_k6"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">income</field>
+            <field name="revenue" eval="True"/>
+        </record>
+        <record id="wowi_type_u_600" model="account.account.type.template">
+            <field name="name">Sollmieten</field>
+            <field name="parent" ref="wowi_type_g_60"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">income</field>
+            <field name="revenue" eval="True"/>
+        </record>
+        <record id="wowi_type_u_601" model="account.account.type.template">
+            <field name="name">Umlagen (Erträge aus der Betriebskostenabrechnung des Vorjahres)</field>
+            <field name="parent" ref="wowi_type_g_60"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">income</field>
+            <field name="revenue" eval="True"/>
+        </record>
+        <record id="wowi_type_u_602" model="account.account.type.template">
+            <field name="name">Gebühren und Zuschläge</field>
+            <field name="parent" ref="wowi_type_g_60"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">income</field>
+            <field name="revenue" eval="True"/>
+        </record>
+        <record id="wowi_type_u_603" model="account.account.type.template">
+            <field name="name">Miet-, Zins- und Aufwendungszuschüsse</field>
+            <field name="parent" ref="wowi_type_g_60"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">income</field>
+            <field name="revenue" eval="True"/>
+        </record>
+        <record id="wowi_type_u_605" model="account.account.type.template">
+            <field name="name">Pachterlöse</field>
+            <field name="parent" ref="wowi_type_g_60"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">income</field>
+            <field name="revenue" eval="True"/>
+        </record>
+        <record id="wowi_type_u_606" model="account.account.type.template">
+            <field name="name">Erlöse aus Sondereinrichtungen</field>
+            <field name="parent" ref="wowi_type_g_60"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">income</field>
+            <field name="revenue" eval="True"/>
+        </record>
+        <record id="wowi_type_u_607" model="account.account.type.template">
+            <field name="name">Erträge aus Mieterbelastung</field>
+            <field name="parent" ref="wowi_type_g_60"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">income</field>
+            <field name="revenue" eval="True"/>
+        </record>
+        <record id="wowi_type_u_609" model="account.account.type.template">
+            <field name="name">Erlösschmälerungen</field>
+            <field name="parent" ref="wowi_type_g_60"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">income</field>
+            <field name="revenue" eval="True"/>
+        </record>
+        <record id="wowi_type_g_61" model="account.account.type.template">
+            <field name="name">Umsatzerlöse aus dem Verkauf von Grundstücken</field>
+            <field name="parent" ref="wowi_type_k6"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">income</field>
+            <field name="revenue" eval="True"/>
+        </record>
+        <record id="wowi_type_u_610" model="account.account.type.template">
+            <field name="name">Umsatzerlöse aus dem Verkauf bebauter Grundstücke des Umlaufvermögens</field>
+            <field name="parent" ref="wowi_type_g_61"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">income</field>
+            <field name="revenue" eval="True"/>
+        </record>
+        <record id="wowi_type_u_611" model="account.account.type.template">
+            <field name="name">Umsatzerlöse aus dem Verkauf unbebauter Grundstücke des Umlaufvermögens</field>
+            <field name="parent" ref="wowi_type_g_61"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">income</field>
+            <field name="revenue" eval="True"/>
+        </record>
+        <record id="wowi_type_g_62" model="account.account.type.template">
+            <field name="name">Umsatzerlöse aus Betreuungstätigkeit</field>
+            <field name="parent" ref="wowi_type_k6"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">income</field>
+            <field name="revenue" eval="True"/>
+        </record>
+        <record id="wowi_type_u_620" model="account.account.type.template">
+            <field name="name">Umsatzerlöse aus Baubetreuung</field>
+            <field name="parent" ref="wowi_type_g_62"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">income</field>
+            <field name="revenue" eval="True"/>
+        </record>
+        <record id="wowi_type_u_621" model="account.account.type.template">
+            <field name="name">Umsatzerlöse aus verwaltungsmäßiger Betreuung</field>
+            <field name="parent" ref="wowi_type_g_62"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">income</field>
+            <field name="revenue" eval="True"/>
+        </record>
+        <record id="wowi_type_u_629" model="account.account.type.template">
+            <field name="name">Umsatzerlöse aus sonstiger Betreuungstätigkeit</field>
+            <field name="parent" ref="wowi_type_g_62"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">income</field>
+            <field name="revenue" eval="True"/>
+        </record>
+        <record id="wowi_type_g_63" model="account.account.type.template">
+            <field name="name">Umsatzerlöse aus anderen Lieferungen und Leistungen</field>
+            <field name="parent" ref="wowi_type_k6"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">income</field>
+            <field name="revenue" eval="True"/>
+        </record>
+        <record id="wowi_type_g_64" model="account.account.type.template">
+            <field name="name">Erhöhung oder Verminderung des Bestandes an zum Verkauf bestimmten Grundstücken mit fertigen und unfertigen Bauten sowie unfertigen Leistungen</field>
+            <field name="parent" ref="wowi_type_k6"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">income</field>
+            <field name="revenue" eval="True"/>
+        </record>
+        <record id="wowi_type_u_640" model="account.account.type.template">
+            <field name="name">Bestandserhöhung aus aktivierten Fremdkosten</field>
+            <field name="parent" ref="wowi_type_g_64"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">income</field>
+            <field name="revenue" eval="True"/>
+        </record>
+        <record id="wowi_type_u_641" model="account.account.type.template">
+            <field name="name">Bestandserhöhung aus der Übernahme unbebauter Grundstücke in die Bebauung</field>
+            <field name="parent" ref="wowi_type_g_64"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">income</field>
+            <field name="revenue" eval="True"/>
+        </record>
+        <record id="wowi_type_u_642" model="account.account.type.template">
+            <field name="name">Bestandserhöhung aus aktivierten eigenen Architekten- und Verwaltungsleistungen</field>
+            <field name="parent" ref="wowi_type_g_64"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">income</field>
+            <field name="revenue" eval="True"/>
+        </record>
+        <record id="wowi_type_u_643" model="account.account.type.template">
+            <field name="name">Bestandserhöhungen aus aktivierten Fremdzinsen und sonstigen Aktivierungen</field>
+            <field name="parent" ref="wowi_type_g_64"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">income</field>
+            <field name="revenue" eval="True"/>
+        </record>
+        <record id="wowi_type_u_644" model="account.account.type.template">
+            <field name="name">Bestandsverminderungen aus Veräußerungen</field>
+            <field name="parent" ref="wowi_type_g_64"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">income</field>
+            <field name="revenue" eval="True"/>
+        </record>
+        <record id="wowi_type_u_645" model="account.account.type.template">
+            <field name="name">Wertminderungen bei Verkaufsobjekten</field>
+            <field name="parent" ref="wowi_type_g_64"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">income</field>
+            <field name="revenue" eval="True"/>
+        </record>
+        <record id="wowi_type_u_646" model="account.account.type.template">
+            <field name="name">Bestandserhöhungen bei noch nicht abgerechneten Betriebskosten</field>
+            <field name="parent" ref="wowi_type_g_64"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">income</field>
+            <field name="revenue" eval="True"/>
+        </record>
+        <record id="wowi_type_u_647" model="account.account.type.template">
+            <field name="name">Bestandserhöhungen bei anderen unfertigen Leistungen</field>
+            <field name="parent" ref="wowi_type_g_64"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">income</field>
+            <field name="revenue" eval="True"/>
+        </record>
+        <record id="wowi_type_u_648" model="account.account.type.template">
+            <field name="name">Bestandsverminderungen bei noch nicht abgerechneten Betriebskosten</field>
+            <field name="parent" ref="wowi_type_g_64"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">income</field>
+            <field name="revenue" eval="True"/>
+        </record>
+        <record id="wowi_type_u_649" model="account.account.type.template">
+            <field name="name">Bestandsverminderungen bei anderen unfertigen Leistungen</field>
+            <field name="parent" ref="wowi_type_g_64"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">income</field>
+            <field name="revenue" eval="True"/>
+        </record>
+        <record id="wowi_type_g_65" model="account.account.type.template">
+            <field name="name">Andere aktivierte Eigenleistungen</field>
+            <field name="parent" ref="wowi_type_k6"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">income</field>
+            <field name="revenue" eval="True"/>
+        </record>
+        <record id="wowi_type_u_650" model="account.account.type.template">
+            <field name="name">Aktivierte eigene Architekten- und Verwaltungsleistungen</field>
+            <field name="parent" ref="wowi_type_g_65"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">income</field>
+            <field name="revenue" eval="True"/>
+        </record>
+        <record id="wowi_type_u_659" model="account.account.type.template">
+            <field name="name">Sonstige aktivierte Eigenleistungen</field>
+            <field name="parent" ref="wowi_type_g_65"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">income</field>
+            <field name="revenue" eval="True"/>
+        </record>
+        <record id="wowi_type_g_66" model="account.account.type.template">
+            <field name="name">Sonstige betriebliche Erträge</field>
+            <field name="parent" ref="wowi_type_k6"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">income</field>
+            <field name="revenue" eval="True"/>
+        </record>
+        <record id="wowi_type_u_660" model="account.account.type.template">
+            <field name="name">Erträge aus Anlageverkäufen</field>
+            <field name="parent" ref="wowi_type_g_66"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">income</field>
+            <field name="revenue" eval="True"/>
+        </record>
+        <record id="wowi_type_u_661" model="account.account.type.template">
+            <field name="name">Erträge aus Zuschreibungen</field>
+            <field name="parent" ref="wowi_type_g_66"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">income</field>
+            <field name="revenue" eval="True"/>
+        </record>
+        <record id="wowi_type_u_662" model="account.account.type.template">
+            <field name="name">Erträge aus der Auflösung von Rückstellungen</field>
+            <field name="parent" ref="wowi_type_g_66"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">income</field>
+            <field name="revenue" eval="True"/>
+        </record>
+        <record id="wowi_type_u_663" model="account.account.type.template">
+            <field name="name">Eintrittsgelder und Bearbeitungsgebühren</field>
+            <field name="parent" ref="wowi_type_g_66"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">income</field>
+            <field name="revenue" eval="True"/>
+        </record>
+        <record id="wowi_type_u_666" model="account.account.type.template">
+            <field name="name">Erträge aus früheren Jahren</field>
+            <field name="parent" ref="wowi_type_g_66"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">income</field>
+            <field name="revenue" eval="True"/>
+        </record>
+        <record id="wowi_type_u_667" model="account.account.type.template">
+            <field name="name">Erträge aus der Auflösung von Wertberichtigungen</field>
+            <field name="parent" ref="wowi_type_g_66"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">income</field>
+            <field name="revenue" eval="True"/>
+        </record>
+        <record id="wowi_type_u_669" model="account.account.type.template">
+            <field name="name">Verschiedene sonstige Erträge (auch außerordentlich)</field>
+            <field name="parent" ref="wowi_type_g_66"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">income</field>
+            <field name="revenue" eval="True"/>
+        </record>
+        <record id="wowi_type_g_67" model="account.account.type.template">
+            <field name="name">Erträge aus Beteiligungen, aus anderen Wertpapieren und Ausleihungen des Finanzanlagevermögens</field>
+            <field name="parent" ref="wowi_type_k6"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">income</field>
+            <field name="revenue" eval="True"/>
+        </record>
+        <record id="wowi_type_u_676" model="account.account.type.template">
+            <field name="name">Erträge aus sonstigen Ausleihungen</field>
+            <field name="parent" ref="wowi_type_g_67"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">income</field>
+            <field name="revenue" eval="True"/>
+        </record>
+        <record id="wowi_type_g_68" model="account.account.type.template">
+            <field name="name">Sonstige Zinsen und ähnliche Erträge</field>
+            <field name="parent" ref="wowi_type_k6"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">income</field>
+            <field name="revenue" eval="True"/>
+        </record>
+        <record id="wowi_type_u_687" model="account.account.type.template">
+            <field name="name">aus verbundenen Unternehmen</field>
+            <field name="parent" ref="wowi_type_g_68"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">income</field>
+            <field name="revenue" eval="True"/>
+        </record>
+        <record id="wowi_type_u_688" model="account.account.type.template">
+            <field name="name">aus sonstigen Wertpapieren des Umlaufvermögens</field>
+            <field name="parent" ref="wowi_type_g_68"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">income</field>
+            <field name="revenue" eval="True"/>
+        </record>
+        <record id="wowi_type_u_689" model="account.account.type.template">
+            <field name="name">Andere Zinsen und ähnliche Erträge</field>
+            <field name="parent" ref="wowi_type_g_68"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">income</field>
+            <field name="revenue" eval="True"/>
+        </record>
+        <record id="wowi_type_g_69" model="account.account.type.template">
+            <field name="name">Außerordentliche Erträge</field>
+            <field name="parent" ref="wowi_type_k6"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">income</field>
+            <field name="revenue" eval="True"/>
+        </record>
+        <record id="wowi_type_k7" model="account.account.type.template">
+            <field name="name">Klasse 7: Bautätigkeit</field>
+            <field name="parent" ref="wowi_type_income"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">income</field>
+            <field name="expense" eval="True"/>
+        </record>
+        <record id="wowi_type_g_70" model="account.account.type.template">
+            <field name="name">Bauten des Anlagevermögens</field>
+            <field name="parent" ref="wowi_type_k7"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">income</field>
+            <field name="expense" eval="True"/>
+        </record>
+        <record id="wowi_type_u_700" model="account.account.type.template">
+            <field name="name">Kosten der Bauvorbereitung</field>
+            <field name="parent" ref="wowi_type_g_70"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">income</field>
+            <field name="expense" eval="True"/>
+        </record>
+        <record id="wowi_type_u_701" model="account.account.type.template">
+            <field name="name">Kosten des Baugrundstücks</field>
+            <field name="parent" ref="wowi_type_g_70"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">income</field>
+            <field name="expense" eval="True"/>
+        </record>
+        <record id="wowi_type_u_702" model="account.account.type.template">
+            <field name="name">Kosten der Erschließung und Herrichtung</field>
+            <field name="parent" ref="wowi_type_g_70"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">income</field>
+            <field name="expense" eval="True"/>
+        </record>
+        <record id="wowi_type_u_703" model="account.account.type.template">
+            <field name="name">Kosten des Bauwerks – Baukonstruktionen</field>
+            <field name="parent" ref="wowi_type_g_70"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">income</field>
+            <field name="expense" eval="True"/>
+        </record>
+        <record id="wowi_type_u_704" model="account.account.type.template">
+            <field name="name">Kosten des Bauwerks – Technische Anlagen</field>
+            <field name="parent" ref="wowi_type_g_70"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">income</field>
+            <field name="expense" eval="True"/>
+        </record>
+        <record id="wowi_type_u_705" model="account.account.type.template">
+            <field name="name">Kosten der Außenanlagen und Freiflächen</field>
+            <field name="parent" ref="wowi_type_g_70"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">income</field>
+            <field name="expense" eval="True"/>
+        </record>
+        <record id="wowi_type_u_706" model="account.account.type.template">
+            <field name="name">Kosten der Ausstattungen und Kunstwerke</field>
+            <field name="parent" ref="wowi_type_g_70"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">income</field>
+            <field name="expense" eval="True"/>
+        </record>
+        <record id="wowi_type_u_707" model="account.account.type.template">
+            <field name="name">Baunebenkosten</field>
+            <field name="parent" ref="wowi_type_g_70"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">income</field>
+            <field name="expense" eval="True"/>
+        </record>
+        <record id="wowi_type_u_709" model="account.account.type.template">
+            <field name="name">Baukostenminderungen</field>
+            <field name="parent" ref="wowi_type_g_70"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">income</field>
+            <field name="expense" eval="True"/>
+        </record>
+        <record id="wowi_type_g_71" model="account.account.type.template">
+            <field name="name">Bauten des Umlaufvermögens</field>
+            <field name="parent" ref="wowi_type_k7"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">income</field>
+            <field name="expense" eval="True"/>
+        </record>
+        <record id="wowi_type_u_710" model="account.account.type.template">
+            <field name="name">Kosten der Bauvorbereitung</field>
+            <field name="parent" ref="wowi_type_g_71"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">income</field>
+            <field name="expense" eval="True"/>
+        </record>
+        <record id="wowi_type_u_711" model="account.account.type.template">
+            <field name="name">Kosten des Baugrundstücks</field>
+            <field name="parent" ref="wowi_type_g_71"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">income</field>
+            <field name="expense" eval="True"/>
+        </record>
+        <record id="wowi_type_u_712" model="account.account.type.template">
+            <field name="name">Kosten der Erschließung und Herrichtung</field>
+            <field name="parent" ref="wowi_type_g_71"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">income</field>
+            <field name="expense" eval="True"/>
+        </record>
+        <record id="wowi_type_u_713" model="account.account.type.template">
+            <field name="name">Kosten des Bauwerks – Baukonstruktionen</field>
+            <field name="parent" ref="wowi_type_g_71"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">income</field>
+            <field name="expense" eval="True"/>
+        </record>
+        <record id="wowi_type_u_714" model="account.account.type.template">
+            <field name="name">Kosten des Bauwerks – Technische Anlagen</field>
+            <field name="parent" ref="wowi_type_g_71"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">income</field>
+            <field name="expense" eval="True"/>
+        </record>
+        <record id="wowi_type_u_715" model="account.account.type.template">
+            <field name="name">Kosten der Außenanlagen und Freiflächen</field>
+            <field name="parent" ref="wowi_type_g_71"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">income</field>
+            <field name="expense" eval="True"/>
+        </record>
+        <record id="wowi_type_u_716" model="account.account.type.template">
+            <field name="name">Kosten der Ausstattungen und Kunstwerke</field>
+            <field name="parent" ref="wowi_type_g_71"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">income</field>
+            <field name="expense" eval="True"/>
+        </record>
+        <record id="wowi_type_u_717" model="account.account.type.template">
+            <field name="name">Baunebenkosten</field>
+            <field name="parent" ref="wowi_type_g_71"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">income</field>
+            <field name="expense" eval="True"/>
+        </record>
+        <record id="wowi_type_u_719" model="account.account.type.template">
+            <field name="name">Baukostenminderungen</field>
+            <field name="parent" ref="wowi_type_g_71"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">income</field>
+            <field name="expense" eval="True"/>
+        </record>
+        <record id="wowi_type_g_72" model="account.account.type.template">
+            <field name="name">Betreuungskosten</field>
+            <field name="parent" ref="wowi_type_k7"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">income</field>
+            <field name="expense" eval="True"/>
+        </record>
+        <record id="wowi_type_u_720" model="account.account.type.template">
+            <field name="name">Kosten der Bauvorbereitung</field>
+            <field name="parent" ref="wowi_type_g_72"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">income</field>
+            <field name="expense" eval="True"/>
+        </record>
+        <record id="wowi_type_u_721" model="account.account.type.template">
+            <field name="name">Kosten des Baugrundstücks</field>
+            <field name="parent" ref="wowi_type_g_72"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">income</field>
+            <field name="expense" eval="True"/>
+        </record>
+        <record id="wowi_type_u_722" model="account.account.type.template">
+            <field name="name">Kosten der Erschließung</field>
+            <field name="parent" ref="wowi_type_g_72"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">income</field>
+            <field name="expense" eval="True"/>
+        </record>
+        <record id="wowi_type_u_723" model="account.account.type.template">
+            <field name="name">Kosten des Bauwerks</field>
+            <field name="parent" ref="wowi_type_g_72"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">income</field>
+            <field name="expense" eval="True"/>
+        </record>
+        <record id="wowi_type_u_724" model="account.account.type.template">
+            <field name="name">Kosten des Geräts</field>
+            <field name="parent" ref="wowi_type_g_72"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">income</field>
+            <field name="expense" eval="True"/>
+        </record>
+        <record id="wowi_type_u_725" model="account.account.type.template">
+            <field name="name">Kosten der Außenanlagen</field>
+            <field name="parent" ref="wowi_type_g_72"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">income</field>
+            <field name="expense" eval="True"/>
+        </record>
+        <record id="wowi_type_u_726" model="account.account.type.template">
+            <field name="name">Kosten der zusätzlichen Maßnahmen</field>
+            <field name="parent" ref="wowi_type_g_72"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">income</field>
+            <field name="expense" eval="True"/>
+        </record>
+        <record id="wowi_type_u_727" model="account.account.type.template">
+            <field name="name">Baunebenkosten</field>
+            <field name="parent" ref="wowi_type_g_72"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">income</field>
+            <field name="expense" eval="True"/>
+        </record>
+        <record id="wowi_type_u_729" model="account.account.type.template">
+            <field name="name">Baukostenminderungen</field>
+            <field name="parent" ref="wowi_type_g_72"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">income</field>
+            <field name="expense" eval="True"/>
+        </record>
+        <record id="wowi_type_k8" model="account.account.type.template">
+            <field name="name">Klasse 8: Aufwendungen</field>
+            <field name="parent" ref="wowi_type_income"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">income</field>
+            <field name="expense" eval="True"/>
+        </record>
+        <record id="wowi_type_g_80" model="account.account.type.template">
+            <field name="name">Aufwendungen für Hausbewirtschaftung</field>
+            <field name="parent" ref="wowi_type_k8"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">income</field>
+            <field name="expense" eval="True"/>
+        </record>
+        <record id="wowi_type_u_800" model="account.account.type.template">
+            <field name="name">Betriebskosten</field>
+            <field name="parent" ref="wowi_type_g_80"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">income</field>
+            <field name="expense" eval="True"/>
+        </record>
+        <record id="wowi_type_u_805" model="account.account.type.template">
+            <field name="name">Instandhaltungskosten</field>
+            <field name="parent" ref="wowi_type_g_80"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">income</field>
+            <field name="expense" eval="True"/>
+        </record>
+        <record id="wowi_type_u_808" model="account.account.type.template">
+            <field name="name">Zuführung zur Rückstellung für unterlassene Instandhaltung</field>
+            <field name="parent" ref="wowi_type_g_80"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">income</field>
+            <field name="expense" eval="True"/>
+        </record>
+        <record id="wowi_type_u_809" model="account.account.type.template">
+            <field name="name">Andere Aufwendungen der Hausbewirtschaftung</field>
+            <field name="parent" ref="wowi_type_g_80"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">income</field>
+            <field name="expense" eval="True"/>
+        </record>
+        <record id="wowi_type_g_81" model="account.account.type.template">
+            <field name="name">Aufwendungen für Verkaufsgrundstücke</field>
+            <field name="parent" ref="wowi_type_k8"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">income</field>
+            <field name="expense" eval="True"/>
+        </record>
+        <record id="wowi_type_u_810" model="account.account.type.template">
+            <field name="name">Fremdkosten</field>
+            <field name="parent" ref="wowi_type_g_81"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">income</field>
+            <field name="expense" eval="True"/>
+        </record>
+        <record id="wowi_type_u_811" model="account.account.type.template">
+            <field name="name">Buchwert der in die Bebauung übernommenen unbebauten Grundstücke</field>
+            <field name="parent" ref="wowi_type_g_81"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">income</field>
+            <field name="expense" eval="True"/>
+        </record>
+        <record id="wowi_type_u_812" model="account.account.type.template">
+            <field name="name">Buchwert der verkauften unbebauten Grundstücke</field>
+            <field name="parent" ref="wowi_type_g_81"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">income</field>
+            <field name="expense" eval="True"/>
+        </record>
+        <record id="wowi_type_u_813" model="account.account.type.template">
+            <field name="name">Buchwert bebaut erworbener Grundstücke</field>
+            <field name="parent" ref="wowi_type_g_81"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">income</field>
+            <field name="expense" eval="True"/>
+        </record>
+        <record id="wowi_type_u_814" model="account.account.type.template">
+            <field name="name">Zuführung zur Rückstellung für noch anfallende Kosten</field>
+            <field name="parent" ref="wowi_type_g_81"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">income</field>
+            <field name="expense" eval="True"/>
+        </record>
+        <record id="wowi_type_u_815" model="account.account.type.template">
+            <field name="name">Laufende Aufwendungen für Eigentumsobjekte während des Vorhaltezeitraums</field>
+            <field name="parent" ref="wowi_type_g_81"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">income</field>
+            <field name="expense" eval="True"/>
+        </record>
+        <record id="wowi_type_u_817" model="account.account.type.template">
+            <field name="name">Vertriebskosten</field>
+            <field name="parent" ref="wowi_type_g_81"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">income</field>
+            <field name="expense" eval="True"/>
+        </record>
+        <record id="wowi_type_u_818" model="account.account.type.template">
+            <field name="name">Abschreibungen auf Grundstücke und grundstücksgleiche Rechte des Umlaufvermögens</field>
+            <field name="parent" ref="wowi_type_g_81"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">income</field>
+            <field name="expense" eval="True"/>
+        </record>
+        <record id="wowi_type_u_819" model="account.account.type.template">
+            <field name="name">Sonstige Aufwendungen für Verkaufsgrundstücke</field>
+            <field name="parent" ref="wowi_type_g_81"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">income</field>
+            <field name="expense" eval="True"/>
+        </record>
+        <record id="wowi_type_g_82" model="account.account.type.template">
+            <field name="name">Aufwendungen für andere Lieferungen und Leistungen</field>
+            <field name="parent" ref="wowi_type_k8"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">income</field>
+            <field name="expense" eval="True"/>
+        </record>
+        <record id="wowi_type_u_820" model="account.account.type.template">
+            <field name="name">Fremdkosten für die Baubetreuung</field>
+            <field name="parent" ref="wowi_type_g_82"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">income</field>
+            <field name="expense" eval="True"/>
+        </record>
+        <record id="wowi_type_u_821" model="account.account.type.template">
+            <field name="name">Fremdkosten für die Verwaltungsbetreuung</field>
+            <field name="parent" ref="wowi_type_g_82"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">income</field>
+            <field name="expense" eval="True"/>
+        </record>
+        <record id="wowi_type_u_822" model="account.account.type.template">
+            <field name="name">Kosten für die Geschäftsbesorgung durch Dritte</field>
+            <field name="parent" ref="wowi_type_g_82"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">income</field>
+            <field name="expense" eval="True"/>
+        </record>
+        <record id="wowi_type_u_829" model="account.account.type.template">
+            <field name="name">Aufwendungen für andere Sach- und Dienstleistungen</field>
+            <field name="parent" ref="wowi_type_g_82"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">income</field>
+            <field name="expense" eval="True"/>
+        </record>
+        <record id="wowi_type_g_83" model="account.account.type.template">
+            <field name="name">Personalaufwand</field>
+            <field name="parent" ref="wowi_type_k8"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">income</field>
+            <field name="expense" eval="True"/>
+        </record>
+        <record id="wowi_type_u_830" model="account.account.type.template">
+            <field name="name">Löhne und Gehälter</field>
+            <field name="parent" ref="wowi_type_g_83"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">income</field>
+            <field name="expense" eval="True"/>
+        </record>
+        <record id="wowi_type_u_831" model="account.account.type.template">
+            <field name="name">Soziale Abgaben</field>
+            <field name="parent" ref="wowi_type_g_83"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">income</field>
+            <field name="expense" eval="True"/>
+        </record>
+        <record id="wowi_type_u_832" model="account.account.type.template">
+            <field name="name">Aufwendungen für Altersversorgung</field>
+            <field name="parent" ref="wowi_type_g_83"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">income</field>
+            <field name="expense" eval="True"/>
+        </record>
+        <record id="wowi_type_u_833" model="account.account.type.template">
+            <field name="name">Aufwendungen für Unterstützung</field>
+            <field name="parent" ref="wowi_type_g_83"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">income</field>
+            <field name="expense" eval="True"/>
+        </record>
+        <record id="wowi_type_u_834" model="account.account.type.template">
+            <field name="name">Vermögenswirksame Leistungen</field>
+            <field name="parent" ref="wowi_type_g_83"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">income</field>
+            <field name="expense" eval="True"/>
+        </record>
+        <record id="wowi_type_g_84" model="account.account.type.template">
+            <field name="name">Abschreibungen</field>
+            <field name="parent" ref="wowi_type_k8"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">income</field>
+            <field name="expense" eval="True"/>
+        </record>
+        <record id="wowi_type_u_840" model="account.account.type.template">
+            <field name="name">Abschreibungen auf immaterielle Vermögensgegenstände des Anlagevermögens und Sachanlagen</field>
+            <field name="parent" ref="wowi_type_g_84"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">income</field>
+            <field name="expense" eval="True"/>
+        </record>
+        <record id="wowi_type_u_841" model="account.account.type.template">
+            <field name="name">Abschreibungen auf Vermögensgegenstände des Umlaufvermögens (soweit üblich)</field>
+            <field name="parent" ref="wowi_type_g_84"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">income</field>
+            <field name="expense" eval="True"/>
+        </record>
+        <record id="wowi_type_g_85" model="account.account.type.template">
+            <field name="name">Sonstige betriebliche Aufwendungen</field>
+            <field name="parent" ref="wowi_type_k8"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">income</field>
+            <field name="expense" eval="True"/>
+        </record>
+        <record id="wowi_type_u_850" model="account.account.type.template">
+            <field name="name">Sächliche Verwaltungsaufwendungen</field>
+            <field name="parent" ref="wowi_type_g_85"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">income</field>
+            <field name="expense" eval="True"/>
+        </record>
+        <record id="wowi_type_u_851" model="account.account.type.template">
+            <field name="name">Freiwillige soziale Aufwendungen und Aufwendungen für Gemeinschaftspflege</field>
+            <field name="parent" ref="wowi_type_g_85"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">income</field>
+            <field name="expense" eval="True"/>
+        </record>
+        <record id="wowi_type_u_852" model="account.account.type.template">
+            <field name="name">Erbbauzins und andere Aufwendungen für unbebaute Grundstücke</field>
+            <field name="parent" ref="wowi_type_g_85"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">income</field>
+            <field name="expense" eval="True"/>
+        </record>
+        <record id="wowi_type_u_853" model="account.account.type.template">
+            <field name="name">Genossenschaftliche Rückvergütungen</field>
+            <field name="parent" ref="wowi_type_g_85"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">income</field>
+            <field name="expense" eval="True"/>
+        </record>
+        <record id="wowi_type_u_854" model="account.account.type.template">
+            <field name="name">Verluste aus dem Abgang von Gegenständen des Anlagevermögens</field>
+            <field name="parent" ref="wowi_type_g_85"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">income</field>
+            <field name="expense" eval="True"/>
+        </record>
+        <record id="wowi_type_u_855" model="account.account.type.template">
+            <field name="name">Abschreibungen auf Forderungen und sonstige Vermögensgegenstände</field>
+            <field name="parent" ref="wowi_type_g_85"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">income</field>
+            <field name="expense" eval="True"/>
+        </record>
+        <record id="wowi_type_u_856" model="account.account.type.template">
+            <field name="name">Spenden</field>
+            <field name="parent" ref="wowi_type_g_85"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">income</field>
+            <field name="expense" eval="True"/>
+        </record>
+        <record id="wowi_type_u_857" model="account.account.type.template">
+            <field name="name">Einstellung in Wertberichtigungen</field>
+            <field name="parent" ref="wowi_type_g_85"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">income</field>
+            <field name="expense" eval="True"/>
+        </record>
+        <record id="wowi_type_u_859" model="account.account.type.template">
+            <field name="name">Verschiedene sonstige Aufwendungen</field>
+            <field name="parent" ref="wowi_type_g_85"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">income</field>
+            <field name="expense" eval="True"/>
+        </record>
+        <record id="wowi_type_g_86" model="account.account.type.template">
+            <field name="name">Abschreibungen auf Finanzanlagen/Wertpapiere des Umlaufvermögens</field>
+            <field name="parent" ref="wowi_type_k8"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">income</field>
+            <field name="expense" eval="True"/>
+        </record>
+        <record id="wowi_type_u_860" model="account.account.type.template">
+            <field name="name">Abschreibungen auf Finanzanlagen</field>
+            <field name="parent" ref="wowi_type_g_86"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">income</field>
+            <field name="expense" eval="True"/>
+        </record>
+        <record id="wowi_type_u_868" model="account.account.type.template">
+            <field name="name">Abschreibungen auf Wertpapiere des Umlaufvermögens</field>
+            <field name="parent" ref="wowi_type_g_86"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">income</field>
+            <field name="expense" eval="True"/>
+        </record>
+        <record id="wowi_type_g_87" model="account.account.type.template">
+            <field name="name">Zinsen und ähnliche Aufwendungen</field>
+            <field name="parent" ref="wowi_type_k8"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">income</field>
+            <field name="expense" eval="True"/>
+        </record>
+        <record id="wowi_type_u_870" model="account.account.type.template">
+            <field name="name">Zinsen auf Anleihen</field>
+            <field name="parent" ref="wowi_type_g_87"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">income</field>
+            <field name="expense" eval="True"/>
+        </record>
+        <record id="wowi_type_u_871" model="account.account.type.template">
+            <field name="name">Zinsen auf Spareinlagen und Sparbriefe</field>
+            <field name="parent" ref="wowi_type_g_87"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">income</field>
+            <field name="expense" eval="True"/>
+        </record>
+        <record id="wowi_type_u_872" model="account.account.type.template">
+            <field name="name">Zinsen auf Verbindlichkeiten gegenüber Kreditinstituten</field>
+            <field name="parent" ref="wowi_type_g_87"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">income</field>
+            <field name="expense" eval="True"/>
+        </record>
+        <record id="wowi_type_u_873" model="account.account.type.template">
+            <field name="name">Zinsen auf Verbindlichkeiten gegenüber anderen Kreditgebern</field>
+            <field name="parent" ref="wowi_type_g_87"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">income</field>
+            <field name="expense" eval="True"/>
+        </record>
+        <record id="wowi_type_u_874" model="account.account.type.template">
+            <field name="name">Zinsen auf übrige Verbindlichkeiten und andere Zinsaufwendungen</field>
+            <field name="parent" ref="wowi_type_g_87"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">income</field>
+            <field name="expense" eval="True"/>
+        </record>
+        <record id="wowi_type_u_875" model="account.account.type.template">
+            <field name="name">Abschreibungen auf Geldbeschaffungskosten/Disagio</field>
+            <field name="parent" ref="wowi_type_g_87"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">income</field>
+            <field name="expense" eval="True"/>
+        </record>
+        <record id="wowi_type_u_876" model="account.account.type.template">
+            <field name="name">Zinsen und ähnliche Aufwendungen für Verbindlichkeiten gegenüber verbundenen Unternehmen</field>
+            <field name="parent" ref="wowi_type_g_87"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">income</field>
+            <field name="expense" eval="True"/>
+        </record>
+        <record id="wowi_type_u_879" model="account.account.type.template">
+            <field name="name">Andere Zinsen und ähnliche Aufwendungen</field>
+            <field name="parent" ref="wowi_type_g_87"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">income</field>
+            <field name="expense" eval="True"/>
+        </record>
+        <record id="wowi_type_g_88" model="account.account.type.template">
+            <field name="name">Aufwendungen aus Verlustübernahmen</field>
+            <field name="parent" ref="wowi_type_k8"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">income</field>
+            <field name="expense" eval="True"/>
+        </record>
+        <record id="wowi_type_u_880" model="account.account.type.template">
+            <field name="name">Aufwendungen aus Verlustübernahmen</field>
+            <field name="parent" ref="wowi_type_g_88"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">income</field>
+            <field name="expense" eval="True"/>
+        </record>
+        <record id="wowi_type_g_89" model="account.account.type.template">
+            <field name="name">Steuern</field>
+            <field name="parent" ref="wowi_type_k8"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">income</field>
+            <field name="expense" eval="True"/>
+        </record>
+        <record id="wowi_type_u_890" model="account.account.type.template">
+            <field name="name">Steuern vom Einkommen und vom Ertrag</field>
+            <field name="parent" ref="wowi_type_g_89"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">income</field>
+            <field name="expense" eval="True"/>
+        </record>
+        <record id="wowi_type_u_891" model="account.account.type.template">
+            <field name="name">Sonstige Steuern</field>
+            <field name="parent" ref="wowi_type_g_89"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">income</field>
+            <field name="expense" eval="True"/>
+        </record>
+        <record id="wowi_type_k9" model="account.account.type.template">
+            <field name="name">Klasse 9: Abschlusskonten/Verrechnungskosten</field>
+            <field name="parent" ref="wowi_type_closing"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+        </record>
+        <record id="wowi_type_g_98" model="account.account.type.template">
+            <field name="name">Abschlusskonten</field>
+            <field name="parent" ref="wowi_type_k9"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+        </record>
+        <record id="wowi_type_u_980" model="account.account.type.template">
+            <field name="name">Eröffnungsbilanzkonten</field>
+            <field name="parent" ref="wowi_type_g_98"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+        </record>
+        <record id="wowi_type_u_982" model="account.account.type.template">
+            <field name="name">Jahresüberschuss/Jahresfehlbetrag</field>
+            <field name="parent" ref="wowi_type_g_98"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+        </record>
+        <record id="wowi_type_u_983" model="account.account.type.template">
+            <field name="name">Entnahme aus Rücklagen</field>
+            <field name="parent" ref="wowi_type_g_98"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+        </record>
+        <record id="wowi_type_u_984" model="account.account.type.template">
+            <field name="name">Einstellung in Rücklagen</field>
+            <field name="parent" ref="wowi_type_g_98"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+        </record>
+        <record id="wowi_type_u_985" model="account.account.type.template">
+            <field name="name">Ergebnisverwendungskonto</field>
+            <field name="parent" ref="wowi_type_g_98"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+        </record>
+        <record id="wowi_type_u_989" model="account.account.type.template">
+            <field name="name">Schlussbilanzkonten</field>
+            <field name="parent" ref="wowi_type_g_98"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+        </record>
+
+    </data>
+</tryton>

@@ -55,6 +55,7 @@ htmlcov/
 .hypothesis/
 TEST-*.xml
 coverage.xml
+Kontenplan.md
 
 # Claude Code
 .claude/
