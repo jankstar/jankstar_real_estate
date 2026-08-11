@@ -5,7 +5,8 @@ A Tryton ERP module for real estate management. Packaged as ``jankstar_real_esta
 targeting Tryton 8.0.0 and Python 3.9–3.13.
 
 Covers property management, lease and sales contracts, tenant/owner party roles,
-operating cost settlement, and German SKR04 accounting templates.
+operating cost settlement, and a German "Kontenrahmen der Wohnungswirtschaft"
+(WoWi) accounting chart.
 
 .. toctree::
    :maxdepth: 2
@@ -1219,11 +1220,12 @@ remain in ``report/`` for reference but are no longer registered.
    Template: ``fact_sheet.odt``.
 
 
-Accounting / SKR04
-==================
+Accounting / WoWi
+=================
 
-The ``skr04/`` directory contains German Standardized Chart of Accounts
-(SKR04) XML templates loaded at module installation:
+The ``wowi/`` directory contains a German "Kontenrahmen der
+Wohnungswirtschaft" (WoWi, housing-industry chart of accounts) as XML
+templates loaded at module installation:
 
 - Account types and accounts
 - Tax groups, tax templates, tax code templates, tax code line templates
@@ -1259,7 +1261,7 @@ Source Layout
    ├── settlement_unit.py       # real_estate.settlement_unit
    ├── report/                  # ODT report templates (rendered via Genshi/relatorio)
    ├── view/                    # XML form and tree view definitions
-   ├── skr04/                   # German SKR04 accounting templates
+   ├── wowi/                    # German WoWi accounting templates
    └── locale/                  # Translations (de.po)
 
 
