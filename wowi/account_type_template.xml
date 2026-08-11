@@ -1182,6 +1182,8 @@
             <field name="parent" ref="wowi_type_g_43"/>
             <field eval="10" name="sequence"/>
             <field name="statement">balance</field>
+            <field name="assets" eval="True"/>
+            <field name="deposit" eval="True"/>
         </record>
         <record id="wowi_type_u_439" model="account.account.type.template">
             <field name="name">Sonstige Anzahlungen</field>

@@ -382,6 +382,8 @@
             <field name="parent" ref="wowi_view_u_077"/>
             <field name="code">0770</field>
             <field name="type" ref="wowi_type_u_077"/>
+            <field name="reconcile" eval="True"/>
+            <field name="party_required" eval="True"/>
         </record>
         <record id="wowi_view_g_08" model="account.account.template">
             <field name="name">Finanzanlagen</field>
@@ -618,6 +620,8 @@
             <field name="parent" ref="wowi_view_u_180"/>
             <field name="code">1800</field>
             <field name="type" ref="wowi_type_u_180"/>
+            <field name="reconcile" eval="True"/>
+            <field name="party_required" eval="True"/>
         </record>
         <record id="wowi_view_u_181" model="account.account.template">
             <field name="name">Andere Anzahlungen</field>
@@ -628,6 +632,8 @@
             <field name="parent" ref="wowi_view_u_181"/>
             <field name="code">1810</field>
             <field name="type" ref="wowi_type_u_181"/>
+            <field name="reconcile" eval="True"/>
+            <field name="party_required" eval="True"/>
         </record>
         <record id="wowi_view_k2" model="account.account.template">
             <field name="name">Klasse 2: Forderungen / Sonstige Vermögensgegenstände / Wertpapiere / Flüssige Mittel / ARA</field>
@@ -646,6 +652,8 @@
             <field name="parent" ref="wowi_view_u_200"/>
             <field name="code">2000</field>
             <field name="type" ref="wowi_type_u_200"/>
+            <field name="reconcile" eval="True"/>
+            <field name="party_required" eval="True"/>
         </record>
         <record id="wowi_account_2001" model="account.account.template">
             <field name="name">Forderungen an ehemalige Mieter</field>
@@ -696,6 +704,8 @@
             <field name="parent" ref="wowi_view_u_210"/>
             <field name="code">2100</field>
             <field name="type" ref="wowi_type_u_210"/>
+            <field name="reconcile" eval="True"/>
+            <field name="party_required" eval="True"/>
         </record>
         <record id="wowi_view_u_215" model="account.account.template">
             <field name="name">Zweifelhafte Forderungen aus Verkauf von Grundstücken</field>
@@ -730,6 +740,8 @@
             <field name="parent" ref="wowi_view_u_220"/>
             <field name="code">2200</field>
             <field name="type" ref="wowi_type_u_220"/>
+            <field name="reconcile" eval="True"/>
+            <field name="party_required" eval="True"/>
         </record>
         <record id="wowi_view_u_225" model="account.account.template">
             <field name="name">Zweifelhafte Forderungen aus Betreuungstätigkeit</field>
@@ -764,6 +776,8 @@
             <field name="parent" ref="wowi_view_u_230"/>
             <field name="code">2300</field>
             <field name="type" ref="wowi_type_u_230"/>
+            <field name="reconcile" eval="True"/>
+            <field name="party_required" eval="True"/>
         </record>
         <record id="wowi_view_u_234" model="account.account.template">
             <field name="name">Forderungen aus Inventarverkäufen</field>
@@ -1609,6 +1623,8 @@
             <field name="parent" ref="wowi_view_u_431"/>
             <field name="code">4310</field>
             <field name="type" ref="wowi_type_u_431"/>
+            <field name="reconcile" eval="True"/>
+            <field name="party_required" eval="True"/>
         </record>
         <record id="wowi_view_u_439" model="account.account.template">
             <field name="name">Sonstige Anzahlungen</field>
@@ -1633,6 +1649,8 @@
             <field name="parent" ref="wowi_view_u_440"/>
             <field name="code">4400</field>
             <field name="type" ref="wowi_type_u_440"/>
+            <field name="reconcile" eval="True"/>
+            <field name="party_required" eval="True"/>
         </record>
         <record id="wowi_view_u_441" model="account.account.template">
             <field name="name">Verbindlichkeiten aus Betreuungstätigkeit</field>
@@ -1643,6 +1661,8 @@
             <field name="parent" ref="wowi_view_u_441"/>
             <field name="code">4410</field>
             <field name="type" ref="wowi_type_u_441"/>
+            <field name="reconcile" eval="True"/>
+            <field name="party_required" eval="True"/>
         </record>
         <record id="wowi_view_u_442" model="account.account.template">
             <field name="name">Verbindlichkeiten aus Lieferungen und Leistungen</field>
@@ -1653,6 +1673,8 @@
             <field name="parent" ref="wowi_view_u_442"/>
             <field name="code">4420</field>
             <field name="type" ref="wowi_type_u_442"/>
+            <field name="reconcile" eval="True"/>
+            <field name="party_required" eval="True"/>
         </record>
         <record id="wowi_view_g_45" model="account.account.template">
             <field name="name">Verbindlichkeiten aus der Annahme gezogener und der Ausstellung eigener Wechsel</field>

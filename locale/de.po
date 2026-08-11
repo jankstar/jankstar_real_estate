@@ -3510,7 +3510,7 @@ msgstr "Anpassung Konditionen ausführen"
 
 msgctxt "model:ir.action,name:wizard_create_moves"
 msgid "Create Contract Moves"
-msgstr "Soll/Habenstellung"
+msgstr "period. Buchung Verträge"
 
 #, fuzzy
 msgctxt "model:ir.action,name:wizard_estimate_consumption"
@@ -4268,7 +4268,7 @@ msgstr "Typ Kostensammler"
 
 msgctxt "model:ir.ui.menu,name:menu_create_moves"
 msgid "Create Contract Moves"
-msgstr "Soll/Habenstellung"
+msgstr "period. Buchung Verträge"
 
 msgctxt "model:ir.ui.menu,name:menu_equipment_form"
 msgid "Equipment"
@@ -4966,11 +4966,11 @@ msgstr "dynamisch über Bemessung"
 
 msgctxt "selection:real_estate.base_object,option_rate_method:"
 msgid "Fix: Option Rate 0.0 %"
-msgstr "Optionssatz 0,0 % fix"
+msgstr "optiert nicht (0,0 %) fix"
 
 msgctxt "selection:real_estate.base_object,option_rate_method:"
 msgid "Fix: Option Rate 100.0 %"
-msgstr "Optionssatz 100,0% fix"
+msgstr "optiert (100,0 %) fix"
 
 msgctxt "selection:real_estate.base_object,option_rate_method:"
 msgid "Fix: Option Rate by Value"
@@ -5090,11 +5090,11 @@ msgstr "dynamisch über Bemessung"
 
 msgctxt "selection:real_estate.billing_unit,option_rate_method:"
 msgid "Fix: Option Rate 0.0 %"
-msgstr "Optionssatz 0,0 % fix"
+msgstr "optiert nicht (0,0 %) fix"
 
 msgctxt "selection:real_estate.billing_unit,option_rate_method:"
 msgid "Fix: Option Rate 100.0 %"
-msgstr "Optionssatz 100,0% fix"
+msgstr "optiert (100,0 %) fix"
 
 msgctxt "selection:real_estate.billing_unit,option_rate_method:"
 msgid "Fix: Option Rate by Value"
@@ -5388,11 +5388,11 @@ msgstr "dynamisch über Bemessung"
 
 msgctxt "selection:real_estate.settlement_unit,option_rate_method:"
 msgid "Fix: Option Rate 0.0 %"
-msgstr "Optionssatz 0,0 % fix"
+msgstr "optiert nicht (0,0 %) fix"
 
 msgctxt "selection:real_estate.settlement_unit,option_rate_method:"
 msgid "Fix: Option Rate 100.0 %"
-msgstr "Optionssatz 100,0% fix"
+msgstr "optiert (100,0 %) fix"
 
 msgctxt "selection:real_estate.settlement_unit,option_rate_method:"
 msgid "Fix: Option Rate by Value"
