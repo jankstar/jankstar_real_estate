@@ -177,7 +177,6 @@ def create_and_post_invoice(
     for ld in lines_data:
 
         line = InvoiceLine()
-        #line.invoice = invoice
         line.company = company
         line.party = party
         line.invoice_type = 'in'
@@ -194,7 +193,6 @@ def create_and_post_invoice(
         if ld.get('settlement_unit'):
             line.settlement_unit = ld['settlement_unit']
             line.billing_unit = ld['settlement_unit'].billing_unit
-        line.save()
         lines.append(line)
 
     if not lines:

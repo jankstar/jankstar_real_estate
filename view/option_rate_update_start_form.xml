@@ -1,5 +1,6 @@
 <?xml version="1.0"?>
 <form col="2">
+    <label name="company"/><field name="company"/>
     <label name="base_objects"/><field name="base_objects"/>
     <label name="billing_units"/><field name="billing_units"/>
     <label name="settlement_units"/><field name="settlement_units"/>

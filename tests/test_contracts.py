@@ -81,6 +81,7 @@ from decimal import Decimal
 from proteus import Model, config
 
 START_DATE = datetime.date(2025, 1, 1)
+YEAR_END_DATE = datetime.date(2025, 12, 31)
 PARKING_PRICE = Decimal('50.00')
 
 # (termination_date, receipt_of_notice) — notice 3 months before termination
@@ -361,6 +362,58 @@ def record_meter_reading(contract, reading_date, t_wfl, admin_user):
                   f'(+{consumption:.1f} m³ seit {last_reading.reading_date})')
 
 
+def record_year_end_reading(contract, target_date, admin_user):
+    """Record a year-end water meter reading (Ablesung) for the rental
+    object(s) of a contract that is still running on target_date. The value
+    is extrapolated linearly from the last two known readings of the meter,
+    i.e. at the same daily rate as the most recent recorded consumption."""
+    MeterReading = Model.get('real_estate.meter_reading')
+    seen_object_ids = set()
+    for item in contract.items:
+        for item_obj in item.objects:
+            obj = item_obj.object
+            if obj.id in seen_object_ids:
+                continue
+            seen_object_ids.add(obj.id)
+
+            meter = get_water_meter(obj)
+            if meter is None:
+                continue
+
+            history = MeterReading.find(
+                [('base_object', '=', meter.id)],
+                order=[('reading_date', 'DESC')], limit=2)
+            if len(history) < 2:
+                print(f'    WARNUNG: Zu wenige Ablesungen für Zähler '
+                      f'"{meter.name}" – Jahresendablesung übersprungen.',
+                      file=sys.stderr)
+                continue
+            last_reading, prev_reading = history[0], history[1]
+
+            if last_reading.reading_date >= target_date:
+                continue
+
+            interval_days = (last_reading.reading_date - prev_reading.reading_date).days
+            if interval_days <= 0:
+                continue
+
+            daily_rate = (last_reading.value - prev_reading.value) / Decimal(interval_days)
+            days_elapsed = (target_date - last_reading.reading_date).days
+            new_value = (last_reading.value + daily_rate * Decimal(days_elapsed)).quantize(Decimal('1'))
+
+            reading = MeterReading()
+            reading.base_object = meter
+            reading.m_type = 'reading'
+            reading.meter_id = last_reading.meter_id
+            reading.reading_date = target_date
+            reading.reading_user = admin_user
+            reading.value = new_value
+            reading.save()
+            print(f'    Jahresendablesung: Zähler "{meter.name}" '
+                  f'{last_reading.value} → {new_value} m³ '
+                  f'(Rate {daily_rate:.3f} m³/Tag seit {last_reading.reading_date})')
+
+
 def terminate_contract(contract, termination_date, receipt_date, t_wfl, admin_user):
     contract.state = 'terminated'
     contract.terminated_by_type = 'tenant'
@@ -542,6 +595,7 @@ def main():
     print(f'Erzeuge Verträge für Company "{company.rec_name}" ...')
 
     mieter_nr = 1  # läuft über alle Wirtschaftseinheiten durch
+    year_end_contracts = []  # Verträge, die zum 31.12.2025 noch laufen
 
     for prop in properties:
         print(f'\n{"=" * 60}')
@@ -648,12 +702,14 @@ def main():
         for c in all_contracts:
             c.click('running')
             print(f'  Vertrag id={c.id} → running')
+        year_end_contracts.extend(all_contracts)
 
         n_term = min(len(TERMINATIONS), len(all_contracts))
         to_terminate = random.sample(all_contracts, n_term)
         print(f'\n--- Verträge kündigen ({n_term}x) ---')
         for c, (term_date, receipt_date) in zip(to_terminate, TERMINATIONS):
             terminate_contract(c, term_date, receipt_date, t_wfl, admin_user)
+            year_end_contracts.remove(c)
 
         # Follow-up contract for the 31.05.2025 termination
         if n_term > 0:
@@ -682,6 +738,7 @@ def main():
             contract_seq += 10
             followup.click('running')
             print(f'  Folgevertrag id={followup.id} → running')
+            year_end_contracts.append(followup)
 
         # Follow-up contract for the 31.07.2025 termination, starting 16.09.2025
         if n_term > 1:
@@ -710,6 +767,7 @@ def main():
             contract_seq += 10
             followup.click('running')
             print(f'  Folgevertrag id={followup.id} → running')
+            year_end_contracts.append(followup)
 
     # --- Gewerbemietverträge ---
     print(f'\n{"=" * 60}')
@@ -764,6 +822,7 @@ def main():
                          taxes=commercial_taxes)
     g_contract.click('running')
     print(f'  Vertrag id={g_contract.id} → running')
+    year_end_contracts.append(g_contract)
 
     # Property 2: je ein Gewerbevertrag pro Gewerbeobjekt
     prop2 = properties[1]
@@ -806,6 +865,14 @@ def main():
                              taxes=commercial_taxes)
         g_contract.click('running')
         print(f'  Vertrag id={g_contract.id} → running')
+        year_end_contracts.append(g_contract)
+
+    print(f'\n{"=" * 60}')
+    print(f'=== Jahresendablesungen ({YEAR_END_DATE}) für laufende Verträge '
+          f'({len(year_end_contracts)}x) ===')
+    print(f'{"=" * 60}')
+    for c in year_end_contracts:
+        record_year_end_reading(c, YEAR_END_DATE, admin_user)
 
     print('\nFertig.')
 
