@@ -1231,6 +1231,8 @@ templates loaded at module installation:
 - Tax groups, tax templates, tax code templates, tax code line templates
 - Tax rule templates
 
+https://www.intex-publishing.de/pdf/Kontenrahmen_Wohnungswirtschaft.pdf
+https://www.intex-publishing.de/pdf/Kontenrahmen_Immobilienwirtschaft.pdf
 
 Source Layout
 =============
