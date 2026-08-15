@@ -93,15 +93,15 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
         'on_change_with_end_date', searcher='search_end_date')
 
     calculation_method = fields.Selection([
-        ('rental_apartment', 'Rental Apartment'),
-        ('WEG_billing', 'WEG Billing'),
+        ('rental_apartment', 'Accrual basis'),
+        ('WEG_billing', 'Cash basis'),
         ], "Calculation Method", sort=False,
         states={'readonly': Eval('state') != 'draft'},
         help=(
-            "Rental Apartment: Operating cost settlement for residential tenancies under §§ 1–2 BetrKV. "
+            "Accrual basis: Operating cost settlement for residential tenancies under §§ 1–2 BetrKV. "
             "Cost shares are allocated to tenants based on floor area, consumption, or number of occupants. "
             "Advance payments made by tenants are offset; the result is a credit or additional charge per tenant.\n"
-            "WEG Billing: Annual statement for condominium owner associations under § 28 WEG. "
+            "Cash basis: Annual statement for condominium owner associations under § 28 WEG. "
             "Total costs are distributed among owners according to their co-ownership shares (MEA). "
             "Paid maintenance fees are offset; reserve fund contributions and non-allocable costs "
             "remain with the individual owner."

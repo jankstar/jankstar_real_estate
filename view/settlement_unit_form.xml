@@ -24,7 +24,9 @@
             <label name="type"/><field name="type"/>
             <newline/>
             <label name="allocation_rule"/><field name="allocation_rule"/>
+            <label name="proportional_calculation"/><field name="proportional_calculation"/>            
             <label name="vacancy"/><field name="vacancy"/>
+            <newline/>
             <label name="m_type"/><field name="m_type"/>
             <label name="meter_unit"/><field name="meter_unit"/>
             <newline/>

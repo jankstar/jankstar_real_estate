@@ -28,7 +28,8 @@ Je Wirtschaftseinheit werden zwei Billing Units angelegt:
        Die Regex trifft sowohl Wohnungszähler ("Wasser Zähler 01" …) als
        auch Einzelhandelszähler ("Wasser Zähler EH01" …).
 
-       200 Wasserversorgung/Abwasser — Verbrauch m³, Leerstand: Eigentümer
+       200 Wasserversorgung/Abwasser — Verbrauch m³, Leerstand: Eigentümer,
+                                        anteilig: lineare Interpolation
 
   2. "Heizkosten" (calculation_method=rental_apartment, external_billing=True)
      Settlement Units (Objekt-Regex: "Wohnung|Einzelhandel"):
@@ -193,6 +194,7 @@ def create_su_consumption(bu, cost_type, meter_unit, usable_space_type) -> None:
     su.sequence = cost_type.sequence
     su.allocation_rule = 'allocation_by_consumption'
     su.meter_unit = meter_unit
+    su.proportional_calculation = 'linear_interpolation'
     su.vacancy = 'by_owner'
     su.reg_ex_object = 'Wohnung|Einzelhandel'
     su.reg_ex_meter = 'Wasser Zähler'
@@ -200,7 +202,8 @@ def create_su_consumption(bu, cost_type, meter_unit, usable_space_type) -> None:
     su.option_measurement_type = usable_space_type
     su.save()
     print(f'    SU {su.sequence}: {cost_type.name} '
-          f'→ Verbrauch {meter_unit.symbol} / Leerstand: Eigentümer '
+          f'→ Verbrauch {meter_unit.symbol} (anteilig: lineare Interpolation) '
+          f'/ Leerstand: Eigentümer '
           f'/ Objekt-Regex: "Wohnung|Einzelhandel" / Zähler-Regex: "Wasser Zähler"')
 
 

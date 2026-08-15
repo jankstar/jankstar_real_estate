@@ -2,6 +2,7 @@
 from trytond.model import (
     DeactivableMixin, ModelSQL, ModelView, fields)
 from trytond.model.exceptions import ValidationError
+from trytond.exceptions import UserError
 from trytond.i18n import gettext
 from trytond.pool import Pool
 from trytond.transaction import Transaction
@@ -110,6 +111,17 @@ class SettlementUnit(DeactivableMixin, base_object.re_sequence_ordered(), ModelS
             'invisible': Eval('allocation_rule') != 'allocation_by_consumption',
             })
 
+    proportional_calculation = fields.Selection([
+            ('none', 'None'),
+            ('linear_interpolation', 'Linear interpolation'),
+            ('degree_day', 'Weather-dependent (degree-day)'),
+            ], "Calculate proportionally", sort=False,
+            states={
+                'invisible': Eval('allocation_rule') != 'allocation_by_consumption',
+                'required': Eval('allocation_rule') == 'allocation_by_consumption',
+                'readonly': Eval('state') != 'draft',
+                })
+
     objects = fields.Function(fields.One2Many('real_estate.base_object', None, 'Objects',
                                               readonly=True,
         states={
@@ -215,6 +227,10 @@ class SettlementUnit(DeactivableMixin, base_object.re_sequence_ordered(), ModelS
                 If(Eval('sub_state', '') == 'error', 'danger', ''),
                 ['sub_state']),
         ]
+
+    @classmethod
+    def default_proportional_calculation(cls):
+        return 'none'
 
     @classmethod
     def default_option_rate_value(cls):
@@ -576,6 +592,12 @@ class SettlementUnit(DeactivableMixin, base_object.re_sequence_ordered(), ModelS
             self._compute_value_shares_external()
             return
 
+        if (self.allocation_rule == 'allocation_by_consumption'
+                and self.proportional_calculation == 'degree_day'):
+            raise UserError(gettext(
+                'real_estate.msg_degree_day_not_implemented',
+                name=self.name))
+
         total = 0.0
         _unit = 0.0001
 
@@ -606,26 +628,6 @@ class SettlementUnit(DeactivableMixin, base_object.re_sequence_ordered(), ModelS
                         f' type {self.m_type.name} on {cost_share.end_date}')
 
             elif self.allocation_rule == 'allocation_by_consumption':
-                pre_days = (self.type.reading_pre_days
-                            if self.type and self.type.reading_pre_days is not None
-                            else 7)
-                post_days = (self.type.reading_post_days
-                             if self.type and self.type.reading_post_days is not None
-                             else 7)
-
-                def _closest_reading(meter_id, target_date):
-                    """Return the reading closest to target_date within the window."""
-                    lo = target_date - datetime.timedelta(days=pre_days)
-                    hi = target_date + datetime.timedelta(days=post_days)
-                    rdgs = MeterReading.search([
-                        ('base_object', '=', meter_id),
-                        ('reading_date', '>=', lo),
-                        ('reading_date', '<=', hi),
-                    ])
-                    if not rdgs:
-                        return None
-                    return min(rdgs, key=lambda r: abs((r.reading_date - target_date).days))
-
                 # Vacancy (no contract): consumption = 0, no reading required.
                 if not cost_share.contract:
                     value = 0.0
@@ -642,64 +644,112 @@ class SettlementUnit(DeactivableMixin, base_object.re_sequence_ordered(), ModelS
                         pattern = re.compile(self.reg_ex_meter)
                         meters = [m for m in meters if pattern.search(m.name or '')]
 
-                    # Predecessor vacancy: cost share for same object ending
-                    # the day before this one's start_date with no contract.
-                    cs_by_obj = sorted(
-                        [c for c in self.cost_shares
-                         if c.base_object and c.base_object.id == cost_share.base_object.id],
-                        key=lambda c: c.start_date or datetime.date.min)
-                    predecessor = None
-                    for c in cs_by_obj:
-                        if c.end_date and cost_share.start_date:
-                            if c.end_date < cost_share.start_date:
-                                predecessor = c
+                    if self.proportional_calculation == 'linear_interpolation':
+                        consumption = 0.0
+                        found = False
+                        for meter in meters:
+                            factor = float(meter.meter_factor or 1)
+                            try:
+                                end_rdg = MeterReading.set_interpolation_reading(
+                                    meter, cost_share.end_date)
+                                if meter.meter_is_counter:
+                                    start_rdg = MeterReading.set_interpolation_reading(
+                                        meter, cost_share.start_date)
+                                    consumption += (
+                                        float(end_rdg.value or 0)
+                                        - float(start_rdg.value or 0)
+                                    ) * factor
+                                else:
+                                    consumption += float(end_rdg.value or 0) * factor
+                                found = True
+                            except UserError as exc:
+                                error_msg = exc.message
+                                break
+
+                        if found and error_msg is None:
+                            value = consumption
+
+                    else:  # 'none' (default): nearest reading within a tolerance window
+                        pre_days = (self.type.reading_pre_days
+                                    if self.type and self.type.reading_pre_days is not None
+                                    else 7)
+                        post_days = (self.type.reading_post_days
+                                     if self.type and self.type.reading_post_days is not None
+                                     else 7)
+
+                        def _closest_reading(meter_id, target_date):
+                            """Return the reading closest to target_date within the
+                            window, considering all reading types (including
+                            estimates and previously interpolated values)."""
+                            lo = target_date - datetime.timedelta(days=pre_days)
+                            hi = target_date + datetime.timedelta(days=post_days)
+                            rdgs = MeterReading.search([
+                                ('base_object', '=', meter_id),
+                                ('reading_date', '>=', lo),
+                                ('reading_date', '<=', hi),
+                            ])
+                            if not rdgs:
+                                return None
+                            return min(rdgs, key=lambda r: abs((r.reading_date - target_date).days))
+
+                        # Predecessor vacancy: cost share for same object ending
+                        # the day before this one's start_date with no contract.
+                        cs_by_obj = sorted(
+                            [c for c in self.cost_shares
+                             if c.base_object and c.base_object.id == cost_share.base_object.id],
+                            key=lambda c: c.start_date or datetime.date.min)
+                        predecessor = None
+                        for c in cs_by_obj:
+                            if c.end_date and cost_share.start_date:
+                                if c.end_date < cost_share.start_date:
+                                    predecessor = c
+                                else:
+                                    break
+
+                        consumption = 0.0
+                        found = False
+                        for meter in meters:
+                            factor = float(meter.meter_factor or 1)
+                            if meter.meter_is_counter:
+                                end_rdg = _closest_reading(meter.id, cost_share.end_date)
+                                start_rdg = _closest_reading(meter.id, cost_share.start_date)
+                                # If no start reading and predecessor is a vacancy,
+                                # try the reading at the start of that vacancy.
+                                if start_rdg is None and predecessor and not predecessor.contract:
+                                    start_rdg = _closest_reading(meter.id, predecessor.start_date)
+                                if not end_rdg:
+                                    error_msg = gettext(
+                                        'real_estate.msg_no_end_reading',
+                                        name=cost_share.base_object.rec_name,
+                                        date=str(cost_share.end_date),
+                                        pre=pre_days, post=post_days)
+                                    break
+                                if not start_rdg:
+                                    error_msg = gettext(
+                                        'real_estate.msg_no_start_reading',
+                                        name=cost_share.base_object.rec_name,
+                                        date=str(cost_share.start_date),
+                                        pre=pre_days, post=post_days)
+                                    break
+                                consumption += (
+                                    float(end_rdg.value or 0)
+                                    - float(start_rdg.value or 0)
+                                ) * factor
+                                found = True
                             else:
-                                break
+                                rdg = _closest_reading(meter.id, cost_share.end_date)
+                                if not rdg:
+                                    error_msg = gettext(
+                                        'real_estate.msg_no_end_reading',
+                                        name=cost_share.base_object.rec_name,
+                                        date=str(cost_share.end_date),
+                                        pre=pre_days, post=post_days)
+                                    break
+                                consumption += float(rdg.value or 0) * factor
+                                found = True
 
-                    consumption = 0.0
-                    found = False
-                    for meter in meters:
-                        factor = float(meter.meter_factor or 1)
-                        if meter.meter_is_counter:
-                            end_rdg = _closest_reading(meter.id, cost_share.end_date)
-                            start_rdg = _closest_reading(meter.id, cost_share.start_date)
-                            # If no start reading and predecessor is a vacancy,
-                            # try the reading at the start of that vacancy.
-                            if start_rdg is None and predecessor and not predecessor.contract:
-                                start_rdg = _closest_reading(meter.id, predecessor.start_date)
-                            if not end_rdg:
-                                error_msg = gettext(
-                                    'real_estate.msg_no_end_reading',
-                                    name=cost_share.base_object.rec_name,
-                                    date=str(cost_share.end_date),
-                                    pre=pre_days, post=post_days)
-                                break
-                            if not start_rdg:
-                                error_msg = gettext(
-                                    'real_estate.msg_no_start_reading',
-                                    name=cost_share.base_object.rec_name,
-                                    date=str(cost_share.start_date),
-                                    pre=pre_days, post=post_days)
-                                break
-                            consumption += (
-                                float(end_rdg.value or 0)
-                                - float(start_rdg.value or 0)
-                            ) * factor
-                            found = True
-                        else:
-                            rdg = _closest_reading(meter.id, cost_share.end_date)
-                            if not rdg:
-                                error_msg = gettext(
-                                    'real_estate.msg_no_end_reading',
-                                    name=cost_share.base_object.rec_name,
-                                    date=str(cost_share.end_date),
-                                    pre=pre_days, post=post_days)
-                                break
-                            consumption += float(rdg.value or 0) * factor
-                            found = True
-
-                    if found:
-                        value = consumption
+                        if found:
+                            value = consumption
 
             elif self.allocation_rule == 'allocation_per_rental_unit':
                 value = (cost_share.time_share / self.time_total

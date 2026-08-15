@@ -1261,6 +1261,7 @@ class MeterReading(ModelSQL, ModelView):
             ('initial', 'initial, installation'),
             ('reading', 'reading'),
             ('estimate', 'estimate'),
+            ('linear_interpolation', 'linear interpolation'),
             ('final', 'final reading, removal'),
             ], "Reading Type", required=True, sort=False)
 
@@ -1440,6 +1441,94 @@ class MeterReading(ModelSQL, ModelView):
         reading.m_type = 'estimate'
         reading.value = estimated_value
         reading.comment = reason
+        reading.save()
+        return reading
+
+    @classmethod
+    def interpolate_at(cls, base_object, per_date, meter_id=None):
+        """Return (value, r1, r2): the meter value at per_date, linearly
+        interpolated between the closest bracketing readings (any type,
+        including estimates and previously interpolated values) strictly
+        before and after per_date.
+
+        Unlike simulate_estimate, this never falls back to extrapolation:
+        if either bracket is missing, a UserError is raised. If a reading
+        exists exactly on per_date, it is returned directly (r1 is r2 is
+        that reading)."""
+        base_domain = [
+            ('base_object', '=', base_object.id),
+        ]
+        if meter_id:
+            base_domain.append(('meter_id', '=', meter_id))
+
+        exact = cls.search(
+            base_domain + [('reading_date', '=', per_date)], limit=1)
+        if exact:
+            return exact[0].value, exact[0], exact[0]
+
+        before = cls.search(
+            base_domain + [('reading_date', '<', per_date)],
+            order=[('reading_date', 'DESC')], limit=1)
+        if not before:
+            raise UserError(gettext(
+                'real_estate.msg_no_reading_before_interpolation',
+                name=base_object.rec_name, date=str(per_date)))
+        after = cls.search(
+            base_domain + [('reading_date', '>', per_date)],
+            order=[('reading_date', 'ASC')], limit=1)
+        if not after:
+            raise UserError(gettext(
+                'real_estate.msg_no_reading_after_interpolation',
+                name=base_object.rec_name, date=str(per_date)))
+
+        r1, r2 = before[0], after[0]
+        days_between = (r2.reading_date - r1.reading_date).days
+        days_to_target = (per_date - r1.reading_date).days
+        rate = (float(r2.value) - float(r1.value)) / days_between
+        raw = float(r1.value) + rate * days_to_target
+
+        if base_object.meter_no_decimals:
+            uom_digits = 0
+        else:
+            uom_digits = base_object.meter_unit.digits if base_object.meter_unit else 2
+        value = Decimal(str(round(raw, uom_digits)))
+        return value, r1, r2
+
+    @classmethod
+    def set_interpolation_reading(cls, base_object, per_date, meter_id=None):
+        """Get or create the persisted linear-interpolation reading for
+        base_object at per_date. Idempotent: if one already exists for
+        that meter/date, its value is refreshed instead of creating a
+        duplicate. If per_date coincides with a real reading, that
+        reading is returned as-is (no interpolation record created)."""
+        value, r1, r2 = cls.interpolate_at(base_object, per_date, meter_id)
+        if r1.id == r2.id:
+            return r1
+
+        effective_meter_id = meter_id or r2.meter_id
+        existing = cls.search([
+            ('base_object', '=', base_object.id),
+            ('reading_date', '=', per_date),
+            ('m_type', '=', 'linear_interpolation'),
+            ('meter_id', '=', effective_meter_id),
+            ], limit=1)
+        if existing:
+            reading = existing[0]
+            if reading.value != value:
+                reading.value = value
+                reading.save()
+            return reading
+
+        reading = cls()
+        reading.company = base_object.company
+        reading.base_object = base_object
+        reading.meter_id = effective_meter_id
+        reading.reading_date = per_date
+        reading.m_type = 'linear_interpolation'
+        reading.value = value
+        reading.comment = (
+            f'Interpolated between {r1.reading_date} ({r1.value}) and '
+            f'{r2.reading_date} ({r2.value}).')
         reading.save()
         return reading
 

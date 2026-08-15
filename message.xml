@@ -44,7 +44,7 @@
             <field name="text">Billing unit "{}": At least one term type must be selected before approval.</field>
         </record>
         <record model="ir.message" id="msg_invalid_calculation_method">
-            <field name="text">For WEG Billing, the start date {} must be the first day of the year.</field>
+            <field name="text">For Cash basis, the start date {} must be the first day of the year.</field>
         </record>
         <record model="ir.message" id="msg_term_valid_from_before_contract_start">
             <field name="text">Term "{}": Valid from ({}) must not be before the contract start date ({})!</field>
@@ -72,6 +72,15 @@
         </record>
         <record model="ir.message" id="msg_no_end_reading">
             <field name="text">No end reading for "%(name)s" on %(date)s (window: -%(pre)d/+%(post)d days).</field>
+        </record>
+        <record model="ir.message" id="msg_no_reading_before_interpolation">
+            <field name="text">No reading before %(date)s for "%(name)s" — cannot interpolate.</field>
+        </record>
+        <record model="ir.message" id="msg_no_reading_after_interpolation">
+            <field name="text">No reading after %(date)s for "%(name)s" — cannot interpolate.</field>
+        </record>
+        <record model="ir.message" id="msg_degree_day_not_implemented">
+            <field name="text">Weather-dependent (degree-day) calculation is not yet implemented (settlement unit "%(name)s").</field>
         </record>
         <record model="ir.message" id="msg_billing_unit_chronological_order">
             <field name="text">The following billing units must be billed first (chronological order): %(names)s</field>
