@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <tree>
-    <field name="company"/>
+    <field name="company" optional="1"/>
     <field name="property"/>
     <field name="start_date" width="110"/>
     <field name="end_date" width="110" optional="1"/>

@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <tree>
-    <field name="company"/>
+    <field name="company" optional="1"/>
     <field name="reading_date"/>
     <field name="base_object"/>
     <field name="meter_id"/>
