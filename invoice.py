@@ -62,6 +62,7 @@ class InvoiceLine(metaclass=PoolMeta):
             ('operating_costs', 'Operating Costs'),
             ('settlement_result_contract', 'Settlement Result Contract'),
             ('settlement_result_vacant', 'Settlement Result Vacant'),
+            ('settlement_result_flat_rate', 'Settlement Result Flat Rate'),
         ], 'Account Assignment Control',
         sort=False,
     )
@@ -497,6 +498,7 @@ class AccountMoveLine(metaclass=PoolMeta):
             ('operating_costs', 'Operating Costs'),
             ('settlement_result_contract', 'Settlement Result Contract'),
             ('settlement_result_vacant', 'Settlement Result Vacant'),
+            ('settlement_result_flat_rate', 'Settlement Result Flat Rate'),
         ], 'Account Assignment Control',
         sort=False,
     )

@@ -530,11 +530,11 @@
             <field name="parent" ref="wowi_view_k1"/>
         </record>
         <record id="wowi_view_u_150" model="account.account.template">
-            <field name="name">Noch nicht abgerechnete Beheizungs- und Warmwasserkosten</field>
+            <field name="name">Noch nicht abgerechnete Betriebskosten</field>
             <field name="parent" ref="wowi_view_g_15"/>
         </record>
         <record id="wowi_account_1500" model="account.account.template">
-            <field name="name">Noch nicht abgerechnete Beheizungs- und Warmwasserkosten</field>
+            <field name="name">Noch nicht abgerechnete Betriebskosten</field>
             <field name="parent" ref="wowi_view_u_150"/>
             <field name="code">1500</field>
             <field name="type" ref="wowi_type_u_150"/>

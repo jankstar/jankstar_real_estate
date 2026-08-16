@@ -88,10 +88,11 @@ class BillingUnitStart(ModelView):
 
     @staticmethod
     def default_payment_term():
-        AccountConfiguration = Pool().get('account.configuration')
-        config = AccountConfiguration(1)
-        return (config.re_payment_term_billing.id
-            if config.re_payment_term_billing else None)
+        user = Pool().get('res.user')(Transaction().user)
+        re_accounting = user.company.re_accounting if user.company else None
+        return (re_accounting.re_payment_term_billing.id
+            if re_accounting and re_accounting.re_payment_term_billing
+            else None)
 
     @staticmethod
     def default_invoice_date_in_past():

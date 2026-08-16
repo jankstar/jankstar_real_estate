@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<tree sequence="sequence">
+    <field name="sequence" width="60"/>
+    <field name="name"/>
+    <field name="re_account_allocation_by_owner"/>
+    <field name="re_journal_billing"/>
+    <field name="re_payment_term_billing"/>
+</tree>

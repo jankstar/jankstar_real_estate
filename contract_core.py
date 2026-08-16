@@ -449,9 +449,16 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
             }
         )
 
+    company_re_accounting = fields.Function(
+        fields.Many2One('real_estate.re_accounting', "Company Accounting"),
+        'on_change_with_company_re_accounting', loading='eager')
+
     c_type = fields.Many2One(
         'real_estate.contract.type', "Contract Type", required=True,
-        domain=[('types_of_use', 'in', Eval('type_of_use'))],
+        domain=[
+            ('types_of_use', 'in', Eval('type_of_use')),
+            ('re_accounting', '=', Eval('company_re_accounting', -1)),
+            ],
         states={
             'readonly': ((Eval('state') != 'draft')),
             'invisible': ((Bool(Eval('type_of_use', 0)) == False)),
@@ -944,6 +951,12 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
     @fields.depends('company')
     def on_change_with_currency(self, name=None):
         return self.company.currency if self.company else None
+
+    @fields.depends('company', '_parent_company.re_accounting')
+    def on_change_with_company_re_accounting(self, name=None):
+        if self.company and self.company.re_accounting:
+            return self.company.re_accounting.id
+        return None
 
     @fields.depends('c_type', 'property', 'company', 'sequence')
     def on_change_with_sequence(self, name=None):

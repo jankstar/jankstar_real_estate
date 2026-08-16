@@ -819,6 +819,31 @@
             <field name="perm_delete" eval="False"/>
         </record>
 
+    <!-- ContractTermTypeCType: Admin CRUD, contract read -->
+    <record model="ir.model.access" id="access_contract_term_type_c_type_admin">
+        <field name="model">real_estate.contract.term.type-contract.type</field>
+        <field name="group" ref="group_real_estate_admin"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_delete" eval="True"/>
+    </record>
+    <record model="ir.model.access" id="access_contract_term_type_c_type_contract_group">
+        <field name="model">real_estate.contract.term.type-contract.type</field>
+        <field name="group" ref="group_real_estate_contract"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_delete" eval="False"/>
+    </record>
+    <record model="ir.model.access" id="access_contract_term_type_c_type_default">
+        <field name="model">real_estate.contract.term.type-contract.type</field>
+        <field name="perm_read" eval="False"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_delete" eval="False"/>
+    </record>
+
     <record model="ir.ui.view" id="terminate_contract_view_form">
         <field name="model">real_estate.terminate_contract.start</field>
         <field name="type">form</field>
@@ -1147,7 +1172,15 @@
             <field name="type">revenue</field>
         </record>
 
+        <record model="real_estate.re_accounting" id="re_accounting_default">
+            <field name="sequence" eval="10"/>
+            <field name="name">Default</field>
+            <field name="re_journal_billing" ref="journal_rental_book"/>
+            <field name="re_payment_term_billing" ref="account_invoice.payment_term_30_eom"/>
+        </record>
+
         <record model="real_estate.contract.type" id="contract_rental_agreement_type">
+            <field name="re_accounting" ref="re_accounting_default"/>
             <field name="name">Rental agreement</field>
             <field name="sequence">10</field>
             <field name="mark" >Debit</field>
@@ -1163,6 +1196,7 @@
         </record>
 
         <record model="real_estate.contract.type" id="contract_parking_space_lease_agreement_type">
+            <field name="re_accounting" ref="re_accounting_default"/>
             <field name="name">Parking Space Lease Agreement</field>
             <field name="sequence">20</field>
             <field name="mark" >Debit</field>
@@ -1178,6 +1212,7 @@
         </record>
 
         <record model="real_estate.contract.type" id="contract_debit_costs_agreement_type">
+            <field name="re_accounting" ref="re_accounting_default"/>
             <field name="name">Debit Costs Agreement</field>
             <field name="sequence">30</field>
             <field name="mark" >Debit</field>
@@ -1192,6 +1227,7 @@
         </record>
 
         <record model="real_estate.contract.type" id="contract_credit_costs_agreement_type">
+            <field name="re_accounting" ref="re_accounting_default"/>
             <field name="name">Credit Costs Agreement</field>
             <field name="sequence">40</field> 
             <field name="mark" >Credit</field>
@@ -1206,6 +1242,7 @@
         </record>
 
         <record model="real_estate.contract.type" id="contract_commercial_lease_agreement_type">
+            <field name="re_accounting" ref="re_accounting_default"/>
             <field name="name">Commercial lease agreement</field>
             <field name="sequence">50</field>
             <field name="mark" >Debit</field>
@@ -1221,6 +1258,7 @@
         </record>
 
         <record model="real_estate.contract.type" id="contract_condominium_fee_agreement_type">
+            <field name="re_accounting" ref="re_accounting_default"/>
             <field name="name">Condominium fee agreement</field>
             <field name="sequence">80</field>
             <field name="mark" >Debit</field>
@@ -1238,6 +1276,7 @@
         <!-- Term Types -->
 
         <record model="real_estate.contract.term.type" id="contract_term_type_apartment_rent">
+            <field name="re_accounting" ref="re_accounting_default"/>
             <field name="name">Apartment rent (monthly)</field>
             <field name="sequence" >1000</field>
             <field name="types_of_use" eval="['residential']" />
@@ -1245,18 +1284,22 @@
             <field name="default_quantity">1</field>
             <field name="rhythm">1</field>
             <field name="rhythm_type">monthly</field>
+            <field name="oc_processing" >none</field>
         </record>
 
         <record model="real_estate.contract.term.type" id="contract_term_type_parking_space_rent">
+            <field name="re_accounting" ref="re_accounting_default"/>
             <field name="name">Parking space rent (monthly)</field>
             <field name="sequence" >1100</field>
             <field name="types_of_use" eval="['residential', 'commercial', 'internal']" />
             <field name="default_quantity">1</field>
             <field name="rhythm">1</field>
             <field name="rhythm_type">monthly</field>
+            <field name="oc_processing" >none</field>
         </record>
 
-        <record model="real_estate.contract.term.type" id="contract_term_type_operating_costs">    
+        <record model="real_estate.contract.term.type" id="contract_term_type_operating_costs">
+            <field name="re_accounting" ref="re_accounting_default"/>
             <field name="name">AP for Operating costs (monthly)</field>
             <field name="sequence" >2000</field>
             <field name="types_of_use" eval="['residential', 'commercial', 'internal']" />
@@ -1264,9 +1307,11 @@
             <field name="default_quantity">1</field>
             <field name="rhythm">1</field>
             <field name="rhythm_type">monthly</field>
+            <field name="oc_processing" >advance_with_settlement</field>
         </record>
 
-        <record model="real_estate.contract.term.type" id="contract_term_type_heating_costs">    
+        <record model="real_estate.contract.term.type" id="contract_term_type_heating_costs">
+            <field name="re_accounting" ref="re_accounting_default"/>
             <field name="name">AP for Heating costs (monthly)</field>
             <field name="sequence" >3000</field>
             <field name="types_of_use" eval="['residential', 'commercial', 'internal']" />
@@ -1274,9 +1319,11 @@
             <field name="default_quantity">1</field>
             <field name="rhythm">1</field>
             <field name="rhythm_type">monthly</field>
+            <field name="oc_processing" >advance_with_settlement</field>
         </record>
 
         <record model="real_estate.contract.term.type" id="contract_term_type_commercial_rent">
+            <field name="re_accounting" ref="re_accounting_default"/>
             <field name="name">Commercial rent (monthly)</field>
             <field name="sequence" >8000</field>
             <field name="types_of_use" eval="['commercial']" />
@@ -1284,9 +1331,11 @@
             <field name="default_quantity">1</field>
             <field name="rhythm">1</field>
             <field name="rhythm_type">monthly</field>
+            <field name="oc_processing" >none</field>
         </record>
 
         <record model="real_estate.contract.term.type" id="contract_term_type_service_charge">
+            <field name="re_accounting" ref="re_accounting_default"/>
             <field name="name">Condominium fees (monthly)</field>
             <field name="sequence" >9000</field>
             <field name="types_of_use" eval="['property']" />
@@ -1294,6 +1343,7 @@
             <field name="default_quantity">1</field>
             <field name="rhythm">1</field>
             <field name="rhythm_type">monthly</field>
+            <field name="oc_processing" >advance_with_settlement</field>
         </record>
 
 

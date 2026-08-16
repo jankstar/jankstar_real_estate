@@ -1,5 +1,7 @@
 <?xml version="1.0"?>
 <form col="6">
+    <label name="re_accounting"/><field name="re_accounting"/>
+    <newline/>
     <label name="compute_name"/><field name="compute_name" />
     <group colspan="2" col="-1" id="checkboxes">
         <label name="active"/>
@@ -12,6 +14,8 @@
     </group>
     <newline/>
     <label name="types_of_use"/><field name="types_of_use" yexpand="0"/>
+    <newline/>
+    <label name="c_type"/><field name="c_type" yexpand="0"/>
     <newline/>
     <group colspan="2" col="-1" id="m_type">
         <label name="default_quantity"/><field name="default_quantity" />
@@ -29,4 +33,6 @@
     </group>
     <newline/>
     <label name="account"/><field name="account" />
+    <newline/>
+    <label name="oc_processing"/><field name="oc_processing" />
 </form>

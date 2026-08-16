@@ -14,7 +14,8 @@ from . import sequence
 from . import res
 from . import party
 from . import invoice
-from . import account_configuration
+from . import company
+from . import re_accounting
 from . import billing_unit
 from . import billing_unit_wizard
 from . import settlement_unit
@@ -52,6 +53,7 @@ def register():
         contract_type.ContractTypeTax,
         contract_type.ContractType,
         contract_type.ContractTermType,
+        contract_type.ContractTermTypeCType,
         contract_item.ContractItemObject,
         contract_item.ContractItem,
         contract_term.ContractTermTax,
@@ -77,8 +79,8 @@ def register():
         invoice.InvoiceLine,
         invoice.AccountMoveLine,
         invoice.GeneralLedgerLine,
-        account_configuration.AccountConfigurationRealEstate,
-        account_configuration.AccountConfiguration,
+        company.Company,
+        re_accounting.ReAccounting,
         billing_unit.CostCategoryGroup,
         billing_unit.CostType,
         billing_unit.BillingUnitContext,

@@ -414,6 +414,16 @@ class ContractTerm(sequence_ordered(), ModelSQL, ModelView, TaxableMixin):
 
     term_type = fields.Many2One(
         'real_estate.contract.term.type', "Term Type", required=True,
+        domain=[
+            ('types_of_use', 'in', Eval('_parent_contract', {}).get('type_of_use')),
+            ('re_accounting', '=',
+                Eval('_parent_contract', {}).get('company_re_accounting', -1)),
+            ['OR',
+                ('c_type', '=', None),
+                ('c_type', '=',
+                    Eval('_parent_contract', {}).get('c_type', -1)),
+                ],
+            ],
        )
 
     reference_item = fields.Many2One('real_estate.contract.item', 'Reference Item',

@@ -1,0 +1,62 @@
+<?xml version="1.0"?>
+<tryton>
+    <data>
+        <!-- real_estate.re_accounting: own list/form views + menu -->
+        <record model="ir.ui.view" id="re_accounting_view_list">
+            <field name="model">real_estate.re_accounting</field>
+            <field name="type">tree</field>
+            <field name="name">re_accounting_list</field>
+        </record>
+        <record model="ir.ui.view" id="re_accounting_view_form">
+            <field name="model">real_estate.re_accounting</field>
+            <field name="type">form</field>
+            <field name="name">re_accounting_form</field>
+        </record>
+
+        <record model="ir.action.act_window" id="act_re_accounting">
+            <field name="name">Real Estate Accounting</field>
+            <field name="res_model">real_estate.re_accounting</field>
+        </record>
+        <record model="ir.action.act_window.view" id="act_re_accounting_view1">
+            <field name="sequence" eval="10"/>
+            <field name="view" ref="re_accounting_view_list"/>
+            <field name="act_window" ref="act_re_accounting"/>
+        </record>
+        <record model="ir.action.act_window.view" id="act_re_accounting_view2">
+            <field name="sequence" eval="20"/>
+            <field name="view" ref="re_accounting_view_form"/>
+            <field name="act_window" ref="act_re_accounting"/>
+        </record>
+
+        <menuitem
+            parent="menu_real_estate_configuration"
+            sequence="25"
+            action="act_re_accounting"
+            id="menu_re_accounting"/>
+
+        <!-- company.company extension: Accounting tab -->
+        <record model="ir.ui.view" id="company_re_accounting_view_form">
+            <field name="model">company.company</field>
+            <field name="inherit" ref="company.company_view_form"/>
+            <field name="name">account_configuration_form</field>
+        </record>
+
+        <!-- ReAccounting: admin full CRUD, everyone else read-only -->
+        <record model="ir.model.access" id="access_re_accounting_admin">
+            <field name="model">real_estate.re_accounting</field>
+            <field name="group" ref="group_real_estate_admin"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+        <record model="ir.model.access" id="access_re_accounting_default">
+            <field name="model">real_estate.re_accounting</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+
+    </data>
+</tryton>

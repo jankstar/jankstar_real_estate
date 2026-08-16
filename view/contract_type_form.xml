@@ -1,12 +1,10 @@
 <?xml version="1.0"?>
 <form col="6">
+    <label name="re_accounting"/><field name="re_accounting"/>
+    <newline/>
     <group colspan="3" col="-1" id="name_sequence">
         <label name="sequence"/><field name="sequence"/>
-        <newline/>
         <label name="name"/><field name="name"/>
-        <newline/>
-        <label name="mark"/><field name="mark"/>
-        <label name="occupancy"/><field name="occupancy"/>
     </group>
     <group colspan="1" col="-1" id="checkboxes">
         <label name="active"/>
@@ -19,9 +17,13 @@
     <label name="step_item"/><field name="step_item"/>
     <label name="step_term"/><field name="step_term"/>
     <newline/>
+    <label name="occupancy"/><field name="occupancy"/>    
+    <newline/>
     <label name="types_of_use"/><field name="types_of_use" yexpand="0"/>
     <newline/>
     <label name="invoice_type"/><field name="invoice_type" />
+    <newline/>
+    <label name="mark"/><field name="mark"/>
     <newline/>
     <label name="account_journal"/><field name="account_journal"/>
     <newline/>

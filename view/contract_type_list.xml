@@ -1,5 +1,6 @@
 <?xml version="1.0"?>
 <tree sequence="sequence">
+    <field name="re_accounting" optional="1"/>
     <field name="name"/>
     <!--field name="unit"/-->
     <!--field name="types" expand="1"/-->

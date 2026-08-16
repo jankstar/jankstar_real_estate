@@ -40,8 +40,34 @@ class ContractTypeTax(ModelSQL):
 
 
 #**********************************************************************
+class ContractTermTypeCType(ModelSQL):
+    "Contract Term Type - Contract Type"
+    __name__ = 'real_estate.contract.term.type-contract.type'
+
+    term_type = fields.Many2One(
+        'real_estate.contract.term.type', "Term Type",
+        ondelete='CASCADE', required=True)
+
+    c_type = fields.Many2One(
+        'real_estate.contract.type', "Contract Type",
+        ondelete='CASCADE', required=True)
+
+    @classmethod
+    def __setup__(cls):
+        super().__setup__()
+        t = cls.__table__()
+        cls._sql_constraints += [
+            ('term_type_c_type_unique', Unique(t, t.term_type, t.c_type),
+                'real_estate.msg_contract_term_type_c_type_unique'),
+            ]
+
+
+#**********************************************************************
 class ContractType(DeactivableMixin, base_object.re_sequence_ordered(), ModelSQL, ModelView):
     __name__ = 'real_estate.contract.type'
+
+    re_accounting = fields.Many2One('real_estate.re_accounting',
+        'Real Estate Accounting', required=True)
 
     name = fields.Char("Name", required=True, translate=True)
     types_of_use = fields.MultiSelection(
@@ -81,12 +107,13 @@ class ContractType(DeactivableMixin, base_object.re_sequence_ordered(), ModelSQL
         required=True)
 
     account_billing_unit = fields.Many2One('account.account',
-        'Operating Cost Clearing Account',
+        'Settlement Income/Reduction Account',
         domain=[
             ('closed', '!=', True),
             ('company', '=', Eval('context', {}).get('company', -1)),
             ],
-        help="Credit account for operating costs in the settlement invoice.")
+        help="Account for income (surcharge) or cost reduction (refund) "
+             "resulting from the operating cost settlement.")
 
     oc_mark = fields.Char("OC Mark",
         help="Label used in operating cost settlement invoice descriptions, "
@@ -130,6 +157,16 @@ class ContractTermType(DeactivableMixin, base_object.re_sequence_ordered(), Mode
     __name__ = 'real_estate.contract.term.type'
     __rec_name__ = 'compute_name'
 
+    re_accounting = fields.Many2One('real_estate.re_accounting',
+        'Real Estate Accounting', required=True)
+
+    c_type = fields.Many2Many(
+        'real_estate.contract.term.type-contract.type', 'term_type', 'c_type',
+        'Contract Types',
+        help="Optional - restricts this term type to specific contract "
+             "types. Leave empty to keep it available for any contract "
+             "type matching Types/Real Estate Accounting.")
+
     name = fields.Char("Name", required=True, translate=True)
     types_of_use = fields.MultiSelection(
             'get_term_types_of_use', "Types",
@@ -154,6 +191,22 @@ class ContractTermType(DeactivableMixin, base_object.re_sequence_ordered(), Mode
                 ('type.debt', '=', True),
                 ('type.deposit', '=', True),
                 ])
+
+    oc_processing = fields.Selection([
+            ('none', 'None'),
+            ('advance_with_settlement', 'Advance payment with settlement'),
+            ('flat_rate', 'Flat rate'),
+            ], "Operating Cost Processing", sort=False, required=True,
+        help=(
+            "None: this term type is not available for operating cost "
+            "settlement (cannot be selected as a Billing Unit term type).\n"
+            "Advance payment with settlement: tenant payments are advance "
+            "payments; the settlement reconciles them against actual costs "
+            "(surcharge or refund).\n"
+            "Flat rate: tenant payments are final, there is no "
+            "reconciliation with the tenant. Actual costs are booked like "
+            "a vacancy allocation, borne by the owner."
+        ))
 
     rhythm = fields.Integer("Rhythm (count)",)
 
@@ -191,6 +244,10 @@ class ContractTermType(DeactivableMixin, base_object.re_sequence_ordered(), Mode
     @classmethod
     def default_rhythm_type(cls):
         return 'monthly'
+
+    @classmethod
+    def default_oc_processing(cls):
+        return 'advance_with_settlement'
 
     @classmethod
     def get_term_types_of_use(cls):

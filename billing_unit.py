@@ -698,20 +698,27 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
             ('state', '=', 'approved'),
         ])
 
-        # Group by contract (or base_object for vacancy)
+        # Group by contract (or base_object for vacancy / flat-rate terms).
+        # A contract result whose term uses oc_processing='flat_rate' has no
+        # tenant-side settlement: it is booked like a vacancy, borne by the
+        # owner, alongside genuinely vacant (contract-less) results.
         by_contract = {}
-        vacancy_results = []
+        owner_borne_results = []
         for result in all_results:
-            if result.contract:
+            oc_processing = (
+                result.term.term_type.oc_processing
+                if result.term and result.term.term_type else None)
+            if result.contract and oc_processing != 'flat_rate':
                 key = result.contract.id
                 by_contract.setdefault(key, []).append(result)
             else:
-                vacancy_results.append(result)
+                owner_borne_results.append(result)
 
         # --- Process contracts ---
         for contract_id, results in by_contract.items():
             contract = results[0].contract
             c_type = contract.c_type
+            re_accounting = contract.company.re_accounting
 
             total_actual = sum(r.actual_costs or Decimal(0) for r in results)
             total_advanced = sum(r.advanced_payment or Decimal(0) for r in results)
@@ -847,8 +854,9 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
                               if payment_term
                               else contract.payment_term.id
                               if contract.payment_term
-                              else config.re_payment_term_billing.id
-                              if config.re_payment_term_billing else None),
+                              else re_accounting.re_payment_term_billing.id
+                              if re_accounting and re_accounting.re_payment_term_billing
+                              else None),
                 description=f"{c_type.oc_mark or 'Operating Cost Settlement'} {period_str}",
                 reference=contract.contract_number,
                 lines=invoice_lines,
@@ -888,68 +896,80 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
                     f"Invoice {invoice.id} created for contract "
                     f"{contract.contract_number} ({invoice_type}).")
 
-        # --- Process vacancy (no contract) ---
-        if vacancy_results:
-            vacancy_account = config.re_account_allocation_by_owner
-            vacancy_journal = config.re_journal_billing
-
-            if vacancy_account and vacancy_journal:
-                for r in vacancy_results:
-                    actual = r.actual_costs or Decimal(0)
-                    if actual == Decimal(0):
-                        SettlementResult.write([r], {'state': 'billed'})
-                        continue
-
-                    period = Pool().get('account.period')
-                    period_rec = period.find(
-                        r.billing_unit.property.company.id, date=billing_date)
-
-                    obj_name = (r.base_object.rec_name
-                        if r.base_object else r.billing_unit.name)
-                    move = AccountMove(
-                        journal=vacancy_journal.id,
-                        date=billing_date,
-                        period=period_rec,
-                        company=r.billing_unit.property.company.id,
-                        description=(
-                            f"Vacancy Cost — {r.billing_unit.name}"),
-                    )
-                    AccountMove.save([move])
-
-                    debit_line = AccountMoveLine(
-                        move=move.id,
-                        account=vacancy_account.id,
-                        debit=actual,
-                        credit=Decimal(0),
-                        description=f"Vacancy — {obj_name}",
-                        base_object=r.base_object.id if r.base_object else None,
-                        assignment_control='settlement_result_vacant',
-                    )
-                    credit_line = AccountMoveLine(
-                        move=move.id,
-                        account=vacancy_account.id,
-                        debit=Decimal(0),
-                        credit=actual,
-                        description=f"Vacancy — {r.billing_unit.name}",
-                        billing_unit=r.billing_unit.id,
-                        assignment_control='settlement_result_vacant',
-                    )
-                    AccountMoveLine.save([debit_line, credit_line])
-                    AccountMove.post([move])
-
-                    BillingUnitMoves.create([{
-                        'billing_unit': r.billing_unit.id,
-                        'settlement_result': r.id,
-                        'property': r.billing_unit.property.id,
-                        'moves_alloc_by_owner': credit_line.id,
-                        'billing_run_id': billing_run_id,
-                    }])
-
+        # --- Process vacancy and flat-rate settlements (owner bears the ---
+        # --- cost directly, no tenant reconciliation) ---
+        if owner_borne_results:
+            for r in owner_borne_results:
+                actual = r.actual_costs or Decimal(0)
+                if actual == Decimal(0):
                     SettlementResult.write([r], {'state': 'billed'})
+                    continue
 
-            else:
-                # No configuration — just mark as billed
-                SettlementResult.write(vacancy_results, {'state': 'billed'})
+                re_accounting = r.billing_unit.property.company.re_accounting
+                vacancy_account = (
+                    re_accounting.re_account_allocation_by_owner
+                    if re_accounting else None)
+                vacancy_journal = (
+                    re_accounting.re_journal_billing if re_accounting else None)
+                if not (vacancy_account and vacancy_journal):
+                    # No configuration for this company — just mark as billed
+                    SettlementResult.write([r], {'state': 'billed'})
+                    continue
+
+                is_flat_rate = bool(r.contract)
+                label = 'Flat Rate' if is_flat_rate else 'Vacancy'
+                assignment_control = (
+                    'settlement_result_flat_rate' if is_flat_rate
+                    else 'settlement_result_vacant')
+
+                period = Pool().get('account.period')
+                period_rec = period.find(
+                    r.billing_unit.property.company.id, date=billing_date)
+
+                obj_name = (r.base_object.rec_name
+                    if r.base_object else r.billing_unit.name)
+                move = AccountMove(
+                    journal=vacancy_journal.id,
+                    date=billing_date,
+                    period=period_rec,
+                    company=r.billing_unit.property.company.id,
+                    description=(
+                        f"{label} Cost — {r.billing_unit.name}"),
+                )
+                AccountMove.save([move])
+
+                debit_line = AccountMoveLine(
+                    move=move.id,
+                    account=vacancy_account.id,
+                    debit=actual,
+                    credit=Decimal(0),
+                    description=f"{label} — {obj_name}",
+                    base_object=r.base_object.id if r.base_object else None,
+                    contract=r.contract.id if r.contract else None,
+                    assignment_control=assignment_control,
+                )
+                credit_line = AccountMoveLine(
+                    move=move.id,
+                    account=vacancy_account.id,
+                    debit=Decimal(0),
+                    credit=actual,
+                    description=f"{label} — {r.billing_unit.name}",
+                    billing_unit=r.billing_unit.id,
+                    contract=r.contract.id if r.contract else None,
+                    assignment_control=assignment_control,
+                )
+                AccountMoveLine.save([debit_line, credit_line])
+                AccountMove.post([move])
+
+                BillingUnitMoves.create([{
+                    'billing_unit': r.billing_unit.id,
+                    'settlement_result': r.id,
+                    'property': r.billing_unit.property.id,
+                    'moves_alloc_by_owner': credit_line.id,
+                    'billing_run_id': billing_run_id,
+                }])
+
+                SettlementResult.write([r], {'state': 'billed'})
 
         for bu in scope_units:
             bu.add_log('billing', 'Billing completed.')
@@ -1602,11 +1622,18 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
                    gettext("real_estate.msg_invalid_calculation_method").format(
                        self.start_date))
 
-    @classmethod
-    def get_term_types_of_use(cls):
+    @fields.depends(
+        'property',
+        '_parent_property.company',
+        '_parent_property._parent_company.re_accounting')
+    def get_term_types_of_use(self):
         pool = Pool()
         TermType = pool.get('real_estate.contract.term.type')
-        term_types = TermType.search([])
+        domain = [('oc_processing', '!=', 'none')]
+        if self.property and self.property.company and self.property.company.re_accounting:
+            domain.append(
+                ('re_accounting', '=', self.property.company.re_accounting.id))
+        term_types = TermType.search(domain)
         if term_types:
             result = [(str(ele.id), ele.name) for ele in term_types]
             return result
