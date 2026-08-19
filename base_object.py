@@ -337,8 +337,17 @@ class BaseObject(Workflow, DeactivableMixin, re_sequence_ordered(), tree(separat
         help="If checked, meter readings are stored without decimal places.")
 
 
-    meter_id = fields.Function(fields.Char("Meter ID"), 
+    meter_id = fields.Function(fields.Char("Meter ID"),
         'on_change_with_meter_id')
+
+    melo_id = fields.Char("MeLo-ID",
+        states=_states_only_equipment_meter,
+        help="Messlokations-ID (German metering point identifier).")
+
+    malo_id = fields.Char("MaLo-ID",
+        states=_states_only_equipment_meter,
+        help="Marktlokations-ID (German market location identifier).")
+
     meter_last_value = fields.Function(Quantitative ("Last Value", unit='meter_unit',digits='meter_unit',),
         'on_change_with_meter_last_value')
     meter_last_reading_date = fields.Function(fields.Date("Last Reading Date"),

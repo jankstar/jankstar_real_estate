@@ -72,6 +72,9 @@ this repository contains the full copyright notices and license terms. -->
                 <newline/>
                 <label name="meter_id"/><field name="meter_id" />
                 <newline/>
+                <label name="melo_id"/><field name="melo_id" />
+                <label name="malo_id"/><field name="malo_id" />
+                <newline/>
                 <label name="meter_last_reading_date"/><field name="meter_last_reading_date" />
                 <label name="meter_last_reading_user"/><field name="meter_last_reading_user" />
                 <newline/>

@@ -4,7 +4,7 @@ msgstr "Content-Type: text/plain; charset=utf-8\n"
 
 msgctxt "field:company.company,re_accounting:"
 msgid "Real Estate Accounting"
-msgstr "Immobilien-Rechnungswesen"
+msgstr "RE Rechnungswesen"
 
 msgctxt "field:real_estate.re_accounting,name:"
 msgid "Name"
@@ -332,9 +332,17 @@ msgctxt "field:real_estate.base_object,floor:"
 msgid "Floor"
 msgstr "Etage"
 
+msgctxt "field:real_estate.base_object,malo_id:"
+msgid "MaLo-ID"
+msgstr "MaLo-ID"
+
 msgctxt "field:real_estate.base_object,measurements:"
 msgid "Measurements"
 msgstr "Bemessungen"
+
+msgctxt "field:real_estate.base_object,melo_id:"
+msgid "MeLo-ID"
+msgstr "MeLo-ID"
 
 msgctxt "field:real_estate.base_object,meter_factor:"
 msgid "Factor"
@@ -2721,6 +2729,14 @@ msgstr ""
 "Standard-Zahlungsbedingung für Rechnungen aus der Betriebskostenabrechnung, "
 "verwendet wenn der Vertrag selbst keine Zahlungsbedingung hat."
 
+msgctxt "help:real_estate.base_object,malo_id:"
+msgid "Marktlokations-ID (German market location identifier)."
+msgstr "Marktlokations-ID (MaLo-ID)."
+
+msgctxt "help:real_estate.base_object,melo_id:"
+msgid "Messlokations-ID (German metering point identifier)."
+msgstr "Messlokations-ID (MeLo-ID)."
+
 msgctxt "help:real_estate.base_object,meter_factor:"
 msgid ""
 "Factor to apply to the meter values (e.g., \n"
@@ -2890,7 +2906,7 @@ msgid ""
 msgstr ""
 "Optional - schränkt diese Konditionsart auf bestimmte Vertragsarten ein. "
 "Leer lassen, damit sie für jede Vertragsart verfügbar bleibt, die zu "
-"Typen/Immobilien-Rechnungswesen passt."
+"Typen/RE-Rechnungswesen passt."
 
 msgctxt "help:real_estate.contract.term.type,info_m_type:"
 msgid ""
@@ -3105,7 +3121,7 @@ msgstr ""
 
 msgctxt "model:real_estate.re_accounting,string:"
 msgid "Real Estate Accounting Configuration"
-msgstr "Immobilien-Rechnungswesen-Konfiguration"
+msgstr "RE-Rechnungswesen-Konfiguration"
 
 msgctxt "model:account.invoice.payment_term,name:payment_term_net3"
 msgid "03 Tage netto"
@@ -3518,7 +3534,7 @@ msgstr "Wirtschaftseinheit"
 
 msgctxt "model:ir.action,name:act_re_accounting"
 msgid "Real Estate Accounting"
-msgstr "Immobilien-Rechnungswesen"
+msgstr "RE-Rechnungswesen"
 
 msgctxt "model:ir.action,name:act_real_estate_tree"
 msgid "Real Estate Object"
@@ -4403,7 +4419,7 @@ msgstr "Berechnung Optionssatz"
 
 msgctxt "model:ir.ui.menu,name:menu_re_accounting"
 msgid "Real Estate Accounting"
-msgstr "Immobilien-Rechnungswesen"
+msgstr "RE-Rechnungswesen"
 
 msgctxt "model:ir.ui.menu,name:menu_real_estate"
 msgid "Real Estate"

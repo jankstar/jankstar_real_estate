@@ -1,38 +1,44 @@
 <?xml version="1.0"?>
 <form col="6">
     <label name="re_accounting"/><field name="re_accounting"/>
+    <newline/>  
+    <label name="sequence"/><field name="sequence"/>
     <newline/>
-    <group colspan="3" col="-1" id="name_sequence">
-        <label name="sequence"/><field name="sequence"/>
-        <label name="name"/><field name="name"/>
-    </group>
+    <label name="name"/><field name="name"/>
     <group colspan="1" col="-1" id="checkboxes">
         <label name="active"/>
         <field name="active" xexpand="0" width="25"/>
     </group>
-    <newline/>
-    <label name="prefix"/><field name="prefix" />
-    <label name="start_number"/><field name="start_number"/>
-    <newline/>
-    <label name="step_item"/><field name="step_item"/>
-    <label name="step_term"/><field name="step_term"/>
-    <newline/>
-    <label name="occupancy"/><field name="occupancy"/>    
-    <newline/>
-    <label name="types_of_use"/><field name="types_of_use" yexpand="0"/>
-    <newline/>
-    <label name="invoice_type"/><field name="invoice_type" />
-    <newline/>
-    <label name="mark"/><field name="mark"/>
-    <newline/>
-    <label name="account_journal"/><field name="account_journal"/>
-    <newline/>
-    <label name="account"/><field name="account"/>
-    <newline/>
-<label name="account_billing_unit"/><field name="account_billing_unit"/>
-    <newline/>
-    <label name="oc_mark"/><field name="oc_mark"/>
-    <newline/>
-    <label name="taxes"/><field name="taxes"/>
 
+        <newline/>
+    <group string="Contract Type" colspan="6">
+        <label name="prefix"/><field name="prefix" />
+        <label name="start_number"/><field name="start_number"/>
+        <newline/>
+        <label name="step_item"/><field name="step_item"/>
+        <label name="step_term"/><field name="step_term"/>
+        <newline/>
+        <label name="occupancy"/><field name="occupancy"/>    
+        <newline/>
+        <label name="types_of_use"/><field name="types_of_use" yexpand="0"/>
+    </group>
+
+        <newline/>
+    <group string="Accounting" colspan="6"> 
+        <label name="invoice_type"/><field name="invoice_type" />
+        <newline/>
+        <label name="account_journal"/><field name="account_journal"/>
+        <newline/>
+        <label name="account"/><field name="account"/>
+        <newline/>
+        <label name="account_billing_unit"/><field name="account_billing_unit"/>
+        <newline/>
+        <label name="mark"/><field name="mark"/>
+        <newline/>
+        <label name="oc_mark"/><field name="oc_mark"/>
+    </group>
+        <newline/>
+    <group string="Taxes" colspan="6">
+        <label name="taxes"/><field name="taxes"/>
+    </group>
 </form>
