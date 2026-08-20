@@ -3754,6 +3754,34 @@ msgid "per rental unit"
 msgstr ""
 
 #, python-format
+msgctxt "model:ir.message,text:msg_base_object_invalid_type"
+msgid "\"%(name)s\": invalid type '%(type)s'."
+msgstr "„%(name)s“: ungültiger Typ '%(type)s'."
+
+#, python-format
+msgctxt "model:ir.message,text:msg_base_object_sequence_required"
+msgid "\"%(name)s\": sequence is required."
+msgstr "„%(name)s“: Sequenz ist erforderlich."
+
+#, python-format
+msgctxt "model:ir.message,text:msg_base_object_start_after_end"
+msgid ""
+"\"%(name)s\": start date (%(start_date)s) must not be after the end date "
+"(%(end_date)s)."
+msgstr ""
+"„%(name)s“: Startdatum (%(start_date)s) darf nicht nach dem Enddatum "
+"(%(end_date)s) liegen."
+
+#, python-format
+msgctxt "model:ir.message,text:msg_base_object_start_before_parent_start"
+msgid ""
+"\"%(name)s\": start date (%(start_date)s) must not be before the parent "
+"start date (%(parent_start_date)s)."
+msgstr ""
+"„%(name)s“: Startdatum (%(start_date)s) darf nicht vor dem Startdatum des "
+"übergeordneten Objekts (%(parent_start_date)s) liegen."
+
+#, python-format
 msgctxt "model:ir.message,text:msg_billing_collective_incomplete"
 msgid ""
 "Cannot bill property \"%(name)s\" for period %(next_date)s: collective billing requires all billing units to be selected. The following billing units are missing from the selection:\n"
@@ -3785,6 +3813,15 @@ msgid ""
 msgstr ""
 "Die Sammelabrechnung erfordert, dass die folgenden Abrechnungseinheiten "
 "gemeinsam verarbeitet werden: %(names)s"
+
+#, python-format
+msgctxt "model:ir.message,text:msg_billing_unit_compute_settlement_result_invalid_state"
+msgid ""
+"Cannot compute settlement result for \"%(name)s\": not allowed in state "
+"'%(state)s'."
+msgstr ""
+"Abrechnungsergebnis für \"%(name)s\" kann nicht berechnet werden: im "
+"Status '%(state)s' nicht erlaubt."
 
 #, python-format
 msgctxt "model:ir.message,text:msg_billing_unit_delete_not_draft"
@@ -3965,12 +4002,26 @@ msgctxt "model:ir.message,text:msg_invoice_line_object_not_in_contract"
 msgid "Object \"{object}\" does not belong to contract \"{contract}\"."
 msgstr ""
 
+#, python-format
+msgctxt "model:ir.message,text:msg_invoice_line_service_period_invalid"
+msgid ""
+"Service period from (%(service_period_from)s) must be before to "
+"(%(service_period_to)s)."
+msgstr ""
+"Leistungszeitraum von (%(service_period_from)s) muss vor bis "
+"(%(service_period_to)s) liegen."
+
 msgctxt ""
 "model:ir.message,text:msg_invoice_line_settlement_unit_requires_billing_unit"
 msgid ""
 "Settlement unit \"{settlement_unit}\" is set but the billing unit is missing"
 " or does not match (expected \"{billing_unit}\")."
 msgstr ""
+
+#, python-format
+msgctxt "model:ir.message,text:msg_invoice_line_term_contract_mismatch"
+msgid "Term \"%(term)s\" does not belong to contract \"%(contract)s\"."
+msgstr "Kondition \"%(term)s\" gehört nicht zum Vertrag \"%(contract)s\"."
 
 msgctxt "model:ir.message,text:msg_invoice_line_term_requires_contract"
 msgid "Term \"{term}\" is set but no contract is selected."
@@ -4108,6 +4159,36 @@ msgstr ""
 "Abrechnungsergebnisse werden gelöscht. Fortfahren?"
 
 #, python-format
+msgctxt "model:ir.message,text:msg_settlement_unit_allocation_rule_not_allowed_external"
+msgid ""
+"\"%(name)s\": the allocation rule \"Allocation from external billing\" is "
+"only allowed for a billing unit with external billing."
+msgstr ""
+"„%(name)s“: die Verteilungsregel „Verteilung aus externer Abrechnung“ ist "
+"nur für eine Abrechnungseinheit mit externer Abrechnung zulässig."
+
+#, python-format
+msgctxt "model:ir.message,text:msg_settlement_unit_allocation_rule_required_external"
+msgid ""
+"\"%(name)s\": for a billing unit with external billing, the allocation "
+"rule must be \"Allocation from external billing\"."
+msgstr ""
+"„%(name)s“: bei einer Abrechnungseinheit mit externer Abrechnung muss die "
+"Verteilungsregel „Verteilung aus externer Abrechnung“ sein."
+
+#, python-format
+msgctxt "model:ir.message,text:msg_settlement_unit_already_billed"
+msgid "\"%(name)s\" has already been billed."
+msgstr "„%(name)s“ wurde bereits abgerechnet."
+
+#, python-format
+msgctxt "model:ir.message,text:msg_settlement_unit_billing_invalid_state"
+msgid "Cannot bill \"%(name)s\": not allowed in state '%(state)s'."
+msgstr ""
+"Abrechnung für „%(name)s“ nicht möglich: im Status '%(state)s' nicht "
+"erlaubt."
+
+#, python-format
 msgctxt "model:ir.message,text:msg_settlement_unit_delete_not_draft"
 msgid ""
 "Cannot delete settlement unit \"%(name)s\": deletion is only allowed when "
@@ -4116,6 +4197,13 @@ msgstr ""
 "Abrechnungsposition \"%(name)s\" kann nicht gelöscht werden: Löschen ist nur"
 " erlaubt, wenn die Abrechnungseinheit im Status 'Entwurf' ist (aktueller "
 "Status: %(state)s)."
+
+#, python-format
+msgctxt "model:ir.message,text:msg_settlement_unit_selection_invalid_state"
+msgid "Cannot run selection for \"%(name)s\": not allowed in state '%(state)s'."
+msgstr ""
+"Selektion für „%(name)s“ nicht möglich: im Status '%(state)s' nicht "
+"erlaubt."
 
 msgctxt "model:ir.message,text:msg_settlement_units_error"
 msgid ""
@@ -4138,6 +4226,24 @@ msgid ""
 "Term \"{}\": Valid from ({}) must not be before the contract start date "
 "({})!"
 msgstr ""
+
+#, python-format
+msgctxt "model:ir.message,text:msg_valid_from_after_base_object_end"
+msgid ""
+"\"%(name)s\": valid from (%(valid_from)s) must be less or equal than the "
+"base object end date (%(end_date)s)."
+msgstr ""
+"„%(name)s“: gültig ab (%(valid_from)s) muss kleiner oder gleich dem "
+"Enddatum des Basisobjekts (%(end_date)s) sein."
+
+#, python-format
+msgctxt "model:ir.message,text:msg_valid_from_before_base_object_start"
+msgid ""
+"\"%(name)s\": valid from (%(valid_from)s) must be greater or equal than "
+"the base object start date (%(start_date)s)."
+msgstr ""
+"„%(name)s“: gültig ab (%(valid_from)s) muss größer oder gleich dem "
+"Startdatum des Basisobjekts (%(start_date)s) sein."
 
 #, python-format
 msgctxt "model:ir.message,text:msg_value_share_reset_warning"
@@ -5566,6 +5672,14 @@ msgid "Billing"
 msgstr "Abrechnen/Buchen"
 
 msgctxt "view:real_estate.base_object:"
+msgid "Billing Unit"
+msgstr "Abrechnungseinheit"
+
+msgctxt "view:real_estate.base_object:"
+msgid "Billing Unit (billed)"
+msgstr "Abrechnungseinheit (abgerechnet)"
+
+msgctxt "view:real_estate.base_object:"
 msgid "Billing Units"
 msgstr "Abrechnungseinheiten"
 
@@ -5710,12 +5824,44 @@ msgid "Change Partner"
 msgstr "Partner wechseln"
 
 msgctxt "view:real_estate.contract:"
+msgid "Draft"
+msgstr "Entwurf"
+
+msgctxt "view:real_estate.contract:"
+msgid "Pending"
+msgstr "Gebucht u. Offen"
+
+msgctxt "view:real_estate.contract:"
+msgid "Paid"
+msgstr "Gebucht u. Bezahlt"
+
+msgctxt "view:real_estate.contract:"
+msgid "Operation Costs"
+msgstr "Betriebskosten"
+
+msgctxt "view:real_estate.contract:"
+msgid "Settlement Units"
+msgstr "Kostensammler"
+
+msgctxt "view:real_estate.contract:"
+msgid "Cost Shares"
+msgstr "Kostenanteile"
+
+msgctxt "view:real_estate.contract:"
 msgid "General"
 msgstr "Allg. Daten"
 
 msgctxt "view:real_estate.contract:"
 msgid "Items"
 msgstr "Positionen"
+
+msgctxt "view:real_estate.contract.term:"
+msgid "Measurements"
+msgstr "Bemessungen"
+
+msgctxt "view:real_estate.contract.item:"
+msgid "Measurements"
+msgstr "Bemessungen"
 
 msgctxt "view:real_estate.contract:"
 msgid "Measurements"

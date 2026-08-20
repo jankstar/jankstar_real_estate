@@ -444,14 +444,16 @@ class InvoiceLine(metaclass=PoolMeta):
         for line in lines:
             if (line.service_period_from and line.service_period_to
                     and line.service_period_from > line.service_period_to):
-                raise ValueError(
-                    f'Service period from ({line.service_period_from})'
-                    f' must be before to ({line.service_period_to})')
+                raise ValidationError(gettext(
+                    'real_estate.msg_invoice_line_service_period_invalid',
+                    service_period_from=line.service_period_from,
+                    service_period_to=line.service_period_to))
             if (line.term and line.contract
                     and line.term.contract != line.contract):
-                raise ValueError(
-                    f'Term "{line.term.rec_name}" does not belong to'
-                    f' contract "{line.contract.rec_name}".')
+                raise ValidationError(gettext(
+                    'real_estate.msg_invoice_line_term_contract_mismatch',
+                    term=line.term.rec_name,
+                    contract=line.contract.rec_name))
             if line.term and not line.contract:
                 raise ValidationError(gettext(
                     'real_estate.msg_invoice_line_term_requires_contract',

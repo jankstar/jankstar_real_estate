@@ -724,7 +724,9 @@ class BaseObject(Workflow, DeactivableMixin, re_sequence_ordered(), tree(separat
         for self in instances:
             if 'sequence' in fields:
                 if self.sequence == None:
-                    raise ValidationError(self.name + ": " + "Sequence must not be null!")
+                    raise ValidationError(gettext(
+                        'real_estate.msg_base_object_sequence_required',
+                        name=self.name))
             if 'type' in fields: 
                 if self.type == None  \
                     or self.parent == None and not self.type in ['property'] \
@@ -733,18 +735,24 @@ class BaseObject(Workflow, DeactivableMixin, re_sequence_ordered(), tree(separat
                     or self.parent != None and self.parent.type == 'building' and not self.type in ['building', 'object', 'equipment'] \
                     or self.parent != None and self.parent.type == 'object' and not self.type in [ 'equipment'] \
                     or self.parent != None and self.parent.type == 'equipment' and not self.type in [ 'equipment']     :
-                    raise ValidationError(self.name + ": " + self.type + " is not a valid type!")
+                    raise ValidationError(gettext(
+                        'real_estate.msg_base_object_invalid_type',
+                        name=self.name, type=self.type))
             if 'start_date' in fields or 'end_date' in fields:
                 if self.start_date != None and self.end_date != None and self.start_date > self.end_date:
-                    raise ValidationError(self.name + ": "+
-                    "Start date (" + self.date2string(self.start_date) + 
-                                          ") must be less than end date (" + self.date2string(self.end_date) + ")!")
+                    raise ValidationError(gettext(
+                        'real_estate.msg_base_object_start_after_end',
+                        name=self.name,
+                        start_date=self.date2string(self.start_date),
+                        end_date=self.date2string(self.end_date)))
 
             if 'start_date' in fields and self.parent != None:
                 if self.start_date != None and self.parent.start_date != None and self.start_date < self.parent.start_date :
-                    raise ValidationError(self.name + ": "+
-                                            "Start date (" + self.date2string(self.start_date) + ") must be greater or equal than parent start date (" + 
-                                            self.date2string(self.parent.start_date) + ")!") 
+                    raise ValidationError(gettext(
+                        'real_estate.msg_base_object_start_before_parent_start',
+                        name=self.name,
+                        start_date=self.date2string(self.start_date),
+                        parent_start_date=self.date2string(self.parent.start_date)))
 
             if 'end_date' in fields and self.parent:
                 if self.end_date != None and self.parent.end_date != None and self.end_date > self.parent.end_date :

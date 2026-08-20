@@ -1135,8 +1135,9 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
         CashFlowLine = pool.get('real_estate.contract.term.cash_flow')
         for billing_unit in billing_units:
             if billing_unit.state not in ('value_share',):
-                raise ValidationError(
-                    f"Billing unit {billing_unit.name} is not in state 'value_share'.")
+                raise ValidationError(gettext(
+                    'real_estate.msg_billing_unit_compute_settlement_result_invalid_state',
+                    name=billing_unit.name, state=billing_unit.state))
             existing = SettlementResult.search(
                 [('billing_unit', '=', billing_unit.id)])
             # For external billing: preserve manually entered costs before delete

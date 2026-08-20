@@ -145,13 +145,17 @@ class ObjectParty(ModelSQL, ModelView, metaclass=PoolMeta):
             if 'valid_from' in fields and self.base_object != None:
                 if self.valid_from != None:
                     if self.base_object.start_date != None and self.valid_from < self.base_object.start_date :
-                        raise ValidationError(self.name + ": "+
-                                            "Valid from (" + BaseObject.date2string(self.valid_from) + ") must be greater or equal than base object start date (" + 
-                                            BaseObject.date2string(self.base_object.start_date) + ")!")
+                        raise ValidationError(gettext(
+                            'real_estate.msg_valid_from_before_base_object_start',
+                            name=self.name,
+                            valid_from=BaseObject.date2string(self.valid_from),
+                            start_date=BaseObject.date2string(self.base_object.start_date)))
                     if self.base_object.end_date != None and self.valid_from > self.base_object.end_date :
-                            raise ValidationError(self.name + ": "+
-                                                "Valid from (" + BaseObject.date2string(self.valid_from) + ") must be less or equal than base object end date (" + 
-                                                BaseObject.date2string(self.base_object.end_date) + ")!")
+                            raise ValidationError(gettext(
+                                'real_estate.msg_valid_from_after_base_object_end',
+                                name=self.name,
+                                valid_from=BaseObject.date2string(self.valid_from),
+                                end_date=BaseObject.date2string(self.base_object.end_date)))
     @classmethod
     def compute_name_search(cls, name, clause):
         lReturn = []

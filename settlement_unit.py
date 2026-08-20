@@ -411,14 +411,14 @@ class SettlementUnit(DeactivableMixin, base_object.re_sequence_ordered(), ModelS
                 continue
             if su.billing_unit.external_billing:
                 if su.allocation_rule != 'allocation_from_external_billing':
-                    raise ValidationError(
-                        f"Settlement unit '{su.rec_name}': allocation rule must be "
-                        f"'Allocation from external billing' when external billing is set on the billing unit.")
+                    raise ValidationError(gettext(
+                        'real_estate.msg_settlement_unit_allocation_rule_required_external',
+                        name=su.rec_name))
             else:
                 if su.allocation_rule == 'allocation_from_external_billing':
-                    raise ValidationError(
-                        f"Settlement unit '{su.rec_name}': allocation rule "
-                        f"'Allocation from external billing' is only allowed when external billing is set on the billing unit.")
+                    raise ValidationError(gettext(
+                        'real_estate.msg_settlement_unit_allocation_rule_not_allowed_external',
+                        name=su.rec_name))
 
     @fields.depends('type', 'sequence')
     def on_change_with_sequence(self, name=None):
@@ -452,7 +452,9 @@ class SettlementUnit(DeactivableMixin, base_object.re_sequence_ordered(), ModelS
     def selection(self):
         """Select objects and contracts for billing using the occupancy table."""
         if self.state != 'approved' and self.state != 'selection' and self.state != 'value_share':
-            raise ValidationError(gettext("Only settlement units with state 'Approved' or 'Selection' or 'Value Share' can be selected."))
+            raise ValidationError(gettext(
+                'real_estate.msg_settlement_unit_selection_invalid_state',
+                name=self.rec_name, state=self.state))
 
         CostShare = Pool().get('real_estate.cost_share')
         if self.cost_shares:
@@ -903,9 +905,13 @@ class SettlementUnit(DeactivableMixin, base_object.re_sequence_ordered(), ModelS
 
     def billing(self, selection_on=False):
         if self.state == 'billed':
-            raise ValidationError(gettext("This settlement unit is already billed."))
+            raise ValidationError(gettext(
+                'real_estate.msg_settlement_unit_already_billed',
+                name=self.rec_name))
         if self.state != 'draft':
-            raise ValidationError(gettext("Only settlement unit with state 'Approved' can be billed."))
+            raise ValidationError(gettext(
+                'real_estate.msg_settlement_unit_billing_invalid_state',
+                name=self.rec_name, state=self.state))
 
         if selection_on:
             if self.allocation_rule != 'no_allocation':

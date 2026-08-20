@@ -198,5 +198,47 @@ Either run "Ready for Billing" for each billing unit first, or bill individual b
         <record model="ir.message" id="msg_option_rate_method_dynamic_not_allowed_for_object">
             <field name="text">{}: Option rate method "Dynamic Measurement" is not allowed for a rental object (only fixed rates are allowed).</field>
         </record>
+        <record model="ir.message" id="msg_settlement_unit_allocation_rule_required_external">
+            <field name="text">"%(name)s": for a billing unit with external billing, the allocation rule must be "Allocation from external billing".</field>
+        </record>
+        <record model="ir.message" id="msg_settlement_unit_allocation_rule_not_allowed_external">
+            <field name="text">"%(name)s": the allocation rule "Allocation from external billing" is only allowed for a billing unit with external billing.</field>
+        </record>
+        <record model="ir.message" id="msg_settlement_unit_selection_invalid_state">
+            <field name="text">Cannot run selection for "%(name)s": not allowed in state '%(state)s'.</field>
+        </record>
+        <record model="ir.message" id="msg_settlement_unit_already_billed">
+            <field name="text">"%(name)s" has already been billed.</field>
+        </record>
+        <record model="ir.message" id="msg_settlement_unit_billing_invalid_state">
+            <field name="text">Cannot bill "%(name)s": not allowed in state '%(state)s'.</field>
+        </record>
+        <record model="ir.message" id="msg_billing_unit_compute_settlement_result_invalid_state">
+            <field name="text">Cannot compute settlement result for "%(name)s": not allowed in state '%(state)s'.</field>
+        </record>
+        <record model="ir.message" id="msg_valid_from_before_base_object_start">
+            <field name="text">"%(name)s": valid from (%(valid_from)s) must be greater or equal than the base object start date (%(start_date)s).</field>
+        </record>
+        <record model="ir.message" id="msg_valid_from_after_base_object_end">
+            <field name="text">"%(name)s": valid from (%(valid_from)s) must be less or equal than the base object end date (%(end_date)s).</field>
+        </record>
+        <record model="ir.message" id="msg_base_object_sequence_required">
+            <field name="text">"%(name)s": sequence is required.</field>
+        </record>
+        <record model="ir.message" id="msg_base_object_invalid_type">
+            <field name="text">"%(name)s": invalid type '%(type)s'.</field>
+        </record>
+        <record model="ir.message" id="msg_base_object_start_after_end">
+            <field name="text">"%(name)s": start date (%(start_date)s) must not be after the end date (%(end_date)s).</field>
+        </record>
+        <record model="ir.message" id="msg_base_object_start_before_parent_start">
+            <field name="text">"%(name)s": start date (%(start_date)s) must not be before the parent start date (%(parent_start_date)s).</field>
+        </record>
+        <record model="ir.message" id="msg_invoice_line_service_period_invalid">
+            <field name="text">Service period from (%(service_period_from)s) must be before to (%(service_period_to)s).</field>
+        </record>
+        <record model="ir.message" id="msg_invoice_line_term_contract_mismatch">
+            <field name="text">Term "%(term)s" does not belong to contract "%(contract)s".</field>
+        </record>
     </data>
 </tryton>
