@@ -280,7 +280,8 @@ class InvoiceLine(metaclass=PoolMeta):
 
     @fields.depends(
         'amount', 'taxes', 'unit_price', 'quantity', 'taxes_date', 'invoice',
-        '_parent_invoice.invoice_date', '_parent_invoice.currency')
+        '_parent_invoice.invoice_date', '_parent_invoice.currency',
+        methods=['on_change_with_tax_amount'])
     def on_change_with_total_amount(self, name=None):
         amount = self.amount or Decimal(0)
         tax_amount = self.on_change_with_tax_amount() or Decimal(0)
