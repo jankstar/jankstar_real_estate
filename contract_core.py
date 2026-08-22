@@ -475,9 +475,15 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
         domain=[If(Bool(Eval('end_date')), ('start_date', '<=', Eval('end_date', None)), ())],
         )
 
+    unlimited = fields.Boolean('Unlimited Contract',
+        states={'readonly': (Eval('state') != 'draft')},
+        help="Unset to enter a fixed end date for this contract.")
+
     end_date = fields.Date('End Date',
-        states={'readonly': ((Eval('state') != 'draft'))},
-        required=False,
+        states={
+            'readonly': (Eval('state') != 'draft') | Bool(Eval('unlimited', True)),
+            'required': ~Bool(Eval('unlimited', True)),
+            },
         domain=[If(Bool(Eval('end_date')), ('end_date', '>=', Eval('start_date', None)), ())],
         )
 
@@ -639,7 +645,11 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
             ))
         cls._buttons.update({
             'running': {
-                'invisible': (~Eval('state').in_(['draft', 'terminated', 'cancelled'])),
+                'invisible': (~Eval('state').in_(['draft', 'cancelled'])),
+                'depends': ['state'],
+                },
+            'revert_termination': {
+                'invisible': (Eval('state') != 'terminated'),
                 'depends': ['state'],
                 },
             'terminate': {
@@ -658,6 +668,39 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
                 'invisible': Eval('state').in_(['draft'])
                 }
             })
+
+    @classmethod
+    def __register__(cls, module_name):
+        table = cls.__table_handler__(module_name)
+        is_new_unlimited = not table.column_exist('unlimited')
+
+        super().__register__(module_name)
+
+        if is_new_unlimited:
+            # The column-wide default (True) applied by field-sync above
+            # cannot know, per row, whether a fixed end_date was already
+            # set on existing contracts - correct those explicitly here.
+            cursor = Transaction().connection.cursor()
+            sql_table = cls.__table__()
+            cursor.execute(*sql_table.update(
+                columns=[sql_table.unlimited],
+                values=[False],
+                where=sql_table.end_date != Null))
+
+    @classmethod
+    def validate_fields(cls, contracts, fields):
+        super().validate_fields(contracts, fields)
+        for contract in contracts:
+            # Only enforced in draft: end_date is set to the termination
+            # date on termination (see TerminateContractWizard) regardless
+            # of 'unlimited', and running/terminated contracts are no
+            # longer expected to satisfy this data-entry-time invariant.
+            if (('unlimited' in fields or 'end_date' in fields)
+                    and contract.unlimited and contract.end_date
+                    and contract.state == 'draft'):
+                raise ValidationError(gettext(
+                    'real_estate.msg_contract_unlimited_with_end_date',
+                    name=contract.rec_name))
 
     @classmethod
     @ModelView.button_action(
@@ -685,6 +728,24 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
             contract.termination_notice = ''
             contract.termination_date = None
             contract.termination_reason = None
+            contract.save()
+
+    @classmethod
+    @ModelView.button
+    @Workflow.transition('running')
+    @reset_employee('terminated_by')
+    def revert_termination(cls, contracts):
+        for contract in contracts:
+            contract.add_log('state_change',
+                'contract termination reverted, state changed to running')
+            contract.state = 'running'
+            contract.terminated_by_type = None
+            contract.receipt_of_termination_notice = None
+            contract.termination_notice = ''
+            contract.termination_date = None
+            contract.termination_reason = None
+            if contract.unlimited:
+                contract.end_date = None
             contract.save()
 
     @classmethod
@@ -993,6 +1054,10 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
     def default_start_date():
         return Pool().get('ir.date').today().replace(day=1)
 
+    @staticmethod
+    def default_unlimited():
+        return True
+
     @fields.depends('terms', 'c_type')
     def on_change_with_next_term_sequence(self, name=None):
         if self.terms and self.c_type:
@@ -1016,6 +1081,11 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
         else:
             self.invoice_address = None
             self.payment_term = None
+
+    @fields.depends('unlimited')
+    def on_change_unlimited(self, name=None):
+        if self.unlimited:
+            self.end_date = None
 
     @fields.depends('company')
     def on_change_with_currency(self, name=None):

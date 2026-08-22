@@ -43,6 +43,7 @@ class TerminateContractWizard(Wizard):
             self.start.contract.termination_date = self.start.termination_date_calc
         self.start.contract.termination_reason = self.start.reason
         self.start.contract.termination_notice = self.start.notice_period
+        self.start.contract.end_date = self.start.contract.termination_date
         self.start.contract.save()
         return 'end'
 

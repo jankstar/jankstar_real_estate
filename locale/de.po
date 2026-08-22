@@ -1153,6 +1153,14 @@ msgctxt "field:real_estate.contract,type_of_use:"
 msgid "Type of Use"
 msgstr "Nutzungsart"
 
+msgctxt "field:real_estate.contract,unlimited:"
+msgid "Unlimited Contract"
+msgstr "Unbefristeter Vertrag"
+
+msgctxt "help:real_estate.contract,unlimited:"
+msgid "Unset to enter a fixed end date for this contract."
+msgstr "Deaktivieren, um ein festes Enddatum für diesen Vertrag einzugeben."
+
 msgctxt "field:real_estate.contract.account_contract,account:"
 msgid "Account"
 msgstr "Konto"
@@ -4002,6 +4010,15 @@ msgid "This contract type is already assigned to this term type."
 msgstr "Diese Vertragsart ist dieser Konditionsart bereits zugeordnet."
 
 #, python-format
+msgctxt "model:ir.message,text:msg_contract_unlimited_with_end_date"
+msgid ""
+"\"%(name)s\": an unlimited contract must not have an end date. Either "
+"clear the end date or unset \"Unlimited Contract\"."
+msgstr ""
+"„%(name)s“: ein unbefristeter Vertrag darf kein Enddatum haben. Entweder "
+"das Enddatum löschen oder „Unbefristeter Vertrag“ deaktivieren."
+
+#, python-format
 msgctxt "model:ir.message,text:msg_degree_day_not_implemented"
 msgid ""
 "Weather-dependent (degree-day) calculation is not yet implemented "
@@ -4436,6 +4453,10 @@ msgstr "Partner wechseln"
 msgctxt "model:ir.model.button,string:contract_open_party_ledger_button"
 msgid "Party Ledger"
 msgstr "Kontenblatt"
+
+msgctxt "model:ir.model.button,string:contract_revert_termination_button"
+msgid "Revert Termination"
+msgstr "Kündigung zurücknehmen"
 
 #, fuzzy
 msgctxt "model:ir.model.button,string:contract_running_button"
@@ -5942,6 +5963,10 @@ msgstr "Zähler"
 msgctxt "view:real_estate.contract:"
 msgid "Party Ledger"
 msgstr "Kontenblatt"
+
+msgctxt "view:real_estate.contract:"
+msgid "Revert Termination"
+msgstr "Kündigung zurücknehmen"
 
 msgctxt "view:real_estate.contract:"
 msgid "Running"

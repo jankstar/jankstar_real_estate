@@ -249,5 +249,8 @@ Either run "Ready for Billing" for each billing unit first, or bill individual b
         <record model="ir.message" id="msg_cron_task_unique">
             <field name="text">This task is already configured for this real estate accounting configuration.</field>
         </record>
+        <record model="ir.message" id="msg_contract_unlimited_with_end_date">
+            <field name="text">"%(name)s": an unlimited contract must not have an end date. Either clear the end date or unset "Unlimited Contract".</field>
+        </record>
     </data>
 </tryton>

@@ -565,6 +565,42 @@ Contract Management
       Anlage 4 print (see *Reports* below) — the report intentionally reuses
       this field instead of re-deriving the billing unit itself.
 
+   **Fixed term / termination.** ``unlimited`` (Boolean, default ``True``)
+   determines whether the contract has a fixed end date. Editable only in
+   ``draft``:
+
+   - ``unlimited = True`` (default) — ``end_date`` is readonly and must be
+     empty; ``on_change_unlimited`` clears it automatically when toggled on.
+   - ``unlimited = False`` — ``end_date`` becomes required and editable
+     (only in ``draft``).
+   - The invariant ("unlimited contract must not have an end date",
+     ``msg_contract_unlimited_with_end_date``) is enforced by
+     ``validate_fields`` only in ``draft`` — once ``running``/``terminated``
+     it is no longer checked, since termination legitimately sets
+     ``end_date`` regardless of ``unlimited`` (see below).
+
+   The *Terminate* button (``real_estate.terminate_contract.wizard``, see
+   *Wizards*) now also writes the resolved ``termination_date`` into
+   ``end_date`` — so ``end_date`` always reflects the contract's actual
+   end once terminated, fixed-term or not.
+
+   Reactivating a **terminated** contract no longer uses the *Running*
+   button (that button is now only shown for ``draft``/``cancelled``).
+   Instead, a dedicated *Revert Termination* button
+   (``revert_termination``, same underlying ``terminated → running``
+   transition) is shown only for ``state = 'terminated'``. Besides
+   clearing the termination fields (``termination_date``,
+   ``terminated_by_type``, ``receipt_of_termination_notice``,
+   ``termination_notice``, ``termination_reason`` — same as *Running*
+   already did), it additionally clears ``end_date`` back to empty, but
+   **only if the contract is ``unlimited``** — a fixed-term contract that
+   was terminated early keeps whatever is in ``end_date`` after being
+   reactivated.
+
+   See also the ``terminate_expired`` cron task (*Configuration* above)
+   for the automatic ``expired`` termination of fixed-term contracts whose
+   ``end_date`` has passed without an active termination.
+
    **Cancellation:** the *Cancel* button transitions the contract to
    *Cancelled*.  Before the transition:
 
@@ -1167,10 +1203,13 @@ Wizards
    Sets a contract to *Terminated*, records ``terminated_by``,
    ``receipt_of_termination_notice``, ``termination_reason``, and
    calculates ``termination_date`` from the notice period
-   (3 / 6 / 9 / 12 months to end of month). ``terminated_by_type`` is
-   ``tenant`` or ``landlord`` for a manual termination via this wizard; see
-   the ``terminate_expired`` cron task below for the automatic
-   ``expired`` case (fixed-term contracts with no active termination).
+   (3 / 6 / 9 / 12 months to end of month); also writes the resolved
+   ``termination_date`` into the contract's ``end_date`` (see *Fixed term /
+   termination* under ``real_estate.contract`` above). ``terminated_by_type``
+   is ``tenant`` or ``landlord`` for a manual termination via this wizard;
+   see the ``terminate_expired`` cron task below for the automatic
+   ``expired`` case (fixed-term contracts with no active termination), and
+   the *Revert Termination* button to undo a termination.
 
 ``real_estate.estimate_consumption.wizard``  (``base_object.py``, class ``EstimateConsumptionWizard``)
    Two-step wizard launched from the *Meters* tab of any approved meter
