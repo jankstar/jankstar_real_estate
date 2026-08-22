@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<tree>
+    <field name="task"/>
+    <field name="interval_days"/>
+    <field name="last_run"/>
+    <field name="active"/>
+</tree>

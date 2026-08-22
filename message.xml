@@ -192,6 +192,9 @@ Either run "Ready for Billing" for each billing unit first, or bill individual b
         <record model="ir.message" id="msg_contract_term_type_c_type_unique">
             <field name="text">This contract type is already assigned to this term type.</field>
         </record>
+        <record model="ir.message" id="msg_contract_item_object_unique">
+            <field name="text">This object is already assigned to this contract item.</field>
+        </record>
         <record model="ir.message" id="msg_option_rate_exactly_one_reference">
             <field name="text">An option rate must be linked to exactly one of: base object, settlement unit, or billing unit.</field>
         </record>
@@ -239,6 +242,12 @@ Either run "Ready for Billing" for each billing unit first, or bill individual b
         </record>
         <record model="ir.message" id="msg_invoice_line_term_contract_mismatch">
             <field name="text">Term "%(term)s" does not belong to contract "%(contract)s".</field>
+        </record>
+        <record model="ir.message" id="msg_contract_auto_terminated">
+            <field name="text">Automatic: contractual end date reached.</field>
+        </record>
+        <record model="ir.message" id="msg_cron_task_unique">
+            <field name="text">This task is already configured for this real estate accounting configuration.</field>
         </record>
     </data>
 </tryton>

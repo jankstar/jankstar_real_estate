@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+<tryton>
+    <data>
+        <!-- real_estate.cron_task: views (accessed as a tab on
+             real_estate.re_accounting, no standalone menu) -->
+        <record model="ir.ui.view" id="cron_task_view_list">
+            <field name="model">real_estate.cron_task</field>
+            <field name="type">tree</field>
+            <field name="name">cron_task_list</field>
+        </record>
+        <record model="ir.ui.view" id="cron_task_view_form">
+            <field name="model">real_estate.cron_task</field>
+            <field name="type">form</field>
+            <field name="name">cron_task_form</field>
+        </record>
+
+        <!-- CronTask: admin full CRUD, everyone else read-only -->
+        <record model="ir.model.access" id="access_cron_task_admin">
+            <field name="model">real_estate.cron_task</field>
+            <field name="group" ref="group_real_estate_admin"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+        <record model="ir.model.access" id="access_cron_task_default">
+            <field name="model">real_estate.cron_task</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+
+        <!-- single daily dispatcher entry point, see
+             Contract.cron_daily() -->
+        <record model="ir.cron" id="cron_real_estate_daily">
+            <field name="method">real_estate.contract|cron_daily</field>
+            <field name="interval_number" eval="1"/>
+            <field name="interval_type">days</field>
+        </record>
+    </data>
+</tryton>

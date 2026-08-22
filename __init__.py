@@ -12,10 +12,12 @@ from . import contract_wizard
 from . import contract_report
 from . import sequence
 from . import res
+from . import ir
 from . import party
 from . import invoice
 from . import company
 from . import re_accounting
+from . import cron_task
 from . import billing_unit
 from . import billing_unit_wizard
 from . import settlement_unit
@@ -74,6 +76,7 @@ def register():
         contract_wizard.ContractTermAdjustmentResult,
         #sequence.Sequence,
         res.User,
+        ir.Cron,
         party.Party,
         invoice.Invoice,
         invoice.InvoiceLine,
@@ -81,6 +84,7 @@ def register():
         invoice.GeneralLedgerLine,
         company.Company,
         re_accounting.ReAccounting,
+        cron_task.CronTask,
         billing_unit.CostCategoryGroup,
         billing_unit.CostType,
         billing_unit.BillingUnitContext,

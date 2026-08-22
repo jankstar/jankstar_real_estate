@@ -587,7 +587,8 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
     terminated_by_type = fields.Selection([
             (None, 'none'),
             ('tenant', 'Tenant'),
-            ('landlord', 'Landlord')
+            ('landlord', 'Landlord'),
+            ('expired', 'Expired (fixed term)'),
         ], 'Terminated by',
         states={
             'invisible': (Eval('state') != 'terminated'),
@@ -916,6 +917,74 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
             'description': description or '',
         }])
 
+    @classmethod
+    def cron_daily(cls):
+        """Single daily ir.cron entry point. Dispatches to the individual
+        real_estate.cron_task rows (one per real_estate.re_accounting and
+        task code) that are due, based on each task's own interval_days /
+        last_run. Adding a new recurring operation only requires a new
+        '_cron_<task>' classmethod and a new option in
+        CronTask.get_tasks() - no new ir.cron entry."""
+        pool = Pool()
+        CronTask = pool.get('real_estate.cron_task')
+        Date = pool.get('ir.date')
+        today = Date.today()
+        for task in CronTask.search([('active', '=', True)]):
+            if (task.last_run is not None
+                    and (today - task.last_run).days < task.interval_days):
+                continue
+            handler = getattr(cls, f'_cron_{task.task}', None)
+            if handler is None:
+                continue
+            handler(task.re_accounting)
+            task.last_run = today
+            task.save()
+
+    @classmethod
+    def _cron_terminate_expired(cls, re_accounting):
+        """Auto-terminate fixed-term contracts (end_date set, no active
+        termination) whose end_date has passed. Reuses the 'terminated'
+        state (see get_effective_end_date/occupancy, which already treat
+        end_date/termination_date identically) rather than adding a new
+        state, so existing state-dependent logic keeps working unchanged."""
+        Date = Pool().get('ir.date')
+        today = Date.today()
+        contracts = cls.search([
+            ('state', '=', 'running'),
+            ('end_date', '!=', None),
+            ('end_date', '<', today),
+            ('termination_date', '=', None),
+            ('company.re_accounting', '=', re_accounting.id),
+        ])
+        for contract in contracts:
+            contract.state = 'terminated'
+            contract.termination_date = contract.end_date
+            contract.terminated_by_type = 'expired'
+            contract.termination_reason = gettext(
+                'real_estate.msg_contract_auto_terminated')
+            contract.save()
+            contract.add_log('state_change',
+                f'contract auto-terminated: end date {contract.end_date} '
+                f'reached')
+
+    @classmethod
+    def _cron_create_moves_rolling(cls, re_accounting):
+        """Rolling equivalent of the manual CreateContractMovesWizard: keep
+        postings generated up to a fixed horizon ahead of today, without
+        requiring a person to run the wizard repeatedly."""
+        Date = Pool().get('ir.date')
+        horizon = re_accounting.create_moves_horizon_days or 60
+        date = Date.today() + datetime.timedelta(days=horizon)
+        contracts = cls.search([
+            ('state', 'in', ('running', 'terminated')),
+            ('start_date', '<=', date),
+            ('company.re_accounting', '=', re_accounting.id),
+        ])
+        if contracts:
+            cls.call_create_moves(
+                [c.id for c in contracts], date, 're_calc_and_create',
+                True, 'draft', None)
+
     @staticmethod
     def default_state():
         return 'draft'
@@ -1081,6 +1150,13 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
                                     m_type,
                                     cash_flow.document_date)
                                 if not obj_qty:
+                                    self.add_log('warning',
+                                        f'term "{term.name}": object '
+                                        f'"{obj.name}" has no matching '
+                                        f'measurement "{m_type.name}" for '
+                                        f'{cash_flow.document_date} - no '
+                                        f'invoice line created for this '
+                                        f'object.')
                                     continue
                                 line = InvoiceLine(
                                     type='line',
@@ -1125,6 +1201,14 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
                         first_obj = (
                             ref_item.objects[0].object
                             if ref_item and ref_item.objects else None)
+                        if (m_type and not term.quantity
+                                and not (ref_item and ref_item.objects
+                                    and len(ref_item.objects) > 1)):
+                            self.add_log('warning',
+                                f'term "{term.name}": no assigned object '
+                                f'has a matching measurement "{m_type.name}" '
+                                f'for {cash_flow.document_date} - quantity '
+                                f'defaulted to {term.quantity or 0}.')
                         new_invoice_line = InvoiceLine(
                             type='line',
                             company=self.company.id,

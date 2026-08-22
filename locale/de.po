@@ -22,6 +22,62 @@ msgctxt "field:real_estate.re_accounting,re_payment_term_billing:"
 msgid "Operating Cost Billing Payment Term"
 msgstr "Zahlungsbedingung Betriebskostenabrechnung"
 
+msgctxt "field:real_estate.re_accounting,create_moves_horizon_days:"
+msgid "Move Creation Horizon (Days)"
+msgstr "Buchungsvorlauf (Tage)"
+
+msgctxt "field:real_estate.re_accounting,cron_tasks:"
+msgid "Cron Tasks"
+msgstr "Geplante Aufgaben"
+
+msgctxt "field:real_estate.cron_task,re_accounting:"
+msgid "Real Estate Accounting"
+msgstr "RE Rechnungswesen"
+
+msgctxt "field:real_estate.cron_task,task:"
+msgid "Task"
+msgstr "Aufgabe"
+
+msgctxt "field:real_estate.cron_task,interval_days:"
+msgid "Interval (Days)"
+msgstr "Intervall (Tage)"
+
+msgctxt "field:real_estate.cron_task,last_run:"
+msgid "Last Run"
+msgstr "Letzter Lauf"
+
+msgctxt "field:real_estate.cron_task,active:"
+msgid "Active"
+msgstr "Aktiv"
+
+msgctxt "field:real_estate.cron_task,name:"
+msgid "Name"
+msgstr "Name"
+
+msgctxt "selection:real_estate.cron_task,task:"
+msgid "Terminate Expired Fixed-Term Contracts"
+msgstr "Befristete, abgelaufene Verträge beenden"
+
+msgctxt "selection:real_estate.cron_task,task:"
+msgid "Rolling Move Creation"
+msgstr "Rollierende Buchungserstellung"
+
+msgctxt "model:ir.message,text:msg_contract_auto_terminated"
+msgid "Automatic: contractual end date reached."
+msgstr "Automatisch: Vertragsende erreicht."
+
+msgctxt "model:ir.message,text:msg_cron_task_unique"
+msgid ""
+"This task is already configured for this real estate accounting "
+"configuration."
+msgstr ""
+"Diese Aufgabe ist für diese RE-Rechnungswesen-Konfiguration bereits "
+"eingerichtet."
+
+msgctxt "selection:ir.cron,method:"
+msgid "Real Estate Daily Tasks"
+msgstr "Immobilien: Tägliche Aufgaben"
+
 #, fuzzy
 msgctxt "field:account.general_ledger.line,base_object:"
 msgid "Object"
@@ -1327,6 +1383,10 @@ msgstr "Position"
 msgctxt "field:real_estate.contract.item.object,object:"
 msgid "Object"
 msgstr "Objekt"
+
+msgctxt "field:real_estate.contract.item.object,occupancy:"
+msgid "Occupancy"
+msgstr "Belegung/Leerstand"
 
 #, fuzzy
 msgctxt "field:real_estate.contract.item.object,property:"
@@ -3933,6 +3993,10 @@ msgstr ""
 "NICHT automatisch storniert. Nur Entwürfe wurden gelöscht. Stornierung "
 "fortsetzen?"
 
+msgctxt "model:ir.message,text:msg_contract_item_object_unique"
+msgid "This object is already assigned to this contract item."
+msgstr "Dieses Objekt ist dieser Vertragsposition bereits zugeordnet."
+
 msgctxt "model:ir.message,text:msg_contract_term_type_c_type_unique"
 msgid "This contract type is already assigned to this term type."
 msgstr "Diese Vertragsart ist dieser Konditionsart bereits zugeordnet."
@@ -5380,6 +5444,10 @@ msgid "Terminated"
 msgstr "Beendet"
 
 msgctxt "selection:real_estate.contract,terminated_by_type:"
+msgid "Expired (fixed term)"
+msgstr "Fristablauf (befristet)"
+
+msgctxt "selection:real_estate.contract,terminated_by_type:"
 msgid "Landlord"
 msgstr "Eigentümer"
 
@@ -5882,6 +5950,10 @@ msgstr "Aktivieren"
 msgctxt "view:real_estate.contract:"
 msgid "Terminate"
 msgstr "Kündigen"
+
+msgctxt "view:real_estate.contract:"
+msgid "Termination"
+msgstr "Kündigung"
 
 msgctxt "view:real_estate.contract:"
 msgid "Terms"

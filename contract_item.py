@@ -1,6 +1,6 @@
 'Contract Item'
 from trytond.model import (sequence_ordered,
-    ModelSQL, ModelView, fields)
+    ModelSQL, ModelView, Unique, fields)
 from trytond.model.exceptions import ValidationError
 from trytond.i18n import gettext
 from trytond.pool import Pool, PoolMeta
@@ -22,12 +22,24 @@ class ContractItemObject(sequence_ordered(), ModelSQL, ModelView):
     property = fields.Function(
         fields.Many2One('real_estate.base_object', 'Property'),
         'on_change_with_property')
+    occupancy = fields.Function(
+        fields.Boolean('Occupancy'),
+        'on_change_with_occupancy')
     object = fields.Many2One('real_estate.base_object', 'Object',
         required=True, ondelete='CASCADE',
         domain=[
-            ('type', '=', 'object'),
+            If(Bool(Eval('occupancy')), ('type', '=', 'object'), ()),
             If(Bool(Eval('property')), ('property', '=', Eval('property')), ()),
         ])
+
+    @classmethod
+    def __setup__(cls):
+        super().__setup__()
+        t = cls.__table__()
+        cls._sql_constraints = [
+            ('item_object_unique', Unique(t, t.item, t.object),
+                'real_estate.msg_contract_item_object_unique'),
+            ]
 
     @classmethod
     def create(cls, vlist):
@@ -81,6 +93,12 @@ class ContractItemObject(sequence_ordered(), ModelSQL, ModelView):
         if self.item and self.item.contract:
             return self.item.contract.property
         return None
+
+    @fields.depends('item', '_parent_item.contract')
+    def on_change_with_occupancy(self, name=None):
+        if self.item and self.item.contract and self.item.contract.c_type:
+            return self.item.contract.c_type.occupancy
+        return False
 
     @classmethod
     def _refresh_occupancy_for_items(cls, records, extra_obj_ids=None):

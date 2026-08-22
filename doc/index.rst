@@ -87,10 +87,71 @@ The following master data must be set up before the module can be used:
    used to structure operating cost settlements.
    Default values for German BetrKV (§ 2) are loaded at module installation.
 
-``account.configuration`` (real estate extension)
-   Defaults for operating cost billing: vacancy cost account, vacancy
-   settlement journal, and default payment term. Configured via the account
-   configuration form extension added by ``account_configuration.py``.
+``real_estate.re_accounting``  (``re_accounting.py``)
+   Standalone, company-scoped real-estate accounting configuration,
+   referenced one-directionally from ``company.company.re_accounting``
+   (``company.py``; optional — a company without a linked
+   ``re_accounting`` record gets none of the automation below).
+
+   ``re_account_allocation_by_owner``
+      Vacancy cost account (debit and credit side of vacancy postings).
+
+   ``re_journal_billing``
+      Journal used for direct GL postings in operating cost settlements.
+
+   ``re_payment_term_billing``
+      Default payment term for operating cost settlement invoices, used
+      when the contract itself has none set.
+
+   ``create_moves_horizon_days``
+      Number of days ahead of today the ``create_moves_rolling`` cron task
+      (see below) books postings for. Default 60.
+
+   ``cron_tasks``
+      One2Many to ``real_estate.cron_task`` — the company's scheduled
+      task configuration, see below.
+
+``real_estate.cron_task``  (``cron_task.py``)
+   Per-``re_accounting`` (i.e. per-company) row configuring one recurring
+   operation: ``task`` (selection, currently ``terminate_expired`` /
+   ``create_moves_rolling``), ``interval_days``, ``last_run`` (updated by
+   the dispatcher), ``active``. A unique SQL constraint prevents duplicate
+   rows for the same ``(re_accounting, task)`` pair. No rows are seeded
+   automatically — a company gets no automatic behaviour until at least
+   one row is added under the *Cron Tasks* tab of its
+   ``real_estate.re_accounting`` record.
+
+   **Dispatch.** A single ``ir.cron`` entry ("Real Estate Daily Tasks",
+   method ``real_estate.contract|cron_daily`` — registered via a small
+   ``ir.cron.method`` selection extension in ``ir.py``, since that field is
+   otherwise a fixed core list) runs daily and calls
+   ``Contract.cron_daily()`` (``contract_core.py``). It iterates all active
+   ``cron_task`` rows and, for each one where
+   ``today - last_run >= interval_days`` (or ``last_run`` is unset), calls
+   the matching ``Contract._cron_<task>(re_accounting)`` classmethod and
+   updates ``last_run``. A future recurring operation only needs a new
+   ``_cron_<code>`` classmethod plus a new ``get_tasks()`` option — no new
+   ``ir.cron`` entry.
+
+   ``_cron_terminate_expired``
+      Auto-terminates ``running`` contracts of the company whose
+      ``end_date`` has passed and which have no active termination yet
+      (``termination_date`` unset): sets ``state = 'terminated'``,
+      ``termination_date = end_date``, ``terminated_by_type = 'expired'``,
+      and a ``contract.log`` entry — reusing the existing ``terminated``
+      state rather than adding a new one, so all state-dependent logic
+      (occupancy, ``create_moves``, item validation) keeps working
+      unchanged. See ``get_effective_end_date()`` (``termination_date`` if
+      set and earlier than ``end_date``, else ``end_date``) which already
+      governs occupancy for both ``running`` and ``terminated`` contracts
+      regardless of whether this task has run yet.
+
+   ``_cron_create_moves_rolling``
+      Rolling equivalent of the manual *Create Moves* wizard: calls
+      ``Contract.call_create_moves()`` for all running/terminated contracts
+      of the company up to ``today + create_moves_horizon_days``, so
+      postings stay generated ahead of time without a person re-running the
+      wizard.
 
 
 Access Control
@@ -253,6 +314,16 @@ Permission matrix (``C`` = CRUD · ``R`` = read · ``—`` = no access):
      - R
      - R
    * - ``real_estate.contract.term.type``
+     - C
+     - R
+     - R
+     - R
+   * - ``real_estate.re_accounting``
+     - C
+     - R
+     - R
+     - R
+   * - ``real_estate.cron_task``
      - C
      - R
      - R
@@ -515,9 +586,17 @@ Contract Management
    a warning (or error for active contracts) on overlapping occupancy.
 
    Each ``ContractItem`` can reference one or more rental objects via the
-   ``real_estate.contract.item.object`` child model.  The object selector is
-   restricted to objects of type ``object`` that belong to the **same property**
-   as the contract, preventing cross-property assignments.
+   ``real_estate.contract.item.object`` child model. The object selector
+   always restricts to objects belonging to the **same property** as the
+   contract (preventing cross-property assignments); it is additionally
+   restricted to ``type = 'object'`` only for **occupancy contracts**
+   (``contract.c_type.occupancy`` set — the Function field ``occupancy`` on
+   ``ContractItemObject`` mirrors this from the contract type). Non-occupancy
+   contract types may reference any ``base_object`` type (building, land,
+   equipment, …) belonging to the property. A unique SQL constraint on
+   ``(item, object)`` prevents assigning the same object twice to the same
+   item; the same object may still be assigned to a different item (e.g. on
+   another contract).
 
 ``real_estate.contract.term``  (``contract_term.py``)
    A recurring charge line on a contract (rent, operating cost advance, etc.).
@@ -1088,7 +1167,10 @@ Wizards
    Sets a contract to *Terminated*, records ``terminated_by``,
    ``receipt_of_termination_notice``, ``termination_reason``, and
    calculates ``termination_date`` from the notice period
-   (3 / 6 / 9 / 12 months to end of month).
+   (3 / 6 / 9 / 12 months to end of month). ``terminated_by_type`` is
+   ``tenant`` or ``landlord`` for a manual termination via this wizard; see
+   the ``terminate_expired`` cron task below for the automatic
+   ``expired`` case (fixed-term contracts with no active termination).
 
 ``real_estate.estimate_consumption.wizard``  (``base_object.py``, class ``EstimateConsumptionWizard``)
    Two-step wizard launched from the *Meters* tab of any approved meter
@@ -1240,24 +1322,28 @@ Source Layout
 .. code-block:: text
 
    real_estate/
-   ├── account_configuration.py # extension to account.configuration
    ├── address.py               # real_estate.address
    ├── base_object.py           # real_estate.base_object, occupancy, meter readings
    ├── billing_unit.py          # real_estate.billing_unit, billing_unit.moves,
    │                            #   billing_unit.log, cost_type, cost_category_group
    ├── billing_unit_wizard.py   # real_estate.billing_unit.wizard (batch billing)
-   ├── contract_core.py         # real_estate.contract, contract.log, account views
-   ├── contract_item.py         # real_estate.contract.item
+   ├── company.py               # extension to company.company (re_accounting link)
+   ├── contract_core.py         # real_estate.contract, contract.log, account views,
+   │                            #   cron_daily dispatcher + cron task handlers
+   ├── contract_item.py         # real_estate.contract.item, contract.item.object
    ├── contract_term.py         # real_estate.contract.term, cash_flow, Quantitative
    ├── contract_type.py         # real_estate.contract.type, term.type
    ├── contract_report.py       # ContractReport, ContractAnnex4Report
    ├── contract_wizard.py       # wizards (CreateContractMovesWizard, TerminateContractWizard, …)
+   ├── cron_task.py             # real_estate.cron_task (per-company scheduled task config)
    ├── invoice.py               # extensions to account.invoice / invoice.line
+   ├── ir.py                    # extension to ir.cron (registers the cron_daily method)
    ├── measurement.py           # real_estate.measurement.type, measurement
    ├── object_party.py          # real_estate.object_party, object_party.role
    ├── option_rate.py           # real_estate.option_rate, option_rate.context
    ├── option_rate_wizard.py    # real_estate.option_rate_update.wizard
    ├── party.py                 # extension to party.party
+   ├── re_accounting.py         # real_estate.re_accounting (company-scoped RE config)
    ├── res.py                   # extension to res.user
    ├── settlement_result.py     # real_estate.settlement_result, cost_share
    ├── settlement_unit.py       # real_estate.settlement_unit

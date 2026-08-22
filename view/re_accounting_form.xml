@@ -10,4 +10,8 @@
     <field name="re_journal_billing"/>
     <label name="re_payment_term_billing"/>
     <field name="re_payment_term_billing"/>
+    <label name="create_moves_horizon_days"/>
+    <field name="create_moves_horizon_days"/>
+    <separator name="cron_tasks" colspan="2"/>
+    <field name="cron_tasks" colspan="2"/>
 </form>

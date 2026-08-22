@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<form col="2">
+    <label name="task"/>
+    <field name="task"/>
+    <label name="interval_days"/>
+    <field name="interval_days"/>
+    <label name="last_run"/>
+    <field name="last_run"/>
+    <label name="active"/>
+    <field name="active"/>
+</form>
