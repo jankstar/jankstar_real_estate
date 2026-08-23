@@ -252,5 +252,17 @@ Either run "Ready for Billing" for each billing unit first, or bill individual b
         <record model="ir.message" id="msg_contract_unlimited_with_end_date">
             <field name="text">"%(name)s": an unlimited contract must not have an end date. Either clear the end date or unset "Unlimited Contract".</field>
         </record>
+        <record model="ir.message" id="msg_cron_task_invalid_day">
+            <field name="text">"%(name)s": "Run on Day of Month" must be between 1 and 31.</field>
+        </record>
+        <record model="ir.message" id="msg_cron_task_invalid_interval_months">
+            <field name="text">"%(name)s": "Interval (Months)" must be at least 1.</field>
+        </record>
+        <record model="ir.message" id="msg_cron_task_no_schedule">
+            <field name="text">"%(name)s": set one of "Interval (Days)", "Interval (Months)", or "Run on Day of Month".</field>
+        </record>
+        <record model="ir.message" id="msg_cron_task_valid_until_before_from">
+            <field name="text">"%(name)s": "Valid Until" must not be before "Valid From".</field>
+        </record>
     </data>
 </tryton>

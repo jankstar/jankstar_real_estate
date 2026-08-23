@@ -104,8 +104,8 @@ The following master data must be set up before the module can be used:
       when the contract itself has none set.
 
    ``create_moves_horizon_days``
-      Number of days ahead of today the ``create_moves_rolling`` cron task
-      (see below) books postings for. Default 60.
+      Number of days ahead of today the ``update_contract_cash_flow`` cron
+      task (see below) recalculates cash flow for. Default 60.
 
    ``cron_tasks``
       One2Many to ``real_estate.cron_task`` — the company's scheduled
@@ -113,10 +113,20 @@ The following master data must be set up before the module can be used:
 
 ``real_estate.cron_task``  (``cron_task.py``)
    Per-``re_accounting`` (i.e. per-company) row configuring one recurring
-   operation: ``task`` (selection, currently ``terminate_expired`` /
-   ``create_moves_rolling``), ``interval_days``, ``last_run`` (updated by
-   the dispatcher), ``active``. A unique SQL constraint prevents duplicate
-   rows for the same ``(re_accounting, task)`` pair. No rows are seeded
+   operation: ``task`` (selection, currently ``update_contract_status`` /
+   ``update_contract_cash_flow`` / ``book_contract_cash_flow`` /
+   ``update_option_rate``), ``valid_from``, ``valid_until``,
+   ``interval_days``, ``interval_months``, ``schedule_day_of_month``,
+   ``horizon_months_ahead``, ``last_run`` (updated by the dispatcher),
+   ``active``. Task names are
+   deliberately rhythm-agnostic (no "daily"/"rolling"/... in the name) —
+   how often each task actually runs is a per-row configuration choice made
+   by the user, not implied by the task itself; see *Scheduling and
+   parameters* below. None of ``interval_days``/``interval_months``/
+   ``schedule_day_of_month`` is individually required, but ``validate()``
+   rejects a row that has none of the three set. A unique SQL constraint
+   prevents duplicate rows for the same ``(re_accounting, task)`` pair. No
+   rows are seeded
    automatically — a company gets no automatic behaviour until at least
    one row is added under the *Cron Tasks* tab of its
    ``real_estate.re_accounting`` record.
@@ -126,14 +136,58 @@ The following master data must be set up before the module can be used:
    ``ir.cron.method`` selection extension in ``ir.py``, since that field is
    otherwise a fixed core list) runs daily and calls
    ``Contract.cron_daily()`` (``contract_core.py``). It iterates all active
-   ``cron_task`` rows and, for each one where
-   ``today - last_run >= interval_days`` (or ``last_run`` is unset), calls
-   the matching ``Contract._cron_<task>(re_accounting)`` classmethod and
-   updates ``last_run``. A future recurring operation only needs a new
-   ``_cron_<code>`` classmethod plus a new ``get_tasks()`` option — no new
-   ``ir.cron`` entry.
+   ``cron_task`` rows and, for each one that is due (see *Scheduling*
+   below), calls the matching ``Contract._cron_<task>(re_accounting, task)``
+   classmethod and updates ``last_run``. A future recurring operation only
+   needs a new ``_cron_<code>`` classmethod plus a new ``get_tasks()``
+   option — no new ``ir.cron`` entry.
 
-   ``_cron_terminate_expired``
+   **Scheduling and parameters.** Each ``cron_task`` row carries its own
+   parameters, read by its handler from the ``task`` record passed in, and
+   its own rhythm - e.g. ``update_contract_status`` daily
+   (``interval_days = 1``), ``update_contract_cash_flow`` every six months
+   (``interval_months = 6``), ``book_contract_cash_flow`` and
+   ``update_option_rate`` monthly (``schedule_day_of_month`` set, e.g. 15
+   and 1 respectively).
+
+   ``valid_from``/``valid_until`` (both optional) are hard lower/upper
+   bounds checked before all three modes below - the task never runs while
+   ``today < valid_from`` or ``today > valid_until``. If the task has
+   never run yet and today is already past ``valid_from``, it becomes due
+   immediately (using today, not ``valid_from``, as the actual first
+   ``last_run``). E.g. setting ``valid_from = 15.03.2026`` on a row
+   activated on 20.03.2026 makes it run right away on 20.03.2026, not wait
+   until the next scheduled date. ``valid_until`` just stops execution
+   once passed - the row itself, and its ``last_run`` history, stay in
+   place. ``validate()`` rejects a row where ``valid_until`` is before
+   ``valid_from``.
+
+   Three scheduling modes, checked by ``Contract._cron_task_is_due()`` in
+   this priority order:
+
+   1. **Day-of-month-based**: if ``schedule_day_of_month`` (1-31) is set,
+      it takes priority over both interval fields — the task runs at most
+      once a month, on or after that calendar day (capped to the last day
+      of shorter months), guarded by comparing ``last_run``'s year/month
+      to today's so a delayed run still catches up without re-running
+      twice in the same month.
+   2. **Month-interval-based**: otherwise, if ``interval_months`` is set,
+      it takes priority over ``interval_days``. If ``valid_from`` is also
+      set, ``Contract._add_months()`` computes the exact recurring date
+      ``valid_from + k * interval_months`` months (same day-of-month as
+      ``valid_from``, clamped to shorter months), advancing ``k`` past
+      ``last_run`` each time - so e.g. ``valid_from = 15.03.2026`` with
+      ``interval_months = 1`` runs on 15.03., 15.04., 15.05., ... and
+      re-aligns to the correct slot even after a delayed run, instead of
+      drifting from whatever date the delayed run actually happened on.
+      Without ``valid_from``, falls back to a looser check: due once at
+      least that many calendar months (year/month difference, not exact
+      days) have passed since ``last_run`` - a convenience for longer
+      rhythms (e.g. 6 for half-yearly) without day-of-month precision.
+   3. **Day-interval-based** (default): otherwise, due once ``today -
+      last_run >= interval_days`` (or ``last_run`` is unset).
+
+   ``_cron_update_contract_status``
       Auto-terminates ``running`` contracts of the company whose
       ``end_date`` has passed and which have no active termination yet
       (``termination_date`` unset): sets ``state = 'terminated'``,
@@ -146,12 +200,37 @@ The following master data must be set up before the module can be used:
       governs occupancy for both ``running`` and ``terminated`` contracts
       regardless of whether this task has run yet.
 
-   ``_cron_create_moves_rolling``
-      Rolling equivalent of the manual *Create Moves* wizard: calls
+   ``_cron_update_contract_cash_flow``
+      **Cash-flow recalculation only** (``action='re_calc'``): calls
       ``Contract.call_create_moves()`` for all running/terminated contracts
-      of the company up to ``today + create_moves_horizon_days``, so
-      postings stay generated ahead of time without a person re-running the
-      wizard.
+      of the company up to ``today + create_moves_horizon_days``, so each
+      term's ``ContractTermCashFlow`` stays generated ahead of time. It does
+      **not** create invoices — booking is a separate, explicitly scheduled
+      step, see ``_cron_book_contract_cash_flow`` below.
+
+   ``_cron_book_contract_cash_flow``
+      Books (creates draft invoices for) all due terms, using
+      ``action='re_calc_and_create'`` so it is self-sufficient regardless of
+      whether ``_cron_update_contract_cash_flow``'s horizon already covers
+      the target date. The horizon is the end of the month that is
+      ``horizon_months_ahead`` months after the run date — e.g. with
+      ``schedule_day_of_month = 15`` and ``horizon_months_ahead = 1``, a run
+      on 15.07 books everything due up to 31.08. Invoices are created in
+      ``draft`` state — this task does **not** post them; posting remains a
+      manual step.
+
+   ``_cron_update_option_rate``
+      Recomputes and, where the rate actually changed, books new option
+      rates via ``OptionRate.process_update()`` (``option_rate.py`` — the
+      same logic as the manual ``real_estate.option_rate_update.wizard``,
+      see *Wizards* below) for every property of every company using this
+      ``re_accounting`` configuration, as of today's date. Intended to run
+      monthly with ``schedule_day_of_month = 1``, which also determines
+      the ``effective_date`` used by ``process_update`` (the 1st of the
+      current month). Per-record results (created/updated/unchanged/
+      skipped counts, plus one detail line per processed object) go to the
+      Python logger, not ``contract.log``, since this task is not tied to
+      individual contracts.
 
 
 Access Control
@@ -597,9 +676,9 @@ Contract Management
    was terminated early keeps whatever is in ``end_date`` after being
    reactivated.
 
-   See also the ``terminate_expired`` cron task (*Configuration* above)
-   for the automatic ``expired`` termination of fixed-term contracts whose
-   ``end_date`` has passed without an active termination.
+   See also the ``update_contract_status`` cron task (*Configuration*
+   above) for the automatic ``expired`` termination of fixed-term
+   contracts whose ``end_date`` has passed without an active termination.
 
    **Cancellation:** the *Cancel* button transitions the contract to
    *Cancelled*.  Before the transition:
@@ -1207,7 +1286,7 @@ Wizards
    ``termination_date`` into the contract's ``end_date`` (see *Fixed term /
    termination* under ``real_estate.contract`` above). ``terminated_by_type``
    is ``tenant`` or ``landlord`` for a manual termination via this wizard;
-   see the ``terminate_expired`` cron task below for the automatic
+   see the ``update_contract_status`` cron task above for the automatic
    ``expired`` case (fixed-term contracts with no active termination), and
    the *Revert Termination* button to undo a termination.
 

@@ -24,6 +24,7 @@ from . import base_object
 import logging
 from decimal import Decimal
 import datetime
+import calendar
 
 from trytond.modules.account.account import _GeneralLedgerAccount
 from trytond.modules.account.common import ActivePeriodMixin
@@ -982,27 +983,92 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
     def cron_daily(cls):
         """Single daily ir.cron entry point. Dispatches to the individual
         real_estate.cron_task rows (one per real_estate.re_accounting and
-        task code) that are due, based on each task's own interval_days /
-        last_run. Adding a new recurring operation only requires a new
-        '_cron_<task>' classmethod and a new option in
-        CronTask.get_tasks() - no new ir.cron entry."""
+        task code) that are due, based on each task's own scheduling
+        (schedule_day_of_month if set, otherwise interval_days / last_run).
+        Adding a new recurring operation only requires a new '_cron_<task>'
+        classmethod and a new option in CronTask.get_tasks() - no new
+        ir.cron entry."""
         pool = Pool()
         CronTask = pool.get('real_estate.cron_task')
         Date = pool.get('ir.date')
         today = Date.today()
         for task in CronTask.search([('active', '=', True)]):
-            if (task.last_run is not None
-                    and (today - task.last_run).days < task.interval_days):
+            if not cls._cron_task_is_due(task, today):
                 continue
             handler = getattr(cls, f'_cron_{task.task}', None)
             if handler is None:
                 continue
-            handler(task.re_accounting)
+            handler(task.re_accounting, task)
             task.last_run = today
             task.save()
 
     @classmethod
-    def _cron_terminate_expired(cls, re_accounting):
+    def _cron_task_is_due(cls, task, today):
+        """valid_from/valid_until (if set) are hard lower/upper bounds -
+        the task never runs before valid_from or after valid_until,
+        regardless of scheduling mode - and valid_from additionally serves,
+        for interval_months, as the day-of-month anchor for exact
+        recurrences (see below).
+
+        Three scheduling modes, in this priority order:
+        1. schedule_day_of_month set: runs (at most) once a month, on/after
+           that calendar day (capped to the last day of the current month
+           for day 29-31 in shorter months).
+        2. Otherwise, interval_months set: if valid_from is also set, runs
+           on the exact recurring date valid_from + k*interval_months
+           months (same day-of-month as valid_from, clamped to shorter
+           months) - computed by repeatedly advancing from valid_from past
+           last_run, so a delayed run re-aligns to the next correct slot
+           instead of drifting. If valid_from is not set, falls back to a
+           looser check: due once at least interval_months calendar months
+           (year/month difference, not exact days) have passed since
+           last_run.
+        3. Otherwise, plain interval_days/last_run check.
+        Each mode ignores the ones below it once set."""
+        if task.valid_from and today < task.valid_from:
+            return False
+        if task.valid_until and today > task.valid_until:
+            return False
+        if task.schedule_day_of_month:
+            if (task.last_run is not None
+                    and (task.last_run.year, task.last_run.month)
+                        == (today.year, today.month)):
+                return False
+            last_day_of_month = calendar.monthrange(
+                today.year, today.month)[1]
+            run_day = min(task.schedule_day_of_month, last_day_of_month)
+            return today.day >= run_day
+        if task.interval_months:
+            if task.last_run is None:
+                return True
+            if task.valid_from:
+                next_due = cls._add_months(
+                    task.valid_from, task.interval_months)
+                while next_due <= task.last_run:
+                    next_due = cls._add_months(
+                        next_due, task.interval_months)
+                return today >= next_due
+            months_elapsed = ((today.year - task.last_run.year) * 12
+                + (today.month - task.last_run.month))
+            return months_elapsed >= task.interval_months
+        if not task.interval_days:
+            return False
+        return (task.last_run is None
+            or (today - task.last_run).days >= task.interval_days)
+
+    @staticmethod
+    def _add_months(date, months):
+        """date advanced by 'months' calendar months, clamped to the last
+        day of the target month if the original day doesn't exist there
+        (e.g. 31.01. + 1 month -> 28./29.02.)."""
+        month_index = date.month - 1 + months
+        year = date.year + month_index // 12
+        month = month_index % 12 + 1
+        last_day = calendar.monthrange(year, month)[1]
+        return date.replace(year=year, month=month, day=min(date.day, last_day))
+
+    @classmethod
+    def _cron_update_contract_status(cls, re_accounting, task=None):
         """Auto-terminate fixed-term contracts (end_date set, no active
         termination) whose end_date has passed. Reuses the 'terminated'
         state (see get_effective_end_date/occupancy, which already treat
@@ -1029,10 +1095,12 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
                 f'reached')
 
     @classmethod
-    def _cron_create_moves_rolling(cls, re_accounting):
-        """Rolling equivalent of the manual CreateContractMovesWizard: keep
-        postings generated up to a fixed horizon ahead of today, without
-        requiring a person to run the wizard repeatedly."""
+    def _cron_update_contract_cash_flow(cls, re_accounting, task=None):
+        """Keeps each term's cash flow (ContractTermCashFlow) computed up
+        to a fixed horizon ahead of today, without requiring a person to
+        run the wizard repeatedly. Recalculation only ('re_calc') - no
+        invoices are created here; see _cron_book_contract_cash_flow for
+        the separate, explicitly scheduled booking step."""
         Date = Pool().get('ir.date')
         horizon = re_accounting.create_moves_horizon_days or 60
         date = Date.today() + datetime.timedelta(days=horizon)
@@ -1043,8 +1111,65 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
         ])
         if contracts:
             cls.call_create_moves(
+                [c.id for c in contracts], date, 're_calc',
+                True, 'draft', None)
+
+    @classmethod
+    def _cron_book_contract_cash_flow(cls, re_accounting, task):
+        """Books (creates draft invoices for) all due terms up to the end
+        of the month that is horizon_months_ahead months after today - e.g.
+        run on the 15th of the month (schedule_day_of_month=15) with
+        horizon_months_ahead=1 books everything due up to the end of next
+        month. Uses 're_calc_and_create' so it is self-sufficient (does not
+        depend on _cron_update_contract_cash_flow's horizon already
+        covering the booking horizon)."""
+        Date = Pool().get('ir.date')
+        today = Date.today()
+        months_ahead = (task.horizon_months_ahead or 1) if task else 1
+        month_index = today.month - 1 + months_ahead
+        target_year = today.year + month_index // 12
+        target_month = month_index % 12 + 1
+        last_day = calendar.monthrange(target_year, target_month)[1]
+        date = datetime.date(target_year, target_month, last_day)
+        contracts = cls.search([
+            ('state', 'in', ('running', 'terminated')),
+            ('start_date', '<=', date),
+            ('company.re_accounting', '=', re_accounting.id),
+        ])
+        if contracts:
+            cls.call_create_moves(
                 [c.id for c in contracts], date, 're_calc_and_create',
                 True, 'draft', None)
+
+    @classmethod
+    def _cron_update_option_rate(cls, re_accounting, task=None):
+        """Recompute and, where the rate actually changed, book new option
+        rates (see OptionRate.process_update) for all properties of every
+        company using this real estate accounting configuration, as of
+        today. Intended to run monthly (schedule_day_of_month=1), which
+        also determines the effective_date used by process_update (the
+        1st of the current month)."""
+        pool = Pool()
+        Company = pool.get('company.company')
+        BaseObject = pool.get('real_estate.base_object')
+        OptionRate = pool.get('real_estate.option_rate')
+        Date = pool.get('ir.date')
+        companies = Company.search([('re_accounting', '=', re_accounting.id)])
+        if not companies:
+            return
+        base_objects = BaseObject.search([
+            ('type', '=', 'property'),
+            ('company', 'in', [c.id for c in companies]),
+        ])
+        if not base_objects:
+            return
+        counts, detail_log = OptionRate.process_update(
+            base_objects, [], [], Date.today())
+        logger.info(
+            'cron _cron_update_option_rate for re_accounting %s: %s',
+            re_accounting.id, counts)
+        for line in detail_log:
+            logger.debug(line)
 
     @staticmethod
     def default_state():

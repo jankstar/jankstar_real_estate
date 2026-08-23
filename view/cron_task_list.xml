@@ -1,7 +1,11 @@
 <?xml version="1.0"?>
 <tree>
     <field name="task"/>
+    <field name="valid_from"/>
+    <field name="valid_until"/>
     <field name="interval_days"/>
+    <field name="interval_months"/>
+    <field name="schedule_day_of_month"/>
     <field name="last_run"/>
     <field name="active"/>
 </tree>

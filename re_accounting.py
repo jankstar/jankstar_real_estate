@@ -32,8 +32,8 @@ class ReAccounting(base_object.re_sequence_ordered(), ModelSQL, ModelView):
 
     create_moves_horizon_days = fields.Integer(
         'Move Creation Horizon (Days)',
-        help="Number of days ahead of today the 'create_moves_rolling' cron "
-             "task books postings for.")
+        help="Number of days ahead of today the 'Update Contract Cash "
+             "Flow' cron task recalculates postings for.")
 
     cron_tasks = fields.One2Many('real_estate.cron_task', 're_accounting',
         'Cron Tasks')
