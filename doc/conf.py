@@ -1,3 +1,4 @@
+import datetime
 import os
 
 base_url = os.environ.get('DOC_BASE_URL')
@@ -22,9 +23,9 @@ def get_info():
     info = dict(config.items('tryton'))
 
     result = subprocess.run(
-        [sys.executable, 'setup.py', '--name', '--description'],
+        [sys.executable, 'setup.py', '--name', '--description', '--author'],
         stdout=subprocess.PIPE, check=True, cwd=module_dir)
-    info['name'], info['description'] = (
+    info['name'], info['description'], info['author'] = (
         result.stdout.decode('utf-8').strip().splitlines())
 
     result = subprocess.run(
@@ -60,7 +61,9 @@ latex_elements = {
 html_theme = 'sphinx_book_theme'
 html_title = info['description']
 master_doc = 'index'
-project = info['name']
+project = info['description']
+author = info['author']
+copyright = '%s, %s' % (datetime.date.today().year, info['author'])
 release = version = info['series']
 default_role = 'ref'
 highlight_language = 'none'

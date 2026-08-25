@@ -5,8 +5,8 @@ A Tryton ERP module for real estate management. Packaged as ``jankstar_real_esta
 targeting Tryton 8.0.0 and Python 3.9–3.13.
 
 Covers property management, lease and sales contracts, tenant/owner party roles,
-operating cost settlement, and a German "Kontenrahmen der Wohnungswirtschaft"
-(WoWi) accounting chart.
+operating cost settlement, CO2 cost allocation under the German CO2KostAufG,
+and a German "Kontenrahmen der Wohnungswirtschaft" (WoWi) accounting chart.
 
 .. toctree::
    :maxdepth: 2
@@ -106,6 +106,13 @@ The following master data must be set up before the module can be used:
    ``create_moves_horizon_days``
       Number of days ahead of today the ``update_contract_cash_flow`` cron
       task (see below) recalculates cash flow for. Default 60.
+
+   ``co2_landlord_share_commercial``
+      Default CO2 cost landlord share (%, 0–100) for commercial properties,
+      which are not covered by the residential 10-tier distribution model —
+      see *CO2 Cost Allocation (CO2KostAufG)* under *Operating Cost
+      Settlement* below. Shown right before the *Cron Tasks* table on the
+      form.
 
    ``cron_tasks``
       One2Many to ``real_estate.cron_task`` — the company's scheduled
@@ -407,6 +414,11 @@ Permission matrix (``C`` = CRUD · ``R`` = read · ``—`` = no access):
      - R
      - R
      - R
+   * - ``real_estate.co2_emission_share``
+     - C
+     - R
+     - R
+     - R
    * - ``real_estate.contract.type.tax``
      - C
      - —
@@ -418,6 +430,16 @@ Permission matrix (``C`` = CRUD · ``R`` = read · ``—`` = no access):
      - R
      - C
    * - ``real_estate.cost_type``
+     - C
+     - R
+     - R
+     - C
+   * - ``real_estate.co2_kostaufg``
+     - C
+     - R
+     - R
+     - C
+   * - ``real_estate.co2_kostaufg.consumption``
      - C
      - R
      - R
@@ -1050,6 +1072,141 @@ Operating Cost Settlement
    via the name field.
 
 
+CO2 Cost Allocation (CO2KostAufG)
+-----------------------------------
+
+Implements the German *CO2-Kostenaufteilungsgesetz* (CO2KostAufG), which
+splits the CO2 cost of heating fuel between tenant and landlord depending on
+the building's emission intensity (kg CO2/m²/year). Applies to
+``real_estate.settlement_unit`` (typically the *Heizkosten* settlement unit
+of a billing unit) via an optional reference to a ``real_estate.co2_kostaufg``
+master record — settlement units without a reference are unaffected.
+
+``real_estate.co2_kostaufg``  (``co2_kostaufg.py``)
+   Master record for one CO2KostAufG data source (e.g. one heating
+   installation/fuel), scoped to a ``property`` (required, ``type =
+   'property'``) with ``company`` derived from it (Function field).
+   Referenced from one or more settlement units of the same property via
+   their ``co2_kostaufg`` field (domain-restricted to that property — a
+   settlement unit can only pick a CO2KostAufG belonging to its own
+   property).
+   Menu: *Real Estate → Operation Costs → CO2 Kosten verwalten*.
+
+``real_estate.co2_kostaufg.consumption``  (``co2_kostaufg.py``)
+   Child records under a ``co2_kostaufg`` (``parent``, ``ondelete='CASCADE'``),
+   one per billed/metered period: ``date_from``/``date_to``,
+   ``consumption_kwh``, ``co2_kg_per_kwh`` (emission factor),
+   ``co2_emission_kg``, ``co2_price_ct_per_kwh``, ``vat_rate``,
+   ``co2_cost_net``, ``co2_cost_gross``.
+
+   ``co2_emission_kg`` is pre-filled (``consumption_kwh × co2_kg_per_kwh``)
+   only while still empty — once any value exists (auto-filled or typed by
+   the user), later changes to ``consumption_kwh``/``co2_kg_per_kwh`` never
+   overwrite it again, so it is always freely (re-)editable, e.g. to enter
+   the supplier's own figure. ``co2_cost_net``/``co2_cost_gross`` behave
+   differently **on purpose**: they are always recomputed from
+   ``consumption_kwh``/``co2_price_ct_per_kwh``/``vat_rate`` whenever any of
+   those three change; a manual override of net/gross only sticks until the
+   next such recompute.
+
+   ``split``
+      Boolean. Set automatically by
+      ``SettlementUnit.compute_value_shares()`` when this record was
+      created by splitting an original record at a settlement-period
+      boundary — see *Splitting at settlement-period boundaries* below.
+
+   Uses ``DeactivableMixin`` — a record replaced by a split is deactivated
+   (``active = False``), never physically deleted.
+
+``real_estate.co2_emission_share``  (``co2_kostaufg.py``)
+   Configuration table for the legal 10-tier distribution model (Anlage 1
+   CO2KostAufG, residential rented buildings without separate sub-metering
+   by usage type): ``emission_limit`` (kg CO2/m²/year — the *exclusive*
+   upper bound of the tier), ``tenant_share`` / ``landlord_share`` (%, must
+   sum to 100 — enforced in ``validate()``).
+   ``get_share(value)`` returns the first row, in ``sequence`` order, whose
+   ``emission_limit`` is strictly greater than ``value``; if ``value``
+   reaches or exceeds every configured limit, the last row (by sequence) is
+   used as an open-ended top tier regardless of its own stored limit value.
+   Default data for all 10 legal tiers is loaded at module installation
+   (< 12 kg → 0 % / 100 % landlord/tenant … ≥ 52 kg → 95 % / 5 %).
+   Menu: *Real Estate → Configuration → Emission-CO2 Verteilung*.
+
+Fields added to ``real_estate.settlement_unit`` — a new *CO2 Costs* page is
+always shown, but every field on it except ``co2_kostaufg`` itself stays
+hidden (``invisible``) until a reference is actually set:
+
+   ``co2_kostaufg``
+      Many2One reference, restricted to CO2KostAufG records of the same
+      ``property`` as the settlement unit.
+
+   ``co2_measurement_type``
+      Many2One to ``real_estate.measurement.type`` (object-type
+      measurements only) — which measurement to sum across the settlement
+      unit's ``objects`` for the area basis below. Independent of the
+      settlement unit's own ``m_type`` (used for
+      ``allocation_by_measurement``).
+
+   ``co2_total_consumption`` / ``co2_total_emission`` / ``co2_total_cost_gross``
+      (Function.) Sum of ``consumption_kwh`` / ``co2_emission_kg`` /
+      ``co2_cost_gross`` across all consumption records of the referenced
+      CO2KostAufG that overlap the settlement period (the parent billing
+      unit's ``start_date``/``end_date``), each weighted by the fraction of
+      the record's *own* date range that actually falls inside the period.
+      A record fully inside the period contributes 100 %; a record
+      extending beyond either boundary is interpolated pro-rata by days,
+      always relative to its own actual range — a record that simply
+      doesn't reach as far as the period's end (no later data booked yet)
+      is never extrapolated, it only ever contributes its own days.
+
+   ``co2_total_area``
+      (Function.) Sum, across the settlement unit's ``objects``, of each
+      object's latest ``real_estate.measurement`` value of
+      ``co2_measurement_type`` (or its effective leaf types, if a
+      measurement group) valid as of ``end_date``.
+
+   ``co2_emission_per_m2``
+      (Function.) ``co2_total_emission / co2_total_area``, annualized via
+      ``× 365 / time_total`` so that settlement periods shorter or longer
+      than a calendar year still yield a correct "kg CO2/m²/year" figure.
+
+   ``co2_tenant_share`` / ``co2_landlord_share``
+      (Function.) Looked up via
+      ``Co2EmissionShare.get_share(co2_emission_per_m2)`` — the residential
+      10-tier split.
+
+   ``co2_commercial_tenant_share`` / ``co2_commercial_landlord_share``
+      (Function.) The flat split used for commercial properties (not
+      covered by the residential tier model): the company's configured
+      ``re_accounting.co2_landlord_share_commercial`` (landlord), and
+      ``100 %`` minus that value (tenant).
+
+   ``co2_consumption``
+      (Function, One2Many, readonly.) All consumption records of the
+      referenced CO2KostAufG that overlap the settlement period — shown as
+      an embedded, read-only table at the bottom of the *CO2 Costs* page.
+
+**Splitting at settlement-period boundaries.**
+``SettlementUnit.compute_value_shares()`` ("Compute Value Shares" button,
+also reachable via the billing unit's own button of the same name) calls
+``_split_co2_consumption()`` first, before anything else. For each of
+``start_date`` and ``end_date + 1 day``, every active consumption record of
+the referenced CO2KostAufG whose own ``[date_from, date_to]`` strictly
+contains that boundary date is split into two new records at that date:
+amounts are interpolated pro-rata by day count (the second part is computed
+as the remainder of the first, so the two new records always sum back
+exactly to the original — no rounding drift); rate fields
+(``co2_kg_per_kwh``, ``co2_price_ct_per_kwh``, ``vat_rate``) are copied
+unchanged onto both. Both new records get ``split = True``; the original is
+deactivated (soft-deleted via ``active``), never physically removed. A
+record entirely inside the settlement period, or one that only covers part
+of it because no later data has been booked yet, is never split or
+extrapolated — only an *existing* record that actually spans across a
+period boundary gets divided. Re-running is idempotent: already
+boundary-aligned active records are left untouched, so repeated calls never
+produce duplicate splits.
+
+
 Option Rate (Input VAT Deduction)
 ----------------------------------
 
@@ -1445,6 +1602,7 @@ Source Layout
    ├── billing_unit.py          # real_estate.billing_unit, billing_unit.moves,
    │                            #   billing_unit.log, cost_type, cost_category_group
    ├── billing_unit_wizard.py   # real_estate.billing_unit.wizard (batch billing)
+   ├── co2_kostaufg.py          # real_estate.co2_kostaufg(.consumption), co2_emission_share
    ├── company.py               # extension to company.company (re_accounting link)
    ├── contract_core.py         # real_estate.contract, contract.log, account views,
    │                            #   cron_daily dispatcher + cron task handlers
