@@ -35,6 +35,16 @@ class ReAccounting(base_object.re_sequence_ordered(), ModelSQL, ModelView):
         help="Number of days ahead of today the 'Update Contract Cash "
              "Flow' cron task recalculates postings for.")
 
+    co2_landlord_share_commercial = fields.Numeric(
+        'CO2 Landlord Share (Commercial) (%)', digits=(5, 2),
+        domain=[
+            ('co2_landlord_share_commercial', '>=', 0),
+            ('co2_landlord_share_commercial', '<=', 100),
+            ],
+        help="Default CO2 cost landlord share (0-100%) for commercial "
+             "properties, which are not covered by the residential "
+             "10-tier distribution model (real_estate.co2_emission_share).")
+
     cron_tasks = fields.One2Many('real_estate.cron_task', 're_accounting',
         'Cron Tasks')
 

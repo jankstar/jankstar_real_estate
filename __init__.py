@@ -24,6 +24,7 @@ from . import settlement_unit
 from . import settlement_result
 from . import option_rate
 from . import option_rate_wizard
+from . import co2_kostaufg
 
 __all__ = ['register']
 
@@ -104,6 +105,9 @@ def register():
         option_rate_wizard.OptionRateUpdateStart,
         option_rate_wizard.OptionRateUpdateConfirm,
         option_rate_wizard.OptionRateUpdateResult,
+        co2_kostaufg.Co2KostAufg,
+        co2_kostaufg.Co2KostAufgConsumption,
+        co2_kostaufg.Co2EmissionShare,
         module='real_estate', type_='model')
     Pool.register(
         contract_wizard.CreateContractMovesWizard,

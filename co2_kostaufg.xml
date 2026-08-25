@@ -1,0 +1,244 @@
+<?xml version="1.0"?>
+<tryton>
+    <data>
+        <!-- real_estate.co2_kostaufg: own list/form views + menu -->
+        <record model="ir.ui.view" id="co2_kostaufg_view_list">
+            <field name="model">real_estate.co2_kostaufg</field>
+            <field name="type">tree</field>
+            <field name="name">co2_kostaufg_list</field>
+        </record>
+        <record model="ir.ui.view" id="co2_kostaufg_view_form">
+            <field name="model">real_estate.co2_kostaufg</field>
+            <field name="type">form</field>
+            <field name="name">co2_kostaufg_form</field>
+        </record>
+
+        <record model="ir.action.act_window" id="act_co2_kostaufg">
+            <field name="name">Manage CO2 Costs</field>
+            <field name="res_model">real_estate.co2_kostaufg</field>
+        </record>
+        <record model="ir.action.act_window.view" id="act_co2_kostaufg_view1">
+            <field name="sequence" eval="10"/>
+            <field name="view" ref="co2_kostaufg_view_list"/>
+            <field name="act_window" ref="act_co2_kostaufg"/>
+        </record>
+        <record model="ir.action.act_window.view" id="act_co2_kostaufg_view2">
+            <field name="sequence" eval="20"/>
+            <field name="view" ref="co2_kostaufg_view_form"/>
+            <field name="act_window" ref="act_co2_kostaufg"/>
+        </record>
+
+        <menuitem
+            parent="menu_real_estate_operation_costs"
+            sequence="31"
+            action="act_co2_kostaufg"
+            id="menu_co2_kostaufg"/>
+
+        <!-- real_estate.co2_kostaufg.consumption: embedded tree view (in co2_kostaufg_form) -->
+        <record model="ir.ui.view" id="co2_kostaufg_consumption_view_list">
+            <field name="model">real_estate.co2_kostaufg.consumption</field>
+            <field name="type">tree</field>
+            <field name="name">co2_kostaufg_consumption_list</field>
+        </record>
+
+        <!-- real_estate.co2_emission_share: own list/form views + menu -->
+        <record model="ir.ui.view" id="co2_emission_share_view_list">
+            <field name="model">real_estate.co2_emission_share</field>
+            <field name="type">tree</field>
+            <field name="name">co2_emission_share_list</field>
+        </record>
+        <record model="ir.ui.view" id="co2_emission_share_view_form">
+            <field name="model">real_estate.co2_emission_share</field>
+            <field name="type">form</field>
+            <field name="name">co2_emission_share_form</field>
+        </record>
+
+        <record model="ir.action.act_window" id="act_co2_emission_share">
+            <field name="name">CO2 Emission Distribution</field>
+            <field name="res_model">real_estate.co2_emission_share</field>
+        </record>
+        <record model="ir.action.act_window.view" id="act_co2_emission_share_view1">
+            <field name="sequence" eval="10"/>
+            <field name="view" ref="co2_emission_share_view_list"/>
+            <field name="act_window" ref="act_co2_emission_share"/>
+        </record>
+        <record model="ir.action.act_window.view" id="act_co2_emission_share_view2">
+            <field name="sequence" eval="20"/>
+            <field name="view" ref="co2_emission_share_view_form"/>
+            <field name="act_window" ref="act_co2_emission_share"/>
+        </record>
+
+        <menuitem
+            parent="menu_real_estate_configuration"
+            sequence="45"
+            action="act_co2_emission_share"
+            id="menu_co2_emission_share"/>
+
+        <!-- Default 10-tier distribution model, CO2KostAufG Anlage 1
+             (residential rented buildings without separate sub-metering
+             by usage). emission_limit is the exclusive upper bound of
+             each tier (kg CO2/m² per year); the last tier's own limit is
+             a placeholder - it is always treated as the open-ended
+             "52 kg/m² and above" tier, see Co2EmissionShare.get_share. -->
+        <record model="real_estate.co2_emission_share" id="co2_emission_share_tier_1">
+            <field name="sequence" eval="10"/>
+            <field name="emission_limit" eval="Decimal('12.00')"/>
+            <field name="tenant_share" eval="Decimal('100.00')"/>
+            <field name="landlord_share" eval="Decimal('0.00')"/>
+        </record>
+        <record model="real_estate.co2_emission_share" id="co2_emission_share_tier_2">
+            <field name="sequence" eval="20"/>
+            <field name="emission_limit" eval="Decimal('17.00')"/>
+            <field name="tenant_share" eval="Decimal('90.00')"/>
+            <field name="landlord_share" eval="Decimal('10.00')"/>
+        </record>
+        <record model="real_estate.co2_emission_share" id="co2_emission_share_tier_3">
+            <field name="sequence" eval="30"/>
+            <field name="emission_limit" eval="Decimal('22.00')"/>
+            <field name="tenant_share" eval="Decimal('80.00')"/>
+            <field name="landlord_share" eval="Decimal('20.00')"/>
+        </record>
+        <record model="real_estate.co2_emission_share" id="co2_emission_share_tier_4">
+            <field name="sequence" eval="40"/>
+            <field name="emission_limit" eval="Decimal('27.00')"/>
+            <field name="tenant_share" eval="Decimal('70.00')"/>
+            <field name="landlord_share" eval="Decimal('30.00')"/>
+        </record>
+        <record model="real_estate.co2_emission_share" id="co2_emission_share_tier_5">
+            <field name="sequence" eval="50"/>
+            <field name="emission_limit" eval="Decimal('32.00')"/>
+            <field name="tenant_share" eval="Decimal('60.00')"/>
+            <field name="landlord_share" eval="Decimal('40.00')"/>
+        </record>
+        <record model="real_estate.co2_emission_share" id="co2_emission_share_tier_6">
+            <field name="sequence" eval="60"/>
+            <field name="emission_limit" eval="Decimal('37.00')"/>
+            <field name="tenant_share" eval="Decimal('50.00')"/>
+            <field name="landlord_share" eval="Decimal('50.00')"/>
+        </record>
+        <record model="real_estate.co2_emission_share" id="co2_emission_share_tier_7">
+            <field name="sequence" eval="70"/>
+            <field name="emission_limit" eval="Decimal('42.00')"/>
+            <field name="tenant_share" eval="Decimal('40.00')"/>
+            <field name="landlord_share" eval="Decimal('60.00')"/>
+        </record>
+        <record model="real_estate.co2_emission_share" id="co2_emission_share_tier_8">
+            <field name="sequence" eval="80"/>
+            <field name="emission_limit" eval="Decimal('47.00')"/>
+            <field name="tenant_share" eval="Decimal('30.00')"/>
+            <field name="landlord_share" eval="Decimal('70.00')"/>
+        </record>
+        <record model="real_estate.co2_emission_share" id="co2_emission_share_tier_9">
+            <field name="sequence" eval="90"/>
+            <field name="emission_limit" eval="Decimal('52.00')"/>
+            <field name="tenant_share" eval="Decimal('20.00')"/>
+            <field name="landlord_share" eval="Decimal('80.00')"/>
+        </record>
+        <record model="real_estate.co2_emission_share" id="co2_emission_share_tier_10">
+            <field name="sequence" eval="100"/>
+            <field name="emission_limit" eval="Decimal('999.99')"/>
+            <field name="tenant_share" eval="Decimal('5.00')"/>
+            <field name="landlord_share" eval="Decimal('95.00')"/>
+        </record>
+
+        <!-- Co2KostAufg: admin+billing CRUD, contract+object read -->
+        <record model="ir.model.access" id="access_co2_kostaufg_admin">
+            <field name="model">real_estate.co2_kostaufg</field>
+            <field name="group" ref="group_real_estate_admin"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+        <record model="ir.model.access" id="access_co2_kostaufg_billing">
+            <field name="model">real_estate.co2_kostaufg</field>
+            <field name="group" ref="group_real_estate_billing"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+        <record model="ir.model.access" id="access_co2_kostaufg_contract">
+            <field name="model">real_estate.co2_kostaufg</field>
+            <field name="group" ref="group_real_estate_contract"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_co2_kostaufg_object">
+            <field name="model">real_estate.co2_kostaufg</field>
+            <field name="group" ref="group_real_estate_object"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_co2_kostaufg_default">
+            <field name="model">real_estate.co2_kostaufg</field>
+            <field name="perm_read" eval="False"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+
+        <!-- Co2KostAufgConsumption: admin+billing CRUD, contract+object read -->
+        <record model="ir.model.access" id="access_co2_kostaufg_consumption_admin">
+            <field name="model">real_estate.co2_kostaufg.consumption</field>
+            <field name="group" ref="group_real_estate_admin"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+        <record model="ir.model.access" id="access_co2_kostaufg_consumption_billing">
+            <field name="model">real_estate.co2_kostaufg.consumption</field>
+            <field name="group" ref="group_real_estate_billing"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+        <record model="ir.model.access" id="access_co2_kostaufg_consumption_contract">
+            <field name="model">real_estate.co2_kostaufg.consumption</field>
+            <field name="group" ref="group_real_estate_contract"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_co2_kostaufg_consumption_object">
+            <field name="model">real_estate.co2_kostaufg.consumption</field>
+            <field name="group" ref="group_real_estate_object"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_co2_kostaufg_consumption_default">
+            <field name="model">real_estate.co2_kostaufg.consumption</field>
+            <field name="perm_read" eval="False"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+
+        <!-- Co2EmissionShare: admin full CRUD, everyone else read-only -->
+        <record model="ir.model.access" id="access_co2_emission_share_admin">
+            <field name="model">real_estate.co2_emission_share</field>
+            <field name="group" ref="group_real_estate_admin"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+        <record model="ir.model.access" id="access_co2_emission_share_default">
+            <field name="model">real_estate.co2_emission_share</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+
+    </data>
+</tryton>

@@ -264,5 +264,8 @@ Either run "Ready for Billing" for each billing unit first, or bill individual b
         <record model="ir.message" id="msg_cron_task_valid_until_before_from">
             <field name="text">"%(name)s": "Valid Until" must not be before "Valid From".</field>
         </record>
+        <record model="ir.message" id="msg_co2_emission_share_sum_100">
+            <field name="text">"%(name)s": tenant share and landlord share must add up to 100%%.</field>
+        </record>
     </data>
 </tryton>

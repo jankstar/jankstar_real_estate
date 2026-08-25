@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<tree sequence="sequence" editable="1">
+    <field name="sequence" width="60"/>
+    <field name="date_from"/>
+    <field name="date_to"/>
+    <field name="consumption_kwh"/>
+    <field name="co2_kg_per_kwh"/>
+    <field name="co2_emission_kg"/>
+    <field name="co2_price_ct_per_kwh"/>
+    <field name="vat_rate"/>
+    <field name="co2_cost_net"/>
+    <field name="co2_cost_gross"/>
+    <field name="split" width="60"/>
+</tree>

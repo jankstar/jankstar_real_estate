@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<form col="2">
+    <label name="sequence"/>
+    <field name="sequence"/>
+    <label name="emission_limit"/>
+    <field name="emission_limit"/>
+    <label name="tenant_share"/>
+    <field name="tenant_share"/>
+    <label name="landlord_share"/>
+    <field name="landlord_share"/>
+</form>

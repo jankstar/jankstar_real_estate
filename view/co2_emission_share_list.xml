@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<tree sequence="sequence">
+    <field name="sequence" width="60"/>
+    <field name="emission_limit"/>
+    <field name="tenant_share"/>
+    <field name="landlord_share"/>
+</tree>

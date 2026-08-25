@@ -5,4 +5,5 @@
     <field name="re_account_allocation_by_owner"/>
     <field name="re_journal_billing"/>
     <field name="re_payment_term_billing"/>
+    <field name="co2_landlord_share_commercial"/>
 </tree>

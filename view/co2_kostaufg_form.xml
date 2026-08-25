@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<form col="2">
+    <label name="sequence"/>
+    <field name="sequence"/>
+    <label name="name"/>
+    <field name="name"/>
+    <label name="company"/>
+    <field name="company"/>
+    <label name="property"/>
+    <field name="property"/>
+    <separator name="consumptions" colspan="2"/>
+    <field name="consumptions" colspan="2"
+        view_ids="real_estate.co2_kostaufg_consumption_view_list"/>
+</form>

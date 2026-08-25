@@ -201,6 +201,74 @@ class SettlementUnit(DeactivableMixin, base_object.re_sequence_ordered(), ModelS
         fields.Boolean("Purchase Taxes as Expense"),
         'on_change_with_purchase_taxes_expense')
 
+    co2_kostaufg = fields.Many2One('real_estate.co2_kostaufg',
+        "CO2KostAufG Reference", ondelete='RESTRICT',
+        domain=[('property', '=', Eval('property', -1))],
+        depends=['property'])
+
+    co2_measurement_type = fields.Many2One(
+        'real_estate.measurement.type', "Area Measurement Type",
+        domain=[('types', '=', ['object'])],
+        states={'invisible': ~Eval('co2_kostaufg')})
+
+    co2_consumption = fields.Function(
+        fields.One2Many('real_estate.co2_kostaufg.consumption', None,
+            "Consumption Records", readonly=True,
+            help="All consumption records of the referenced CO2KostAufG "
+                 "that overlap the settlement period (billing unit "
+                 "period).",
+            states={'invisible': ~Eval('co2_kostaufg')}),
+        'on_change_with_co2_consumption', setter='set_co2_consumption')
+
+    co2_total_consumption = fields.Function(
+        fields.Float("Total Consumption (kWh)",
+            states={'invisible': ~Eval('co2_kostaufg')}),
+        'on_change_with_co2_total_consumption')
+
+    co2_total_emission = fields.Function(
+        fields.Float("Total Emission (kg CO2)",
+            states={'invisible': ~Eval('co2_kostaufg')}),
+        'on_change_with_co2_total_emission')
+
+    co2_total_cost_gross = fields.Function(
+        fields.Numeric("Total CO2 Cost (gross)", digits=(16, 2),
+            states={'invisible': ~Eval('co2_kostaufg')}),
+        'on_change_with_co2_total_cost_gross')
+
+    co2_total_area = fields.Function(
+        fields.Float("Total Area",
+            states={'invisible': ~Eval('co2_kostaufg')}),
+        'on_change_with_co2_total_area')
+
+    co2_emission_per_m2 = fields.Function(
+        fields.Numeric("CO2 Emission (kg per m² per year)", digits=(16, 2),
+            states={'invisible': ~Eval('co2_kostaufg')}),
+        'on_change_with_co2_emission_per_m2')
+
+    co2_tenant_share = fields.Function(
+        fields.Numeric("Tenant Share (%)", digits=(5, 2),
+            states={'invisible': ~Eval('co2_kostaufg')}),
+        'on_change_with_co2_tenant_share')
+
+    co2_landlord_share = fields.Function(
+        fields.Numeric("Landlord Share (%)", digits=(5, 2),
+            states={'invisible': ~Eval('co2_kostaufg')}),
+        'on_change_with_co2_landlord_share')
+
+    co2_commercial_tenant_share = fields.Function(
+        fields.Numeric("Commercial Tenant Share (%)", digits=(5, 2),
+            help="100% minus the company's configured CO2 Landlord Share "
+                 "(Commercial) (real_estate.re_accounting).",
+            states={'invisible': ~Eval('co2_kostaufg')}),
+        'on_change_with_co2_commercial_tenant_share')
+
+    co2_commercial_landlord_share = fields.Function(
+        fields.Numeric("Commercial Landlord Share (%)", digits=(5, 2),
+            help="The company's configured CO2 Landlord Share "
+                 "(Commercial) (real_estate.re_accounting).",
+            states={'invisible': ~Eval('co2_kostaufg')}),
+        'on_change_with_co2_commercial_landlord_share')
+
     @classmethod
     def delete(cls, settlement_units):
         for su in settlement_units:
@@ -385,6 +453,228 @@ class SettlementUnit(DeactivableMixin, base_object.re_sequence_ordered(), ModelS
         ])
         return invoice_lines
 
+    def _split_co2_consumption(self):
+        """Split real co2_kostaufg.consumption rows so their boundaries
+        align with this settlement unit's period [start_date, end_date].
+        Called from compute_value_shares() ("Compute Value Shares").
+        Only ever splits an EXISTING row into two rows that together
+        reproduce that row's own totals exactly (linear interpolation by
+        day count) - never invents data for a period with no row."""
+        if not self.co2_kostaufg or not self.start_date or not self.end_date:
+            return
+        self._split_co2_consumption_at(self.start_date)
+        self._split_co2_consumption_at(
+            self.end_date + datetime.timedelta(days=1))
+
+    def _split_co2_consumption_at(self, cut_date):
+        """Split every (active) co2_kostaufg.consumption row of
+        self.co2_kostaufg whose own [date_from, date_to] strictly
+        contains cut_date (date_from < cut_date <= date_to - i.e.
+        cut_date is not already a boundary) into two new rows:
+        [date_from, cut_date - 1 day] and [cut_date, date_to]. Amounts
+        (consumption_kwh, co2_emission_kg, co2_cost_net, co2_cost_gross)
+        are interpolated pro-rata by day count so the two new rows sum
+        back exactly to the original row's own values (the second part
+        is computed as the remainder, not independently rounded, to
+        avoid rounding drift); rate fields (co2_kg_per_kwh,
+        co2_price_ct_per_kwh, vat_rate) are copied unchanged onto both.
+        Both new rows get split=True; the original row is deactivated
+        (soft-deleted via `active`), never physically deleted."""
+        pool = Pool()
+        Consumption = pool.get('real_estate.co2_kostaufg.consumption')
+        rows = Consumption.search([
+            ('parent', '=', self.co2_kostaufg.id),
+            ('date_from', '<', cut_date),
+            ('date_to', '>=', cut_date),
+            ])
+        if not rows:
+            return
+        day_before_cut = cut_date - datetime.timedelta(days=1)
+
+        def split_amount(value, fraction, digits):
+            if value is None:
+                return None, None
+            first = (value * fraction).quantize(Decimal(1).scaleb(-digits))
+            return first, value - first
+
+        new_vlist = []
+        for row in rows:
+            total_days = (row.date_to - row.date_from).days + 1
+            first_days = (day_before_cut - row.date_from).days + 1
+            first_fraction = Decimal(first_days) / Decimal(total_days)
+
+            consumption_first, consumption_second = split_amount(
+                row.consumption_kwh, first_fraction, 2)
+            emission_first, emission_second = split_amount(
+                row.co2_emission_kg, first_fraction, 3)
+            cost_net_first, cost_net_second = split_amount(
+                row.co2_cost_net, first_fraction, 2)
+            cost_gross_first, cost_gross_second = split_amount(
+                row.co2_cost_gross, first_fraction, 2)
+
+            common = {
+                'parent': row.parent.id,
+                'co2_kg_per_kwh': row.co2_kg_per_kwh,
+                'co2_price_ct_per_kwh': row.co2_price_ct_per_kwh,
+                'vat_rate': row.vat_rate,
+                'split': True,
+                }
+            new_vlist.append(dict(common,
+                date_from=row.date_from, date_to=day_before_cut,
+                consumption_kwh=consumption_first,
+                co2_emission_kg=emission_first,
+                co2_cost_net=cost_net_first,
+                co2_cost_gross=cost_gross_first))
+            new_vlist.append(dict(common,
+                date_from=cut_date, date_to=row.date_to,
+                consumption_kwh=consumption_second,
+                co2_emission_kg=emission_second,
+                co2_cost_net=cost_net_second,
+                co2_cost_gross=cost_gross_second))
+        Consumption.create(new_vlist)
+        Consumption.write(list(rows), {'active': False})
+
+    def _co2_consumption_rows(self):
+        """Consumption rows of self.co2_kostaufg overlapping the
+        settlement period [start_date, end_date]."""
+        if not self.co2_kostaufg or not self.start_date or not self.end_date:
+            return []
+        Consumption = Pool().get('real_estate.co2_kostaufg.consumption')
+        return Consumption.search([
+            ('parent', '=', self.co2_kostaufg.id),
+            ('date_from', '<=', self.end_date),
+            ('date_to', '>=', self.start_date),
+            ])
+
+    @fields.depends(
+        'co2_kostaufg', 'start_date', 'end_date', 'billing_unit',
+        '_parent_billing_unit.start_date', '_parent_billing_unit.end_date')
+    def on_change_with_co2_consumption(self, name=None):
+        return self._co2_consumption_rows()
+
+    def _co2_period_fraction(self, row):
+        """Fraction (0..1] of `row`'s own [date_from, date_to] range that
+        falls inside the settlement period [start_date, end_date]. A row
+        entirely inside the period returns 1 (no interpolation); a row
+        extending beyond either boundary is interpolated pro-rata by
+        days - always relative to the row's own actual date range, so a
+        row never gets extrapolated past data it doesn't actually cover
+        (e.g. a row ending before the settlement period's end_date
+        contributes only its own, unextended days - the missing tail is
+        simply not represented, never invented)."""
+        overlap_start = max(row.date_from, self.start_date)
+        overlap_end = min(row.date_to, self.end_date)
+        overlap_days = (overlap_end - overlap_start).days + 1
+        row_days = (row.date_to - row.date_from).days + 1
+        return Decimal(overlap_days) / Decimal(row_days)
+
+    @fields.depends(
+        'co2_kostaufg', 'start_date', 'end_date', 'billing_unit',
+        '_parent_billing_unit.start_date', '_parent_billing_unit.end_date')
+    def on_change_with_co2_total_consumption(self, name=None):
+        total = Decimal(0)
+        for row in self._co2_consumption_rows():
+            if row.consumption_kwh is not None:
+                total += row.consumption_kwh * self._co2_period_fraction(row)
+        return float(total)
+
+    @fields.depends(
+        'co2_kostaufg', 'start_date', 'end_date', 'billing_unit',
+        '_parent_billing_unit.start_date', '_parent_billing_unit.end_date')
+    def on_change_with_co2_total_emission(self, name=None):
+        total = Decimal(0)
+        for row in self._co2_consumption_rows():
+            if row.co2_emission_kg is not None:
+                total += row.co2_emission_kg * self._co2_period_fraction(row)
+        return float(total)
+
+    @fields.depends(
+        'co2_kostaufg', 'start_date', 'end_date', 'billing_unit',
+        '_parent_billing_unit.start_date', '_parent_billing_unit.end_date')
+    def on_change_with_co2_total_cost_gross(self, name=None):
+        total = Decimal(0)
+        for row in self._co2_consumption_rows():
+            if row.co2_cost_gross is not None:
+                total += row.co2_cost_gross * self._co2_period_fraction(row)
+        return total.quantize(Decimal('0.01'))
+
+    @fields.depends(
+        'co2_kostaufg', 'co2_measurement_type', 'objects', 'end_date',
+        'billing_unit', '_parent_billing_unit.end_date')
+    def on_change_with_co2_total_area(self, name=None):
+        if (not self.co2_kostaufg or not self.co2_measurement_type
+                or not self.objects or not self.end_date):
+            return None
+        pool = Pool()
+        MeasurementType = pool.get('real_estate.measurement.type')
+        Measurement = pool.get('real_estate.measurement')
+        effective_ids = MeasurementType.get_effective_ids(self.co2_measurement_type)
+        if not effective_ids:
+            return None
+        total = 0.0
+        for obj in self.objects:
+            measurements = Measurement.search([
+                ('base_object', '=', obj.id),
+                ('m_type', 'in', effective_ids),
+                ('valid_from', '<=', self.end_date),
+                ], order=[('valid_from', 'DESC')], limit=1)
+            if measurements:
+                total += float(measurements[0].value or 0)
+        return total
+
+    @fields.depends(
+        'co2_kostaufg', 'co2_measurement_type', 'objects', 'start_date',
+        'end_date', 'billing_unit', '_parent_billing_unit.start_date',
+        '_parent_billing_unit.end_date',
+        methods=['on_change_with_co2_total_emission',
+            'on_change_with_co2_total_area', 'on_change_with_time_total'])
+    def on_change_with_co2_emission_per_m2(self, name=None):
+        total_area = self.on_change_with_co2_total_area()
+        time_total = self.on_change_with_time_total()
+        if not total_area or not time_total:
+            return None
+        total_emission = self.on_change_with_co2_total_emission()
+        value = (Decimal(str(total_emission)) / Decimal(str(total_area))
+            * Decimal(365) / Decimal(time_total))
+        return value.quantize(Decimal('0.01'))
+
+    @fields.depends(
+        'co2_kostaufg', 'co2_measurement_type', 'objects', 'start_date',
+        'end_date', 'billing_unit', '_parent_billing_unit.start_date',
+        '_parent_billing_unit.end_date',
+        methods=['on_change_with_co2_emission_per_m2'])
+    def on_change_with_co2_tenant_share(self, name=None):
+        Co2EmissionShare = Pool().get('real_estate.co2_emission_share')
+        share = Co2EmissionShare.get_share(
+            self.on_change_with_co2_emission_per_m2())
+        return share.tenant_share if share else None
+
+    @fields.depends(
+        'co2_kostaufg', 'co2_measurement_type', 'objects', 'start_date',
+        'end_date', 'billing_unit', '_parent_billing_unit.start_date',
+        '_parent_billing_unit.end_date',
+        methods=['on_change_with_co2_emission_per_m2'])
+    def on_change_with_co2_landlord_share(self, name=None):
+        Co2EmissionShare = Pool().get('real_estate.co2_emission_share')
+        share = Co2EmissionShare.get_share(
+            self.on_change_with_co2_emission_per_m2())
+        return share.landlord_share if share else None
+
+    @fields.depends('company')
+    def on_change_with_co2_commercial_landlord_share(self, name=None):
+        if self.company and self.company.re_accounting:
+            return self.company.re_accounting.co2_landlord_share_commercial
+        return None
+
+    @fields.depends(
+        'company',
+        methods=['on_change_with_co2_commercial_landlord_share'])
+    def on_change_with_co2_commercial_tenant_share(self, name=None):
+        value = self.on_change_with_co2_commercial_landlord_share()
+        if value is None:
+            return None
+        return Decimal(100) - value
+
     @classmethod
     def set_objects(cls, objects, name, value):
         pass
@@ -399,6 +689,10 @@ class SettlementUnit(DeactivableMixin, base_object.re_sequence_ordered(), ModelS
 
     @classmethod
     def set_invoice_lines(cls, records, name, value):
+        pass
+
+    @classmethod
+    def set_co2_consumption(cls, records, name, value):
         pass
 
     @classmethod
@@ -576,6 +870,7 @@ class SettlementUnit(DeactivableMixin, base_object.re_sequence_ordered(), ModelS
     def compute_value_shares(self):
         """Compute value_share on each CostShare based on allocation_rule,
         then write value_total as the sum on this SettlementUnit."""
+        self._split_co2_consumption()
         self.selection_actual_costs()
         for cost_share in self.cost_shares:
             if cost_share.state == 'error':

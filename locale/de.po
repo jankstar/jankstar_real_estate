@@ -26,6 +26,20 @@ msgctxt "field:real_estate.re_accounting,create_moves_horizon_days:"
 msgid "Move Creation Horizon (Days)"
 msgstr "Buchungsvorlauf (Tage)"
 
+msgctxt "field:real_estate.re_accounting,co2_landlord_share_commercial:"
+msgid "CO2 Landlord Share (Commercial) (%)"
+msgstr "CO2 Anteil Vermieter Gewerbe (%)"
+
+msgctxt "help:real_estate.re_accounting,co2_landlord_share_commercial:"
+msgid ""
+"Default CO2 cost landlord share (0-100%) for commercial properties, "
+"which are not covered by the residential 10-tier distribution model "
+"(real_estate.co2_emission_share)."
+msgstr ""
+"Standard-CO2-Kostenanteil des Vermieters (0-100%) für Gewerbeflächen, "
+"die nicht durch das Wohn-Stufenmodell (Emission-CO2 Verteilung) "
+"abgedeckt sind."
+
 msgctxt "field:real_estate.re_accounting,cron_tasks:"
 msgid "Cron Tasks"
 msgstr "Geplante Aufgaben"
@@ -6277,3 +6291,232 @@ msgctxt ""
 "wizard_button:real_estate.terminate_contract.wizard,start,terminate_contract:"
 msgid "OK"
 msgstr "OK"
+
+msgctxt "model:real_estate.co2_kostaufg,string:"
+msgid "CO2KostAufG"
+msgstr "CO2KostAufG"
+
+msgctxt "field:real_estate.co2_kostaufg,name:"
+msgid "Name"
+msgstr "Name"
+
+msgctxt "field:real_estate.co2_kostaufg,company:"
+msgid "Company"
+msgstr "Gesellschaft"
+
+msgctxt "field:real_estate.co2_kostaufg,property:"
+msgid "Property"
+msgstr "Wirtschaftseinheit"
+
+msgctxt "field:real_estate.co2_kostaufg,consumptions:"
+msgid "Consumption Data"
+msgstr "Verbrauchsdaten"
+
+msgctxt "model:real_estate.co2_kostaufg.consumption,string:"
+msgid "CO2KostAufG Consumption Data"
+msgstr "CO2KostAufG Verbrauchsdaten"
+
+msgctxt "field:real_estate.co2_kostaufg.consumption,parent:"
+msgid "CO2KostAufG"
+msgstr "CO2KostAufG"
+
+msgctxt "field:real_estate.co2_kostaufg.consumption,date_from:"
+msgid "Date From"
+msgstr "Datum von"
+
+msgctxt "field:real_estate.co2_kostaufg.consumption,date_to:"
+msgid "Date To"
+msgstr "Datum bis"
+
+msgctxt "field:real_estate.co2_kostaufg.consumption,consumption_kwh:"
+msgid "Consumption (kWh)"
+msgstr "Verbrauch (kWh)"
+
+msgctxt "field:real_estate.co2_kostaufg.consumption,co2_kg_per_kwh:"
+msgid "CO2 (kg per kWh)"
+msgstr "CO2 (kg je kWh)"
+
+msgctxt "field:real_estate.co2_kostaufg.consumption,co2_emission_kg:"
+msgid "CO2 Emission (kg)"
+msgstr "CO2 Emission (kg)"
+
+msgctxt "help:real_estate.co2_kostaufg.consumption,co2_emission_kg:"
+msgid ""
+"Pre-filled as Consumption x CO2 (kg per kWh) when those fields change; "
+"can be overridden, e.g. with the supplier's own figure."
+msgstr ""
+"Wird bei Änderung von Verbrauch bzw. CO2 (kg je kWh) automatisch "
+"vorbelegt; kann überschrieben werden, z. B. mit dem tatsächlichen Wert "
+"des Lieferanten."
+
+msgctxt "field:real_estate.co2_kostaufg.consumption,co2_price_ct_per_kwh:"
+msgid "CO2 Price (ct per kWh)"
+msgstr "CO2 Preis (ct je kWh)"
+
+msgctxt "field:real_estate.co2_kostaufg.consumption,vat_rate:"
+msgid "VAT Rate (%)"
+msgstr "USt.-Satz (%)"
+
+msgctxt "field:real_estate.co2_kostaufg.consumption,co2_cost_net:"
+msgid "CO2 Cost (net)"
+msgstr "CO2 Kosten (netto)"
+
+msgctxt "help:real_estate.co2_kostaufg.consumption,co2_cost_net:"
+msgid ""
+"Pre-filled as Consumption x CO2 Price when those fields change; can be "
+"overridden, e.g. with the supplier's own invoice amount."
+msgstr ""
+"Wird bei Änderung von Verbrauch bzw. CO2-Preis automatisch vorbelegt; "
+"kann überschrieben werden, z. B. mit dem tatsächlichen Rechnungsbetrag "
+"des Lieferanten."
+
+msgctxt "field:real_estate.co2_kostaufg.consumption,co2_cost_gross:"
+msgid "CO2 Cost (gross)"
+msgstr "CO2 Kosten (brutto)"
+
+msgctxt "help:real_estate.co2_kostaufg.consumption,co2_cost_gross:"
+msgid ""
+"Pre-filled as CO2 Cost (net) x (1 + VAT Rate); can be overridden, e.g. "
+"with the supplier's own invoice amount."
+msgstr ""
+"Wird aus CO2 Kosten (netto) x (1 + USt.-Satz) automatisch vorbelegt; "
+"kann überschrieben werden, z. B. mit dem tatsächlichen Rechnungsbetrag "
+"des Lieferanten."
+
+msgctxt "field:real_estate.co2_kostaufg.consumption,split:"
+msgid "Split"
+msgstr "Geteilt"
+
+msgctxt "help:real_estate.co2_kostaufg.consumption,split:"
+msgid ""
+"Set automatically when this record was created by splitting an "
+"original consumption record at a settlement period boundary "
+"(\"Compute Value Shares\")."
+msgstr ""
+"Wird automatisch gesetzt, wenn dieser Datensatz durch Teilung eines "
+"ursprünglichen Verbrauchsdatensatzes an einer Abrechnungszeitraum-"
+"Grenze entstanden ist (\"Kostenanteile berechnen\")."
+
+msgctxt "model:real_estate.co2_emission_share,string:"
+msgid "CO2 Emission Distribution"
+msgstr "Emission-CO2 Verteilung"
+
+msgctxt "field:real_estate.co2_emission_share,emission_limit:"
+msgid "CO2 Emission (kg per m² per year)"
+msgstr "CO2-Emission (kg je m² und Jahr)"
+
+msgctxt "help:real_estate.co2_emission_share,emission_limit:"
+msgid ""
+"Exclusive upper threshold of this tier (the tier applies while the "
+"value stays below this limit). The highest configured tier (by "
+"sequence) is always treated as an open-ended 'and above' tier, "
+"regardless of its own stored limit value."
+msgstr ""
+"Exklusiver oberer Schwellenwert dieser Stufe (die Stufe gilt, solange "
+"der Wert unterhalb dieses Schwellenwerts liegt). Die (nach Sequenz) "
+"höchste konfigurierte Stufe gilt stets als offene „und darüber“-Stufe, "
+"unabhängig von ihrem eigenen gespeicherten Schwellenwert."
+
+msgctxt "field:real_estate.co2_emission_share,tenant_share:"
+msgid "Tenant Share (%)"
+msgstr "Mieteranteil (%)"
+
+msgctxt "field:real_estate.co2_emission_share,landlord_share:"
+msgid "Landlord Share (%)"
+msgstr "Vermieteranteil (%)"
+
+msgctxt "field:real_estate.settlement_unit,co2_kostaufg:"
+msgid "CO2KostAufG Reference"
+msgstr "Referenz CO2KostAufG"
+
+msgctxt "field:real_estate.settlement_unit,co2_consumption:"
+msgid "Consumption Records"
+msgstr "Verbrauchsdatensätze"
+
+msgctxt "help:real_estate.settlement_unit,co2_consumption:"
+msgid ""
+"All consumption records of the referenced CO2KostAufG that overlap "
+"the settlement period (billing unit period)."
+msgstr ""
+"Alle Verbrauchsdatensätze der referenzierten CO2KostAufG, die sich "
+"mit dem Abrechnungszeitraum (Zeitraum der Billing Unit) überschneiden."
+
+msgctxt "field:real_estate.settlement_unit,co2_measurement_type:"
+msgid "Area Measurement Type"
+msgstr "Bemessungstyp Fläche"
+
+msgctxt "field:real_estate.settlement_unit,co2_total_consumption:"
+msgid "Total Consumption (kWh)"
+msgstr "Gesamtverbrauch (kWh)"
+
+msgctxt "field:real_estate.settlement_unit,co2_total_emission:"
+msgid "Total Emission (kg CO2)"
+msgstr "Gesamt Emission (kg CO2)"
+
+msgctxt "field:real_estate.settlement_unit,co2_total_cost_gross:"
+msgid "Total CO2 Cost (gross)"
+msgstr "Gesamtkosten CO2 (brutto)"
+
+msgctxt "field:real_estate.settlement_unit,co2_total_area:"
+msgid "Total Area"
+msgstr "Gesamtfläche"
+
+msgctxt "field:real_estate.settlement_unit,co2_emission_per_m2:"
+msgid "CO2 Emission (kg per m² per year)"
+msgstr "CO2-Emission (kg je m² und Jahr)"
+
+msgctxt "field:real_estate.settlement_unit,co2_tenant_share:"
+msgid "Tenant Share (%)"
+msgstr "Mieteranteil (%)"
+
+msgctxt "field:real_estate.settlement_unit,co2_landlord_share:"
+msgid "Landlord Share (%)"
+msgstr "Vermieteranteil (%)"
+
+msgctxt "field:real_estate.settlement_unit,co2_commercial_tenant_share:"
+msgid "Commercial Tenant Share (%)"
+msgstr "Gewerbe Mieteranteil (%)"
+
+msgctxt "help:real_estate.settlement_unit,co2_commercial_tenant_share:"
+msgid ""
+"100% minus the company's configured CO2 Landlord Share (Commercial) "
+"(real_estate.re_accounting)."
+msgstr ""
+"100% abzüglich des im Unternehmen konfigurierten CO2 Anteil Vermieter "
+"Gewerbe (real_estate.re_accounting)."
+
+msgctxt "field:real_estate.settlement_unit,co2_commercial_landlord_share:"
+msgid "Commercial Landlord Share (%)"
+msgstr "Gewerbe Vermieteranteil (%)"
+
+msgctxt "help:real_estate.settlement_unit,co2_commercial_landlord_share:"
+msgid ""
+"The company's configured CO2 Landlord Share (Commercial) "
+"(real_estate.re_accounting)."
+msgstr ""
+"Der im Unternehmen konfigurierte CO2 Anteil Vermieter Gewerbe "
+"(real_estate.re_accounting)."
+
+msgctxt "view:real_estate.settlement_unit:"
+msgid "CO2 Costs"
+msgstr "CO2 Kosten"
+
+msgctxt "model:ir.action,name:act_co2_kostaufg"
+msgid "Manage CO2 Costs"
+msgstr "CO2 Kosten verwalten"
+
+msgctxt "model:ir.action,name:act_co2_emission_share"
+msgid "CO2 Emission Distribution"
+msgstr "Emission-CO2 Verteilung"
+
+msgctxt "model:ir.ui.menu,name:menu_co2_kostaufg"
+msgid "Manage CO2 Costs"
+msgstr "CO2 Kosten verwalten"
+
+msgctxt "model:ir.ui.menu,name:menu_co2_emission_share"
+msgid "CO2 Emission Distribution"
+msgstr "Emission-CO2 Verteilung"
+
+msgctxt "model:ir.message,text:msg_co2_emission_share_sum_100"
+msgid "\"%(name)s\": tenant share and landlord share must add up to 100%%."
+msgstr "„%(name)s“: Mieteranteil und Vermieteranteil müssen zusammen 100%% ergeben."

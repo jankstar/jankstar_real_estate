@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<tree sequence="sequence">
+    <field name="company" optional="1"/>
+    <field name="property"/>
+    <field name="sequence" width="60"/>
+    <field name="name"/>
+</tree>
