@@ -191,7 +191,7 @@ class CreateContractMovesStart(ModelView):
 
     @staticmethod
     def default_action():
-        return 'create'
+        return 're_calc_and_create'
 
     @staticmethod
     def default_invoice_date():
@@ -199,7 +199,7 @@ class CreateContractMovesStart(ModelView):
 
     @staticmethod
     def default_invoice_state():
-        return 'draft'
+        return 'posted'
 
     @staticmethod
     def default_invoice_date_in_past():

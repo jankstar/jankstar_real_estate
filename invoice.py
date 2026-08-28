@@ -437,6 +437,32 @@ class InvoiceLine(metaclass=PoolMeta):
             line.assignment_control = self.assignment_control or ''
         return lines
 
+    def _compute_taxes(self):
+        """Work around a bug in
+        account_tax_non_deductible.InvoiceLine._compute_taxes(): its
+        non-deductible-flagged recomputation pass is not guarded by
+        invoice_type == 'in' (unlike that module's own taxable_lines
+        override), so for a sales (out) invoice line it unconditionally
+        recomputes and appends a duplicate 'base' entry plus a spurious
+        'tax' entry for every tax on the line - a 'tax'-type entry should
+        never appear on an individual line's own move line, only on the
+        invoice's aggregated tax move line. Only 'in' lines actually need
+        that extra non-deductible bookkeeping, so for 'out' lines the
+        bogus duplicate/'tax' entries are discarded here instead of
+        touching the core/contrib module."""
+        tax_lines = super()._compute_taxes()
+        invoice_type = self.invoice.type if self.invoice else self.invoice_type
+        if invoice_type != 'in':
+            seen_taxes = set()
+            deduped = []
+            for tax_line in tax_lines:
+                if tax_line.type != 'base' or tax_line.tax.id in seen_taxes:
+                    continue
+                seen_taxes.add(tax_line.tax.id)
+                deduped.append(tax_line)
+            tax_lines = deduped
+        return tax_lines
+
     @classmethod
     def validate(cls, lines):
         super().validate(lines)
