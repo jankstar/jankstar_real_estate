@@ -30,6 +30,7 @@ class SettlementUnit(DeactivableMixin, base_object.re_sequence_ordered(), ModelS
 
     billing_unit = fields.Many2One('real_estate.billing_unit', 'Billing Unit',
         required=True, ondelete='CASCADE',
+        states={'readonly': Eval('state').in_(['ready_for_billing', 'billed'])},
         )
 
     start_date = fields.Function(fields.Date('Start Date'), 'on_change_with_start_date')
@@ -41,9 +42,11 @@ class SettlementUnit(DeactivableMixin, base_object.re_sequence_ordered(), ModelS
     sub_state = fields.Function(fields.Selection('get_sub_states', "Sub State"), 'get_sub_state')
 
     type = fields.Many2One(
-        'real_estate.cost_type', "Cost Type", required=True, on_change='on_change_type')
+        'real_estate.cost_type', "Cost Type", required=True, on_change='on_change_type',
+        states={'readonly': Eval('state').in_(['ready_for_billing', 'billed'])})
 
-    comment = fields.Text("Comment")
+    comment = fields.Text("Comment",
+        states={'readonly': Eval('state').in_(['ready_for_billing', 'billed'])})
 
     predecessor = fields.Many2One('real_estate.settlement_unit', "Predecessor",
         readonly=True)
@@ -52,11 +55,11 @@ class SettlementUnit(DeactivableMixin, base_object.re_sequence_ordered(), ModelS
         searcher='name_search')
 
     planned_costs = Monetary('Planned Costs', currency='currency', digits='currency',
-        states={'readonly': Eval('state') == 'billed'},
+        states={'readonly': Eval('state').in_(['ready_for_billing', 'billed'])},
         )
 
     actual_costs = Monetary('Actual Costs', currency='currency', digits='currency',
-        states={'readonly': Eval('state') == 'billed'},
+        states={'readonly': Eval('state').in_(['ready_for_billing', 'billed'])},
         )
 
     currency = fields.Function(fields.Many2One('currency.currency', 'Currency'), 'on_change_with_currency')
@@ -73,7 +76,8 @@ class SettlementUnit(DeactivableMixin, base_object.re_sequence_ordered(), ModelS
             ('allocation_from_external_billing', 'Allocation from external billing')
             ], "Allocation Rule", sort=False,
             states={
-                'readonly': Eval('billing_unit_external_billing', False),
+                'readonly': (Eval('billing_unit_external_billing', False)
+                    | Eval('state').in_(['ready_for_billing', 'billed'])),
             },
             depends=['billing_unit_external_billing'],
             )
@@ -82,7 +86,10 @@ class SettlementUnit(DeactivableMixin, base_object.re_sequence_ordered(), ModelS
         ('no_allocation', 'No allocation (all cost allocated by tenant)'),
         ('by_owner', 'Allocation by owner'),
         ], "Allocation During Vacancy", sort=False,
-        states={'invisible': Eval('allocation_rule') == 'no_allocation'},
+        states={
+            'invisible': Eval('allocation_rule') == 'no_allocation',
+            'readonly': Eval('state').in_(['ready_for_billing', 'billed']),
+            },
         )
 
     m_type = fields.Many2One(
@@ -91,12 +98,14 @@ class SettlementUnit(DeactivableMixin, base_object.re_sequence_ordered(), ModelS
         states={
             'invisible': Eval('allocation_rule') != 'allocation_by_measurement',
             'required': Eval('allocation_rule') == 'allocation_by_measurement',
+            'readonly': Eval('state').in_(['ready_for_billing', 'billed']),
             })
 
     meter_unit = fields.Many2One('product.uom', "Unit",
         states={
             'invisible': Eval('allocation_rule') != 'allocation_by_consumption',
             'required': Eval('allocation_rule') == 'allocation_by_consumption',
+            'readonly': Eval('state').in_(['ready_for_billing', 'billed']),
             })
 
     reg_ex_object = fields.Char("Reg. Ex. Object",
@@ -204,12 +213,16 @@ class SettlementUnit(DeactivableMixin, base_object.re_sequence_ordered(), ModelS
     co2_kostaufg = fields.Many2One('real_estate.co2_kostaufg',
         "CO2KostAufG Reference", ondelete='RESTRICT',
         domain=[('property', '=', Eval('property', -1))],
+        states={'readonly': Eval('state').in_(['ready_for_billing', 'billed'])},
         depends=['property'])
 
     co2_measurement_type = fields.Many2One(
         'real_estate.measurement.type', "Area Measurement Type",
         domain=[('types', '=', ['object'])],
-        states={'invisible': ~Eval('co2_kostaufg')})
+        states={
+            'invisible': ~Eval('co2_kostaufg'),
+            'readonly': Eval('state').in_(['ready_for_billing', 'billed']),
+            })
 
     co2_consumption = fields.Function(
         fields.One2Many('real_estate.co2_kostaufg.consumption', None,
@@ -282,9 +295,6 @@ class SettlementUnit(DeactivableMixin, base_object.re_sequence_ordered(), ModelS
     @classmethod
     def view_attributes(cls):
         return super().view_attributes() + [
-            ('//page[@id="page_detail"]', 'states', {
-                'readonly': Eval('state').in_(['ready_for_billing', 'billed']),
-            }),
             ('//page[@id="page_measurements"]', 'states', {
                 'invisible': Eval('allocation_rule') != 'allocation_by_measurement',
             }),
