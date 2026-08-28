@@ -282,6 +282,9 @@ class SettlementUnit(DeactivableMixin, base_object.re_sequence_ordered(), ModelS
     @classmethod
     def view_attributes(cls):
         return super().view_attributes() + [
+            ('//page[@id="page_detail"]', 'states', {
+                'readonly': Eval('state').in_(['ready_for_billing', 'billed']),
+            }),
             ('//page[@id="page_measurements"]', 'states', {
                 'invisible': Eval('allocation_rule') != 'allocation_by_measurement',
             }),
@@ -1121,15 +1124,23 @@ class SettlementUnit(DeactivableMixin, base_object.re_sequence_ordered(), ModelS
                 rows.append([cs, raw.quantize(_cent, rounding=ROUND_HALF_UP)])
             diff = (su_amount - sum(r[1] for r in rows)).quantize(_cent)
             if diff and rows:
+                # Prefer cost shares with an actual (non-zero) value_share
+                # to absorb the rounding remainder - a cost share with zero
+                # consumption/measurement (e.g. a vacancy period with no
+                # meter reading change) must never end up with a non-zero
+                # cost purely due to rounding. Only fall back to all rows
+                # if every row has value_share 0 (nothing else to put the
+                # remainder on).
+                adjustable = [r for r in rows if r[0].value_share] or rows
                 n = int(abs(diff) / _cent)
                 if diff > 0:
-                    rows.sort(key=lambda r: r[1])
+                    adjustable.sort(key=lambda r: r[1])
                     for i in range(n):
-                        rows[i % len(rows)][1] += _cent
+                        adjustable[i % len(adjustable)][1] += _cent
                 else:
-                    rows.sort(key=lambda r: r[1], reverse=True)
+                    adjustable.sort(key=lambda r: r[1], reverse=True)
                     for i in range(n):
-                        rows[i % len(rows)][1] -= _cent
+                        adjustable[i % len(adjustable)][1] -= _cent
             return rows
 
         planned_rows = _distribute(self.planned_costs or Decimal(0))
