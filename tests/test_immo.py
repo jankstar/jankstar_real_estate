@@ -16,10 +16,12 @@ Das Skript legt folgende Objekte an:
           - Initialablesung 0 m³ zum 01.01.2025
           - Ablesung zum 30.04.2025 mit zufälligem Verbrauch zwischen 20 und 40 m³
   - Je Gebäude 4 Wohnungen (Rental Object, Type of Use: residential, Use: apartment):
-      - Wohnung XX (1.OG links):  2 Räume, 57 m² Wohnfläche
-      - Wohnung XX (1.OG rechts): 3 Räume, 83 m² Wohnfläche
-      - Wohnung XX (2.OG links):  2 Räume, 57 m² Wohnfläche
-      - Wohnung XX (2.OG rechts): 3 Räume, 83 m² Wohnfläche
+      - Wohnung XX (1.OG links):  2 Räume, 57 m² Wohnfläche, 54 m² Heizfläche
+      - Wohnung XX (1.OG rechts): 3 Räume, 83 m² Wohnfläche, 80 m² Heizfläche
+      - Wohnung XX (2.OG links):  2 Räume, 57 m² Wohnfläche, 54 m² Heizfläche
+      - Wohnung XX (2.OG rechts): 3 Räume, 83 m² Wohnfläche, 80 m² Heizfläche
+      - Heizfläche = Wohnfläche - 3 m² (die Wohnfläche zählt den 6 m² großen,
+        unbeheizten Balkon zur Hälfte, also 3 m², mit)
       - 1 Zähler (Equipment, e_type: meters, Einheit: m³, Faktor: 1, Is Counter: ja):
           - Initialablesung 0 m³ zum 01.01.2025
           - Ablesung zum 30.04.2025 mit zufälligem Verbrauch zwischen 20 und 40 m³
@@ -37,7 +39,7 @@ Nutzungsklassen (real_estate.use_class) werden per Sequenznummer gesucht
 
 Bemessungstypen (real_estate.measurement.type) werden per Sequenznummer
 gesucht (sprachunabhängig): Usable Space=5, Wohnfläche=10, Gewerbefläche=15,
-Anzahl Räume=20, Bruttogeschossfläche [BHF]=30.
+Anzahl Räume=20, Heizfläche=25, Bruttogeschossfläche [BHF]=30.
 
 Verwendung:
     python tests/test_immo.py --database <Datenbankname> [--config <trytond.conf>]
@@ -272,7 +274,7 @@ def create_land_with_parking(prop_name: str, prop, company, sequence: int,
 
 
 def create_building(house_nr: int, building_seq: int, prop, company,
-                    country, t_bgf, t_raume, t_wfl, t_gwfl, uom_m3, admin_user,
+                    country, t_bgf, t_raume, t_wfl, t_gwfl, t_heiz, uom_m3, admin_user,
                     apt_start_nr: int, uc_apartment,
                     retail_start_nr: int, uc_retail,
                     usable_space_type=None) -> tuple:
@@ -330,6 +332,9 @@ def create_building(house_nr: int, building_seq: int, prop, company,
         )
         create_measurement(apt, t_raume, float(rooms))
         create_measurement(apt, t_wfl, area)
+        # Wohnfläche includes half of the 6 m² balcony (3 m²), which is
+        # unheated - Heizfläche is therefore 3 m² smaller than Wohnfläche.
+        create_measurement(apt, t_heiz, area - 3.0)
         create_meter(apt, f'Wasser Zähler {nr:02d}', sequence=10,
                      company=company, uom=uom_m3, admin_user=admin_user)
 
@@ -375,6 +380,7 @@ def main():
     t_wfl = get_measurement_type_by_sequence(10)     # Wohnfläche
     t_gwfl = get_measurement_type_by_sequence(15)    # Gewerbefläche
     t_raume = get_measurement_type_by_sequence(20)   # Anzahl Räume
+    t_heiz = get_measurement_type_by_sequence(25)    # Heizfläche
     t_bgf = get_measurement_type_by_sequence(30)     # Bruttogeschossfläche [BHF]
     t_usable_space = get_measurement_type_by_sequence(5)   # Usable Space
 
@@ -386,7 +392,7 @@ def main():
 
     building_args = dict(
         company=company, country=country_de,
-        t_bgf=t_bgf, t_raume=t_raume, t_wfl=t_wfl, t_gwfl=t_gwfl,
+        t_bgf=t_bgf, t_raume=t_raume, t_wfl=t_wfl, t_gwfl=t_gwfl, t_heiz=t_heiz,
         uom_m3=uom_m3, admin_user=admin_user,
         uc_apartment=uc_apartment, uc_retail=uc_retail,
         usable_space_type=t_usable_space,

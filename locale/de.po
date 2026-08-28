@@ -5197,6 +5197,11 @@ msgid "Living Space"
 msgstr "Wohnfläche"
 
 msgctxt ""
+"model:real_estate.measurement.type,name:measurement_heating_area_type"
+msgid "Heating Area"
+msgstr "Heizfläche"
+
+msgctxt ""
 "model:real_estate.measurement.type,name:measurement_number_of_rooms_type"
 msgid "Number of rooms"
 msgstr "Anzahl Räume"

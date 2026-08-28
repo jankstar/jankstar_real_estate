@@ -39,6 +39,9 @@ Je Wirtschaftseinheit werden zwei Billing Units angelegt:
 Voraussetzung: test_immo.py muss ausgeführt worden sein
 (Properties "Musterstraße 1-4" und "Musterstraße 5-8").
 
+Beide Billing Units werden nach dem Anlegen ihrer Settlement Units per
+Workflow-Button freigegeben (state='approved').
+
 Das Skript ist idempotent: es bricht ab, wenn für "Musterstraße 1-4"
 bereits Billing Units vorhanden sind.
 
@@ -277,6 +280,9 @@ def main():
 
         create_su_consumption(bu_bk, ct_water, uom_m3, usable_space_type=m_type_wfl)
 
+        bu_bk.click('approved')
+        print(f'  BillingUnit "{bu_bk.name}" freigegeben (state=approved).')
+
         # --- Billing Unit 2: Heizkosten ---
         print('\n--- Heizkosten ---')
         tt_ids_hz = [tt_hz.id] if tt_hz else []
@@ -290,6 +296,9 @@ def main():
 
         for ct in ct_heat:
             create_su_external(bu_hz, ct, usable_space_type=m_type_wfl)
+
+        bu_hz.click('approved')
+        print(f'  BillingUnit "{bu_hz.name}" freigegeben (state=approved).')
 
         print()
 
