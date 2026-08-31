@@ -30,11 +30,6 @@ class ReAccounting(base_object.re_sequence_ordered(), ModelSQL, ModelView):
         help="Default payment term for operating cost settlement invoices, "
              "used when the contract itself has no payment term set.")
 
-    create_moves_horizon_days = fields.Integer(
-        'Move Creation Horizon (Days)',
-        help="Number of days ahead of today the 'Update Contract Cash "
-             "Flow' cron task recalculates postings for.")
-
     co2_landlord_share_commercial = fields.Numeric(
         'CO2 Landlord Share (Commercial) (%)', digits=(5, 2),
         domain=[
@@ -51,10 +46,6 @@ class ReAccounting(base_object.re_sequence_ordered(), ModelSQL, ModelView):
     @classmethod
     def default_sequence(cls):
         return 10
-
-    @classmethod
-    def default_create_moves_horizon_days(cls):
-        return 60
 
     @classmethod
     def default_name(cls):

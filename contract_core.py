@@ -1096,13 +1096,23 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
 
     @classmethod
     def _cron_update_contract_cash_flow(cls, re_accounting, task=None):
-        """Keeps each term's cash flow (ContractTermCashFlow) computed up
-        to a fixed horizon ahead of today, without requiring a person to
-        run the wizard repeatedly. Recalculation only ('re_calc') - no
-        invoices are created here; see _cron_book_contract_cash_flow for
-        the separate, explicitly scheduled booking step."""
+        """Recalculates each term's cash flow (ContractTermCashFlow),
+        without requiring a person to run the wizard repeatedly.
+        Recalculation only ('re_calc') - no invoices are created here; see
+        _cron_book_contract_cash_flow for the separate, explicitly
+        scheduled booking step.
+
+        How far each recalculated term's cash flow extends is fixed at
+        exactly 1 year from today (see contract_term.py:_re_calc_year,
+        used inside Term.re_calc()) and not affected by the horizon below.
+        `date` here only decides which not-yet-started contracts get
+        included in this run at all - a contract whose start_date is more
+        than `future_contracts_horizon_days` away is skipped and picked up
+        by a later run once its start_date comes within range.
+        Already-running/-terminated contracts are always included
+        regardless of this horizon."""
         Date = Pool().get('ir.date')
-        horizon = re_accounting.create_moves_horizon_days or 60
+        horizon = (task.future_contracts_horizon_days if task else None) or 60
         date = Date.today() + datetime.timedelta(days=horizon)
         contracts = cls.search([
             ('state', 'in', ('running', 'terminated')),
@@ -1116,13 +1126,16 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
 
     @classmethod
     def _cron_book_contract_cash_flow(cls, re_accounting, task):
-        """Books (creates draft invoices for) all due terms up to the end
-        of the month that is horizon_months_ahead months after today - e.g.
-        run on the 15th of the month (schedule_day_of_month=15) with
+        """Books (creates invoices for) all due terms up to the end of the
+        month that is horizon_months_ahead months after today - e.g. run
+        on the 15th of the month (schedule_day_of_month=15) with
         horizon_months_ahead=1 books everything due up to the end of next
         month. Uses 're_calc_and_create' so it is self-sufficient (does not
         depend on _cron_update_contract_cash_flow's horizon already
-        covering the booking horizon)."""
+        covering the booking horizon). The row's own invoice_state
+        ('draft'/'posted', default 'draft') determines whether the created
+        invoices are posted immediately - see call_create_moves/
+        _create_moves."""
         Date = Pool().get('ir.date')
         today = Date.today()
         months_ahead = (task.horizon_months_ahead or 1) if task else 1
@@ -1131,6 +1144,7 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
         target_month = month_index % 12 + 1
         last_day = calendar.monthrange(target_year, target_month)[1]
         date = datetime.date(target_year, target_month, last_day)
+        invoice_state = (task.invoice_state if task else None) or 'draft'
         contracts = cls.search([
             ('state', 'in', ('running', 'terminated')),
             ('start_date', '<=', date),
@@ -1139,7 +1153,7 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
         if contracts:
             cls.call_create_moves(
                 [c.id for c in contracts], date, 're_calc_and_create',
-                True, 'draft', None)
+                True, invoice_state, None)
 
     @classmethod
     def _cron_update_option_rate(cls, re_accounting, task=None):

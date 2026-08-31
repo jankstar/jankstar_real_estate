@@ -55,6 +55,27 @@ class CronTask(ModelSQL, ModelView):
              "to the end of the month that is this many months after the "
              "run date - e.g. 1 run on 15.07 books due items up to "
              "31.08.")
+    invoice_state = fields.Selection([
+        ('draft', 'Draft'),
+        ('posted', 'Posted'),
+        ], 'Invoice State', sort=False,
+        states={'invisible': Eval('task') != 'book_contract_cash_flow'},
+        help="Used by 'Book Contract Cash Flow'.\n"
+             "Draft: invoices are saved as draft.\n"
+             "Posted: invoices are posted immediately after creation.")
+    future_contracts_horizon_days = fields.Integer(
+        'Future Contracts Horizon (Days Ahead)',
+        states={'invisible': Eval('task') != 'update_contract_cash_flow'},
+        help="Used by 'Update Contract Cash Flow' to decide which "
+             "not-yet-started contracts to include in a given run: a "
+             "contract is included once its start date is within this "
+             "many days from the run date. Already-running or already-"
+             "ended contracts are unaffected by this value - they are "
+             "always included or excluded regardless. Note this does NOT "
+             "control how far ahead cash flow itself is recalculated - "
+             "that is always exactly 1 year from today (see "
+             "contract_term.py:_re_calc_year), fixed and not configurable "
+             "here.")
     last_run = fields.Date('Last Run', states={'readonly': True})
     active = fields.Boolean('Active')
 
@@ -101,6 +122,14 @@ class CronTask(ModelSQL, ModelView):
     @classmethod
     def default_horizon_months_ahead(cls):
         return 1
+
+    @classmethod
+    def default_invoice_state(cls):
+        return 'draft'
+
+    @classmethod
+    def default_future_contracts_horizon_days(cls):
+        return 60
 
     @classmethod
     def get_tasks(cls):

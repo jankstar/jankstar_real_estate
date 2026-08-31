@@ -103,10 +103,6 @@ The following master data must be set up before the module can be used:
       Default payment term for operating cost settlement invoices, used
       when the contract itself has none set.
 
-   ``create_moves_horizon_days``
-      Number of days ahead of today the ``update_contract_cash_flow`` cron
-      task (see below) recalculates cash flow for. Default 60.
-
    ``co2_landlord_share_commercial``
       Default CO2 cost landlord share (%, 0–100) for commercial properties,
       which are not covered by the residential 10-tier distribution model —
@@ -124,8 +120,8 @@ The following master data must be set up before the module can be used:
    ``update_contract_cash_flow`` / ``book_contract_cash_flow`` /
    ``update_option_rate``), ``valid_from``, ``valid_until``,
    ``interval_days``, ``interval_months``, ``schedule_day_of_month``,
-   ``horizon_months_ahead``, ``last_run`` (updated by the dispatcher),
-   ``active``. Task names are
+   ``horizon_months_ahead``, ``invoice_state``, ``future_contracts_horizon_days``,
+   ``last_run`` (updated by the dispatcher), ``active``. Task names are
    deliberately rhythm-agnostic (no "daily"/"rolling"/... in the name) —
    how often each task actually runs is a per-row configuration choice made
    by the user, not implied by the task itself; see *Scheduling and
@@ -209,22 +205,35 @@ The following master data must be set up before the module can be used:
 
    ``_cron_update_contract_cash_flow``
       **Cash-flow recalculation only** (``action='re_calc'``): calls
-      ``Contract.call_create_moves()`` for all running/terminated contracts
-      of the company up to ``today + create_moves_horizon_days``, so each
-      term's ``ContractTermCashFlow`` stays generated ahead of time. It does
-      **not** create invoices — booking is a separate, explicitly scheduled
-      step, see ``_cron_book_contract_cash_flow`` below.
+      ``Contract.call_create_moves()`` for running/terminated contracts of
+      the company, and for not-yet-started contracts whose ``start_date``
+      is within ``today + future_contracts_horizon_days`` (the row's own
+      field, default 60) — already-running/-ended contracts are always
+      included regardless of this value; it only decides how far ahead of
+      their actual start not-yet-started contracts get pulled in early.
+      For every contract included, ``Term.re_calc()`` (``contract_term.py``)
+      recalculates that term's cash flow up to a **fixed** horizon of
+      exactly 1 year from today (``_re_calc_year = 1``, not related to and
+      not affected by ``future_contracts_horizon_days``). It does **not**
+      create invoices — booking is a separate, explicitly scheduled step,
+      see ``_cron_book_contract_cash_flow`` below.
 
    ``_cron_book_contract_cash_flow``
-      Books (creates draft invoices for) all due terms, using
+      Books (creates invoices for) all due terms, using
       ``action='re_calc_and_create'`` so it is self-sufficient regardless of
       whether ``_cron_update_contract_cash_flow``'s horizon already covers
       the target date. The horizon is the end of the month that is
       ``horizon_months_ahead`` months after the run date — e.g. with
       ``schedule_day_of_month = 15`` and ``horizon_months_ahead = 1``, a run
-      on 15.07 books everything due up to 31.08. Invoices are created in
-      ``draft`` state — this task does **not** post them; posting remains a
-      manual step.
+      on 15.07 books everything due up to 31.08. The row's own
+      ``invoice_state`` (``draft``/``posted``, default ``draft``) is passed
+      through to ``call_create_moves``/``_create_moves`` and determines
+      whether the created invoices are posted immediately or left as
+      drafts for manual review. Note: each invoice's own ``invoice_date``/
+      ``accounting_date`` is *not* forced to this month-end horizon — it is
+      the individual term's own computed ``document_date`` (see
+      ``_create_moves``, ``inv_date = invoice_date or document_date`` with
+      ``invoice_date=None`` here), which may differ per term/rhythm.
 
    ``_cron_update_option_rate``
       Recomputes and, where the rate actually changed, books new option

@@ -14,6 +14,10 @@
     <field name="schedule_day_of_month"/>
     <label name="horizon_months_ahead"/>
     <field name="horizon_months_ahead"/>
+    <label name="invoice_state"/>
+    <field name="invoice_state"/>
+    <label name="future_contracts_horizon_days"/>
+    <field name="future_contracts_horizon_days"/>
     <label name="last_run"/>
     <field name="last_run"/>
     <label name="active"/>
