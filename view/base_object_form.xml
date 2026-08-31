@@ -149,4 +149,9 @@ this repository contains the full copyright notices and license terms. -->
         </page>
     </notebook>
 
+    <button name="draft" string="Draft" colspan="1"/>
+    <button name="approved" string="Approved" colspan="1"/>
+    <button name="locked" string="Locked" colspan="1"/>
+    <button name="deactivated" string="Deactivated" colspan="1"/>
+
 </form>

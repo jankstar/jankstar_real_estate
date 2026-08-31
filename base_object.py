@@ -439,15 +439,15 @@ class BaseObject(Workflow, DeactivableMixin, re_sequence_ordered(), tree(separat
                 ))  
         cls._buttons.update({
                 'draft': {
-                    'invisible': Eval('state') in ('draft', 'deactivated', 'locked'),
+                    'invisible': Eval('state').in_(['draft', 'deactivated', 'locked']),
                     'depends': ['state'],
                     },
                 'approved': {
-                    'invisible': Eval('state') in ('approved', 'deactivated'),
+                    'invisible': Eval('state').in_(['approved', 'deactivated']),
                     'depends': ['state'],
                     },
                 'locked': {
-                    'invisible': Eval('state') in ('locked', 'deactivated', 'draft'),
+                    'invisible': Eval('state').in_(['locked', 'deactivated', 'draft']),
                     'depends': ['state'],
                     },
                 'deactivated': {

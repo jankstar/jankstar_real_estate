@@ -3737,7 +3737,7 @@ msgstr "Adressen"
 
 msgctxt "model:ir.ui.menu,name:menu_real_estate_configuration"
 msgid "Configuration"
-msgstr "Konfiguration"
+msgstr "Einstellungen"
 
 msgctxt "model:ir.ui.menu,name:menu_real_estate_contracts_adjustment"
 msgid "Adjustment"

@@ -9,4 +9,10 @@
     <field name="currency" optional="1"/>
     <field name="billing_type" optional="1"/>
     <field name="state" width="60" readonly="1"/>
+    <button name="approved" string="Approved" tree_invisible="1"/>
+    <button name="selection" string="Selection" tree_invisible="1"/>
+    <button name="compute_value_shares_button" string="Compute Value Shares" tree_invisible="1"/>
+    <button name="compute_settlement_result" string="Compute Settlement Results" tree_invisible="1"/>
+    <button name="check_ready_for_billing" string="Ready for Billing" tree_invisible="1"/>
+    <button name="duplicate_next_period" string="Duplicate for Next Period" tree_invisible="1"/>
 </tree>

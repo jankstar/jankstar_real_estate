@@ -4544,7 +4544,7 @@ msgstr "fertig zur Abrechnung"
 
 msgctxt "model:ir.model.button,string:base_object_refresh_occupancy_button"
 msgid "Refresh Occupancy"
-msgstr ""
+msgstr "Belegung aktualisieren"
 
 #, fuzzy
 msgctxt "model:ir.model.button,string:billing_unit_approved_button"
@@ -4773,7 +4773,7 @@ msgstr "Adressen"
 
 msgctxt "model:ir.ui.menu,name:menu_real_estate_configuration"
 msgid "Configuration"
-msgstr "Konfiguration"
+msgstr "Einstellungen"
 
 msgctxt "model:ir.ui.menu,name:menu_real_estate_contracts"
 msgid "Contracts"
@@ -5913,6 +5913,10 @@ msgid "Landlord"
 msgstr "Eigentümer"
 
 msgctxt "view:real_estate.base_object:"
+msgid "Approved"
+msgstr "Genehmigt"
+
+msgctxt "view:real_estate.base_object:"
 msgid "Billing"
 msgstr "Abrechnen/Buchen"
 
@@ -5949,12 +5953,24 @@ msgid "Cost Groups"
 msgstr "Kostengruppen"
 
 msgctxt "view:real_estate.base_object:"
+msgid "Deactivated"
+msgstr "Deaktiviert"
+
+msgctxt "view:real_estate.base_object:"
+msgid "Draft"
+msgstr "Entwurf"
+
+msgctxt "view:real_estate.base_object:"
 msgid "Equipment"
 msgstr "Equipment"
 
 msgctxt "view:real_estate.base_object:"
 msgid "General"
 msgstr "Allg. Daten"
+
+msgctxt "view:real_estate.base_object:"
+msgid "Locked"
+msgstr "Gesperrt"
 
 msgctxt "view:real_estate.base_object:"
 msgid "Meters"
@@ -5967,6 +5983,14 @@ msgstr "Belegung"
 msgctxt "view:real_estate.base_object:"
 msgid "Option Rate"
 msgstr "Optionssatz"
+
+msgctxt "view:real_estate.base_object:"
+msgid "Ready for Billing"
+msgstr "fertig zur Abrechnung"
+
+msgctxt "view:real_estate.base_object:"
+msgid "Refresh Occupancy"
+msgstr "Belegung aktualisieren"
 
 msgctxt "view:real_estate.base_object:"
 msgid "Rental Object"
@@ -6019,6 +6043,10 @@ msgstr "Buchungen"
 msgctxt "view:real_estate.billing_unit:"
 msgid "Option Rate"
 msgstr "Optionssatz"
+
+msgctxt "view:real_estate.billing_unit:"
+msgid "Ready for Billing"
+msgstr "fertig zur Abrechnung"
 
 msgctxt "view:real_estate.billing_unit:"
 msgid "Selection"
