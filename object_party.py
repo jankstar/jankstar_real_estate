@@ -113,7 +113,7 @@ class ObjectParty(ModelSQL, ModelView, metaclass=PoolMeta):
     
     @fields.depends('base_object', 'type', 'valid_from', '_parent_base_object.type')
     def on_change_base_object(self, name=None):
-        logger.debug("on_change_base_object %s", self.base_object)
+        #logger.debug("on_change_base_object %s", self.base_object)
         if self.base_object != None:
             self.type = self.base_object.type
 
