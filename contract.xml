@@ -1,7 +1,17 @@
 <tryton>
    <data>
 
-      
+        <record model="ir.ui.icon" id="real_estate_swap_horiz_icon">
+            <field name="name">real_estate-swap-horiz</field>
+            <field name="path">icons/real_estate-swap-horiz.svg</field>
+        </record>
+
+        <record model="ir.ui.icon" id="real_estate_account_balance_icon">
+            <field name="name">real_estate-account-balance</field>
+            <field name="path">icons/real_estate-account-balance.svg</field>
+        </record>
+
+
       <menuitem
         parent="menu_real_estate"
         name="Contracts"

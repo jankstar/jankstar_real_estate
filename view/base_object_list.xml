@@ -9,12 +9,12 @@
     <field name="use_class" optional="1"/>
     <field name="e_type" optional="1"/>
     <field name="state"/>
-    <button name="draft" string="Draft" tree_invisible="1"/>
-    <button name="approved" string="Approved" tree_invisible="1"/>
-    <button name="locked" string="Locked" tree_invisible="1"/>
-    <button name="deactivated" string="Deactivated" tree_invisible="1"/>
-    <button name="refresh_occupancy" string="Refresh Occupancy" tree_invisible="1"/>
-    <button name="compute_value_shares" string="Compute Value Shares" tree_invisible="1"/>
-    <button name="compute_settlement_result_property" string="Compute Settlement Results" tree_invisible="1"/>
-    <button name="ready_for_billing_property" string="Ready for Billing" tree_invisible="1"/>
+    <button name="draft" string="Draft" tree_invisible="1" icon="tryton-back"/>
+    <button name="approved" string="Approved" tree_invisible="1" icon="tryton-ok"/>
+    <button name="locked" string="Locked" tree_invisible="1" icon="tryton-close"/>
+    <button name="deactivated" string="Deactivated" tree_invisible="1" icon="tryton-close"/>
+    <button name="refresh_occupancy" string="Refresh Occupancy" tree_invisible="1" icon="tryton-refresh"/>
+    <button name="compute_value_shares" string="Compute Value Shares" tree_invisible="1" icon="real_estate-pie-chart"/>
+    <button name="compute_settlement_result_property" string="Compute Settlement Results" tree_invisible="1" icon="real_estate-calculate"/>
+    <button name="ready_for_billing_property" string="Ready for Billing" tree_invisible="1" icon="real_estate-fact-check"/>
 </tree>

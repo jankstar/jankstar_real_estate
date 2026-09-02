@@ -31,6 +31,31 @@
             <field name="path">icons/real_estate.svg</field>
         </record>
 
+        <record model="ir.ui.icon" id="real_estate_electric_meter_icon">
+            <field name="name">real_estate-electric-meter</field>
+            <field name="path">icons/real_estate-electric-meter.svg</field>
+        </record>
+
+        <record model="ir.ui.icon" id="real_estate_pie_chart_icon">
+            <field name="name">real_estate-pie-chart</field>
+            <field name="path">icons/real_estate-pie-chart.svg</field>
+        </record>
+
+        <record model="ir.ui.icon" id="real_estate_calculate_icon">
+            <field name="name">real_estate-calculate</field>
+            <field name="path">icons/real_estate-calculate.svg</field>
+        </record>
+
+        <record model="ir.ui.icon" id="real_estate_fact_check_icon">
+            <field name="name">real_estate-fact-check</field>
+            <field name="path">icons/real_estate-fact-check.svg</field>
+        </record>
+
+        <record model="ir.ui.icon" id="real_estate_request_quote_icon">
+            <field name="name">real_estate-request-quote</field>
+            <field name="path">icons/real_estate-request-quote.svg</field>
+        </record>
+
       <menuitem
         name="Real Estate"
         sequence="50"

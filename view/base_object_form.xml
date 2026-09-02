@@ -81,7 +81,7 @@ this repository contains the full copyright notices and license terms. -->
                 <label name="meter_last_value"/><field name="meter_last_value" />
                 <label name="meter_last_consumption"/><field name="meter_last_consumption" />
                 <newline/>
-                <button name="estimate_consumption" string="Estimate Consumption"/>
+                <button name="estimate_consumption" string="Estimate Consumption" icon="real_estate-electric-meter"/>
                 <newline/>
                 <group colspan="6" id="group_meter">
                     <field name="meter_readings" />
@@ -98,21 +98,21 @@ this repository contains the full copyright notices and license terms. -->
                 <page string="Billing Unit" id="page_billing_unit_open" col="6">
                     <field name="billing_units_open" colspan="6"
                         view_ids="real_estate.base_object_view_list_billing_unit"/>
-                    <button name="compute_value_shares" string="Compute Value Shares"/>
-                    <button name="compute_settlement_result_property" string="Compute Settlement Results"/>
-                    <button name="ready_for_billing_property" string="Ready for Billing"/>
-                    <button name="billing_property" string="Billing"/>
+                    <button name="compute_value_shares" string="Compute Value Shares" icon="real_estate-pie-chart"/>
+                    <button name="compute_settlement_result_property" string="Compute Settlement Results" icon="real_estate-calculate"/>
+                    <button name="ready_for_billing_property" string="Ready for Billing" icon="real_estate-fact-check"/>
+                    <button name="billing_property" string="Billing" icon="real_estate-request-quote"/>
                 </page>
                 <page string="Billing Unit (billed)" id="page_billing_unit_billed" col="6">
                     <field name="billing_units_billed" colspan="6" readonly="1"
                         view_ids="real_estate.base_object_view_list_billing_unit"/>
-                    <button name="cancel_property" string="Cancel Billing"/>
+                    <button name="cancel_property" string="Cancel Billing" icon="tryton-cancel"/>
                 </page>
             </notebook>
         </page>
 
         <page string="Occupancy" id="page_occupancy" col="4">
-            <button name="refresh_occupancy" string="Refresh Occupancy" colspan="1"/>
+            <button name="refresh_occupancy" string="Refresh Occupancy" colspan="1" icon="tryton-refresh"/>
             <newline/>
             <field name="occupancy" colspan="4"
                 view_ids="real_estate.base_object_occupancy_view_tree"
@@ -149,9 +149,9 @@ this repository contains the full copyright notices and license terms. -->
         </page>
     </notebook>
 
-    <button name="draft" string="Draft" colspan="1"/>
-    <button name="approved" string="Approved" colspan="1"/>
-    <button name="locked" string="Locked" colspan="1"/>
-    <button name="deactivated" string="Deactivated" colspan="1"/>
+    <button name="draft" string="Draft" colspan="1" icon="tryton-back"/>
+    <button name="approved" string="Approved" colspan="1" icon="tryton-ok"/>
+    <button name="locked" string="Locked" colspan="1" icon="tryton-close"/>
+    <button name="deactivated" string="Deactivated" colspan="1" icon="tryton-close"/>
 
 </form>

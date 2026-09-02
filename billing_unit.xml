@@ -14,6 +14,11 @@
             <field name="path">icons/receipt_long.svg</field>
         </record>
 
+        <record model="ir.ui.icon" id="real_estate_checklist_icon">
+            <field name="name">real_estate-checklist</field>
+            <field name="path">icons/real_estate-checklist.svg</field>
+        </record>
+
     <!-- Billing Unit -->
         <record model="ir.ui.view" id="base_object_view_list_billing_unit">
             <field name="model">real_estate.billing_unit</field>
