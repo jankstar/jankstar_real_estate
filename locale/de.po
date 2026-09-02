@@ -5029,9 +5029,19 @@ msgid "Parking space rent (monthly)"
 msgstr "Miete Stellplatz (monatlich)"
 
 msgctxt ""
+"model:real_estate.contract.term.type,name:contract_term_type_rent_reduction"
+msgid "Rent reduction (monthly)"
+msgstr "Mietminderung (monatlich)"
+
+msgctxt ""
 "model:real_estate.contract.term.type,name:contract_term_type_service_charge"
 msgid "Condominium fees (monthly)"
 msgstr "Hausgeld (monatlich) WEG"
+
+msgctxt ""
+"model:real_estate.contract.term.type,name:contract_term_type_subletting_surcharge"
+msgid "Subletting surcharge (monthly)"
+msgstr "Untermietzuschlag (monatlich)"
 
 msgctxt "model:real_estate.contract.term.type,string:"
 msgid "Real Estate Contract Term Type"

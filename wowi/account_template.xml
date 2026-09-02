@@ -1823,6 +1823,18 @@
             <field name="code">6000</field>
             <field name="type" ref="wowi_type_u_600"/>
         </record>
+        <record id="wowi_account_6002" model="account.account.template">
+            <field name="name">Sollmieten Gewerbeeinheiten</field>
+            <field name="parent" ref="wowi_view_u_600"/>
+            <field name="code">6002</field>
+            <field name="type" ref="wowi_type_u_600"/>
+        </record>
+        <record id="wowi_account_6004" model="account.account.template">
+            <field name="name">Sollmieten Garagen und Stellplätze</field>
+            <field name="parent" ref="wowi_view_u_600"/>
+            <field name="code">6004</field>
+            <field name="type" ref="wowi_type_u_600"/>
+        </record>
         <record id="wowi_view_u_601" model="account.account.template">
             <field name="name">Umlagen (Erträge aus der Betriebskostenabrechnung des Vorjahres)</field>
             <field name="parent" ref="wowi_view_g_60"/>
