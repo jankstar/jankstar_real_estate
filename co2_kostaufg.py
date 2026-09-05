@@ -8,6 +8,7 @@ from trytond.i18n import gettext
 from trytond.pool import Pool
 
 from . import base_object
+from . import bved_records
 
 
 #**********************************************************************
@@ -86,6 +87,15 @@ class Co2KostAufgConsumption(DeactivableMixin, sequence_ordered(), ModelSQL, Mod
         help="Pre-filled as CO2 Cost (net) x (1 + VAT Rate); can be "
              "overridden, e.g. with the supplier's own invoice amount.")
 
+    energy_mix = fields.One2Many(
+        'real_estate.co2_kostaufg.consumption.energy_mix', 'consumption',
+        "Energy Mix",
+        help="Breakdown of this delivery's energy sources for BVED K-Satz "
+             "fields 22-39 (up to 6 entries). Belongs here rather than on "
+             "the settlement unit, since it is a property of one specific "
+             "delivery/period (like co2_kg_per_kwh above), not of the "
+             "whole billing period.")
+
     @classmethod
     def default_vat_rate(cls):
         return Decimal(0)
@@ -152,6 +162,32 @@ class Co2KostAufgConsumption(DeactivableMixin, sequence_ordered(), ModelSQL, Mod
                 self.co2_cost_gross = (
                     net * (1 + self.vat_rate / Decimal(100))
                     ).quantize(Decimal('0.01'))
+
+
+#**********************************************************************
+class Co2KostAufgConsumptionEnergyMix(sequence_ordered(), ModelSQL, ModelView):
+    "CO2KostAufG Consumption Energy Mix"
+    __name__ = 'real_estate.co2_kostaufg.consumption.energy_mix'
+
+    consumption = fields.Many2One(
+        'real_estate.co2_kostaufg.consumption', "Consumption",
+        required=True, ondelete='CASCADE')
+
+    energy_source = fields.Selection(
+        'get_energy_sources', "Energy Source", required=True, sort=False)
+
+    share_percent = fields.Numeric("Share (%)", digits=(2, 1), required=True,
+        domain=[
+            ('share_percent', '>=', 0),
+            ('share_percent', '<=', 99.9),
+            ])
+
+    emission_factor = fields.Numeric(
+        "CO2 Emission Factor (kg/kWh)", digits=(6, 3))
+
+    @staticmethod
+    def get_energy_sources():
+        return bved_records.as_selection(bved_records.TABLE_M)
 
 
 #**********************************************************************

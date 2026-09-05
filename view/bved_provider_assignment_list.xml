@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<tree>
+    <field name="base_object"/>
+    <field name="provider"/>
+    <field name="customer_number"/>
+    <field name="external_property_number"/>
+    <field name="valid_from"/>
+    <field name="valid_to"/>
+</tree>

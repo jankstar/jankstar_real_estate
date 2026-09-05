@@ -63,6 +63,30 @@
             <field name="act_window" ref="act_billing_unit_tree"/>
         </record>
 
+        <record model="ir.action.act_window.domain"
+            id="act_billing_unit_tree_domain_in_progress">
+            <field name="name">In Progress</field>
+            <field name="sequence" eval="10"/>
+            <field name="domain" eval="[('state', '!=', 'billed')]" pyson="1"/>
+            <field name="count" eval="True"/>
+            <field name="act_window" ref="act_billing_unit_tree"/>
+        </record>
+        <record model="ir.action.act_window.domain"
+            id="act_billing_unit_tree_domain_billed">
+            <field name="name">Billed</field>
+            <field name="sequence" eval="20"/>
+            <field name="domain" eval="[('state', '=', 'billed')]" pyson="1"/>
+            <field name="count" eval="True"/>
+            <field name="act_window" ref="act_billing_unit_tree"/>
+        </record>
+        <record model="ir.action.act_window.domain"
+            id="act_billing_unit_tree_domain_all">
+            <field name="name">All</field>
+            <field name="sequence" eval="90"/>
+            <field name="domain"></field>
+            <field name="act_window" ref="act_billing_unit_tree"/>
+        </record>
+
         <menuitem
             parent="menu_real_estate_operation_costs"
             sequence="10"

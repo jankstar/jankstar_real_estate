@@ -15,6 +15,11 @@
             <label name="service_period_to"/><field name="service_period_to"/>
             <newline/>
             <label name="estg_35a"/><field name="estg_35a" colspan="3"/>
+            <label name="estg_35a_labor_share_percent"/><field name="estg_35a_labor_share_percent"/>
+            <newline/>
+            <label name="bved_fuel_type"/><field name="bved_fuel_type" colspan="3"/>
+            <label name="bved_fuel_quantity"/><field name="bved_fuel_quantity"/>
+            <label name="bved_fuel_unit"/><field name="bved_fuel_unit"/>
         </page>
     </xpath>
 </data>

@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<form col="2">
+    <label name="provider_assignment"/><field name="provider_assignment"/>
+    <label name="base_object"/><field name="base_object"/>
+    <label name="external_unit_number"/><field name="external_unit_number"/>
+    <label name="internal_reference"/><field name="internal_reference"/>
+    <label name="valid_from"/><field name="valid_from"/>
+    <label name="valid_to"/><field name="valid_to"/>
+</form>

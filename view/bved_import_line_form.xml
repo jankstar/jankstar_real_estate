@@ -1,0 +1,62 @@
+<?xml version="1.0"?>
+<form col="4">
+    <label name="record_type"/><field name="record_type" readonly="1"/>
+    <label name="sequence"/><field name="sequence" readonly="1"/>
+    <newline/>
+    <label name="internal_reference"/><field name="internal_reference" readonly="1"/>
+    <label name="period_end_date"/><field name="period_end_date" readonly="1"/>
+    <newline/>
+    <label name="base_object"/><field name="base_object" colspan="3" readonly="1"/>
+    <label name="provider_assignment"/><field name="provider_assignment" colspan="3" readonly="1"/>
+    <newline/>
+    <label name="matched_settlement_result"/><field name="matched_settlement_result" colspan="3" readonly="1"/>
+    <newline/>
+    <label name="state"/><field name="state" readonly="1"/>
+    <newline/>
+    <label name="error_message"/><field name="error_message" colspan="3" readonly="1"/>
+    <newline/>
+    <notebook colspan="4">
+        <page string="D-Satz" id="page_d">
+            <label name="d_cost_key"/><field name="d_cost_key" readonly="1"/>
+            <newline/>
+            <label name="total_costs_gross"/><field name="total_costs_gross" readonly="1"/>
+            <label name="total_costs_net"/><field name="total_costs_net" readonly="1"/>
+            <newline/>
+            <label name="advance_payment_gross"/><field name="advance_payment_gross" readonly="1"/>
+            <label name="advance_payment_net"/><field name="advance_payment_net" readonly="1"/>
+            <newline/>
+            <label name="balance_gross"/><field name="balance_gross" readonly="1"/>
+            <label name="balance_net"/><field name="balance_net" readonly="1"/>
+            <newline/>
+            <label name="co2_allocated_gross"/><field name="co2_allocated_gross" readonly="1"/>
+            <label name="co2_allocated_net"/><field name="co2_allocated_net" readonly="1"/>
+            <newline/>
+            <label name="co2_not_allocated_gross"/><field name="co2_not_allocated_gross" readonly="1"/>
+            <label name="co2_not_allocated_net"/><field name="co2_not_allocated_net" readonly="1"/>
+        </page>
+        <page string="E835-Satz" id="page_e835">
+            <label name="labor_share_total"/><field name="labor_share_total" readonly="1"/>
+            <label name="user_share_amount"/><field name="user_share_amount" readonly="1"/>
+            <newline/>
+            <label name="user_share_percent"/><field name="user_share_percent" readonly="1"/>
+        </page>
+        <page string="E898-Satz" id="page_e898">
+            <label name="document_path"/><field name="document_path" readonly="1"/>
+            <label name="document_type"/><field name="document_type" readonly="1"/>
+        </page>
+        <page string="P-Satz" id="page_p">
+            <label name="p_cost_key"/><field name="p_cost_key" readonly="1"/>
+            <newline/>
+            <label name="p_total_gross"/><field name="p_total_gross" readonly="1"/>
+            <label name="p_total_net"/><field name="p_total_net" readonly="1"/>
+            <newline/>
+            <label name="p_user_share_gross"/><field name="p_user_share_gross" readonly="1"/>
+            <label name="p_user_share_percent"/><field name="p_user_share_percent" readonly="1"/>
+        </page>
+        <page string="Raw" id="page_raw">
+            <label name="raw_line"/><field name="raw_line" colspan="4" readonly="1"/>
+            <newline/>
+            <label name="raw_data"/><field name="raw_data" colspan="4" readonly="1"/>
+        </page>
+    </notebook>
+</form>

@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<tree>
+    <field name="name"/>
+    <field name="provider"/>
+    <field name="company"/>
+    <field name="state"/>
+    <field name="export_date_date"/>
+    <field name="export_date_time"/>
+</tree>

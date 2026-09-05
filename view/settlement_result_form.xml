@@ -20,4 +20,20 @@
     <label name="currency"/><field name="currency" readonly="1"/>
     <newline/>
     <label name="invoice"/><field name="invoice" colspan="4" readonly="1"/>
+    <newline/>
+    <label name="bved_state"/><field name="bved_state"/>
+    <label name="bved_import_date"/><field name="bved_import_date" readonly="1"/>
+    <newline/>
+    <label name="bved_import_line"/><field name="bved_import_line" colspan="4" readonly="1"/>
+    <newline/>
+    <separator name="bved_check_message" colspan="6"/>
+    <field name="bved_check_message" colspan="6" readonly="1"/>
+    <newline/>
+    <label name="bved_e835_labor_share_user_total"/><field name="bved_e835_labor_share_user_total" readonly="1"/>
+    <label name="bved_p_user_amount_total"/><field name="bved_p_user_amount_total" readonly="1"/>
+    <newline/>
+    <group colspan="6" id="settlement_result_bved_matched_lines">
+        <field name="bved_matched_lines" readonly="1"
+            view_ids="real_estate.bved_import_line_view_list,real_estate.bved_import_line_view_form"/>
+    </group>
 </form>

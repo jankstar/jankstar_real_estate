@@ -25,6 +25,7 @@ from . import settlement_result
 from . import option_rate
 from . import option_rate_wizard
 from . import co2_kostaufg
+from . import bved
 
 __all__ = ['register']
 
@@ -107,7 +108,15 @@ def register():
         option_rate_wizard.OptionRateUpdateResult,
         co2_kostaufg.Co2KostAufg,
         co2_kostaufg.Co2KostAufgConsumption,
+        co2_kostaufg.Co2KostAufgConsumptionEnergyMix,
         co2_kostaufg.Co2EmissionShare,
+        bved.BvedServiceProvider,
+        bved.BvedProviderAssignment,
+        bved.BvedObjectNumber,
+        bved.BvedExportBillingUnit,
+        bved.BvedExport,
+        bved.BvedImport,
+        bved.BvedImportLine,
         module='real_estate', type_='model')
     Pool.register(
         contract_wizard.CreateContractMovesWizard,

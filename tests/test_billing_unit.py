@@ -217,12 +217,14 @@ def create_su_external(bu, cost_type, usable_space_type) -> None:
     su.type = cost_type
     su.sequence = cost_type.sequence
     su.allocation_rule = 'allocation_from_external_billing'
+    su.vacancy = 'by_owner'
     su.reg_ex_object = 'Wohnung|Einzelhandel'
     su.option_rate_method = 'dynamic_measurement'
     su.option_measurement_type = usable_space_type
     su.save()
     print(f'    SU {su.sequence}: {cost_type.name} '
-          f'→ externe Abrechnung / Objekt-Regex: "Wohnung|Einzelhandel"')
+          f'→ externe Abrechnung / Objekt-Regex: "Wohnung|Einzelhandel" '
+          f'/ Leerstand: Eigentümer')
 
 
 # ---------------------------------------------------------------------------

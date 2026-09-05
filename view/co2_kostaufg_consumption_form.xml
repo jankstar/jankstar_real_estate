@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<form col="4">
+    <label name="sequence"/><field name="sequence"/>
+    <label name="split"/><field name="split"/>
+    <newline/>
+    <label name="date_from"/><field name="date_from"/>
+    <label name="date_to"/><field name="date_to"/>
+    <newline/>
+    <label name="consumption_kwh"/><field name="consumption_kwh"/>
+    <label name="co2_kg_per_kwh"/><field name="co2_kg_per_kwh"/>
+    <newline/>
+    <label name="co2_emission_kg"/><field name="co2_emission_kg"/>
+    <newline/>
+    <label name="co2_price_ct_per_kwh"/><field name="co2_price_ct_per_kwh"/>
+    <label name="vat_rate"/><field name="vat_rate"/>
+    <newline/>
+    <label name="co2_cost_net"/><field name="co2_cost_net"/>
+    <label name="co2_cost_gross"/><field name="co2_cost_gross"/>
+    <newline/>
+    <separator name="energy_mix" colspan="4"/>
+    <field name="energy_mix" colspan="4"
+        view_ids="real_estate.co2_kostaufg_consumption_energy_mix_view_list"/>
+</form>

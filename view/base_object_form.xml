@@ -139,8 +139,14 @@ this repository contains the full copyright notices and license terms. -->
         </page>
 
         <page name="parties" col="1">
-            <field name="parties" 
+            <field name="parties"
                 view_ids="real_estate.base_object_view_list_object_party"/>
+        </page>
+
+        <page string="BVED Provider Assignments"
+                id="page_bved_provider_assignments" col="1">
+            <field name="bved_provider_assignments"
+                view_ids="real_estate.base_object_view_list_bved_provider_assignment"/>
         </page>
 
         <page name="children" col="1">

@@ -16,6 +16,8 @@ from decimal import Decimal, ROUND_HALF_UP
 
 import logging
 
+from . import bved_records
+
 logger = logging.getLogger(__name__)
 
 
@@ -48,6 +50,17 @@ class CostType(DeactivableMixin, sequence_ordered(), ModelSQL, ModelView):
         help="Days before the target date within which a meter reading is accepted.")
     reading_post_days = fields.Integer("Valid Reading Post-Days",
         help="Days after the target date within which a meter reading is accepted.")
+
+    bved_cost_key = fields.Selection(
+        'get_bved_cost_keys', "BVED Cost Type Key", sort=False,
+        help="BVED Tabelle 'K' code used for K-Satz field 6 when this cost "
+             "type is exported to a Messdienstleister. Codes 200 and 202 "
+             "are excluded - those are handled via allocation_by_"
+             "consumption settlement units, not this field.")
+
+    @staticmethod
+    def get_bved_cost_keys():
+        return [('', '')] + bved_records.as_selection(bved_records.TABLE_K)
 
     @staticmethod
     def default_reading_pre_days():
@@ -114,6 +127,32 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
             "If set, all settlement units must use 'Allocation from external billing'. "
             "The allocation rule on each settlement unit is locked accordingly."
         ))
+
+    bved_provider_assignment = fields.Many2One(
+        'real_estate.bved.provider_assignment', "BVED Provider Assignment",
+        ondelete='RESTRICT',
+        domain=[
+            ('base_object', 'child_of', [Eval('property', -1)], 'parent'),
+            ('valid_from', '<=', Eval('start_date')),
+            ['OR', ('valid_to', '=', None),
+                ('valid_to', '>=', Eval('start_date'))],
+            ],
+        states={
+            'invisible': ~Eval('external_billing', False),
+            'readonly': Eval('state') != 'draft',
+            },
+        depends=['external_billing', 'state', 'property', 'start_date'],
+        help="Which property/building-level BVED provider assignment "
+             "(provider, customer number, Liegenschaftsnummer) applies to "
+             "this billing unit. Configure the assignment itself on the "
+             "property or the relevant building.")
+
+    bved_object_numbers = fields.Function(
+        fields.One2Many('real_estate.bved.object_number', None,
+            "BVED Object Numbers",
+            states={'invisible': ~Eval('external_billing', False)},
+            depends=['external_billing']),
+        'get_bved_object_numbers')
 
     billing_type = fields.Selection([
         ('planned_billing', 'Planned Billing'),
@@ -240,12 +279,124 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
         fields.Boolean("Purchase Taxes as Expense"),
         'on_change_with_purchase_taxes_expense')
 
+    # --- CO2KostAufG (CO2 Cost Allocation Act) aggregation. Settlement
+    # units only keep the reference to a co2_kostaufg record and the raw
+    # consumption rows overlapping their own period (see
+    # SettlementUnit.co2_kostaufg / co2_consumption); everything derived
+    # from those rows (totals, area, shares) is aggregated here across
+    # ALL settlement units of this billing unit that carry a co2_kostaufg
+    # reference, scoped to this billing unit's own period.
+    co2_relevant = fields.Function(
+        fields.Boolean("CO2 Relevant"), 'on_change_with_co2_relevant')
+
+    non_residential_flag = fields.Boolean(
+        "Non-residential building >50% commercial (§8)",
+        states={'invisible': ~Eval('co2_relevant', False)},
+        depends=['co2_relevant'],
+        help="CO2KostAufG §8: if set, more than 50% of this billing "
+             "unit's usable area is commercial, so CO2 costs are split "
+             "using the fixed commercial tenant/landlord share from "
+             "settings instead of the residential emission-per-m² tier "
+             "table. This is also the corresponding BVED L-Satz field "
+             "19 (Kennzeichen Nichtwohngebäude).")
+
+    _co2_residential_invisible = (
+        ~Eval('co2_relevant', False) | Bool(Eval('non_residential_flag', False)))
+    _co2_commercial_invisible = (
+        ~Eval('co2_relevant', False) | ~Eval('non_residential_flag', False))
+
+    co2_measurement_type = fields.Many2One(
+        'real_estate.measurement.type', "Area Measurement Type",
+        domain=[('types', '=', ['object'])],
+        states={
+            'invisible': _co2_residential_invisible,
+            'readonly': Eval('state') != 'draft',
+            },
+        depends=['co2_relevant', 'non_residential_flag', 'state'])
+
+    co2_consumptions = fields.Function(
+        fields.One2Many('real_estate.co2_kostaufg.consumption', None,
+            "Consumption Records", readonly=True,
+            help="All consumption records of every co2_kostaufg "
+                 "referenced by one of this billing unit's settlement "
+                 "units that overlap the billing unit's period.",
+            states={'invisible': _co2_residential_invisible},
+            depends=['co2_relevant', 'non_residential_flag']),
+        'on_change_with_co2_consumptions')
+
+    co2_total_consumption = fields.Function(
+        fields.Float("Total Consumption (kWh)",
+            states={'invisible': _co2_residential_invisible},
+            depends=['co2_relevant', 'non_residential_flag']),
+        'on_change_with_co2_total_consumption')
+
+    co2_total_emission = fields.Function(
+        fields.Float("Total Emission (kg CO2)",
+            states={'invisible': _co2_residential_invisible},
+            depends=['co2_relevant', 'non_residential_flag']),
+        'on_change_with_co2_total_emission')
+
+    co2_total_cost_gross = fields.Function(
+        fields.Numeric("Total CO2 Cost (gross)", digits=(16, 2),
+            states={'invisible': _co2_residential_invisible},
+            depends=['co2_relevant', 'non_residential_flag']),
+        'on_change_with_co2_total_cost_gross')
+
+    co2_total_area = fields.Function(
+        fields.Float("Total Area",
+            states={'invisible': _co2_residential_invisible},
+            depends=['co2_relevant', 'non_residential_flag']),
+        'on_change_with_co2_total_area')
+
+    co2_emission_per_m2 = fields.Function(
+        fields.Numeric("CO2 Emission (kg per m² per year)", digits=(16, 2),
+            states={'invisible': _co2_residential_invisible},
+            depends=['co2_relevant', 'non_residential_flag']),
+        'on_change_with_co2_emission_per_m2')
+
+    co2_tenant_share = fields.Function(
+        fields.Numeric("Tenant Share (%)", digits=(5, 2),
+            states={'invisible': _co2_residential_invisible},
+            depends=['co2_relevant', 'non_residential_flag']),
+        'on_change_with_co2_tenant_share')
+
+    co2_landlord_share = fields.Function(
+        fields.Numeric("Landlord Share (%)", digits=(5, 2),
+            states={'invisible': _co2_residential_invisible},
+            depends=['co2_relevant', 'non_residential_flag']),
+        'on_change_with_co2_landlord_share')
+
+    co2_commercial_tenant_share = fields.Function(
+        fields.Numeric("Commercial Tenant Share (%)", digits=(5, 2),
+            help="100% minus the company's configured CO2 Landlord Share "
+                 "(Commercial) (real_estate.re_accounting).",
+            states={'invisible': _co2_commercial_invisible},
+            depends=['co2_relevant', 'non_residential_flag']),
+        'on_change_with_co2_commercial_tenant_share')
+
+    co2_commercial_landlord_share = fields.Function(
+        fields.Numeric("Commercial Landlord Share (%)", digits=(5, 2),
+            help="The company's configured CO2 Landlord Share "
+                 "(Commercial) (real_estate.re_accounting).",
+            states={'invisible': _co2_commercial_invisible},
+            depends=['co2_relevant', 'non_residential_flag']),
+        'on_change_with_co2_commercial_landlord_share')
+
     @classmethod
     def view_attributes(cls):
         return super().view_attributes() + [
             ('//page[@id="page_option_rate"]', 'states', {
                 'invisible': Bool(Eval('purchase_taxes_expense', False)),
             }),
+            ('//page[@id="page_bved"]', 'states', {
+                'invisible': ~Eval('external_billing', False),
+            }),
+            ('//page[@id="page_co2"]', 'states', {
+                'invisible': ~Eval('co2_relevant', False),
+            }),
+            ('/tree', 'visual',
+                If(Eval('is_next_billing', False), 'success', ''),
+                ['is_next_billing']),
             ]
 
     @fields.depends('company', '_parent_company.purchase_taxes_expense')
@@ -254,6 +405,153 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
             return self.company.purchase_taxes_expense
         return False
 
+    def _co2_settlement_units(self):
+        """Settlement units of this billing unit that reference a
+        co2_kostaufg record."""
+        return [su for su in (self.settlement_units or []) if su.co2_kostaufg]
+
+    @fields.depends('settlement_units')
+    def on_change_with_co2_relevant(self, name=None):
+        return bool(self._co2_settlement_units())
+
+    def _co2_consumption_rows(self):
+        """Consumption rows of every co2_kostaufg referenced by a
+        settlement unit of this billing unit, overlapping this billing
+        unit's own period [start_date, end_date]."""
+        co2_units = self._co2_settlement_units()
+        if not co2_units or not self.start_date or not self.end_date:
+            return []
+        Consumption = Pool().get('real_estate.co2_kostaufg.consumption')
+        parent_ids = list({su.co2_kostaufg.id for su in co2_units})
+        return Consumption.search([
+            ('parent', 'in', parent_ids),
+            ('date_from', '<=', self.end_date),
+            ('date_to', '>=', self.start_date),
+            ])
+
+    def _co2_period_fraction(self, row):
+        """Fraction (0..1] of `row`'s own [date_from, date_to] range that
+        falls inside this billing unit's period [start_date, end_date].
+        A row entirely inside the period returns 1 (no interpolation); a
+        row extending beyond either boundary is interpolated pro-rata by
+        days - always relative to the row's own actual date range, so a
+        row never gets extrapolated past data it doesn't actually cover."""
+        overlap_start = max(row.date_from, self.start_date)
+        overlap_end = min(row.date_to, self.end_date)
+        overlap_days = (overlap_end - overlap_start).days + 1
+        row_days = (row.date_to - row.date_from).days + 1
+        return Decimal(overlap_days) / Decimal(row_days)
+
+    def _co2_objects(self):
+        """Union (deduplicated by id) of the covered objects of every
+        co2_kostaufg-referencing settlement unit of this billing unit."""
+        objects = []
+        seen_ids = set()
+        for su in self._co2_settlement_units():
+            for obj in (su.objects or []):
+                if obj.id not in seen_ids:
+                    seen_ids.add(obj.id)
+                    objects.append(obj)
+        return objects
+
+    @fields.depends('settlement_units', 'start_date', 'end_date')
+    def on_change_with_co2_consumptions(self, name=None):
+        return self._co2_consumption_rows()
+
+    @fields.depends('settlement_units', 'start_date', 'end_date')
+    def on_change_with_co2_total_consumption(self, name=None):
+        total = Decimal(0)
+        for row in self._co2_consumption_rows():
+            if row.consumption_kwh is not None:
+                total += row.consumption_kwh * self._co2_period_fraction(row)
+        return float(total)
+
+    @fields.depends('settlement_units', 'start_date', 'end_date')
+    def on_change_with_co2_total_emission(self, name=None):
+        total = Decimal(0)
+        for row in self._co2_consumption_rows():
+            if row.co2_emission_kg is not None:
+                total += row.co2_emission_kg * self._co2_period_fraction(row)
+        return float(total)
+
+    @fields.depends('settlement_units', 'start_date', 'end_date')
+    def on_change_with_co2_total_cost_gross(self, name=None):
+        total = Decimal(0)
+        for row in self._co2_consumption_rows():
+            if row.co2_cost_gross is not None:
+                total += row.co2_cost_gross * self._co2_period_fraction(row)
+        return total.quantize(Decimal('0.01'))
+
+    @fields.depends('settlement_units', 'co2_measurement_type', 'end_date')
+    def on_change_with_co2_total_area(self, name=None):
+        if not self.co2_measurement_type or not self.end_date:
+            return None
+        objects = self._co2_objects()
+        if not objects:
+            return None
+        pool = Pool()
+        MeasurementType = pool.get('real_estate.measurement.type')
+        Measurement = pool.get('real_estate.measurement')
+        effective_ids = MeasurementType.get_effective_ids(self.co2_measurement_type)
+        if not effective_ids:
+            return None
+        total = 0.0
+        for obj in objects:
+            measurements = Measurement.search([
+                ('base_object', '=', obj.id),
+                ('m_type', 'in', effective_ids),
+                ('valid_from', '<=', self.end_date),
+                ], order=[('valid_from', 'DESC')], limit=1)
+            if measurements:
+                total += float(measurements[0].value or 0)
+        return total
+
+    @fields.depends('settlement_units', 'co2_measurement_type', 'start_date',
+        'end_date',
+        methods=['on_change_with_co2_total_emission',
+            'on_change_with_co2_total_area'])
+    def on_change_with_co2_emission_per_m2(self, name=None):
+        total_area = self.on_change_with_co2_total_area()
+        if not total_area or not self.start_date or not self.end_date:
+            return None
+        time_total = (self.end_date - self.start_date).days + 1
+        if not time_total:
+            return None
+        total_emission = self.on_change_with_co2_total_emission()
+        value = (Decimal(str(total_emission)) / Decimal(str(total_area))
+            * Decimal(365) / Decimal(time_total))
+        return value.quantize(Decimal('0.01'))
+
+    @fields.depends('settlement_units', 'co2_measurement_type', 'start_date',
+        'end_date', methods=['on_change_with_co2_emission_per_m2'])
+    def on_change_with_co2_tenant_share(self, name=None):
+        Co2EmissionShare = Pool().get('real_estate.co2_emission_share')
+        share = Co2EmissionShare.get_share(
+            self.on_change_with_co2_emission_per_m2())
+        return share.tenant_share if share else None
+
+    @fields.depends('settlement_units', 'co2_measurement_type', 'start_date',
+        'end_date', methods=['on_change_with_co2_emission_per_m2'])
+    def on_change_with_co2_landlord_share(self, name=None):
+        Co2EmissionShare = Pool().get('real_estate.co2_emission_share')
+        share = Co2EmissionShare.get_share(
+            self.on_change_with_co2_emission_per_m2())
+        return share.landlord_share if share else None
+
+    @fields.depends('company', '_parent_company.re_accounting')
+    def on_change_with_co2_commercial_landlord_share(self, name=None):
+        if self.company and self.company.re_accounting:
+            return self.company.re_accounting.co2_landlord_share_commercial
+        return None
+
+    @fields.depends('company',
+        methods=['on_change_with_co2_commercial_landlord_share'])
+    def on_change_with_co2_commercial_tenant_share(self, name=None):
+        value = self.on_change_with_co2_commercial_landlord_share()
+        if value is None:
+            return None
+        return Decimal(100) - value
+
     @classmethod
     def default_option_rate_value(cls):
         return 0.0
@@ -261,6 +559,10 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
     @staticmethod
     def default_option_rate_method():
         return 'fix_0'
+
+    @staticmethod
+    def default_non_residential_flag():
+        return False
 
     @classmethod
     def __setup__(cls):
@@ -617,6 +919,25 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
                         name=bu.name,
                         sr_sum=str(sr_sum),
                         bu_sum=str(cs_sum)))
+
+            # BVED: tenant-facing settlement results must have their
+            # imported provider result validated before billing can proceed
+            # - awaiting_import/validation_error block invoicing on
+            # (possibly stale or unchecked) figures.
+            if bu.external_billing and bu.bved_provider_assignment:
+                not_validated = [
+                    r for r in results
+                    if r.contract and r.bved_state != 'validated'
+                ]
+                if not_validated:
+                    details = '\n'.join(
+                        f'  {r.contract.rec_name if r.contract else "?"}'
+                        f' / {r.base_object.rec_name if r.base_object else "?"}'
+                        f' [bved_state: {r.bved_state or "?"}]'
+                        for r in not_validated)
+                    raise ValidationError(gettext(
+                        'real_estate.msg_billing_unit_bved_not_validated',
+                        name=bu.name, details=details))
 
     @classmethod
     @ModelView.button_action('real_estate.wizard_billing_unit')
@@ -1092,6 +1413,7 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
                 billing_type=template.billing_type,
                 external_billing=template.external_billing,
                 term_types_of_use=template.term_types_of_use,
+                bved_provider_assignment=template.bved_provider_assignment,
                 state='draft',
                 predecessor=template,
             )
@@ -1150,6 +1472,11 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
                         r.actual_costs, r.planned_costs)
             if existing:
                 SettlementResult.delete(existing)
+            bved_default_state = (
+                'awaiting_import'
+                if (billing_unit.external_billing
+                    and billing_unit.bved_provider_assignment)
+                else None)
             groups = {}
             for cs in billing_unit._get_cost_shares():
                 if cs.contract:
@@ -1286,6 +1613,7 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
                     actual_costs=g['actual_costs'],
                     advanced_payment=adv,
                     refund_receivable=refund,
+                    bved_state=bved_default_state,
                 )
                 result.save()
 
@@ -1312,6 +1640,7 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
                     actual_costs=Decimal(0),
                     advanced_payment=adv_amount,
                     refund_receivable=-adv_amount,
+                    bved_state=bved_default_state,
                 )
                 fallback.save()
                 fallback_count += 1
@@ -1562,18 +1891,11 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
             return False
         return bool(self.search([('predecessor', '=', self.id)], limit=1))
 
-    @classmethod
-    def view_attributes(cls):
-        return super().view_attributes() + [
-            ('/tree', 'visual',
-                If(Eval('is_next_billing', False), 'success', ''),
-                ['is_next_billing']),
-        ]
-
     def pre_validate(self):
         super().pre_validate()
         self.check_calculation_method()
         self.check_external_billing_rule()
+        self.check_bved_provider_assignment()
 
     def check_external_billing_rule(self):
         for su in (self.settlement_units or []):
@@ -1587,6 +1909,54 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
                     raise InvalidExternalBillingRule(
                         f"Settlement unit '{su.rec_name}': allocation rule "
                         f"'Allocation from external billing' is only allowed when external billing is set on the billing unit.")
+
+    def bved_covered_object_ids(self):
+        """type='object' base objects covered by at least one non-
+        'no_allocation' settlement unit of this billing unit."""
+        return sorted({
+            obj.id
+            for su in (self.settlement_units or [])
+            if su.allocation_rule != 'no_allocation'
+            for obj in (su.objects or [])
+            })
+
+    def get_bved_object_numbers(self, name=None):
+        if not self.bved_provider_assignment:
+            return []
+        covered_ids = self.bved_covered_object_ids()
+        if not covered_ids:
+            return []
+        ObjectNumber = Pool().get('real_estate.bved.object_number')
+        return [m.id for m in ObjectNumber.search([
+            ('provider_assignment', '=', self.bved_provider_assignment.id),
+            ('base_object', 'in', covered_ids),
+            ])]
+
+    def check_bved_provider_assignment(self):
+        """Raise if bved_provider_assignment is set and at least one
+        object covered by this billing unit is neither the assignment's
+        own base_object nor a descendant of it (e.g. an object from a
+        different building than the one referenced)."""
+        assignment = self.bved_provider_assignment
+        if not assignment:
+            return
+        covered_ids = self.bved_covered_object_ids()
+        if not covered_ids:
+            return
+        pool = Pool()
+        BaseObject = pool.get('real_estate.base_object')
+        scope_id = assignment.base_object.id
+        inside_ids = {scope_id} | {
+            obj.id for obj in BaseObject.search([
+                ('id', 'in', covered_ids),
+                ('parent', 'child_of', [scope_id], 'parent'),
+                ])}
+        outside_ids = [i for i in covered_ids if i not in inside_ids]
+        if outside_ids:
+            names = ', '.join(BaseObject(i).rec_name for i in outside_ids)
+            raise ValidationError(gettext(
+                'real_estate.msg_billing_unit_bved_assignment_conflict',
+                name=self.name, details=names))
 
     @fields.depends('calculation_method', 'start_date')
     def check_calculation_method(self, name=None):

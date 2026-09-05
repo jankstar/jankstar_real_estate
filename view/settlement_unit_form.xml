@@ -39,6 +39,8 @@
             <newline/>
             <label name="predecessor"/><field name="predecessor" readonly="1"/>
             <newline/>
+            <label name="bved_fuel_data"/><field name="bved_fuel_data" xexpand="0" width="15"/>
+            <newline/>
             <separator name="comment" colspan="6"/>
             <field name="comment" colspan="6"/>
         </page>
@@ -72,24 +74,47 @@
         </page>
         <page string="CO2 Costs" id="page_co2" col="4">
             <label name="co2_kostaufg"/><field name="co2_kostaufg"/>
-            <label name="co2_measurement_type"/><field name="co2_measurement_type"/>
-            <newline/>
-            <label name="co2_total_consumption"/><field name="co2_total_consumption"/>
-            <label name="co2_total_emission"/><field name="co2_total_emission"/>
-            <newline/>
-            <label name="co2_total_area"/><field name="co2_total_area"/>
-            <label name="co2_total_cost_gross"/><field name="co2_total_cost_gross"/>
-            <newline/>
-            <label name="co2_emission_per_m2"/><field name="co2_emission_per_m2"/>
-            <newline/>
-            <label name="co2_tenant_share"/><field name="co2_tenant_share"/>
-            <label name="co2_landlord_share"/><field name="co2_landlord_share"/>
-            <newline/>
-            <label name="co2_commercial_tenant_share"/><field name="co2_commercial_tenant_share"/>
-            <label name="co2_commercial_landlord_share"/><field name="co2_commercial_landlord_share"/>
             <newline/>
             <field name="co2_consumption" colspan="4"
                 view_ids="real_estate.co2_kostaufg_consumption_view_list"/>
+        </page>
+        <page string="B-Satz / Brennstoff" id="page_bved_fuel" col="4">
+            <label name="bved_fuel_type"/><field name="bved_fuel_type" colspan="3"/>
+            <label name="bved_heating_value"/><field name="bved_heating_value"/>
+            <newline/>
+            <label name="bved_stock_start_date"/><field name="bved_stock_start_date"/>
+            <label name="bved_stock_start_quantity"/><field name="bved_stock_start_quantity"/>
+            <newline/>
+            <label name="bved_stock_start_amount_gross"/><field name="bved_stock_start_amount_gross"/>
+            <label name="bved_stock_start_amount_net"/><field name="bved_stock_start_amount_net"/>
+            <newline/>
+            <label name="bved_stock_end_date"/><field name="bved_stock_end_date"/>
+            <label name="bved_stock_end_quantity"/><field name="bved_stock_end_quantity"/>
+            <newline/>
+            <label name="bved_stock_end_amount_gross"/><field name="bved_stock_end_amount_gross"/>
+            <label name="bved_stock_end_amount_net"/><field name="bved_stock_end_amount_net"/>
+            <newline/>
+            <label name="bved_ww_temperature"/><field name="bved_ww_temperature"/>
+            <label name="bved_ww_consumption_m3"/><field name="bved_ww_consumption_m3"/>
+            <newline/>
+            <label name="bved_ww_percentage"/><field name="bved_ww_percentage"/>
+            <newline/>
+            <label name="bved_ww_meter_start"/><field name="bved_ww_meter_start"/>
+            <label name="bved_ww_meter_end"/><field name="bved_ww_meter_end"/>
+            <newline/>
+            <label name="bved_supply_period_heating_1_start"/><field name="bved_supply_period_heating_1_start"/>
+            <label name="bved_supply_period_heating_1_end"/><field name="bved_supply_period_heating_1_end"/>
+            <newline/>
+            <label name="bved_supply_period_heating_2_start"/><field name="bved_supply_period_heating_2_start"/>
+            <label name="bved_supply_period_heating_2_end"/><field name="bved_supply_period_heating_2_end"/>
+            <newline/>
+            <label name="bved_supply_period_ww_1_start"/><field name="bved_supply_period_ww_1_start"/>
+            <label name="bved_supply_period_ww_1_end"/><field name="bved_supply_period_ww_1_end"/>
+            <newline/>
+            <label name="bved_supply_period_ww_2_start"/><field name="bved_supply_period_ww_2_start"/>
+            <label name="bved_supply_period_ww_2_end"/><field name="bved_supply_period_ww_2_end"/>
+            <newline/>
+            <label name="bved_primary_energy_factor"/><field name="bved_primary_energy_factor"/>
         </page>
     </notebook>
 

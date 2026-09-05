@@ -11,6 +11,10 @@
             <label name="base_object"/><field name="base_object" colspan="3"/>
             <label name="billing_unit"/><field name="billing_unit" colspan="3"/>
             <label name="settlement_unit"/><field name="settlement_unit" colspan="3"/>
+            <newline/>
+            <label name="bved_fuel_type"/><field name="bved_fuel_type" colspan="3"/>
+            <label name="bved_fuel_quantity"/><field name="bved_fuel_quantity"/>
+            <label name="bved_fuel_unit"/><field name="bved_fuel_unit"/>
         </page>
     </xpath>
 </data>

@@ -319,7 +319,7 @@ msgstr "Vertrag"
 
 msgctxt "field:account.invoice.line,estg_35a:"
 msgid "§35a EStG"
-msgstr ""
+msgstr "§35a EStG"
 
 msgctxt "field:account.invoice.line,invoice_date:"
 msgid "Invoice Date"
@@ -919,6 +919,99 @@ msgstr "Wirtschaftseinheit"
 msgctxt "field:real_estate.billing_unit,purchase_taxes_expense:"
 msgid "Purchase Taxes as Expense"
 msgstr "Vorsteuer als Aufwand verbuchen"
+
+msgctxt "field:real_estate.billing_unit,co2_relevant:"
+msgid "CO2 Relevant"
+msgstr "CO2-relevant"
+
+msgctxt "field:real_estate.billing_unit,non_residential_flag:"
+msgid "Non-residential building >50% commercial (§8)"
+msgstr "Nichtwohngebäude >50% gewerblich (§8)"
+
+msgctxt "help:real_estate.billing_unit,non_residential_flag:"
+msgid ""
+"CO2KostAufG §8: if set, more than 50% of this billing unit's usable "
+"area is commercial, so CO2 costs are split using the fixed commercial "
+"tenant/landlord share from settings instead of the residential "
+"emission-per-m² tier table. This is also the corresponding BVED L-Satz "
+"field 19 (Kennzeichen Nichtwohngebäude)."
+msgstr ""
+"CO2KostAufG §8: wenn gesetzt, sind mehr als 50% der Nutzfläche dieser "
+"Abrechnungseinheit gewerblich, sodass die CO2-Kosten anhand des fest "
+"in den Einstellungen konfigurierten Gewerbe-Mieter-/Vermieteranteils "
+"statt der Wohn-Stufentabelle (CO2-Emission je m²) verteilt werden. "
+"Dies ist zugleich das entsprechende BVED L-Satz Feld 19 (Kennzeichen "
+"Nichtwohngebäude)."
+
+msgctxt "field:real_estate.billing_unit,co2_measurement_type:"
+msgid "Area Measurement Type"
+msgstr "Bemessungstyp Fläche"
+
+msgctxt "field:real_estate.billing_unit,co2_consumptions:"
+msgid "Consumption Records"
+msgstr "Verbrauchsdatensätze"
+
+msgctxt "help:real_estate.billing_unit,co2_consumptions:"
+msgid ""
+"All consumption records of every co2_kostaufg referenced by one of "
+"this billing unit's settlement units that overlap the billing unit's "
+"period."
+msgstr ""
+"Alle Verbrauchsdatensätze jeder CO2KostAufG, die von einem Kostensammler "
+"dieser Abrechnungseinheit referenziert wird und sich mit dem Zeitraum "
+"der Abrechnungseinheit überschneiden."
+
+msgctxt "field:real_estate.billing_unit,co2_total_consumption:"
+msgid "Total Consumption (kWh)"
+msgstr "Gesamtverbrauch (kWh)"
+
+msgctxt "field:real_estate.billing_unit,co2_total_emission:"
+msgid "Total Emission (kg CO2)"
+msgstr "Gesamt Emission (kg CO2)"
+
+msgctxt "field:real_estate.billing_unit,co2_total_cost_gross:"
+msgid "Total CO2 Cost (gross)"
+msgstr "Gesamtkosten CO2 (brutto)"
+
+msgctxt "field:real_estate.billing_unit,co2_total_area:"
+msgid "Total Area"
+msgstr "Gesamtfläche"
+
+msgctxt "field:real_estate.billing_unit,co2_emission_per_m2:"
+msgid "CO2 Emission (kg per m² per year)"
+msgstr "CO2-Emission (kg je m² und Jahr)"
+
+msgctxt "field:real_estate.billing_unit,co2_tenant_share:"
+msgid "Tenant Share (%)"
+msgstr "Mieteranteil (%)"
+
+msgctxt "field:real_estate.billing_unit,co2_landlord_share:"
+msgid "Landlord Share (%)"
+msgstr "Vermieteranteil (%)"
+
+msgctxt "field:real_estate.billing_unit,co2_commercial_tenant_share:"
+msgid "Commercial Tenant Share (%)"
+msgstr "Gewerbe Mieteranteil (%)"
+
+msgctxt "help:real_estate.billing_unit,co2_commercial_tenant_share:"
+msgid ""
+"100% minus the company's configured CO2 Landlord Share (Commercial) "
+"(real_estate.re_accounting)."
+msgstr ""
+"100% abzüglich des im Unternehmen konfigurierten CO2 Anteil Vermieter "
+"Gewerbe (real_estate.re_accounting)."
+
+msgctxt "field:real_estate.billing_unit,co2_commercial_landlord_share:"
+msgid "Commercial Landlord Share (%)"
+msgstr "Gewerbe Vermieteranteil (%)"
+
+msgctxt "help:real_estate.billing_unit,co2_commercial_landlord_share:"
+msgid ""
+"The company's configured CO2 Landlord Share (Commercial) "
+"(real_estate.re_accounting)."
+msgstr ""
+"Der im Unternehmen konfigurierte CO2 Anteil Vermieter Gewerbe "
+"(real_estate.re_accounting)."
 
 msgctxt "field:real_estate.billing_unit,settlement_units:"
 msgid "Settlement Units"
@@ -5420,15 +5513,15 @@ msgstr ""
 
 msgctxt "selection:account.invoice.line,estg_35a:"
 msgid "Para. 1 - Minor Employment in the Household"
-msgstr ""
+msgstr "§ 35a Abs. 1 – Geringfügige Beschäftigungsverhältnisse im Haushalt"
 
 msgctxt "selection:account.invoice.line,estg_35a:"
 msgid "Para. 2 - Household-Related Services (e.g. Garden Maintenance)"
-msgstr ""
+msgstr "§ 35a Abs. 2 – Haushaltsnahe Dienstleistungen (z.B. Gartenpflege)"
 
 msgctxt "selection:account.invoice.line,estg_35a:"
 msgid "Para. 3 - Craftsmen Services (e.g. Chimney Sweep)"
-msgstr ""
+msgstr "§ 35a Abs. 3 – Handwerkerleistungen (z.B. Schornsteinfeger)"
 
 msgctxt "selection:account.invoice.line,estg_35a:"
 msgid "none"
@@ -6074,6 +6167,10 @@ msgid "Compute Value Shares"
 msgstr "Kostenanteile berechnen"
 
 msgctxt "view:real_estate.billing_unit:"
+msgid "CO2 Costs"
+msgstr "CO2 Kosten"
+
+msgctxt "view:real_estate.billing_unit:"
 msgid "Cost Objects"
 msgstr "Kostensammler"
 
@@ -6527,62 +6624,6 @@ msgstr ""
 "Alle Verbrauchsdatensätze der referenzierten CO2KostAufG, die sich "
 "mit dem Abrechnungszeitraum (Zeitraum der Billing Unit) überschneiden."
 
-msgctxt "field:real_estate.settlement_unit,co2_measurement_type:"
-msgid "Area Measurement Type"
-msgstr "Bemessungstyp Fläche"
-
-msgctxt "field:real_estate.settlement_unit,co2_total_consumption:"
-msgid "Total Consumption (kWh)"
-msgstr "Gesamtverbrauch (kWh)"
-
-msgctxt "field:real_estate.settlement_unit,co2_total_emission:"
-msgid "Total Emission (kg CO2)"
-msgstr "Gesamt Emission (kg CO2)"
-
-msgctxt "field:real_estate.settlement_unit,co2_total_cost_gross:"
-msgid "Total CO2 Cost (gross)"
-msgstr "Gesamtkosten CO2 (brutto)"
-
-msgctxt "field:real_estate.settlement_unit,co2_total_area:"
-msgid "Total Area"
-msgstr "Gesamtfläche"
-
-msgctxt "field:real_estate.settlement_unit,co2_emission_per_m2:"
-msgid "CO2 Emission (kg per m² per year)"
-msgstr "CO2-Emission (kg je m² und Jahr)"
-
-msgctxt "field:real_estate.settlement_unit,co2_tenant_share:"
-msgid "Tenant Share (%)"
-msgstr "Mieteranteil (%)"
-
-msgctxt "field:real_estate.settlement_unit,co2_landlord_share:"
-msgid "Landlord Share (%)"
-msgstr "Vermieteranteil (%)"
-
-msgctxt "field:real_estate.settlement_unit,co2_commercial_tenant_share:"
-msgid "Commercial Tenant Share (%)"
-msgstr "Gewerbe Mieteranteil (%)"
-
-msgctxt "help:real_estate.settlement_unit,co2_commercial_tenant_share:"
-msgid ""
-"100% minus the company's configured CO2 Landlord Share (Commercial) "
-"(real_estate.re_accounting)."
-msgstr ""
-"100% abzüglich des im Unternehmen konfigurierten CO2 Anteil Vermieter "
-"Gewerbe (real_estate.re_accounting)."
-
-msgctxt "field:real_estate.settlement_unit,co2_commercial_landlord_share:"
-msgid "Commercial Landlord Share (%)"
-msgstr "Gewerbe Vermieteranteil (%)"
-
-msgctxt "help:real_estate.settlement_unit,co2_commercial_landlord_share:"
-msgid ""
-"The company's configured CO2 Landlord Share (Commercial) "
-"(real_estate.re_accounting)."
-msgstr ""
-"Der im Unternehmen konfigurierte CO2 Anteil Vermieter Gewerbe "
-"(real_estate.re_accounting)."
-
 msgctxt "view:real_estate.settlement_unit:"
 msgid "CO2 Costs"
 msgstr "CO2 Kosten"
@@ -6606,3 +6647,1169 @@ msgstr "Emission-CO2 Verteilung"
 msgctxt "model:ir.message,text:msg_co2_emission_share_sum_100"
 msgid "\"%(name)s\": tenant share and landlord share must add up to 100%%."
 msgstr "„%(name)s“: Mieteranteil und Vermieteranteil müssen zusammen 100%% ergeben."
+
+# ==========================================================================
+# BVED interface (bved.py) - field labels use the exact "Bezeichnung" from
+# the BVED/ARGE standard field tables (rechercheergebnis-bved-schnittstelle.md)
+# wherever a field corresponds 1:1 to a Satz field.
+# ==========================================================================
+
+msgctxt "model:real_estate.bved.service_provider,string:"
+msgid "BVED Service Provider"
+msgstr "BVED Messdienstleister"
+
+msgctxt "field:real_estate.bved.service_provider,party:"
+msgid "Party"
+msgstr "Partner"
+
+msgctxt "field:real_estate.bved.service_provider,name:"
+msgid "Name"
+msgstr "Name"
+
+msgctxt "field:real_estate.bved.service_provider,bved_key:"
+msgid "BVED Key"
+msgstr "Schlüssel Abrechnungsunternehmen"
+
+msgctxt "field:real_estate.bved.service_provider,bved_version:"
+msgid "BVED Version"
+msgstr "ARGE-Version"
+
+msgctxt "field:real_estate.bved.service_provider,transport_type:"
+msgid "Transport Type"
+msgstr "Übertragungsart"
+
+msgctxt "selection:real_estate.bved.service_provider,transport_type:"
+msgid "Manual (File Download/Upload)"
+msgstr "Manuell (Datei-Download/-Upload)"
+
+msgctxt "selection:real_estate.bved.service_provider,transport_type:"
+msgid "Email"
+msgstr "E-Mail"
+
+msgctxt "selection:real_estate.bved.service_provider,transport_type:"
+msgid "SFTP"
+msgstr "SFTP"
+
+msgctxt "selection:real_estate.bved.service_provider,transport_type:"
+msgid "Webservice API"
+msgstr "Webservice-API"
+
+msgctxt "field:real_estate.bved.service_provider,transport_config:"
+msgid "Transport Configuration"
+msgstr "Übertragungskonfiguration"
+
+msgctxt "model:real_estate.bved.provider_assignment,string:"
+msgid "BVED Provider Assignment"
+msgstr "BVED Provider-Liegenschaft"
+
+msgctxt "field:real_estate.bved.provider_assignment,base_object:"
+msgid "Property/Building"
+msgstr "Immobilie/Gebäude"
+
+msgctxt "field:real_estate.bved.provider_assignment,provider:"
+msgid "Provider"
+msgstr "Messdienstleister"
+
+msgctxt "field:real_estate.bved.provider_assignment,customer_number:"
+msgid "BVED Customer Number"
+msgstr "Kundennummer"
+
+msgctxt "field:real_estate.bved.provider_assignment,external_property_number:"
+msgid "BVED Property Number"
+msgstr "Ordnungsbegriff Abrechnungsunternehmen"
+
+msgctxt "field:real_estate.bved.provider_assignment,valid_from:"
+msgid "Valid From"
+msgstr "Gültig ab"
+
+msgctxt "field:real_estate.bved.provider_assignment,valid_to:"
+msgid "Valid To"
+msgstr "Gültig bis"
+
+msgctxt "field:real_estate.bved.provider_assignment,company:"
+msgid "Company"
+msgstr "Gesellschaft"
+
+msgctxt "field:real_estate.bved.provider_assignment,name:"
+msgid "Name"
+msgstr "Name"
+
+msgctxt "field:real_estate.bved.provider_assignment,object_numbers:"
+msgid "Object Numbers"
+msgstr "Objektnummern"
+
+msgctxt "field:real_estate.bved.provider_assignment,l_provider_key:"
+msgid "Provider Key"
+msgstr "Schlüssel Abrechnungsunternehmen"
+
+msgctxt "field:real_estate.bved.provider_assignment,l_street:"
+msgid "Street"
+msgstr "Straße"
+
+msgctxt "field:real_estate.bved.provider_assignment,l_country:"
+msgid "Country"
+msgstr "Land"
+
+msgctxt "field:real_estate.bved.provider_assignment,l_postal_code:"
+msgid "Postal Code"
+msgstr "Postleitzahl"
+
+msgctxt "field:real_estate.bved.provider_assignment,l_city:"
+msgid "City"
+msgstr "Ort"
+
+msgctxt "field:real_estate.bved.provider_assignment,l_period_start:"
+msgid "Period Start"
+msgstr "Beginn Abrechnungszeitraum"
+
+msgctxt "field:real_estate.bved.provider_assignment,l_period_end:"
+msgid "Period End"
+msgstr "Ende Abrechnungszeitraum"
+
+msgctxt "field:real_estate.bved.provider_assignment,l_vat_flag:"
+msgid "VAT Treatment"
+msgstr "Kennzeichen MwSt"
+
+msgctxt "help:real_estate.bved.provider_assignment,l_vat_flag:"
+msgid ""
+"Derived from the option rate of the billing units covered by this "
+"assignment: 100% option rate -> '4', 0% -> '3', anything in between -> "
+"'5' (decided per user via the M-Satz field)."
+msgstr ""
+"Wird aus dem Optionssatz der von dieser Zuordnung abgedeckten "
+"Abrechnungseinheiten ermittelt: Optionssatz 100% -> '4', 0% -> '3', "
+"dazwischen -> '5' (je Nutzer über das M-Satz-Feld entschieden)."
+
+msgctxt "selection:real_estate.bved.provider_assignment,l_vat_flag:"
+msgid "No VAT shown"
+msgstr "Keine MwSt ausgewiesen"
+
+msgctxt "selection:real_estate.bved.provider_assignment,l_vat_flag:"
+msgid "Net (fully opted for VAT)"
+msgstr "Netto (voll optiert)"
+
+msgctxt "selection:real_estate.bved.provider_assignment,l_vat_flag:"
+msgid "Per M-Satz field 25 (mixed/per user)"
+msgstr "Nach M-Satz Feld 25 (gemischt/je Nutzer)"
+
+msgctxt "field:real_estate.bved.provider_assignment,l_weg_flag:"
+msgid "WEG (Cash Basis)"
+msgstr "Kennzeichen WEG (Abflussprinzip)"
+
+msgctxt "help:real_estate.bved.provider_assignment,l_weg_flag:"
+msgid ""
+"Derived from the calculation method of the covered billing units: 'Cash "
+"basis' (WEG billing) sets this flag, 'Accrual basis' (rental apartment) "
+"does not."
+msgstr ""
+"Wird aus der Berechnungsmethode der abgedeckten Abrechnungseinheiten "
+"ermittelt: 'Abflussprinzip' (WEG-Abrechnung) setzt dieses Kennzeichen, "
+"'Leistungsprinzip' (Wohnungen) nicht."
+
+msgctxt "field:real_estate.bved.provider_assignment,l_non_residential_flag:"
+msgid ">50% Commercial (§8)"
+msgstr "§8 Nichtwohngebäude >50% gewerblich"
+
+msgctxt "help:real_estate.bved.provider_assignment,l_non_residential_flag:"
+msgid ""
+"True if any covered billing unit has its own 'Non-residential building "
+">50% commercial (§8)' flag set (CO2 Costs tab of the billing unit)."
+msgstr ""
+"Ist wahr, wenn mindestens eine abgedeckte Abrechnungseinheit ihr "
+"eigenes Kennzeichen 'Nichtwohngebäude >50% gewerblich (§8)' (Reiter "
+"CO2 Kosten der Abrechnungseinheit) gesetzt hat."
+
+msgctxt ""
+"field:real_estate.bved.provider_assignment,l_co2_landlord_share_percent:"
+msgid "CO2 Landlord Share (%)"
+msgstr "CO2-Anteil Vermieter, %"
+
+msgctxt ""
+"help:real_estate.bved.provider_assignment,l_co2_landlord_share_percent:"
+msgid ""
+"Taken from the landlord share of the heating cost settlement unit "
+"(bved_fuel_data) among the covered billing units, if any."
+msgstr ""
+"Wird aus dem Vermieteranteil der Heizkosten-Abrechnungseinheit "
+"(bved_fuel_data) unter den abgedeckten Abrechnungseinheiten übernommen, "
+"sofern vorhanden."
+
+msgctxt ""
+"field:real_estate.bved.provider_assignment,gross_floor_area_measurement_type:"
+msgid "Gross Floor Area Measurement Type"
+msgstr "Bemessungstyp Gesamtfläche"
+
+msgctxt ""
+"help:real_estate.bved.provider_assignment,gross_floor_area_measurement_type:"
+msgid ""
+"Which measurement type to sum (across every object covered by a billing "
+"unit assigned here, each counted once even if covered by several billing "
+"units) for L-Satz field 18 (Gesamtfläche). Leave empty to omit this "
+"Kann-Feld."
+msgstr ""
+"Welcher Bemessungstyp summiert werden soll (über alle Objekte, die von "
+"einer hier zugeordneten Abrechnungseinheit abgedeckt werden, jedes nur "
+"einmal auch wenn es in mehreren Abrechnungseinheiten vorkommt) für "
+"L-Satz Feld 18 (Gesamtfläche). Leer lassen, um dieses Kann-Feld "
+"auszulassen."
+
+msgctxt "field:real_estate.bved.provider_assignment,l_total_area:"
+msgid "Total Area"
+msgstr "Gesamtfläche"
+
+msgctxt "field:real_estate.bved.provider_assignment,vacancy_risk_flag:"
+msgid "Vacancy Risk Surcharge"
+msgstr "Kennzeichen Umlageausfallwagnis"
+
+msgctxt "help:real_estate.bved.provider_assignment,vacancy_risk_flag:"
+msgid ""
+"L-Satz field 13 (Kennzeichen Umlageausfallwagnis) - not derivable from "
+"any existing data, enter manually."
+msgstr ""
+"L-Satz Feld 13 (Kennzeichen Umlageausfallwagnis) - nicht aus "
+"vorhandenen Daten ableitbar, bitte manuell erfassen."
+
+msgctxt "field:real_estate.bved.provider_assignment,vacancy_risk_percent:"
+msgid "Vacancy Risk Surcharge (%)"
+msgstr "Umlageausfallwagnis, %"
+
+msgctxt "help:real_estate.bved.provider_assignment,vacancy_risk_percent:"
+msgid ""
+"L-Satz field 14 - percentage, only relevant if the surcharge flag above "
+"is set."
+msgstr ""
+"L-Satz Feld 14 - Prozentsatz, nur relevant, wenn das Kennzeichen oben "
+"gesetzt ist."
+
+msgctxt "field:real_estate.bved.provider_assignment,labor_share_flag:"
+msgid "Disclose Labor Share"
+msgstr "Kennzeichen Ausweisung Lohnanteil"
+
+msgctxt "help:real_estate.bved.provider_assignment,labor_share_flag:"
+msgid ""
+"L-Satz field 15 (Kennzeichen Ausweisung Lohnanteil) - not derivable "
+"from any existing data, enter manually."
+msgstr ""
+"L-Satz Feld 15 (Kennzeichen Ausweisung Lohnanteil) - nicht aus "
+"vorhandenen Daten ableitbar, bitte manuell erfassen."
+
+msgctxt "field:real_estate.bved.provider_assignment,energy_improvement_flag:"
+msgid "Energy Improvement (§9)"
+msgstr "Energieverbesserung (§9)"
+
+msgctxt "help:real_estate.bved.provider_assignment,energy_improvement_flag:"
+msgid ""
+"L-Satz field 20 - legal fact about the building, not derivable from any "
+"existing data, enter manually."
+msgstr ""
+"L-Satz Feld 20 - rechtliche Tatsache zum Gebäude, nicht aus vorhandenen "
+"Daten ableitbar, bitte manuell erfassen."
+
+msgctxt "field:real_estate.bved.provider_assignment,heat_supply_flag:"
+msgid "Heat Supply (§9)"
+msgstr "Wärmeversorgung (§9)"
+
+msgctxt "help:real_estate.bved.provider_assignment,heat_supply_flag:"
+msgid ""
+"L-Satz field 21 - legal fact about the building, not derivable from any "
+"existing data, enter manually."
+msgstr ""
+"L-Satz Feld 21 - rechtliche Tatsache zum Gebäude, nicht aus vorhandenen "
+"Daten ableitbar, bitte manuell erfassen."
+
+msgctxt ""
+"field:real_estate.bved.provider_assignment,heat_connection_2023_flag:"
+msgid "District Heating Connection since 2023"
+msgstr "Wärmeanschluss seit 2023"
+
+msgctxt "help:real_estate.bved.provider_assignment,heat_connection_2023_flag:"
+msgid ""
+"L-Satz field 23 - legal fact about the building, not derivable from any "
+"existing data, enter manually."
+msgstr ""
+"L-Satz Feld 23 - rechtliche Tatsache zum Gebäude, nicht aus vorhandenen "
+"Daten ableitbar, bitte manuell erfassen."
+
+msgctxt "model:real_estate.bved.object_number,string:"
+msgid "BVED Object Number Mapping"
+msgstr "BVED Objektnummer-Zuordnung"
+
+msgctxt "field:real_estate.bved.object_number,provider_assignment:"
+msgid "Provider Assignment"
+msgstr "Provider-Liegenschaft"
+
+msgctxt "field:real_estate.bved.object_number,scope_object:"
+msgid "Scope"
+msgstr "Bereich"
+
+msgctxt "field:real_estate.bved.object_number,base_object:"
+msgid "Object"
+msgstr "Objekt"
+
+msgctxt "field:real_estate.bved.object_number,external_unit_number:"
+msgid "External Unit Number"
+msgstr "Externe Objektnummer"
+
+msgctxt "field:real_estate.bved.object_number,internal_reference:"
+msgid "Internal Reference"
+msgstr "Ordnungsbegriff des Auftraggebers"
+
+msgctxt "field:real_estate.bved.object_number,valid_from:"
+msgid "Valid From"
+msgstr "Gültig ab"
+
+msgctxt "field:real_estate.bved.object_number,valid_to:"
+msgid "Valid To"
+msgstr "Gültig bis"
+
+msgctxt "model:real_estate.bved.export,string:"
+msgid "BVED Export"
+msgstr "BVED Export"
+
+msgctxt "field:real_estate.bved.export,provider:"
+msgid "Provider"
+msgstr "Messdienstleister"
+
+msgctxt "field:real_estate.bved.export,cutoff_date:"
+msgid "Cutoff Date"
+msgstr "Stichtag"
+
+msgctxt "field:real_estate.bved.export,billing_units:"
+msgid "Billing Units"
+msgstr "Abrechnungseinheiten"
+
+msgctxt "field:real_estate.bved.export,company:"
+msgid "Company"
+msgstr "Gesellschaft"
+
+msgctxt "field:real_estate.bved.export,name:"
+msgid "Name"
+msgstr "Name"
+
+msgctxt "field:real_estate.bved.export,state:"
+msgid "State"
+msgstr "Status"
+
+msgctxt "selection:real_estate.bved.export,state:"
+msgid "Draft"
+msgstr "Entwurf"
+
+msgctxt "selection:real_estate.bved.export,state:"
+msgid "Generated"
+msgstr "Erzeugt"
+
+msgctxt "selection:real_estate.bved.export,state:"
+msgid "Sent"
+msgstr "Versendet"
+
+msgctxt "field:real_estate.bved.export,export_date:"
+msgid "Export Date"
+msgstr "Exportdatum"
+
+msgctxt "field:real_estate.bved.export,export_date_date:"
+msgid "Export Date"
+msgstr "Exportdatum"
+
+msgctxt "field:real_estate.bved.export,export_date_time:"
+msgid "Export Time"
+msgstr "Exportzeit"
+
+msgctxt "field:real_estate.bved.export,record_types:"
+msgid "Record Types"
+msgstr "Satzarten"
+
+msgctxt "field:real_estate.bved.export,activity_log:"
+msgid "Log"
+msgstr "Protokoll"
+
+msgctxt "model:real_estate.bved.import,string:"
+msgid "BVED Import"
+msgstr "BVED Import"
+
+msgctxt "field:real_estate.bved.import,provider:"
+msgid "Provider"
+msgstr "Messdienstleister"
+
+msgctxt "field:real_estate.bved.import,company:"
+msgid "Company"
+msgstr "Gesellschaft"
+
+msgctxt "field:real_estate.bved.import,name:"
+msgid "Name"
+msgstr "Name"
+
+msgctxt "field:real_estate.bved.import,state:"
+msgid "State"
+msgstr "Status"
+
+msgctxt "selection:real_estate.bved.import,state:"
+msgid "Draft"
+msgstr "Entwurf"
+
+msgctxt "selection:real_estate.bved.import,state:"
+msgid "Parsed"
+msgstr "Eingelesen"
+
+msgctxt "selection:real_estate.bved.import,state:"
+msgid "Matched"
+msgstr "Zugeordnet"
+
+msgctxt "selection:real_estate.bved.import,state:"
+msgid "Processed"
+msgstr "Verarbeitet"
+
+msgctxt "field:real_estate.bved.import,processed_files:"
+msgid "Processed Files"
+msgstr "Verarbeitete Dateien"
+
+msgctxt "field:real_estate.bved.import,activity_log:"
+msgid "Log"
+msgstr "Protokoll"
+
+msgctxt "field:real_estate.bved.import,lines:"
+msgid "Lines"
+msgstr "Zeilen"
+
+msgctxt "field:real_estate.bved.import,line_summary:"
+msgid "Lines Summary"
+msgstr "Zeilen-Übersicht"
+
+msgctxt "model:real_estate.bved.import.line,string:"
+msgid "BVED Import Line"
+msgstr "BVED Import-Zeile"
+
+msgctxt "field:real_estate.bved.import.line,import_:"
+msgid "Import"
+msgstr "Import"
+
+msgctxt "field:real_estate.bved.import.line,sequence:"
+msgid "Sequence"
+msgstr "Sequenznummer"
+
+msgctxt "field:real_estate.bved.import.line,record_type:"
+msgid "Record Type"
+msgstr "Satzart"
+
+msgctxt "field:real_estate.bved.import.line,raw_line:"
+msgid "Raw Line"
+msgstr "Rohdatensatz"
+
+msgctxt "field:real_estate.bved.import.line,internal_reference:"
+msgid "Internal Reference"
+msgstr "Ordnungsbegriff des Auftraggebers"
+
+msgctxt "field:real_estate.bved.import.line,base_object:"
+msgid "Object"
+msgstr "Objekt"
+
+msgctxt "field:real_estate.bved.import.line,provider_assignment:"
+msgid "Provider Assignment"
+msgstr "Provider-Liegenschaft"
+
+msgctxt "field:real_estate.bved.import.line,period_end_date:"
+msgid "Period End Date"
+msgstr "Letzter Tag Nutzungszeitraum"
+
+msgctxt "field:real_estate.bved.import.line,d_cost_key:"
+msgid "Cost Type Key"
+msgstr "Schlüssel Kostenart"
+
+msgctxt "field:real_estate.bved.import.line,total_costs_gross:"
+msgid "Total Costs (gross)"
+msgstr "Gesamtkosten (Brutto)"
+
+msgctxt "field:real_estate.bved.import.line,total_costs_net:"
+msgid "Total Costs (net)"
+msgstr "Gesamtkosten (Netto)"
+
+msgctxt "field:real_estate.bved.import.line,advance_payment_gross:"
+msgid "Advance Payment (gross)"
+msgstr "Vorauszahlung (Brutto)"
+
+msgctxt "field:real_estate.bved.import.line,advance_payment_net:"
+msgid "Advance Payment (net)"
+msgstr "Vorauszahlung (Netto)"
+
+msgctxt "field:real_estate.bved.import.line,balance_gross:"
+msgid "Balance (gross)"
+msgstr "Saldo (Brutto)"
+
+msgctxt "field:real_estate.bved.import.line,balance_net:"
+msgid "Balance (net)"
+msgstr "Saldo (Netto)"
+
+msgctxt "field:real_estate.bved.import.line,co2_allocated_gross:"
+msgid "CO2 Cost Allocated (gross)"
+msgstr "CO2-Kostenanteil umgelegt (Brutto)"
+
+msgctxt "field:real_estate.bved.import.line,co2_allocated_net:"
+msgid "CO2 Cost Allocated (net)"
+msgstr "CO2-Kostenanteil umgelegt (Netto)"
+
+msgctxt "field:real_estate.bved.import.line,co2_not_allocated_gross:"
+msgid "CO2 Cost Not Allocated (gross)"
+msgstr "CO2-Kostenanteil nicht umgelegt (Brutto)"
+
+msgctxt "field:real_estate.bved.import.line,co2_not_allocated_net:"
+msgid "CO2 Cost Not Allocated (net)"
+msgstr "CO2-Kostenanteil nicht umgelegt (Netto)"
+
+msgctxt "field:real_estate.bved.import.line,labor_share_total:"
+msgid "Labor Share Total"
+msgstr "Im Gesamtbetrag enthaltener Lohnanteil"
+
+msgctxt "field:real_estate.bved.import.line,user_share_amount:"
+msgid "User Share Amount"
+msgstr "Betragsanteil Nutzer am Lohnanteil"
+
+msgctxt "field:real_estate.bved.import.line,user_share_percent:"
+msgid "User Share (%)"
+msgstr "Prozentanteil Nutzer am Gesamtbetrag"
+
+msgctxt "field:real_estate.bved.import.line,document_path:"
+msgid "Document Path"
+msgstr "Bilddatei (Pfadangabe)"
+
+msgctxt "field:real_estate.bved.import.line,document_type:"
+msgid "Document Type"
+msgstr "Dokumentenart"
+
+msgctxt "field:real_estate.bved.import.line,p_cost_key:"
+msgid "Cost Type Key"
+msgstr "Schlüssel Kostenart"
+
+msgctxt "field:real_estate.bved.import.line,p_total_gross:"
+msgid "Total Amount (gross)"
+msgstr "Gesamtbetrag (Brutto)"
+
+msgctxt "field:real_estate.bved.import.line,p_total_net:"
+msgid "Total Amount (net)"
+msgstr "Gesamtbetrag (Netto)"
+
+msgctxt "field:real_estate.bved.import.line,p_user_share_gross:"
+msgid "User Share (gross)"
+msgstr "Betragsanteil Nutzer am Gesamtbetrag"
+
+msgctxt "field:real_estate.bved.import.line,p_user_share_percent:"
+msgid "User Share (%)"
+msgstr "Prozentanteil Nutzer am Gesamtbetrag"
+
+msgctxt "field:real_estate.bved.import.line,raw_data:"
+msgid "Raw Data (JSON)"
+msgstr "Rohdaten (JSON)"
+
+msgctxt "field:real_estate.bved.import.line,matched_settlement_result:"
+msgid "Settlement Result"
+msgstr "Abrechnungsergebnis"
+
+msgctxt "field:real_estate.bved.import.line,state:"
+msgid "State"
+msgstr "Status"
+
+msgctxt "selection:real_estate.bved.import.line,state:"
+msgid "Parsed"
+msgstr "Eingelesen"
+
+msgctxt "selection:real_estate.bved.import.line,state:"
+msgid "Matched"
+msgstr "Zugeordnet"
+
+msgctxt "selection:real_estate.bved.import.line,state:"
+msgid "Applied"
+msgstr "Übernommen"
+
+msgctxt "selection:real_estate.bved.import.line,state:"
+msgid "Skipped"
+msgstr "Übersprungen"
+
+msgctxt "selection:real_estate.bved.import.line,state:"
+msgid "Error"
+msgstr "Fehler"
+
+msgctxt "field:real_estate.bved.import.line,error_message:"
+msgid "Error Message"
+msgstr "Fehlermeldung"
+
+# --- BVED fields added to existing models ---
+
+msgctxt "field:real_estate.cost_type,bved_cost_key:"
+msgid "BVED Cost Type Key"
+msgstr "Schlüssel Kostenart"
+
+msgctxt "field:real_estate.billing_unit,bved_provider_assignment:"
+msgid "BVED Provider Assignment"
+msgstr "BVED Provider-Liegenschaft"
+
+msgctxt "field:real_estate.billing_unit,bved_object_numbers:"
+msgid "BVED Object Numbers"
+msgstr "BVED Objektnummern"
+
+msgctxt "field:real_estate.base_object,bved_provider_assignments:"
+msgid "BVED Provider Assignments"
+msgstr "BVED Provider-Zuordnungen"
+
+msgctxt "field:real_estate.settlement_unit,bved_fuel_data:"
+msgid "BVED Fuel Data (B-Satz)"
+msgstr "BVED Brennstoffdaten (B-Satz)"
+
+msgctxt "field:real_estate.settlement_unit,bved_fuel_type:"
+msgid "BVED Fuel Type"
+msgstr "Schlüssel Brennstoff"
+
+msgctxt "field:real_estate.settlement_unit,bved_heating_value:"
+msgid "Heating Value (kWh per unit)"
+msgstr "Heizwert in kWh je Brennstoffeinheit"
+
+msgctxt "field:real_estate.settlement_unit,bved_stock_start_date:"
+msgid "Stock Start Date"
+msgstr "Datum Anfangsbestand"
+
+msgctxt "field:real_estate.settlement_unit,bved_stock_start_quantity:"
+msgid "Stock Start Quantity"
+msgstr "Menge Anfangsbestand"
+
+msgctxt "field:real_estate.settlement_unit,bved_stock_start_amount_gross:"
+msgid "Stock Start Amount (gross)"
+msgstr "Betrag Anfangsbestand (Brutto)"
+
+msgctxt "field:real_estate.settlement_unit,bved_stock_start_amount_net:"
+msgid "Stock Start Amount (net)"
+msgstr "Betrag Anfangsbestand (Netto)"
+
+msgctxt "field:real_estate.settlement_unit,bved_stock_end_date:"
+msgid "Stock End Date"
+msgstr "Datum Restbestand"
+
+msgctxt "field:real_estate.settlement_unit,bved_stock_end_quantity:"
+msgid "Stock End Quantity"
+msgstr "Menge Restbestand"
+
+msgctxt "field:real_estate.settlement_unit,bved_stock_end_amount_gross:"
+msgid "Stock End Amount (gross)"
+msgstr "Betrag Restbestand (Brutto)"
+
+msgctxt "field:real_estate.settlement_unit,bved_stock_end_amount_net:"
+msgid "Stock End Amount (net)"
+msgstr "Betrag Restbestand (Netto)"
+
+msgctxt "field:real_estate.settlement_unit,bved_ww_temperature:"
+msgid "Hot Water Temperature (avg. °C)"
+msgstr "Warmwasser-Temperatur (mittlere)"
+
+msgctxt "field:real_estate.settlement_unit,bved_ww_consumption_m3:"
+msgid "Hot Water Consumption (m³)"
+msgstr "Warmwasser-Verbrauch in m³"
+
+msgctxt "field:real_estate.settlement_unit,bved_ww_percentage:"
+msgid "Hot Water Percentage (flat rate)"
+msgstr "Warmwasser-Prozentanteil (pauschal)"
+
+msgctxt "field:real_estate.settlement_unit,bved_ww_meter_start:"
+msgid "Hot Water Meter Start"
+msgstr "Anfangsstand WW-Zähler"
+
+msgctxt "field:real_estate.settlement_unit,bved_ww_meter_end:"
+msgid "Hot Water Meter End"
+msgstr "Endstand WW-Zähler"
+
+msgctxt "field:real_estate.settlement_unit,bved_supply_period_heating_1_start:"
+msgid "1st Supply Period Heating (Start)"
+msgstr "1. Versorgungszeitraum Heizung (Beginn)"
+
+msgctxt "field:real_estate.settlement_unit,bved_supply_period_heating_1_end:"
+msgid "1st Supply Period Heating (End)"
+msgstr "1. Versorgungszeitraum Heizung (Ende)"
+
+msgctxt "field:real_estate.settlement_unit,bved_supply_period_heating_2_start:"
+msgid "2nd Supply Period Heating (Start)"
+msgstr "2. Versorgungszeitraum Heizung (Beginn)"
+
+msgctxt "field:real_estate.settlement_unit,bved_supply_period_heating_2_end:"
+msgid "2nd Supply Period Heating (End)"
+msgstr "2. Versorgungszeitraum Heizung (Ende)"
+
+msgctxt "field:real_estate.settlement_unit,bved_supply_period_ww_1_start:"
+msgid "1st Supply Period Hot Water (Start)"
+msgstr "1. Versorgungszeitraum Warmwasser (Beginn)"
+
+msgctxt "field:real_estate.settlement_unit,bved_supply_period_ww_1_end:"
+msgid "1st Supply Period Hot Water (End)"
+msgstr "1. Versorgungszeitraum Warmwasser (Ende)"
+
+msgctxt "field:real_estate.settlement_unit,bved_supply_period_ww_2_start:"
+msgid "2nd Supply Period Hot Water (Start)"
+msgstr "2. Versorgungszeitraum Warmwasser (Beginn)"
+
+msgctxt "field:real_estate.settlement_unit,bved_supply_period_ww_2_end:"
+msgid "2nd Supply Period Hot Water (End)"
+msgstr "2. Versorgungszeitraum Warmwasser (Ende)"
+
+msgctxt "field:real_estate.settlement_unit,bved_primary_energy_factor:"
+msgid "Primary Energy Factor"
+msgstr "Primärenergiefaktor"
+
+msgctxt "field:account.invoice.line,estg_35a_labor_share_percent:"
+msgid "Labor Share (%)"
+msgstr "Lohnanteil (%)"
+
+msgctxt "field:account.invoice.line,bved_fuel_type:"
+msgid "BVED Fuel Type"
+msgstr "Schlüssel Brennstoff"
+
+msgctxt "field:account.invoice.line,bved_fuel_quantity:"
+msgid "BVED Quantity"
+msgstr "Menge"
+
+msgctxt "field:account.invoice.line,bved_fuel_unit:"
+msgid "BVED Unit"
+msgstr "Einheit"
+
+msgctxt "field:account.move.line,bved_fuel_type:"
+msgid "BVED Fuel Type"
+msgstr "Schlüssel Brennstoff"
+
+msgctxt "field:account.move.line,bved_fuel_quantity:"
+msgid "BVED Quantity"
+msgstr "Menge"
+
+msgctxt "field:account.move.line,bved_fuel_unit:"
+msgid "BVED Unit"
+msgstr "Einheit"
+
+msgctxt "field:account.general_ledger.line,bved_fuel_type:"
+msgid "BVED Fuel Type"
+msgstr "Schlüssel Brennstoff"
+
+msgctxt "field:account.general_ledger.line,bved_fuel_quantity:"
+msgid "BVED Quantity"
+msgstr "Menge"
+
+msgctxt "field:account.general_ledger.line,bved_fuel_unit:"
+msgid "BVED Unit"
+msgstr "Einheit"
+
+msgctxt "field:real_estate.settlement_result,bved_state:"
+msgid "BVED State"
+msgstr "BVED-Status"
+
+msgctxt "selection:real_estate.settlement_result,bved_state:"
+msgid "Awaiting Import"
+msgstr "Warten auf Import"
+
+msgctxt "selection:real_estate.settlement_result,bved_state:"
+msgid "Imported"
+msgstr "Importiert"
+
+msgctxt "selection:real_estate.settlement_result,bved_state:"
+msgid "Validated"
+msgstr "Validiert"
+
+msgctxt "selection:real_estate.settlement_result,bved_state:"
+msgid "Validation Error"
+msgstr "Validierungsfehler"
+
+msgctxt "field:real_estate.settlement_result,bved_import_date:"
+msgid "BVED Import Date"
+msgstr "BVED Importdatum"
+
+msgctxt "field:real_estate.settlement_result,bved_check_message:"
+msgid "BVED Check Message"
+msgstr "BVED Prüfhinweis"
+
+msgctxt "field:real_estate.settlement_result,bved_import_line:"
+msgid "BVED Import Line"
+msgstr "BVED Import-Zeile"
+
+msgctxt "field:real_estate.settlement_result,bved_matched_lines:"
+msgid "BVED Lines"
+msgstr "BVED-Zeilen"
+
+msgctxt "field:real_estate.settlement_result,bved_e835_lines:"
+msgid "E835 Lines"
+msgstr "E835-Satz-Zeilen"
+
+msgctxt "field:real_estate.settlement_result,bved_p_lines:"
+msgid "P-Satz Lines"
+msgstr "P-Satz-Zeilen"
+
+msgctxt "field:real_estate.settlement_result,bved_e835_labor_share_user_total:"
+msgid "E835 Labor Share (User)"
+msgstr "E835 Lohnanteil (Nutzer)"
+
+msgctxt "field:real_estate.settlement_result,bved_p_user_amount_total:"
+msgid "P-Satz User Amount"
+msgstr "P-Satz Nutzeranteil"
+
+msgctxt "model:real_estate.co2_kostaufg.consumption.energy_mix,string:"
+msgid "CO2KostAufG Consumption Energy Mix"
+msgstr "CO2KostAufG Verbrauch Energiemix"
+
+msgctxt "field:real_estate.co2_kostaufg.consumption,energy_mix:"
+msgid "Energy Mix"
+msgstr "Energiemix"
+
+msgctxt "field:real_estate.co2_kostaufg.consumption.energy_mix,consumption:"
+msgid "Consumption"
+msgstr "Verbrauch"
+
+msgctxt "field:real_estate.co2_kostaufg.consumption.energy_mix,energy_source:"
+msgid "Energy Source"
+msgstr "Energieträger"
+
+msgctxt "field:real_estate.co2_kostaufg.consumption.energy_mix,share_percent:"
+msgid "Share (%)"
+msgstr "%-Anteil"
+
+msgctxt "field:real_estate.co2_kostaufg.consumption.energy_mix,emission_factor:"
+msgid "CO2 Emission Factor (kg/kWh)"
+msgstr "CO2-Emissionsfaktor Energiemix (kg/kWh)"
+
+msgctxt ""
+"model:ir.action.act_window.domain,name:act_billing_unit_tree_domain_in_progress"
+msgid "In Progress"
+msgstr "In Arbeit"
+
+msgctxt ""
+"model:ir.action.act_window.domain,name:act_billing_unit_tree_domain_billed"
+msgid "Billed"
+msgstr "Abgerechnet"
+
+msgctxt ""
+"model:ir.action.act_window.domain,name:act_billing_unit_tree_domain_all"
+msgid "All"
+msgstr "Alle"
+
+# ==========================================================================
+# BVED interface - help texts (field "Info"), German wording follows the
+# "Bemerkung" column of the BVED/ARGE field tables where a field
+# corresponds directly to a Satz field.
+# ==========================================================================
+
+msgctxt "help:real_estate.bved.service_provider,bved_key:"
+msgid ""
+"2-character code from BVED Tabelle 'U' identifying the settlement "
+"company (e.g. '40' for ista). The full table is maintained by the BVED "
+"e.V. and changes over time, so it is not enforced as a selection here - "
+"see the current PDF at bved.info."
+msgstr ""
+"2-stelliger Code aus BVED Tabelle 'U', der das Abrechnungsunternehmen "
+"identifiziert (z.B. '40' für ista). Die vollständige Tabelle wird vom "
+"BVED e.V. gepflegt und ändert sich im Zeitverlauf, daher hier keine "
+"feste Auswahlliste - siehe aktuelles PDF auf bved.info."
+
+msgctxt "help:real_estate.bved.provider_assignment,base_object:"
+msgid ""
+"The property (whole Wirtschaftseinheit) or a single building within it "
+"that this provider/Liegenschaftsnummer covers. Use the property node "
+"itself when one Liegenschaftsnummer covers the entire complex (the "
+"common case); use a building node only when that building genuinely "
+"has its own, different Liegenschaftsnummer (e.g. a different provider "
+"per building)."
+msgstr ""
+"Die Wirtschaftseinheit (ganze Property) oder ein einzelnes Gebäude "
+"darin, für das diese Provider-/Liegenschaftsnummer gilt. Den "
+"Property-Knoten selbst wählen, wenn eine Liegenschaftsnummer den "
+"gesamten Komplex abdeckt (Normalfall); einen Gebäude-Knoten nur wählen, "
+"wenn dieses Gebäude tatsächlich eine eigene, abweichende "
+"Liegenschaftsnummer hat (z.B. unterschiedliche Provider je Gebäude)."
+
+msgctxt "help:real_estate.bved.provider_assignment,customer_number:"
+msgid ""
+"A-Satz field 3 (\"Kunden-Nr.\") - the customer number this company has "
+"with the BVED provider (Nummer des Kunden beim Abrechnungsunternehmen)."
+msgstr ""
+"A-Satz Feld 3 („Kunden-Nr.“) - die Kundennummer dieser Gesellschaft "
+"beim BVED-Provider (Nummer des Kunden beim Abrechnungsunternehmen)."
+
+msgctxt "help:real_estate.bved.provider_assignment,external_property_number:"
+msgid ""
+"9-digit property number the BVED provider assigned to this "
+"property/building (\"Ordnungsbegriff Abrechnungsunternehmen\")."
+msgstr ""
+"9-stellige Liegenschaftsnummer, die der BVED-Provider dieser "
+"Immobilie/diesem Gebäude zugewiesen hat (Ordnungsbegriff "
+"Abrechnungsunternehmen)."
+
+msgctxt "help:real_estate.bved.object_number,external_unit_number:"
+msgid ""
+"4-digit unit number - together with the property's 9-digit "
+"Liegenschaftsnummer forms the 13-digit Ordnungsbegriff "
+"Abrechnungsunternehmen (A-/M-Satz field 5)."
+msgstr ""
+"4-stellige Objektnummer - bildet zusammen mit der 9-stelligen "
+"Liegenschaftsnummer den 13-stelligen Ordnungsbegriff "
+"Abrechnungsunternehmen (A-/M-Satz Feld 5)."
+
+msgctxt "help:real_estate.bved.object_number,internal_reference:"
+msgid ""
+"Stable identifier used as \"Ordnungsbegriff des Auftraggebers\" "
+"(Kennung Nutzer beim Auftraggeber) in every BVED record referencing "
+"this unit. A renumbering by the provider (e.g. after a renovation) "
+"should close this row's valid_to and add a new dated row, rather than "
+"overwriting internal_reference in place - otherwise already-imported "
+"historical D-Satz lines referencing the old number can no longer be "
+"resolved."
+msgstr ""
+"Stabile Kennung, die als „Ordnungsbegriff des Auftraggebers“ (Kennung "
+"Nutzer beim Auftraggeber) in jedem BVED-Datensatz zu dieser Einheit "
+"verwendet wird. Eine Umnummerierung durch den Provider (z.B. nach "
+"einer Renovierung) sollte das „Gültig bis“ dieser Zeile schließen und "
+"eine neue datierte Zeile anlegen, statt internal_reference zu "
+"überschreiben - sonst können bereits importierte historische "
+"D-Satz-Zeilen mit der alten Nummer nicht mehr zugeordnet werden."
+
+msgctxt "help:real_estate.bved.export,cutoff_date:"
+msgid ""
+"Only billing units whose period has already ended on or before this "
+"date are eligible for export - matches the BVED rhythm (export happens "
+"once a property's billing year is fully over, so its K-Satz cost data "
+"is complete; a still-running period may still see tenant/object "
+"changes and should not be exported yet). Defaults to 31 December of "
+"the previous year."
+msgstr ""
+"Nur Abrechnungseinheiten, deren Periode an oder vor diesem Datum "
+"bereits geendet hat, stehen für den Export zur Auswahl - passend zum "
+"BVED-Rhythmus (Export erfolgt erst, wenn das Abrechnungsjahr der "
+"Immobilie vollständig abgelaufen ist, damit die K-Satz-Kostendaten "
+"vollständig sind; eine noch laufende Periode kann noch Mieter-/"
+"Objektänderungen erfahren und sollte noch nicht exportiert werden). "
+"Vorbelegt auf den 31. Dezember des Vorjahres."
+
+msgctxt "help:real_estate.bved.export,billing_units:"
+msgid ""
+"Defaults to every billing unit currently assigned to the selected "
+"provider whose period has ended by the cutoff date; deselect any that "
+"should not be part of this export run, or add further ones (all must "
+"have this same provider and an end date on or before the cutoff date)."
+msgstr ""
+"Vorbelegt mit allen Abrechnungseinheiten, die dem gewählten Provider "
+"zugeordnet sind und deren Periode bis zum Stichtag beendet ist; nicht "
+"benötigte Einheiten abwählen oder weitere hinzufügen (alle müssen "
+"denselben Provider und ein Endedatum am oder vor dem Stichtag haben)."
+
+msgctxt "help:real_estate.bved.import.line,period_end_date:"
+msgid "Format TTMMJJ. Mandatory field on E835-, E898- and P-Satz."
+msgstr "Format TTMMJJ. Mussfeld bei E835-, E898- und P-Satz."
+
+msgctxt "help:real_estate.bved.import.line,d_cost_key:"
+msgid ""
+"BVED Kostenart-Kennung (Tabelle K) - distinguishes multiple D-Satz "
+"lines for the same object/period (e.g. Heizung vs. Warmwasser) from an "
+"accidental duplicate delivery of the same line."
+msgstr ""
+"BVED Kostenart-Kennung (Tabelle K) - unterscheidet mehrere D-Satz-"
+"Zeilen für dasselbe Objekt/denselben Zeitraum (z.B. Heizung vs. "
+"Warmwasser) von einer versehentlichen Doppellieferung derselben Zeile."
+
+msgctxt "help:real_estate.bved.import.line,balance_gross:"
+msgid "Total costs minus advance payment."
+msgstr "Gesamtkosten abzüglich Vorauszahlung."
+
+msgctxt "help:real_estate.bved.import.line,co2_allocated_gross:"
+msgid "Included in total costs."
+msgstr "In Gesamtkosten enthalten."
+
+msgctxt "help:real_estate.bved.import.line,co2_allocated_net:"
+msgid "Included in total costs."
+msgstr "In Gesamtkosten enthalten."
+
+msgctxt "help:real_estate.bved.import.line,co2_not_allocated_gross:"
+msgid "NOT included in total costs."
+msgstr "NICHT in Gesamtkosten enthalten."
+
+msgctxt "help:real_estate.bved.import.line,co2_not_allocated_net:"
+msgid "NOT included in total costs."
+msgstr "NICHT in Gesamtkosten enthalten."
+
+msgctxt "help:real_estate.bved.import.line,labor_share_total:"
+msgid "Labor cost share included in the total invoice amount."
+msgstr "Im Gesamtbetrag enthaltener Lohnanteil."
+
+msgctxt "help:real_estate.bved.import.line,user_share_amount:"
+msgid "User's share of the labor cost portion."
+msgstr "Betragsanteil Nutzer am Lohnanteil."
+
+msgctxt "help:real_estate.bved.import.line,user_share_percent:"
+msgid "User's percentage share of the total invoice amount."
+msgstr "Prozentanteil Nutzer am Gesamtbetrag."
+
+msgctxt "help:real_estate.bved.import.line,document_type:"
+msgid ""
+"HKA = Heizkostenabrechnung (heating cost statement), BKA = "
+"Betriebskostenabrechnung (operating cost statement), VDA = "
+"Verbrauchsdatenanalyse (consumption data analysis)."
+msgstr ""
+"HKA = Heizkostenabrechnung, BKA = Betriebskostenabrechnung, VDA = "
+"Verbrauchsdatenanalyse."
+
+msgctxt "help:real_estate.bved.import.line,p_cost_key:"
+msgid ""
+"BVED Tabelle 'K' codes 901/902/910/911/912 (Energiepreisbremse cost "
+"types)."
+msgstr ""
+"BVED Tabelle 'K' Schlüssel 901/902/910/911/912 (Kostenarten "
+"Energiepreisbremse)."
+
+msgctxt "help:real_estate.bved.import.line,raw_data:"
+msgid ""
+"Full field-by-field content of this record, for audit/debug beyond the "
+"typed fields above."
+msgstr ""
+"Vollständiger Feld-für-Feld-Inhalt dieses Datensatzes, für Prüfung/"
+"Fehlersuche über die oben typisierten Felder hinaus."
+
+msgctxt "help:real_estate.cost_type,bved_cost_key:"
+msgid ""
+"BVED Tabelle 'K' code used for K-Satz field 6 when this cost type is "
+"exported to a Messdienstleister. Codes 200 and 202 are excluded - "
+"those are handled via allocation_by_consumption settlement units, not "
+"this field."
+msgstr ""
+"BVED Tabelle 'K'-Code für K-Satz Feld 6, wenn diese Kostenart an einen "
+"Messdienstleister exportiert wird. Schlüssel 200 und 202 sind "
+"ausgeschlossen - diese werden über Settlement Units mit "
+"verbrauchsabhängiger Verteilung abgebildet, nicht über dieses Feld."
+
+msgctxt "help:real_estate.billing_unit,bved_provider_assignment:"
+msgid ""
+"Which property/building-level BVED provider assignment (provider, "
+"customer number, Liegenschaftsnummer) applies to this billing unit. "
+"Configure the assignment itself on the property or the relevant "
+"building."
+msgstr ""
+"Welche BVED Provider-Zuordnung auf Property-/Gebäude-Ebene (Provider, "
+"Kundennummer, Liegenschaftsnummer) für diese Abrechnungseinheit gilt. "
+"Die Zuordnung selbst wird auf der Property oder dem betreffenden "
+"Gebäude gepflegt."
+
+msgctxt "help:real_estate.settlement_unit,bved_fuel_data:"
+msgid ""
+"Enable to enter B-Satz fuel/stock data on this settlement unit for "
+"BVED export (typically the heating cost unit of an externally billed "
+"billing unit)."
+msgstr ""
+"Aktivieren, um B-Satz-Brennstoff-/Bestandsdaten für den BVED-Export auf "
+"dieser Settlement Unit zu erfassen (typischerweise die Heizkosten-"
+"Settlement-Unit einer extern abgerechneten Billing Unit)."
+
+msgctxt "help:real_estate.settlement_unit,bved_fuel_type:"
+msgid "BVED Tabelle 'B'."
+msgstr "BVED Tabelle 'B'."
+
+msgctxt "help:real_estate.settlement_unit,bved_heating_value:"
+msgid "Mandatory once a fuel type is selected."
+msgstr "Pflichtfeld, sobald eine Brennstoffart ausgewählt ist."
+
+msgctxt "help:real_estate.settlement_unit,bved_primary_energy_factor:"
+msgid ""
+"Required (mandatory in the standard) when the fuel type is district "
+"heating (Fernwärme)."
+msgstr "Pflicht bei Fernwärme."
+
+msgctxt "help:account.invoice.line,bved_fuel_type:"
+msgid "BVED Tabelle 'B'."
+msgstr "BVED Tabelle 'B'."
+
+msgctxt "help:account.invoice.line,bved_fuel_quantity:"
+msgid ""
+"Delivered fuel quantity for BVED K-Satz field 10 (e.g. 3500 for a "
+"3500-liter heating oil delivery), independent of the invoice's own "
+"quantity/unit-price quantity."
+msgstr ""
+"Gelieferte Brennstoffmenge für BVED K-Satz Feld 10 (Menge), z.B. 3500 "
+"für eine Lieferung von 3500 Litern Heizöl, unabhängig von der eigenen "
+"Mengen-/Preisangabe der Rechnungszeile."
+
+msgctxt "help:account.invoice.line,estg_35a_labor_share_percent:"
+msgid ""
+"Share of this line's gross amount that is labor cost, for the §35a "
+"EStG tax certificate / BVED K-Satz field 14. Stays editable after "
+"posting, like estg_35a itself."
+msgstr ""
+"Anteil des Bruttobetrags dieser Position, der Lohnkosten sind, für die "
+"§35a-EStG-Bescheinigung / BVED K-Satz Feld 14. Bleibt wie estg_35a "
+"selbst auch nach der Buchung änderbar."
+
+msgctxt "help:account.move.line,bved_fuel_type:"
+msgid "BVED Tabelle 'B'."
+msgstr "BVED Tabelle 'B'."
+
+msgctxt "help:account.general_ledger.line,bved_fuel_type:"
+msgid "BVED Tabelle 'B'."
+msgstr "BVED Tabelle 'B'."
+
+msgctxt "help:real_estate.settlement_result,bved_state:"
+msgid ""
+"Progress of the BVED data exchange for this result - separate from "
+"'state' (approved/billed), which tracks the invoicing workflow, not "
+"the data exchange. Manually editable until this result is billed - "
+"e.g. to override a plausibility check false positive (see apply()'s "
+"advance-payment check) without waiting for a re-import."
+msgstr ""
+"Fortschritt des BVED-Datenaustauschs für dieses Ergebnis - unabhängig "
+"von 'state' (approved/billed), das den Rechnungs-Workflow abbildet, "
+"nicht den Datenaustausch. Manuell änderbar, solange dieses Ergebnis "
+"noch nicht abgerechnet ist - z.B. um einen falschen Alarm der "
+"Plausibilitätsprüfung (siehe Vorauszahlungs-Prüfung in apply()) zu "
+"übersteuern, ohne auf einen erneuten Import zu warten."
+
+msgctxt "help:real_estate.settlement_result,bved_import_line:"
+msgid "The D-Satz import line that last wrote actual_costs here."
+msgstr "Die D-Satz-Importzeile, die zuletzt actual_costs hier geschrieben hat."
+
+msgctxt "help:real_estate.co2_kostaufg.consumption,energy_mix:"
+msgid ""
+"Breakdown of this delivery's energy sources for BVED K-Satz fields "
+"22-39 (up to 6 entries). Belongs here rather than on the settlement "
+"unit, since it is a property of one specific delivery/period (like "
+"co2_kg_per_kwh above), not of the whole billing period."
+msgstr ""
+"Aufschlüsselung der Energieträger dieser Lieferung für BVED K-Satz "
+"Felder 22-39 (bis zu 6 Einträge). Gehört hierher statt zur Settlement "
+"Unit, da es sich um eine Eigenschaft einer bestimmten Lieferung/"
+"Periode handelt (wie co2_kg_per_kwh oben), nicht der gesamten "
+"Abrechnungsperiode."
+
+msgctxt "model:ir.ui.menu,name:menu_bved_external_billing"
+msgid "External Billing"
+msgstr "Externe Abrechnung"
+
+msgctxt "model:ir.action,name:act_bved_service_provider"
+msgid "BVED Service Providers"
+msgstr "BVED Messdienstleister"
+
+msgctxt "model:ir.action,name:act_bved_provider_assignment"
+msgid "BVED Provider Assignments"
+msgstr "BVED Provider-Liegenschaften"
+
+msgctxt "model:ir.action,name:act_bved_object_number"
+msgid "BVED Object Numbers"
+msgstr "BVED Objektnummern"
+
+msgctxt "model:ir.action,name:act_bved_export"
+msgid "BVED Export"
+msgstr "BVED Export"
+
+msgctxt "model:ir.action,name:act_bved_import"
+msgid "BVED Import"
+msgstr "BVED Import"
+
+msgctxt "model:ir.ui.menu,name:menu_bved_service_provider"
+msgid "BVED Service Providers"
+msgstr "BVED Messdienstleister"
+
+msgctxt "model:ir.ui.menu,name:menu_bved_provider_assignment"
+msgid "BVED Provider Assignments"
+msgstr "BVED Provider-Liegenschaften"
+
+msgctxt "model:ir.ui.menu,name:menu_bved_object_number"
+msgid "BVED Object Numbers"
+msgstr "BVED Objektnummern"
+
+msgctxt "model:ir.ui.menu,name:menu_bved_export"
+msgid "BVED Export"
+msgstr "BVED Export"
+
+msgctxt "model:ir.ui.menu,name:menu_bved_import"
+msgid "BVED Import"
+msgstr "BVED Import"

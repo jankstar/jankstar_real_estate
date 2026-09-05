@@ -70,6 +70,14 @@
 
         </page>
 
+        <page string="BVED" id="page_bved" col="4">
+            <label name="bved_provider_assignment"/>
+            <field name="bved_provider_assignment" colspan="3"/>
+            <newline/>
+            <field name="bved_object_numbers" colspan="4"
+                view_ids="real_estate.bved_object_number_view_list"/>
+        </page>
+
         <page string="Option Rate" id="page_option_rate" col="4">
             <group id="base_object_option_rate" yalign="0">
                 <label name="option_rate_method"/><field name="option_rate_method" />
@@ -79,9 +87,33 @@
                 <label name="option_rate_value"/><field name="option_rate_value" />
             </group>
             <group id="base_object_option_rate_list">
-                <field name="option_rates" 
+                <field name="option_rates"
                     view_ids="real_estate.option_rate_view_tree"/>
             </group>
+        </page>
+
+        <page string="CO2 Costs" id="page_co2" col="4">
+            <label name="non_residential_flag"/>
+            <field name="non_residential_flag" xexpand="0"/>
+            <newline/>
+            <label name="co2_measurement_type"/><field name="co2_measurement_type"/>
+            <newline/>
+            <label name="co2_total_consumption"/><field name="co2_total_consumption"/>
+            <label name="co2_total_emission"/><field name="co2_total_emission"/>
+            <newline/>
+            <label name="co2_total_area"/><field name="co2_total_area"/>
+            <label name="co2_total_cost_gross"/><field name="co2_total_cost_gross"/>
+            <newline/>
+            <label name="co2_emission_per_m2"/><field name="co2_emission_per_m2"/>
+            <newline/>
+            <label name="co2_tenant_share"/><field name="co2_tenant_share"/>
+            <label name="co2_landlord_share"/><field name="co2_landlord_share"/>
+            <newline/>
+            <label name="co2_commercial_tenant_share"/><field name="co2_commercial_tenant_share"/>
+            <label name="co2_commercial_landlord_share"/><field name="co2_commercial_landlord_share"/>
+            <newline/>
+            <field name="co2_consumptions" colspan="4"
+                view_ids="real_estate.co2_kostaufg_consumption_view_list"/>
         </page>
 
     </notebook>

@@ -11,6 +11,8 @@ from trytond.pool import Pool, PoolMeta
 from trytond.pyson import Bool, Eval, If
 from trytond.transaction import Transaction
 
+from . import bved_records
+
 
 class InvoiceLineBillingUnitBilledWarning(UserWarning):
     pass
@@ -203,7 +205,68 @@ class InvoiceLine(metaclass=PoolMeta):
                     'settlement_result_vacant']),
         },
         depends=['assignment_control'],
+        # Deliberately no 'readonly: invoice_state != draft' - the §35a
+        # classification (and its labor share below) must stay correctable
+        # after posting, like base_object/billing_unit/settlement_unit.
     )
+
+    estg_35a_labor_share_percent = fields.Numeric(
+        "Labor Share (%)", digits=(5, 2),
+        domain=[
+            # Guarded with If/Bool: the field is optional, and an
+            # unguarded '>=0'/'<=100' domain fails validation for an
+            # empty (NULL) value too, since NULL never satisfies a SQL
+            # comparison - only enforce the range once a value is set.
+            If(Bool(Eval('estg_35a_labor_share_percent')),
+                [('estg_35a_labor_share_percent', '>=', 0),
+                    ('estg_35a_labor_share_percent', '<=', 100)],
+                []),
+            ],
+        states={
+            'invisible': ~Eval('estg_35a', ''),
+        },
+        depends=['estg_35a'],
+        help="Share of this line's gross amount that is labor cost, for "
+             "the §35a EStG tax certificate / BVED K-Satz field 14. "
+             "Stays editable after posting, like estg_35a itself.")
+
+    bved_fuel_type = fields.Selection(
+        'get_bved_fuel_types', "BVED Fuel Type", sort=False,
+        states={
+            'invisible': Eval('assignment_control', '').in_(
+                ['contract', 'settlement_result_contract',
+                    'settlement_result_vacant']),
+        },
+        depends=['assignment_control'],
+        help="BVED Tabelle 'B'.",
+        # No readonly-after-draft clause - follows base_object/billing_unit/
+        # settlement_unit, not contract/term (see invoice.py notes).
+        )
+
+    bved_fuel_quantity = fields.Numeric(
+        "BVED Quantity", digits=(8, 3),
+        states={
+            'invisible': Eval('assignment_control', '').in_(
+                ['contract', 'settlement_result_contract',
+                    'settlement_result_vacant']),
+        },
+        depends=['assignment_control'],
+        help="Delivered fuel quantity for BVED K-Satz field 10 (e.g. "
+             "3500 for a 3500-liter heating oil delivery), independent of "
+             "the invoice's own quantity/unit-price quantity.")
+
+    bved_fuel_unit = fields.Function(
+        fields.Char("BVED Unit"), 'on_change_with_bved_fuel_unit')
+
+    @staticmethod
+    def get_bved_fuel_types():
+        return [('', '')] + bved_records.as_selection(bved_records.TABLE_B)
+
+    @fields.depends('bved_fuel_type')
+    def on_change_with_bved_fuel_unit(self, name=None):
+        if self.bved_fuel_type:
+            return bved_records.get_fuel_unit(self.bved_fuel_type)
+        return None
 
     @classmethod
     def default_assignment_control(cls):
@@ -233,6 +296,17 @@ class InvoiceLine(metaclass=PoolMeta):
             Index(table,
                 (Column(table, 'billing_unit'), Index.Range(order='ASC NULLS FIRST')),
                 (table.id, Index.Range(order='ASC NULLS FIRST'))))
+        # Core's check_modification() (account_invoice) blocks writes to
+        # any field not in _check_modify_exclude once the invoice is
+        # posted/paid/cancelled. estg_35a and the BVED fuel fields must
+        # stay correctable after posting (see invoice.py notes above), so
+        # they need to be added here too - the view's lack of a
+        # 'readonly: invoice_state != draft' state alone does not bypass
+        # this deeper ORM-level guard.
+        cls._check_modify_exclude |= {
+            'estg_35a', 'estg_35a_labor_share_percent',
+            'bved_fuel_type', 'bved_fuel_quantity',
+            }
 
     @fields.depends(
         'billing_unit', 'settlement_unit', 'term', 'base_object',
@@ -435,6 +509,8 @@ class InvoiceLine(metaclass=PoolMeta):
             line.billing_unit = self.billing_unit
             line.settlement_unit = self.settlement_unit
             line.assignment_control = self.assignment_control or ''
+            line.bved_fuel_type = self.bved_fuel_type
+            line.bved_fuel_quantity = self.bved_fuel_quantity
         return lines
 
     def _compute_taxes(self):
@@ -572,6 +648,26 @@ class AccountMoveLine(metaclass=PoolMeta):
         fields.Many2One('real_estate.base_object', 'Property'),
         'on_change_with_property')
 
+    bved_fuel_type = fields.Selection(
+        'get_bved_fuel_types', "BVED Fuel Type", sort=False, readonly=True,
+        help="BVED Tabelle 'B'.")
+
+    bved_fuel_quantity = fields.Numeric(
+        "BVED Quantity", digits=(8, 3), readonly=True)
+
+    bved_fuel_unit = fields.Function(
+        fields.Char("BVED Unit"), 'on_change_with_bved_fuel_unit')
+
+    @staticmethod
+    def get_bved_fuel_types():
+        return [('', '')] + bved_records.as_selection(bved_records.TABLE_B)
+
+    @fields.depends('bved_fuel_type')
+    def on_change_with_bved_fuel_unit(self, name=None):
+        if self.bved_fuel_type:
+            return bved_records.get_fuel_unit(self.bved_fuel_type)
+        return None
+
     @classmethod
     def __setup__(cls):
         super().__setup__()
@@ -584,6 +680,10 @@ class AccountMoveLine(metaclass=PoolMeta):
             Index(table,
                 (Column(table, 'billing_unit'), Index.Range(order='ASC NULLS FIRST')),
                 (table.id, Index.Range(order='ASC NULLS FIRST'))))
+        # Same reasoning as InvoiceLine._check_modify_exclude above - core
+        # (account.move.line) blocks writes to any field not listed here
+        # once the move is posted.
+        cls._check_modify_exclude |= {'bved_fuel_type', 'bved_fuel_quantity'}
 
     @fields.depends(
         'billing_unit', 'settlement_unit', 'term', 'base_object',
@@ -630,3 +730,14 @@ class GeneralLedgerLine(metaclass=PoolMeta):
 
     settlement_unit = fields.Many2One('real_estate.settlement_unit',
         'Settlement Unit', readonly=True)
+
+    bved_fuel_type = fields.Selection(
+        'get_bved_fuel_types', "BVED Fuel Type", sort=False, readonly=True,
+        help="BVED Tabelle 'B'.")
+
+    bved_fuel_quantity = fields.Numeric(
+        "BVED Quantity", digits=(8, 3), readonly=True)
+
+    @staticmethod
+    def get_bved_fuel_types():
+        return [('', '')] + bved_records.as_selection(bved_records.TABLE_B)

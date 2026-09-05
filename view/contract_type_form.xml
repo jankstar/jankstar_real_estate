@@ -11,7 +11,7 @@
     </group>
 
         <newline/>
-    <group string="Contract Type" colspan="6">
+    <group string="Contract Type" colspan="6" id="contract_type_group">
         <label name="prefix"/><field name="prefix" />
         <label name="start_number"/><field name="start_number"/>
         <newline/>
@@ -24,7 +24,7 @@
     </group>
 
         <newline/>
-    <group string="Accounting" colspan="6"> 
+    <group string="Accounting" colspan="6" id="contract_type_accounting">
         <label name="invoice_type"/><field name="invoice_type" />
         <newline/>
         <label name="account_journal"/><field name="account_journal"/>
@@ -38,7 +38,7 @@
         <label name="oc_mark"/><field name="oc_mark"/>
     </group>
         <newline/>
-    <group string="Taxes" colspan="6">
+    <group string="Taxes" colspan="6" id="contract_type_taxes">
         <label name="taxes"/><field name="taxes"/>
     </group>
 </form>

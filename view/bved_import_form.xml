@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<form col="4">
+    <label name="provider"/><field name="provider" colspan="3"/>
+    <label name="state"/><field name="state" readonly="1"/>
+    <newline/>
+    <label name="company"/><field name="company"/>
+    <newline/>
+    <separator name="activity_log" colspan="4"/>
+    <field name="activity_log" colspan="4" readonly="1"/>
+    <newline/>
+    <separator name="line_summary" colspan="4"/>
+    <field name="line_summary" colspan="4" readonly="1"/>
+    <newline/>
+    <separator name="lines" colspan="4"/>
+    <field name="lines" colspan="4"
+        view_ids="real_estate.bved_import_line_view_list,real_estate.bved_import_line_view_form"
+        readonly="1"/>
+
+    <button name="parse" string="Parse"/>
+    <button name="match" string="Match"/>
+    <button name="apply" string="Apply"/>
+</form>

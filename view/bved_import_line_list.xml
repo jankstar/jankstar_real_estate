@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<tree>
+    <field name="sequence"/>
+    <field name="record_type"/>
+    <field name="internal_reference"/>
+    <field name="base_object"/>
+    <field name="provider_assignment"/>
+    <field name="period_end_date"/>
+    <field name="matched_settlement_result"/>
+    <field name="state"/>
+    <field name="error_message"/>
+</tree>

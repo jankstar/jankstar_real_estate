@@ -1,0 +1,54 @@
+<?xml version="1.0"?>
+<form col="2">
+    <label name="base_object"/><field name="base_object"/>
+    <label name="provider"/><field name="provider"/>
+    <label name="customer_number"/><field name="customer_number"/>
+    <label name="external_property_number"/><field name="external_property_number"/>
+    <label name="valid_from"/><field name="valid_from"/>
+    <label name="valid_to"/><field name="valid_to"/>
+    <newline/>
+    <notebook colspan="2">
+        <page string="Object Numbers" id="page_object_numbers" col="1">
+            <field name="object_numbers"
+                view_ids="real_estate.bved_object_number_view_list"/>
+        </page>
+        <page string="L-Satz Preview" id="page_l_satz" col="2">
+            <label name="l_period_start"/><field name="l_period_start" readonly="1"/>
+            <label name="l_period_end"/><field name="l_period_end" readonly="1"/>
+            <newline/>
+            <label name="l_provider_key"/><field name="l_provider_key" readonly="1"/>
+            <newline/>
+            <label name="l_street"/><field name="l_street" readonly="1"/>
+            <label name="l_country"/><field name="l_country" readonly="1"/>
+            <newline/>
+            <label name="l_postal_code"/><field name="l_postal_code" readonly="1"/>
+            <label name="l_city"/><field name="l_city" readonly="1"/>
+            <newline/>
+            <label name="l_vat_flag"/><field name="l_vat_flag" readonly="1"/>
+            <label name="l_weg_flag"/><field name="l_weg_flag" readonly="1"/>
+            <newline/>
+            <label name="l_non_residential_flag"/>
+            <field name="l_non_residential_flag" readonly="1"/>
+            <label name="l_co2_landlord_share_percent"/>
+            <field name="l_co2_landlord_share_percent" readonly="1"/>
+            <newline/>
+            <label name="gross_floor_area_measurement_type"/>
+            <field name="gross_floor_area_measurement_type"/>
+            <label name="l_total_area"/><field name="l_total_area" readonly="1"/>
+            <newline/>
+            <separator name="vacancy_risk_flag" colspan="2"
+                string="Manual - not derivable from existing data"/>
+            <label name="vacancy_risk_flag"/><field name="vacancy_risk_flag"/>
+            <label name="vacancy_risk_percent"/><field name="vacancy_risk_percent"/>
+            <newline/>
+            <label name="labor_share_flag"/><field name="labor_share_flag"/>
+            <newline/>
+            <label name="energy_improvement_flag"/>
+            <field name="energy_improvement_flag"/>
+            <label name="heat_supply_flag"/><field name="heat_supply_flag"/>
+            <newline/>
+            <label name="heat_connection_2023_flag"/>
+            <field name="heat_connection_2023_flag"/>
+        </page>
+    </notebook>
+</form>

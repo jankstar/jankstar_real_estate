@@ -267,5 +267,36 @@ Either run "Ready for Billing" for each billing unit first, or bill individual b
         <record model="ir.message" id="msg_co2_emission_share_sum_100">
             <field name="text">"%(name)s": tenant share and landlord share must add up to 100%%.</field>
         </record>
+        <record model="ir.message" id="msg_bved_object_number_object_unique">
+            <field name="text">An object number mapping already exists for this object on this provider assignment (as of this valid-from date).</field>
+        </record>
+        <record model="ir.message" id="msg_bved_object_number_reference_unique">
+            <field name="text">This internal reference is already used by another object number mapping on this provider assignment (as of this valid-from date).</field>
+        </record>
+        <record model="ir.message" id="msg_bved_provider_assignment_unique">
+            <field name="text">A provider assignment already exists for this property/building, provider and valid-from date.</field>
+        </record>
+        <record model="ir.message" id="msg_bved_export_missing_provider">
+            <field name="text">Export "%(name)s": set a BVED provider before generating the export.</field>
+        </record>
+        <record model="ir.message" id="msg_bved_export_no_billing_units">
+            <field name="text">Export "%(name)s": select at least one billing unit before generating the export.</field>
+        </record>
+        <record model="ir.message" id="msg_bved_export_missing_assignment">
+            <field name="text">Billing unit "%(name)s": no BVED provider assignment resolves for its objects yet - configure one on the property or the relevant building.</field>
+        </record>
+        <record model="ir.message" id="msg_bved_export_provider_mismatch">
+            <field name="text">Billing unit "%(name)s" resolves to provider "%(provider)s", not this export's provider "%(export_provider)s".</field>
+        </record>
+        <record model="ir.message" id="msg_bved_export_missing_address">
+            <field name="text">Property "%(name)s": set a complete address (postal code, city, country) before generating the BVED export.</field>
+        </record>
+        <record model="ir.message" id="msg_billing_unit_bved_not_validated">
+            <field name="text">Cannot set "Ready for Billing" for "%(name)s": the following settlement results are not yet BVED-validated:
+%(details)s</field>
+        </record>
+        <record model="ir.message" id="msg_billing_unit_bved_assignment_conflict">
+            <field name="text">"%(name)s": the following objects are covered by this billing unit but lie outside the chosen BVED provider assignment's property/building: %(details)s. Either choose a different assignment, or split this billing unit so each part matches one assignment.</field>
+        </record>
     </data>
 </tryton>

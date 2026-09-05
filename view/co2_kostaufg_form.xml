@@ -10,5 +10,5 @@
     <field name="property"/>
     <separator name="consumptions" colspan="2"/>
     <field name="consumptions" colspan="2"
-        view_ids="real_estate.co2_kostaufg_consumption_view_list"/>
+        view_ids="real_estate.co2_kostaufg_consumption_view_list,real_estate.co2_kostaufg_consumption_view_form"/>
 </form>

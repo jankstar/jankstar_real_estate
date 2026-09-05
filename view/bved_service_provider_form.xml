@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<form col="2">
+    <label name="party"/><field name="party"/>
+    <label name="bved_key"/><field name="bved_key"/>
+    <label name="bved_version"/><field name="bved_version"/>
+    <label name="transport_type"/><field name="transport_type"/>
+    <newline/>
+    <separator name="transport_config" colspan="2"/>
+    <field name="transport_config" colspan="2"/>
+</form>

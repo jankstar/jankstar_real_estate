@@ -1073,7 +1073,14 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
         termination) whose end_date has passed. Reuses the 'terminated'
         state (see get_effective_end_date/occupancy, which already treat
         end_date/termination_date identically) rather than adding a new
-        state, so existing state-dependent logic keeps working unchanged."""
+        state, so existing state-dependent logic keeps working unchanged.
+
+        Also repairs the reverse data gap: an unlimited contract that is
+        already 'terminated' (normally via TerminateContractWizard, which
+        sets end_date = termination_date unconditionally,
+        contract_wizard.py:46) but ended up with no end_date - e.g. state/
+        termination_date set by some other path than the wizard. Once its
+        termination_date has passed, end_date is synced to it here too."""
         Date = Pool().get('ir.date')
         today = Date.today()
         contracts = cls.search([
@@ -1093,6 +1100,22 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
             contract.add_log('state_change',
                 f'contract auto-terminated: end date {contract.end_date} '
                 f'reached')
+
+        gap_contracts = cls.search([
+            ('state', '=', 'terminated'),
+            ('unlimited', '=', True),
+            ('end_date', '=', None),
+            ('termination_date', '!=', None),
+            ('termination_date', '<', today),
+            ('company.re_accounting', '=', re_accounting.id),
+        ])
+        for contract in gap_contracts:
+            contract.end_date = contract.termination_date
+            contract.save()
+            contract.add_log('state_change',
+                f'contract end date synced to termination date '
+                f'{contract.termination_date} (was empty on an already '
+                f'terminated, unlimited contract)')
 
     @classmethod
     def _cron_update_contract_cash_flow(cls, re_accounting, task=None):

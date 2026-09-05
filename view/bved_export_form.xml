@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<form col="4">
+    <label name="provider"/><field name="provider" colspan="3"/>
+    <label name="state"/><field name="state" readonly="1"/>
+    <newline/>
+    <label name="cutoff_date"/><field name="cutoff_date"/>
+    <newline/>
+    <label name="company"/><field name="company" readonly="1"/>
+    <label name="export_date"/><field name="export_date" readonly="1"/>
+    <newline/>
+    <label name="record_types"/><field name="record_types" colspan="3"/>
+    <newline/>
+    <separator name="billing_units" colspan="4"/>
+    <field name="billing_units" colspan="4"
+        view_ids="real_estate.billing_unit_list"/>
+    <newline/>
+    <separator name="activity_log" colspan="4"/>
+    <field name="activity_log" colspan="4" readonly="1"/>
+
+    <button name="generate" string="Generate"/>
+    <button name="mark_sent" string="Mark Sent"/>
+</form>

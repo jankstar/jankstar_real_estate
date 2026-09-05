@@ -286,6 +286,56 @@ class SettlementResult(ModelSQL, ModelView):
 
     currency = fields.Function(fields.Many2One('currency.currency', 'Currency'), 'on_change_with_currency')
 
+    bved_state = fields.Selection([
+            ('', ''),
+            ('awaiting_import', 'Awaiting Import'),
+            ('imported', 'Imported'),
+            ('validated', 'Validated'),
+            ('validation_error', 'Validation Error'),
+            ], "BVED State", sort=False,
+        states={'readonly': Eval('state') == 'billed'},
+        depends=['state'],
+        help="Progress of the BVED data exchange for this result - "
+             "separate from 'state' (approved/billed), which tracks the "
+             "invoicing workflow, not the data exchange. Manually "
+             "editable until this result is billed - e.g. to override a "
+             "plausibility check false positive (see apply()'s advance-"
+             "payment check) without waiting for a re-import.")
+
+    bved_import_date = fields.DateTime("BVED Import Date", readonly=True)
+
+    bved_check_message = fields.Text("BVED Check Message", readonly=True)
+
+    bved_import_line = fields.Many2One(
+        'real_estate.bved.import.line', "BVED Import Line",
+        ondelete='SET NULL', readonly=True,
+        help="The D-Satz import line that last wrote actual_costs here.")
+
+    bved_matched_lines = fields.Function(
+        fields.One2Many('real_estate.bved.import.line', None,
+            "BVED Lines", readonly=True),
+        'on_change_with_bved_matched_lines')
+
+    bved_e835_lines = fields.Function(
+        fields.One2Many('real_estate.bved.import.line', None, "E835 Lines",
+            readonly=True),
+        'on_change_with_bved_e835_lines')
+
+    bved_p_lines = fields.Function(
+        fields.One2Many('real_estate.bved.import.line', None, "P-Satz Lines",
+            readonly=True),
+        'on_change_with_bved_p_lines')
+
+    bved_e835_labor_share_user_total = fields.Function(
+        Monetary("E835 Labor Share (User)", currency='currency',
+            digits='currency'),
+        'on_change_with_bved_e835_labor_share_user_total')
+
+    bved_p_user_amount_total = fields.Function(
+        Monetary("P-Satz User Amount", currency='currency',
+            digits='currency'),
+        'on_change_with_bved_p_user_amount_total')
+
     @fields.depends('start_date', 'end_date', 'contract', 'base_object', 'id')
     def on_change_with_name(self, name=None):
         date_part = (
@@ -328,3 +378,43 @@ class SettlementResult(ModelSQL, ModelView):
             self.refund_receivable = self.actual_costs - self.advanced_payment
         elif self.actual_costs is not None:
             self.refund_receivable = self.actual_costs
+
+    def _bved_lines(self, record_type=None):
+        if not self.id:
+            return []
+        ImportLine = Pool().get('real_estate.bved.import.line')
+        domain = [('matched_settlement_result', '=', self.id)]
+        if record_type:
+            domain.append(('record_type', '=', record_type))
+        return ImportLine.search(
+            domain, order=[('record_type', 'ASC'), ('sequence', 'ASC')])
+
+    @fields.depends('id')
+    def on_change_with_bved_e835_lines(self, name=None):
+        return self._bved_lines('E835')
+
+    @fields.depends('id')
+    def on_change_with_bved_p_lines(self, name=None):
+        return self._bved_lines('P')
+
+    @fields.depends('id')
+    def on_change_with_bved_matched_lines(self, name=None):
+        """All import lines matched to this result, across every record
+        type (D/E835/E898/P) and state - not just the informational E835/
+        P ones with a dedicated rollup, so the user can see the full set
+        of what Match found, including a not-yet-applied D-Satz line."""
+        return self._bved_lines()
+
+    @fields.depends('id', methods=['on_change_with_bved_e835_lines'])
+    def on_change_with_bved_e835_labor_share_user_total(self, name=None):
+        lines = self.on_change_with_bved_e835_lines()
+        return sum(
+            (line.user_share_amount or Decimal(0) for line in lines),
+            Decimal(0))
+
+    @fields.depends('id', methods=['on_change_with_bved_p_lines'])
+    def on_change_with_bved_p_user_amount_total(self, name=None):
+        lines = self.on_change_with_bved_p_lines()
+        return sum(
+            (line.p_user_share_gross or Decimal(0) for line in lines),
+            Decimal(0))

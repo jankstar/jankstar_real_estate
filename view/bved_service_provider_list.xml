@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<tree>
+    <field name="name"/>
+    <field name="bved_key"/>
+    <field name="bved_version"/>
+    <field name="transport_type"/>
+</tree>

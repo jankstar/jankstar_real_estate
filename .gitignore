@@ -57,8 +57,13 @@ TEST-*.xml
 coverage.xml
 Kontenplan.md
 alt/
+tests/DT*.DAT
+tests/*.pdf
 
 # Claude Code
 .claude/
 CLAUDE.md
 *.skill
+rechercheergebnis-bved-schnittstelle.md
+spezifikation-tryton-bved-modul.md
+claude_BVED.md

@@ -14,6 +14,7 @@ import datetime
 from decimal import Decimal, ROUND_HALF_UP
 
 from . import base_object
+from . import bved_records
 
 
 #**********************************************************************
@@ -134,7 +135,7 @@ class SettlementUnit(DeactivableMixin, base_object.re_sequence_ordered(), ModelS
     objects = fields.Function(fields.One2Many('real_estate.base_object', None, 'Objects',
                                               readonly=True,
         states={
-            'invisible': ((Eval('allocation_rule') == 'no_allocation') | (Eval('state') == 'billed')),
+            'invisible': Eval('allocation_rule') == 'no_allocation',
             }
         ), 'on_change_with_objects',
         setter='set_objects',
@@ -216,14 +217,6 @@ class SettlementUnit(DeactivableMixin, base_object.re_sequence_ordered(), ModelS
         states={'readonly': Eval('state').in_(['ready_for_billing', 'billed'])},
         depends=['property'])
 
-    co2_measurement_type = fields.Many2One(
-        'real_estate.measurement.type', "Area Measurement Type",
-        domain=[('types', '=', ['object'])],
-        states={
-            'invisible': ~Eval('co2_kostaufg'),
-            'readonly': Eval('state').in_(['ready_for_billing', 'billed']),
-            })
-
     co2_consumption = fields.Function(
         fields.One2Many('real_estate.co2_kostaufg.consumption', None,
             "Consumption Records", readonly=True,
@@ -233,54 +226,100 @@ class SettlementUnit(DeactivableMixin, base_object.re_sequence_ordered(), ModelS
             states={'invisible': ~Eval('co2_kostaufg')}),
         'on_change_with_co2_consumption', setter='set_co2_consumption')
 
-    co2_total_consumption = fields.Function(
-        fields.Float("Total Consumption (kWh)",
-            states={'invisible': ~Eval('co2_kostaufg')}),
-        'on_change_with_co2_total_consumption')
+    bved_fuel_data = fields.Boolean("BVED Fuel Data (B-Satz)",
+        states={'readonly': Eval('state').in_(['ready_for_billing', 'billed'])},
+        help="Enable to enter B-Satz fuel/stock data on this settlement "
+             "unit for BVED export (typically the heating cost unit of an "
+             "externally billed billing unit).")
 
-    co2_total_emission = fields.Function(
-        fields.Float("Total Emission (kg CO2)",
-            states={'invisible': ~Eval('co2_kostaufg')}),
-        'on_change_with_co2_total_emission')
+    bved_fuel_type = fields.Selection(
+        'get_bved_fuel_types', "BVED Fuel Type", sort=False,
+        states={'invisible': ~Eval('bved_fuel_data')},
+        help="BVED Tabelle 'B'.")
 
-    co2_total_cost_gross = fields.Function(
-        fields.Numeric("Total CO2 Cost (gross)", digits=(16, 2),
-            states={'invisible': ~Eval('co2_kostaufg')}),
-        'on_change_with_co2_total_cost_gross')
+    bved_heating_value = fields.Numeric(
+        "Heating Value (kWh per unit)", digits=(7, 4),
+        states={'invisible': ~Eval('bved_fuel_data')},
+        help="Mandatory once a fuel type is selected.")
 
-    co2_total_area = fields.Function(
-        fields.Float("Total Area",
-            states={'invisible': ~Eval('co2_kostaufg')}),
-        'on_change_with_co2_total_area')
+    bved_stock_start_date = fields.Date("Stock Start Date",
+        states={'invisible': ~Eval('bved_fuel_data')})
+    bved_stock_start_quantity = fields.Numeric(
+        "Stock Start Quantity", digits=(8, 3),
+        states={'invisible': ~Eval('bved_fuel_data')})
+    bved_stock_start_amount_gross = fields.Numeric(
+        "Stock Start Amount (gross)", digits=(8, 2),
+        states={'invisible': ~Eval('bved_fuel_data')})
+    bved_stock_start_amount_net = fields.Numeric(
+        "Stock Start Amount (net)", digits=(8, 2),
+        states={'invisible': ~Eval('bved_fuel_data')})
 
-    co2_emission_per_m2 = fields.Function(
-        fields.Numeric("CO2 Emission (kg per m² per year)", digits=(16, 2),
-            states={'invisible': ~Eval('co2_kostaufg')}),
-        'on_change_with_co2_emission_per_m2')
+    bved_stock_end_date = fields.Date("Stock End Date",
+        states={'invisible': ~Eval('bved_fuel_data')})
+    bved_stock_end_quantity = fields.Numeric(
+        "Stock End Quantity", digits=(8, 3),
+        states={'invisible': ~Eval('bved_fuel_data')})
+    bved_stock_end_amount_gross = fields.Numeric(
+        "Stock End Amount (gross)", digits=(8, 2),
+        states={'invisible': ~Eval('bved_fuel_data')})
+    bved_stock_end_amount_net = fields.Numeric(
+        "Stock End Amount (net)", digits=(8, 2),
+        states={'invisible': ~Eval('bved_fuel_data')})
 
-    co2_tenant_share = fields.Function(
-        fields.Numeric("Tenant Share (%)", digits=(5, 2),
-            states={'invisible': ~Eval('co2_kostaufg')}),
-        'on_change_with_co2_tenant_share')
+    bved_ww_temperature = fields.Numeric(
+        "Hot Water Temperature (avg. °C)", digits=(2, 2),
+        states={'invisible': ~Eval('bved_fuel_data')})
+    bved_ww_consumption_m3 = fields.Numeric(
+        "Hot Water Consumption (m³)", digits=(6, 3),
+        states={'invisible': ~Eval('bved_fuel_data')})
+    bved_ww_percentage = fields.Numeric(
+        "Hot Water Percentage (flat rate)", digits=(2, 2),
+        states={'invisible': ~Eval('bved_fuel_data')})
+    bved_ww_meter_start = fields.Numeric(
+        "Hot Water Meter Start", digits=(6, 3),
+        states={'invisible': ~Eval('bved_fuel_data')})
+    bved_ww_meter_end = fields.Numeric(
+        "Hot Water Meter End", digits=(6, 3),
+        states={'invisible': ~Eval('bved_fuel_data')})
 
-    co2_landlord_share = fields.Function(
-        fields.Numeric("Landlord Share (%)", digits=(5, 2),
-            states={'invisible': ~Eval('co2_kostaufg')}),
-        'on_change_with_co2_landlord_share')
+    bved_supply_period_heating_1_start = fields.Date(
+        "1st Supply Period Heating (Start)",
+        states={'invisible': ~Eval('bved_fuel_data')})
+    bved_supply_period_heating_1_end = fields.Date(
+        "1st Supply Period Heating (End)",
+        states={'invisible': ~Eval('bved_fuel_data')})
+    bved_supply_period_heating_2_start = fields.Date(
+        "2nd Supply Period Heating (Start)",
+        states={'invisible': ~Eval('bved_fuel_data')})
+    bved_supply_period_heating_2_end = fields.Date(
+        "2nd Supply Period Heating (End)",
+        states={'invisible': ~Eval('bved_fuel_data')})
+    bved_supply_period_ww_1_start = fields.Date(
+        "1st Supply Period Hot Water (Start)",
+        states={'invisible': ~Eval('bved_fuel_data')})
+    bved_supply_period_ww_1_end = fields.Date(
+        "1st Supply Period Hot Water (End)",
+        states={'invisible': ~Eval('bved_fuel_data')})
+    bved_supply_period_ww_2_start = fields.Date(
+        "2nd Supply Period Hot Water (Start)",
+        states={'invisible': ~Eval('bved_fuel_data')})
+    bved_supply_period_ww_2_end = fields.Date(
+        "2nd Supply Period Hot Water (End)",
+        states={'invisible': ~Eval('bved_fuel_data')})
 
-    co2_commercial_tenant_share = fields.Function(
-        fields.Numeric("Commercial Tenant Share (%)", digits=(5, 2),
-            help="100% minus the company's configured CO2 Landlord Share "
-                 "(Commercial) (real_estate.re_accounting).",
-            states={'invisible': ~Eval('co2_kostaufg')}),
-        'on_change_with_co2_commercial_tenant_share')
+    bved_primary_energy_factor = fields.Numeric(
+        "Primary Energy Factor", digits=(1, 2),
+        states={'invisible': ~Eval('bved_fuel_data')},
+        help="Required (mandatory in the standard) when the fuel type is "
+             "district heating (Fernwärme).")
 
-    co2_commercial_landlord_share = fields.Function(
-        fields.Numeric("Commercial Landlord Share (%)", digits=(5, 2),
-            help="The company's configured CO2 Landlord Share "
-                 "(Commercial) (real_estate.re_accounting).",
-            states={'invisible': ~Eval('co2_kostaufg')}),
-        'on_change_with_co2_commercial_landlord_share')
+    @staticmethod
+    def get_bved_fuel_types():
+        return [('', '')] + bved_records.as_selection(bved_records.TABLE_B)
+
+    @staticmethod
+    def default_bved_fuel_data():
+        return False
 
     @classmethod
     def delete(cls, settlement_units):
@@ -303,6 +342,9 @@ class SettlementUnit(DeactivableMixin, base_object.re_sequence_ordered(), ModelS
             }),
             ('//page[@id="page_option_rate"]', 'states', {
                 'invisible': Bool(Eval('purchase_taxes_expense', False)),
+            }),
+            ('//page[@id="page_bved_fuel"]', 'states', {
+                'invisible': ~Eval('bved_fuel_data'),
             }),
             ('/tree', 'visual',
                 If(Eval('sub_state', '') == 'error', 'danger', ''),
@@ -407,9 +449,20 @@ class SettlementUnit(DeactivableMixin, base_object.re_sequence_ordered(), ModelS
         return self.billing_unit.property.company if self.billing_unit else None
 
     @fields.depends(
-        'billing_unit', 'reg_ex_object', 'allocation_rule',
+        'billing_unit', 'reg_ex_object', 'allocation_rule', 'state', 'cost_shares',
         '_parent_billing_unit.company', '_parent_billing_unit.property')
     def on_change_with_objects(self, name=None):
+        if self.state == 'billed':
+            # Once billed, the objects actually covered by this settlement
+            # unit are the ones that ended up with a cost share, not
+            # whatever the live reg_ex_object search matches today.
+            objects = []
+            seen_ids = set()
+            for cost_share in self.cost_shares:
+                if cost_share.base_object and cost_share.base_object.id not in seen_ids:
+                    seen_ids.add(cost_share.base_object.id)
+                    objects.append(cost_share.base_object)
+            return objects
         objects = []
         if self.billing_unit and self.allocation_rule != 'no_allocation':
             objects = Pool().get('real_estate.base_object').search([
@@ -564,129 +617,6 @@ class SettlementUnit(DeactivableMixin, base_object.re_sequence_ordered(), ModelS
         '_parent_billing_unit.start_date', '_parent_billing_unit.end_date')
     def on_change_with_co2_consumption(self, name=None):
         return self._co2_consumption_rows()
-
-    def _co2_period_fraction(self, row):
-        """Fraction (0..1] of `row`'s own [date_from, date_to] range that
-        falls inside the settlement period [start_date, end_date]. A row
-        entirely inside the period returns 1 (no interpolation); a row
-        extending beyond either boundary is interpolated pro-rata by
-        days - always relative to the row's own actual date range, so a
-        row never gets extrapolated past data it doesn't actually cover
-        (e.g. a row ending before the settlement period's end_date
-        contributes only its own, unextended days - the missing tail is
-        simply not represented, never invented)."""
-        overlap_start = max(row.date_from, self.start_date)
-        overlap_end = min(row.date_to, self.end_date)
-        overlap_days = (overlap_end - overlap_start).days + 1
-        row_days = (row.date_to - row.date_from).days + 1
-        return Decimal(overlap_days) / Decimal(row_days)
-
-    @fields.depends(
-        'co2_kostaufg', 'start_date', 'end_date', 'billing_unit',
-        '_parent_billing_unit.start_date', '_parent_billing_unit.end_date')
-    def on_change_with_co2_total_consumption(self, name=None):
-        total = Decimal(0)
-        for row in self._co2_consumption_rows():
-            if row.consumption_kwh is not None:
-                total += row.consumption_kwh * self._co2_period_fraction(row)
-        return float(total)
-
-    @fields.depends(
-        'co2_kostaufg', 'start_date', 'end_date', 'billing_unit',
-        '_parent_billing_unit.start_date', '_parent_billing_unit.end_date')
-    def on_change_with_co2_total_emission(self, name=None):
-        total = Decimal(0)
-        for row in self._co2_consumption_rows():
-            if row.co2_emission_kg is not None:
-                total += row.co2_emission_kg * self._co2_period_fraction(row)
-        return float(total)
-
-    @fields.depends(
-        'co2_kostaufg', 'start_date', 'end_date', 'billing_unit',
-        '_parent_billing_unit.start_date', '_parent_billing_unit.end_date')
-    def on_change_with_co2_total_cost_gross(self, name=None):
-        total = Decimal(0)
-        for row in self._co2_consumption_rows():
-            if row.co2_cost_gross is not None:
-                total += row.co2_cost_gross * self._co2_period_fraction(row)
-        return total.quantize(Decimal('0.01'))
-
-    @fields.depends(
-        'co2_kostaufg', 'co2_measurement_type', 'objects', 'end_date',
-        'billing_unit', '_parent_billing_unit.end_date')
-    def on_change_with_co2_total_area(self, name=None):
-        if (not self.co2_kostaufg or not self.co2_measurement_type
-                or not self.objects or not self.end_date):
-            return None
-        pool = Pool()
-        MeasurementType = pool.get('real_estate.measurement.type')
-        Measurement = pool.get('real_estate.measurement')
-        effective_ids = MeasurementType.get_effective_ids(self.co2_measurement_type)
-        if not effective_ids:
-            return None
-        total = 0.0
-        for obj in self.objects:
-            measurements = Measurement.search([
-                ('base_object', '=', obj.id),
-                ('m_type', 'in', effective_ids),
-                ('valid_from', '<=', self.end_date),
-                ], order=[('valid_from', 'DESC')], limit=1)
-            if measurements:
-                total += float(measurements[0].value or 0)
-        return total
-
-    @fields.depends(
-        'co2_kostaufg', 'co2_measurement_type', 'objects', 'start_date',
-        'end_date', 'billing_unit', '_parent_billing_unit.start_date',
-        '_parent_billing_unit.end_date',
-        methods=['on_change_with_co2_total_emission',
-            'on_change_with_co2_total_area', 'on_change_with_time_total'])
-    def on_change_with_co2_emission_per_m2(self, name=None):
-        total_area = self.on_change_with_co2_total_area()
-        time_total = self.on_change_with_time_total()
-        if not total_area or not time_total:
-            return None
-        total_emission = self.on_change_with_co2_total_emission()
-        value = (Decimal(str(total_emission)) / Decimal(str(total_area))
-            * Decimal(365) / Decimal(time_total))
-        return value.quantize(Decimal('0.01'))
-
-    @fields.depends(
-        'co2_kostaufg', 'co2_measurement_type', 'objects', 'start_date',
-        'end_date', 'billing_unit', '_parent_billing_unit.start_date',
-        '_parent_billing_unit.end_date',
-        methods=['on_change_with_co2_emission_per_m2'])
-    def on_change_with_co2_tenant_share(self, name=None):
-        Co2EmissionShare = Pool().get('real_estate.co2_emission_share')
-        share = Co2EmissionShare.get_share(
-            self.on_change_with_co2_emission_per_m2())
-        return share.tenant_share if share else None
-
-    @fields.depends(
-        'co2_kostaufg', 'co2_measurement_type', 'objects', 'start_date',
-        'end_date', 'billing_unit', '_parent_billing_unit.start_date',
-        '_parent_billing_unit.end_date',
-        methods=['on_change_with_co2_emission_per_m2'])
-    def on_change_with_co2_landlord_share(self, name=None):
-        Co2EmissionShare = Pool().get('real_estate.co2_emission_share')
-        share = Co2EmissionShare.get_share(
-            self.on_change_with_co2_emission_per_m2())
-        return share.landlord_share if share else None
-
-    @fields.depends('company')
-    def on_change_with_co2_commercial_landlord_share(self, name=None):
-        if self.company and self.company.re_accounting:
-            return self.company.re_accounting.co2_landlord_share_commercial
-        return None
-
-    @fields.depends(
-        'company',
-        methods=['on_change_with_co2_commercial_landlord_share'])
-    def on_change_with_co2_commercial_tenant_share(self, name=None):
-        value = self.on_change_with_co2_commercial_landlord_share()
-        if value is None:
-            return None
-        return Decimal(100) - value
 
     @classmethod
     def set_objects(cls, objects, name, value):

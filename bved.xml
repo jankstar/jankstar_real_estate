@@ -1,0 +1,482 @@
+<?xml version="1.0"?>
+<tryton>
+    <data>
+
+        <!-- Submenu bundling all BVED entries under Operation Costs,
+             placed right before "Operation Costs Billing" -->
+        <menuitem
+            parent="menu_real_estate_operation_costs"
+            name="External Billing"
+            sequence="55"
+            id="menu_bved_external_billing"/>
+
+        <!-- real_estate.bved.service_provider: own list/form views + menu -->
+        <record model="ir.ui.view" id="bved_service_provider_view_list">
+            <field name="model">real_estate.bved.service_provider</field>
+            <field name="type">tree</field>
+            <field name="name">bved_service_provider_list</field>
+        </record>
+        <record model="ir.ui.view" id="bved_service_provider_view_form">
+            <field name="model">real_estate.bved.service_provider</field>
+            <field name="type">form</field>
+            <field name="name">bved_service_provider_form</field>
+        </record>
+
+        <record model="ir.action.act_window" id="act_bved_service_provider">
+            <field name="name">BVED Service Providers</field>
+            <field name="res_model">real_estate.bved.service_provider</field>
+        </record>
+        <record model="ir.action.act_window.view" id="act_bved_service_provider_view1">
+            <field name="sequence" eval="10"/>
+            <field name="view" ref="bved_service_provider_view_list"/>
+            <field name="act_window" ref="act_bved_service_provider"/>
+        </record>
+        <record model="ir.action.act_window.view" id="act_bved_service_provider_view2">
+            <field name="sequence" eval="20"/>
+            <field name="view" ref="bved_service_provider_view_form"/>
+            <field name="act_window" ref="act_bved_service_provider"/>
+        </record>
+
+        <menuitem
+            parent="menu_bved_external_billing"
+            sequence="10"
+            action="act_bved_service_provider"
+            id="menu_bved_service_provider"/>
+
+        <!-- real_estate.bved.provider_assignment: own list/form views (also
+             embedded in base_object_form for property/building nodes) + menu -->
+        <record model="ir.ui.view" id="bved_provider_assignment_view_list">
+            <field name="model">real_estate.bved.provider_assignment</field>
+            <field name="type">tree</field>
+            <field name="name">bved_provider_assignment_list</field>
+        </record>
+        <record model="ir.ui.view" id="bved_provider_assignment_view_form">
+            <field name="model">real_estate.bved.provider_assignment</field>
+            <field name="type">form</field>
+            <field name="name">bved_provider_assignment_form</field>
+        </record>
+        <record model="ir.ui.view" id="base_object_view_list_bved_provider_assignment">
+            <field name="model">real_estate.bved.provider_assignment</field>
+            <field name="type">tree</field>
+            <field name="name">base_object_list_bved_provider_assignment</field>
+        </record>
+
+        <record model="ir.action.act_window" id="act_bved_provider_assignment">
+            <field name="name">BVED Provider Assignments</field>
+            <field name="res_model">real_estate.bved.provider_assignment</field>
+        </record>
+        <record model="ir.action.act_window.view" id="act_bved_provider_assignment_view1">
+            <field name="sequence" eval="10"/>
+            <field name="view" ref="bved_provider_assignment_view_list"/>
+            <field name="act_window" ref="act_bved_provider_assignment"/>
+        </record>
+        <record model="ir.action.act_window.view" id="act_bved_provider_assignment_view2">
+            <field name="sequence" eval="20"/>
+            <field name="view" ref="bved_provider_assignment_view_form"/>
+            <field name="act_window" ref="act_bved_provider_assignment"/>
+        </record>
+
+        <menuitem
+            parent="menu_bved_external_billing"
+            sequence="20"
+            action="act_bved_provider_assignment"
+            id="menu_bved_provider_assignment"/>
+
+        <!-- real_estate.bved.object_number: own list/form views (also embedded in billing_unit_form) + menu -->
+        <record model="ir.ui.view" id="bved_object_number_view_list">
+            <field name="model">real_estate.bved.object_number</field>
+            <field name="type">tree</field>
+            <field name="name">bved_object_number_list</field>
+        </record>
+        <record model="ir.ui.view" id="bved_object_number_view_form">
+            <field name="model">real_estate.bved.object_number</field>
+            <field name="type">form</field>
+            <field name="name">bved_object_number_form</field>
+        </record>
+
+        <record model="ir.action.act_window" id="act_bved_object_number">
+            <field name="name">BVED Object Numbers</field>
+            <field name="res_model">real_estate.bved.object_number</field>
+        </record>
+        <record model="ir.action.act_window.view" id="act_bved_object_number_view1">
+            <field name="sequence" eval="10"/>
+            <field name="view" ref="bved_object_number_view_list"/>
+            <field name="act_window" ref="act_bved_object_number"/>
+        </record>
+        <record model="ir.action.act_window.view" id="act_bved_object_number_view2">
+            <field name="sequence" eval="20"/>
+            <field name="view" ref="bved_object_number_view_form"/>
+            <field name="act_window" ref="act_bved_object_number"/>
+        </record>
+
+        <menuitem
+            parent="menu_bved_external_billing"
+            sequence="30"
+            action="act_bved_object_number"
+            id="menu_bved_object_number"/>
+
+        <!-- real_estate.bved.export: own list/form views + menu (Operation Costs) -->
+        <record model="ir.ui.view" id="bved_export_view_list">
+            <field name="model">real_estate.bved.export</field>
+            <field name="type">tree</field>
+            <field name="name">bved_export_list</field>
+        </record>
+        <record model="ir.ui.view" id="bved_export_view_form">
+            <field name="model">real_estate.bved.export</field>
+            <field name="type">form</field>
+            <field name="name">bved_export_form</field>
+        </record>
+
+        <record model="ir.action.act_window" id="act_bved_export">
+            <field name="name">BVED Export</field>
+            <field name="res_model">real_estate.bved.export</field>
+        </record>
+        <record model="ir.action.act_window.view" id="act_bved_export_view1">
+            <field name="sequence" eval="10"/>
+            <field name="view" ref="bved_export_view_list"/>
+            <field name="act_window" ref="act_bved_export"/>
+        </record>
+        <record model="ir.action.act_window.view" id="act_bved_export_view2">
+            <field name="sequence" eval="20"/>
+            <field name="view" ref="bved_export_view_form"/>
+            <field name="act_window" ref="act_bved_export"/>
+        </record>
+
+        <menuitem
+            parent="menu_bved_external_billing"
+            sequence="40"
+            action="act_bved_export"
+            id="menu_bved_export"/>
+
+        <!-- real_estate.bved.import: own list/form views + menu (Operation Costs) -->
+        <record model="ir.ui.view" id="bved_import_view_list">
+            <field name="model">real_estate.bved.import</field>
+            <field name="type">tree</field>
+            <field name="name">bved_import_list</field>
+        </record>
+        <record model="ir.ui.view" id="bved_import_view_form">
+            <field name="model">real_estate.bved.import</field>
+            <field name="type">form</field>
+            <field name="name">bved_import_form</field>
+        </record>
+
+        <record model="ir.action.act_window" id="act_bved_import">
+            <field name="name">BVED Import</field>
+            <field name="res_model">real_estate.bved.import</field>
+        </record>
+        <record model="ir.action.act_window.view" id="act_bved_import_view1">
+            <field name="sequence" eval="10"/>
+            <field name="view" ref="bved_import_view_list"/>
+            <field name="act_window" ref="act_bved_import"/>
+        </record>
+        <record model="ir.action.act_window.view" id="act_bved_import_view2">
+            <field name="sequence" eval="20"/>
+            <field name="view" ref="bved_import_view_form"/>
+            <field name="act_window" ref="act_bved_import"/>
+        </record>
+
+        <menuitem
+            parent="menu_bved_external_billing"
+            sequence="50"
+            action="act_bved_import"
+            id="menu_bved_import"/>
+
+        <!-- real_estate.bved.import.line: embedded tree/form (in bved_import_form and settlement_result_form) -->
+        <record model="ir.ui.view" id="bved_import_line_view_list">
+            <field name="model">real_estate.bved.import.line</field>
+            <field name="type">tree</field>
+            <field name="name">bved_import_line_list</field>
+        </record>
+        <record model="ir.ui.view" id="bved_import_line_view_form">
+            <field name="model">real_estate.bved.import.line</field>
+            <field name="type">form</field>
+            <field name="name">bved_import_line_form</field>
+        </record>
+
+        <!-- Company separation rules (Muster base_object.xml rule_group_base_object_companies) -->
+        <record model="ir.rule.group" id="rule_group_bved_export_companies">
+            <field name="name">User in companies</field>
+            <field name="model">real_estate.bved.export</field>
+            <field name="global_p" eval="True"/>
+        </record>
+        <record model="ir.rule" id="rule_bved_export_companies">
+            <field name="domain"
+                eval="[('company', 'in', Eval('companies', []))]"
+                pyson="1"/>
+            <field name="rule_group" ref="rule_group_bved_export_companies"/>
+        </record>
+
+        <record model="ir.rule.group" id="rule_group_bved_import_companies">
+            <field name="name">User in companies</field>
+            <field name="model">real_estate.bved.import</field>
+            <field name="global_p" eval="True"/>
+        </record>
+        <record model="ir.rule" id="rule_bved_import_companies">
+            <field name="domain"
+                eval="[('company', 'in', Eval('companies', []))]"
+                pyson="1"/>
+            <field name="rule_group" ref="rule_group_bved_import_companies"/>
+        </record>
+
+        <record model="ir.rule.group" id="rule_group_bved_import_line_companies">
+            <field name="name">User in companies</field>
+            <field name="model">real_estate.bved.import.line</field>
+            <field name="global_p" eval="True"/>
+        </record>
+        <record model="ir.rule" id="rule_bved_import_line_companies">
+            <field name="domain"
+                eval="[('import_.company', 'in', Eval('companies', []))]"
+                pyson="1"/>
+            <field name="rule_group" ref="rule_group_bved_import_line_companies"/>
+        </record>
+
+        <record model="ir.rule.group" id="rule_group_bved_object_number_companies">
+            <field name="name">User in companies</field>
+            <field name="model">real_estate.bved.object_number</field>
+            <field name="global_p" eval="True"/>
+        </record>
+        <record model="ir.rule" id="rule_bved_object_number_companies">
+            <field name="domain"
+                eval="[('provider_assignment.base_object.company', 'in', Eval('companies', []))]"
+                pyson="1"/>
+            <field name="rule_group" ref="rule_group_bved_object_number_companies"/>
+        </record>
+
+        <record model="ir.rule.group" id="rule_group_bved_provider_assignment_companies">
+            <field name="name">User in companies</field>
+            <field name="model">real_estate.bved.provider_assignment</field>
+            <field name="global_p" eval="True"/>
+        </record>
+        <record model="ir.rule" id="rule_bved_provider_assignment_companies">
+            <field name="domain"
+                eval="[('base_object.company', 'in', Eval('companies', []))]"
+                pyson="1"/>
+            <field name="rule_group" ref="rule_group_bved_provider_assignment_companies"/>
+        </record>
+
+        <!-- BvedServiceProvider: admin+billing CRUD, contract+object read (shared master data, not company-scoped) -->
+        <record model="ir.model.access" id="access_bved_service_provider_admin">
+            <field name="model">real_estate.bved.service_provider</field>
+            <field name="group" ref="group_real_estate_admin"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+        <record model="ir.model.access" id="access_bved_service_provider_billing">
+            <field name="model">real_estate.bved.service_provider</field>
+            <field name="group" ref="group_real_estate_billing"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+        <record model="ir.model.access" id="access_bved_service_provider_contract">
+            <field name="model">real_estate.bved.service_provider</field>
+            <field name="group" ref="group_real_estate_contract"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_bved_service_provider_default">
+            <field name="model">real_estate.bved.service_provider</field>
+            <field name="perm_read" eval="False"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+
+        <!-- BvedProviderAssignment: admin+billing CRUD, contract+object read -->
+        <record model="ir.model.access" id="access_bved_provider_assignment_admin">
+            <field name="model">real_estate.bved.provider_assignment</field>
+            <field name="group" ref="group_real_estate_admin"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+        <record model="ir.model.access" id="access_bved_provider_assignment_billing">
+            <field name="model">real_estate.bved.provider_assignment</field>
+            <field name="group" ref="group_real_estate_billing"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+        <record model="ir.model.access" id="access_bved_provider_assignment_contract">
+            <field name="model">real_estate.bved.provider_assignment</field>
+            <field name="group" ref="group_real_estate_contract"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_bved_provider_assignment_default">
+            <field name="model">real_estate.bved.provider_assignment</field>
+            <field name="perm_read" eval="False"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+
+        <!-- BvedObjectNumber: admin+billing CRUD, contract+object read -->
+        <record model="ir.model.access" id="access_bved_object_number_admin">
+            <field name="model">real_estate.bved.object_number</field>
+            <field name="group" ref="group_real_estate_admin"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+        <record model="ir.model.access" id="access_bved_object_number_billing">
+            <field name="model">real_estate.bved.object_number</field>
+            <field name="group" ref="group_real_estate_billing"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+        <record model="ir.model.access" id="access_bved_object_number_contract">
+            <field name="model">real_estate.bved.object_number</field>
+            <field name="group" ref="group_real_estate_contract"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_bved_object_number_default">
+            <field name="model">real_estate.bved.object_number</field>
+            <field name="perm_read" eval="False"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+
+        <!-- BvedExportBillingUnit: admin+billing CRUD (M2M relation table, managed via BvedExport.billing_units) -->
+        <record model="ir.model.access" id="access_bved_export_billing_unit_admin">
+            <field name="model">real_estate.bved.export-billing_unit</field>
+            <field name="group" ref="group_real_estate_admin"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+        <record model="ir.model.access" id="access_bved_export_billing_unit_billing">
+            <field name="model">real_estate.bved.export-billing_unit</field>
+            <field name="group" ref="group_real_estate_billing"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+        <record model="ir.model.access" id="access_bved_export_billing_unit_default">
+            <field name="model">real_estate.bved.export-billing_unit</field>
+            <field name="perm_read" eval="False"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+
+        <!-- BvedExport: admin+billing CRUD, contract+object read -->
+        <record model="ir.model.access" id="access_bved_export_admin">
+            <field name="model">real_estate.bved.export</field>
+            <field name="group" ref="group_real_estate_admin"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+        <record model="ir.model.access" id="access_bved_export_billing">
+            <field name="model">real_estate.bved.export</field>
+            <field name="group" ref="group_real_estate_billing"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+        <record model="ir.model.access" id="access_bved_export_contract">
+            <field name="model">real_estate.bved.export</field>
+            <field name="group" ref="group_real_estate_contract"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_bved_export_default">
+            <field name="model">real_estate.bved.export</field>
+            <field name="perm_read" eval="False"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+
+        <!-- BvedImport: admin+billing CRUD, contract+object read -->
+        <record model="ir.model.access" id="access_bved_import_admin">
+            <field name="model">real_estate.bved.import</field>
+            <field name="group" ref="group_real_estate_admin"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+        <record model="ir.model.access" id="access_bved_import_billing">
+            <field name="model">real_estate.bved.import</field>
+            <field name="group" ref="group_real_estate_billing"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+        <record model="ir.model.access" id="access_bved_import_contract">
+            <field name="model">real_estate.bved.import</field>
+            <field name="group" ref="group_real_estate_contract"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_bved_import_default">
+            <field name="model">real_estate.bved.import</field>
+            <field name="perm_read" eval="False"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+
+        <!-- BvedImportLine: admin+billing CRUD (import.line rows are written by
+             the parse/match/apply buttons, always as the acting user), contract+object read -->
+        <record model="ir.model.access" id="access_bved_import_line_admin">
+            <field name="model">real_estate.bved.import.line</field>
+            <field name="group" ref="group_real_estate_admin"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+        <record model="ir.model.access" id="access_bved_import_line_billing">
+            <field name="model">real_estate.bved.import.line</field>
+            <field name="group" ref="group_real_estate_billing"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+        <record model="ir.model.access" id="access_bved_import_line_contract">
+            <field name="model">real_estate.bved.import.line</field>
+            <field name="group" ref="group_real_estate_contract"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_bved_import_line_default">
+            <field name="model">real_estate.bved.import.line</field>
+            <field name="perm_read" eval="False"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+
+    </data>
+</tryton>

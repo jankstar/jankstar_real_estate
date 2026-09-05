@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<tree sequence="sequence" editable="1">
+    <field name="sequence" width="60"/>
+    <field name="energy_source"/>
+    <field name="share_percent"/>
+    <field name="emission_factor"/>
+</tree>

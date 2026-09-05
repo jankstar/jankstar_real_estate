@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<tree editable="1">
+    <field name="provider_assignment"/>
+    <field name="base_object"/>
+    <field name="external_unit_number"/>
+    <field name="internal_reference"/>
+    <field name="valid_from"/>
+    <field name="valid_to"/>
+</tree>

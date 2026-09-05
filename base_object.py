@@ -199,9 +199,18 @@ class BaseObject(Workflow, DeactivableMixin, re_sequence_ordered(), tree(separat
 
     parties = fields.One2Many('real_estate.object_party', 'base_object', 'Parties',)
 
+    bved_provider_assignments = fields.One2Many(
+        'real_estate.bved.provider_assignment', 'base_object',
+        "BVED Provider Assignments",
+        states={'invisible': ~Eval('type').in_(['property', 'building'])})
+
     ## special data propperty
     _states_only_propperty= {
             'invisible': Eval('type') != 'property',
+            }
+
+    _states_only_property_or_building = {
+            'invisible': ~Eval('type').in_(['property', 'building']),
             }
     
     billing_as = fields.Selection([
@@ -414,6 +423,8 @@ class BaseObject(Workflow, DeactivableMixin, re_sequence_ordered(), tree(separat
             ('/form/notebook/page[@id="page_meter"]', 'states', cls._states_only_equipment_meter),
             ('/form/notebook/page[@id="page_billing_unit"]', 'states', cls._states_only_propperty),
             ('/form/notebook/page[@id="page_option_rate"]', 'states', cls._states_only_option_rate),
+            ('/form/notebook/page[@id="page_bved_provider_assignments"]',
+                'states', cls._states_only_property_or_building),
             ]
 
 
