@@ -24,7 +24,11 @@ Module Dependencies
 
 ``ir``, ``res``, ``company``, ``party``, ``product``, ``currency``, ``country``,
 ``account``, ``account_invoice``, ``account_deposit``, ``account_payment_clearing``,
-``account_tax_non_deductible``
+``account_tax_non_deductible``, ``bank``
+
+``bank`` is used only by the BVED export's A-/M-Satz bank-field lookup
+(``party.bank_accounts_used`` → IBAN → classic Kontonummer/Bankleitzahl) — see
+*BVED External Billing Interface* below.
 
 
 Installation
@@ -292,10 +296,17 @@ multiple groups.
    (``billing_unit``, ``billing_unit.log``, ``billing_unit.moves``,
    ``settlement_unit``, ``settlement_result``, ``cost_share``,
    ``cost_category_group``, ``cost_type``,
-   ``account.configuration.real_estate``).
+   ``account.configuration.real_estate``), and on the BVED external
+   billing models (``bved.service_provider``, ``bved.provider_assignment``,
+   ``bved.object_number``, ``bved.export``, ``bved.import``,
+   ``bved.import.line`` — see *BVED External Billing Interface* below).
    Read-only access to property and contract models.
    Intended for the operating cost accountant who runs the annual
    settlement but does not modify contracts or property master data.
+
+   *Exception:* the ``group_real_estate_contract`` group also has read-only
+   access to all six BVED models (shared master/exchange data, not
+   contract-specific); ``group_real_estate_object`` has none.
 
 Permission matrix (``C`` = CRUD · ``R`` = read · ``—`` = no access):
 
@@ -482,6 +493,36 @@ Permission matrix (``C`` = CRUD · ``R`` = read · ``—`` = no access):
      - C
      - C
      - C
+     - C
+   * - ``real_estate.bved.service_provider``
+     - C
+     - —
+     - R
+     - C
+   * - ``real_estate.bved.provider_assignment``
+     - C
+     - —
+     - R
+     - C
+   * - ``real_estate.bved.object_number``
+     - C
+     - —
+     - R
+     - C
+   * - ``real_estate.bved.export``
+     - C
+     - —
+     - R
+     - C
+   * - ``real_estate.bved.import``
+     - C
+     - —
+     - R
+     - C
+   * - ``real_estate.bved.import.line``
+     - C
+     - —
+     - R
      - C
    * - ``account.configuration.real_estate``
      - C
@@ -852,7 +893,9 @@ Operating Cost Settlement
       Boolean flag. When enabled, every settlement unit of the billing unit
       is forced to ``allocation_rule = allocation_from_external_billing``
       (see ``real_estate.settlement_unit`` below) and costs are entered
-      manually instead of being computed internally.
+      manually instead of being computed internally. Also reveals the
+      *BVED* page and its ``bved_provider_assignment`` field — see *BVED
+      External Billing Interface* below.
 
    Two calculation methods:
 
@@ -1086,10 +1129,24 @@ CO2 Cost Allocation (CO2KostAufG)
 
 Implements the German *CO2-Kostenaufteilungsgesetz* (CO2KostAufG), which
 splits the CO2 cost of heating fuel between tenant and landlord depending on
-the building's emission intensity (kg CO2/m²/year). Applies to
-``real_estate.settlement_unit`` (typically the *Heizkosten* settlement unit
-of a billing unit) via an optional reference to a ``real_estate.co2_kostaufg``
-master record — settlement units without a reference are unaffected.
+the building's emission intensity (kg CO2/m²/year). Applies via an optional
+``co2_kostaufg`` reference on one or more of a billing unit's settlement
+units (typically its *Heizkosten* settlement unit) — settlement units
+without a reference are unaffected, and a billing unit with none of its
+settlement units referencing one gets no *CO2 Costs* page at all.
+
+.. note::
+   The reference and the raw consumption-row table live on
+   ``real_estate.settlement_unit`` (unchanged from earlier versions), but
+   every *derived* figure (totals, area, per-m² emission, tenant/landlord
+   shares) is aggregated on the parent ``real_estate.billing_unit`` instead
+   — across **all** of its settlement units that carry a ``co2_kostaufg``
+   reference, not just one. This matters when a billing unit's costs are
+   split across more than one CO2KostAufG source (e.g. two heating
+   circuits, two fuel deliveries under separate master records): the
+   billing unit's total consumption/emission/cost figures, and the object
+   set used for the area basis, are the union across all of them, not just
+   whichever settlement unit happens to be entered first.
 
 ``real_estate.co2_kostaufg``  (``co2_kostaufg.py``)
    Master record for one CO2KostAufG data source (e.g. one heating
@@ -1141,59 +1198,104 @@ master record — settlement units without a reference are unaffected.
    (< 12 kg → 0 % / 100 % landlord/tenant … ≥ 52 kg → 95 % / 5 %).
    Menu: *Real Estate → Configuration → Emission-CO2 Verteilung*.
 
-Fields added to ``real_estate.settlement_unit`` — a new *CO2 Costs* page is
-always shown, but every field on it except ``co2_kostaufg`` itself stays
-hidden (``invisible``) until a reference is actually set:
+Fields kept on ``real_estate.settlement_unit`` — a minimal *CO2 Costs* page
+shows just these two:
 
    ``co2_kostaufg``
       Many2One reference, restricted to CO2KostAufG records of the same
       ``property`` as the settlement unit.
 
+   ``co2_consumption``
+      (Function, One2Many, readonly.) All consumption records of the
+      referenced CO2KostAufG that overlap *this settlement unit's own*
+      period — the raw, per-source audit table.
+
+   The boundary-splitting logic (``_split_co2_consumption()``, see
+   *Splitting at settlement-period boundaries* below) still operates per
+   settlement unit and its own ``co2_kostaufg``/period, unaffected by the
+   aggregation described next.
+
+Fields added to ``real_estate.billing_unit`` — a *CO2 Costs* page is shown
+only when ``co2_relevant`` is true (i.e. at least one of the billing unit's
+settlement units has ``co2_kostaufg`` set); a *Non-residential building >50%
+commercial (§8)* flag at the top of the page then further splits which of
+the remaining fields are shown:
+
+   ``co2_relevant``
+      (Function.) True if any settlement unit of this billing unit has
+      ``co2_kostaufg`` set. Controls the page's own visibility.
+
+   ``non_residential_flag``
+      Boolean, default **false**. CO2KostAufG §8: sets whether this
+      building is treated as predominantly commercial (>50 % of usable
+      area) — where the residential emission-per-m² tier table (Anlage 1)
+      does not apply and a flat, configured tenant/landlord split is used
+      instead. This is also the corresponding BVED L-Satz field 19
+      (Kennzeichen Nichtwohngebäude) — see *BVED External Billing
+      Interface* below, whose provider-assignment L-Satz preview and real
+      export both read this field directly (no longer derived from the
+      Optionssatz).
+
+      - **False** (default): ``co2_measurement_type``, ``co2_consumptions``,
+        the four totals, ``co2_emission_per_m2``, and the residential-tier
+        ``co2_tenant_share``/``co2_landlord_share`` are shown; the two
+        commercial share fields are hidden.
+      - **True**: only ``co2_commercial_tenant_share`` /
+        ``co2_commercial_landlord_share`` are shown; all of the above are
+        hidden. (The underlying values are always computed regardless of
+        the flag — it only controls what the form displays.)
+
    ``co2_measurement_type``
       Many2One to ``real_estate.measurement.type`` (object-type
-      measurements only) — which measurement to sum across the settlement
-      unit's ``objects`` for the area basis below. Independent of the
-      settlement unit's own ``m_type`` (used for
-      ``allocation_by_measurement``).
+      measurements only) — which measurement to sum for the area basis
+      below, across the union of every co2-relevant settlement unit's own
+      ``objects`` (each object counted once even if covered by more than
+      one such settlement unit).
+
+   ``co2_consumptions``
+      (Function, One2Many, readonly.) Union of the consumption records of
+      *every* ``co2_kostaufg`` referenced by any settlement unit of this
+      billing unit, overlapping the billing unit's own
+      ``start_date``/``end_date`` — the aggregated audit table (as opposed
+      to each settlement unit's own single-source ``co2_consumption``
+      above).
 
    ``co2_total_consumption`` / ``co2_total_emission`` / ``co2_total_cost_gross``
       (Function.) Sum of ``consumption_kwh`` / ``co2_emission_kg`` /
-      ``co2_cost_gross`` across all consumption records of the referenced
-      CO2KostAufG that overlap the settlement period (the parent billing
-      unit's ``start_date``/``end_date``), each weighted by the fraction of
-      the record's *own* date range that actually falls inside the period.
-      A record fully inside the period contributes 100 %; a record
-      extending beyond either boundary is interpolated pro-rata by days,
-      always relative to its own actual range — a record that simply
-      doesn't reach as far as the period's end (no later data booked yet)
-      is never extrapolated, it only ever contributes its own days.
+      ``co2_cost_gross`` across ``co2_consumptions`` above, each weighted by
+      the fraction of the record's *own* date range that actually falls
+      inside the billing unit's period. A record fully inside the period
+      contributes 100 %; a record extending beyond either boundary is
+      interpolated pro-rata by days, always relative to its own actual
+      range — a record that simply doesn't reach as far as the period's
+      end (no later data booked yet) is never extrapolated, it only ever
+      contributes its own days.
 
    ``co2_total_area``
-      (Function.) Sum, across the settlement unit's ``objects``, of each
-      object's latest ``real_estate.measurement`` value of
-      ``co2_measurement_type`` (or its effective leaf types, if a
-      measurement group) valid as of ``end_date``.
+      (Function.) Sum, across the union of objects covered by every
+      co2-relevant settlement unit (deduplicated), of each object's latest
+      ``real_estate.measurement`` value of ``co2_measurement_type`` (or its
+      effective leaf types, if a measurement group) valid as of the billing
+      unit's ``end_date``.
 
    ``co2_emission_per_m2``
       (Function.) ``co2_total_emission / co2_total_area``, annualized via
-      ``× 365 / time_total`` so that settlement periods shorter or longer
-      than a calendar year still yield a correct "kg CO2/m²/year" figure.
+      ``× 365 / (end_date - start_date + 1)`` so that billing periods
+      shorter or longer than a calendar year still yield a correct
+      "kg CO2/m²/year" figure.
 
    ``co2_tenant_share`` / ``co2_landlord_share``
       (Function.) Looked up via
       ``Co2EmissionShare.get_share(co2_emission_per_m2)`` — the residential
-      10-tier split.
+      10-tier split. Always computed; only shown when
+      ``non_residential_flag`` is false.
 
    ``co2_commercial_tenant_share`` / ``co2_commercial_landlord_share``
       (Function.) The flat split used for commercial properties (not
       covered by the residential tier model): the company's configured
       ``re_accounting.co2_landlord_share_commercial`` (landlord), and
-      ``100 %`` minus that value (tenant).
-
-   ``co2_consumption``
-      (Function, One2Many, readonly.) All consumption records of the
-      referenced CO2KostAufG that overlap the settlement period — shown as
-      an embedded, read-only table at the bottom of the *CO2 Costs* page.
+      ``100 %`` minus that value (tenant). Always computed; only shown when
+      ``non_residential_flag`` is true.
 
 **Splitting at settlement-period boundaries.**
 ``SettlementUnit.compute_value_shares()`` ("Compute Value Shares" button,
@@ -1214,6 +1316,269 @@ extrapolated — only an *existing* record that actually spans across a
 period boundary gets divided. Re-running is idempotent: already
 boundary-aligned active records are left untouched, so repeated calls never
 produce duplicate splits.
+
+
+BVED External Billing Interface
+--------------------------------
+
+Implements the BVED / ARGE-FHW "Standard-Datenaustausch" Version 3.10 —
+the German fixed-width record format used to exchange operating-cost data
+with an external Messdienstleister (heating-cost/consumption billing
+service) — for billing units with ``external_billing = True`` (see
+*Operating Cost Settlement* above). Exports the property/tenant master
+data plus optional fuel and cost data the provider needs to bill
+(A-/L-/M-/B-/K-Satz); imports the provider's response (D-Satz actual
+costs, plus optional E835-/E898-/P-Satz) and applies it back onto
+``real_estate.settlement_result``. Implemented in ``bved.py`` (Tryton
+models) and ``bved_records.py`` (pure-Python fixed-width (de)serialization
+with no Tryton dependency, unit-testable standalone).
+
+Menu: *Real Estate → Operation Costs → Externe Abrechnung* (placed
+immediately before *Betriebskostenabrechnung*), bundling all models below.
+
+``real_estate.bved.service_provider``  (``bved.py``)
+   The Messdienstleister itself: ``party``, ``bved_key`` (2-char code from
+   BVED Tabelle 'U', e.g. ``'40'`` for ista — not enforced as a fixed
+   selection since the table changes over time), ``bved_version``
+   (currently only ``'3.10'``), ``transport_type`` (only ``'manual'``
+   file download/upload is actually implemented; ``email``/``sftp``/
+   ``webservice_api`` are reserved for a future automated transport layer).
+
+``real_estate.bved.provider_assignment``  (``bved.py``, form label "BVED Provider-Liegenschaft")
+   Anchors one provider + customer number + 9-digit Liegenschaftsnummer
+   (``external_property_number``) to a ``base_object`` of type
+   ``property`` or ``building``, with ``valid_from``/``valid_to`` so a
+   provider change over time doesn't destroy history. Unique per
+   ``(base_object, provider, valid_from)`` — a property/building may have
+   several *concurrent* assignments for different providers (e.g. heating
+   via Techem, water via ista, both on the same building). Referenced
+   explicitly from ``billing_unit.bved_provider_assignment`` (never
+   derived from the object tree), since one building can have more than
+   one active assignment and only the user knows which one a given
+   billing unit means.
+
+   ``object_numbers``
+      One2Many to ``real_estate.bved.object_number`` (below).
+
+   *L-Satz Preview* page — read-only preview of how this assignment's
+   L-Satz (Liegenschaft) record would look today, split into two field
+   groups:
+
+   - **Automatic** — ``l_period_start``/``l_period_end`` (always the most
+     recently completed calendar year), ``l_provider_key``, ``l_street``/
+     ``l_country``/``l_postal_code``/``l_city`` (from the property's/
+     building's address), ``l_vat_flag`` (from the covered billing units'
+     Optionssatz: 100 % → net/fully opted, 0 % → no VAT shown, mixed →
+     per M-Satz field 25/user), ``l_weg_flag`` (from ``calculation_method``
+     — Cash basis sets it, Accrual basis doesn't), ``l_non_residential_flag``
+     (true if any covered billing unit's own ``non_residential_flag`` is
+     set — see *CO2 Cost Allocation* above), ``l_co2_landlord_share_percent``
+     (from the covered heating-cost billing unit's own
+     ``co2_landlord_share``/``co2_commercial_landlord_share``),
+     ``l_total_area`` (computed once a measurement type is selected below).
+   - **To Be Entered** — ``gross_floor_area_measurement_type`` (drives
+     ``l_total_area``: summed once per covered object across every
+     assigned billing unit, even when covered by several), plus six
+     purely-manual fields with no derivable source:
+     ``vacancy_risk_flag``/``vacancy_risk_percent``, ``labor_share_flag``,
+     ``energy_improvement_flag``, ``heat_supply_flag``,
+     ``heat_connection_2023_flag`` (various L-Satz Kann-/Muss-Felder —
+     legal facts about the building not represented anywhere else in the
+     data model).
+
+   The preview always uses the most recently completed calendar year
+   across every billing unit currently assigned; the real export
+   (``BvedExport._build_l_m_records()``) recomputes the same underlying
+   helpers per specific billing unit and its own period instead, so
+   preview and actual export can differ if a billing unit's period
+   doesn't align with a plain calendar year.
+
+``real_estate.bved.object_number``  (``bved.py``)
+   Maps one rental object to its ``internal_reference`` ("Ordnungsbegriff
+   des Auftraggebers") and 4-digit ``external_unit_number`` under a
+   provider assignment, with its own ``valid_from``/``valid_to`` — a
+   provider renumbering (e.g. after a renovation) should close the old row
+   and add a new one rather than overwrite ``internal_reference`` in
+   place, otherwise already-imported historical D-Satz lines referencing
+   the old number can no longer be resolved. Numbers are assigned
+   automatically (``BvedExport._ensure_object_numbers()``) the first time
+   an object is exported — scoped per assignment (not per billing unit)
+   and counted all-time, so a closed mapping's number is never reused by a
+   later one.
+
+Fields added to ``real_estate.billing_unit``:
+
+   ``bved_provider_assignment``
+      Which provider assignment applies (domain: same property/building
+      subtree, validity window covering the billing unit's start date).
+      Only visible when ``external_billing`` is set.
+
+   ``bved_object_numbers``
+      (Function, One2Many.) The assignment's object numbers, restricted to
+      objects actually covered by this billing unit
+      (``bved_covered_object_ids()`` — type ``object`` base objects
+      reachable via at least one non-``no_allocation`` settlement unit).
+
+   ``check_bved_provider_assignment()``
+      Validation (run from ``pre_validate``) rejecting a billing unit
+      whose covered objects include one that is neither the assignment's
+      own ``base_object`` nor a descendant of it (e.g. an object from a
+      different building than the one referenced).
+
+   Shown on a dedicated *BVED* page, visible only when ``external_billing``
+   is set.
+
+Fields added to ``real_estate.settlement_unit`` (B-Satz — fuel/stock/hot-water
+data, typically entered only on the heating-cost settlement unit):
+
+   ``bved_fuel_data``
+      Enables the rest of the B-Satz fields below; also identifies "the"
+      heating-cost unit representative of a billing unit's CO2 landlord
+      share (see *CO2 Cost Allocation* above).
+
+   ``bved_fuel_type`` (BVED Tabelle 'B'), ``bved_heating_value``, stock
+   start/end date + quantity + amount (gross/net), hot-water average
+   temperature/consumption/flat-rate percentage/meter start-end, and up to
+   two heating and two hot-water supply periods (start/end each).
+
+Export (``real_estate.bved.export``, workflow Draft → Generated → Sent):
+
+   ``provider`` + ``cutoff_date`` (default: 31 December of the previous
+   year — a still-running billing period shouldn't be exported yet since
+   its cost data isn't final) default-select the eligible ``billing_units``
+   (assigned to this provider, ``external_billing = True``,
+   ``end_date <= cutoff_date``); the list stays editable.
+   ``record_types`` (multi-select A/L/M/B/K, default all five) controls
+   which files get built.
+
+   ``generate``
+      Validates every selected billing unit has a provider assignment
+      matching this export's provider and a complete property address,
+      auto-creates any missing object numbers, then builds one ``.DAT``
+      file per requested record-type group (A; L+M combined; B+K
+      combined) and attaches them (ISO-8859-1 encoded, CRLF line
+      endings) to the export record. Sets ``export_date`` and moves to
+      ``generated``.
+
+   ``mark_sent``
+      Moves to ``sent`` — the actual transmission happens outside the
+      app (manual file handoff, per the provider's ``transport_type``).
+
+   All activity (files built, warnings such as a missing German IBAN for
+   the A-/M-Satz bank fields) is appended to ``activity_log``.
+
+Import (``real_estate.bved.import``, workflow Draft → Parsed → Matched →
+Processed):
+
+   Attach the provider's response file(s) as ``ir.attachment`` on the
+   import record (filename prefix determines the record type: D/E835/
+   E898/P), then:
+
+   ``parse``
+      Full fresh snapshot on every click: deletes every not-yet-``applied``
+      line and rebuilds ``real_estate.bved.import.line`` rows from
+      whatever is currently attached, so re-running after attaching a
+      corrected/additional file never leaves stale duplicates.
+      Already-``applied`` lines are never touched.
+
+   ``match``
+      Re-evaluates every line not yet ``applied`` (including previously
+      ``error``/``skipped`` ones, so fixing a missing object number and
+      clicking again re-checks them too). Resolves
+      ``internal_reference`` + provider to a ``bved.object_number`` valid
+      on the line's period end date, then the matching
+      ``settlement_result`` for that object — cross-checked against the
+      result's own billing unit's provider assignment, so an object with
+      two concurrent externally-billed billing units (e.g. heating via
+      one provider, water via another) cannot be matched to the wrong
+      result. E835-/E898-/P-Satz lines missing "Letzter Tag
+      Nutzungszeitraum" (a Mussfeld per spec for these three types) are
+      flagged as an error rather than guessed. A line with no data and no
+      match is ``skipped`` (not an error); one with data and no match is
+      an ``error``.
+
+   ``apply``
+      Writes matched data onto the ``settlement_result``:
+
+      - **D-Satz** — lines for the same result are grouped by
+        ``d_cost_key`` (BVED Tabelle 'K' cost-type code): different keys
+        are summed (e.g. Heizung + Warmwasser), two lines sharing the
+        same key (including both empty) are treated as a duplicate
+        delivery and only the last is kept, with a warning. Sets
+        ``actual_costs`` (re-running ``on_change_actual_costs()`` so
+        ``refund_receivable`` updates immediately), plus a plausibility
+        check (total − advance ≈ balance per the D-Satz's own figures;
+        reported advance vs. the internally computed
+        ``advanced_payment`` — skipped when the reported sum is exactly
+        0, since BVED's fixed-width numeric fields can't distinguish
+        "blank" from "genuinely zero"). Sets ``bved_state`` to
+        ``validated`` or ``validation_error`` (with the concatenated
+        messages in ``bved_check_message``). Already-``applied`` D-Satz
+        lines whose result is still ``validation_error`` are re-evaluated
+        on every subsequent Apply run too, so a plausibility-check fix
+        (e.g. a corrected advance payment) takes effect without
+        re-parsing.
+      - **E898-Satz** — copies the referenced PDF attachment (matched by
+        filename) from the import onto the settlement result.
+      - **E835-/P-Satz** — informational only; no settlement-result field
+        exists to write them back to, browsable via the result's own
+        ``bved_e835_lines``/``bved_p_lines`` tabs.
+
+      Afterwards, logs which of a touched billing unit's covered objects
+      still have no D-Satz result (``bved_state`` not yet
+      ``imported``/``validated``/``validation_error``) as a completeness
+      check.
+
+   ``line_summary``
+      (Function.) A per-record-type/state line count plus amount summary
+      (D-Satz total, E835/P-Satz user-share subtotal) shown on the import
+      form.
+
+``real_estate.bved.import.line``  (``bved.py``)
+   One row per parsed fixed-width record, typed fields for all four
+   import record types (D/E835/E898/P) plus ``raw_line``/``raw_data``
+   (full field dump as JSON) for audit. States: ``parsed`` → ``matched``
+   → ``applied`` (or ``skipped``/``error``). Form notebook pages
+   *D-Satz*/*E835-Satz*/*E898-Satz*/*P-Satz* show/hide automatically based
+   on ``record_type`` (``view_attributes()``); the *Row* page (raw data)
+   is always visible.
+
+Fields added to ``real_estate.settlement_result``:
+
+   ``bved_state``
+      Selection (awaiting_import / imported / validated /
+      validation_error) tracking the data-exchange progress independently
+      of ``state`` (approved/billed); editable until billed, e.g. to
+      manually clear a plausibility-check false positive.
+
+   ``bved_import_date`` / ``bved_check_message`` / ``bved_import_line``
+      (readonly) — when the last D-Satz was applied, its check messages
+      (if any), and the import line that last wrote ``actual_costs``.
+
+   ``bved_matched_lines``
+      (Function, One2Many.) Every import line matched to this result,
+      regardless of type/state, shown as one unified, detailed table.
+
+   ``bved_e835_lines`` / ``bved_p_lines`` / ``bved_e835_labor_share_user_total`` / ``bved_p_user_amount_total``
+      (Function.) Informational subsets of ``bved_matched_lines`` by
+      record type, and their summed amounts.
+
+**Demo / test tooling.** ``tests/test_bved_provider_response.py`` has no
+trytond/database dependency (it loads ``bved_records.py`` directly from
+disk by path) and simulates a provider's response from a set of exported
+A-/L-/M-/K-Satz files: pools K-Satz costs per property, distributes them
+across M-Satz units weighted by heating advance payment × occupancy-period
+length in days (with reproducible random jitter and a largest-remainder,
+cent-exact correction so the total still matches exactly), emits D-Satz
+plus, where applicable, E835-Satz (labor share) and a small synthetic
+P-Satz (Energiepreisbremse — format exercise only, the underlying support
+program has since ended), and one E898-Satz record per unit/period
+referencing a generated single-page PDF "Heizkostenabrechnung" (period,
+per-cost-type total vs. share, overall total/advance payment/balance)
+built with a dependency-free, hand-rolled minimal PDF writer::
+
+   python tests/test_bved_provider_response.py DTA310_....DAT DTM310_....DAT \
+       DTK310_....DAT [--out-dir DIR] [--seed N]
 
 
 Option Rate (Input VAT Deduction)
@@ -1611,6 +1976,9 @@ Source Layout
    ├── billing_unit.py          # real_estate.billing_unit, billing_unit.moves,
    │                            #   billing_unit.log, cost_type, cost_category_group
    ├── billing_unit_wizard.py   # real_estate.billing_unit.wizard (batch billing)
+   ├── bved.py                  # BVED Tryton models: service_provider, provider_assignment,
+   │                            #   object_number, export, import(.line)
+   ├── bved_records.py          # BVED fixed-width record (de)serialization, no Tryton dependency
    ├── co2_kostaufg.py          # real_estate.co2_kostaufg(.consumption), co2_emission_share
    ├── company.py               # extension to company.company (re_accounting link)
    ├── contract_core.py         # real_estate.contract, contract.log, account views,

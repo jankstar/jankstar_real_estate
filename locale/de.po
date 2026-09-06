@@ -6930,6 +6930,14 @@ msgstr ""
 "L-Satz Feld 23 - rechtliche Tatsache zum Gebäude, nicht aus vorhandenen "
 "Daten ableitbar, bitte manuell erfassen."
 
+msgctxt "view:real_estate.bved.provider_assignment:"
+msgid "Automatic"
+msgstr "Automatisch"
+
+msgctxt "view:real_estate.bved.provider_assignment:"
+msgid "To Be Entered"
+msgstr "Erfassen"
+
 msgctxt "model:real_estate.bved.object_number,string:"
 msgid "BVED Object Number Mapping"
 msgstr "BVED Objektnummer-Zuordnung"
