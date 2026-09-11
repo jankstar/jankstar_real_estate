@@ -461,45 +461,45 @@ class BvedProviderAssignment(ModelSQL, ModelView):
     # the preview and the real export can differ if a billing unit's
     # actual period doesn't align with a plain calendar year.
     l_provider_key = fields.Function(
-        fields.Char("Provider Key"), 'on_change_with_l_provider_key')
+        fields.Char("4. Provider Key"), 'on_change_with_l_provider_key')
     l_street = fields.Function(
-        fields.Char("Street"), 'on_change_with_l_street')
+        fields.Char("7. Street"), 'on_change_with_l_street')
     l_country = fields.Function(
-        fields.Many2One('country.country', "Country"),
+        fields.Many2One('country.country', "8. Country"),
         'on_change_with_l_country')
     l_postal_code = fields.Function(
-        fields.Char("Postal Code"), 'on_change_with_l_postal_code')
+        fields.Char("9. Postal Code"), 'on_change_with_l_postal_code')
     l_city = fields.Function(
-        fields.Char("City"), 'on_change_with_l_city')
+        fields.Char("10. City"), 'on_change_with_l_city')
     l_period_start = fields.Function(
-        fields.Date("Period Start"), 'on_change_with_l_period_start')
+        fields.Date("11. Period Start"), 'on_change_with_l_period_start')
     l_period_end = fields.Function(
-        fields.Date("Period End"), 'on_change_with_l_period_end')
+        fields.Date("11. Period End"), 'on_change_with_l_period_end')
     l_vat_flag = fields.Function(
         fields.Selection([
             ('3', 'No VAT shown'),
             ('4', 'Net (fully opted for VAT)'),
             ('5', 'Per M-Satz field 25 (mixed/per user)'),
-            ], "VAT Treatment", sort=False,
+            ], "6. VAT Treatment", sort=False,
             help="Derived from the option rate of the billing units "
             "covered by this assignment: 100% option rate -> '4', 0% -> "
             "'3', anything in between -> '5' (decided per user via the "
             "M-Satz field)."),
         'on_change_with_l_vat_flag')
     l_weg_flag = fields.Function(
-        fields.Boolean("WEG (Cash Basis)",
+        fields.Boolean("17. WEG (Cash Basis)",
             help="Derived from the calculation method of the covered "
             "billing units: 'Cash basis' (WEG billing) sets this flag, "
             "'Accrual basis' (rental apartment) does not."),
         'on_change_with_l_weg_flag')
     l_non_residential_flag = fields.Function(
-        fields.Boolean(">50% Commercial (§8)",
+        fields.Boolean("19. >50% Commercial (§8)",
             help="True if any covered billing unit has its own "
             "'Non-residential building >50% commercial (§8)' flag set "
             "(CO2 Costs tab of the billing unit)."),
         'on_change_with_l_non_residential_flag')
     l_co2_landlord_share_percent = fields.Function(
-        fields.Numeric("CO2 Landlord Share (%)", digits=(5, 2),
+        fields.Numeric("22. CO2 Landlord Share (%)", digits=(5, 2),
             help="Taken from the heating cost billing unit "
             "(bved_fuel_data) among the covered billing units, if any: "
             "its 'Commercial Landlord Share' if its own "
@@ -526,34 +526,34 @@ class BvedProviderAssignment(ModelSQL, ModelView):
              "have a value on an individual rental object and would "
              "always sum to 0. Leave empty to omit this Kann-Feld.")
     l_total_area = fields.Function(
-        fields.Numeric("Total Area", digits=(16, 2)),
+        fields.Numeric("18. Total Area", digits=(16, 2)),
         'on_change_with_l_total_area')
 
     vacancy_risk_flag = fields.Boolean(
-        "Vacancy Risk Surcharge",
+        "13. Vacancy Risk Surcharge",
         help="L-Satz field 13 (Kennzeichen Umlageausfallwagnis) - not "
              "derivable from any existing data, enter manually. Also "
              "used, unchanged, for M-Satz field 26 (Kennzeichen "
              "Umlageausfallwagnis).")
     vacancy_risk_percent = fields.Numeric(
-        "Vacancy Risk Surcharge (%)", digits=(5, 2),
+        "14. Vacancy Risk Surcharge (%)", digits=(5, 2),
         states={'invisible': ~Eval('vacancy_risk_flag', False)},
         help="L-Satz field 14 - percentage, only relevant if the "
              "surcharge flag above is set.")
     labor_share_flag = fields.Boolean(
-        "Disclose Labor Share",
+        "15. Disclose Labor Share",
         help="L-Satz field 15 (Kennzeichen Ausweisung Lohnanteil) - not "
              "derivable from any existing data, enter manually.")
     energy_improvement_flag = fields.Boolean(
-        "Energy Improvement (§9)",
+        "20. Energy Improvement (§9)",
         help="L-Satz field 20 - legal fact about the building, not "
              "derivable from any existing data, enter manually.")
     heat_supply_flag = fields.Boolean(
-        "Heat Supply (§9)",
+        "21. Heat Supply (§9)",
         help="L-Satz field 21 - legal fact about the building, not "
              "derivable from any existing data, enter manually.")
     heat_connection_2023_flag = fields.Boolean(
-        "District Heating Connection since 2023",
+        "23. District Heating Connection since 2023",
         help="L-Satz field 23 - legal fact about the building, not "
              "derivable from any existing data, enter manually.")
 
@@ -1826,6 +1826,7 @@ class BvedExport(Workflow, ModelSQL, ModelView):
                         'period_end': bu.end_date,
                         'fuel_type': su.bved_fuel_type,
                         'heating_value': su.bved_heating_value,
+                        'fuel_indicator_flag': su.bved_fuel_indicator,
                         'stock_start_date': su.bved_stock_start_date,
                         'stock_start_quantity': su.bved_stock_start_quantity,
                         'stock_start_amount_gross':
@@ -1852,13 +1853,21 @@ class BvedExport(Workflow, ModelSQL, ModelView):
                         'supply_ww1_end': su.bved_supply_period_ww_1_end,
                         'supply_ww2_start': su.bved_supply_period_ww_2_start,
                         'supply_ww2_end': su.bved_supply_period_ww_2_end,
+                        'meter_type': su.bved_meter_type,
+                        'meter_unit': (
+                            su.bved_meter_measurement_unit.code
+                            if su.bved_meter_measurement_unit else None),
+                        'meter_number': su.bved_meter_number,
+                        'consumption': su.bved_meter_consumption,
+                        'meter_reading_start': su.bved_meter_reading_start,
+                        'meter_reading_end': su.bved_meter_reading_end,
                         'primary_energy_factor': su.bved_primary_energy_factor,
                         }
-                    # B-Satz fuel/heat data is maintained directly on the
-                    # settlement unit (see above) - there are no meters for
-                    # this in the system, so the per-meter fields (Feld
-                    # 28-33: Zählerart/Gerätenummer/Verbrauch/Zählerstände)
-                    # are Kann-Felder that simply stay empty.
+                    # Feld 10-22 (Bestandsführung) and Feld 28-34 (Zähler)
+                    # are mutually exclusive on the form (bved_fuel_rule),
+                    # but both sets of keys are always packed here - the
+                    # unused group's fields are simply left empty by the
+                    # user and pack() writes them blank/zero as usual.
                     lines.append(bved_records.pack('B', base_values))
 
             if 'K' in record_types:

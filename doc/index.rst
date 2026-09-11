@@ -580,6 +580,14 @@ Property Management
      would be billed to already be in state ``ready_for_billing``; with
      ``collective_billing`` all billing units sharing the same start date
      must be included together, otherwise a ``ValidationError`` is raised.
+   - ``bved_provider_assignments`` (function-less One2Many, ``readonly=True``,
+     visible only for ``type in ('property', 'building')``) shows the
+     ``real_estate.bved.provider_assignment`` records anchored on this
+     object. The *BVED Provider Assignments* notebook page itself stays
+     hidden until at least one such assignment actually exists — it is a
+     read-only overview, not a way to create or edit assignments; those are
+     always maintained on the dedicated *BVED Provider-Liegenschaft*
+     screen (``real_estate.bved.provider_assignment``, see below).
 
    *Rental object fields* (visible only for ``type = 'object'``):
 
@@ -1926,10 +1934,73 @@ data, typically entered only on the heating-cost settlement unit):
       heating-cost unit representative of a billing unit's CO2 landlord
       share (see *CO2 Cost Allocation* above).
 
-   ``bved_fuel_type`` (BVED Tabelle 'B'), ``bved_heating_value``, stock
-   start/end date + quantity + amount (gross/net), hot-water average
-   temperature/consumption/flat-rate percentage/meter start-end, and up to
-   two heating and two hot-water supply periods (start/end each).
+   ``bved_fuel_type`` (BVED Tabelle 'B'), ``bved_heating_value``,
+   ``bved_fuel_indicator`` (field 23, Kennzeichen Brennstoffart —
+   Selection ``'0'``-``'9'``, default ``'0'``), and ``bved_fuel_rule``
+   (``'stock'``/``'meter'``, default ``'stock'``) — selects which of two
+   mutually exclusive field groups below the *B-Satz / Brennstoff* page
+   shows; two further groups apply either way and are always shown.
+
+   ``bved_fuel_indicator`` distinguishes several concurrent B-Satz fuel
+   records for the same property/period (e.g. two fuel suppliers each
+   feeding their own externally-billed settlement unit within the same
+   billing period). ``'0'`` if field 8 (``bved_fuel_type``) is left
+   empty, else ``'1'``-``'9'``. ``on_change_bved_fuel_type`` keeps it
+   consistent automatically: clearing field 8 resets it to ``'0'``;
+   setting field 8 bumps it from ``'0'``/empty to ``'1'`` (the user may
+   raise it to ``'2'``-``'9'`` by hand for an additional concurrent fuel
+   record). ``SettlementUnit.validate_fields`` enforces, whenever
+   ``bved_fuel_data`` is set: the '0' ↔ empty-field-8 correspondence
+   above, and — for a non-``'0'`` value — uniqueness across every other
+   settlement unit of the same property (``billing_unit.property``)
+   whose billing period overlaps this one's
+   (``billing_unit.start_date``/``end_date``).
+
+   ``'stock'`` (Bestandsführung, B-Satz fields 10-17 — storable fuels
+   like heating oil, tracked via initial/closing stock only): stock
+   start/end date + quantity + amount (gross/net). Hidden when
+   ``bved_fuel_rule = 'meter'``.
+
+   *WW-Anteil* (B-Satz fields 18-22 — hot-water average
+   temperature/consumption/flat-rate percentage/meter start-end) and
+   *Versorgungszeitraum* (B-Satz fields 24-27 — up to two heating and
+   two hot-water supply periods, start/end each) apply to both
+   ``bved_fuel_rule`` values and are always shown (once
+   ``bved_fuel_data`` is set) regardless of it.
+
+   ``'meter'`` (Zähler, B-Satz fields 28-34 — district heating or other
+   supply metered directly, without a storable stock):
+   ``bved_meter_type`` (BVED Tabelle 'G'), ``bved_meter_measurement_unit``
+   (Many2One to ``real_estate.bved.unit``, BVED Tabelle 'E' — the same
+   model used for the M-Satz allocation keys above, reused here since it
+   already covers the full Tabelle 'E' code list), ``bved_meter_number``,
+   ``bved_meter_consumption``, ``bved_meter_reading_start``/
+   ``bved_meter_reading_end``. ``bved_primary_energy_factor`` (field 34)
+   is shown as part of this group, per the standard's field-position
+   grouping, even though it is a property of the fuel type (mandatory for
+   Fernwärme) rather than of the metering method itself. Hidden when
+   ``bved_fuel_rule = 'stock'``.
+
+   All four groups are always packed into the B-Satz record regardless
+   of ``bved_fuel_rule`` — the fields belonging to the currently hidden
+   group are simply left empty by the user and packed blank/zero as
+   usual.
+
+   .. note::
+      Every field label in this section (and the L-Satz Preview fields
+      on ``real_estate.bved.provider_assignment`` below) is prefixed
+      with its record field number, e.g. "10. Stock Start Date" —
+      matching the convention already used by the M-Satz Preview line
+      model. ``bved_fuel_data`` and ``bved_fuel_rule`` are left
+      unnumbered since they are module-only controls, not fields of the
+      B-Satz record itself.
+
+   .. note::
+      ``bved_fuel_rule`` did not exist before this field group split; a
+      migration in ``SettlementUnit.__register__`` backfills it to
+      ``'stock'`` for every pre-existing row with ``bved_fuel_data`` set,
+      so previously entered stock/hot-water data stays visible after the
+      upgrade (it was, in effect, the only option before).
 
    K-Satz cost records (``BvedExport._build_b_k_records()``) are built not
    only from invoice lines booked directly on the externally-billed

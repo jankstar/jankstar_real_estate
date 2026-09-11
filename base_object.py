@@ -201,8 +201,11 @@ class BaseObject(Workflow, DeactivableMixin, re_sequence_ordered(), tree(separat
 
     bved_provider_assignments = fields.One2Many(
         'real_estate.bved.provider_assignment', 'base_object',
-        "BVED Provider Assignments",
-        states={'invisible': ~Eval('type').in_(['property', 'building'])})
+        "BVED Provider Assignments", readonly=True,
+        states={'invisible': ~Eval('type').in_(['property', 'building'])},
+        help="Read-only overview of assignments already maintained via "
+             "the dedicated 'BVED Provider Assignment' screen - not "
+             "created or edited here.")
 
     ## special data propperty
     _states_only_propperty= {
@@ -212,7 +215,18 @@ class BaseObject(Workflow, DeactivableMixin, re_sequence_ordered(), tree(separat
     _states_only_property_or_building = {
             'invisible': ~Eval('type').in_(['property', 'building']),
             }
-    
+
+    # The BVED Provider Assignments tab is only ever meant to display
+    # assignments already maintained via the dedicated 'BVED Provider
+    # Assignment' screen - never to create them inline - so it stays
+    # hidden until at least one such assignment actually exists for
+    # this property/building.
+    _states_only_bved_provider_assignments = {
+            'invisible': (
+                ~Eval('type').in_(['property', 'building'])
+                | ~Bool(Eval('bved_provider_assignments'))),
+            }
+
     billing_as = fields.Selection([
             ('residential', 'Residential (gross)'),
             ('commercial', 'Commercial (net)'),
@@ -424,7 +438,7 @@ class BaseObject(Workflow, DeactivableMixin, re_sequence_ordered(), tree(separat
             ('/form/notebook/page[@id="page_billing_unit"]', 'states', cls._states_only_propperty),
             ('/form/notebook/page[@id="page_option_rate"]', 'states', cls._states_only_option_rate),
             ('/form/notebook/page[@id="page_bved_provider_assignments"]',
-                'states', cls._states_only_property_or_building),
+                'states', cls._states_only_bved_provider_assignments),
             ]
 
 

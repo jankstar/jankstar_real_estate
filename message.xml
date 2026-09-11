@@ -213,6 +213,15 @@ Either run "Ready for Billing" for each billing unit first, or bill individual b
         <record model="ir.message" id="msg_settlement_unit_reference_invalid">
             <field name="text">"%(name)s": the reference settlement unit must belong to the same billing unit, must not be the settlement unit itself, and must not itself use "Allocation via cost collector".</field>
         </record>
+        <record model="ir.message" id="msg_settlement_unit_bved_fuel_indicator_required">
+            <field name="text">"%(name)s": B-Satz field 23 (Kennzeichen Brennstoffart) must be 1-9 once a fuel type (field 8) is selected.</field>
+        </record>
+        <record model="ir.message" id="msg_settlement_unit_bved_fuel_indicator_must_be_zero">
+            <field name="text">"%(name)s": B-Satz field 23 (Kennzeichen Brennstoffart) must be "0 - kein Brennstoff" when no fuel type (field 8) is selected.</field>
+        </record>
+        <record model="ir.message" id="msg_settlement_unit_bved_fuel_indicator_duplicate">
+            <field name="text">"%(name)s": B-Satz field 23 (Kennzeichen Brennstoffart) "%(indicator)s" is already used by "%(other)s" for the same property and overlapping billing period.</field>
+        </record>
         <record model="ir.message" id="msg_settlement_unit_selection_invalid_state">
             <field name="text">Cannot run selection for "%(name)s": not allowed in state '%(state)s'.</field>
         </record>

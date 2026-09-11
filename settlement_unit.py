@@ -8,6 +8,7 @@ from trytond.pool import Pool
 from trytond.transaction import Transaction
 from trytond.pyson import Bool, Eval, If
 from trytond.modules.currency.fields import Monetary
+from sql import Null
 
 import re
 import datetime
@@ -360,83 +361,151 @@ class SettlementUnit(DeactivableMixin, base_object.re_sequence_ordered(), ModelS
              "externally billed billing unit).")
 
     bved_fuel_type = fields.Selection(
-        'get_bved_fuel_types', "BVED Fuel Type", sort=False,
+        'get_bved_fuel_types', "8. BVED Fuel Type", sort=False,
         states={'invisible': ~Eval('bved_fuel_data')},
         help="BVED Tabelle 'B'.")
 
     bved_heating_value = fields.Numeric(
-        "Heating Value (kWh per unit)", digits=(7, 4),
+        "9. Heating Value (kWh per unit)", digits=(7, 4),
         states={'invisible': ~Eval('bved_fuel_data')},
         help="Mandatory once a fuel type is selected.")
 
-    bved_stock_start_date = fields.Date("Stock Start Date",
-        states={'invisible': ~Eval('bved_fuel_data')})
-    bved_stock_start_quantity = fields.Numeric(
-        "Stock Start Quantity", digits=(8, 3),
-        states={'invisible': ~Eval('bved_fuel_data')})
-    bved_stock_start_amount_gross = fields.Numeric(
-        "Stock Start Amount (gross)", digits=(8, 2),
-        states={'invisible': ~Eval('bved_fuel_data')})
-    bved_stock_start_amount_net = fields.Numeric(
-        "Stock Start Amount (net)", digits=(8, 2),
-        states={'invisible': ~Eval('bved_fuel_data')})
+    bved_fuel_indicator = fields.Selection([
+            ('0', '0 - kein Brennstoff'),
+            ('1', '1 - Brennstoff lfd. Nr. 1'),
+            ('2', '2 - Brennstoff lfd. Nr. 2'),
+            ('3', '3 - Brennstoff lfd. Nr. 3'),
+            ('4', '4 - Brennstoff lfd. Nr. 4'),
+            ('5', '5 - Brennstoff lfd. Nr. 5'),
+            ('6', '6 - Brennstoff lfd. Nr. 6'),
+            ('7', '7 - Brennstoff lfd. Nr. 7'),
+            ('8', '8 - Brennstoff lfd. Nr. 8'),
+            ('9', '9 - Brennstoff lfd. Nr. 9'),
+            ], "23. Fuel Indicator Flag", required=True, sort=False,
+        states={'invisible': ~Eval('bved_fuel_data')},
+        help="Distinguishes several concurrent B-Satz fuel records for "
+             "the same property/period (e.g. two fuel suppliers feeding "
+             "the same heating settlement unit). '0' if field 8 (BVED "
+             "Fuel Type) is left empty, else 1-9 - set automatically "
+             "when field 8 is changed (defaulting to '1'), but may be "
+             "raised to 2-9 by hand for an additional concurrent fuel "
+             "record. Must be unique across every settlement unit of "
+             "the same property whose billing period overlaps this "
+             "one's.")
 
-    bved_stock_end_date = fields.Date("Stock End Date",
-        states={'invisible': ~Eval('bved_fuel_data')})
+    # Shared by every field of the respective B-Satz field group below,
+    # so the group as a whole follows bved_fuel_rule without repeating
+    # the same PYSON expression on each field.
+    _states_invisible_bved_stock = (
+        ~Eval('bved_fuel_data') | (Eval('bved_fuel_rule') != 'stock'))
+    _states_invisible_bved_meter = (
+        ~Eval('bved_fuel_data') | (Eval('bved_fuel_rule') != 'meter'))
+
+    bved_fuel_rule = fields.Selection([
+            ('', ''),
+            ('stock', 'Bestandsführung'),
+            ('meter', 'direkt Verbrauch, Zähler'),
+            ], "Fuel Rule", sort=False,
+        states={'invisible': ~Eval('bved_fuel_data')},
+        help="Chooses which of the 'Bestandsführung' (B-Satz fields "
+             "10-17 - storable fuels like heating oil, tracked via "
+             "initial/closing stock) or 'direkt Verbrauch, Zähler' "
+             "(B-Satz fields 28-34 - district heating or other supply "
+             "metered directly, without a storable stock) field groups "
+             "below applies. The 'WW-Anteil' (fields 18-22) and "
+             "'Versorgungszeitraum' (fields 24-27) groups apply either "
+             "way and are always shown.")
+
+    bved_stock_start_date = fields.Date("10. Stock Start Date",
+        states={'invisible': _states_invisible_bved_stock})
+    bved_stock_start_quantity = fields.Numeric(
+        "11. Stock Start Quantity", digits=(8, 3),
+        states={'invisible': _states_invisible_bved_stock})
+    bved_stock_start_amount_gross = fields.Numeric(
+        "12. Stock Start Amount (gross)", digits=(8, 2),
+        states={'invisible': _states_invisible_bved_stock})
+    bved_stock_start_amount_net = fields.Numeric(
+        "13. Stock Start Amount (net)", digits=(8, 2),
+        states={'invisible': _states_invisible_bved_stock})
+
+    bved_stock_end_date = fields.Date("14. Stock End Date",
+        states={'invisible': _states_invisible_bved_stock})
     bved_stock_end_quantity = fields.Numeric(
-        "Stock End Quantity", digits=(8, 3),
-        states={'invisible': ~Eval('bved_fuel_data')})
+        "15. Stock End Quantity", digits=(8, 3),
+        states={'invisible': _states_invisible_bved_stock})
     bved_stock_end_amount_gross = fields.Numeric(
-        "Stock End Amount (gross)", digits=(8, 2),
-        states={'invisible': ~Eval('bved_fuel_data')})
+        "16. Stock End Amount (gross)", digits=(8, 2),
+        states={'invisible': _states_invisible_bved_stock})
     bved_stock_end_amount_net = fields.Numeric(
-        "Stock End Amount (net)", digits=(8, 2),
-        states={'invisible': ~Eval('bved_fuel_data')})
+        "17. Stock End Amount (net)", digits=(8, 2),
+        states={'invisible': _states_invisible_bved_stock})
 
     bved_ww_temperature = fields.Numeric(
-        "Hot Water Temperature (avg. °C)", digits=(2, 2),
+        "18. Hot Water Temperature (avg. °C)", digits=(2, 2),
         states={'invisible': ~Eval('bved_fuel_data')})
     bved_ww_consumption_m3 = fields.Numeric(
-        "Hot Water Consumption (m³)", digits=(6, 3),
+        "19. Hot Water Consumption (m³)", digits=(6, 3),
         states={'invisible': ~Eval('bved_fuel_data')})
     bved_ww_percentage = fields.Numeric(
-        "Hot Water Percentage (flat rate)", digits=(2, 2),
+        "20. Hot Water Percentage (flat rate)", digits=(2, 2),
         states={'invisible': ~Eval('bved_fuel_data')})
     bved_ww_meter_start = fields.Numeric(
-        "Hot Water Meter Start", digits=(6, 3),
+        "21. Hot Water Meter Start", digits=(6, 3),
         states={'invisible': ~Eval('bved_fuel_data')})
     bved_ww_meter_end = fields.Numeric(
-        "Hot Water Meter End", digits=(6, 3),
+        "22. Hot Water Meter End", digits=(6, 3),
         states={'invisible': ~Eval('bved_fuel_data')})
 
     bved_supply_period_heating_1_start = fields.Date(
-        "1st Supply Period Heating (Start)",
+        "24. 1st Supply Period Heating (Start)",
         states={'invisible': ~Eval('bved_fuel_data')})
     bved_supply_period_heating_1_end = fields.Date(
-        "1st Supply Period Heating (End)",
+        "24. 1st Supply Period Heating (End)",
         states={'invisible': ~Eval('bved_fuel_data')})
     bved_supply_period_heating_2_start = fields.Date(
-        "2nd Supply Period Heating (Start)",
+        "25. 2nd Supply Period Heating (Start)",
         states={'invisible': ~Eval('bved_fuel_data')})
     bved_supply_period_heating_2_end = fields.Date(
-        "2nd Supply Period Heating (End)",
+        "25. 2nd Supply Period Heating (End)",
         states={'invisible': ~Eval('bved_fuel_data')})
     bved_supply_period_ww_1_start = fields.Date(
-        "1st Supply Period Hot Water (Start)",
+        "26. 1st Supply Period Hot Water (Start)",
         states={'invisible': ~Eval('bved_fuel_data')})
     bved_supply_period_ww_1_end = fields.Date(
-        "1st Supply Period Hot Water (End)",
+        "26. 1st Supply Period Hot Water (End)",
         states={'invisible': ~Eval('bved_fuel_data')})
     bved_supply_period_ww_2_start = fields.Date(
-        "2nd Supply Period Hot Water (Start)",
+        "27. 2nd Supply Period Hot Water (Start)",
         states={'invisible': ~Eval('bved_fuel_data')})
     bved_supply_period_ww_2_end = fields.Date(
-        "2nd Supply Period Hot Water (End)",
+        "27. 2nd Supply Period Hot Water (End)",
         states={'invisible': ~Eval('bved_fuel_data')})
 
+    bved_meter_type = fields.Selection(
+        'get_bved_meter_types', "28. Meter Type", sort=False,
+        states={'invisible': _states_invisible_bved_meter},
+        help="BVED Tabelle 'G'.")
+    bved_meter_measurement_unit = fields.Many2One(
+        'real_estate.bved.unit', "29. Measurement Unit", ondelete='RESTRICT',
+        states={'invisible': _states_invisible_bved_meter},
+        help="BVED Tabelle 'E' (Maßeinheit der Verbrauchsmessung), z. B. "
+             "'005 - kWh'.")
+    bved_meter_number = fields.Char(
+        "30. Meter Number",
+        states={'invisible': _states_invisible_bved_meter})
+    bved_meter_consumption = fields.Numeric(
+        "31. Consumption", digits=(7, 3),
+        states={'invisible': _states_invisible_bved_meter})
+    bved_meter_reading_start = fields.Numeric(
+        "32. Meter Reading Start", digits=(7, 3),
+        states={'invisible': _states_invisible_bved_meter})
+    bved_meter_reading_end = fields.Numeric(
+        "33. Meter Reading End", digits=(7, 3),
+        states={'invisible': _states_invisible_bved_meter})
+
     bved_primary_energy_factor = fields.Numeric(
-        "Primary Energy Factor", digits=(1, 2),
-        states={'invisible': ~Eval('bved_fuel_data')},
+        "34. Primary Energy Factor", digits=(1, 2),
+        states={'invisible': _states_invisible_bved_meter},
         help="Required (mandatory in the standard) when the fuel type is "
              "district heating (Fernwärme).")
 
@@ -445,8 +514,60 @@ class SettlementUnit(DeactivableMixin, base_object.re_sequence_ordered(), ModelS
         return [('', '')] + bved_records.as_selection(bved_records.TABLE_B)
 
     @staticmethod
+    def get_bved_meter_types():
+        return [('', '')] + bved_records.as_selection(bved_records.TABLE_G)
+
+    @staticmethod
     def default_bved_fuel_data():
         return False
+
+    @staticmethod
+    def default_bved_fuel_rule():
+        return 'stock'
+
+    @staticmethod
+    def default_bved_fuel_indicator():
+        return '0'
+
+    @fields.depends('bved_fuel_type', 'bved_fuel_indicator')
+    def on_change_bved_fuel_type(self):
+        if not self.bved_fuel_type:
+            self.bved_fuel_indicator = '0'
+        elif not self.bved_fuel_indicator or self.bved_fuel_indicator == '0':
+            self.bved_fuel_indicator = '1'
+
+    @classmethod
+    def __register__(cls, module):
+        table_h = cls.__table_handler__(module)
+        fuel_rule_exists = table_h.column_exist('bved_fuel_rule')
+        fuel_indicator_exists = table_h.column_exist('bved_fuel_indicator')
+
+        super().__register__(module)
+
+        cursor = Transaction().connection.cursor()
+        table = cls.__table__()
+
+        if not fuel_rule_exists:
+            # Before this field existed, any settlement unit with
+            # bved_fuel_data set always used the (only) 'Bestandsführung'
+            # field group - carry that forward explicitly so existing
+            # data stays visible under the new bved_fuel_rule switch.
+            cursor.execute(*table.update(
+                columns=[table.bved_fuel_rule],
+                values=['stock'],
+                where=table.bved_fuel_data == True))
+
+        if not fuel_indicator_exists:
+            # The column sync already defaulted every existing row to
+            # '0' (default_bved_fuel_indicator) - fix up the ones that
+            # already have a fuel type selected, since '0' is only
+            # valid without one.
+            cursor.execute(*table.update(
+                columns=[table.bved_fuel_indicator],
+                values=['1'],
+                where=(
+                    (table.bved_fuel_type != Null)
+                    & (table.bved_fuel_type != ''))))
 
     @classmethod
     def delete(cls, settlement_units):
@@ -472,6 +593,12 @@ class SettlementUnit(DeactivableMixin, base_object.re_sequence_ordered(), ModelS
             }),
             ('//page[@id="page_bved_fuel"]', 'states', {
                 'invisible': ~Eval('bved_fuel_data'),
+            }),
+            ('//separator[@id="bved_fuel_rule_stock"]', 'states', {
+                'invisible': cls._states_invisible_bved_stock,
+            }),
+            ('//separator[@id="bved_fuel_rule_meter"]', 'states', {
+                'invisible': cls._states_invisible_bved_meter,
             }),
             ('/tree', 'visual',
                 If(Eval('sub_state', '') == 'error', 'danger', ''),
@@ -811,7 +938,10 @@ class SettlementUnit(DeactivableMixin, base_object.re_sequence_ordered(), ModelS
         check_allocation = check_all or 'allocation_rule' in field_names
         check_reference = (check_all or check_allocation
             or 'reference_settlement_unit' in field_names)
-        if not (check_allocation or check_reference):
+        check_fuel = check_all or bool({
+            'bved_fuel_data', 'bved_fuel_type', 'bved_fuel_indicator',
+            } & set(field_names or []))
+        if not (check_allocation or check_reference or check_fuel):
             return
         for su in units:
             if check_allocation and su.billing_unit:
@@ -840,6 +970,34 @@ class SettlementUnit(DeactivableMixin, base_object.re_sequence_ordered(), ModelS
                     raise ValidationError(gettext(
                         'real_estate.msg_settlement_unit_reference_invalid',
                         name=su.rec_name))
+            if check_fuel and su.bved_fuel_data:
+                if su.bved_fuel_type and su.bved_fuel_indicator == '0':
+                    raise ValidationError(gettext(
+                        'real_estate.msg_settlement_unit_bved_fuel_indicator_required',
+                        name=su.rec_name))
+                if not su.bved_fuel_type and su.bved_fuel_indicator != '0':
+                    raise ValidationError(gettext(
+                        'real_estate.msg_settlement_unit_bved_fuel_indicator_must_be_zero',
+                        name=su.rec_name))
+                if (su.bved_fuel_indicator and su.bved_fuel_indicator != '0'
+                        and su.billing_unit and su.billing_unit.property):
+                    duplicates = cls.search([
+                        ('id', '!=', su.id),
+                        ('bved_fuel_data', '=', True),
+                        ('bved_fuel_indicator', '=', su.bved_fuel_indicator),
+                        ('billing_unit.property', '=',
+                            su.billing_unit.property.id),
+                        ('billing_unit.start_date', '<=',
+                            su.billing_unit.end_date),
+                        ('billing_unit.end_date', '>=',
+                            su.billing_unit.start_date),
+                        ])
+                    if duplicates:
+                        raise ValidationError(gettext(
+                            'real_estate.msg_settlement_unit_bved_fuel_indicator_duplicate',
+                            name=su.rec_name,
+                            other=duplicates[0].rec_name,
+                            indicator=su.bved_fuel_indicator))
 
     @fields.depends('type', 'sequence')
     def on_change_with_sequence(self, name=None):

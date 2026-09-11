@@ -97,6 +97,12 @@
             <label name="bved_fuel_type"/><field name="bved_fuel_type" colspan="3"/>
             <label name="bved_heating_value"/><field name="bved_heating_value"/>
             <newline/>
+            <label name="bved_fuel_indicator"/><field name="bved_fuel_indicator"/>
+            <newline/>
+            <label name="bved_fuel_rule"/><field name="bved_fuel_rule"/>
+            <newline/>
+
+            <separator id="bved_fuel_rule_stock" string="Bestandsführung" colspan="4"/>
             <label name="bved_stock_start_date"/><field name="bved_stock_start_date"/>
             <label name="bved_stock_start_quantity"/><field name="bved_stock_start_quantity"/>
             <newline/>
@@ -108,7 +114,8 @@
             <newline/>
             <label name="bved_stock_end_amount_gross"/><field name="bved_stock_end_amount_gross"/>
             <label name="bved_stock_end_amount_net"/><field name="bved_stock_end_amount_net"/>
-            <newline/>
+
+            <separator id="bved_ww_share" string="WW-Anteil" colspan="4"/>
             <label name="bved_ww_temperature"/><field name="bved_ww_temperature"/>
             <label name="bved_ww_consumption_m3"/><field name="bved_ww_consumption_m3"/>
             <newline/>
@@ -116,7 +123,8 @@
             <newline/>
             <label name="bved_ww_meter_start"/><field name="bved_ww_meter_start"/>
             <label name="bved_ww_meter_end"/><field name="bved_ww_meter_end"/>
-            <newline/>
+
+            <separator id="bved_supply_period" string="Versorgungszeitraum" colspan="4"/>
             <label name="bved_supply_period_heating_1_start"/><field name="bved_supply_period_heating_1_start"/>
             <label name="bved_supply_period_heating_1_end"/><field name="bved_supply_period_heating_1_end"/>
             <newline/>
@@ -128,6 +136,16 @@
             <newline/>
             <label name="bved_supply_period_ww_2_start"/><field name="bved_supply_period_ww_2_start"/>
             <label name="bved_supply_period_ww_2_end"/><field name="bved_supply_period_ww_2_end"/>
+
+            <separator id="bved_fuel_rule_meter" string="Zähler" colspan="4"/>
+            <label name="bved_meter_type"/><field name="bved_meter_type"/>
+            <label name="bved_meter_measurement_unit"/><field name="bved_meter_measurement_unit"/>
+            <newline/>
+            <label name="bved_meter_number"/><field name="bved_meter_number"/>
+            <label name="bved_meter_consumption"/><field name="bved_meter_consumption"/>
+            <newline/>
+            <label name="bved_meter_reading_start"/><field name="bved_meter_reading_start"/>
+            <label name="bved_meter_reading_end"/><field name="bved_meter_reading_end"/>
             <newline/>
             <label name="bved_primary_energy_factor"/><field name="bved_primary_energy_factor"/>
         </page>
@@ -141,7 +159,7 @@
 
     <group colspan="6" id="settlement_unit_invoice_lines">
         <field name="invoice_lines"
-            view_ids="real_estate.invoice_line_view_tree_settlement_unit"
+            view_ids="real_estate.invoice_line_view_tree_billing_unit"
             readonly="1"/>
     </group>
 
