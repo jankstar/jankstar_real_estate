@@ -166,31 +166,13 @@ class OptionRate(ModelSQL, ModelView):
         return Decimal(0)
 
     @classmethod
-    def _measurement_type_leaves(cls, m_type):
-        """Return the non-group measurement types to sum for m_type: itself
-        if it is not a group, or its children (recursively, in case of
-        nested groups) if it is."""
-        if not m_type.is_group:
-            return [m_type]
-        leaves = []
-        for child in m_type.children:
-            leaves.extend(cls._measurement_type_leaves(child))
-        return leaves
-
-    @classmethod
     def _measurement_value(cls, base_object, m_type, cutoff_date):
+        """Hierarchy-aware measurement value (see
+        Measurement.get_total_value()) as a Decimal, or None if nothing
+        is recorded for any effective leaf type."""
         Measurement = Pool().get('real_estate.measurement')
-        total = None
-        for leaf in cls._measurement_type_leaves(m_type):
-            records = Measurement.search([
-                ('base_object', '=', base_object.id),
-                ('m_type', '=', leaf.id),
-                ('valid_from', '<=', cutoff_date),
-                ], order=[('valid_from', 'DESC')], limit=1)
-            if records:
-                value = Decimal(str(records[0].value))
-                total = value if total is None else total + value
-        return total
+        total = Measurement.get_total_value(base_object.id, m_type, cutoff_date)
+        return Decimal(str(total)) if total is not None else None
 
     @classmethod
     def _approved_descendants(cls, base_object):

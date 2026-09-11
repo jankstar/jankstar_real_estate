@@ -270,4 +270,50 @@ class Measurement(DeactivableMixin, ModelSQL, ModelView, metaclass=PoolMeta):
                 ('m_type.unit',) + tuple(clause[1:]),
                 ('valid_from',) + tuple(clause[1:]),
                 ]
-        return []    
+        return []
+
+    @classmethod
+    def get_total_value(cls, base_object_id, m_type, as_of_date=None):
+        """The one hierarchy-aware entry point for "the value of measurement
+        type `m_type` on object `base_object_id` as of `as_of_date`" -
+        every place in this module that looks up a measurement value for
+        a computation (as opposed to just listing raw rows for display)
+        should call this instead of querying `real_estate.measurement`
+        directly with `m_type`.
+
+        `m_type` may be a leaf type or a group ("Summenbemessung"):
+        resolved via `MeasurementType.get_effective_ids()` into one or
+        more leaf type ids (recursively, for nested groups). For EACH
+        effective leaf id independently, the object's own latest row
+        (optionally restricted to `valid_from <= as_of_date`; pass
+        `as_of_date=None` for no upper bound - the single latest row
+        ever) is looked up, and all found values are summed - so an
+        object carrying measurements under several sibling leaf types of
+        the same group (e.g. a mixed-use object with both a residential
+        and a commercial area entry) contributes all of them, not just
+        whichever happens to be the most recently dated row.
+
+        Returns `None` if `m_type` is falsy, if `m_type` resolves to no
+        effective ids at all, or if none of the effective ids has any
+        matching row on this object at all (no measurement recorded, as
+        opposed to a recorded value of zero). Otherwise returns the sum
+        across whichever effective ids did have a matching row."""
+        if not m_type:
+            return None
+        MeasurementType = Pool().get('real_estate.measurement.type')
+        effective_ids = MeasurementType.get_effective_ids(m_type)
+        if not effective_ids:
+            return None
+        total = None
+        for type_id in effective_ids:
+            domain = [
+                ('base_object', '=', base_object_id),
+                ('m_type', '=', type_id),
+                ]
+            if as_of_date is not None:
+                domain.append(('valid_from', '<=', as_of_date))
+            rows = cls.search(
+                domain, order=[('valid_from', 'DESC')], limit=1)
+            if rows:
+                total = (total or 0.0) + rows[0].value
+        return total

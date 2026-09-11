@@ -9,6 +9,8 @@
     <field name="end_date" optional="0" width="100"/>
     <field name="time_share" width="80" optional="1" sum="1"/>
     <field name="value_share" optional="1" sum="1"/>
+    <field name="consumption_share" optional="1" sum="1"/>
+    <field name="area_share" optional="1" sum="1"/>
     <field name="planned_costs" optional="1" sum="1"/>
     <field name="actual_costs" optional="1" sum="1"/>
     <field name="currency" optional="1"/>

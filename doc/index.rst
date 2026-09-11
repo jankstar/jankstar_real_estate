@@ -298,8 +298,9 @@ multiple groups.
    ``cost_category_group``, ``cost_type``,
    ``account.configuration.real_estate``), and on the BVED external
    billing models (``bved.service_provider``, ``bved.provider_assignment``,
-   ``bved.object_number``, ``bved.export``, ``bved.import``,
-   ``bved.import.line`` — see *BVED External Billing Interface* below).
+   ``bved.object_number``, ``bved.object_number.m_satz_line``,
+   ``bved.export``, ``bved.import``, ``bved.import.line`` — see *BVED
+   External Billing Interface* below).
    Read-only access to property and contract models.
    Intended for the operating cost accountant who runs the annual
    settlement but does not modify contracts or property master data.
@@ -509,6 +510,11 @@ Permission matrix (``C`` = CRUD · ``R`` = read · ``—`` = no access):
      - —
      - R
      - C
+   * - ``real_estate.bved.object_number.m_satz_line``
+     - C
+     - —
+     - R
+     - C
    * - ``real_estate.bved.export``
      - C
      - —
@@ -627,9 +633,40 @@ Property Management
    all descendant leaf type IDs at query time, so measurements of any child
    type are included in the calculation.
 
+   ``get_effective_ids(m_type)``
+      Classmethod resolving `m_type` to the flat list of leaf type ids to
+      search: itself if not a group, else all descendant leaf ids
+      (recursively, for nested groups).
+
 ``real_estate.measurement``  (``measurement.py``)
    Associates a numeric value and measurement type with a ``BaseObject``
    for a given validity period.
+
+   ``get_total_value(base_object_id, m_type, as_of_date=None)``
+      The single, hierarchy-aware entry point for "the value of `m_type`
+      on `base_object_id` as of `as_of_date`" — every computation in the
+      module that needs a measurement value (as opposed to just listing
+      raw rows for display) goes through this classmethod rather than
+      querying ``real_estate.measurement`` directly. Resolves `m_type` via
+      ``MeasurementType.get_effective_ids()`` and, for **each** effective
+      leaf id independently, looks up the object's own latest row with
+      ``valid_from <= as_of_date`` (or the single latest row ever, if
+      `as_of_date` is ``None``) — then **sums** whatever was found. This
+      matters for a "Summenbemessung" (group type) where a single object
+      carries values under **several sibling leaf types** at once (e.g. a
+      mixed-use object with both a residential and a commercial area
+      entry): the object contributes all of them, not just whichever
+      happens to be the most recently dated row. Returns ``None`` if
+      `m_type` is falsy, resolves to no effective ids, or none of them has
+      any matching row at all (true "not recorded", as opposed to a
+      recorded value of zero) — callers use this to distinguish "no data"
+      from a real zero. Used by ``real_estate.bved.provider_assignment``
+      (L-Satz *Gesamtfläche*), ``BillingUnit.on_change_with_co2_total_area``,
+      ``SettlementUnit.compute_value_shares`` (``allocation_by_measurement``),
+      ``ContractTerm._sum_measurements``, and
+      ``OptionRate._measurement_value`` (dynamic option-rate weighting) —
+      previously each of these re-implemented its own (in several cases
+      incompletely hierarchy-aware, or not hierarchy-aware at all) lookup.
 
 ``real_estate.meter_reading``  (``base_object.py``)
    Meter reading record linked to an equipment object of type ``meters``.
@@ -999,6 +1036,27 @@ Operating Cost Settlement
       Char field set at the end of a successful ``billing()`` call,
       identical to the value written to all ``BillingUnitMoves`` of that run.
 
+   ``rental_objects``
+      (Function, One2Many, readonly.) Distinct rental objects referenced
+      by this billing unit's own ``settlment_results`` (via
+      ``settlement_result_objects()``) — the objects that actually ended
+      up with a settlement result, as opposed to
+      ``bved_covered_object_ids()`` (derived from ``settlement_unit.objects``
+      and used for BVED A-/D-Satz matching, which can include an object
+      excluded during ``selection()``, e.g. a genuine vacancy edge case).
+      Shown as a read-only *Rental Objects* tab, right after *Settlement
+      Results*.
+
+   ``covered_rental_objects()``
+      Method (not a stored/Function field) used by the BVED L-Satz
+      "Gesamtfläche" calculation — see *BVED External Billing Interface*
+      below: returns ``settlement_result_objects()`` when non-empty, else
+      falls back to the objects covered by this billing unit's own
+      settlement units (``bved_covered_object_ids()``) for a billing unit
+      that hasn't had "Compute Settlement Results" run yet. External
+      callers (BVED included) always go through this one method rather
+      than re-deriving the object set themselves.
+
 ``real_estate.billing_unit.log``  (``billing_unit.py``)
    Timestamped log entries attached to a billing unit.
 
@@ -1071,10 +1129,58 @@ Operating Cost Settlement
 
    ``allocation_from_external_billing``
       No internal calculation; ``planned_costs``/``actual_costs`` are entered
-      manually on the cost share. Automatically set on every settlement unit
-      of a billing unit when that billing unit's ``external_billing`` flag is
-      enabled (see ``real_estate.billing_unit`` below); the settlement unit's
-      ``allocation_rule`` then becomes read-only.
+      manually on the cost share. Automatically suggested (via
+      ``on_change_external_billing``) on every settlement unit of a billing
+      unit when that billing unit's ``external_billing`` flag is enabled
+      (see ``real_estate.billing_unit`` below) — except units already set to
+      ``allocation_via_cost_collector``, which are left alone. Enforced (not
+      just suggested) by ``validate_fields``: for an externally billed
+      billing unit, every settlement unit's ``allocation_rule`` must be
+      either this or ``allocation_via_cost_collector``.
+
+   ``allocation_via_cost_collector``
+      No allocation of its own. Used to route one settlement unit's costs
+      into another settlement unit of the *same* billing unit (its
+      ``reference_settlement_unit``, required for this rule and restricted
+      to a unit that does not itself use this rule — no chaining) for
+      allocation there instead. Also selectable when the billing unit has
+      ``external_billing`` enabled, as an alternative to
+      ``allocation_from_external_billing`` (e.g. several fuel suppliers,
+      each invoiced on their own settlement unit, feeding one externally
+      billed heating settlement unit).
+
+      A settlement unit with this rule:
+
+      - determines no rental objects of its own — ``objects`` always
+        mirrors ``reference_settlement_unit.objects``;
+      - generates no cost shares and is excluded from
+        ``Contract.get_settlement_units()`` (so it never appears twice,
+        once under its own cost type and once under the reference's, in
+        e.g. the Annex 4 report);
+      - still tracks its own ``planned_costs``/``actual_costs`` (the latter
+        from its own ``invoice_lines``, via the normal
+        ``selection_actual_costs()``) — these are summed, across *all*
+        settlement units referencing the same target, into the target's
+        ``planned_costs_from_references``/``actual_costs_from_references``
+        (Function fields, see below) and folded into the target's own
+        ``planned_costs``/``actual_costs`` when it computes its value
+        shares.
+
+      ``BillingUnit.compute_value_shares_button`` processes all
+      ``allocation_via_cost_collector`` units of a billing unit before any
+      other settlement unit, so a reference target always sees its
+      referencing units' up-to-date actual costs.
+      ``BillingUnit.duplicate_next_period`` copies ``reference_settlement_unit``
+      to point at the *newly created* successor of the original target (not
+      the old period's unit) — non-cost-collector units are always copied
+      first so that successor already exists by the time a referencing
+      unit is copied.
+
+   ``planned_costs_from_references`` / ``actual_costs_from_references``
+      (Function fields, any settlement unit) Sum of ``planned_costs``/
+      ``actual_costs`` of all settlement units of the same billing unit
+      that reference this one via ``allocation_via_cost_collector``. Zero
+      when nothing references this unit.
 
    Vacancy handling: unoccupied periods can be charged to the owner or left
    unallocated.
@@ -1083,6 +1189,48 @@ Operating Cost Settlement
    are automatically reset to ``selection`` and their ``error_message``
    cleared before the new calculation starts, so corrected readings or
    measurements take effect immediately.
+
+   *Heating cost billing split (HeizkostenV §7/§8):*
+
+   ``heating_billing_mode``
+      Selection: ``none`` (default) / ``central_heating`` /
+      ``central_hot_water``. Independent of ``allocation_rule``/``m_type``
+      above (which govern how *this* settlement unit's own costs are
+      allocated per tenant) — this models the legally mandated split, for a
+      centrally supplied heating or hot water system, between the
+      consumption-based and area-based portions of the heating cost
+      statement itself.
+
+   ``heating_consumption_share_percent``
+      Numeric percentage entered by the user: the share of heating/hot
+      water cost allocated by consumption ("Anteil nach
+      Verbrauchsumlage"). Required and visible only when
+      ``heating_billing_mode`` is ``central_heating`` or
+      ``central_hot_water``; domain-restricted to 50–70 (statutory range,
+      HeizkostenV §7/§8) — but only while one of those two modes is
+      selected, so a value entered under a previous mode (or left over
+      from an import) never blocks saving once the mode is set back to
+      ``none``.
+
+   ``heating_area_share_percent`` (Function field)
+      Computed as ``100 − heating_consumption_share_percent``
+      ("Anteil nach Flächenumlage"); read-only, same visibility as above.
+
+   ``heating_area_measurement_type``
+      Many2One to ``real_estate.measurement.type`` (object-level measurement
+      types only): which measurement to use for the area-based portion of
+      the heating cost split. Required and visible only under the same
+      condition as the two fields above.
+
+   ``total_value_consumption`` / ``total_value_area``
+      Sum, across all of this unit's cost shares, of their
+      ``consumption_share`` / ``area_share`` (see ``real_estate.cost_share``
+      below). Read-only, visible only when ``heating_billing_mode`` is
+      ``central_heating``/``central_hot_water``. Computed by
+      ``_compute_heizkostenv_split()``, called at the end of
+      ``compute_value_shares()`` (both the regular per-cost-share path and
+      both branches of ``_compute_value_shares_external()``) — i.e.
+      whenever *Compute Value Shares* is run on the billing unit.
 
 ``real_estate.cost_share``  (``settlement_result.py``)
    Intermediate allocation record: share of a specific cost type for one
@@ -1094,8 +1242,10 @@ Operating Cost Settlement
    Stores ``value_share`` (time-weighted allocation factor — for
    ``allocation_by_measurement`` and ``allocation_per_rental_unit`` this
    already incorporates the occupancy fraction ``time_share / time_total``;
-   for ``allocation_by_consumption`` it holds the raw consumption value),
-   ``time_share`` (days), ``planned_costs``, ``actual_costs``.
+   for ``allocation_by_consumption`` it holds the raw consumption value,
+   *unless* the settlement unit is HeizkostenV-split — see
+   ``consumption_share`` below), ``time_share`` (days), ``planned_costs``,
+   ``actual_costs``.
    ``error_message`` describes the problem; entries set by
    ``compute_settlement_result`` carry a ``[draft]`` prefix and are
    automatically cleared on the next successful re-run.
@@ -1106,6 +1256,39 @@ Operating Cost Settlement
       (``readonly`` otherwise) when ``external_billing`` is set, i.e. for
       cost shares of a settlement unit with
       ``allocation_rule = allocation_from_external_billing``.
+
+   ``heating_billing_mode`` (Function field, mirrored)
+      Mirrored from the parent ``settlement_unit``; drives the visibility
+      of the two fields below (only visible for ``central_heating``/
+      ``central_hot_water``).
+
+   ``consumption_share`` / ``area_share``
+      The two HeizkostenV split components, computed by
+      ``SettlementUnit._compute_heizkostenv_split()`` (called at the end
+      of ``compute_value_shares()``) only when the parent settlement
+      unit's ``heating_billing_mode`` is ``central_heating``/
+      ``central_hot_water``:
+
+      - ``consumption_share`` — only for ``allocation_rule =
+        allocation_by_consumption``: the raw consumption value that would
+        otherwise sit in ``value_share`` is moved here instead, and
+        ``value_share`` is reset to ``0`` (so a HeizkostenV-split
+        consumption-based unit currently distributes no
+        ``planned_costs``/``actual_costs`` via
+        ``compute_value_shares()``'s own ``_distribute()`` step — a
+        deliberate, temporary state pending a follow-up that recombines
+        ``consumption_share``/``area_share`` via
+        ``heating_consumption_share_percent``/``heating_area_share_percent``
+        into the actual cost distribution).
+      - ``area_share`` — computed for *every* cost share of a
+        HeizkostenV-split unit regardless of its ``allocation_rule``:
+        the value of the unit's own ``heating_area_measurement_type`` for
+        the cost share's ``base_object``, weighted by
+        ``time_share / settlement_unit.time_total`` (same weighting as
+        ``allocation_by_measurement`` above).
+
+      Both values are summed into the parent settlement unit's
+      ``total_value_consumption``/``total_value_area``.
 
 ``real_estate.settlement_result``  (``settlement_result.py``)
    Final settlement record per contract (or object) and billing unit.
@@ -1336,6 +1519,21 @@ with no Tryton dependency, unit-testable standalone).
 Menu: *Real Estate → Operation Costs → Externe Abrechnung* (placed
 immediately before *Betriebskostenabrechnung*), bundling all models below.
 
+``real_estate.bved.unit``  (``bved.py``)
+   Reference table mirroring BVED Tabelle 'E' ("Einheiten/Maßeinheiten",
+   see ``bved_records.TABLE_E``) — ``code`` (3-digit key, e.g. ``'010'``),
+   ``description`` (e.g. ``'m² Wohnfläche'``), and ``name`` (Function,
+   ``"{code} - {description}"``, e.g. ``'010 - m² Wohnfläche'``). All 29
+   entries from the table are loaded as default data at module
+   installation, with ``measurement_type`` left unset — mapping a unit to
+   a ``real_estate.measurement.type`` (e.g. ``'010 - m² Wohnfläche'`` →
+   the "Living Space" measurement type) is a per-database configuration
+   decision, made via the *BVED Units* list (menu: *Real Estate →
+   Operation Costs → Externe Abrechnung → BVED Units*). Used by
+   ``real_estate.bved.provider_assignment.allocation1_unit/
+   allocation2_unit/allocation3_unit`` (below) to resolve M-Satz fields
+   36-41.
+
 ``real_estate.bved.service_provider``  (``bved.py``)
    The Messdienstleister itself: ``party``, ``bved_key`` (2-char code from
    BVED Tabelle 'U', e.g. ``'40'`` for ista — not enforced as a fixed
@@ -1343,6 +1541,134 @@ immediately before *Betriebskostenabrechnung*), bundling all models below.
    (currently only ``'3.10'``), ``transport_type`` (only ``'manual'``
    file download/upload is actually implemented; ``email``/``sftp``/
    ``webservice_api`` are reserved for a future automated transport layer).
+
+   *M-Satz field 7 (Kennzeichen Adressfeld) and address-source rules:*
+
+   ``field7_mode``
+      Selection ``'1'``\ =Nutzer / ``'2'``\ =Eigentümer /
+      ``'3'``\ =Eigentümer/Nutzer / ``'4'``\ =Leistungsnehmer (default
+      ``'1'``, matching the field's old hardcoded value). Written
+      unchanged into M-Satz field 7 of every record generated for this
+      provider, and controls which address block(s)
+      ``BvedObjectNumber._m_satz_values()`` actually fills:
+
+      - ``'1'``/``'3'`` — fields 8-15 (Nutzer) from the occupying
+        contract's own party (``entry.contract.contractual_partner``).
+      - ``'2'``/``'3'`` — fields 16-23 (Eigentümer) per ``owner_rule``.
+      - ``'4'`` — fields 59-66 (Leistungsnehmer) per ``tenant_rule``.
+
+   ``owner_rule``
+      Selection ``'company'``\ =Gesellschaft ist Eigentümer /
+      ``'role'``\ =Eigentümer über Rolle (default ``'role'``). Visible/
+      required only when ``field7_mode`` is ``'2'``/``'3'``, but always
+      *evaluated* (see ``provider_org_rule`` below) regardless of
+      ``field7_mode``. ``'company'``: the Eigentümer block is filled
+      from the company party/address (the same ones passed as
+      ``company_party``/``company_address``). ``'role'``: filled via
+      ``owner_role`` instead.
+
+   ``owner_role``
+      Many2One to ``real_estate.object_party.role`` — which role counts
+      as "Eigentümer" (used when ``owner_rule = 'role'``), resolved via
+      ``BvedObjectNumber._find_party_by_role()`` below. Defaults to the
+      module's built-in "Owner" role (``object_party_owner_role``) for
+      new records; a provider that needs a different role (e.g. one
+      that also covers ``building``/``land``, since the built-in role
+      only covers ``property``/``object``) can override it here.
+
+   ``tenant_rule``
+      Selection ``'tenant'``\ =Mieter / ``'role'``\ =über Partner-Rolle
+      (default ``'tenant'``). Visible/required only when ``field7_mode``
+      is ``'4'``. ``'tenant'``: the Leistungsnehmer block (59-66) is
+      filled the same way as the Nutzer block (the occupying contract's
+      own party — reproducing the module's original, unconditional
+      "debtor mirrors tenant" behavior). ``'role'``: filled via
+      ``tenant_role`` instead.
+
+   ``tenant_role``
+      Many2One to ``real_estate.object_party.role`` — which role counts
+      as "Leistungsnehmer" (used when ``tenant_rule = 'role'``), looked
+      up the same way as ``owner_role``.
+
+   ``provider_org_rule``
+      Selection ``'owner'``\ =Leistungsgeber wie Eigentümer /
+      ``'role'``\ =über Partner-Rolle (required, default ``'owner'``).
+      Fills M-Satz fields 42-49 (Leistungsgeber name/address) —
+      **independent of** ``field7_mode`` (fields 42-49 are always
+      attempted, regardless of what field 7 selects). ``'owner'``:
+      reuses whichever party/address ``owner_rule`` resolved to, even
+      if ``field7_mode`` itself isn't ``'2'``/``'3'`` (so a provider can
+      have field 7 = "Nutzer" while still deriving the Leistungsgeber
+      block from the configured Eigentümer source). ``'role'``: filled
+      via ``provider_org_role`` instead.
+
+   ``provider_org_role``
+      Many2One to ``real_estate.object_party.role`` — which role counts
+      as "Leistungsgeber" (used when ``provider_org_rule = 'role'``),
+      looked up the same way as ``owner_role``.
+
+   ``tax_id_type``
+      Selection sourced from ``party.identifier.get_types()`` (all
+      globally-configured identification types, e.g. ``'de_vat'``) —
+      which type on the company party (Leistungsgeber, the same party
+      used for M-Satz fields 42-49) provides M-Satz field 51 (USt-ID-Nr.
+      oder Steuernummer). When set and the company party has a matching
+      ``party.identifier``, field 51 gets that identifier's ``code`` and
+      field 50 gets ``tax_id_flag`` below; both fields stay unset if
+      left empty or no matching identifier exists.
+
+   ``tax_id_flag``
+      Selection ``'1'``\ =USt-ID-Nr. / ``'2'``\ =Steuernummer (visible/
+      required only when ``tax_id_type`` is set; default ``'2'``,
+      matching the field's old hardcoded value). Written into M-Satz
+      field 50 (Kennzeichen USt-ID/Steuernummer) whenever field 51 is —
+      the admin's own classification of what the configured
+      ``tax_id_type`` actually represents, since Tabelle 'E' has no
+      generic notion of "this is a USt-ID vs. a Steuernummer" built in.
+
+   ``tax_rate_flag``
+      Selection ``'1'``\ =Regelsteuersatz / ``'2'``\ =ermäßigt,
+      optional (Kann-Feld). Written unchanged into M-Satz field 52
+      (Kennzeichen Steuersatz) of every record for this provider; left
+      unset, field 52 stays unset too.
+
+   ``invoice_number_flag``
+      Selection ``'0'``\ =keine Rechnung §14 UStG / ``'1'``\ =aus Feld
+      54 / ``'2'``\ =vom Abrechnungsunternehmen erstellt, optional
+      (Kann-Feld). Written unchanged into M-Satz field 53 (Kennzeichen
+      Rechnungsnummer). ``'1'`` additionally requires
+      ``invoice_number_rule`` to fill field 54 itself.
+
+   ``invoice_number_rule``
+      Selection ``'contract'``\ =Nr. Mietvertrag / ``'object'``\ =Nr.
+      Mietobjekt / ``'settlement_result'``\ =ID Settlement result.
+      Visible/required only when ``invoice_number_flag`` is ``'1'``.
+      Fills M-Satz field 54 (Rechnungsnummer, max. 25 chars) per
+      occupancy segment: ``'contract'`` — the occupying contract's own
+      ``contract_number``; ``'object'`` — this mapping's own
+      ``base_object.object_number``; ``'settlement_result'`` — the
+      ``id`` of the ``real_estate.settlement_result`` matching this
+      object (and contract, or ``None`` for a vacancy segment) whose
+      ``billing_unit`` period overlaps ``[period_start, period_end]``.
+      Field 54 stays unset if no matching value/record is found.
+
+   ``direct_debit_flag``
+      Selection ``'0'``\ =keine Abbuchungserlaubnis /
+      ``'1'``\ =Abbuchungserlaubnis, default ``'0'``. Written unchanged
+      into M-Satz field 58 (Kennzeichen Zahlungsart) of every record
+      for this provider.
+
+   .. note::
+      ``owner_rule``, ``tenant_rule``, ``invoice_number_rule``,
+      ``tax_id_flag``, ``tax_rate_flag``, ``invoice_number_flag``, and
+      ``direct_debit_flag`` all include an explicit blank ``('', '')``
+      choice, even where a default value is set — a plain optional
+      ``fields.Selection`` with a static choice list otherwise rejects
+      ``None``/``''`` as "not a valid selection" on save once the
+      field's own default no longer applies (e.g. after the value is
+      cleared again in the client). Fields that are unconditionally
+      ``required=True`` (``field7_mode``, ``provider_org_rule``) don't
+      need this, since a blank value is never legal for them anyway.
 
 ``real_estate.bved.provider_assignment``  (``bved.py``, form label "BVED Provider-Liegenschaft")
    Anchors one provider + customer number + 9-digit Liegenschaftsnummer
@@ -1359,6 +1685,28 @@ immediately before *Betriebskostenabrechnung*), bundling all models below.
 
    ``object_numbers``
       One2Many to ``real_estate.bved.object_number`` (below).
+
+   ``allocation1_unit`` / ``allocation2_unit`` / ``allocation3_unit``
+      ("M-Satz Allocation Key 1/2/3") Many2One to ``real_estate.bved.unit``
+      each. Resolve M-Satz fields 36/37, 38/39, 40/41 (Schlüssel/Anteil
+      Umlage 1-3) for every object number mapping under this assignment,
+      via ``BvedObjectNumber._allocation_shares()``: field 36/38/40 gets
+      the unit's own ``code`` (Tabelle 'E'), field 37/39/41 gets the
+      rental object's own measurement value (as of the M-Satz row's
+      ``occupancy_end``) for the unit's mapped ``measurement_type`` — left
+      unset if the unit has no ``measurement_type`` mapped (the key is
+      still written on its own in that case) or if the slot itself is
+      left empty.
+
+   ``tenant_change_fee_flag``
+      Selection ``'0'``\ =keine Umlage / ``'1'``\ =Umlage (required,
+      default ``'0'``). Written unchanged into M-Satz field 68
+      (Kennzeichen Umlage Nutzerwechselgebühr) of every record generated
+      for this provider assignment — unlike the other M-Satz catalog
+      settings introduced so far (all on ``real_estate.bved.
+      service_provider``), this one lives on the assignment itself,
+      since whether a tenant-change fee is allocated can plausibly
+      differ per property/Liegenschaft even under the same provider.
 
    *L-Satz Preview* page — read-only preview of how this assignment's
    L-Satz (Liegenschaft) record would look today, split into two field
@@ -1377,14 +1725,19 @@ immediately before *Betriebskostenabrechnung*), bundling all models below.
      ``co2_landlord_share``/``co2_commercial_landlord_share``),
      ``l_total_area`` (computed once a measurement type is selected below).
    - **To Be Entered** — ``gross_floor_area_measurement_type`` (drives
-     ``l_total_area``: summed once per covered object across every
-     assigned billing unit, even when covered by several), plus six
-     purely-manual fields with no derivable source:
+     ``l_total_area``: summed, as of each billing unit's own end date,
+     over the union of every assigned billing unit's own
+     ``covered_rental_objects()`` — objects with a settlement result
+     where one exists, else every object covered by a settlement unit;
+     each object counted once even if covered by several billing units),
+     plus six purely-manual fields with no derivable source:
      ``vacancy_risk_flag``/``vacancy_risk_percent``, ``labor_share_flag``,
      ``energy_improvement_flag``, ``heat_supply_flag``,
      ``heat_connection_2023_flag`` (various L-Satz Kann-/Muss-Felder —
      legal facts about the building not represented anywhere else in the
-     data model).
+     data model). ``vacancy_risk_flag`` is also reused, unchanged, for
+     M-Satz field 26 (Kennzeichen Umlageausfallwagnis) — see
+     ``BvedObjectNumber._m_satz_values()`` below.
 
    The preview always uses the most recently completed calendar year
    across every billing unit currently assigned; the real export
@@ -1405,6 +1758,143 @@ immediately before *Betriebskostenabrechnung*), bundling all models below.
    an object is exported — scoped per assignment (not per billing unit)
    and counted all-time, so a closed mapping's number is never reused by a
    later one.
+
+   ``_m_satz_values(period_start, period_end, provider, company_party=None, company_address=None, warnings=None, refresh_occupancy=True)``
+      Returns the list of M-Satz value dicts for this mapping's object
+      over the given period — one dict per
+      ``real_estate.base_object.occupancy`` segment overlapping it
+      (vacancy periods included with ``vacancy_flag=1``). Field 25
+      (Kennzeichen MwSt, ``vat_treatment_flag``) is derived per segment
+      from the object's own Optionssatz as of that segment's
+      ``occupancy_end``: ``0`` (kein Ausweis) if 0 % (or unknown), else
+      ``1`` (gewerbl. Vermietung). Field 7 (``address_flag``) and the
+      Nutzer/Eigentümer/Leistungsnehmer/Leistungsgeber blocks are
+      governed by ``provider.field7_mode``/``owner_rule``/
+      ``tenant_rule``/``provider_org_rule`` — see
+      ``real_estate.bved.service_provider`` above for the full rule
+      description. Bank account fields (55/56) and ``vacancy_flag``
+      keep coming unconditionally from the occupying contract's own
+      party, independent of ``field7_mode``. Field 51 (USt-ID-Nr. oder
+      Steuernummer) comes from ``company_party``'s own
+      ``party.identifier`` of the type configured on
+      ``provider.tax_id_type`` — always the company party specifically,
+      never the ``field7_mode``/``provider_org_rule``-resolved
+      Leistungsgeber party; field 50 (Kennzeichen USt-ID/Steuernummer)
+      is ``provider.tax_id_flag`` whenever field 51 is set, otherwise
+      both fields stay unset. Field 52 (Kennzeichen Steuersatz) is
+      ``provider.tax_rate_flag`` unchanged, if set. Fields 53/54
+      (Kennzeichen Rechnungsnummer / Rechnungsnummer) come from
+      ``provider.invoice_number_flag`` and, when that is ``'1'``,
+      ``provider.invoice_number_rule``. Field 58 (Kennzeichen
+      Zahlungsart) is ``provider.direct_debit_flag`` unchanged (see
+      ``real_estate.bved.service_provider`` above for all of these).
+      Field 68 (Kennzeichen Umlage Nutzerwechselgebühr) is
+      ``assignment.tenant_change_fee_flag`` unchanged — this one comes
+      from the provider *assignment* (``real_estate.bved.
+      provider_assignment`` above), not the provider itself. Field 26
+      (Kennzeichen Umlageausfallwagnis) is ``1`` if
+      ``assignment.vacancy_risk_flag`` (the assignment's own L-Satz
+      field 13) is set, else ``0`` — reusing the L-Satz value directly
+      rather than a separate M-Satz-specific setting. The single,
+      shared implementation of the M-Satz record content — used both by
+      the real export
+      (``BvedExport._build_l_m_records()``) and by
+      ``refresh_m_satz_preview()`` below, so they can never diverge.
+      ``refresh_occupancy`` (default ``True``) recomputes
+      ``real_estate.base_object.occupancy`` first.
+
+   ``_find_party_by_role(ObjectParty, role_id, as_of_date)``
+      Generic role-based party lookup — shared by the Eigentümer
+      (``owner_role``), Leistungsnehmer (``tenant_role``), and
+      Leistungsgeber (``provider_org_role``) resolutions alike: searches
+      ``real_estate.object_party`` for ``role_id``, valid *exactly on*
+      ``as_of_date`` (a point-in-time check — ``valid_from <= as_of_date``
+      and no ``valid_to`` or ``valid_to >= as_of_date`` — not merely
+      overlapping the billing period), walking up from this mapping's own
+      ``base_object`` through its ``parent`` chain (rental object →
+      building/land → property) until a match is found or the top of the
+      tree is reached. Returns ``None`` immediately if ``role_id`` is
+      ``None``. All three call sites in ``_m_satz_values()`` use
+      ``period_end`` as ``as_of_date`` (resolved once per call, not
+      per occupancy segment).
+
+   ``_area_share_by_mode(mode, as_of_date)``
+      Shared by ``_heating_base_share()`` (``mode='central_heating'``,
+      M-Satz fields 27/69) and ``_hotwater_base_share()``
+      (``mode='central_hot_water'``, fields 30/70). Returns
+      ``(share, key)``:
+
+      - ``share`` — the object's own **direct** measurement value (via
+        ``Measurement.get_total_value()``, as of ``as_of_date``) for the
+        ``heating_area_measurement_type`` of the (first, if several)
+        settlement unit belonging to this mapping's object's property
+        with ``heating_billing_mode = mode``. Deliberately **not**
+        time-weighted by the occupancy segment (unlike
+        ``cost_share.area_share``, which drives the actual cost
+        allocation and is prorated by ``time_share``/``time_total``) and
+        **not** affected by the
+        ``heating_consumption_share_percent``/``heating_area_share_percent``
+        split — fields 27/30 always report the object's plain Bemessung.
+        Does not require ``compute_value_shares()`` to have been run at
+        all (no cost share involved). ``None`` — leaving the field
+        unset (Kann-Feld) — if no qualifying settlement unit has a
+        ``heating_area_measurement_type`` set, or the object has no
+        matching measurement recorded.
+      - ``key`` — the BVED Tabelle 'E' code (see ``real_estate.bved.unit``
+        above) of the unit whose own ``measurement_type`` matches that
+        measurement type — i.e. the unit ``share`` is actually expressed
+        in. ``None`` if none is mapped.
+
+      ``_heating_base_share(as_of_date)`` and
+      ``_hotwater_base_share(as_of_date)`` are thin wrappers writing
+      into fields 27/69 and 30/70 respectively (called with the M-Satz
+      row's own ``occupancy_end`` as ``as_of_date``) — the two are fully
+      independent (a property can have both a central-heating and a
+      central-hot-water settlement unit, each with its own
+      ``heating_area_measurement_type``/mapped ``real_estate.bved.unit``).
+
+   ``_allocation_shares(as_of_date)``
+      Resolves M-Satz fields 36-41 (Schlüssel/Anteil Umlage 1-3): for
+      each of the provider assignment's ``allocation1_unit``/
+      ``allocation2_unit``/``allocation3_unit`` slots (in order), returns
+      ``(code, share)`` — ``code`` is the ``real_estate.bved.unit``'s own
+      Tabelle 'E' code, ``share`` is this mapping's own ``base_object``'s
+      measurement value (via ``Measurement.get_total_value()``, no
+      time-weighting) for the unit's ``measurement_type`` as of
+      ``as_of_date`` — or ``(code, None)`` if the unit has no
+      ``measurement_type`` mapped, or ``None`` for an unset slot. Always
+      returns exactly 3 entries. Called with each M-Satz row's own
+      ``occupancy_end`` as ``as_of_date``.
+
+   ``m_satz_lines`` / ``refresh_m_satz_preview``
+      A stored (not Function) One2Many to
+      ``real_estate.bved.object_number.m_satz_line`` (below), populated
+      by the ``refresh_m_satz_preview`` button: deletes any existing
+      preview lines for the mapping, then rebuilds them from
+      ``_m_satz_values()`` for the most recently completed calendar year
+      (same period as the provider assignment's L-Satz preview,
+      ``BvedProviderAssignment._last_full_year()``) — one line per
+      occupancy segment. Deliberately a real, explicitly-triggered
+      button rather than a Function field: a Function getter runs inside
+      a *read-only* database transaction (plain ``read()`` RPCs), where
+      ``_m_satz_values(refresh_occupancy=True)``'s
+      delete-and-recreate inside ``Occupancy.refresh()`` would fail
+      outright — and a true multi-row, per-field table needs real
+      addressable child records for Tryton's list/form widgets anyway.
+
+``real_estate.bved.object_number.m_satz_line``  (``bved.py``)
+   One row per occupancy segment, generated only by
+   ``BvedObjectNumber.refresh_m_satz_preview()`` — never created or
+   edited directly (every field is readonly). Holds all 70 M-Satz fields
+   from the BVED Nutzer/Eigentümer-Satz spec (field number prefixed in
+   each field's label, e.g. "8. Tenant Name 1"), grouped on the form by
+   spec section (identification, tenant, owner, occupancy period,
+   VAT/vacancy-risk/heating-hotwater-coldwater shares, allocations,
+   provider organization, tax/invoice/bank/payment, debtor, other
+   flags/keys). The embedded list view shows just
+   ``occupancy_start``/``occupancy_end``/``vacancy_flag``/``tenant_name1``
+   for a quick overview across several tenants/vacancy periods; opening a
+   row shows the full detail form.
 
 Fields added to ``real_estate.billing_unit``:
 
@@ -1440,6 +1930,18 @@ data, typically entered only on the heating-cost settlement unit):
    start/end date + quantity + amount (gross/net), hot-water average
    temperature/consumption/flat-rate percentage/meter start-end, and up to
    two heating and two hot-water supply periods (start/end each).
+
+   K-Satz cost records (``BvedExport._build_b_k_records()``) are built not
+   only from invoice lines booked directly on the externally-billed
+   settlement unit, but also from every settlement unit of the same
+   billing unit that uses ``allocation_via_cost_collector`` with it as
+   ``reference_settlement_unit`` (e.g. several fuel suppliers, each
+   invoiced separately, feeding one heating settlement unit) — each such
+   invoice line keeps its own settlement unit's ``type.bved_cost_key``
+   rather than the referenced unit's, since the underlying invoices may
+   carry a different cost-type classification. B-Satz (fuel/stock data
+   above) is unaffected — it stays tied to the externally-billed
+   settlement unit itself.
 
 Export (``real_estate.bved.export``, workflow Draft → Generated → Sent):
 

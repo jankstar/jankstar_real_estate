@@ -8,7 +8,7 @@ import json
 from decimal import Decimal
 
 from trytond.model import (
-    ModelSQL, ModelView, Unique, Workflow, fields)
+    ModelSQL, ModelView, Unique, Workflow, fields, sequence_ordered)
 from trytond.model.exceptions import ValidationError
 from trytond.i18n import gettext
 from trytond.pool import Pool
@@ -64,6 +64,54 @@ def _bank_fields(party, warnings, role_label):
 
 
 #**********************************************************************
+class BvedUnit(ModelSQL, ModelView):
+    "BVED Unit"
+    __name__ = 'real_estate.bved.unit'
+    __rec_name__ = 'name'
+
+    code = fields.Char("Code", required=True, size=3,
+        help="BVED Tabelle 'E' key, e.g. '010'.")
+
+    description = fields.Char("Description", required=True,
+        help="BVED Tabelle 'E' description, e.g. 'm² Wohnfläche'.")
+
+    name = fields.Function(fields.Char("Name"), 'on_change_with_name',
+        searcher='search_name')
+
+    measurement_type = fields.Many2One(
+        'real_estate.measurement.type', "Measurement Type",
+        ondelete='RESTRICT',
+        help="Which real_estate measurement type this BVED unit "
+             "corresponds to, e.g. 'Wohnfläche' for '010 - m² "
+             "Wohnfläche'. Used to resolve M-Satz fields 36-41 "
+             "(Schlüssel/Anteil Umlage 1-3) from the BVED provider "
+             "assignment's 'M-Satz Schlüssel Umlage 1/2/3' fields.")
+
+    @classmethod
+    def __setup__(cls):
+        super().__setup__()
+        table = cls.__table__()
+        cls._sql_constraints = [
+            ('code_uniq', Unique(table, table.code),
+                'real_estate.msg_bved_unit_code_unique'),
+            ]
+        cls._order.insert(0, ('code', 'ASC'))
+
+    @fields.depends('code', 'description')
+    def on_change_with_name(self, name=None):
+        if self.code and self.description:
+            return f"{self.code} - {self.description}"
+        return self.code or self.description
+
+    @classmethod
+    def search_name(cls, name, clause):
+        return ['OR',
+            ('code',) + tuple(clause[1:]),
+            ('description',) + tuple(clause[1:]),
+            ]
+
+
+#**********************************************************************
 class BvedServiceProvider(ModelSQL, ModelView):
     "BVED Service Provider"
     __name__ = 'real_estate.bved.service_provider'
@@ -99,6 +147,183 @@ class BvedServiceProvider(ModelSQL, ModelView):
         states={'invisible': Eval('transport_type') == 'manual'},
         depends=['transport_type'])
 
+    field7_mode = fields.Selection([
+            ('1', 'Nutzer'),
+            ('2', 'Eigentümer'),
+            ('3', 'Eigentümer/Nutzer'),
+            ('4', 'Leistungsnehmer'),
+            ], "M-Satz Field 7 (Address Type)", required=True, sort=False,
+        help="M-Satz Feld 7 (Kennzeichen Adressfeld) - written into "
+             "every M-Satz record generated for this provider, and "
+             "controls which address block(s) get filled: 'Nutzer' -> "
+             "fields 8-15 from the occupying contract's own party; "
+             "'Eigentümer' -> fields 16-23 per 'Eigentümer-Regel'; "
+             "'Eigentümer/Nutzer' -> both; 'Leistungsnehmer' -> fields "
+             "59-66 per 'Leistungsnehmer-Regel'.")
+
+    owner_rule = fields.Selection([
+            ('', ''),
+            ('company', 'Gesellschaft ist Eigentümer'),
+            ('role', 'Eigentümer über Rolle'),
+            ], "Eigentümer-Regel", sort=False,
+        states={
+            'invisible': ~Eval('field7_mode').in_(['2', '3']),
+            'required': Eval('field7_mode').in_(['2', '3']),
+            },
+        help="'Gesellschaft ist Eigentümer': M-Satz fields 16-23 (and, "
+             "if 'M-Satz Leistungsgeber-Regel' is 'Leistungsgeber wie "
+             "Eigentümer', fields 42-49 too) are filled from the "
+             "company party. 'Eigentümer über Rolle': filled via "
+             "'Owner Role' below instead.")
+
+    owner_role = fields.Many2One(
+        'real_estate.object_party.role', "Owner Role",
+        ondelete='RESTRICT',
+        states={
+            'invisible': ~((Eval('field7_mode').in_(['2', '3']))
+                & (Eval('owner_rule') == 'role')),
+            'required': ((Eval('field7_mode').in_(['2', '3']))
+                & (Eval('owner_rule') == 'role')),
+            },
+        help="Which real_estate.object_party role counts as the "
+             "'Eigentümer' for this provider's M-Satz fields 16-23 "
+             "(Owner name/address) - looked up via the object's own "
+             "ancestor chain (rental object -> building/land -> "
+             "property) as of the billing period's end date. Falls back "
+             "to the module's built-in 'Owner' role if left empty.")
+
+    tenant_rule = fields.Selection([
+            ('', ''),
+            ('tenant', 'Mieter'),
+            ('role', 'über Partner-Rolle'),
+            ], "Leistungsnehmer-Regel", sort=False,
+        states={
+            'invisible': Eval('field7_mode') != '4',
+            'required': Eval('field7_mode') == '4',
+            },
+        help="'Mieter': M-Satz fields 59-66 (Leistungsnehmer) are "
+             "filled the same way as the Nutzer block (the occupying "
+             "contract's own party). 'über Partner-Rolle': filled via "
+             "'Rolle Leistungsnehmer' below instead.")
+
+    tenant_role = fields.Many2One(
+        'real_estate.object_party.role', "Rolle Leistungsnehmer",
+        ondelete='RESTRICT',
+        states={
+            'invisible': ~((Eval('field7_mode') == '4')
+                & (Eval('tenant_rule') == 'role')),
+            'required': ((Eval('field7_mode') == '4')
+                & (Eval('tenant_rule') == 'role')),
+            },
+        help="Which real_estate.object_party role counts as the "
+             "'Leistungsnehmer' for M-Satz fields 59-66 - looked up the "
+             "same way as 'Owner Role' (object ancestor chain, as of "
+             "the billing period's end date).")
+
+    provider_org_rule = fields.Selection([
+            ('owner', 'Leistungsgeber wie Eigentümer'),
+            ('role', 'über Partner-Rolle'),
+            ], "M-Satz Leistungsgeber-Regel", required=True, sort=False,
+        help="How M-Satz fields 42-49 (Leistungsgeber name/address) are "
+             "filled - independent of 'M-Satz Field 7 (Address Type)'. "
+             "'Leistungsgeber wie Eigentümer': same party/address as "
+             "resolved for the Eigentümer block (via 'Eigentümer-Regel' "
+             "above, regardless of whether field 7 actually selects "
+             "'Eigentümer'). 'über Partner-Rolle': filled via 'Rolle "
+             "Leistungsgeber' below instead.")
+
+    provider_org_role = fields.Many2One(
+        'real_estate.object_party.role', "Rolle Leistungsgeber",
+        ondelete='RESTRICT',
+        states={
+            'invisible': Eval('provider_org_rule') != 'role',
+            'required': Eval('provider_org_rule') == 'role',
+            },
+        help="Which real_estate.object_party role counts as the "
+             "'Leistungsgeber' for M-Satz fields 42-49 - looked up the "
+             "same way as 'Owner Role' (object ancestor chain, as of "
+             "the billing period's end date).")
+
+    tax_id_type = fields.Selection(
+        'get_identification_types', "Tax ID Identification Type",
+        sort=False,
+        help="Which party.identifier type on the company party "
+             "(Leistungsgeber) provides the value for M-Satz field 51 "
+             "(USt-ID-Nr. oder Steuernummer) - field 50 (see 'M-Satz "
+             "Field 50 (Tax ID Flag)') is written alongside it when a "
+             "matching identifier is found. Fields 50/51 stay unset if "
+             "left empty, or if the company party has no identifier of "
+             "this type.")
+
+    tax_id_flag = fields.Selection([
+            ('', ''),
+            ('1', 'USt-ID-Nr.'),
+            ('2', 'Steuernummer'),
+            ], "M-Satz Field 50 (Tax ID Flag)", sort=False,
+        states={
+            'invisible': ~Bool(Eval('tax_id_type')),
+            'required': Bool(Eval('tax_id_type')),
+            },
+        help="M-Satz Feld 50 (Kennzeichen USt-ID/Steuernummer) - "
+             "whether the value configured via 'Tax ID Identification "
+             "Type' (field 51) is a USt-ID-Nr. (1) or a Steuernummer "
+             "(2). Written into field 50 whenever field 51 is (i.e. a "
+             "matching party.identifier is found).")
+
+    tax_rate_flag = fields.Selection([
+            ('', ''),
+            ('1', 'Regelsteuersatz'),
+            ('2', 'ermäßigt'),
+            ], "M-Satz Field 52 (Tax Rate Flag)", sort=False,
+        help="M-Satz Feld 52 (Kennzeichen Steuersatz) - written "
+             "unchanged into every M-Satz record of this provider. "
+             "Left blank leaves field 52 unset (Kann-Feld).")
+
+    invoice_number_flag = fields.Selection([
+            ('', ''),
+            ('0', 'keine Rechnung §14 UStG'),
+            ('1', 'aus Feld 54'),
+            ('2', 'vom Abrechnungsunternehmen erstellt'),
+            ], "M-Satz Field 53 (Invoice Number Flag)", sort=False,
+        help="M-Satz Feld 53 (Kennzeichen Rechnungsnummer) - written "
+             "unchanged into every M-Satz record of this provider. "
+             "'aus Feld 54' additionally requires 'Rechnungsnummer-"
+             "Regel' below to fill field 54 itself. Left blank leaves "
+             "fields 53/54 unset (Kann-Felder).")
+
+    invoice_number_rule = fields.Selection([
+            ('', ''),
+            ('contract', 'Nr. Mietvertrag'),
+            ('object', 'Nr. Mietobjekt'),
+            ('settlement_result', 'ID Settlement result'),
+            ], "Rechnungsnummer-Regel", sort=False,
+        states={
+            'invisible': Eval('invoice_number_flag') != '1',
+            'required': Eval('invoice_number_flag') == '1',
+            },
+        help="How M-Satz field 54 (Rechnungsnummer) is filled when "
+             "field 53 is 'aus Feld 54': 'Nr. Mietvertrag' - the "
+             "occupying contract's own contract_number; 'Nr. "
+             "Mietobjekt' - the rental object's own object_number; 'ID "
+             "Settlement result' - the id of the matching "
+             "real_estate.settlement_result record (same contract/"
+             "object, billing unit period overlapping the M-Satz "
+             "period).")
+
+    direct_debit_flag = fields.Selection([
+            ('', ''),
+            ('0', 'keine Abbuchungserlaubnis'),
+            ('1', 'Abbuchungserlaubnis'),
+            ], "M-Satz Field 58 (Payment Type Flag)", sort=False,
+        help="M-Satz Feld 58 (Kennzeichen Zahlungsart) - written "
+             "unchanged into every M-Satz record of this provider.")
+
+    @staticmethod
+    def get_identification_types():
+        pool = Pool()
+        Identifier = pool.get('party.identifier')
+        return Identifier.get_types()
+
     @classmethod
     def default_bved_version(cls):
         return '3.10'
@@ -106,6 +331,40 @@ class BvedServiceProvider(ModelSQL, ModelView):
     @classmethod
     def default_transport_type(cls):
         return 'manual'
+
+    @classmethod
+    def default_owner_role(cls):
+        pool = Pool()
+        ModelData = pool.get('ir.model.data')
+        try:
+            return ModelData.get_id(
+                'real_estate', 'object_party_owner_role')
+        except KeyError:
+            return None
+
+    @staticmethod
+    def default_field7_mode():
+        return '1'
+
+    @staticmethod
+    def default_owner_rule():
+        return 'role'
+
+    @staticmethod
+    def default_tenant_rule():
+        return 'tenant'
+
+    @staticmethod
+    def default_provider_org_rule():
+        return 'owner'
+
+    @staticmethod
+    def default_tax_id_flag():
+        return '2'
+
+    @staticmethod
+    def default_direct_debit_flag():
+        return '0'
 
     @fields.depends('party')
     def on_change_with_name(self, name=None):
@@ -153,10 +412,44 @@ class BvedProviderAssignment(ModelSQL, ModelView):
         fields.Many2One('company.company', "Company"),
         'on_change_with_company', searcher='search_company')
 
-    name = fields.Function(fields.Char("Name"), 'on_change_with_name')
+    name = fields.Function(fields.Char("Name"), 'on_change_with_name',
+        searcher='search_name')
 
     object_numbers = fields.One2Many('real_estate.bved.object_number',
         'provider_assignment', "Object Numbers")
+
+    # --- M-Satz allocation keys 1-3 (fields 36-41): each maps to a
+    # real_estate.bved.unit (BVED Tabelle 'E' code + real_estate
+    # measurement type). For every M-Satz row of a rental object under
+    # this assignment, field 36/38/40 (Schlüssel Umlage N) gets the
+    # unit's own code, and field 37/39/41 (Anteil Umlage N) gets the
+    # object's own measurement value for the unit's measurement_type -
+    # see BvedObjectNumber._m_satz_values().
+    allocation1_unit = fields.Many2One(
+        'real_estate.bved.unit', "M-Satz Allocation Key 1",
+        ondelete='RESTRICT',
+        help="Fields 36/37 (Schlüssel/Anteil Umlage 1).")
+    allocation2_unit = fields.Many2One(
+        'real_estate.bved.unit', "M-Satz Allocation Key 2",
+        ondelete='RESTRICT',
+        help="Fields 38/39 (Schlüssel/Anteil Umlage 2).")
+    allocation3_unit = fields.Many2One(
+        'real_estate.bved.unit', "M-Satz Allocation Key 3",
+        ondelete='RESTRICT',
+        help="Fields 40/41 (Schlüssel/Anteil Umlage 3).")
+
+    tenant_change_fee_flag = fields.Selection([
+            ('0', 'keine Umlage'),
+            ('1', 'Umlage'),
+            ], "M-Satz Field 68 (Tenant Change Fee Flag)", required=True,
+        sort=False,
+        help="M-Satz Feld 68 (Kennzeichen Umlage Nutzerwechselgebühr) - "
+             "written unchanged into every M-Satz record generated for "
+             "this provider assignment.")
+
+    @staticmethod
+    def default_tenant_change_fee_flag():
+        return '0'
 
     # --- L-Satz preview: derived (Function) and manual fields, so the
     # user can see how the L-Satz for this property/building would come
@@ -207,18 +500,31 @@ class BvedProviderAssignment(ModelSQL, ModelView):
         'on_change_with_l_non_residential_flag')
     l_co2_landlord_share_percent = fields.Function(
         fields.Numeric("CO2 Landlord Share (%)", digits=(5, 2),
-            help="Taken from the landlord share of the heating cost "
-            "settlement unit (bved_fuel_data) among the covered billing "
-            "units, if any."),
+            help="Taken from the heating cost billing unit "
+            "(bved_fuel_data) among the covered billing units, if any: "
+            "its 'Commercial Landlord Share' if its own "
+            "'Non-residential building >50% commercial (§8)' flag is "
+            "set, else its 'Landlord Share' (residential emission-per-m² "
+            "tier table)."),
         'on_change_with_l_co2_landlord_share_percent')
 
     gross_floor_area_measurement_type = fields.Many2One(
         'real_estate.measurement.type', "Gross Floor Area Measurement Type",
         ondelete='RESTRICT',
-        help="Which measurement type to sum (across every object covered "
-             "by a billing unit assigned here, each counted once even if "
-             "covered by several billing units) for L-Satz field 18 "
-             "(Gesamtfläche). Leave empty to omit this Kann-Feld.")
+        domain=[('types', '=', ['object'])],
+        help="Which measurement type to sum (across every rental object "
+             "of a billing unit assigned here, per "
+             "BillingUnit.covered_rental_objects() - i.e. every object "
+             "with a settlement result, same as that billing unit's own "
+             "'Rental Objects' tab; falling back to every object covered "
+             "by one of its settlement units if no settlement result "
+             "exists yet; each object counted once even if covered by "
+             "several billing units) for L-Satz field 18 (Gesamtfläche), "
+             "as of each billing unit's own end date. Must be an "
+             "object-level measurement type (e.g. 'Usable Space') - a "
+             "building-level type such as 'Gross floor area' can never "
+             "have a value on an individual rental object and would "
+             "always sum to 0. Leave empty to omit this Kann-Feld.")
     l_total_area = fields.Function(
         fields.Numeric("Total Area", digits=(16, 2)),
         'on_change_with_l_total_area')
@@ -226,7 +532,9 @@ class BvedProviderAssignment(ModelSQL, ModelView):
     vacancy_risk_flag = fields.Boolean(
         "Vacancy Risk Surcharge",
         help="L-Satz field 13 (Kennzeichen Umlageausfallwagnis) - not "
-             "derivable from any existing data, enter manually.")
+             "derivable from any existing data, enter manually. Also "
+             "used, unchanged, for M-Satz field 26 (Kennzeichen "
+             "Umlageausfallwagnis).")
     vacancy_risk_percent = fields.Numeric(
         "Vacancy Risk Surcharge (%)", digits=(5, 2),
         states={'invisible': ~Eval('vacancy_risk_flag', False)},
@@ -276,6 +584,15 @@ class BvedProviderAssignment(ModelSQL, ModelView):
              self.provider.rec_name if self.provider else '?',
              self.external_property_number if self.external_property_number else '?')
 
+    @classmethod
+    def search_name(cls, name, clause):
+        _, operator, value = clause
+        return ['OR',
+            ('base_object.rec_name', operator, value),
+            ('provider.rec_name', operator, value),
+            ('external_property_number', operator, value),
+            ]
+
     def _billing_units(self):
         if not self.id:
             return []
@@ -314,13 +631,20 @@ class BvedProviderAssignment(ModelSQL, ModelView):
     @staticmethod
     def _covered_objects_with_end_date(billing_units):
         """{base_object_id: latest end_date} across the given billing
-        units - an object covered by several of them (different cost
-        categories/years) is counted once, using the latest end_date."""
+        units' own rental objects - an object covered by several billing
+        units (different cost categories/years) is counted once, using
+        the latest end_date.
+
+        The object set itself is always determined by the billing unit
+        (BillingUnit.covered_rental_objects()) - never re-derived here:
+        settlement_result_objects() (same as the "Rental Objects" tab)
+        when available, else the objects covered by its settlement units
+        if no settlement result exists yet."""
         result = {}
         for bu in billing_units:
-            for obj_id in bu.bved_covered_object_ids():
-                if obj_id not in result or bu.end_date > result[obj_id]:
-                    result[obj_id] = bu.end_date
+            for obj in bu.covered_rental_objects():
+                if obj.id not in result or bu.end_date > result[obj.id]:
+                    result[obj.id] = bu.end_date
         return result
 
     @classmethod
@@ -331,13 +655,9 @@ class BvedProviderAssignment(ModelSQL, ModelView):
         total = 0.0
         for obj_id, end_date in cls._covered_objects_with_end_date(
                 billing_units).items():
-            rows = Measurement.search([
-                ('base_object', '=', obj_id),
-                ('m_type', '=', measurement_type.id),
-                ('valid_from', '<=', end_date),
-                ], order=[('valid_from', 'DESC')], limit=1)
-            if rows:
-                total += rows[0].value
+            value = Measurement.get_total_value(obj_id, measurement_type, end_date)
+            if value:
+                total += value
         return Decimal(str(total)) if total else Decimal(0)
 
     @staticmethod
@@ -348,11 +668,17 @@ class BvedProviderAssignment(ModelSQL, ModelView):
         billing unit (across all of its co2_kostaufg-referencing
         settlement units), not a single value per property, so the
         billing unit of the heating-cost unit relevant to this L-Satz is
-        used as the representative value."""
+        used as the representative value.
+
+        Which of that billing unit's two CO2 share fields to use follows
+        its own non_residential_flag (§8, same flag that also drives
+        which of the two is shown on its CO2 Costs tab): True ->
+        co2_commercial_landlord_share (flat, configured share), False ->
+        co2_landlord_share (residential emission-per-m² tier table)."""
         for bu in billing_units:
             if any(su.bved_fuel_data for su in (bu.settlement_units or [])):
                 return (bu.co2_commercial_landlord_share
-                    if bu.co2_commercial_landlord_share is not None
+                    if bu.non_residential_flag
                     else bu.co2_landlord_share)
         return None
 
@@ -467,12 +793,695 @@ class BvedObjectNumber(ModelSQL, ModelView):
                     table.internal_reference, table.valid_from),
                 'real_estate.msg_bved_object_number_reference_unique'),
             ]
+        cls._buttons.update({
+                'refresh_m_satz_preview': {},
+                })
 
     @fields.depends('provider_assignment',
         '_parent_provider_assignment.base_object')
     def on_change_with_scope_object(self, name=None):
         return (self.provider_assignment.base_object
             if self.provider_assignment else None)
+
+    def _find_party_by_role(self, ObjectParty, role_id, as_of_date):
+        """Search real_estate.object_party for `role_id`, valid exactly
+        on `as_of_date` (valid_from <= as_of_date and (no valid_to or
+        valid_to >= as_of_date) - a point-in-time check, not an overlap
+        with a period), walking up from this mapping's own base_object
+        through its ancestor chain (rental object -> building/land ->
+        property) until a match is found or the top of the tree is
+        reached. Returns the party, or None if none of the ancestors has
+        a matching role assignment. Generic - used for the Eigentümer
+        (owner_role), Leistungsnehmer (tenant_role), and Leistungsgeber
+        (provider_org_role) lookups alike, see _m_satz_values()."""
+        if role_id is None:
+            return None
+        node = self.base_object
+        while node:
+            owners = ObjectParty.search([
+                ('base_object', '=', node.id),
+                ('role', '=', role_id),
+                ('valid_from', '<=', as_of_date),
+                ['OR', ('valid_to', '=', None),
+                    ('valid_to', '>=', as_of_date)],
+                ])
+            if owners:
+                return owners[0].party
+            node = node.parent
+        return None
+
+    def _area_share_by_mode(self, mode, as_of_date):
+        """Shared by _heating_base_share() (fields 27/69) and
+        _hotwater_base_share() (fields 30/70): the direct measurement
+        value of this mapping's base_object for the
+        heating_area_measurement_type configured on the (first, if
+        several) settlement unit with heating_billing_mode = `mode`
+        ('central_heating' or 'central_hot_water') belonging to this
+        object's property, as of `as_of_date`. This is the object's raw
+        Bemessung (e.g. its living area in m²) - deliberately NOT
+        time-weighted by occupancy (unlike cost_share.area_share, which
+        drives the actual cost allocation and is prorated by
+        time_share/time_total) and NOT affected by the
+        heating_consumption_share_percent/heating_area_share_percent
+        split - fields 27/30 always report the object's plain
+        measurement value, independent of any occupancy period or
+        cost-distribution outcome. Does not require 'Compute Value
+        Shares' to have been run.
+
+        Returns (share, key): `share` is the measurement value (None if
+        no qualifying settlement unit has a
+        heating_area_measurement_type set, or the object has no
+        matching measurement recorded). `key` is the BVED Tabelle 'E'
+        code of the real_estate.bved.unit whose own measurement_type
+        matches that measurement type; None if none is mapped."""
+        pool = Pool()
+        SettlementUnit = pool.get('real_estate.settlement_unit')
+        BvedUnit = pool.get('real_estate.bved.unit')
+        Measurement = pool.get('real_estate.measurement')
+        obj = self.base_object
+        if not obj.property:
+            return None, None
+        units = SettlementUnit.search([
+            ('billing_unit.property', '=', obj.property.id),
+            ('heating_billing_mode', '=', mode),
+            ])
+        measurement_type = None
+        for su in units:
+            if su.heating_area_measurement_type:
+                measurement_type = su.heating_area_measurement_type
+                break
+        if not measurement_type:
+            return None, None
+        mval = Measurement.get_total_value(
+            obj.id, measurement_type, as_of_date)
+        share = Decimal(str(round(mval, 2))) if mval is not None else None
+        key = None
+        bved_units = BvedUnit.search([
+            ('measurement_type', '=', measurement_type.id)], limit=1)
+        if bved_units:
+            key = bved_units[0].code
+        return share, key
+
+    def _heating_base_share(self, as_of_date):
+        """Fields 27/69 (Heizung Grundanteil / Schlüssel Grundanteile
+        Heizung) - see _area_share_by_mode()."""
+        return self._area_share_by_mode('central_heating', as_of_date)
+
+    def _hotwater_base_share(self, as_of_date):
+        """Fields 30/70 (Warmwasser Grundanteil / Schlüssel Grundanteile
+        Warmwasser) - see _area_share_by_mode()."""
+        return self._area_share_by_mode('central_hot_water', as_of_date)
+
+    def _allocation_shares(self, as_of_date):
+        """Fields 36-41 (Schlüssel/Anteil Umlage 1-3): for each of the
+        provider assignment's three 'M-Satz Allocation Key' slots that
+        is set, return (code, share) where `code` is the
+        real_estate.bved.unit's own BVED Tabelle 'E' code and `share`
+        is this mapping's own base_object's measurement value (as of
+        `as_of_date`) for the unit's mapped measurement_type - or
+        (code, None) if the unit has no measurement_type mapped, or
+        None entirely for an unset slot. Always returns exactly 3
+        entries (one per slot, in order)."""
+        pool = Pool()
+        Measurement = pool.get('real_estate.measurement')
+        assignment = self.provider_assignment
+        obj = self.base_object
+        units = (
+            (assignment.allocation1_unit, assignment.allocation2_unit,
+                assignment.allocation3_unit) if assignment else (None, None, None))
+        results = []
+        for unit in units:
+            if not unit:
+                results.append(None)
+                continue
+            share = None
+            if unit.measurement_type:
+                mval = Measurement.get_total_value(
+                    obj.id, unit.measurement_type, as_of_date)
+                if mval is not None:
+                    share = Decimal(str(round(mval, 2)))
+            results.append((unit.code, share))
+        return results
+
+    m_satz_lines = fields.One2Many(
+        'real_estate.bved.object_number.m_satz_line', 'object_number',
+        "M-Satz Preview", readonly=True,
+        help="Read-only preview of this object's M-Satz data (BVED "
+             "Nutzer/Eigentümer record) for the most recently completed "
+             "calendar year (same period as the L-Satz preview on the "
+             "provider assignment), one line per occupancy segment - "
+             "uses the exact same computation as the real export "
+             "(_m_satz_values()). Click 'Refresh M-Satz Preview' to "
+             "(re)compute.")
+
+    def _m_satz_values(
+            self, period_start, period_end, provider,
+            company_party=None, company_address=None, warnings=None,
+            refresh_occupancy=True):
+        """Return the list of M-Satz value dicts (same keys as
+        bved_records.pack('M', ...) expects) for this mapping's
+        base_object over [period_start, period_end] - one dict per
+        occupancy segment overlapping the period. Shared by the real
+        export (BvedExport._build_l_m_records()) and this record's own
+        m_satz_preview, so they can never diverge.
+
+        Field 7 (Kennzeichen Adressfeld) is written from
+        `provider.field7_mode` ('1'=Nutzer, '2'=Eigentümer,
+        '3'=Eigentümer/Nutzer, '4'=Leistungsnehmer) and controls which
+        address block(s) get filled:
+
+        - '1'/'3': fields 8-15 (Nutzer) from the occupying contract's
+          own party (entry.contract.contractual_partner).
+        - '2'/'3': fields 16-23 (Eigentümer) per `provider.owner_rule`
+          - 'company': the company party/address (`company_party`/
+            `company_address`); 'role': `provider.owner_role`, resolved
+            via _find_party_by_role() walking this mapping's own
+            base_object up its ancestor chain (rental object ->
+            building/land -> property), valid exactly as of
+            `period_end`.
+        - '4': fields 59-66 (Leistungsnehmer) per `provider.tenant_rule`
+          - 'tenant': same as the Nutzer party; 'role':
+            `provider.tenant_role`, resolved the same way as the owner
+            role (as of `period_end`).
+
+        Fields 42-49 (Leistungsgeber) are filled independently of field
+        7, per `provider.provider_org_rule` - 'owner': the same
+        party/address resolved for the Eigentümer block above
+        (regardless of whether field 7 is actually '2'/'3'); 'role':
+        `provider.provider_org_role`, resolved the same way.
+
+        `refresh_occupancy` controls whether occupancy is recomputed
+        first (Occupancy.refresh() - deletes and recreates rows, a
+        write). The real export needs this to guarantee up-to-date
+        data; a plain preview getter (invoked from read(), which runs in
+        a read-only transaction) must pass False, or it errors out
+        against a read-only database connection."""
+        if warnings is None:
+            warnings = []
+        pool = Pool()
+        Occupancy = pool.get('real_estate.base_object.occupancy')
+        ObjectParty = pool.get('real_estate.object_party')
+        OptionRate = pool.get('real_estate.option_rate')
+        Identifier = pool.get('party.identifier')
+        SettlementResult = pool.get('real_estate.settlement_result')
+
+        obj = self.base_object
+        assignment = self.provider_assignment
+
+        field7_mode = provider.field7_mode if provider else '1'
+        owner_rule = provider.owner_rule if provider else 'role'
+        tenant_rule = provider.tenant_rule if provider else 'tenant'
+        provider_org_rule = provider.provider_org_rule if provider else 'owner'
+
+        # Eigentümer (fields 16-23, and the source for 'Leistungsgeber
+        # wie Eigentümer' below) - resolved once for the whole call,
+        # analogous to the pre-existing owner lookup.
+        if owner_rule == 'company':
+            owner_party, owner_address = company_party, company_address
+        else:
+            owner_role_id = provider.owner_role.id if (
+                provider and provider.owner_role) else None
+            owner_party = self._find_party_by_role(
+                ObjectParty, owner_role_id, period_end)
+            owner_address = owner_party.address_get() if owner_party else None
+
+        # Leistungsgeber (fields 42-49) - independent of field 7.
+        if provider_org_rule == 'role':
+            provider_org_role_id = provider.provider_org_role.id if (
+                provider and provider.provider_org_role) else None
+            org_party = self._find_party_by_role(
+                ObjectParty, provider_org_role_id, period_end)
+            org_address = org_party.address_get() if org_party else None
+        else:
+            org_party, org_address = owner_party, owner_address
+
+        # Leistungsnehmer (fields 59-66) via role - only used for field
+        # 7 = '4' and tenant_rule = 'role'; the 'tenant' sub-choice
+        # depends on the occupancy entry and is resolved per segment
+        # below instead.
+        debtor_role_party = None
+        if field7_mode == '4' and tenant_rule == 'role':
+            tenant_role_id = provider.tenant_role.id if (
+                provider and provider.tenant_role) else None
+            debtor_role_party = self._find_party_by_role(
+                ObjectParty, tenant_role_id, period_end)
+
+        if refresh_occupancy:
+            Occupancy.refresh([obj])
+        entries = Occupancy.search([
+            ('base_object', '=', obj.id),
+            ('start_date', '<=', period_end),
+            ['OR', ('end_date', '=', None), ('end_date', '>=', period_start)],
+            ], order=[('start_date', 'ASC')]) or [None]
+
+        prop_no = ((assignment.external_property_number if assignment else '')
+            or '').rjust(9, '0')[:9]
+        unit_no = (self.external_unit_number or '0000').rjust(4, '0')[:4]
+        provider_reference = prop_no + unit_no
+
+        rows = []
+        for entry in entries:
+            values = {
+                'customer_number':
+                    assignment.customer_number if assignment else None,
+                'provider_key': provider.bved_key if provider else None,
+                'provider_reference': provider_reference,
+                'internal_reference': self.internal_reference,
+                'address_flag': int(field7_mode),
+                'vacancy_risk_calc_flag': (
+                    1 if assignment and assignment.vacancy_risk_flag else 0),
+                'vacancy_flag': 0,
+                'tenant_change_fee_flag': (
+                    int(assignment.tenant_change_fee_flag)
+                    if assignment and assignment.tenant_change_fee_flag
+                    else 0),
+                }
+            if field7_mode in ('2', '3') and owner_party:
+                values['owner_name1'] = owner_party.name[:35]
+                if owner_address:
+                    values['owner_street'] = _first_line(
+                        owner_address.street)[:35]
+                    values['owner_country'] = (
+                        owner_address.country.code3
+                        if owner_address.country else '')
+                    values['owner_postal_code'] = (
+                        owner_address.postal_code or '')
+                    values['owner_city'] = owner_address.city or ''
+
+            # Nutzungszeitraum is set regardless of occupancy state - a
+            # vacancy period still needs a period so the provider can
+            # compute the (owner-borne) Grundkosten share for it; only
+            # the tenant-specific fields below depend on an actual
+            # rented+contract entry.
+            if entry:
+                values['occupancy_start'] = max(entry.start_date, period_start)
+                values['occupancy_end'] = (
+                    min(entry.end_date, period_end)
+                    if entry.end_date else period_end)
+            else:
+                values['occupancy_start'] = period_start
+                values['occupancy_end'] = period_end
+
+            # Field 25 (Kennzeichen MwSt): 0 = kein Ausweis if the
+            # object's own Optionssatz is 0% (or unknown), else
+            # 1 = gewerbl. Vermietung - evaluated as of this segment's
+            # own occupancy_end, per the object itself (not the billing
+            # unit), since option rate can be set individually per
+            # rental object.
+            fraction = OptionRate.get_current_rate_fraction(
+                'base_object', obj, values['occupancy_end'])
+            values['vat_treatment_flag'] = 1 if fraction else 0
+
+            # Fields 27/30 (Heizung/Warmwasser Grundanteil): the object's
+            # own, direct measurement value (not time-weighted, not
+            # affected by the consumption/area allocation split) for the
+            # heating_area_measurement_type of its central-heating/
+            # -hot-water settlement unit, if any.
+            heating_base_share, heating_base_key = self._heating_base_share(
+                values['occupancy_end'])
+            if heating_base_share is not None:
+                values['heating_base_share'] = heating_base_share
+                if heating_base_key:
+                    values['heating_base_key'] = heating_base_key
+
+            hotwater_base_share, hotwater_base_key = self._hotwater_base_share(
+                values['occupancy_end'])
+            if hotwater_base_share is not None:
+                values['hotwater_base_share'] = hotwater_base_share
+                if hotwater_base_key:
+                    values['hotwater_base_key'] = hotwater_base_key
+
+            # Fields 36-41 (Schlüssel/Anteil Umlage 1-3): key from the
+            # provider assignment's 'M-Satz Allocation Key 1/2/3', share
+            # from this object's own measurement value for the key's
+            # mapped measurement type (see BvedUnit/_allocation_shares()).
+            for i, entry_ in enumerate(
+                    self._allocation_shares(values['occupancy_end']),
+                    start=1):
+                if entry_ is None:
+                    continue
+                code, share = entry_
+                values[f'allocation{i}_key'] = code
+                if share is not None:
+                    values[f'allocation{i}_share'] = share
+
+            tenant_party = None
+            if entry and entry.state == 'rented' and entry.contract:
+                tenant_party = entry.contract.contractual_partner
+            if tenant_party:
+                if field7_mode in ('1', '3'):
+                    values['tenant_name1'] = tenant_party.name[:35]
+                    t_address = tenant_party.address_get()
+                    if t_address:
+                        values['tenant_street'] = _first_line(
+                            t_address.street)[:35]
+                        values['tenant_country'] = (
+                            t_address.country.code3
+                            if t_address.country else '')
+                        values['tenant_postal_code'] = (
+                            t_address.postal_code or '')
+                        values['tenant_city'] = t_address.city or ''
+                konto, blz = _bank_fields(tenant_party, warnings, 'Mieter')
+                values['bank_account_number'] = konto
+                values['bank_code'] = blz
+            else:
+                values['vacancy_flag'] = 1
+
+            # Leistungsnehmer (fields 59-66): only for field 7 = '4',
+            # per 'Leistungsnehmer-Regel' ('tenant': same party as the
+            # Nutzer block above; 'role': the role-based lookup resolved
+            # once for the whole call, see debtor_role_party above).
+            if field7_mode == '4':
+                debtor_party = (
+                    tenant_party if tenant_rule == 'tenant'
+                    else debtor_role_party)
+                if debtor_party:
+                    values['debtor_name1'] = debtor_party.name[:35]
+                    d_address = debtor_party.address_get()
+                    if d_address:
+                        values['debtor_street'] = _first_line(
+                            d_address.street)[:35]
+                        values['debtor_country'] = (
+                            d_address.country.code3
+                            if d_address.country else '')
+                        values['debtor_postal_code'] = (
+                            d_address.postal_code or '')
+                        values['debtor_city'] = d_address.city or ''
+
+            # Leistungsgeber (fields 42-49) - independent of field 7,
+            # resolved once for the whole call, see org_party above.
+            if org_party:
+                values['provider_org_name1'] = org_party.name[:35]
+                if org_address:
+                    values['provider_org_street'] = _first_line(
+                        org_address.street)[:35]
+                    values['provider_org_country'] = (
+                        org_address.country.code3
+                        if org_address.country else '')
+                    values['provider_org_postal_code'] = (
+                        org_address.postal_code or '')
+                    values['provider_org_city'] = (
+                        org_address.city or '')
+
+            # Fields 50/51 (Kennzeichen USt-ID/Steuernummer, USt-ID-Nr.
+            # oder Steuernummer): the company party's own
+            # party.identifier of the type configured on the provider
+            # as 'Tax ID Identification Type' - always the company
+            # party specifically (not org_party, which may resolve to a
+            # different role-based party). Field 50 comes from the
+            # provider's own 'M-Satz Field 50 (Tax ID Flag)' catalog
+            # selection (falls back to 2=Steuernummer if unset, e.g. on
+            # a provider configured before this field existed).
+            if company_party and provider and provider.tax_id_type:
+                tax_identifiers = Identifier.search([
+                    ('party', '=', company_party.id),
+                    ('type', '=', provider.tax_id_type),
+                    ], limit=1)
+                if tax_identifiers:
+                    values['tax_id_flag'] = (
+                        int(provider.tax_id_flag)
+                        if provider.tax_id_flag else 2)
+                    values['tax_id'] = tax_identifiers[0].code[:16]
+
+            # Field 52 (Kennzeichen Steuersatz): written unchanged from
+            # the provider's own catalog selection, if set.
+            if provider and provider.tax_rate_flag:
+                values['tax_rate_flag'] = int(provider.tax_rate_flag)
+
+            # Fields 53/54 (Kennzeichen Rechnungsnummer / Rechnungs-
+            # nummer): field 53 from the provider's own catalog
+            # selection; field 54 only when field 53 is '1' (aus Feld
+            # 54), per 'Rechnungsnummer-Regel'.
+            if provider and provider.invoice_number_flag:
+                values['invoice_number_flag'] = int(
+                    provider.invoice_number_flag)
+                if provider.invoice_number_flag == '1':
+                    invoice_number = None
+                    contract = entry.contract if entry else None
+                    if provider.invoice_number_rule == 'contract':
+                        if contract:
+                            invoice_number = contract.contract_number
+                    elif provider.invoice_number_rule == 'object':
+                        invoice_number = obj.object_number
+                    elif provider.invoice_number_rule == 'settlement_result':
+                        results = SettlementResult.search([
+                            ('base_object', '=', obj.id),
+                            ('contract', '=', contract.id if contract else None),
+                            ('billing_unit.start_date', '<=', period_end),
+                            ('billing_unit.end_date', '>=', period_start),
+                            ], limit=1)
+                        if results:
+                            invoice_number = str(results[0].id)
+                    if invoice_number:
+                        values['invoice_number'] = invoice_number[:25]
+
+            # Field 58 (Kennzeichen Zahlungsart): written unchanged from
+            # the provider's own catalog selection, if set.
+            if provider and provider.direct_debit_flag:
+                values['direct_debit_flag'] = int(provider.direct_debit_flag)
+
+            rows.append(values)
+        return rows
+
+    @classmethod
+    @ModelView.button
+    def refresh_m_satz_preview(cls, object_numbers):
+        """(Re)compute m_satz_lines from _m_satz_values() for the most
+        recently completed calendar year - deletes any existing preview
+        lines for each object number first, so re-clicking after a
+        tenant change or a year rollover always reflects the current
+        data (unlike the L-Satz scalar preview fields, this one is a
+        real stored O2M and therefore does not update itself merely by
+        being viewed - see the read-only-transaction note on
+        _m_satz_values())."""
+        pool = Pool()
+        Line = pool.get('real_estate.bved.object_number.m_satz_line')
+        BvedProviderAssignment = pool.get(
+            'real_estate.bved.provider_assignment')
+        period_start, period_end = BvedProviderAssignment._last_full_year()
+        for mapping in object_numbers:
+            existing = Line.search([('object_number', '=', mapping.id)])
+            if existing:
+                Line.delete(existing)
+            assignment = mapping.provider_assignment
+            provider = assignment.provider if assignment else None
+            company_party = None
+            company_address = None
+            company = assignment.company if assignment else None
+            if company:
+                company_party = company.party
+                company_address = company_party.address_get()
+            rows = mapping._m_satz_values(
+                period_start, period_end, provider, company_party,
+                company_address, refresh_occupancy=True)
+            to_create = []
+            for index, row in enumerate(rows, start=1):
+                values = dict(row)
+                values['object_number'] = mapping.id
+                values['sequence'] = index * 10
+                values['vacancy_flag'] = bool(values.get('vacancy_flag'))
+                values['record_type'] = bved_records.DEFAULTS['M']['satzart']
+                values['arge_version'] = (
+                    bved_records.DEFAULTS['M']['arge_version'])
+                to_create.append(values)
+            if to_create:
+                Line.create(to_create)
+
+
+#**********************************************************************
+class BvedObjectNumberMSatzLine(sequence_ordered(), ModelSQL, ModelView):
+    """BVED Object Number M-Satz Preview Line - one row per occupancy
+    segment, holding every M-Satz field 1-70 (see the BVED spec's
+    Nutzersatz table) for review before an actual export. Generated by
+    BvedObjectNumber.refresh_m_satz_preview() from
+    BvedObjectNumber._m_satz_values() - never edited directly (all
+    fields readonly), and safe to delete/regenerate at any time."""
+    __name__ = 'real_estate.bved.object_number.m_satz_line'
+
+    object_number = fields.Many2One(
+        'real_estate.bved.object_number', "Object Number",
+        required=True, ondelete='CASCADE')
+
+    # Fields 1-6: identification (same for every line of one mapping)
+    record_type = fields.Char("1. Record Type", readonly=True)
+    arge_version = fields.Char("2. ARGE Version", readonly=True)
+    customer_number = fields.Char("3. Customer Number", readonly=True)
+    provider_key = fields.Char("4. Provider Key", readonly=True)
+    provider_reference = fields.Char("5. Provider Reference", readonly=True)
+    internal_reference = fields.Char("6. Internal Reference", readonly=True)
+
+    # Fields 7-15: address flag + tenant (Nutzer)
+    address_flag = fields.Integer("7. Address Flag", readonly=True,
+        help="1=Nutzer, 2=Eigentümer, 3=Eigentümer/Nutzer, "
+             "4=Leistungsnehmer - from the provider's 'M-Satz Field 7 "
+             "(Address Type)', written unchanged into every M-Satz "
+             "record of that provider.")
+    tenant_name1 = fields.Char("8. Tenant Name 1", readonly=True,
+        help="Filled only when the provider's 'M-Satz Field 7' is "
+             "'Nutzer' or 'Eigentümer/Nutzer'.")
+    tenant_name2 = fields.Char("9. Tenant Name 2", readonly=True)
+    tenant_name3 = fields.Char("10. Tenant Name 3", readonly=True)
+    tenant_name4 = fields.Char("11. Tenant Name 4", readonly=True)
+    tenant_street = fields.Char("12. Tenant Street", readonly=True)
+    tenant_country = fields.Char("13. Tenant Country", readonly=True)
+    tenant_postal_code = fields.Char("14. Tenant Postal Code", readonly=True)
+    tenant_city = fields.Char("15. Tenant City", readonly=True)
+
+    # Fields 16-23: owner (Eigentümer)
+    owner_name1 = fields.Char("16. Owner Name 1", readonly=True,
+        help="Filled only when the provider's 'M-Satz Field 7' is "
+             "'Eigentümer' or 'Eigentümer/Nutzer', per "
+             "'Eigentümer-Regel'.")
+    owner_name2 = fields.Char("17. Owner Name 2", readonly=True)
+    owner_name3 = fields.Char("18. Owner Name 3", readonly=True)
+    owner_name4 = fields.Char("19. Owner Name 4", readonly=True)
+    owner_street = fields.Char("20. Owner Street", readonly=True)
+    owner_country = fields.Char("21. Owner Country", readonly=True)
+    owner_postal_code = fields.Char("22. Owner Postal Code", readonly=True)
+    owner_city = fields.Char("23. Owner City", readonly=True)
+
+    # Field 24: Wohnzeitraum (split into start/end)
+    occupancy_start = fields.Date("24. Occupancy Start", readonly=True)
+    occupancy_end = fields.Date("24. Occupancy End", readonly=True)
+
+    # Fields 25-35: VAT / vacancy risk / heating-hotwater-coldwater shares
+    vat_treatment_flag = fields.Integer(
+        "25. VAT Treatment Flag", readonly=True,
+        help="0 = kein Ausweis if the object's own Optionssatz is 0% (or "
+             "unknown) as of this segment's occupancy_end, else "
+             "1 = gewerbl. Vermietung.")
+    vacancy_risk_calc_flag = fields.Integer(
+        "26. Vacancy Risk Calc Flag", readonly=True,
+        help="0 = kein, 1 = Berechnung - taken from the provider "
+             "assignment's own L-Satz field 13 ('Vacancy Risk "
+             "Surcharge', vacancy_risk_flag).")
+    heating_base_share = fields.Numeric(
+        "27. Heating Base Share", digits=(8, 2), readonly=True,
+        help="The object's own measurement value for the 'Area "
+             "Measurement Type (Heating Cost Split)' of its "
+             "central-heating settlement unit, if any - the object's "
+             "plain Bemessung, not time-weighted and not affected by "
+             "the consumption/area allocation split.")
+    heating_advance_gross = fields.Numeric(
+        "28. Heating Advance (gross)", digits=(8, 2), readonly=True)
+    heating_advance_net = fields.Numeric(
+        "29. Heating Advance (net)", digits=(8, 2), readonly=True)
+    hotwater_base_share = fields.Numeric(
+        "30. Hot Water Base Share", digits=(8, 2), readonly=True,
+        help="The object's own measurement value for the 'Area "
+             "Measurement Type (Heating Cost Split)' of its "
+             "central-hot-water settlement unit, if any - the object's "
+             "plain Bemessung, not time-weighted and not affected by "
+             "the consumption/area allocation split.")
+    hotwater_advance_gross = fields.Numeric(
+        "31. Hot Water Advance (gross)", digits=(8, 2), readonly=True)
+    hotwater_advance_net = fields.Numeric(
+        "32. Hot Water Advance (net)", digits=(8, 2), readonly=True)
+    coldwater_base_share = fields.Numeric(
+        "33. Cold Water Base Share", digits=(8, 2), readonly=True)
+    coldwater_advance_gross = fields.Numeric(
+        "34. Cold Water Advance (gross)", digits=(8, 2), readonly=True)
+    coldwater_advance_net = fields.Numeric(
+        "35. Cold Water Advance (net)", digits=(8, 2), readonly=True)
+
+    # Fields 36-41: allocation keys/shares - from the provider
+    # assignment's 'M-Satz Allocation Key 1/2/3' (real_estate.bved.unit)
+    # and this object's own measurement value for the unit's mapped
+    # measurement type, see BvedObjectNumber._allocation_shares().
+    allocation1_key = fields.Char("36. Allocation 1 Key", readonly=True,
+        help="Tabelle 'E' code of the provider assignment's 'M-Satz "
+             "Allocation Key 1', if set.")
+    allocation1_share = fields.Numeric(
+        "37. Allocation 1 Share", digits=(8, 2), readonly=True,
+        help="This object's measurement value for the measurement type "
+             "mapped to 'M-Satz Allocation Key 1'.")
+    allocation2_key = fields.Char("38. Allocation 2 Key", readonly=True,
+        help="Tabelle 'E' code of the provider assignment's 'M-Satz "
+             "Allocation Key 2', if set.")
+    allocation2_share = fields.Numeric(
+        "39. Allocation 2 Share", digits=(8, 2), readonly=True,
+        help="This object's measurement value for the measurement type "
+             "mapped to 'M-Satz Allocation Key 2'.")
+    allocation3_key = fields.Char("40. Allocation 3 Key", readonly=True,
+        help="Tabelle 'E' code of the provider assignment's 'M-Satz "
+             "Allocation Key 3', if set.")
+    allocation3_share = fields.Numeric(
+        "41. Allocation 3 Share", digits=(8, 2), readonly=True,
+        help="This object's measurement value for the measurement type "
+             "mapped to 'M-Satz Allocation Key 3'.")
+
+    # Fields 42-49: provider organization (Leistungsgeber)
+    provider_org_name1 = fields.Char("42. Provider Org Name 1", readonly=True,
+        help="Filled per the provider's 'M-Satz Leistungsgeber-Regel' - "
+             "independent of 'M-Satz Field 7'.")
+    provider_org_name2 = fields.Char("43. Provider Org Name 2", readonly=True)
+    provider_org_name3 = fields.Char("44. Provider Org Name 3", readonly=True)
+    provider_org_name4 = fields.Char("45. Provider Org Name 4", readonly=True)
+    provider_org_street = fields.Char(
+        "46. Provider Org Street", readonly=True)
+    provider_org_country = fields.Char(
+        "47. Provider Org Country", readonly=True)
+    provider_org_postal_code = fields.Char(
+        "48. Provider Org Postal Code", readonly=True)
+    provider_org_city = fields.Char("49. Provider Org City", readonly=True)
+
+    # Fields 50-58: tax / invoice / bank / payment
+    tax_id_flag = fields.Integer("50. Tax ID Flag", readonly=True,
+        help="1 = USt-ID-Nr., 2 = Steuernummer (field 51) - from the "
+             "provider's own 'M-Satz Field 50 (Tax ID Flag)', written "
+             "whenever the provider's 'Tax ID Identification Type' "
+             "matches an identifier on the company party.")
+    tax_id = fields.Char("51. Tax ID", readonly=True,
+        help="The company party's own party.identifier code for the "
+             "type configured on the provider's 'Tax ID Identification "
+             "Type'.")
+    tax_rate_flag = fields.Integer("52. Tax Rate Flag", readonly=True,
+        help="1 = Regelsteuersatz, 2 = ermäßigt - from the provider's "
+             "own 'M-Satz Field 52 (Tax Rate Flag)'.")
+    invoice_number_flag = fields.Integer(
+        "53. Invoice Number Flag", readonly=True,
+        help="0 = keine Rechnung §14 UStG, 1 = aus Feld 54, "
+             "2 = vom Abrechnungsunternehmen erstellt - from the "
+             "provider's own 'M-Satz Field 53 (Invoice Number Flag)'.")
+    invoice_number = fields.Char("54. Invoice Number", readonly=True,
+        help="Filled only when field 53 is 1 (aus Feld 54), per the "
+             "provider's 'Rechnungsnummer-Regel'.")
+    bank_account_number = fields.Char(
+        "55. Bank Account Number", readonly=True)
+    bank_code = fields.Char("56. Bank Code", readonly=True)
+    company_flag = fields.Integer("57. Company Flag", readonly=True)
+    direct_debit_flag = fields.Integer("58. Direct Debit Flag", readonly=True,
+        help="0 = keine Abbuchungserlaubnis, 1 = Abbuchungserlaubnis - "
+             "from the provider's own 'M-Satz Field 58 (Payment Type "
+             "Flag)'.")
+
+    # Fields 59-66: debtor (Leistungsnehmer)
+    debtor_name1 = fields.Char("59. Debtor Name 1", readonly=True,
+        help="Filled only when the provider's 'M-Satz Field 7' is "
+             "'Leistungsnehmer', per 'Leistungsnehmer-Regel'.")
+    debtor_name2 = fields.Char("60. Debtor Name 2", readonly=True)
+    debtor_name3 = fields.Char("61. Debtor Name 3", readonly=True)
+    debtor_name4 = fields.Char("62. Debtor Name 4", readonly=True)
+    debtor_street = fields.Char("63. Debtor Street", readonly=True)
+    debtor_country = fields.Char("64. Debtor Country", readonly=True)
+    debtor_postal_code = fields.Char("65. Debtor Postal Code", readonly=True)
+    debtor_city = fields.Char("66. Debtor City", readonly=True)
+
+    # Fields 67-70
+    vacancy_flag = fields.Boolean("67. Vacancy Flag", readonly=True)
+    tenant_change_fee_flag = fields.Integer(
+        "68. Tenant Change Fee Flag", readonly=True,
+        help="0 = keine Umlage, 1 = Umlage - from the provider "
+             "assignment's own 'M-Satz Field 68 (Tenant Change Fee "
+             "Flag)'.")
+    heating_base_key = fields.Char("69. Heating Base Key", readonly=True,
+        help="Tabelle 'E' code of the real_estate.bved.unit mapped to "
+             "the settlement unit's 'Area Measurement Type (Heating "
+             "Cost Split)' - the measurement field 27 is expressed in.")
+    hotwater_base_key = fields.Char("70. Hot Water Base Key", readonly=True,
+        help="Tabelle 'E' code of the real_estate.bved.unit mapped to "
+             "the settlement unit's 'Area Measurement Type (Heating "
+             "Cost Split)' - the measurement field 30 is expressed in.")
 
 
 #**********************************************************************
@@ -514,7 +1523,7 @@ class BvedExport(Workflow, ModelSQL, ModelView):
         domain=[
             ('bved_provider_assignment.provider', '=', Eval('provider', -1)),
             ('external_billing', '=', True),
-            ('end_date', '<=', Eval('cutoff_date')),
+            ('end_date', '<=', Eval('cutoff_date', None)),
             ],
         depends=['provider', 'cutoff_date'],
         help="Defaults to every billing unit currently assigned to the "
@@ -527,7 +1536,8 @@ class BvedExport(Workflow, ModelSQL, ModelView):
         fields.Many2One('company.company', "Company"),
         'on_change_with_company', searcher='search_company')
 
-    name = fields.Function(fields.Char("Name"), 'on_change_with_name')
+    name = fields.Function(fields.Char("Name"), 'on_change_with_name',
+        searcher='search_name')
 
     state = fields.Selection([
             ('draft', 'Draft'),
@@ -626,6 +1636,14 @@ class BvedExport(Workflow, ModelSQL, ModelView):
             len(self.billing_units or []),
             self.export_date or self.state)
 
+    @classmethod
+    def search_name(cls, name, clause):
+        _, operator, value = clause
+        return ['OR',
+            ('provider.rec_name', operator, value),
+            ('state', operator, value),
+            ]
+
     @fields.depends('export_date')
     def on_change_with_export_date_date(self, name=None):
         return self.export_date.date() if self.export_date else None
@@ -714,12 +1732,6 @@ class BvedExport(Workflow, ModelSQL, ModelView):
     def _build_l_m_records(self, files, record_types):
         pool = Pool()
         ObjectNumber = pool.get('real_estate.bved.object_number')
-        Occupancy = pool.get('real_estate.base_object.occupancy')
-        ObjectParty = pool.get('real_estate.object_party')
-        ModelData = pool.get('ir.model.data')
-
-        owner_role_id = ModelData.get_id(
-            'real_estate', 'object_party_owner_role')
         lines = []
 
         # One L-/M-Satz block per billing unit. Note: if two billing
@@ -779,110 +1791,13 @@ class BvedExport(Workflow, ModelSQL, ModelView):
                 ('base_object', 'in', bu.bved_covered_object_ids()),
                 ] + _valid_overlap_domain(bu.start_date, bu.end_date))
             for mapping in mappings:
-                obj = mapping.base_object
-                Occupancy.refresh([obj])
-                entries = Occupancy.search([
-                    ('base_object', '=', obj.id),
-                    ('start_date', '<=', bu.end_date),
-                    ['OR', ('end_date', '=', None),
-                        ('end_date', '>=', bu.start_date)],
-                    ], order=[('start_date', 'ASC')]) or [None]
-
-                owners = ObjectParty.search([
-                    ('base_object', '=', obj.id),
-                    ('role', '=', owner_role_id),
-                    ['OR', ('valid_to', '=', None),
-                        ('valid_to', '>=', bu.start_date)],
-                    ('valid_from', '<=', bu.end_date),
-                    ])
-                owner = owners[0].party if owners else None
-                owner_address = owner.address_get() if owner else None
-
-                for entry in entries:
-                    values = {
-                        'customer_number': assignment.customer_number,
-                        'provider_key': self.provider.bved_key,
-                        'provider_reference': self._provider_reference(
-                            bu, mapping.external_unit_number),
-                        'internal_reference': mapping.internal_reference,
-                        'address_flag': 1,
-                        'vat_treatment_flag': 0,
-                        'vacancy_risk_calc_flag': 0,
-                        'vacancy_flag': 0,
-                        'tenant_change_fee_flag': 0,
-                        }
-                    if owner:
-                        values['owner_name1'] = owner.name[:35]
-                        if owner_address:
-                            values['owner_street'] = _first_line(
-                                owner_address.street)[:35]
-                            values['owner_country'] = (
-                                owner_address.country.code3
-                                if owner_address.country else '')
-                            values['owner_postal_code'] = (
-                                owner_address.postal_code or '')
-                            values['owner_city'] = owner_address.city or ''
-
-                    # Nutzungszeitraum is set regardless of occupancy state -
-                    # a vacancy period still needs a period so the provider
-                    # can compute the (owner-borne) Grundkosten share for
-                    # it; only the tenant-specific fields below depend on
-                    # an actual rented+contract entry.
-                    if entry:
-                        values['occupancy_start'] = max(
-                            entry.start_date, bu.start_date)
-                        values['occupancy_end'] = (
-                            min(entry.end_date, bu.end_date)
-                            if entry.end_date else bu.end_date)
-                    else:
-                        values['occupancy_start'] = bu.start_date
-                        values['occupancy_end'] = bu.end_date
-
-                    tenant_party = None
-                    if entry and entry.state == 'rented' and entry.contract:
-                        tenant_party = entry.contract.contractual_partner
-                    if tenant_party:
-                        values['tenant_name1'] = tenant_party.name[:35]
-                        t_address = tenant_party.address_get()
-                        if t_address:
-                            values['tenant_street'] = _first_line(
-                                t_address.street)[:35]
-                            values['tenant_country'] = (
-                                t_address.country.code3
-                                if t_address.country else '')
-                            values['tenant_postal_code'] = (
-                                t_address.postal_code or '')
-                            values['tenant_city'] = t_address.city or ''
-                        warnings = []
-                        konto, blz = _bank_fields(
-                            tenant_party, warnings, 'Mieter')
-                        values['bank_account_number'] = konto
-                        values['bank_code'] = blz
-                        for warning in warnings:
-                            self._log(warning)
-                        values['debtor_name1'] = values.get('tenant_name1', '')
-                        values['debtor_street'] = values.get('tenant_street', '')
-                        values['debtor_country'] = values.get('tenant_country', '')
-                        values['debtor_postal_code'] = values.get(
-                            'tenant_postal_code', '')
-                        values['debtor_city'] = values.get('tenant_city', '')
-                    else:
-                        values['vacancy_flag'] = 1
-
-                    if company_party:
-                        values['provider_org_name1'] = company_party.name[:35]
-                        if company_address:
-                            values['provider_org_street'] = _first_line(
-                                company_address.street)[:35]
-                            values['provider_org_country'] = (
-                                company_address.country.code3
-                                if company_address.country else '')
-                            values['provider_org_postal_code'] = (
-                                company_address.postal_code or '')
-                            values['provider_org_city'] = (
-                                company_address.city or '')
-
-                    lines.append(bved_records.pack('M', values))
+                warnings = []
+                rows = mapping._m_satz_values(
+                    bu.start_date, bu.end_date, self.provider,
+                    company_party, company_address, warnings)
+                for warning in warnings:
+                    self._log(warning)
+                lines.extend(bved_records.pack('M', v) for v in rows)
 
         if lines:
             files[bved_records.bved_filename('L', datetime.datetime.now())] = lines
@@ -948,40 +1863,56 @@ class BvedExport(Workflow, ModelSQL, ModelView):
 
             if 'K' in record_types:
                 for su in settlement_units:
-                    invoice_lines = InvoiceLine.search([
-                        ('settlement_unit', '=', su.id),
-                        ('invoice.state', '!=', 'cancelled'),
-                        ])
-                    for line in invoice_lines:
-                        cost_key = (
-                            su.type.bved_cost_key if su.type else None)
-                        estg = getattr(line, 'estg_35a', '') or ''
-                        labor_pct = getattr(
-                            line, 'estg_35a_labor_share_percent', None)
-                        gross = line.total_amount
-                        labor_amount = None
-                        if labor_pct is not None and gross is not None:
-                            labor_amount = (
-                                gross * labor_pct / Decimal(100)
-                                ).quantize(Decimal('0.01'))
-                        lines.append(bved_records.pack('K', {
-                            'customer_number': assignment.customer_number,
-                            'provider_key': self.provider.bved_key,
-                            'provider_reference': self._provider_reference(bu),
-                            'cost_type_key': cost_key,
-                            'uniform_cost_flag': 'E',
-                            'invoice_date': line.invoice_date,
-                            'quantity': getattr(
-                                line, 'bved_fuel_quantity', None),
-                            'amount_gross': gross,
-                            'amount_net': line.amount,
-                            'tax_service_type_key':
-                                bved_records.ESTG35A_TO_TABLE_L.get(estg, '00'),
-                            'labor_share_amount': labor_amount,
-                            'fuel_indicator_flag':
-                                1 if getattr(line, 'bved_fuel_type', None)
-                                else 0,
-                            }))
+                    # Cost/invoice lines are not only booked directly on
+                    # su - a settlement unit using 'allocation_via_cost_
+                    # collector' with su as its reference_settlement_unit
+                    # (e.g. a second fuel supplier feeding the same
+                    # heating settlement unit) can carry its own invoice
+                    # lines too. Each keeps its own cost type's
+                    # bved_cost_key, since the invoices may classify
+                    # differently even though they all feed the same
+                    # externally-billed unit.
+                    source_units = [su] + [
+                        other for other in bu.settlement_units
+                        if other.allocation_rule == 'allocation_via_cost_collector'
+                        and other.reference_settlement_unit
+                        and other.reference_settlement_unit.id == su.id]
+                    for source_su in source_units:
+                        invoice_lines = InvoiceLine.search([
+                            ('settlement_unit', '=', source_su.id),
+                            ('invoice.state', '!=', 'cancelled'),
+                            ])
+                        for line in invoice_lines:
+                            cost_key = (
+                                source_su.type.bved_cost_key
+                                if source_su.type else None)
+                            estg = getattr(line, 'estg_35a', '') or ''
+                            labor_pct = getattr(
+                                line, 'estg_35a_labor_share_percent', None)
+                            gross = line.total_amount
+                            labor_amount = None
+                            if labor_pct is not None and gross is not None:
+                                labor_amount = (
+                                    gross * labor_pct / Decimal(100)
+                                    ).quantize(Decimal('0.01'))
+                            lines.append(bved_records.pack('K', {
+                                'customer_number': assignment.customer_number,
+                                'provider_key': self.provider.bved_key,
+                                'provider_reference': self._provider_reference(bu),
+                                'cost_type_key': cost_key,
+                                'uniform_cost_flag': 'E',
+                                'invoice_date': line.invoice_date,
+                                'quantity': getattr(
+                                    line, 'bved_fuel_quantity', None),
+                                'amount_gross': gross,
+                                'amount_net': line.amount,
+                                'tax_service_type_key':
+                                    bved_records.ESTG35A_TO_TABLE_L.get(estg, '00'),
+                                'labor_share_amount': labor_amount,
+                                'fuel_indicator_flag':
+                                    1 if getattr(line, 'bved_fuel_type', None)
+                                    else 0,
+                                }))
 
                     for consumption in su._co2_consumption_rows():
                         energy_mix = sorted(
@@ -1095,7 +2026,8 @@ class BvedImport(Workflow, ModelSQL, ModelView):
     company = fields.Many2One('company.company', "Company", required=True,
         states={'readonly': Eval('state') != 'draft'})
 
-    name = fields.Function(fields.Char("Name"), 'on_change_with_name')
+    name = fields.Function(fields.Char("Name"), 'on_change_with_name',
+        searcher='search_name')
 
     state = fields.Selection([
             ('draft', 'Draft'),
@@ -1212,6 +2144,14 @@ class BvedImport(Workflow, ModelSQL, ModelView):
     def on_change_with_name(self, name=None):
         return '%s / %s' % (
             self.provider.rec_name if self.provider else '?', self.state)
+
+    @classmethod
+    def search_name(cls, name, clause):
+        _, operator, value = clause
+        return ['OR',
+            ('provider.rec_name', operator, value),
+            ('state', operator, value),
+            ]
 
     def _log(self, text):
         stamp = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')

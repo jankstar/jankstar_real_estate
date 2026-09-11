@@ -202,10 +202,16 @@ Either run "Ready for Billing" for each billing unit first, or bill individual b
             <field name="text">{}: Option rate method "Dynamic Measurement" is not allowed for a rental object (only fixed rates are allowed).</field>
         </record>
         <record model="ir.message" id="msg_settlement_unit_allocation_rule_required_external">
-            <field name="text">"%(name)s": for a billing unit with external billing, the allocation rule must be "Allocation from external billing".</field>
+            <field name="text">"%(name)s": for a billing unit with external billing, the allocation rule must be "Allocation from external billing" or "Allocation via cost collector".</field>
         </record>
         <record model="ir.message" id="msg_settlement_unit_allocation_rule_not_allowed_external">
             <field name="text">"%(name)s": the allocation rule "Allocation from external billing" is only allowed for a billing unit with external billing.</field>
+        </record>
+        <record model="ir.message" id="msg_settlement_unit_reference_required">
+            <field name="text">"%(name)s": allocation rule "Allocation via cost collector" requires a reference settlement unit.</field>
+        </record>
+        <record model="ir.message" id="msg_settlement_unit_reference_invalid">
+            <field name="text">"%(name)s": the reference settlement unit must belong to the same billing unit, must not be the settlement unit itself, and must not itself use "Allocation via cost collector".</field>
         </record>
         <record model="ir.message" id="msg_settlement_unit_selection_invalid_state">
             <field name="text">Cannot run selection for "%(name)s": not allowed in state '%(state)s'.</field>
@@ -275,6 +281,9 @@ Either run "Ready for Billing" for each billing unit first, or bill individual b
         </record>
         <record model="ir.message" id="msg_bved_provider_assignment_unique">
             <field name="text">A provider assignment already exists for this property/building, provider and valid-from date.</field>
+        </record>
+        <record model="ir.message" id="msg_bved_unit_code_unique">
+            <field name="text">A BVED unit with this code already exists.</field>
         </record>
         <record model="ir.message" id="msg_bved_export_missing_provider">
             <field name="text">Export "%(name)s": set a BVED provider before generating the export.</field>

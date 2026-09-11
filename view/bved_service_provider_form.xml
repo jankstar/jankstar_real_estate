@@ -5,6 +5,34 @@
     <label name="bved_version"/><field name="bved_version"/>
     <label name="transport_type"/><field name="transport_type"/>
     <newline/>
+    <separator name="field7_mode" colspan="2" string="M-Satz Field 7 (Address Type)"/>
+    <label name="field7_mode"/><field name="field7_mode"/>
+    <newline/>
+    <label name="owner_rule"/><field name="owner_rule"/>
+    <newline/>
+    <label name="owner_role"/><field name="owner_role"/>
+    <newline/>
+    <label name="tenant_rule"/><field name="tenant_rule"/>
+    <newline/>
+    <label name="tenant_role"/><field name="tenant_role"/>
+    <newline/>
+    <separator name="provider_org_rule" colspan="2" string="M-Satz Leistungsgeber (Fields 42-49)"/>
+    <label name="provider_org_rule"/><field name="provider_org_rule"/>
+    <newline/>
+    <label name="provider_org_role"/><field name="provider_org_role"/>
+    <newline/>
+    <label name="tax_id_type"/><field name="tax_id_type"/>
+    <newline/>
+    <label name="tax_id_flag"/><field name="tax_id_flag"/>
+    <newline/>
+    <label name="tax_rate_flag"/><field name="tax_rate_flag"/>
+    <newline/>
+    <label name="invoice_number_flag"/><field name="invoice_number_flag"/>
+    <newline/>
+    <label name="invoice_number_rule"/><field name="invoice_number_rule"/>
+    <newline/>
+    <label name="direct_debit_flag"/><field name="direct_debit_flag"/>
+    <newline/>
     <separator name="transport_config" colspan="2"/>
     <field name="transport_config" colspan="2"/>
 </form>

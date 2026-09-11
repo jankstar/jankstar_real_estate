@@ -44,6 +44,11 @@
                 view_ids="real_estate.settlement_result_tree_view,real_estate.settlement_result_form_view"
                 readonly="1"/>
         </page>
+        <page string="Rental Objects" id="page_rental_objects" col="1">
+            <field name="rental_objects"
+                view_ids="real_estate.base_object_view_list_simple"
+                readonly="1"/>
+        </page>
         <page string="Moves" id="page_moves" col="1">
             <field name="moves"
                 view_ids="real_estate.billing_unit_moves_tree_view,real_estate.billing_unit_moves_form_view"

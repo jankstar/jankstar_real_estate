@@ -6,4 +6,10 @@
     <label name="internal_reference"/><field name="internal_reference"/>
     <label name="valid_from"/><field name="valid_from"/>
     <label name="valid_to"/><field name="valid_to"/>
+    <separator name="m_satz_lines" colspan="2"/>
+    <field name="m_satz_lines" colspan="2"
+        view_ids="real_estate.bved_object_number_m_satz_line_view_list,
+            real_estate.bved_object_number_m_satz_line_view_form"/>
+
+    <button name="refresh_m_satz_preview" string="Refresh M-Satz Preview"/>
 </form>

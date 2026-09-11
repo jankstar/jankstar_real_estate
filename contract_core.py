@@ -939,6 +939,14 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
 
             for bu in billing_units_by_property[property_id]:
                 for su in bu.settlement_units:
+                    # 'allocation_via_cost_collector' units generate no
+                    # cost shares/settlement results of their own (see
+                    # settlement_unit.py) - only the settlement unit they
+                    # reference should ever surface here, or the tenant
+                    # would see the same cost type twice (e.g. in the
+                    # Annex 4 report).
+                    if su.allocation_rule == 'allocation_via_cost_collector':
+                        continue
                     if any(obj.id in contract_object_ids for obj in su.objects):
                         result[contract.id].append(su.id)
         return result

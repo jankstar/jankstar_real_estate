@@ -24,7 +24,7 @@ class SettlementUnit(DeactivableMixin, base_object.re_sequence_ordered(), ModelS
     __rec_name__ = 'name'
 
     property = fields.Function(fields.Many2One('real_estate.base_object', 'Property'),
-        'on_change_with_property')
+        'on_change_with_property', searcher='search_property')
 
     company = fields.Function(fields.Many2One('company.company', 'Company'),
         'on_change_with_company')
@@ -74,21 +74,66 @@ class SettlementUnit(DeactivableMixin, base_object.re_sequence_ordered(), ModelS
             ('allocation_by_measurement', 'Allocation by measurement'),
             ('allocation_by_consumption', 'Allocation by consumption'),
             ('allocation_per_rental_unit', 'Allocation per rental unit'),
-            ('allocation_from_external_billing', 'Allocation from external billing')
+            ('allocation_from_external_billing', 'Allocation from external billing'),
+            ('allocation_via_cost_collector', 'Allocation via cost collector'),
             ], "Allocation Rule", sort=False,
             states={
-                'readonly': (Eval('billing_unit_external_billing', False)
-                    | Eval('state').in_(['ready_for_billing', 'billed'])),
+                'readonly': Eval('state').in_(['ready_for_billing', 'billed']),
             },
-            depends=['billing_unit_external_billing'],
+            help="'Allocation via cost collector': this settlement unit "
+                 "determines no rental objects of its own - it always uses "
+                 "those of the 'Reference Settlement Unit' - and generates "
+                 "no cost shares/settlement results itself. Its planned/"
+                 "actual costs are added to the reference settlement unit's "
+                 "'Planned Costs From References'/'Actual Costs From "
+                 "References' instead, where the actual cost allocation "
+                 "takes place. Also selectable on a billing unit with "
+                 "external billing, as an alternative to 'Allocation from "
+                 "external billing'.",
             )
+
+    reference_settlement_unit = fields.Many2One(
+        'real_estate.settlement_unit', "Reference Settlement Unit",
+        ondelete='RESTRICT',
+        domain=[
+            ('billing_unit', '=', Eval('billing_unit', -1)),
+            ('id', '!=', Eval('id', -1)),
+            ('allocation_rule', '!=', 'allocation_via_cost_collector'),
+            ],
+        states={
+            'invisible': Eval('allocation_rule') != 'allocation_via_cost_collector',
+            'required': Eval('allocation_rule') == 'allocation_via_cost_collector',
+            'readonly': Eval('state').in_(['ready_for_billing', 'billed']),
+            },
+        depends=['billing_unit', 'allocation_rule'],
+        help="The settlement unit (of the same billing unit) that "
+             "actually performs the cost allocation for this unit's "
+             "costs. Must not itself use 'Allocation via cost collector' "
+             "(chaining is not allowed).")
+
+    planned_costs_from_references = fields.Function(
+        Monetary("Planned Costs From References", currency='currency',
+            digits='currency',
+            help="Sum of 'Planned Costs' of all settlement units of this "
+                 "billing unit that reference this settlement unit via "
+                 "'Allocation via cost collector'."),
+        'get_costs_from_references')
+
+    actual_costs_from_references = fields.Function(
+        Monetary("Actual Costs From References", currency='currency',
+            digits='currency',
+            help="Sum of 'Actual Costs' of all settlement units of this "
+                 "billing unit that reference this settlement unit via "
+                 "'Allocation via cost collector'."),
+        'get_costs_from_references')
 
     vacancy = fields.Selection([
         ('no_allocation', 'No allocation (all cost allocated by tenant)'),
         ('by_owner', 'Allocation by owner'),
         ], "Allocation During Vacancy", sort=False,
         states={
-            'invisible': Eval('allocation_rule') == 'no_allocation',
+            'invisible': Eval('allocation_rule').in_(
+                ['no_allocation', 'allocation_via_cost_collector']),
             'readonly': Eval('state').in_(['ready_for_billing', 'billed']),
             },
         )
@@ -112,7 +157,8 @@ class SettlementUnit(DeactivableMixin, base_object.re_sequence_ordered(), ModelS
     reg_ex_object = fields.Char("Reg. Ex. Object",
         help="Regular expression to find the object. For Example '[1-9/ ]*Apartement[1-9()# ]*' to find the object with name contains '100/100 Apartement #45'.",
         states={
-            'invisible': Eval('allocation_rule') == 'no_allocation',
+            'invisible': Eval('allocation_rule').in_(
+                ['no_allocation', 'allocation_via_cost_collector']),
             })
 
     reg_ex_meter = fields.Char("Reg. Ex. Meter",
@@ -225,6 +271,87 @@ class SettlementUnit(DeactivableMixin, base_object.re_sequence_ordered(), ModelS
                  "period).",
             states={'invisible': ~Eval('co2_kostaufg')}),
         'on_change_with_co2_consumption', setter='set_co2_consumption')
+
+    # --- Heizkostenabrechnung (HeizkostenV §7/§8): the split between
+    # consumption-based and area-based allocation for a central heating
+    # or hot water system. Independent of allocation_rule/m_type above
+    # (which govern how THIS settlement unit's own costs are allocated
+    # per tenant) - this is the legally mandated consumption/area split
+    # ratio for the heating cost statement itself.
+    heating_billing_mode = fields.Selection([
+        ('none', 'Not Applicable'),
+        ('central_heating', 'Central Heating System'),
+        ('central_hot_water', 'Central Hot Water System'),
+        ], "Heating Cost Billing", sort=False,
+        states={'readonly': Eval('state').in_(['ready_for_billing', 'billed'])})
+
+    heating_consumption_share_percent = fields.Numeric(
+        "Consumption Allocation Share (%)", digits=(5, 2),
+        domain=[
+            If(Eval('heating_billing_mode').in_(
+                ['central_heating', 'central_hot_water']),
+                [('heating_consumption_share_percent', '>=', 50),
+                    ('heating_consumption_share_percent', '<=', 70)],
+                []),
+            ],
+        states={
+            'invisible': ~Eval('heating_billing_mode').in_(
+                ['central_heating', 'central_hot_water']),
+            'required': Eval('heating_billing_mode').in_(
+                ['central_heating', 'central_hot_water']),
+            'readonly': Eval('state').in_(['ready_for_billing', 'billed']),
+            },
+        help="HeizkostenV §7/§8: percentage of heating/hot water cost "
+             "allocated by consumption. Must be between 50% and 70% "
+             "(statutory range). The remaining percentage "
+             "('Anteil nach Flächenumlage') is allocated by area and "
+             "computed automatically as 100% minus this value.")
+
+    heating_area_share_percent = fields.Function(
+        fields.Numeric("Area Allocation Share (%)", digits=(5, 2),
+            states={
+                'invisible': ~Eval('heating_billing_mode').in_(
+                    ['central_heating', 'central_hot_water']),
+                }),
+        'on_change_with_heating_area_share_percent')
+
+    heating_area_measurement_type = fields.Many2One(
+        'real_estate.measurement.type', "Area Measurement Type "
+        "(Heating Cost Split)",
+        ondelete='RESTRICT',
+        domain=[('types', '=', ['object'])],
+        states={
+            'invisible': ~Eval('heating_billing_mode').in_(
+                ['central_heating', 'central_hot_water']),
+            'required': Eval('heating_billing_mode').in_(
+                ['central_heating', 'central_hot_water']),
+            'readonly': Eval('state').in_(['ready_for_billing', 'billed']),
+            },
+        help="Which object-level measurement type to use for the "
+             "'Anteil nach Flächenumlage' portion of the heating cost "
+             "split (HeizkostenV §7/§8).")
+
+    total_value_consumption = fields.Float(
+        "Total Value Consumption", digits=(16, 4),
+        states={
+            'invisible': ~Eval('heating_billing_mode').in_(
+                ['central_heating', 'central_hot_water']),
+            'readonly': True,
+            },
+        help="Sum of 'Verbrauch (Anteil)' across all cost shares of this "
+             "settlement unit. Computed by 'Compute Value Shares' on the "
+             "billing unit.")
+
+    total_value_area = fields.Float(
+        "Total Value Area", digits=(16, 4),
+        states={
+            'invisible': ~Eval('heating_billing_mode').in_(
+                ['central_heating', 'central_hot_water']),
+            'readonly': True,
+            },
+        help="Sum of 'Fläche (Anteil)' across all cost shares of this "
+             "settlement unit. Computed by 'Compute Value Shares' on the "
+             "billing unit.")
 
     bved_fuel_data = fields.Boolean("BVED Fuel Data (B-Satz)",
         states={'readonly': Eval('state').in_(['ready_for_billing', 'billed'])},
@@ -376,6 +503,16 @@ class SettlementUnit(DeactivableMixin, base_object.re_sequence_ordered(), ModelS
         return 'no_allocation'
 
     @staticmethod
+    def default_heating_billing_mode():
+        return 'none'
+
+    @fields.depends('heating_consumption_share_percent')
+    def on_change_with_heating_area_share_percent(self, name=None):
+        if self.heating_consumption_share_percent is None:
+            return None
+        return Decimal(100) - self.heating_consumption_share_percent
+
+    @staticmethod
     def default_option_rate_method():
         return 'fix_0'
 
@@ -418,7 +555,8 @@ class SettlementUnit(DeactivableMixin, base_object.re_sequence_ordered(), ModelS
         return self.billing_unit.state if self.billing_unit else None
 
     def get_sub_state(self, name):
-        if getattr(self, 'allocation_rule', None) == 'no_allocation':
+        if getattr(self, 'allocation_rule', None) in (
+                'no_allocation', 'allocation_via_cost_collector'):
             return 'no_allocation'
         if self.cost_shares:
             states = set(cs.state for cs in self.cost_shares)
@@ -444,14 +582,23 @@ class SettlementUnit(DeactivableMixin, base_object.re_sequence_ordered(), ModelS
     def on_change_with_property(self, name=None):
         return self.billing_unit.property if self.billing_unit else None
 
+    @classmethod
+    def search_property(cls, name, clause):
+        return [('billing_unit.' + clause[0],) + tuple(clause[1:])]
+
     @fields.depends('billing_unit', '_parent_billing_unit.property')
     def on_change_with_company(self, name=None):
         return self.billing_unit.property.company if self.billing_unit else None
 
     @fields.depends(
         'billing_unit', 'reg_ex_object', 'allocation_rule', 'state', 'cost_shares',
-        '_parent_billing_unit.company', '_parent_billing_unit.property')
+        'reference_settlement_unit',
+        '_parent_billing_unit.company', '_parent_billing_unit.property',
+        '_parent_reference_settlement_unit.objects')
     def on_change_with_objects(self, name=None):
+        if self.allocation_rule == 'allocation_via_cost_collector':
+            return (list(self.reference_settlement_unit.objects)
+                if self.reference_settlement_unit else [])
         if self.state == 'billed':
             # Once billed, the objects actually covered by this settlement
             # unit are the ones that ended up with a cost share, not
@@ -619,6 +766,22 @@ class SettlementUnit(DeactivableMixin, base_object.re_sequence_ordered(), ModelS
         return self._co2_consumption_rows()
 
     @classmethod
+    def get_costs_from_references(cls, records, names):
+        result = {name: {r.id: Decimal(0) for r in records} for name in names}
+        referencing = cls.search([
+            ('reference_settlement_unit', 'in', [r.id for r in records]),
+            ])
+        for su in referencing:
+            ref_id = su.reference_settlement_unit.id
+            if 'planned_costs_from_references' in result:
+                result['planned_costs_from_references'][ref_id] += (
+                    su.planned_costs or Decimal(0))
+            if 'actual_costs_from_references' in result:
+                result['actual_costs_from_references'][ref_id] += (
+                    su.actual_costs or Decimal(0))
+        return result
+
+    @classmethod
     def set_objects(cls, objects, name, value):
         pass
 
@@ -641,20 +804,41 @@ class SettlementUnit(DeactivableMixin, base_object.re_sequence_ordered(), ModelS
     @classmethod
     def validate_fields(cls, units, field_names):
         super().validate_fields(units, field_names)
-        if 'allocation_rule' not in (field_names or {}):
+        # field_names is None on create() (check everything); on write()
+        # it lists only the fields actually being written (check only if
+        # a relevant one changed).
+        check_all = field_names is None
+        check_allocation = check_all or 'allocation_rule' in field_names
+        check_reference = (check_all or check_allocation
+            or 'reference_settlement_unit' in field_names)
+        if not (check_allocation or check_reference):
             return
         for su in units:
-            if not su.billing_unit:
-                continue
-            if su.billing_unit.external_billing:
-                if su.allocation_rule != 'allocation_from_external_billing':
+            if check_allocation and su.billing_unit:
+                if su.billing_unit.external_billing:
+                    if su.allocation_rule not in (
+                            'allocation_from_external_billing',
+                            'allocation_via_cost_collector'):
+                        raise ValidationError(gettext(
+                            'real_estate.msg_settlement_unit_allocation_rule_required_external',
+                            name=su.rec_name))
+                else:
+                    if su.allocation_rule == 'allocation_from_external_billing':
+                        raise ValidationError(gettext(
+                            'real_estate.msg_settlement_unit_allocation_rule_not_allowed_external',
+                            name=su.rec_name))
+            if check_reference and su.allocation_rule == 'allocation_via_cost_collector':
+                ref = su.reference_settlement_unit
+                if not ref:
                     raise ValidationError(gettext(
-                        'real_estate.msg_settlement_unit_allocation_rule_required_external',
+                        'real_estate.msg_settlement_unit_reference_required',
                         name=su.rec_name))
-            else:
-                if su.allocation_rule == 'allocation_from_external_billing':
+                elif (ref.id == su.id
+                        or ref.allocation_rule == 'allocation_via_cost_collector'
+                        or (su.billing_unit and ref.billing_unit
+                            and ref.billing_unit.id != su.billing_unit.id)):
                     raise ValidationError(gettext(
-                        'real_estate.msg_settlement_unit_allocation_rule_not_allowed_external',
+                        'real_estate.msg_settlement_unit_reference_invalid',
                         name=su.rec_name))
 
     @fields.depends('type', 'sequence')
@@ -697,9 +881,10 @@ class SettlementUnit(DeactivableMixin, base_object.re_sequence_ordered(), ModelS
         if self.cost_shares:
             CostShare.delete(list(self.cost_shares))
 
-        if self.allocation_rule == 'no_allocation':
+        if self.allocation_rule in ('no_allocation', 'allocation_via_cost_collector'):
             self.billing_unit.add_log('selection',
-                f'Settlement unit {self.id}: no_allocation — selection skipped.')
+                f'Settlement unit {self.id}: {self.allocation_rule}'
+                f' — selection skipped.')
             return
 
 
@@ -825,7 +1010,7 @@ class SettlementUnit(DeactivableMixin, base_object.re_sequence_ordered(), ModelS
         BaseObject = pool.get('real_estate.base_object')
         MeterReading = pool.get('real_estate.meter_reading')
 
-        if self.allocation_rule == 'no_allocation':
+        if self.allocation_rule in ('no_allocation', 'allocation_via_cost_collector'):
             return
 
         if self.allocation_rule == 'allocation_from_external_billing':
@@ -851,15 +1036,9 @@ class SettlementUnit(DeactivableMixin, base_object.re_sequence_ordered(), ModelS
             error_msg = None
 
             if self.allocation_rule == 'allocation_by_measurement':
-                MeasurementType = Pool().get('real_estate.measurement.type')
-                effective_ids = MeasurementType.get_effective_ids(self.m_type)
-                measurements = Measurement.search([
-                    ('base_object', '=', cost_share.base_object.id),
-                    ('m_type', 'in', effective_ids),
-                    ('valid_from', '<=', cost_share.end_date),
-                ], order=[('valid_from', 'DESC')], limit=1)
-                if measurements:
-                    mval = float(measurements[0].value or 0)
+                mval = Measurement.get_total_value(
+                    cost_share.base_object.id, self.m_type, cost_share.end_date)
+                if mval is not None:
                     value = (mval * cost_share.time_share / self.time_total
                              if self.time_total else mval)
                 else:
@@ -1044,6 +1223,8 @@ class SettlementUnit(DeactivableMixin, base_object.re_sequence_ordered(), ModelS
         self.value_total = total
         self.save()
 
+        self._compute_heizkostenv_split()
+
         CostShare = pool.get('real_estate.cost_share')
         vt = Decimal(str(total)) if total else Decimal(0)
 
@@ -1083,14 +1264,67 @@ class SettlementUnit(DeactivableMixin, base_object.re_sequence_ordered(), ModelS
                         adjustable[i % len(adjustable)][1] -= _cent
             return rows
 
-        planned_rows = _distribute(self.planned_costs or Decimal(0))
-        actual_rows = _distribute(self.actual_costs or Decimal(0))
+        total_planned = ((self.planned_costs or Decimal(0))
+            + (self.planned_costs_from_references or Decimal(0)))
+        total_actual = ((self.actual_costs or Decimal(0))
+            + (self.actual_costs_from_references or Decimal(0)))
+        planned_rows = _distribute(total_planned)
+        actual_rows = _distribute(total_actual)
 
         actual_by_id = {r[0].id: r[1] for r in actual_rows}
         for cost_share, planned_amount in planned_rows:
             cost_share.planned_costs = planned_amount
             cost_share.actual_costs = actual_by_id.get(cost_share.id, Decimal(0))
             cost_share.save()
+
+    def _compute_heizkostenv_split(self):
+        """HeizkostenV split (heating_billing_mode = central_heating /
+        central_hot_water): compute the raw consumption/area component
+        values needed for the legally mandated Verbrauchsumlage/
+        Flächenumlage split - independent of this settlement unit's own
+        allocation_rule, and a no-op unless heating_billing_mode is set.
+
+        - cost_share.area_share: value of heating_area_measurement_type
+          for the cost share's object, weighted by
+          time_share / self.time_total (same weighting as
+          allocation_by_measurement) - computed for every cost share.
+        - cost_share.consumption_share: only when allocation_rule is
+          'allocation_by_consumption' - the raw consumption value the
+          main computation above wrote into value_share is moved here
+          instead (value_share is reset to 0), since for a
+          HeizkostenV-split unit the raw consumption is no longer, on
+          its own, the cost-distribution basis stored in value_share.
+
+        self.total_value_consumption / self.total_value_area are the
+        sum of these two fields across all of this unit's cost shares.
+        """
+        if self.heating_billing_mode not in (
+                'central_heating', 'central_hot_water'):
+            return
+        Measurement = Pool().get('real_estate.measurement')
+        total_consumption = 0.0
+        total_area = 0.0
+        for cost_share in self.cost_shares:
+            if not cost_share.base_object:
+                continue
+            if self.allocation_rule == 'allocation_by_consumption':
+                cost_share.consumption_share = cost_share.value_share or 0.0
+                cost_share.value_share = 0.0
+                total_consumption += cost_share.consumption_share
+            if self.heating_area_measurement_type:
+                mval = Measurement.get_total_value(
+                    cost_share.base_object.id,
+                    self.heating_area_measurement_type, cost_share.end_date)
+                if mval is not None:
+                    area = round(
+                        mval * cost_share.time_share / self.time_total
+                        if self.time_total else mval, 4)
+                    cost_share.area_share = area
+                    total_area += area
+            cost_share.save()
+        self.total_value_consumption = round(total_consumption, 4)
+        self.total_value_area = round(total_area, 4)
+        self.save()
 
     def _compute_value_shares_external(self):
         """For allocation_from_external_billing.
@@ -1123,9 +1357,12 @@ class SettlementUnit(DeactivableMixin, base_object.re_sequence_ordered(), ModelS
                 cs.state = 'value_share'
                 cs.error_message = ''
                 cs.save()
-            self.planned_costs = Decimal(0)
-            self.value_total = float(self.actual_costs or 0)
+            combined_actual = ((self.actual_costs or Decimal(0))
+                + (self.actual_costs_from_references or Decimal(0)))
+            self.planned_costs = self.planned_costs_from_references or Decimal(0)
+            self.value_total = float(combined_actual)
             self.save()
+            self._compute_heizkostenv_split()
         else:
             # Classic mode: values must be entered per CostShare
             total_actual = Decimal(0)
@@ -1148,6 +1385,7 @@ class SettlementUnit(DeactivableMixin, base_object.re_sequence_ordered(), ModelS
                 self.planned_costs = total_planned
                 self.value_total = float(total_actual)
                 self.save()
+                self._compute_heizkostenv_split()
 
     def billing(self, selection_on=False):
         if self.state == 'billed':
@@ -1160,7 +1398,8 @@ class SettlementUnit(DeactivableMixin, base_object.re_sequence_ordered(), ModelS
                 name=self.rec_name, state=self.state))
 
         if selection_on:
-            if self.allocation_rule != 'no_allocation':
+            if self.allocation_rule not in (
+                    'no_allocation', 'allocation_via_cost_collector'):
                 self.selection()
 
     @classmethod
@@ -1171,6 +1410,7 @@ class SettlementUnit(DeactivableMixin, base_object.re_sequence_ordered(), ModelS
             bool_op = 'OR'
 
         return [bool_op,
+            ('type.name',) + tuple(clause[1:]),
             ('property.name',) + tuple(clause[1:]),
             ('comment',) + tuple(clause[1:]),
         ]

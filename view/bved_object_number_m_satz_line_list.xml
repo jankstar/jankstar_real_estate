@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<tree sequence="sequence">
+    <field name="occupancy_start"/>
+    <field name="occupancy_end"/>
+    <field name="vacancy_flag"/>
+    <field name="tenant_name1"/>
+</tree>

@@ -52,6 +52,31 @@ class CostShare(DeactivableMixin, ModelSQL, ModelView):
     value_share = fields.Float('Value Share', digits=(16, 4),
         states={'readonly': True},)
 
+    heating_billing_mode = fields.Function(
+        fields.Selection('get_heating_billing_modes', 'Heating Cost Billing'),
+        'on_change_with_heating_billing_mode')
+
+    consumption_share = fields.Float('Consumption Share', digits=(16, 4),
+        states={
+            'invisible': ~Eval('heating_billing_mode').in_(
+                ['central_heating', 'central_hot_water']),
+            'readonly': True,
+            },
+        help="Raw consumption value for this cost share (allocation_rule "
+             "'Allocation by consumption' on a HeizkostenV-split "
+             "settlement unit) - moved here instead of 'Value Share', "
+             "see 'real_estate.settlement_unit.heating_billing_mode'.")
+
+    area_share = fields.Float('Area Share', digits=(16, 4),
+        states={
+            'invisible': ~Eval('heating_billing_mode').in_(
+                ['central_heating', 'central_hot_water']),
+            'readonly': True,
+            },
+        help="Value of the settlement unit's 'Area Measurement Type "
+             "(Heating Cost Split)' for this cost share's object, "
+             "weighted by time_share / settlement_unit.time_total.")
+
     time_share = fields.Function(fields.Integer('Time Share (days)'),
         'on_change_with_time_share')
 
@@ -110,6 +135,18 @@ class CostShare(DeactivableMixin, ModelSQL, ModelView):
         if self.settlement_unit:
             return self.settlement_unit.allocation_rule == 'allocation_from_external_billing'
         return False
+
+    @staticmethod
+    def get_heating_billing_modes():
+        pool = Pool()
+        SettlementUnit = pool.get('real_estate.settlement_unit')
+        return SettlementUnit.fields_get(
+            ['heating_billing_mode'])['heating_billing_mode']['selection']
+
+    @fields.depends('settlement_unit', '_parent_settlement_unit.heating_billing_mode')
+    def on_change_with_heating_billing_mode(self, name=None):
+        return (self.settlement_unit.heating_billing_mode
+            if self.settlement_unit else None)
 
     @fields.depends('settlement_unit', '_parent_settlement_unit.currency')
     def on_change_with_currency(self, name=None):
@@ -314,17 +351,17 @@ class SettlementResult(ModelSQL, ModelView):
     bved_matched_lines = fields.Function(
         fields.One2Many('real_estate.bved.import.line', None,
             "BVED Lines", readonly=True),
-        'on_change_with_bved_matched_lines')
+        'on_change_with_bved_matched_lines', setter='set_bved_matched_lines')
 
     bved_e835_lines = fields.Function(
         fields.One2Many('real_estate.bved.import.line', None, "E835 Lines",
             readonly=True),
-        'on_change_with_bved_e835_lines')
+        'on_change_with_bved_e835_lines', setter='set_bved_e835_lines')
 
     bved_p_lines = fields.Function(
         fields.One2Many('real_estate.bved.import.line', None, "P-Satz Lines",
             readonly=True),
-        'on_change_with_bved_p_lines')
+        'on_change_with_bved_p_lines', setter='set_bved_p_lines')
 
     bved_e835_labor_share_user_total = fields.Function(
         Monetary("E835 Labor Share (User)", currency='currency',
@@ -404,6 +441,18 @@ class SettlementResult(ModelSQL, ModelView):
         P ones with a dedicated rollup, so the user can see the full set
         of what Match found, including a not-yet-applied D-Satz line."""
         return self._bved_lines()
+
+    @classmethod
+    def set_bved_matched_lines(cls, records, name, value):
+        pass
+
+    @classmethod
+    def set_bved_e835_lines(cls, records, name, value):
+        pass
+
+    @classmethod
+    def set_bved_p_lines(cls, records, name, value):
+        pass
 
     @fields.depends('id', methods=['on_change_with_bved_e835_lines'])
     def on_change_with_bved_e835_labor_share_user_total(self, name=None):

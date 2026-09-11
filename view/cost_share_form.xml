@@ -18,5 +18,8 @@
     <label name="actual_costs"/><field name="actual_costs"/>
     <label name="currency"/><field name="currency" readonly="1"/>
     <newline/>
+    <label name="consumption_share"/><field name="consumption_share" readonly="1"/>
+    <label name="area_share"/><field name="area_share" readonly="1"/>
+    <newline/>
     <label name="error_message"/><field name="error_message" colspan="4" readonly="1"/>
 </form>

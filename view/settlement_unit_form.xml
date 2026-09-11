@@ -24,8 +24,10 @@
             <label name="type"/><field name="type"/>
             <newline/>
             <label name="allocation_rule"/><field name="allocation_rule"/>
-            <label name="proportional_calculation"/><field name="proportional_calculation"/>            
+            <label name="proportional_calculation"/><field name="proportional_calculation"/>
             <label name="vacancy"/><field name="vacancy"/>
+            <newline/>
+            <label name="reference_settlement_unit"/><field name="reference_settlement_unit"/>
             <newline/>
             <label name="m_type"/><field name="m_type"/>
             <label name="meter_unit"/><field name="meter_unit"/>
@@ -34,10 +36,23 @@
             <label name="actual_costs"/><field name="actual_costs"/>
             <label name="currency"/><field name="currency"/>
             <newline/>
+            <label name="planned_costs_from_references"/><field name="planned_costs_from_references" readonly="1"/>
+            <label name="actual_costs_from_references"/><field name="actual_costs_from_references" readonly="1"/>
+            <newline/>
             <label name="value_total"/><field name="value_total"/>
             <label name="time_total"/><field name="time_total"/>
             <newline/>
             <label name="predecessor"/><field name="predecessor" readonly="1"/>
+            <newline/>
+            <separator name="heating_billing_mode" colspan="6"/>
+            <label name="heating_billing_mode"/><field name="heating_billing_mode"/>
+            <newline/>
+            <label name="heating_area_measurement_type"/><field name="heating_area_measurement_type" colspan="3"/>            <newline/>
+            <label name="heating_consumption_share_percent"/><field name="heating_consumption_share_percent"/>
+            <label name="heating_area_share_percent"/><field name="heating_area_share_percent" readonly="1"/>
+            <newline/>
+            <label name="total_value_consumption"/><field name="total_value_consumption" readonly="1"/>
+            <label name="total_value_area"/><field name="total_value_area" readonly="1"/>
             <newline/>
             <label name="bved_fuel_data"/><field name="bved_fuel_data" xexpand="0" width="15"/>
             <newline/>

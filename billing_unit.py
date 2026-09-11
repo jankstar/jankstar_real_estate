@@ -133,9 +133,9 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
         ondelete='RESTRICT',
         domain=[
             ('base_object', 'child_of', [Eval('property', -1)], 'parent'),
-            ('valid_from', '<=', Eval('start_date')),
+            ('valid_from', '<=', Eval('start_date', None)),
             ['OR', ('valid_to', '=', None),
-                ('valid_to', '>=', Eval('start_date'))],
+                ('valid_to', '>=', Eval('start_date', None))],
             ],
         states={
             'invisible': ~Eval('external_billing', False),
@@ -152,7 +152,7 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
             "BVED Object Numbers",
             states={'invisible': ~Eval('external_billing', False)},
             depends=['external_billing']),
-        'get_bved_object_numbers')
+        'get_bved_object_numbers', setter='set_bved_object_numbers')
 
     billing_type = fields.Selection([
         ('planned_billing', 'Planned Billing'),
@@ -214,6 +214,13 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
         'on_change_with_cash_flow_lines', setter='set_cash_flow_lines')
 
     settlment_results = fields.One2Many('real_estate.settlement_result', 'billing_unit', 'Settlement Results')
+
+    rental_objects = fields.Function(
+        fields.One2Many('real_estate.base_object', None, "Rental Objects",
+            readonly=True,
+            help="Distinct rental objects referenced by this billing "
+                 "unit's own settlement results."),
+        'on_change_with_rental_objects', setter='set_rental_objects')
 
     moves = fields.One2Many('real_estate.billing_unit.moves', 'billing_unit', 'Moves')
 
@@ -322,7 +329,7 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
                  "units that overlap the billing unit's period.",
             states={'invisible': _co2_residential_invisible},
             depends=['co2_relevant', 'non_residential_flag']),
-        'on_change_with_co2_consumptions')
+        'on_change_with_co2_consumptions', setter='set_co2_consumptions')
 
     co2_total_consumption = fields.Function(
         fields.Float("Total Consumption (kWh)",
@@ -489,21 +496,13 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
         objects = self._co2_objects()
         if not objects:
             return None
-        pool = Pool()
-        MeasurementType = pool.get('real_estate.measurement.type')
-        Measurement = pool.get('real_estate.measurement')
-        effective_ids = MeasurementType.get_effective_ids(self.co2_measurement_type)
-        if not effective_ids:
-            return None
+        Measurement = Pool().get('real_estate.measurement')
         total = 0.0
         for obj in objects:
-            measurements = Measurement.search([
-                ('base_object', '=', obj.id),
-                ('m_type', 'in', effective_ids),
-                ('valid_from', '<=', self.end_date),
-                ], order=[('valid_from', 'DESC')], limit=1)
-            if measurements:
-                total += float(measurements[0].value or 0)
+            value = Measurement.get_total_value(
+                obj.id, self.co2_measurement_type, self.end_date)
+            if value:
+                total += value
         return total
 
     @fields.depends('settlement_units', 'co2_measurement_type', 'start_date',
@@ -670,16 +669,35 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
                 billing_unit.add_log('selection',
                     f'Deleted {len(existing_results)} settlement result(s)'
                     f' before re-selection.')
+                if billing_unit.state == 'ready_for_billing':
+                    # Settlement results only exist once
+                    # check_ready_for_billing has run, so having any here
+                    # means the billing unit already reached
+                    # 'ready_for_billing'. su.selection() below rejects
+                    # that state (only 'approved'/'selection'/
+                    # 'value_share' are allowed - see
+                    # SettlementUnit.state, mirrored 1:1 from
+                    # billing_unit.state), so after the user confirmed
+                    # the warning and the stale results were deleted
+                    # above, the billing unit must be moved back to
+                    # 'value_share' as well - same reset already done in
+                    # compute_settlement_result() for the same reason.
+                    cls.write([billing_unit], {'state': 'value_share'})
+                    billing_unit.add_log('state_change',
+                        'billing unit state reset from ready_for_billing'
+                        ' to value_share before re-selection.')
 
             for su in billing_unit.settlement_units:
                 su.selection()
             sus = SettlementUnit.browse(
                 [su.id for su in billing_unit.settlement_units])
-            # no_allocation SUs create no cost_shares (sub_state stays
-            # 'preparation') — they count as done for the transition check.
+            # no_allocation/allocation_via_cost_collector SUs create no
+            # cost_shares (sub_state stays 'preparation') — they count as
+            # done for the transition check.
             all_selection = all(
                 su.sub_state == 'selection'
-                or su.allocation_rule == 'no_allocation'
+                or su.allocation_rule in (
+                    'no_allocation', 'allocation_via_cost_collector')
                 for su in sus)
             if all_selection and billing_unit.state in ('approved', 'selection',
                     'value_share'):
@@ -710,7 +728,18 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
                     f'Deleted {len(existing_results)} settlement result(s)'
                     f' before recomputing value shares.')
 
-            for su in billing_unit.settlement_units:
+            # 'allocation_via_cost_collector' units must run first: they
+            # aggregate their own actual/planned costs (via
+            # selection_actual_costs()) which the settlement unit they
+            # reference then reads (via planned_costs_from_references /
+            # actual_costs_from_references) while computing its own
+            # value shares.
+            sus_ordered = sorted(
+                billing_unit.settlement_units,
+                key=lambda su: (
+                    0 if su.allocation_rule == 'allocation_via_cost_collector'
+                    else 1))
+            for su in sus_ordered:
                 su.compute_value_shares()
             sus = SettlementUnit.browse(
                 [su.id for su in billing_unit.settlement_units])
@@ -723,10 +752,12 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
                     + ', '.join(su.name or str(su.id) for su in error_sus))
                 billing_unit.save()
                 continue
-            # no_allocation SUs never reach sub_state 'value_share' — treat as done
+            # no_allocation/allocation_via_cost_collector SUs never reach
+            # sub_state 'value_share' — treat as done
             all_value_share = all(
                 su.sub_state == 'value_share'
-                or su.allocation_rule == 'no_allocation'
+                or su.allocation_rule in (
+                    'no_allocation', 'allocation_via_cost_collector')
                 for su in sus)
             if all_value_share:
                 billing_unit.add_log('state_change',
@@ -855,7 +886,8 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
 
             not_value_share = [su for su in (bu.settlement_units or [])
                 if su.sub_state not in ('value_share',)
-                and (su.allocation_rule or '') != 'no_allocation']
+                and (su.allocation_rule or '') not in (
+                    'no_allocation', 'allocation_via_cost_collector')]
             if not_value_share:
                 details = '\n'.join(
                     f'  {su.name or str(su.id)} [{su.sub_state or "?"}]'
@@ -1419,12 +1451,30 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
             )
             new_bu.save()
 
-            for su in template.settlement_units:
+            # Settlement units using 'allocation_via_cost_collector' must
+            # reference the newly-copied successor of their own reference
+            # settlement unit, not the old (template) one. Since a
+            # reference settlement unit is itself never allowed to use
+            # this same rule (no chaining, enforced in validate_fields),
+            # copying all non-cost-collector units first guarantees the
+            # successor of any reference is already in su_map by the time
+            # the referencing (cost-collector) units are copied.
+            su_map = {}
+            ordered = sorted(
+                template.settlement_units,
+                key=lambda su: (
+                    1 if su.allocation_rule == 'allocation_via_cost_collector'
+                    else 0))
+            for su in ordered:
+                new_reference = (
+                    su_map[su.reference_settlement_unit.id]
+                    if su.reference_settlement_unit else None)
                 new_su = SettlementUnit(
                     billing_unit=new_bu,
                     sequence=su.sequence,
                     type=su.type,
                     allocation_rule=su.allocation_rule,
+                    reference_settlement_unit=new_reference,
                     vacancy=su.vacancy,
                     m_type=su.m_type,
                     planned_costs=su.actual_costs,
@@ -1435,6 +1485,7 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
                     predecessor=su,
                 )
                 new_su.save()
+                su_map[su.id] = new_su
 
             template.add_log('duplicate_next_period',
                 f'Created successor billing unit {new_bu.name} for next period.')
@@ -1669,7 +1720,8 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
     def on_change_external_billing(self):
         if self.external_billing:
             for su in (self.settlement_units or []):
-                su.allocation_rule = 'allocation_from_external_billing'
+                if su.allocation_rule != 'allocation_via_cost_collector':
+                    su.allocation_rule = 'allocation_from_external_billing'
 
     @staticmethod
     def get_sub_states():
@@ -1760,6 +1812,18 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
 
     @classmethod
     def set_cash_flow_lines(cls, records, name, value):
+        pass
+
+    @classmethod
+    def set_bved_object_numbers(cls, records, name, value):
+        pass
+
+    @classmethod
+    def set_co2_consumptions(cls, records, name, value):
+        pass
+
+    @classmethod
+    def set_rental_objects(cls, records, name, value):
         pass
 
     def _get_cost_shares(self):
@@ -1900,10 +1964,14 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
     def check_external_billing_rule(self):
         for su in (self.settlement_units or []):
             if self.external_billing:
-                if su.allocation_rule != 'allocation_from_external_billing':
+                if su.allocation_rule not in (
+                        'allocation_from_external_billing',
+                        'allocation_via_cost_collector'):
                     raise InvalidExternalBillingRule(
                         f"Settlement unit '{su.rec_name}': allocation rule must be "
-                        f"'Allocation from external billing' when external billing is set on the billing unit.")
+                        f"'Allocation from external billing' or 'Allocation via "
+                        f"cost collector' when external billing is set on the "
+                        f"billing unit.")
             else:
                 if su.allocation_rule == 'allocation_from_external_billing':
                     raise InvalidExternalBillingRule(
@@ -1919,6 +1987,44 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
             if su.allocation_rule != 'no_allocation'
             for obj in (su.objects or [])
             })
+
+    def settlement_result_objects(self):
+        """Distinct rental objects (base_object) referenced by this
+        billing unit's own settlement results, in result order - the
+        objects that actually ended up in the annual settlement, as
+        opposed to bved_covered_object_ids() (derived from
+        settlement_unit.objects and used for BVED A-/D-Satz matching,
+        which can include objects that never received a settlement
+        result, e.g. an object excluded during selection())."""
+        seen_ids = set()
+        objects = []
+        for result in (self.settlment_results or []):
+            if result.base_object and result.base_object.id not in seen_ids:
+                seen_ids.add(result.base_object.id)
+                objects.append(result.base_object)
+        return objects
+
+    def covered_rental_objects(self):
+        """Rental objects (base_object) of this billing unit to use for
+        area/L-Satz purposes: prefers settlement_result_objects() (the
+        objects that actually ended up with a settlement result, same as
+        the 'Rental Objects' tab); falls back to the objects covered by
+        this billing unit's own settlement units
+        (bved_covered_object_ids()) if no settlement result exists yet
+        (e.g. before "Compute Settlement Results" has run). Callers
+        outside this model (e.g. BVED) should always go through this
+        single method rather than re-deriving the object set themselves."""
+        objects = self.settlement_result_objects()
+        if objects:
+            return objects
+        covered_ids = self.bved_covered_object_ids()
+        if not covered_ids:
+            return []
+        return Pool().get('real_estate.base_object').browse(covered_ids)
+
+    @fields.depends('settlment_results')
+    def on_change_with_rental_objects(self, name=None):
+        return self.settlement_result_objects()
 
     def get_bved_object_numbers(self, name=None):
         if not self.bved_provider_assignment:

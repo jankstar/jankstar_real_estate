@@ -1023,30 +1023,29 @@ class ContractTerm(sequence_ordered(), ModelSQL, ModelView, TaxableMixin):
         of the given ContractItem. Returns None when no object has a matching
         measurement so the caller can fall back to the default quantity.
 
-        If m_type is a group, all child types are included in the search.
-        If no exact m_type match is found on an object (and m_type is not a
-        group), a fallback checks for any measurement with the same unit."""
+        Hierarchy-aware: if m_type is a group ("Summenbemessung"), all its
+        effective leaf types are considered per object via
+        Measurement.get_total_value() - so an object carrying measurements
+        under several sibling leaf types of the group contributes all of
+        them, not just whichever is most recently dated. If no measurement
+        resolves at all for an object (and m_type is not itself a group), a
+        fallback checks for any measurement with the same unit."""
         if not m_type:
             return None
-        MeasurementType = Pool().get('real_estate.measurement.type')
-        effective_ids = set(MeasurementType.get_effective_ids(m_type))
+        Measurement = Pool().get('real_estate.measurement')
         m_type_unit = m_type.unit
         total = None
         for item_obj in (ref_item.objects or []):
             obj = item_obj.object
             if not obj or not obj.measurements:
                 continue
-            meas_sorted = sorted(
-                obj.measurements, key=lambda x: x.valid_from, reverse=True)
-            found = False
-            for meas in meas_sorted:
-                if (meas.m_type and meas.m_type.id in effective_ids and (
-                        reference_date is None
-                        or meas.valid_from <= reference_date)):
-                    total = (total or Decimal(0)) + Decimal(str(meas.value))
-                    found = True
-                    break
-            if not found and m_type_unit and not m_type.is_group:
+            mval = Measurement.get_total_value(obj.id, m_type, reference_date)
+            if mval is not None:
+                total = (total or Decimal(0)) + Decimal(str(mval))
+                continue
+            if m_type_unit and not m_type.is_group:
+                meas_sorted = sorted(
+                    obj.measurements, key=lambda x: x.valid_from, reverse=True)
                 for meas in meas_sorted:
                     if (meas.m_type and meas.m_type.unit == m_type_unit and (
                             reference_date is None

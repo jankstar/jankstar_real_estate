@@ -1,0 +1,94 @@
+<?xml version="1.0"?>
+<form col="2">
+    <separator name="record_type" colspan="2" string="Identification (Fields 1-6)"/>
+    <label name="record_type"/><field name="record_type"/>
+    <label name="arge_version"/><field name="arge_version"/>
+    <label name="customer_number"/><field name="customer_number"/>
+    <label name="provider_key"/><field name="provider_key"/>
+    <label name="provider_reference"/><field name="provider_reference"/>
+    <label name="internal_reference"/><field name="internal_reference"/>
+
+    <separator name="address_flag" colspan="2" string="Tenant (Fields 7-15)"/>
+    <label name="address_flag"/><field name="address_flag"/>
+    <label name="tenant_name1"/><field name="tenant_name1"/>
+    <label name="tenant_name2"/><field name="tenant_name2"/>
+    <label name="tenant_name3"/><field name="tenant_name3"/>
+    <label name="tenant_name4"/><field name="tenant_name4"/>
+    <label name="tenant_street"/><field name="tenant_street"/>
+    <label name="tenant_country"/><field name="tenant_country"/>
+    <label name="tenant_postal_code"/><field name="tenant_postal_code"/>
+    <label name="tenant_city"/><field name="tenant_city"/>
+
+    <separator name="owner_name1" colspan="2" string="Owner (Fields 16-23)"/>
+    <label name="owner_name1"/><field name="owner_name1"/>
+    <label name="owner_name2"/><field name="owner_name2"/>
+    <label name="owner_name3"/><field name="owner_name3"/>
+    <label name="owner_name4"/><field name="owner_name4"/>
+    <label name="owner_street"/><field name="owner_street"/>
+    <label name="owner_country"/><field name="owner_country"/>
+    <label name="owner_postal_code"/><field name="owner_postal_code"/>
+    <label name="owner_city"/><field name="owner_city"/>
+
+    <separator name="occupancy_start" colspan="2" string="Occupancy Period (Field 24)"/>
+    <label name="occupancy_start"/><field name="occupancy_start"/>
+    <label name="occupancy_end"/><field name="occupancy_end"/>
+
+    <separator name="vat_treatment_flag" colspan="2"
+        string="VAT / Vacancy Risk / Heating-Hotwater-Coldwater Shares (Fields 25-35)"/>
+    <label name="vat_treatment_flag"/><field name="vat_treatment_flag"/>
+    <label name="vacancy_risk_calc_flag"/><field name="vacancy_risk_calc_flag"/>
+    <label name="heating_base_share"/><field name="heating_base_share"/>
+    <label name="heating_advance_gross"/><field name="heating_advance_gross"/>
+    <label name="heating_advance_net"/><field name="heating_advance_net"/>
+    <label name="hotwater_base_share"/><field name="hotwater_base_share"/>
+    <label name="hotwater_advance_gross"/><field name="hotwater_advance_gross"/>
+    <label name="hotwater_advance_net"/><field name="hotwater_advance_net"/>
+    <label name="coldwater_base_share"/><field name="coldwater_base_share"/>
+    <label name="coldwater_advance_gross"/><field name="coldwater_advance_gross"/>
+    <label name="coldwater_advance_net"/><field name="coldwater_advance_net"/>
+
+    <separator name="allocation1_key" colspan="2" string="Allocations (Fields 36-41)"/>
+    <label name="allocation1_key"/><field name="allocation1_key"/>
+    <label name="allocation1_share"/><field name="allocation1_share"/>
+    <label name="allocation2_key"/><field name="allocation2_key"/>
+    <label name="allocation2_share"/><field name="allocation2_share"/>
+    <label name="allocation3_key"/><field name="allocation3_key"/>
+    <label name="allocation3_share"/><field name="allocation3_share"/>
+
+    <separator name="provider_org_name1" colspan="2" string="Provider Organization (Fields 42-49)"/>
+    <label name="provider_org_name1"/><field name="provider_org_name1"/>
+    <label name="provider_org_name2"/><field name="provider_org_name2"/>
+    <label name="provider_org_name3"/><field name="provider_org_name3"/>
+    <label name="provider_org_name4"/><field name="provider_org_name4"/>
+    <label name="provider_org_street"/><field name="provider_org_street"/>
+    <label name="provider_org_country"/><field name="provider_org_country"/>
+    <label name="provider_org_postal_code"/><field name="provider_org_postal_code"/>
+    <label name="provider_org_city"/><field name="provider_org_city"/>
+
+    <separator name="tax_id_flag" colspan="2" string="Tax / Invoice / Bank / Payment (Fields 50-58)"/>
+    <label name="tax_id_flag"/><field name="tax_id_flag"/>
+    <label name="tax_id"/><field name="tax_id"/>
+    <label name="tax_rate_flag"/><field name="tax_rate_flag"/>
+    <label name="invoice_number_flag"/><field name="invoice_number_flag"/>
+    <label name="invoice_number"/><field name="invoice_number"/>
+    <label name="bank_account_number"/><field name="bank_account_number"/>
+    <label name="bank_code"/><field name="bank_code"/>
+    <label name="company_flag"/><field name="company_flag"/>
+    <label name="direct_debit_flag"/><field name="direct_debit_flag"/>
+
+    <separator name="debtor_name1" colspan="2" string="Debtor (Fields 59-66)"/>
+    <label name="debtor_name1"/><field name="debtor_name1"/>
+    <label name="debtor_name2"/><field name="debtor_name2"/>
+    <label name="debtor_name3"/><field name="debtor_name3"/>
+    <label name="debtor_name4"/><field name="debtor_name4"/>
+    <label name="debtor_street"/><field name="debtor_street"/>
+    <label name="debtor_country"/><field name="debtor_country"/>
+    <label name="debtor_postal_code"/><field name="debtor_postal_code"/>
+    <label name="debtor_city"/><field name="debtor_city"/>
+
+    <separator name="vacancy_flag" colspan="2" string="Other Flags/Keys (Fields 67-70)"/>
+    <label name="vacancy_flag"/><field name="vacancy_flag"/>
+    <label name="tenant_change_fee_flag"/><field name="tenant_change_fee_flag"/>
+    <label name="heating_base_key"/><field name="heating_base_key"/>
+    <label name="hotwater_base_key"/><field name="hotwater_base_key"/>
+</form>

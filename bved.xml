@@ -10,6 +10,39 @@
             sequence="55"
             id="menu_bved_external_billing"/>
 
+        <!-- real_estate.bved.unit: own list/form views + menu -->
+        <record model="ir.ui.view" id="bved_unit_view_list">
+            <field name="model">real_estate.bved.unit</field>
+            <field name="type">tree</field>
+            <field name="name">bved_unit_list</field>
+        </record>
+        <record model="ir.ui.view" id="bved_unit_view_form">
+            <field name="model">real_estate.bved.unit</field>
+            <field name="type">form</field>
+            <field name="name">bved_unit_form</field>
+        </record>
+
+        <record model="ir.action.act_window" id="act_bved_unit">
+            <field name="name">BVED Units</field>
+            <field name="res_model">real_estate.bved.unit</field>
+        </record>
+        <record model="ir.action.act_window.view" id="act_bved_unit_view1">
+            <field name="sequence" eval="10"/>
+            <field name="view" ref="bved_unit_view_list"/>
+            <field name="act_window" ref="act_bved_unit"/>
+        </record>
+        <record model="ir.action.act_window.view" id="act_bved_unit_view2">
+            <field name="sequence" eval="20"/>
+            <field name="view" ref="bved_unit_view_form"/>
+            <field name="act_window" ref="act_bved_unit"/>
+        </record>
+
+        <menuitem
+            parent="menu_bved_external_billing"
+            sequence="5"
+            action="act_bved_unit"
+            id="menu_bved_unit"/>
+
         <!-- real_estate.bved.service_provider: own list/form views + menu -->
         <record model="ir.ui.view" id="bved_service_provider_view_list">
             <field name="model">real_estate.bved.service_provider</field>
@@ -114,6 +147,19 @@
             sequence="30"
             action="act_bved_object_number"
             id="menu_bved_object_number"/>
+
+        <!-- real_estate.bved.object_number.m_satz_line: list/form views,
+             embedded only in bved_object_number_form (no own menu/action) -->
+        <record model="ir.ui.view" id="bved_object_number_m_satz_line_view_list">
+            <field name="model">real_estate.bved.object_number.m_satz_line</field>
+            <field name="type">tree</field>
+            <field name="name">bved_object_number_m_satz_line_list</field>
+        </record>
+        <record model="ir.ui.view" id="bved_object_number_m_satz_line_view_form">
+            <field name="model">real_estate.bved.object_number.m_satz_line</field>
+            <field name="type">form</field>
+            <field name="name">bved_object_number_m_satz_line_form</field>
+        </record>
 
         <!-- real_estate.bved.export: own list/form views + menu (Operation Costs) -->
         <record model="ir.ui.view" id="bved_export_view_list">
@@ -254,6 +300,39 @@
             <field name="rule_group" ref="rule_group_bved_provider_assignment_companies"/>
         </record>
 
+        <!-- BvedUnit: admin+billing CRUD, contract+object read (shared master data, not company-scoped) -->
+        <record model="ir.model.access" id="access_bved_unit_admin">
+            <field name="model">real_estate.bved.unit</field>
+            <field name="group" ref="group_real_estate_admin"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+        <record model="ir.model.access" id="access_bved_unit_billing">
+            <field name="model">real_estate.bved.unit</field>
+            <field name="group" ref="group_real_estate_billing"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+        <record model="ir.model.access" id="access_bved_unit_contract">
+            <field name="model">real_estate.bved.unit</field>
+            <field name="group" ref="group_real_estate_contract"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_bved_unit_default">
+            <field name="model">real_estate.bved.unit</field>
+            <field name="perm_read" eval="False"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+
         <!-- BvedServiceProvider: admin+billing CRUD, contract+object read (shared master data, not company-scoped) -->
         <record model="ir.model.access" id="access_bved_service_provider_admin">
             <field name="model">real_estate.bved.service_provider</field>
@@ -353,6 +432,47 @@
             <field name="perm_delete" eval="False"/>
         </record>
 
+        <record model="ir.model.button" id="bved_object_number_refresh_m_satz_preview_button">
+            <field name="model">real_estate.bved.object_number</field>
+            <field name="name">refresh_m_satz_preview</field>
+            <field name="string">Refresh M-Satz Preview</field>
+        </record>
+
+        <!-- BvedObjectNumberMSatzLine: same pattern as BvedObjectNumber -
+             generated/deleted only via the refresh_m_satz_preview button,
+             never edited directly (all fields readonly) -->
+        <record model="ir.model.access" id="access_bved_object_number_m_satz_line_admin">
+            <field name="model">real_estate.bved.object_number.m_satz_line</field>
+            <field name="group" ref="group_real_estate_admin"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+        <record model="ir.model.access" id="access_bved_object_number_m_satz_line_billing">
+            <field name="model">real_estate.bved.object_number.m_satz_line</field>
+            <field name="group" ref="group_real_estate_billing"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+        <record model="ir.model.access" id="access_bved_object_number_m_satz_line_contract">
+            <field name="model">real_estate.bved.object_number.m_satz_line</field>
+            <field name="group" ref="group_real_estate_contract"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_bved_object_number_m_satz_line_default">
+            <field name="model">real_estate.bved.object_number.m_satz_line</field>
+            <field name="perm_read" eval="False"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+
         <!-- BvedExportBillingUnit: admin+billing CRUD (M2M relation table, managed via BvedExport.billing_units) -->
         <record model="ir.model.access" id="access_bved_export_billing_unit_admin">
             <field name="model">real_estate.bved.export-billing_unit</field>
@@ -411,6 +531,17 @@
             <field name="perm_delete" eval="False"/>
         </record>
 
+        <record model="ir.model.button" id="bved_export_generate_button">
+            <field name="model">real_estate.bved.export</field>
+            <field name="name">generate</field>
+            <field name="string">Generate</field>
+        </record>
+        <record model="ir.model.button" id="bved_export_mark_sent_button">
+            <field name="model">real_estate.bved.export</field>
+            <field name="name">mark_sent</field>
+            <field name="string">Mark Sent</field>
+        </record>
+
         <!-- BvedImport: admin+billing CRUD, contract+object read -->
         <record model="ir.model.access" id="access_bved_import_admin">
             <field name="model">real_estate.bved.import</field>
@@ -442,6 +573,22 @@
             <field name="perm_write" eval="False"/>
             <field name="perm_create" eval="False"/>
             <field name="perm_delete" eval="False"/>
+        </record>
+
+        <record model="ir.model.button" id="bved_import_parse_button">
+            <field name="model">real_estate.bved.import</field>
+            <field name="name">parse</field>
+            <field name="string">Parse</field>
+        </record>
+        <record model="ir.model.button" id="bved_import_match_button">
+            <field name="model">real_estate.bved.import</field>
+            <field name="name">match</field>
+            <field name="string">Match</field>
+        </record>
+        <record model="ir.model.button" id="bved_import_apply_button">
+            <field name="model">real_estate.bved.import</field>
+            <field name="name">apply</field>
+            <field name="string">Apply</field>
         </record>
 
         <!-- BvedImportLine: admin+billing CRUD (import.line rows are written by
@@ -476,6 +623,128 @@
             <field name="perm_write" eval="False"/>
             <field name="perm_create" eval="False"/>
             <field name="perm_delete" eval="False"/>
+        </record>
+
+        <!-- BVED Tabelle 'E' - Einheiten/Maßeinheiten (see
+             rechercheergebnis-bved-schnittstelle.md and
+             bved_records.TABLE_E). measurement_type is left unset here -
+             mapping to a real_estate measurement type is a per-database
+             configuration decision, done via the BVED Units list. -->
+        <record model="real_estate.bved.unit" id="bved_unit_001">
+            <field name="code">001</field>
+            <field name="description">GJ</field>
+        </record>
+        <record model="real_estate.bved.unit" id="bved_unit_002">
+            <field name="code">002</field>
+            <field name="description">MWh</field>
+        </record>
+        <record model="real_estate.bved.unit" id="bved_unit_003">
+            <field name="code">003</field>
+            <field name="description">m³</field>
+        </record>
+        <record model="real_estate.bved.unit" id="bved_unit_004">
+            <field name="code">004</field>
+            <field name="description">kcal</field>
+        </record>
+        <record model="real_estate.bved.unit" id="bved_unit_005">
+            <field name="code">005</field>
+            <field name="description">kWh</field>
+        </record>
+        <record model="real_estate.bved.unit" id="bved_unit_010">
+            <field name="code">010</field>
+            <field name="description">m² Wohnfläche</field>
+        </record>
+        <record model="real_estate.bved.unit" id="bved_unit_011">
+            <field name="code">011</field>
+            <field name="description">m² beheizte Wohnfläche</field>
+        </record>
+        <record model="real_estate.bved.unit" id="bved_unit_012">
+            <field name="code">012</field>
+            <field name="description">m³ umbauter Raum</field>
+        </record>
+        <record model="real_estate.bved.unit" id="bved_unit_014">
+            <field name="code">014</field>
+            <field name="description">m³ beheizter umbauter Wohnraum</field>
+        </record>
+        <record model="real_estate.bved.unit" id="bved_unit_015">
+            <field name="code">015</field>
+            <field name="description">variables Textfeld für Schlüssel</field>
+        </record>
+        <record model="real_estate.bved.unit" id="bved_unit_016">
+            <field name="code">016</field>
+            <field name="description">Miteigentumsanteil</field>
+        </record>
+        <record model="real_estate.bved.unit" id="bved_unit_017">
+            <field name="code">017</field>
+            <field name="description">m² Nutzfläche</field>
+        </record>
+        <record model="real_estate.bved.unit" id="bved_unit_020">
+            <field name="code">020</field>
+            <field name="description">Anschlusswert</field>
+        </record>
+        <record model="real_estate.bved.unit" id="bved_unit_021">
+            <field name="code">021</field>
+            <field name="description">Zähler</field>
+        </record>
+        <record model="real_estate.bved.unit" id="bved_unit_022">
+            <field name="code">022</field>
+            <field name="description">Wohnung</field>
+        </record>
+        <record model="real_estate.bved.unit" id="bved_unit_023">
+            <field name="code">023</field>
+            <field name="description">Abrechnung</field>
+        </record>
+        <record model="real_estate.bved.unit" id="bved_unit_030">
+            <field name="code">030</field>
+            <field name="description">Verbrauchseinheiten (VE)</field>
+        </record>
+        <record model="real_estate.bved.unit" id="bved_unit_031">
+            <field name="code">031</field>
+            <field name="description">Verbrauchswerte</field>
+        </record>
+        <record model="real_estate.bved.unit" id="bved_unit_032">
+            <field name="code">032</field>
+            <field name="description">Striche (Venturi)</field>
+        </record>
+        <record model="real_estate.bved.unit" id="bved_unit_033">
+            <field name="code">033</field>
+            <field name="description">1000 J/Sec.</field>
+        </record>
+        <record model="real_estate.bved.unit" id="bved_unit_034">
+            <field name="code">034</field>
+            <field name="description">Personen x Monate</field>
+        </record>
+        <record model="real_estate.bved.unit" id="bved_unit_035">
+            <field name="code">035</field>
+            <field name="description">Personen</field>
+        </record>
+        <record model="real_estate.bved.unit" id="bved_unit_040">
+            <field name="code">040</field>
+            <field name="description">Prozent</field>
+        </record>
+        <record model="real_estate.bved.unit" id="bved_unit_041">
+            <field name="code">041</field>
+            <field name="description">Jahr</field>
+        </record>
+        <record model="real_estate.bved.unit" id="bved_unit_042">
+            <field name="code">042</field>
+            <field name="description">Monat</field>
+        </record>
+        <record model="real_estate.bved.unit" id="bved_unit_043">
+            <field name="code">043</field>
+            <field name="description">Tage</field>
+        </record>
+        <record model="real_estate.bved.unit" id="bved_unit_044">
+            <field name="code">044</field>
+            <field name="description">Gradtage</field>
+        </record>
+        <record model="real_estate.bved.unit" id="bved_unit_045">
+            <field name="code">045</field>
+            <field name="description">‰-Anteile</field>
+        </record>
+        <record model="real_estate.bved.unit" id="bved_unit_046">
+            <field name="code">046</field>
+            <field name="description">Anzahl Rauchwarnmelder</field>
         </record>
 
     </data>

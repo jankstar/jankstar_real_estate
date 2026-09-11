@@ -79,7 +79,8 @@ class CronTask(ModelSQL, ModelView):
     last_run = fields.Date('Last Run', states={'readonly': True})
     active = fields.Boolean('Active')
 
-    name = fields.Function(fields.Char('Name'), 'on_change_with_name')
+    name = fields.Function(fields.Char('Name'), 'on_change_with_name',
+        searcher='search_name')
 
     @classmethod
     def __setup__(cls):
@@ -143,3 +144,7 @@ class CronTask(ModelSQL, ModelView):
     @fields.depends('task')
     def on_change_with_name(self, name=None):
         return dict(self.get_tasks()).get(self.task, self.task or '')
+
+    @classmethod
+    def search_name(cls, name, clause):
+        return [('task',) + tuple(clause[1:])]

@@ -7,6 +7,14 @@
     <label name="valid_from"/><field name="valid_from"/>
     <label name="valid_to"/><field name="valid_to"/>
     <newline/>
+    <separator name="allocation1_unit" colspan="2" string="M-Satz Allocation Keys 1-3 (Fields 36-41)"/>
+    <label name="allocation1_unit"/><field name="allocation1_unit"/>
+    <label name="allocation2_unit"/><field name="allocation2_unit"/>
+    <newline/>
+    <label name="allocation3_unit"/><field name="allocation3_unit"/>
+    <newline/>
+    <label name="tenant_change_fee_flag"/><field name="tenant_change_fee_flag"/>
+    <newline/>
     <notebook colspan="2">
         <page string="Object Numbers" id="page_object_numbers" col="1">
             <field name="object_numbers"
