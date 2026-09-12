@@ -303,7 +303,6 @@ class Measurement(DeactivableMixin, ModelSQL, ModelView, metaclass=PoolMeta):
             return [bool_op,
                 ('m_type.name',) + tuple(clause[1:]),
                 ('m_type.unit',) + tuple(clause[1:]),
-                ('valid_from',) + tuple(clause[1:]),
                 ]
         return []
 

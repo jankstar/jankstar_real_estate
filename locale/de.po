@@ -5102,6 +5102,10 @@ msgctxt "model:ir.ui.menu,name:menu_land_form"
 msgid "Land"
 msgstr "Grundstück"
 
+msgctxt "model:ir.ui.menu,name:menu_measurement_tree"
+msgid "Measurement"
+msgstr "Bemessungen"
+
 msgctxt "model:ir.ui.menu,name:menu_measurement_type"
 msgid "Measurement Types"
 msgstr "Bemessungstype"
