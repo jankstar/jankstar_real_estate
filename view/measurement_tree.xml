@@ -1,7 +1,10 @@
 <?xml version="1.0"?>
-<tree >
+<tree>
+    <field name="company"/>
+    <field name="property"/>
+    <field name="base_object"/>
     <field name="valid_from"/>
-    <field name="m_type" />
-    <field name="value"/>
+    <field name="m_type"/>
+    <field name="value" sum="1"/>
     <field name="symbol"/>
 </tree>

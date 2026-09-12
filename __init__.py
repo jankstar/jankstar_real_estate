@@ -35,6 +35,7 @@ def register():
         address.Address,
         measurement.MeasurementType,
         measurement.Measurement,
+        measurement.MeasurementContext,
         base_object.UseClass,
         base_object.BaseObject,
         base_object.BaseObjectEquipmentContext,

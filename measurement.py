@@ -188,9 +188,17 @@ class Measurement(DeactivableMixin, ModelSQL, ModelView, metaclass=PoolMeta):
                                 'on_change_with_name', 
                                 searcher='compute_name_search')   
 
-    type = fields.Function(fields.Char("Object Type"), 
-                                'on_change_with_type') 
-    
+    type = fields.Function(fields.Char("Object Type"),
+                                'on_change_with_type')
+
+    company = fields.Function(
+        fields.Many2One('company.company', "Company"),
+        'on_change_with_company', searcher='search_company')
+
+    property = fields.Function(
+        fields.Many2One('real_estate.base_object', "Property"),
+        'on_change_with_property', searcher='search_property')
+
     no_print = fields.Boolean("No Print")
 
     @fields.depends('m_type')
@@ -216,6 +224,33 @@ class Measurement(DeactivableMixin, ModelSQL, ModelView, metaclass=PoolMeta):
         if self.base_object:
             return self.base_object.type
         return None
+
+    @fields.depends('base_object', '_parent_base_object.company')
+    def on_change_with_company(self, name=None):
+        return self.base_object.company if self.base_object else None
+
+    @classmethod
+    def search_company(cls, name, clause):
+        return [('base_object.company',) + tuple(clause[1:])]
+
+    @fields.depends(
+        'base_object', '_parent_base_object.type',
+        '_parent_base_object.property')
+    def on_change_with_property(self, name=None):
+        if not self.base_object:
+            return None
+        if self.base_object.type == 'property':
+            return self.base_object
+        return self.base_object.property
+
+    @classmethod
+    def search_property(cls, name, clause):
+        _, operator, value = clause
+        return ['OR',
+            [('base_object.property', operator, value)],
+            [('base_object.type', '=', 'property'),
+                ('base_object', operator, value)],
+            ]
 
     @fields.depends(
         'base_object', 'type', 'valid_from',
@@ -317,3 +352,35 @@ class Measurement(DeactivableMixin, ModelSQL, ModelView, metaclass=PoolMeta):
             if rows:
                 total = (total or 0.0) + rows[0].value
         return total
+
+
+class MeasurementContext(ModelView):
+    'Measurement Context'
+    __name__ = 'real_estate.measurement.context'
+
+    company = fields.Many2One('company.company', "Company", required=True)
+    property = fields.Many2One('real_estate.base_object', "Property",
+        domain=[
+            ('type', '=', 'property'),
+            ('company', '=', Eval('company', -1)),
+            ])
+    base_object = fields.Many2One('real_estate.base_object', "Object",
+        domain=[
+            ('company', '=', Eval('company', -1)),
+            If(Eval('property', None),
+                [('id', 'child_of', [Eval('property', None)], 'parent')],
+                []),
+            ])
+    m_type = fields.Many2One('real_estate.measurement.type', "Measurement Type",
+        domain=[('is_group', '=', False)])
+    date = fields.Date("Reference Date", required=True,
+        help="Only measurements valid on or before this date (own "
+             "'From' date) are shown.")
+
+    @classmethod
+    def default_company(cls):
+        return Transaction().context.get('company')
+
+    @classmethod
+    def default_date(cls):
+        return Pool().get('ir.date').today()

@@ -507,6 +507,12 @@
             id="menu_object_form"
             icon="rental_object_icon"/>
 
+        <menuitem
+            parent="menu_real_estate_masta_data"
+            action="act_measurement_tree"
+            sequence="45"
+            id="menu_measurement_tree"/>
+
         <record model="ir.action.act_window.domain"
             id="act_object_form_domain_draft">
             <field name="name">Draft</field>

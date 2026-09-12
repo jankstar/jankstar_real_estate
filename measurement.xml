@@ -29,9 +29,19 @@
         </record-->
 
 
+        <record model="ir.ui.view" id="measurement_context_form_view">
+            <field name="model">real_estate.measurement.context</field>
+            <field name="type">form</field>
+            <field name="name">measurement_context_form</field>
+        </record>
+
         <record model="ir.action.act_window" id="act_measurement_tree">
             <field name="name">Measurement</field>
             <field name="res_model">real_estate.measurement</field>
+            <field name="context_model">real_estate.measurement.context</field>
+            <field name="context_domain"
+                eval="[('base_object.company', '=', Eval('company', -1)), If(Eval('base_object', None), [('base_object', 'child_of', [Eval('base_object', None)], 'parent')], If(Eval('property', None), [('base_object', 'child_of', [Eval('property', None)], 'parent')], [])), If(Eval('m_type', None), [('m_type', '=', Eval('m_type', None))], []), If(Eval('date', None), [('valid_from', '&lt;=', Eval('date', None))], [])]"
+                pyson="1"/>
         </record>
 
         <record model="ir.action.act_window.view" id="act_measurement_tree_view1">

@@ -2546,6 +2546,14 @@ msgctxt "field:real_estate.measurement,base_object:"
 msgid "Base Object"
 msgstr "Immobilienobjekt"
 
+msgctxt "field:real_estate.measurement,company:"
+msgid "Company"
+msgstr "Gesellschaft"
+
+msgctxt "field:real_estate.measurement,property:"
+msgid "Property"
+msgstr "Wirtschaftseinheit"
+
 msgctxt "field:real_estate.measurement,m_type:"
 msgid "Measurement Type"
 msgstr "Bemessungstype"
@@ -2650,6 +2658,34 @@ msgstr "Einheit"
 msgctxt "field:real_estate.meter_reading,value:"
 msgid "Value"
 msgstr "Wert"
+
+msgctxt "field:real_estate.measurement.context,company:"
+msgid "Company"
+msgstr "Gesellschaft"
+
+msgctxt "field:real_estate.measurement.context,property:"
+msgid "Property"
+msgstr "Wirtschaftseinheit"
+
+msgctxt "field:real_estate.measurement.context,base_object:"
+msgid "Object"
+msgstr "Objekt"
+
+msgctxt "field:real_estate.measurement.context,m_type:"
+msgid "Measurement Type"
+msgstr "Bemessungstype"
+
+msgctxt "field:real_estate.measurement.context,date:"
+msgid "Reference Date"
+msgstr "Stichtag"
+
+msgctxt "help:real_estate.measurement.context,date:"
+msgid ""
+"Only measurements valid on or before this date (own 'From' date) are "
+"shown."
+msgstr ""
+"Es werden nur Bemessungen angezeigt, deren eigenes „von“-Datum an "
+"diesem Stichtag oder davor liegt."
 
 msgctxt "field:real_estate.meter_reading.context,company:"
 msgid "Company"

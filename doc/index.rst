@@ -676,6 +676,46 @@ Property Management
       previously each of these re-implemented its own (in several cases
       incompletely hierarchy-aware, or not hierarchy-aware at all) lookup.
 
+   ``company`` / ``property`` (Function fields)
+      Display/search-only, derived from ``base_object`` — ``company`` is
+      simply ``base_object.company``; ``property`` is ``base_object``
+      itself if its own ``type = 'property'``, else ``base_object.property``
+      (the stored ancestor-property reference every ``base_object`` already
+      carries). Used by the *Measurements* list below to show and filter
+      by company/Wirtschaftseinheit without a join in the view itself.
+      ``search_property`` matches either a row whose own ``property``
+      field equals the given value, or a property-type row whose own
+      ``id`` does (so filtering by a given property also finds that
+      property's own direct measurements, not just its descendants').
+
+   *Measurements* list (``act_measurement_tree`` in ``measurement.xml``)
+      Menu *Master Data*, between *Rental Object* and *Equipment*. A
+      plain, filterable browse list over ``real_estate.measurement``
+      (columns: Company, Property, Object, From, Measurement Type, Value
+      — summed — , Symbol), **not** a wizard and **not** hierarchy-aware
+      the way ``get_total_value()`` is — it lists raw rows matching a
+      simple filter, with no de-duplication to "the one currently
+      effective row per (object, type)". The filter panel
+      (``real_estate.measurement.context``, via the action's
+      ``context_model``/``context_domain`` — same mechanism as
+      ``real_estate.meter_reading.context`` above) offers:
+
+      - ``company`` (required) — restricts to ``base_object.company``.
+      - ``property`` — restricts the ``base_object`` picklist to that
+        property's own subtree (via ``child_of``) and, if ``base_object``
+        itself is left empty, restricts the list the same way.
+      - ``base_object`` — if set, takes precedence over ``property`` and
+        restricts the list to this object and **all** of its descendants
+        (``('base_object', 'child_of', [base_object], 'parent')`` —
+        inclusive of the object itself).
+      - ``m_type`` — exact match, if set.
+      - ``date`` ("Stichtag", required, default today) — a plain
+        ``valid_from <= date`` filter; deliberately **not** the
+        latest-row-per-group logic of ``get_total_value()`` — every row
+        satisfying the date cutoff is shown (and contributes to the
+        summed Value column), including any historical rows later
+        superseded by a newer ``valid_from`` on the same object/type.
+
 ``real_estate.meter_reading``  (``base_object.py``)
    Meter reading record linked to an equipment object of type ``meters``.
 
