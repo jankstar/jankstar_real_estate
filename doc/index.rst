@@ -1861,6 +1861,67 @@ immediately before *Betriebskostenabrechnung*), bundling all models below.
       central-hot-water settlement unit, each with its own
       ``heating_area_measurement_type``/mapped ``real_estate.bved.unit``).
 
+   ``_mode_settlement_unit(mode)``
+      The first ``real_estate.settlement_unit`` of this mapping's own
+      object's property with ``heating_billing_mode = mode``, or
+      ``None`` — the same lookup ``_area_share_by_mode()`` performs
+      inline, factored out since ``_advance_by_mode()`` below needs it
+      independently of any ``heating_area_measurement_type``.
+
+   ``_advance_by_mode(mode, contract, start_date, end_date)``
+      M-Satz fields 28/29 (Heizung Vorauszahlung Brutto/Netto,
+      ``mode='central_heating'``) or 31/32 (Warmwasser Vorauszahlung
+      Brutto/Netto, ``mode='central_hot_water'``) — **not** 30/31, which
+      is the Warmwasser Grundanteil/Vorauszahlung-Brutto pair
+      respectively; field 30 itself is the (already-implemented)
+      Warmwasser Grundanteil, see ``_area_share_by_mode()`` above.
+      Returns ``(gross, net)``, either possibly ``None``:
+
+      - Resolves the qualifying settlement unit via
+        ``_mode_settlement_unit(mode)`` and, through it, its own
+        ``billing_unit`` — the billing unit whose *Konditionstyp*
+        (``term_types_of_use``) and *Vorauszahlungen* tab
+        (``cash_flow_lines``) define which advance-payment condition
+        applies. ``(None, None)`` if no qualifying settlement unit, or
+        it has no ``billing_unit``.
+      - For ``mode='central_hot_water'``: if the property's own
+        central-heating settlement unit exists and shares the *same*
+        ``billing_unit`` as the central-hot-water one, returns
+        ``(None, None)`` unconditionally — German rental contracts
+        normally carry a single combined "Heizkosten" advance payment
+        covering both heating and hot water; attributing it to both
+        fields would double it. Sharing a billing unit is the normal
+        setup where one annual "Heizkosten" cost group contains both a
+        central-heating and a central-hot-water settlement unit side by
+        side (see ``tests/test_billing_unit.py``'s two-Settlement-Unit
+        "Heizkosten" billing unit).
+      - Otherwise, sums ``total_amount`` (gross) and ``amount`` (net)
+        over every entry of the billing unit's own ``cash_flow_lines``
+        (already filtered there by ``term_types_of_use``/invoice state,
+        see *Operating Cost Settlement* above) whose own ``contract``
+        matches `contract` and ``base_object`` matches this mapping's
+        own object, restricted to ``document_date`` within
+        ``[start_date, end_date]``. ``(None, None)`` if nothing matches
+        (a genuine Kann-Feld, not a zero).
+
+      ``_heating_advance(contract, start_date, end_date)`` and
+      ``_hotwater_advance(contract, start_date, end_date)`` are thin
+      wrappers, called from ``_m_satz_values()`` with the M-Satz row's
+      own ``occupancy_start``/``occupancy_end`` (not the whole export
+      period) and its resolved tenant contract (``None`` for a vacancy
+      segment, in which case both return ``(None, None)`` immediately).
+
+      .. note::
+         Fields 33-35 (Kaltwasser Grundanteil/Vorauszahlung) already
+         exist as Kann-Felder on ``real_estate.bved.object_number.m_satz_line``
+         (``coldwater_base_share``/``coldwater_advance_gross``/``_net``)
+         but are not populated by ``_m_satz_values()`` — there is no
+         ``heating_billing_mode`` value for a centrally-billed cold-water
+         system (cold water is always metered per object via
+         ``allocation_by_consumption`` in this module), so
+         ``_mode_settlement_unit()``/``_advance_by_mode()`` have no
+         analogous "central cold water" case to resolve them from.
+
    ``_allocation_shares(as_of_date)``
       Resolves M-Satz fields 36-41 (Schlüssel/Anteil Umlage 1-3): for
       each of the provider assignment's ``allocation1_unit``/

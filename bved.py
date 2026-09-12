@@ -892,6 +892,78 @@ class BvedObjectNumber(ModelSQL, ModelView):
         Warmwasser) - see _area_share_by_mode()."""
         return self._area_share_by_mode('central_hot_water', as_of_date)
 
+    def _mode_settlement_unit(self, mode):
+        """The first real_estate.settlement_unit of this mapping's own
+        property with heating_billing_mode = `mode`
+        ('central_heating'/'central_hot_water'), or None."""
+        pool = Pool()
+        SettlementUnit = pool.get('real_estate.settlement_unit')
+        obj = self.base_object
+        if not obj.property:
+            return None
+        units = SettlementUnit.search([
+            ('billing_unit.property', '=', obj.property.id),
+            ('heating_billing_mode', '=', mode),
+            ], limit=1)
+        return units[0] if units else None
+
+    def _advance_by_mode(self, mode, contract, start_date, end_date):
+        """Fields 28/29 (Heizung Vorauszahlung Brutto/Netto) or 31/32
+        (Warmwasser Vorauszahlung Brutto/Netto): `contract`'s own
+        advance-payment cash flow for this mapping's own base_object,
+        summed over the 'central_heating'/'central_hot_water' settlement
+        unit's own billing unit's 'Vorauszahlungen' tab
+        (BillingUnit.cash_flow_lines - already filtered by
+        term_types_of_use/'Konditionstyp' and invoice state there),
+        restricted to [start_date, end_date] (this M-Satz row's own
+        occupancy segment, not necessarily the whole billing period).
+
+        Returns (gross, net); either may be None if there is no
+        qualifying settlement unit/billing unit or no matching cash
+        flow line at all.
+
+        Suppressed (returns (None, None)) for 'central_hot_water' when
+        the property's central-heating and central-hot-water settlement
+        units share the same billing unit - German rental contracts
+        normally carry a single combined "Heizkosten" advance payment
+        covering both, so attributing it to Warmwasser as well would
+        double it."""
+        if not contract:
+            return None, None
+        su = self._mode_settlement_unit(mode)
+        if not su or not su.billing_unit:
+            return None, None
+        bu = su.billing_unit
+        if mode == 'central_hot_water':
+            heating_su = self._mode_settlement_unit('central_heating')
+            if (heating_su and heating_su.billing_unit
+                    and heating_su.billing_unit.id == bu.id):
+                return None, None
+        lines = [
+            line for line in (bu.cash_flow_lines or [])
+            if line.contract and line.contract.id == contract.id
+            and line.base_object and line.base_object.id == self.base_object.id
+            and line.document_date
+            and start_date <= line.document_date <= end_date
+            ]
+        if not lines:
+            return None, None
+        gross = sum((line.total_amount or Decimal(0)) for line in lines)
+        net = sum((line.amount or Decimal(0)) for line in lines)
+        return gross, net
+
+    def _heating_advance(self, contract, start_date, end_date):
+        """Fields 28/29 (Heizung Vorauszahlung Brutto/Netto) - see
+        _advance_by_mode()."""
+        return self._advance_by_mode(
+            'central_heating', contract, start_date, end_date)
+
+    def _hotwater_advance(self, contract, start_date, end_date):
+        """Fields 31/32 (Warmwasser Vorauszahlung Brutto/Netto) - see
+        _advance_by_mode()."""
+        return self._advance_by_mode(
+            'central_hot_water', contract, start_date, end_date)
+
     def _allocation_shares(self, as_of_date):
         """Fields 36-41 (Schlüssel/Anteil Umlage 1-3): for each of the
         provider assignment's three 'M-Satz Allocation Key' slots that
@@ -1147,6 +1219,27 @@ class BvedObjectNumber(ModelSQL, ModelView):
             else:
                 values['vacancy_flag'] = 1
 
+            # Fields 28/29, 31/32 (Heizung/Warmwasser Vorauszahlung
+            # Brutto/Netto): the tenant's own advance-payment cash flow
+            # for this object, restricted to this segment's own
+            # occupancy period - see _advance_by_mode().
+            advance_contract = entry.contract if tenant_party else None
+            heating_advance_gross, heating_advance_net = self._heating_advance(
+                advance_contract, values['occupancy_start'],
+                values['occupancy_end'])
+            if heating_advance_gross is not None:
+                values['heating_advance_gross'] = heating_advance_gross
+            if heating_advance_net is not None:
+                values['heating_advance_net'] = heating_advance_net
+
+            hotwater_advance_gross, hotwater_advance_net = self._hotwater_advance(
+                advance_contract, values['occupancy_start'],
+                values['occupancy_end'])
+            if hotwater_advance_gross is not None:
+                values['hotwater_advance_gross'] = hotwater_advance_gross
+            if hotwater_advance_net is not None:
+                values['hotwater_advance_net'] = hotwater_advance_net
+
             # Leistungsnehmer (fields 59-66): only for field 7 = '4',
             # per 'Leistungsnehmer-Regel' ('tenant': same party as the
             # Nutzer block above; 'role': the role-based lookup resolved
@@ -1363,9 +1456,15 @@ class BvedObjectNumberMSatzLine(sequence_ordered(), ModelSQL, ModelView):
              "plain Bemessung, not time-weighted and not affected by "
              "the consumption/area allocation split.")
     heating_advance_gross = fields.Numeric(
-        "28. Heating Advance (gross)", digits=(8, 2), readonly=True)
+        "28. Heating Advance (gross)", digits=(8, 2), readonly=True,
+        help="The tenant's own advance-payment cash flow for this "
+             "object (BillingUnit.cash_flow_lines of the "
+             "central-heating settlement unit's own billing unit, "
+             "filtered to this contract/object and this segment's own "
+             "occupancy period), gross amount.")
     heating_advance_net = fields.Numeric(
-        "29. Heating Advance (net)", digits=(8, 2), readonly=True)
+        "29. Heating Advance (net)", digits=(8, 2), readonly=True,
+        help="Same as field 28, net amount.")
     hotwater_base_share = fields.Numeric(
         "30. Hot Water Base Share", digits=(8, 2), readonly=True,
         help="The object's own measurement value for the 'Area "
@@ -1374,9 +1473,15 @@ class BvedObjectNumberMSatzLine(sequence_ordered(), ModelSQL, ModelView):
              "plain Bemessung, not time-weighted and not affected by "
              "the consumption/area allocation split.")
     hotwater_advance_gross = fields.Numeric(
-        "31. Hot Water Advance (gross)", digits=(8, 2), readonly=True)
+        "31. Hot Water Advance (gross)", digits=(8, 2), readonly=True,
+        help="Same as field 28, for the central-hot-water settlement "
+             "unit's own billing unit - left empty when that billing "
+             "unit is the same one as the central-heating settlement "
+             "unit's (the combined advance payment is then attributed "
+             "to field 28 only, to avoid counting it twice).")
     hotwater_advance_net = fields.Numeric(
-        "32. Hot Water Advance (net)", digits=(8, 2), readonly=True)
+        "32. Hot Water Advance (net)", digits=(8, 2), readonly=True,
+        help="Same as field 31, net amount.")
     coldwater_base_share = fields.Numeric(
         "33. Cold Water Base Share", digits=(8, 2), readonly=True)
     coldwater_advance_gross = fields.Numeric(
