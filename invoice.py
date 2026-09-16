@@ -1,14 +1,16 @@
+import datetime
 from decimal import Decimal
 
 from sql import Column
 
-from trytond.model import Index, ModelSQL, fields
+from trytond.model import Index, ModelSQL, ModelView, fields
 from trytond.model.exceptions import ValidationError
 from trytond.exceptions import UserWarning
 from trytond.i18n import gettext
 from trytond.modules.currency.fields import Monetary
 from trytond.pool import Pool, PoolMeta
 from trytond.pyson import Bool, Eval, If
+from trytond.report import Report
 from trytond.transaction import Transaction
 
 from . import bved_records
@@ -51,6 +53,18 @@ class Invoice(metaclass=PoolMeta):
                         'real_estate.msg_invoice_line_billing_unit_billed_error',
                         line=line.rec_name))
         super().post(invoices)
+
+    def _get_move_line(self, date, amount):
+        # Core builds the receivable/payable move line directly from the
+        # invoice header, bypassing InvoiceLine.get_move_lines() (which
+        # already copies contract onto the regular revenue/expense lines
+        # below) - without this, the one line actually shown on the
+        # 'Payable/Receivable Lines' list (account.type.receivable/
+        # payable) never gets a contract, even though the invoice header
+        # itself has one.
+        line = super()._get_move_line(date, amount)
+        line.contract = self.contract
+        return line
 
 
 #**********************************************************************
@@ -616,6 +630,17 @@ class AccountMoveLine(metaclass=PoolMeta):
         },
         depends=['assignment_control'])
 
+    effective_contract = fields.Function(
+        fields.Many2One('real_estate.contract', "Effective Contract",
+            help="This line's own 'Contract' if set, else the 'Contract' "
+                 "of whichever other line in the same reconciliation "
+                 "group has one - so a payment line, which never gets "
+                 "its own contract at booking time, is still found when "
+                 "filtering/searching by contract via the invoice line "
+                 "it settles."),
+        'on_change_with_effective_contract',
+        searcher='search_effective_contract')
+
     term = fields.Many2One('real_estate.contract.term', 'Term',
         ondelete='SET NULL',
         states={
@@ -704,6 +729,64 @@ class AccountMoveLine(metaclass=PoolMeta):
                 return self.base_object.property
         return None
 
+    @fields.depends('contract', 'reconciliation',
+        '_parent_reconciliation.lines')
+    def on_change_with_effective_contract(self, name=None):
+        if self.contract:
+            return self.contract
+        if self.reconciliation:
+            for line in self.reconciliation.lines:
+                if line.id != self.id and line.contract:
+                    return line.contract
+        return None
+
+    @classmethod
+    def search_effective_contract(cls, name, clause):
+        return ['OR',
+            ('contract',) + tuple(clause[1:]),
+            ('reconciliation.lines.contract',) + tuple(clause[1:]),
+            ]
+
+
+#**********************************************************************
+class ContractMoveLinePayableReceivableContext(ModelView):
+    """Selection panel for the standalone 'Payable/Receivable' list under
+    the Contracts menu - same underlying data and the same
+    receivable/payable/reconciled toggles as the existing party-form
+    'Payable/Receivable Lines' relate action
+    (account.move.line.receivable_payable.context), but reachable
+    without first opening a specific party, and filterable additionally
+    by party, contract, account, and a date range."""
+    __name__ = 'real_estate.contract.move_line_payable_receivable.context'
+
+    company = fields.Many2One('company.company', "Company", required=True)
+    party = fields.Many2One('party.party', "Party")
+    contract = fields.Many2One('real_estate.contract', "Contract",
+        domain=[('company', '=', Eval('company', -1))])
+    account = fields.Many2One('account.account', "Account",
+        domain=[('company', '=', Eval('company', -1))])
+    date_from = fields.Date("Date From")
+    date_to = fields.Date("Date To")
+    receivable = fields.Boolean("Receivable")
+    payable = fields.Boolean("Payable")
+    reconciled = fields.Boolean("Reconciled")
+
+    @classmethod
+    def default_company(cls):
+        return Transaction().context.get('company')
+
+    @classmethod
+    def default_receivable(cls):
+        return Transaction().context.get('receivable', True)
+
+    @classmethod
+    def default_payable(cls):
+        return Transaction().context.get('payable', True)
+
+    @classmethod
+    def default_reconciled(cls):
+        return Transaction().context.get('reconciled', False)
+
 
 #**********************************************************************
 class GeneralLedgerLine(metaclass=PoolMeta):
@@ -741,3 +824,93 @@ class GeneralLedgerLine(metaclass=PoolMeta):
     @staticmethod
     def get_bved_fuel_types():
         return [('', '')] + bved_records.as_selection(bved_records.TABLE_B)
+
+
+#**********************************************************************
+class ContractMoveLinePayableReceivableReport(Report):
+    """Prints the account.move.line rows selected in the standalone
+    'Payable/Receivable Lines' list under the Contracts menu - triggered
+    like any other Tryton report (select the desired rows in the list,
+    then Print), not tied to that one list's own live column/sort
+    choices (those are client-side UI state, invisible to the report
+    engine) - the printed columns are a fixed selection instead: Date,
+    Party, Debit, Credit, Move, Description, plus a totals row."""
+    __name__ = 'real_estate.contract.move_line_payable_receivable.report'
+
+    @classmethod
+    def format_value(cls, value):
+        if value is None:
+            return ''
+        if type(value) == str:
+            return value
+        if type(value) == bool:
+            return str(value)
+        if type(value) == int:
+            return str(value)
+        if type(value) == float:
+            return cls.format_number(value, None, digits=2)
+        if type(value) == Decimal:
+            return cls.format_number(value, None, digits=2)
+        if type(value) == datetime.date:
+            return cls.format_date(value)
+        if type(value) == datetime.datetime:
+            return cls.format_datetime(value)
+        return value
+
+    @classmethod
+    def _selection_summary(cls):
+        """Human-readable summary of the filter panel values active when
+        the list this report is printed from was last searched -
+        available here because the act_window's own 'context' field
+        (contract.xml) forwards the context_model's fields into the
+        transaction context, on top of them already feeding
+        'context_domain' to build the search domain itself."""
+        pool = Pool()
+        transaction_context = Transaction().context
+        parts = []
+
+        party_id = transaction_context.get('party')
+        if party_id:
+            Party = pool.get('party.party')
+            parts.append('Partei: %s' % Party(party_id).rec_name)
+
+        contract_id = transaction_context.get('contract')
+        if contract_id:
+            Contract = pool.get('real_estate.contract')
+            parts.append('Vertrag: %s' % Contract(contract_id).rec_name)
+
+        account_id = transaction_context.get('account')
+        if account_id:
+            Account = pool.get('account.account')
+            parts.append('Konto: %s' % Account(account_id).rec_name)
+
+        date_from = transaction_context.get('date_from')
+        date_to = transaction_context.get('date_to')
+        if date_from or date_to:
+            parts.append('Zeitraum: %s - %s' % (
+                cls.format_value(date_from) if date_from else '...',
+                cls.format_value(date_to) if date_to else '...'))
+
+        flags = []
+        if transaction_context.get('receivable', True):
+            flags.append('Forderungen')
+        if transaction_context.get('payable', True):
+            flags.append('Verbindlichkeiten')
+        if flags:
+            parts.append(', '.join(flags))
+        if transaction_context.get('reconciled', False):
+            parts.append('inkl. ausgeglichene Posten')
+
+        return '; '.join(parts) if parts else 'keine Einschränkung'
+
+    @classmethod
+    def get_context(cls, records, header, data):
+        context = super().get_context(records, header, data)
+        context['format_value'] = cls.format_value
+        context['lines'] = records
+        context['total_debit'] = sum(
+            (line.debit or Decimal(0) for line in records), Decimal(0))
+        context['total_credit'] = sum(
+            (line.credit or Decimal(0) for line in records), Decimal(0))
+        context['selection_summary'] = cls._selection_summary()
+        return context

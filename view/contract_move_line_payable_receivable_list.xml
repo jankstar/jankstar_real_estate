@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<data>
+    <xpath expr="//field[@name='payable_receivable_date']" position="replace">
+        <field name="payable_receivable_date" string="Fälligkeitsdatum" optional="1"/>
+        <field name="date" string="Buchungsdatum" optional="1"/>
+    </xpath>
+    <xpath expr="//field[@name='party']" position="replace">
+        <field name="party" optional="1"/>
+    </xpath>
+    <xpath expr="//field[@name='amount']" position="replace">
+        <field name="amount" optional="1"/>
+    </xpath>
+    <xpath expr="//field[@name='amount']" position="after">
+        <field name="debit" optional="1"/>
+        <field name="credit" optional="1"/>
+    </xpath>
+    <xpath expr="//field[@name='payable_receivable_balance']" position="replace">
+        <field name="payable_receivable_balance" string="Saldo" optional="1"/>
+    </xpath>
+</data>

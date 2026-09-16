@@ -13,9 +13,10 @@ from trytond.modules.company.model import (
     employee_field, reset_employee, set_employee)
 from trytond.tools import sqlite_apply_types
 from trytond.transaction import without_check_access
+from trytond.report import Report
 
 from sql import Column, Null
-from sql.aggregate import Sum, Count, Min
+from sql.aggregate import Sum, Count, Min, Max
 from sql.conditionals import Coalesce
 from collections import defaultdict
 from itertools import groupby
@@ -26,7 +27,8 @@ from decimal import Decimal
 import datetime
 import calendar
 
-from trytond.modules.account.account import _GeneralLedgerAccount
+from trytond.modules.account.account import (
+    _GeneralLedgerAccount, GeneralLedgerAccountContext)
 from trytond.modules.account.common import ActivePeriodMixin
 
 logger = logging.getLogger(__name__)
@@ -201,6 +203,18 @@ class AccountContract(ActivePeriodMixin, ModelSQL):
         Line = pool.get('account.move.line')
         Account = pool.get('account.account')
         Contract = pool.get('real_estate.contract')
+        LedgerAccountContext = pool.get(
+            'account.general_ledger.account.context')
+        # Same company scoping as core's own _GeneralLedgerAccount.
+        # table_query() (account.py) - without it, this (account, party)
+        # grouping could mix rows from several companies under the same
+        # id whenever the same account+party pair exists in more than
+        # one company, which callers reachable without an active_ids-
+        # scoped domain (e.g. a standalone menu, unlike the contract
+        # form's own 'form_relate' button) can genuinely encounter -
+        # triggering a "row not covered by any rule" RuntimeError once
+        # Tryton's own ir.rule-based access check kicks in downstream.
+        context = LedgerAccountContext.get_context()
         line = Line.__table__()
         account = Account.__table__()
         contract = Contract.__table__()
@@ -210,13 +224,31 @@ class AccountContract(ActivePeriodMixin, ModelSQL):
                 where=line.party != Null,
                 group_by=[line.account, line.party])
 
+        # One row per party, restricted to the current company: without
+        # this grouping, joining the raw 'contract' table directly (by
+        # contractual_partner alone) returns one row per MATCHING contract,
+        # not per party - so a party with more than one contract (e.g. a
+        # follow-up contract after termination, or contracts in different
+        # companies once no company filter restricts it) makes the join
+        # yield several rows sharing the same account_party.id, which
+        # violates the table_query() uniqueness of ids and triggers a
+        # "row not covered by any rule"/"Undetected access error"
+        # RuntimeError once Tryton reads those rows back downstream. Same
+        # company scoping as core's own _GeneralLedgerAccount.table_query()
+        # (account.py); Max(id) deterministically picks one (the most
+        # recent) contract per party when more than one exists.
+        contract_by_party = contract.select(
+                Max(contract.id).as_('id'), contract.contractual_partner,
+                where=contract.company == context.get('company'),
+                group_by=[contract.contractual_partner])
+
         columns = []
         for fname, field in cls._fields.items():
             if not hasattr(field, 'set'):
                 if fname in {'id', 'account', 'party'}:
                     column = Column(account_party, fname)
                 elif fname in {'contract'}:
-                    column = Column(contract, 'id')
+                    column = Column(contract_by_party, 'id')
                 else:
                     column = Column(account, fname)
                 columns.append(column.as_(fname))
@@ -224,10 +256,13 @@ class AccountContract(ActivePeriodMixin, ModelSQL):
             account_party.join(
                 account, condition=account_party.account == account.id)
             .join(
-                contract, condition=account_party.party == contract.contractual_partner)
+                contract_by_party,
+                condition=(
+                    account_party.party == contract_by_party.contractual_partner))
             .select(
                 *columns,
-                where=account.party_required))
+                where=account.party_required
+                & (account.company == context.get('company'))))
 
     @classmethod
     def get_balance(cls, records, name):
@@ -418,6 +453,127 @@ class GeneralLedgerAccountContract(_GeneralLedgerAccount):
             ('party.rec_name',) + tuple(clause[1:]),
             ('contract.rec_name',) + tuple(clause[1:]),
             ]
+
+
+class ContractGeneralLedgerAccountContractContext(GeneralLedgerAccountContext):
+    """Selection panel for the standalone 'Kontenblatt' menu under Contracts
+    - reuses core's own General Ledger account context (fiscalyear/period/
+    date range/company/posted/journal, unchanged) and adds Party and
+    Contract filters on top, translated into a domain on
+    real_estate.account_contract via this action's own context_domain."""
+    __name__ = 'real_estate.contract.general_ledger_account_contract.context'
+
+    party = fields.Many2One(
+        'party.party', "Party",
+        context={'company': Eval('company', -1)},
+        depends={'company'})
+    contract = fields.Many2One(
+        'real_estate.contract', "Contract",
+        domain=[('company', '=', Eval('company', -1))],
+        depends={'company'})
+
+
+class ContractGeneralLedgerAccountContractReport(Report):
+    """Prints the real_estate.account_contract rows selected in the
+    'Kontenblatt' list under the Contracts menu - triggered like any other
+    Tryton report (select the desired rows in the list, then Print), not
+    tied to that one list's own live column/sort choices (those are
+    client-side UI state, invisible to the report engine) - the printed
+    columns are a fixed selection instead: Account, Party, Contract, Start
+    Balance, Debit, Credit, End Balance, plus a totals row."""
+    __name__ = 'real_estate.contract.general_ledger_account_contract.report'
+
+    @classmethod
+    def format_value(cls, value):
+        if value is None:
+            return ''
+        if type(value) == str:
+            return value
+        if type(value) == bool:
+            return str(value)
+        if type(value) == int:
+            return str(value)
+        if type(value) == float:
+            return cls.format_number(value, None, digits=2)
+        if type(value) == Decimal:
+            return cls.format_number(value, None, digits=2)
+        if type(value) == datetime.date:
+            return cls.format_date(value)
+        if type(value) == datetime.datetime:
+            return cls.format_datetime(value)
+        return value
+
+    @classmethod
+    def _selection_summary(cls):
+        """Human-readable summary of the filter panel values active when
+        the list this report is printed from was last searched -
+        available here because the act_window's own 'context' field
+        (contract.xml) forwards the context_model's fields into the
+        transaction context, on top of them already feeding
+        'context_domain' to build the search domain itself."""
+        pool = Pool()
+        transaction_context = Transaction().context
+        parts = []
+
+        party_id = transaction_context.get('party')
+        if party_id:
+            Party = pool.get('party.party')
+            parts.append('Partei: %s' % Party(party_id).rec_name)
+
+        contract_id = transaction_context.get('contract')
+        if contract_id:
+            Contract = pool.get('real_estate.contract')
+            parts.append('Vertrag: %s' % Contract(contract_id).rec_name)
+
+        fiscalyear_id = transaction_context.get('fiscalyear')
+        if fiscalyear_id:
+            FiscalYear = pool.get('account.fiscalyear')
+            parts.append(
+                'Geschäftsjahr: %s' % FiscalYear(fiscalyear_id).rec_name)
+
+        start_period_id = transaction_context.get('start_period')
+        end_period_id = transaction_context.get('end_period')
+        if start_period_id or end_period_id:
+            Period = pool.get('account.period')
+            parts.append('Periode: %s - %s' % (
+                Period(start_period_id).rec_name if start_period_id
+                else '...',
+                Period(end_period_id).rec_name if end_period_id else '...'))
+
+        date_from = transaction_context.get('from_date')
+        date_to = transaction_context.get('to_date')
+        if date_from or date_to:
+            parts.append('Zeitraum: %s - %s' % (
+                cls.format_value(date_from) if date_from else '...',
+                cls.format_value(date_to) if date_to else '...'))
+
+        journal_id = transaction_context.get('journal')
+        if journal_id:
+            Journal = pool.get('account.journal')
+            parts.append('Journal: %s' % Journal(journal_id).rec_name)
+
+        if transaction_context.get('posted', False):
+            parts.append('nur gebuchte Bewegungen')
+
+        return '; '.join(parts) if parts else 'keine Einschränkung'
+
+    @classmethod
+    def get_context(cls, records, header, data):
+        context = super().get_context(records, header, data)
+        context['format_value'] = cls.format_value
+        context['lines'] = records
+        context['total_start_balance'] = sum(
+            (line.start_balance or Decimal(0) for line in records),
+            Decimal(0))
+        context['total_debit'] = sum(
+            (line.debit or Decimal(0) for line in records), Decimal(0))
+        context['total_credit'] = sum(
+            (line.credit or Decimal(0) for line in records), Decimal(0))
+        context['total_end_balance'] = sum(
+            (line.end_balance or Decimal(0) for line in records),
+            Decimal(0))
+        context['selection_summary'] = cls._selection_summary()
+        return context
 
 
 class ContractCancelWarning(UserWarning):

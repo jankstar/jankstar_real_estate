@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<form>
+   <label name="fiscalyear"/>
+    <field name="fiscalyear"/>
+    <label name="company"/>
+    <field name="company"/>
+    
+    <label name="party"/>
+    <field name="party"/>
+    <label name="contract"/>
+    <field name="contract"/>
+
+    <label name="journal"/>
+    <field name="journal" widget="selection"/>
+    <group col="-1" colspan="2" id="checkboxes">
+        <label name="posted"/>
+        <field name="posted"/>
+    </group>
+
+    <label name="start_period"/>
+    <field name="start_period"/>
+    <label name="end_period"/>
+    <field name="end_period"/>
+
+    <label name="from_date"/>
+    <field name="from_date"/>
+    <label name="to_date"/>
+    <field name="to_date"/>
+</form>

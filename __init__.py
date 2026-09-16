@@ -54,6 +54,7 @@ def register():
         contract_core.ContractLogContext,
         contract_core.AccountContract,
         contract_core.GeneralLedgerAccountContract,
+        contract_core.ContractGeneralLedgerAccountContractContext,
         contract_core.Contract,
         contract_type.ContractTypeTax,
         contract_type.ContractType,
@@ -84,6 +85,7 @@ def register():
         invoice.Invoice,
         invoice.InvoiceLine,
         invoice.AccountMoveLine,
+        invoice.ContractMoveLinePayableReceivableContext,
         invoice.GeneralLedgerLine,
         company.Company,
         re_accounting.ReAccounting,
@@ -135,4 +137,6 @@ def register():
         base_object.BaseObjectReport,
         contract_report.ContractReport,
         contract_report.ContractAnnex4Report,
+        invoice.ContractMoveLinePayableReceivableReport,
+        contract_core.ContractGeneralLedgerAccountContractReport,
         module='real_estate', type_='report')

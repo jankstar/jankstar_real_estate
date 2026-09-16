@@ -369,6 +369,36 @@ msgctxt "field:account.move.line,contract:"
 msgid "Contract"
 msgstr "Vertrag"
 
+msgctxt "field:account.move.line,effective_contract:"
+msgid "Effective Contract"
+msgstr "Vertrag (inkl. Ausgleich)"
+
+msgctxt "help:account.move.line,effective_contract:"
+msgid ""
+"This line's own 'Contract' if set, else the 'Contract' of whichever "
+"other line in the same reconciliation group has one - so a payment "
+"line, which never gets its own contract at booking time, is still "
+"found when filtering/searching by contract via the invoice line it "
+"settles."
+msgstr ""
+"Der eigene „Vertrag“ dieser Zeile, sofern gesetzt, sonst der „Vertrag“ "
+"einer anderen Zeile derselben Ausgleichsgruppe (Reconciliation) - so "
+"wird auch eine Zahlungszeile, die beim Buchen nie einen eigenen "
+"Vertrag erhält, bei der Suche/Filterung nach Vertrag über die von ihr "
+"ausgeglichene Rechnungszeile gefunden."
+
+msgctxt "view:account.move.line:"
+msgid "Fälligkeitsdatum"
+msgstr "Fälligkeitsdatum"
+
+msgctxt "view:account.move.line:"
+msgid "Buchungsdatum"
+msgstr "Buchungsdatum"
+
+msgctxt "view:account.move.line:"
+msgid "Saldo"
+msgstr "Saldo"
+
 msgctxt "field:account.move.line,property:"
 msgid "Property"
 msgstr "Wirtschaftseinheit"
@@ -1547,6 +1577,50 @@ msgstr "Gesellschaft"
 msgctxt "field:real_estate.contract.context,property:"
 msgid "Property"
 msgstr "Wirtschaftseinheit"
+
+msgctxt "field:real_estate.contract.move_line_payable_receivable.context,company:"
+msgid "Company"
+msgstr "Gesellschaft"
+
+msgctxt "field:real_estate.contract.move_line_payable_receivable.context,party:"
+msgid "Party"
+msgstr "Partner"
+
+msgctxt "field:real_estate.contract.move_line_payable_receivable.context,contract:"
+msgid "Contract"
+msgstr "Vertrag"
+
+msgctxt "field:real_estate.contract.move_line_payable_receivable.context,account:"
+msgid "Account"
+msgstr "Konto"
+
+msgctxt "field:real_estate.contract.move_line_payable_receivable.context,date_from:"
+msgid "Date From"
+msgstr "Datum von"
+
+msgctxt "field:real_estate.contract.move_line_payable_receivable.context,date_to:"
+msgid "Date To"
+msgstr "Datum bis"
+
+msgctxt "field:real_estate.contract.move_line_payable_receivable.context,receivable:"
+msgid "Receivable"
+msgstr "Forderungen"
+
+msgctxt "field:real_estate.contract.move_line_payable_receivable.context,payable:"
+msgid "Payable"
+msgstr "Verbindlichkeiten"
+
+msgctxt "field:real_estate.contract.move_line_payable_receivable.context,reconciled:"
+msgid "Reconciled"
+msgstr "abgestimmt"
+
+msgctxt "field:real_estate.contract.general_ledger_account_contract.context,party:"
+msgid "Party"
+msgstr "Partner"
+
+msgctxt "field:real_estate.contract.general_ledger_account_contract.context,contract:"
+msgid "Contract"
+msgstr "Vertrag"
 
 #, fuzzy
 msgctxt "field:real_estate.contract.create_moves.confirm,action:"
@@ -3957,6 +4031,14 @@ msgctxt "model:ir.action,name:act_contract_form"
 msgid "Contract"
 msgstr "Vertrag"
 
+msgctxt "model:ir.action,name:act_contract_move_line_payable_receivable"
+msgid "Payable/Receivable Lines"
+msgstr "Verbindlichkeiten/Forderungen"
+
+msgctxt "model:ir.action,name:act_contract_general_ledger_account_contract"
+msgid "Kontenblatt"
+msgstr "Kontenblatt"
+
 #, fuzzy
 msgctxt "model:ir.action,name:act_contract_log"
 msgid "Contract Log"
@@ -4086,6 +4168,14 @@ msgstr "Vertrag Datenblatt (en)"
 msgctxt "model:ir.action,name:report_contract_letter_de"
 msgid "Contract Letter (de)"
 msgstr "Vertrag Brief  (de)"
+
+msgctxt "model:ir.action,name:report_contract_move_line_payable_receivable_de"
+msgid "Verbindlichkeiten/Forderungen (de)"
+msgstr "Verbindlichkeiten/Forderungen (de)"
+
+msgctxt "model:ir.action,name:report_contract_general_ledger_account_contract_de"
+msgid "Kontenblatt (de)"
+msgstr "Kontenblatt (de)"
 
 #, fuzzy
 msgctxt "model:ir.action,name:wizard_billing_unit"
@@ -5053,6 +5143,14 @@ msgstr "Storno Abrechnung"
 msgctxt "model:ir.ui.menu,name:menu_contract_form"
 msgid "Contract"
 msgstr "Vertrag"
+
+msgctxt "model:ir.ui.menu,name:menu_contract_move_line_payable_receivable"
+msgid "Payable/Receivable Lines"
+msgstr "Verbindlichkeiten/Forderungen"
+
+msgctxt "model:ir.ui.menu,name:menu_contract_general_ledger_account_contract"
+msgid "Kontenblatt"
+msgstr "Kontenblatt"
 
 msgctxt "model:ir.ui.menu,name:menu_contract_log"
 msgid "Contract Log"

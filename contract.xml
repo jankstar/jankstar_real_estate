@@ -117,7 +117,70 @@
             action="act_contract_form"
             sequence="10"
             id="menu_contract_form"
-            icon="property_icon"/>     
+            icon="property_icon"/>
+
+        <!-- Payable/Receivable Lines, standalone under Contracts -->
+        <record model="ir.ui.view"
+            id="contract_move_line_payable_receivable_context_form_view">
+            <field name="model">
+                real_estate.contract.move_line_payable_receivable.context</field>
+            <field name="type">form</field>
+            <field name="name">contract_move_line_payable_receivable_context_form</field>
+        </record>
+
+        <record model="ir.ui.view"
+            id="contract_move_line_view_list_payable_receivable">
+            <field name="model">account.move.line</field>
+            <field name="inherit"
+                ref="account.move_line_view_list_payable_receivable"/>
+            <field name="name">contract_move_line_payable_receivable_list</field>
+        </record>
+
+        <record model="ir.action.act_window"
+            id="act_contract_move_line_payable_receivable">
+            <field name="name">Payable/Receivable Lines</field>
+            <field name="res_model">account.move.line</field>
+            <field name="context_model">
+                real_estate.contract.move_line_payable_receivable.context</field>
+            <field name="context"
+                eval="{'party': Eval('party'), 'contract': Eval('contract'), 'account': Eval('account'), 'date_from': Eval('date_from'), 'date_to': Eval('date_to'), 'receivable': Eval('receivable'), 'payable': Eval('payable'), 'reconciled': Eval('reconciled')}"
+                pyson="1"/>
+            <field name="context_domain"
+                eval="[('company', '=', Eval('company', -1)), ['OR', If(Eval('receivable', True), ('account.type.receivable', '=', True), ('id', '&lt;', 0)), If(Eval('payable', True), ('account.type.payable', '=', True), ('id', '&lt;', 0))], If(Eval('reconciled', False), (), ('reconciliation', '=', None)), If(Eval('party', None), [('party', '=', Eval('party', None))], []), If(Eval('contract', None), [('effective_contract', '=', Eval('contract', None))], []), If(Eval('account', None), [('account', '=', Eval('account', None))], []), If(Eval('date_from', None), [('date', '&gt;=', Eval('date_from', None))], []), If(Eval('date_to', None), [('date', '&lt;=', Eval('date_to', None))], [])]"
+                pyson="1"/>
+            <field name="order"
+                eval="[('payable_receivable_date', 'ASC NULLS FIRST'), ('move', 'ASC')]"
+                pyson="1"/>
+        </record>
+        <record model="ir.action.act_window.view"
+            id="act_contract_move_line_payable_receivable_view1">
+            <field name="sequence" eval="10"/>
+            <field name="view" ref="contract_move_line_view_list_payable_receivable"/>
+            <field name="act_window" ref="act_contract_move_line_payable_receivable"/>
+        </record>
+        <menuitem
+            parent="menu_real_estate_contracts"
+            action="act_contract_move_line_payable_receivable"
+            sequence="15"
+            id="menu_contract_move_line_payable_receivable"
+            icon="tryton-list"/>
+
+        <record model="ir.action.report"
+            id="report_contract_move_line_payable_receivable_de">
+            <field name="name">Verbindlichkeiten/Forderungen (de)</field>
+            <field name="report_name">
+                real_estate.contract.move_line_payable_receivable.report</field>
+            <field name="model">account.move.line</field>
+            <field name="report">
+                real_estate/report/contract_move_line_payable_receivable_de.odt</field>
+            <field name="template_extension">odt</field>
+        </record>
+        <record model="ir.action.keyword"
+            id="report_contract_move_line_payable_receivable_keyword">
+            <field name="keyword">form_print</field>
+            <field name="model">account.move.line,-1</field>
+            <field name="action" ref="report_contract_move_line_payable_receivable_de"/>
+        </record>
 
 
         <record model="ir.ui.view" id="contract_type_view_list">
@@ -1042,6 +1105,66 @@
         <field name="keyword">form_relate</field>
         <field name="model">real_estate.contract,-1</field>
         <field name="action" ref="act_general_ledger_account_contract_form_contract"/>
+    </record>
+
+    <!-- Kontenblatt (Party Ledger), standalone under Contracts - same
+         model/context as the 'form_relate' action above, but without
+         the active_ids-based domain, and with the contract column
+         shown (redundant there, since it is always the same contract;
+         useful here since rows for every contract are mixed together) -->
+    <record model="ir.ui.view" id="contract_general_ledger_account_contract_view_list">
+        <field name="model">real_estate.account_contract</field>
+        <field name="inherit" ref="general_ledger_account_contract_view_list"/>
+        <field name="name">contract_general_ledger_account_contract_list</field>
+    </record>
+    <record model="ir.ui.view"
+        id="contract_general_ledger_account_contract_context_view_form">
+        <field name="model">
+            real_estate.contract.general_ledger_account_contract.context</field>
+        <field name="type">form</field>
+        <field name="name">contract_general_ledger_account_contract_context_form</field>
+    </record>
+    <record model="ir.action.act_window" id="act_contract_general_ledger_account_contract">
+        <field name="name">Kontenblatt</field>
+        <field name="res_model">real_estate.account_contract</field>
+        <field name="context_model">
+            real_estate.contract.general_ledger_account_contract.context</field>
+        <field name="context"
+            eval="{'fiscalyear': Eval('fiscalyear', None), 'start_period': Eval('start_period', None), 'end_period': Eval('end_period', None), 'from_date': Eval('from_date', None), 'to_date': Eval('to_date', None), 'company': Eval('company', None), 'posted': Eval('posted', False), 'journal': Eval('journal', None), 'party': Eval('party', None), 'contract': Eval('contract', None)}"
+            pyson="1"/>
+        <field name="context_domain"
+            eval="[If(Eval('party', None), [('party', '=', Eval('party', None))], []), If(Eval('contract', None), [('contract', '=', Eval('contract', None))], [])]"
+            pyson="1"/>
+        <field name="search_value" eval="[('line_count', '!=', 0)]" pyson="1"/>
+    </record>
+    <record model="ir.action.act_window.view"
+        id="act_contract_general_ledger_account_contract_view1">
+        <field name="sequence" eval="10"/>
+        <field name="view" ref="contract_general_ledger_account_contract_view_list"/>
+        <field name="act_window" ref="act_contract_general_ledger_account_contract"/>
+    </record>
+    <menuitem
+        parent="menu_real_estate_contracts"
+        action="act_contract_general_ledger_account_contract"
+        sequence="16"
+        id="menu_contract_general_ledger_account_contract"
+        icon="tryton-list"/>
+
+    <record model="ir.action.report"
+        id="report_contract_general_ledger_account_contract_de">
+        <field name="name">Kontenblatt (de)</field>
+        <field name="report_name">
+            real_estate.contract.general_ledger_account_contract.report</field>
+        <field name="model">real_estate.account_contract</field>
+        <field name="report">
+            real_estate/report/contract_general_ledger_account_contract_de.odt</field>
+        <field name="template_extension">odt</field>
+    </record>
+    <record model="ir.action.keyword"
+        id="report_contract_general_ledger_account_contract_keyword">
+        <field name="keyword">form_print</field>
+        <field name="model">real_estate.account_contract,-1</field>
+        <field name="action" ref="report_contract_general_ledger_account_contract_de"/>
     </record>
 
         <!-- *** ContractTermCashFlow standalone menu *** -->
