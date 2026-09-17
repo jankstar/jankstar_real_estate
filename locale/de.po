@@ -5816,7 +5816,7 @@ msgstr "Immobilien Administration"
 
 msgctxt "model:res.group,name:group_real_estate_billing"
 msgid "Real Estate Billing"
-msgstr ""
+msgstr "Immobilien Abrechnung"
 
 msgctxt "model:res.group,name:group_real_estate_contract"
 msgid "Real Estate Contract"
@@ -5825,6 +5825,18 @@ msgstr "Immobilienvertrag"
 msgctxt "model:res.group,name:group_real_estate_object"
 msgid "Real Estate Object"
 msgstr "Immobilienobjekt"
+
+msgctxt "model:res.group,name:group_real_estate_view"
+msgid "Real Estate View"
+msgstr "Immobilien Anzeigen"
+
+msgctxt "model:res.group,name:group_account_view"
+msgid "Accounting View"
+msgstr "Rechnungswesen Anzeigen"
+
+msgctxt "model:res.group,name:group_party_access"
+msgid "Party Access"
+msgstr "Partner Zugriff"
 
 #, fuzzy
 msgctxt "selection:account.invoice.line,assignment_control:"

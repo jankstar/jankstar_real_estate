@@ -1,0 +1,47 @@
+<?xml version="1.0"?>
+<tryton>
+    <data>
+
+        <!-- party.party had NO ir.model.access records anywhere in core
+             or in this module (confirmed by querying a live database) -
+             Tryton's default for a model with zero access rows is full
+             CRUD for everyone, since parties are normally shared openly
+             across many unrelated modules (sales, purchasing,
+             accounting...). Per explicit request, this is now locked
+             down: only members of this dedicated group may create,
+             modify, or delete parties - every other role (including this
+             module's own group_real_estate_admin/object/contract/billing
+             and the two "view" groups) keeps read-only access, needed so
+             party names still display wherever a party is merely
+             referenced (contracts, invoices, lists...). Deliberately a
+             separate, explicitly-assigned role rather than folding this
+             into any existing group, and deliberately not referencing
+             any group from other, optional modules (sale/purchase etc.)
+             this module does not depend on - those need to be granted
+             this same group directly by an administrator if required. -->
+        <record model="res.group" id="group_party_access">
+            <field name="name">Party Access</field>
+        </record>
+
+        <record model="res.user-res.group" id="user_admin_group_party_access">
+            <field name="user" ref="res.user_admin"/>
+            <field name="group" ref="group_party_access"/>
+        </record>
+
+        <record model="ir.model.access" id="access_party_party_default">
+            <field name="model">party.party</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_party_party_group_party_access">
+            <field name="model">party.party</field>
+            <field name="group" ref="group_party_access"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+    </data>
+</tryton>

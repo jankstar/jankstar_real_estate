@@ -1,0 +1,115 @@
+<?xml version="1.0"?>
+<tryton>
+    <data>
+
+        <!-- Read-only counterpart to core's "Rechnungswesen" group
+             (account.group_account): same ten models that group has its
+             own ir.model.access records for (found by querying a live
+             database, since group_account's permissions are additive with
+             its child group_account_admin's - the account.account/period/
+             fiscalyear/tax etc. models are only reachable that way, not
+             directly on group_account itself), each downgraded to
+             read-only here. Lets a user see accounting data (invoices,
+             moves, general ledger, aged balance) without being able to
+             change anything, independent of the real_estate-specific
+             group_real_estate_view group (group_real_estate_view.xml). -->
+        <record model="res.group" id="group_account_view">
+            <field name="name">Accounting View</field>
+        </record>
+
+        <!-- The top-level "Rechnungswesen" menu is only visible to groups
+             explicitly listed here (account.menu_account_group_account /
+             _admin in core's account.xml) - ir.model.access read
+             permission on the underlying models alone does not make the
+             menu itself appear. This is the ONLY menu with such a
+             restriction on group_account (confirmed by querying a live
+             database for every ir.ui.menu whose groups include
+             group_account); everything below it is unrestricted at the
+             menu level, gated only by each item's own model access. -->
+        <record model="ir.ui.menu-res.group" id="menu_account_group_account_view">
+            <field name="menu" ref="account.menu_account"/>
+            <field name="group" ref="group_account_view"/>
+        </record>
+
+        <record model="ir.model.access" id="access_account_aged_balance_view">
+            <field name="model">account.aged_balance</field>
+            <field name="group" ref="group_account_view"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_account_general_ledger_account_view">
+            <field name="model">account.general_ledger.account</field>
+            <field name="group" ref="group_account_view"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_account_general_ledger_account_party_view">
+            <field name="model">account.general_ledger.account.party</field>
+            <field name="group" ref="group_account_view"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_account_invoice_view">
+            <field name="model">account.invoice</field>
+            <field name="group" ref="group_account_view"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_account_invoice_line_view">
+            <field name="model">account.invoice.line</field>
+            <field name="group" ref="group_account_view"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_account_invoice_payment_mean_rule_view">
+            <field name="model">account.invoice.payment.mean.rule</field>
+            <field name="group" ref="group_account_view"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_account_journal_period_view">
+            <field name="model">account.journal.period</field>
+            <field name="group" ref="group_account_view"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_account_move_view">
+            <field name="model">account.move</field>
+            <field name="group" ref="group_account_view"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_account_move_reconciliation_view">
+            <field name="model">account.move.reconciliation</field>
+            <field name="group" ref="group_account_view"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_account_move_template_view">
+            <field name="model">account.move.template</field>
+            <field name="group" ref="group_account_view"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+    </data>
+</tryton>

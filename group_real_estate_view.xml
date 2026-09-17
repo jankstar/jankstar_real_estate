@@ -1,0 +1,385 @@
+<?xml version="1.0"?>
+<tryton>
+    <data>
+
+        <!-- Read-only viewer group for the whole module: granted explicit
+             read access to every real_estate.* model that already has its
+             own per-group ir.model.access records (business models with a
+             locked-down "_default" no-access fallback) - lets a user see
+             everything without being able to change anything, regardless of
+             which of the other functional groups (Administration/Object/
+             Contract/Billing) they would otherwise need for write access. -->
+        <record model="res.group" id="group_real_estate_view">
+            <field name="name">Real Estate View</field>
+        </record>
+
+        <record model="ir.model.access" id="access_account_contract_view">
+            <field name="model">real_estate.account_contract</field>
+            <field name="group" ref="group_real_estate_view"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_address_view">
+            <field name="model">real_estate.address</field>
+            <field name="group" ref="group_real_estate_view"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_base_object_view">
+            <field name="model">real_estate.base_object</field>
+            <field name="group" ref="group_real_estate_view"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_base_object_occupancy_view">
+            <field name="model">real_estate.base_object.occupancy</field>
+            <field name="group" ref="group_real_estate_view"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_billing_unit_view">
+            <field name="model">real_estate.billing_unit</field>
+            <field name="group" ref="group_real_estate_view"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_billing_unit_log_view">
+            <field name="model">real_estate.billing_unit.log</field>
+            <field name="group" ref="group_real_estate_view"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_billing_unit_moves_view">
+            <field name="model">real_estate.billing_unit.moves</field>
+            <field name="group" ref="group_real_estate_view"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_bved_export_view">
+            <field name="model">real_estate.bved.export</field>
+            <field name="group" ref="group_real_estate_view"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_bved_export_billing_unit_view">
+            <field name="model">real_estate.bved.export-billing_unit</field>
+            <field name="group" ref="group_real_estate_view"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_bved_import_view">
+            <field name="model">real_estate.bved.import</field>
+            <field name="group" ref="group_real_estate_view"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_bved_import_line_view">
+            <field name="model">real_estate.bved.import.line</field>
+            <field name="group" ref="group_real_estate_view"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_bved_object_number_view">
+            <field name="model">real_estate.bved.object_number</field>
+            <field name="group" ref="group_real_estate_view"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_bved_object_number_m_satz_line_view">
+            <field name="model">real_estate.bved.object_number.m_satz_line</field>
+            <field name="group" ref="group_real_estate_view"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_bved_provider_assignment_view">
+            <field name="model">real_estate.bved.provider_assignment</field>
+            <field name="group" ref="group_real_estate_view"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_bved_service_provider_view">
+            <field name="model">real_estate.bved.service_provider</field>
+            <field name="group" ref="group_real_estate_view"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_bved_unit_view">
+            <field name="model">real_estate.bved.unit</field>
+            <field name="group" ref="group_real_estate_view"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_co2_emission_share_view">
+            <field name="model">real_estate.co2_emission_share</field>
+            <field name="group" ref="group_real_estate_view"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_co2_kostaufg_view">
+            <field name="model">real_estate.co2_kostaufg</field>
+            <field name="group" ref="group_real_estate_view"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_co2_kostaufg_consumption_view">
+            <field name="model">real_estate.co2_kostaufg.consumption</field>
+            <field name="group" ref="group_real_estate_view"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_co2_kostaufg_consumption_energy_mix_view">
+            <field name="model">real_estate.co2_kostaufg.consumption.energy_mix</field>
+            <field name="group" ref="group_real_estate_view"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_contract_view">
+            <field name="model">real_estate.contract</field>
+            <field name="group" ref="group_real_estate_view"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_contract_account_contract_view">
+            <field name="model">real_estate.contract.account_contract</field>
+            <field name="group" ref="group_real_estate_view"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_contract_item_view">
+            <field name="model">real_estate.contract.item</field>
+            <field name="group" ref="group_real_estate_view"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_contract_item_object_view">
+            <field name="model">real_estate.contract.item.object</field>
+            <field name="group" ref="group_real_estate_view"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_contract_log_view">
+            <field name="model">real_estate.contract.log</field>
+            <field name="group" ref="group_real_estate_view"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_contract_term_view">
+            <field name="model">real_estate.contract.term</field>
+            <field name="group" ref="group_real_estate_view"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_contract_term_adjustment_view">
+            <field name="model">real_estate.contract.term.adjustment</field>
+            <field name="group" ref="group_real_estate_view"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_contract_term_cash_flow_view">
+            <field name="model">real_estate.contract.term.cash_flow</field>
+            <field name="group" ref="group_real_estate_view"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_contract_term_tax_view">
+            <field name="model">real_estate.contract.term.tax</field>
+            <field name="group" ref="group_real_estate_view"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_contract_term_type_view">
+            <field name="model">real_estate.contract.term.type</field>
+            <field name="group" ref="group_real_estate_view"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_contract_term_type_contract_type_view">
+            <field name="model">real_estate.contract.term.type-contract.type</field>
+            <field name="group" ref="group_real_estate_view"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_contract_type_view">
+            <field name="model">real_estate.contract.type</field>
+            <field name="group" ref="group_real_estate_view"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_contract_type_tax_view">
+            <field name="model">real_estate.contract.type.tax</field>
+            <field name="group" ref="group_real_estate_view"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_cost_category_group_view">
+            <field name="model">real_estate.cost_category_group</field>
+            <field name="group" ref="group_real_estate_view"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_cost_share_view">
+            <field name="model">real_estate.cost_share</field>
+            <field name="group" ref="group_real_estate_view"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_cost_type_view">
+            <field name="model">real_estate.cost_type</field>
+            <field name="group" ref="group_real_estate_view"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_cron_task_view">
+            <field name="model">real_estate.cron_task</field>
+            <field name="group" ref="group_real_estate_view"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_measurement_view">
+            <field name="model">real_estate.measurement</field>
+            <field name="group" ref="group_real_estate_view"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_measurement_type_view">
+            <field name="model">real_estate.measurement.type</field>
+            <field name="group" ref="group_real_estate_view"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_meter_reading_view">
+            <field name="model">real_estate.meter_reading</field>
+            <field name="group" ref="group_real_estate_view"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_object_party_view">
+            <field name="model">real_estate.object_party</field>
+            <field name="group" ref="group_real_estate_view"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_object_party_role_view">
+            <field name="model">real_estate.object_party.role</field>
+            <field name="group" ref="group_real_estate_view"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_option_rate_view">
+            <field name="model">real_estate.option_rate</field>
+            <field name="group" ref="group_real_estate_view"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_re_accounting_view">
+            <field name="model">real_estate.re_accounting</field>
+            <field name="group" ref="group_real_estate_view"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_settlement_result_view">
+            <field name="model">real_estate.settlement_result</field>
+            <field name="group" ref="group_real_estate_view"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_settlement_unit_view">
+            <field name="model">real_estate.settlement_unit</field>
+            <field name="group" ref="group_real_estate_view"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+    </data>
+</tryton>
