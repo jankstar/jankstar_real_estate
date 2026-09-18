@@ -823,7 +823,7 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
                 },
             'open_party_ledger': {
                 'invisible': Eval('state').in_(['draft'])
-                }
+                },
             })
 
     @classmethod

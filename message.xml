@@ -267,6 +267,9 @@ Either run "Ready for Billing" for each billing unit first, or bill individual b
         <record model="ir.message" id="msg_contract_unlimited_with_end_date">
             <field name="text">"%(name)s": an unlimited contract must not have an end date. Either clear the end date or unset "Unlimited Contract".</field>
         </record>
+        <record model="ir.message" id="msg_contract_termination_confirmation_not_terminated">
+            <field name="text">"%(name)s": a termination confirmation can only be printed for a contract that has been terminated.</field>
+        </record>
         <record model="ir.message" id="msg_cron_task_invalid_day">
             <field name="text">"%(name)s": "Run on Day of Month" must be between 1 and 31.</field>
         </record>

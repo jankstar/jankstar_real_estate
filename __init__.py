@@ -137,6 +137,7 @@ def register():
         base_object.BaseObjectReport,
         contract_report.ContractReport,
         contract_report.ContractAnnex4Report,
+        contract_report.ContractTerminationConfirmationReport,
         invoice.ContractMoveLinePayableReceivableReport,
         contract_core.ContractGeneralLedgerAccountContractReport,
         module='real_estate', type_='report')

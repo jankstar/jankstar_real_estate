@@ -415,6 +415,28 @@
         <field name="action" ref="report_contract_annex4_de"/>
       </record>
 
+      <!-- Termination confirmation: listed in the standard Print toolbar
+           like the Contract Letter/Annex 4 reports above (form_print
+           keyword), not gated by a dedicated button - "only available
+           once a termination is recorded" is enforced by the report's
+           own get_context() instead, which raises a clear error if the
+           contract isn't in state='terminated'. -->
+      <record model="ir.action.report" id="report_contract_termination_confirmation_de">
+        <field name="name">Kündigungsbestätigung (de)</field>
+        <field name="report_name">
+            real_estate.contract.termination_confirmation.report</field>
+        <field name="model">real_estate.contract</field>
+        <field name="report">
+            real_estate/report/contract_termination_confirmation_de.odt</field>
+        <field name="template_extension">odt</field>
+      </record>
+      <record model="ir.action.keyword"
+          id="report_contract_termination_confirmation_keyword">
+        <field name="keyword">form_print</field>
+        <field name="model">real_estate.contract,-1</field>
+        <field name="action" ref="report_contract_termination_confirmation_de"/>
+      </record>
+
     <record model="ir.rule.group" id="rule_group_contract_companies">
         <field name="name">User in companies</field>
         <field name="model">real_estate.contract</field>
