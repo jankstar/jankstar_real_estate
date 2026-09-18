@@ -16,6 +16,9 @@
             <separator id="sep_objects" string="Objects" colspan="6"/>
             <field name="objects" colspan="6"
                 view_ids="real_estate.contract_item_object_list"/>
+            <separator id="sep_terms" string="Terms" colspan="6"/>
+            <field name="terms" colspan="6"
+                view_ids="real_estate.contract_view_list_object_term"/>
         </page>
         <page string="Measurements" id="page_measurements" col="6">
             <newline/>

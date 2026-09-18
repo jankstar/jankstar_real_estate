@@ -1099,6 +1099,16 @@ class ContractTerm(sequence_ordered(), ModelSQL, ModelView, TaxableMixin):
                     return item
         return getattr(self, 'reference_item', None)
 
+    @fields.depends('reference_item', 'contract', '_parent_reference_item.contract')
+    def on_change_reference_item(self):
+        # Lets a term be created directly under the item's own 'Terms' list
+        # (reference_item set implicitly there, unlike the required
+        # top-level 'contract' field) without the item having to be saved
+        # first - only fills 'contract' when still empty, so it never
+        # overrides a value the user (or on_change_contract) already set.
+        if self.reference_item and self.contract is None:
+            self.contract = self.reference_item.contract
+
     @fields.depends('contract', '_parent_contract.c_type')
     def on_change_with_invoice_type(self, name=None):
         if self.contract and self.contract.c_type:

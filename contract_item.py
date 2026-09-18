@@ -124,6 +124,12 @@ class ContractItem(sequence_ordered(), ModelSQL, ModelView, metaclass=PoolMeta):
          path='path', ondelete='CASCADE')
     label = fields.Char("Label")
     objects = fields.One2Many('real_estate.contract.item.object', 'item', 'Objects')
+    terms = fields.One2Many('real_estate.contract.term', 'reference_item', 'Terms',
+        help="Terms referencing this item. New terms can be added here "
+             "directly - unlike the contract's own Terms tab, this does "
+             "not require the item to be saved first, since 'reference_item' "
+             "is set implicitly by this list rather than picked from a "
+             "server-side search.")
     valid_from = fields.Date('Valid from', required=True)
     valid_to = fields.Date('Valid to')
 
