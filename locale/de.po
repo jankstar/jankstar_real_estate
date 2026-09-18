@@ -1303,6 +1303,22 @@ msgctxt "field:real_estate.cancel_billing.start,property:"
 msgid "Property"
 msgstr "Wirtschaftseinheit"
 
+msgctxt "field:real_estate.cancel_period_booking.start,company:"
+msgid "Company"
+msgstr "Unternehmen"
+
+msgctxt "field:real_estate.cancel_period_booking.start,create_moves_run_id:"
+msgid "Create Moves Run ID"
+msgstr "ID Buchungslauf"
+
+msgctxt "field:real_estate.cancel_period_booking.start,invoice_date:"
+msgid "Invoice Date"
+msgstr "Rechnungsdatum"
+
+msgctxt "field:real_estate.cancel_period_booking.start,property:"
+msgid "Property"
+msgstr "Wirtschaftseinheit"
+
 msgctxt "field:real_estate.contract,c_type:"
 msgid "Contract Type"
 msgstr "Vertragsart"
@@ -2297,7 +2313,7 @@ msgstr ""
 
 msgctxt "field:real_estate.contract_term_adjustment.start,adjustment_mode:"
 msgid "Adjustment Mode"
-msgstr ""
+msgstr "Anpassungsart"
 
 msgctxt "field:real_estate.contract_term_adjustment.start,billing_run_id:"
 msgid "Billing Run ID"
@@ -2314,34 +2330,34 @@ msgstr "Währung"
 msgctxt ""
 "field:real_estate.contract_term_adjustment.start,max_adjustment_absolute:"
 msgid "Max Adjustment Absolute"
-msgstr ""
+msgstr "Max. Anpassung absolut"
 
 msgctxt ""
 "field:real_estate.contract_term_adjustment.start,max_adjustment_percent:"
 msgid "Max Adjustment %"
-msgstr ""
+msgstr "Max. Anpassung %"
 
 msgctxt "field:real_estate.contract_term_adjustment.start,no_booked_terms:"
 msgid "Do Not Adjust Booked Terms"
-msgstr ""
+msgstr "Gebuchte Konditionen nicht anpassen"
 
 msgctxt "field:real_estate.contract_term_adjustment.start,no_future_terms:"
 msgid "No Future Terms"
-msgstr ""
+msgstr "Keine zukünftigen Konditionen"
 
 msgctxt ""
 "field:real_estate.contract_term_adjustment.start,no_terminated_contracts:"
 msgid "No Contracts with Termination"
-msgstr ""
+msgstr "Keine gekündigten Verträge"
 
 msgctxt ""
 "field:real_estate.contract_term_adjustment.start,only_rhythm_monthly_1:"
 msgid "Only Rhythm Monthly x1"
-msgstr ""
+msgstr "Nur Rhythmus monatlich x1"
 
 msgctxt "field:real_estate.contract_term_adjustment.start,procedure:"
 msgid "Adjustment Procedure"
-msgstr ""
+msgstr "Anpassungsverfahren"
 
 msgctxt "field:real_estate.contract_term_adjustment.start,property:"
 msgid "Property"
@@ -2349,7 +2365,7 @@ msgstr "Wirtschaftseinheit"
 
 msgctxt "field:real_estate.contract_term_adjustment.start,valid_from_new:"
 msgid "Valid From (New Term)"
-msgstr ""
+msgstr "Gültig ab (neue Kondition)"
 
 msgctxt "field:real_estate.cost_category_group,name:"
 msgid "Name"
@@ -4121,6 +4137,10 @@ msgctxt "model:ir.action,name:wizard_cancel_billing"
 msgid "Cancel Billing"
 msgstr "Storno Abrechnung"
 
+msgctxt "model:ir.action,name:wizard_cancel_period_booking"
+msgid "Cancel Period Booking"
+msgstr "Storno period. Buchung"
+
 msgctxt "model:ir.action,name:wizard_contract_running"
 msgid "Set Running"
 msgstr "Vertrag aktivieren"
@@ -5059,6 +5079,10 @@ msgstr "Gebäude"
 msgctxt "model:ir.ui.menu,name:menu_cancel_billing"
 msgid "Cancel Billing"
 msgstr "Storno Abrechnung"
+
+msgctxt "model:ir.ui.menu,name:menu_cancel_period_booking"
+msgid "Cancel Period Booking"
+msgstr "Storno period. Buchung"
 
 msgctxt "model:ir.ui.menu,name:menu_contract_form"
 msgid "Contract"
@@ -6126,7 +6150,7 @@ msgstr "vierteljährlich"
 
 msgctxt "selection:real_estate.contract.term.adjustment,adjustment_mode:"
 msgid "Absolute"
-msgstr ""
+msgstr "Absolut"
 
 msgctxt "selection:real_estate.contract.term.adjustment,adjustment_mode:"
 msgid "Percentage"
@@ -6202,7 +6226,7 @@ msgstr "wöchendlich"
 
 msgctxt "selection:real_estate.contract_term_adjustment.start,procedure:"
 msgid "Free Adjustment"
-msgstr ""
+msgstr "Freie Anpassung"
 
 msgctxt "selection:real_estate.contract_term_adjustment.start,procedure:"
 msgid "Operation Costs Billing"
@@ -6210,7 +6234,7 @@ msgstr "Betriebskostenabrechnung"
 
 msgctxt "selection:real_estate.contract_term_adjustment.start,procedure:"
 msgid "Operation Costs Plan"
-msgstr ""
+msgstr "Betriebskostenplan"
 
 msgctxt "selection:real_estate.cost_share,state:"
 msgid "Error"
@@ -6510,7 +6534,7 @@ msgstr "Wert je Bemessung"
 
 msgctxt "view:real_estate.contract:"
 msgid "Cancel"
-msgstr "Aktivierung zurücksetzten"
+msgstr "Aktivierung zurücknehmen"
 
 msgctxt "view:real_estate.contract:"
 msgid "Cash Flow"

@@ -1,5 +1,7 @@
 'Contract Wizards'
 from trytond.model import ModelView, fields
+from trytond.model.exceptions import ValidationError
+from trytond.i18n import gettext
 from trytond.pool import Pool
 from trytond.transaction import Transaction
 from trytond.pyson import Eval
@@ -348,6 +350,106 @@ class CreateContractMovesWizard(Wizard):
             'mode': self.result.mode,
             'message': self.result.message,
         }
+
+
+#**********************************************************************
+class CancelPeriodBookingStart(ModelView):
+    'Cancel Period Booking - Start'
+    __name__ = 'real_estate.cancel_period_booking.start'
+
+    company = fields.Many2One('company.company', 'Company', required=True)
+    property = fields.Many2One('real_estate.base_object', 'Property',
+        domain=[
+            ('type', '=', 'property'),
+            ('company', '=', Eval('company', -1)),
+        ])
+    create_moves_run_id = fields.Selection('get_run_ids', 'Create Moves Run ID',
+        required=True,
+        help="Only run IDs of already booked period postings (state="
+             "'done') matching Company/Property above are shown. All "
+             "postings with this run ID will be cancelled.")
+    invoice_date = fields.Date('Invoice Date', required=True,
+        help="Reference date for this cancellation, recorded in the "
+             "contract log. The date of the reversal accounting move "
+             "itself is determined automatically by the accounting "
+             "module.")
+
+    @fields.depends('company', 'property')
+    def get_run_ids(self):
+        pool = Pool()
+        CashFlowLine = pool.get('real_estate.contract.term.cash_flow')
+        domain = [('state', '=', 'done'), ('create_moves_run_id', '!=', None)]
+        if self.company:
+            domain.append(('company', '=', self.company.id))
+        if self.property:
+            domain.append(('property', '=', self.property.id))
+        lines = CashFlowLine.search(domain)
+        run_ids = sorted(
+            {l.create_moves_run_id for l in lines if l.create_moves_run_id})
+        return [(run_id, run_id) for run_id in run_ids]
+
+    @staticmethod
+    def default_invoice_date():
+        return Pool().get('ir.date').today()
+
+    @classmethod
+    def default_company(cls):
+        pool = Pool()
+        context = Transaction().context
+        active_id = context.get('active_id')
+        active_model = context.get('active_model')
+        if active_id and active_model == 'real_estate.base_object':
+            prop = pool.get('real_estate.base_object')(active_id)
+            return prop.company.id if prop.company else None
+        if active_id and active_model == 'real_estate.contract':
+            contract = pool.get('real_estate.contract')(active_id)
+            return contract.company.id if contract.company else None
+        user = pool.get('res.user')(Transaction().user)
+        return user.company.id if user.company else None
+
+    @classmethod
+    def default_property(cls):
+        pool = Pool()
+        context = Transaction().context
+        active_id = context.get('active_id')
+        active_model = context.get('active_model')
+        if active_id and active_model == 'real_estate.base_object':
+            return active_id
+        if active_id and active_model == 'real_estate.contract':
+            contract = pool.get('real_estate.contract')(active_id)
+            return contract.property.id if contract.property else None
+        return None
+
+
+#**********************************************************************
+class CancelPeriodBookingWizard(Wizard):
+    'Cancel Period Booking Wizard'
+    __name__ = 'real_estate.cancel_period_booking.wizard'
+
+    start = StateView('real_estate.cancel_period_booking.start',
+        'real_estate.cancel_period_booking_start_view_form', [
+            Button('Cancel', 'end', 'tryton-cancel'),
+            Button('OK', 'do_cancel', 'tryton-ok', True),
+        ])
+    do_cancel = StateTransition()
+
+    def transition_do_cancel(self):
+        pool = Pool()
+        CashFlowLine = pool.get('real_estate.contract.term.cash_flow')
+        Contract = pool.get('real_estate.contract')
+
+        lines = CashFlowLine.search([
+            ('create_moves_run_id', '=', self.start.create_moves_run_id),
+            ('state', '=', 'done'),
+        ])
+        if not lines:
+            raise ValidationError(gettext(
+                'real_estate.msg_cancel_period_booking_no_lines_found',
+                run_id=self.start.create_moves_run_id))
+
+        Contract.cancel_period_booking(lines, invoice_date=self.start.invoice_date)
+
+        return 'end'
 
 
 #**********************************************************************

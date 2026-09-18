@@ -1695,6 +1695,64 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
                 f' (state={invoice_state}, posting_date={posting_date}).')
 
     @classmethod
+    def cancel_period_booking(cls, cash_flow_lines, invoice_date=None):
+        """Cancel a period booking run, given its already-booked
+        (state='done') cash flow lines - one call per create_moves_run_id,
+        analogous to BillingUnit.cancel_units for billing_run_id."""
+        pool = Pool()
+        Invoice = pool.get('account.invoice')
+        CashFlowLine = pool.get('real_estate.contract.term.cash_flow')
+
+        # 'posted' and 'paid' invoices are always reversed via a credit note
+        # (never cancelled directly); only when the original is still open
+        # ('posted') is it also reconciled against the new credit note's
+        # matching line. Everything else (typically 'draft') is simply
+        # cancelled. Same rule as BillingUnit.cancel_units.
+        invoice_ids = {cf.invoice.id for cf in cash_flow_lines if cf.invoice}
+        if invoice_ids:
+            MoveLine = pool.get('account.move.line')
+            invoices = Invoice.browse(list(invoice_ids))
+            to_credit = [i for i in invoices if i.state in ('posted', 'paid')]
+            to_cancel = [
+                i for i in invoices if i.state not in ('posted', 'paid', 'cancelled')]
+
+            if to_cancel:
+                Invoice.cancel(to_cancel)
+
+            if to_credit:
+                new_invoices = Invoice.credit(
+                    to_credit, refund=False, invoice_date=invoice_date)
+                Invoice.post(new_invoices)
+
+                for invoice, new_invoice in zip(to_credit, new_invoices):
+                    if invoice.state != 'posted':
+                        continue
+                    open_lines = [
+                        line for line in
+                        list(invoice.lines_to_pay) + list(new_invoice.lines_to_pay)
+                        if not line.reconciliation]
+                    if open_lines and sum(
+                            line.debit - line.credit
+                            for line in open_lines) == Decimal(0):
+                        MoveLine.reconcile(open_lines)
+
+        # Reset the cash flow lines back to draft, unlinked from the
+        # (now cancelled/credited) invoice line, so a future period
+        # booking run recreates them. document_date/due_date belong to the
+        # recurring schedule itself and are left untouched.
+        CashFlowLine.write(list(cash_flow_lines), {
+            'state': 'draft',
+            'invoice_line': None,
+            'posting_date': None,
+            'create_moves_run_id': None,
+        })
+
+        contracts = {cf.contract for cf in cash_flow_lines if cf.contract}
+        for contract in contracts:
+            contract.add_log('cancel_period_booking',
+                'Period booking cancelled.')
+
+    @classmethod
     def call_create_moves(cls, contract_ids, date, action='re_calc', execute_in_queue=True, invoice_state='draft', invoice_date=None):
         """call create_moves in queue or directly based on execute_in_queue flag"""
         if len(contract_ids) > 0:

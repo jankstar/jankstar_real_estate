@@ -70,6 +70,7 @@ def register():
         contract_wizard.CreateContractMovesStart,
         contract_wizard.CreateContractMovesConfirm,
         contract_wizard.CreateContractMovesResult,
+        contract_wizard.CancelPeriodBookingStart,
         contract_wizard.TerminateContractStart,
         billing_unit_wizard.BillingUnitStart,
         billing_unit_wizard.BillingUnitConfirm,
@@ -127,6 +128,7 @@ def register():
         module='real_estate', type_='model')
     Pool.register(
         contract_wizard.CreateContractMovesWizard,
+        contract_wizard.CancelPeriodBookingWizard,
         contract_wizard.TerminateContractWizard,
         contract_wizard.ContractRunningWizard,
         base_object.EstimateConsumptionWizard,

@@ -992,6 +992,23 @@
         action="wizard_create_moves"
         id="menu_create_moves"/>
 
+    <!-- Cancel Period Booking Wizard -->
+    <record model="ir.ui.view" id="cancel_period_booking_start_view_form">
+        <field name="model">real_estate.cancel_period_booking.start</field>
+        <field name="type">form</field>
+        <field name="name">cancel_period_booking_start_form</field>
+    </record>
+    <record model="ir.action.wizard" id="wizard_cancel_period_booking">
+        <field name="name">Cancel Period Booking</field>
+        <field name="wiz_name">real_estate.cancel_period_booking.wizard</field>
+    </record>
+
+    <menuitem
+        parent="menu_create_moves"
+        sequence="10"
+        action="wizard_cancel_period_booking"
+        id="menu_cancel_period_booking"/>
+
     <!-- Contract Term Adjustment Wizard -->
     <record model="ir.ui.view" id="contract_term_adjustment_start_view_form">
         <field name="model">real_estate.contract_term_adjustment.start</field>
