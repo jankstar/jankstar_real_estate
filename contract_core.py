@@ -717,15 +717,17 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
         fields.One2Many('real_estate.contract.term.cash_flow', None, 'Cash Flow draft', readonly=True),
         'on_change_with_cash_flow_draft', setter='set_cash_flow')
 
-    cash_flow_pending = fields.One2Many('account.invoice', 'contract', 'Cash Flow Pending',
-        filter=[('state', '=', 'posted')],
+    cash_flow_booked = fields.One2Many('account.invoice', 'contract', 'Cash Flow Booked',
+        filter=[('state', 'in', ('posted', 'paid'))],
         order=[('invoice_date', 'ASC')],
-        states={'readonly': True})
-
-    cash_flow_paid = fields.One2Many('account.invoice', 'contract', 'Cash Flow Paid',
-        filter=[('state', '=', 'paid')],
-        order=[('invoice_date', 'ASC')],
-        states={'readonly': True})
+        states={'readonly': True},
+        help="Booked invoices (posted or paid) for this contract. Not "
+             "split by paid/open - an advance payment invoice can stay "
+             "open past its own due date until the operating cost "
+             "settlement resolves it, so that distinction does not "
+             "reliably reflect what the tenant actually owes; see the "
+             "'Payable/Receivable Lines' relate action for actual open "
+             "items on the receivable/payable account.")
 
     meters = fields.Function(
         fields.One2Many('real_estate.base_object', None, 'Meters'),

@@ -9,13 +9,15 @@ This page describes every master-data record that must exist before the
 manually or confirmed after installation.
 
 
-SKR04 Chart of Accounts **[auto]**
+WoWi Chart of Accounts **[auto]**
 ===================================
 
-The module ships a complete German SKR04 chart of accounts under
-``skr04/``.  It is loaded automatically at installation and provides:
+The module ships a complete German "Kontenrahmen der Wohnungswirtschaft"
+(WoWi, housing-industry chart of accounts) under ``wowi/``.  It is loaded
+automatically at installation and provides:
 
-- Account types and accounts (e.g. 4120 Mieterträge, 1600 Forderungen)
+- Account types and accounts (e.g. 6000 Sollmieten, 2000
+  Mietenkontokorrent-Sammelkonto)
 - Tax groups, tax templates (7 % / 19 % MwSt.)
 - Tax code templates and tax rule templates
 
@@ -375,7 +377,7 @@ added freely under *Real Estate → Configuration → Cost Types*.
 Taxes
 =====
 
-The SKR04 templates include tax records for 7 % and 19 % VAT.  After
+The WoWi templates include tax records for 7 % and 19 % VAT.  After
 applying the chart of accounts, verify that the tax record
 *USt. 19 % Umsatzsteuer voller Satz Waren Inland* exists under
 *Accounting → Taxes*.  This tax is used by ``test_contracts.py`` for

@@ -1327,17 +1327,13 @@ msgctxt "field:real_estate.contract,cancelled_by:"
 msgid "Cancelled By User"
 msgstr "Kündigung durch Mieter"
 
+msgctxt "field:real_estate.contract,cash_flow_booked:"
+msgid "Cash Flow Booked"
+msgstr "Finanzstrom gebucht"
+
 msgctxt "field:real_estate.contract,cash_flow_draft:"
 msgid "Cash Flow draft"
 msgstr "Finanzstrom geplant"
-
-msgctxt "field:real_estate.contract,cash_flow_paid:"
-msgid "Cash Flow Paid"
-msgstr "Finanzstrom gezahlt"
-
-msgctxt "field:real_estate.contract,cash_flow_pending:"
-msgid "Cash Flow Pending"
-msgstr "Finanzstrom offner Posten"
 
 msgctxt "field:real_estate.contract,comment:"
 msgid "Comment"
@@ -3988,6 +3984,10 @@ msgctxt "model:ir.action,name:act_contract_move_line_payable_receivable"
 msgid "Payable/Receivable Lines"
 msgstr "Verbindlichkeiten/Forderungen"
 
+msgctxt "model:ir.action,name:act_contract_move_line_payable_receivable_relate"
+msgid "Payable/Receivable Lines"
+msgstr "Verbindlichkeiten/Forderungen"
+
 msgctxt "model:ir.action,name:act_contract_general_ledger_account_contract"
 msgid "Kontenblatt"
 msgstr "Kontenblatt"
@@ -4035,7 +4035,7 @@ msgstr "Equipment"
 msgctxt ""
 "model:ir.action,name:act_general_ledger_account_contract_form_contract"
 msgid "Accounts"
-msgstr "Konten"
+msgstr "Kontenblatt"
 
 msgctxt "model:ir.action,name:act_land_form"
 msgid "Land"
@@ -6549,12 +6549,8 @@ msgid "Draft"
 msgstr "Entwurf"
 
 msgctxt "view:real_estate.contract:"
-msgid "Pending"
-msgstr "Gebucht u. Offen"
-
-msgctxt "view:real_estate.contract:"
-msgid "Paid"
-msgstr "Gebucht u. Bezahlt"
+msgid "Booked"
+msgstr "Gebucht"
 
 msgctxt "view:real_estate.contract:"
 msgid "Operation Costs"

@@ -79,13 +79,8 @@
                         readonly="1"/>
                 </page>
 
-                <page string="Pending" id="page_cash_flow_pending">
-                    <field name="cash_flow_pending" readonly="1"/>
-                </page>
-                <page string="Paid" id="page_cash_flow_paid">
-                    <field name="cash_flow_paid" readonly="1"/>
-                <!-- view_ids="real_estate.contract_view_list_cash_flow"
-                    /-->
+                <page string="Booked" id="page_cash_flow_booked">
+                    <field name="cash_flow_booked" readonly="1"/>
                 </page>
 
             </notebook>

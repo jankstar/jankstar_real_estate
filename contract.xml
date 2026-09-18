@@ -182,6 +182,33 @@
             <field name="action" ref="report_contract_move_line_payable_receivable_de"/>
         </record>
 
+        <!-- Payable/Receivable Lines, relate button on the contract itself -
+             same list/view as the standalone menu above, but pre-scoped to
+             the current contract via active_ids instead of a context
+             selection panel, and fixed to open (unreconciled) items only. -->
+        <record model="ir.action.act_window"
+            id="act_contract_move_line_payable_receivable_relate">
+            <field name="name">Payable/Receivable Lines</field>
+            <field name="res_model">account.move.line</field>
+            <field name="domain"
+                eval="[('effective_contract', 'in', Eval('active_ids')), ['OR', ('account.type.receivable', '=', True), ('account.type.payable', '=', True)], ('reconciliation', '=', None)]"
+                pyson="1"/>
+            <field name="order"
+                eval="[('payable_receivable_date', 'ASC NULLS FIRST'), ('move', 'ASC')]"
+                pyson="1"/>
+        </record>
+        <record model="ir.action.act_window.view"
+            id="act_contract_move_line_payable_receivable_relate_view1">
+            <field name="sequence" eval="10"/>
+            <field name="view" ref="contract_move_line_view_list_payable_receivable"/>
+            <field name="act_window" ref="act_contract_move_line_payable_receivable_relate"/>
+        </record>
+        <record model="ir.action.keyword"
+            id="act_contract_move_line_payable_receivable_relate_keyword1">
+            <field name="keyword">form_relate</field>
+            <field name="model">real_estate.contract,-1</field>
+            <field name="action" ref="act_contract_move_line_payable_receivable_relate"/>
+        </record>
 
         <record model="ir.ui.view" id="contract_type_view_list">
             <field name="model">real_estate.contract.type</field>
