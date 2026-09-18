@@ -186,6 +186,9 @@ Either run "Ready for Billing" for each billing unit first, or bill individual b
         <record model="ir.message" id="msg_cancel_billing_no_units_found">
             <field name="text">No billed billing units found for billing run ID "%(billing_run_id)s".</field>
         </record>
+        <record model="ir.message" id="msg_reconcile_advance_payments_no_units_found">
+            <field name="text">No billed billing units found for billing run ID "%(billing_run_id)s".</field>
+        </record>
         <record model="ir.message" id="msg_option_rate_valid_from_unique">
             <field name="text">An option rate for this object and valid-from date already exists.</field>
         </record>

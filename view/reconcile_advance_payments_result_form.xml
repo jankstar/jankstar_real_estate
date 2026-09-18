@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<form col="4">
+    <label name="reconciled_count"/><field name="reconciled_count"/>
+    <label name="skipped_count"/><field name="skipped_count"/>
+    <newline/>
+    <label name="message" string=" "/>
+    <field name="message" colspan="3" widget="text" readonly="1"/>
+</form>

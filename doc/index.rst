@@ -8,6 +8,13 @@ Covers property management, lease and sales contracts, tenant/owner party roles,
 operating cost settlement, CO2 cost allocation under the German CO2KostAufG,
 and a German "Kontenrahmen der Wohnungswirtschaft" (WoWi) accounting chart.
 
+ISO_4217 Currency https://de.wikipedia.org/wiki/ISO_4217
+ISO_3166 Country Codes https://www.laenderdaten.de/kuerzel/iso_3166-1.aspx
+
+This module was developed with the support of AI cloude code — all requirements, 
+specifications, tests, corrections, and optimizations were carried out by 
+human contributors.
+
 .. toctree::
    :maxdepth: 2
 

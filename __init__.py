@@ -75,6 +75,8 @@ def register():
         billing_unit_wizard.BillingUnitConfirm,
         billing_unit_wizard.BillingUnitResult,
         billing_unit_wizard.CancelBillingStart,
+        billing_unit_wizard.ReconcileAdvancePaymentsStart,
+        billing_unit_wizard.ReconcileAdvancePaymentsResult,
         contract_wizard.ContractTermAdjustmentStart,
         contract_wizard.ContractTermAdjustmentConfirm,
         contract_wizard.ContractTermAdjustmentResult,
@@ -130,6 +132,7 @@ def register():
         base_object.EstimateConsumptionWizard,
         billing_unit_wizard.BillingUnitWizard,
         billing_unit_wizard.CancelBillingWizard,
+        billing_unit_wizard.ReconcileAdvancePaymentsWizard,
         contract_wizard.ContractTermAdjustmentWizard,
         option_rate_wizard.OptionRateUpdateWizard,
         module='real_estate', type_='wizard')

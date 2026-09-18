@@ -4141,6 +4141,10 @@ msgctxt "model:ir.action,name:wizard_option_rate_update"
 msgid "Update Option Rates"
 msgstr "Berechnung Optionssatz"
 
+msgctxt "model:ir.action,name:wizard_reconcile_advance_payments"
+msgid "Reconcile Advance Payments"
+msgstr "Vorauszahlungen ausgleichen"
+
 msgctxt "model:ir.action,name:wizard_terminate_contract"
 msgid "Terminate Contract"
 msgstr ""
@@ -5195,6 +5199,10 @@ msgstr "Partner"
 msgctxt "model:ir.ui.menu,name:menu_real_estate_tree"
 msgid "Real Estate Object"
 msgstr "Immobilienobjekt"
+
+msgctxt "model:ir.ui.menu,name:menu_reconcile_advance_payments"
+msgid "Reconcile Advance Payments"
+msgstr "Vorauszahlungen ausgleichen"
 
 msgctxt "model:ir.ui.menu,name:menu_reporting"
 msgid "Reporting"

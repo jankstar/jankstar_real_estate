@@ -11,6 +11,7 @@ from trytond.transaction import check_access, without_check_access
 
 import datetime
 import calendar
+from decimal import Decimal
 
 
 #**********************************************************************
@@ -351,3 +352,205 @@ class CancelBillingWizard(Wizard):
                 f'{self.start.invoice_date}.')
 
         return 'end'
+
+
+#**********************************************************************
+class ReconcileAdvancePaymentsStart(ModelView):
+    """Reconcile Advance Payments - Start
+
+    A standalone, manually triggered action: it looks up the settlement
+    invoice(s) of already-billed billing units and their original
+    advance-payment postings (from real_estate.billing_unit.moves and
+    BillingUnit.cash_flow_lines) and reconciles the matching open items.
+    Deliberately not automated on Invoice.post() - the settlement invoice
+    may be posted long after billing() runs, and this keeps the
+    reconciliation an explicit, reviewable step."""
+    __name__ = 'real_estate.reconcile_advance_payments.start'
+
+    company = fields.Many2One('company.company', 'Company', required=True)
+    property = fields.Many2One('real_estate.base_object', 'Property',
+        domain=[
+            ('type', '=', 'property'),
+            ('company', '=', Eval('company', -1)),
+        ])
+    billing_run_id = fields.Selection('get_billing_run_ids', 'Billing Run ID',
+        required=True,
+        help="Only billing run IDs of billed billing units matching "
+             "Company/Property above are shown. The advance payments "
+             "dissolved by these billing units' settlement invoices will "
+             "be reconciled against their original open items - the "
+             "settlement invoice itself must already be posted.")
+
+    @fields.depends('company', 'property')
+    def get_billing_run_ids(self):
+        pool = Pool()
+        BillingUnit = pool.get('real_estate.billing_unit')
+        domain = [('state', '=', 'billed'), ('billing_run_id', '!=', None)]
+        if self.company:
+            domain.append(('company', '=', self.company.id))
+        if self.property:
+            domain.append(('property', '=', self.property.id))
+        units = BillingUnit.search(domain)
+        run_ids = sorted({u.billing_run_id for u in units if u.billing_run_id})
+        return [(run_id, run_id) for run_id in run_ids]
+
+    @classmethod
+    def default_company(cls):
+        pool = Pool()
+        context = Transaction().context
+        active_id = context.get('active_id')
+        active_model = context.get('active_model')
+        if active_id and active_model == 'real_estate.base_object':
+            prop = pool.get('real_estate.base_object')(active_id)
+            return prop.company.id if prop.company else None
+        if active_id and active_model == 'real_estate.billing_unit':
+            billing_unit = pool.get('real_estate.billing_unit')(active_id)
+            return billing_unit.company.id if billing_unit.company else None
+        user = pool.get('res.user')(Transaction().user)
+        return user.company.id if user.company else None
+
+    @classmethod
+    def default_property(cls):
+        pool = Pool()
+        context = Transaction().context
+        active_id = context.get('active_id')
+        active_model = context.get('active_model')
+        if active_id and active_model == 'real_estate.base_object':
+            return active_id
+        if active_id and active_model == 'real_estate.billing_unit':
+            billing_unit = pool.get('real_estate.billing_unit')(active_id)
+            return billing_unit.property.id if billing_unit.property else None
+        return None
+
+
+#**********************************************************************
+class ReconcileAdvancePaymentsResult(ModelView):
+    'Reconcile Advance Payments - Result'
+    __name__ = 'real_estate.reconcile_advance_payments.result'
+
+    reconciled_count = fields.Integer('Reconciled Groups', readonly=True)
+    skipped_count = fields.Integer('Skipped', readonly=True)
+    message = fields.Text('Details', readonly=True)
+
+
+#**********************************************************************
+class ReconcileAdvancePaymentsWizard(Wizard):
+    'Reconcile Advance Payments Wizard'
+    __name__ = 'real_estate.reconcile_advance_payments.wizard'
+
+    start = StateView('real_estate.reconcile_advance_payments.start',
+        'real_estate.reconcile_advance_payments_start_view_form', [
+            Button('Cancel', 'end', 'tryton-cancel'),
+            Button('OK', 'do_reconcile', 'tryton-ok', True),
+        ])
+    do_reconcile = StateTransition()
+    result = StateView('real_estate.reconcile_advance_payments.result',
+        'real_estate.reconcile_advance_payments_result_view_form', [
+            Button('Close', 'end', 'tryton-ok', True),
+        ])
+
+    @staticmethod
+    def _cash_flow_lines_by_co(billing_unit):
+        by_co = {}
+        for line in billing_unit.cash_flow_lines:
+            if line.contract:
+                key = (line.contract.id,
+                    line.base_object.id if line.base_object else None)
+                by_co.setdefault(key, []).append(line)
+        return by_co
+
+    def transition_do_reconcile(self):
+        pool = Pool()
+        BillingUnit = pool.get('real_estate.billing_unit')
+        SettlementResult = pool.get('real_estate.settlement_result')
+        BillingUnitMoves = pool.get('real_estate.billing_unit.moves')
+        MoveLine = pool.get('account.move.line')
+
+        units = BillingUnit.search([
+            ('billing_run_id', '=', self.start.billing_run_id),
+            ('state', '=', 'billed'),
+        ])
+        if not units:
+            raise ValidationError(gettext(
+                'real_estate.msg_reconcile_advance_payments_no_units_found',
+                billing_run_id=self.start.billing_run_id))
+
+        reconciled = 0
+        skipped = []
+        for billing_unit in units:
+            cash_flow_by_co = self._cash_flow_lines_by_co(billing_unit)
+
+            results = SettlementResult.search([
+                ('billing_unit', '=', billing_unit.id),
+                ('state', '=', 'billed'),
+                ('invoice', '!=', None),
+            ])
+            for result in results:
+                invoice = result.invoice
+                if invoice.state not in ('posted', 'paid'):
+                    skipped.append(
+                        f'{billing_unit.name}/{result.name}: invoice '
+                        f'{invoice.rec_name} is not posted yet '
+                        f'(state={invoice.state}) - post it first.')
+                    continue
+
+                moves = BillingUnitMoves.search([
+                    ('settlement_result', '=', result.id),
+                    ('moves_advanced_payment', '!=', None),
+                ])
+                if not moves:
+                    continue
+
+                key = (result.contract.id if result.contract else None,
+                    result.base_object.id if result.base_object else None)
+                source_lines = cash_flow_by_co.get(key, [])
+                if not source_lines:
+                    skipped.append(
+                        f'{billing_unit.name}/{result.name}: no matching '
+                        f'advance payment postings found to reconcile.')
+                    continue
+
+                for move in moves:
+                    adv_line = move.moves_advanced_payment
+                    new_lines = MoveLine.search([
+                        ('origin', '=', str(adv_line)),
+                    ])
+                    if not new_lines:
+                        continue
+                    group = list(new_lines)
+                    for cash_flow in source_lines:
+                        if not cash_flow.invoice_line:
+                            continue
+                        group.extend(MoveLine.search([
+                            ('origin', '=', str(cash_flow.invoice_line)),
+                            ('reconciliation', '=', None),
+                        ]))
+                    group = [l for l in group if not l.reconciliation]
+                    if len(group) < 2:
+                        continue
+                    if sum(l.debit - l.credit for l in group) != Decimal(0):
+                        skipped.append(
+                            f'{billing_unit.name}/{result.name}: open '
+                            f'items do not balance to zero - skipped, '
+                            f'please check manually.')
+                        continue
+                    MoveLine.reconcile(group)
+                    reconciled += 1
+
+            billing_unit.add_log('reconcile_advance_payments_wizard',
+                f'Advance payment reconciliation run (billing_run_id='
+                f'{self.start.billing_run_id}).')
+
+        self.result.reconciled_count = reconciled
+        self.result.skipped_count = len(skipped)
+        self.result.message = (
+            '\n'.join(skipped) if skipped
+            else 'All matched advance payments were reconciled.')
+        return 'result'
+
+    def default_result(self, fields):
+        return {
+            'reconciled_count': self.result.reconciled_count,
+            'skipped_count': self.result.skipped_count,
+            'message': self.result.message,
+        }
