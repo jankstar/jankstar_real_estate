@@ -8,11 +8,11 @@
         <field name="party" optional="1"/>
     </xpath>
     <xpath expr="//field[@name='amount']" position="replace">
-        <field name="amount" optional="1"/>
+        <field name="amount" optional="1" sum="1"/>
     </xpath>
     <xpath expr="//field[@name='amount']" position="after">
-        <field name="debit" optional="1"/>
-        <field name="credit" optional="1"/>
+        <field name="debit" optional="1" sum="1"/>
+        <field name="credit" optional="1" sum="1"/>
     </xpath>
     <xpath expr="//field[@name='payable_receivable_balance']" position="replace">
         <field name="payable_receivable_balance" string="Saldo" optional="1"/>
