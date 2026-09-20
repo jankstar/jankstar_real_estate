@@ -1227,7 +1227,7 @@ class BaseObjectOccupancyContext(ModelView):
     def get_state(cls):
         pool = Pool()
         Occupancy = pool.get('real_estate.base_object.occupancy')
-        return [(None, '')] + list(Occupancy._fields['state'].selection)
+        return [(None, '')] + Occupancy.fields_get(['state'])['state']['selection']
 
     @classmethod
     def default_company(cls):
