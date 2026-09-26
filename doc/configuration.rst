@@ -2,384 +2,203 @@
 Configuration
 *************
 
-This page describes every master-data record that must exist before the
-``real_estate`` module can be used productively.  Records marked
-**[auto]** are created automatically when the module is installed via
-``trytond-admin -u real_estate``.  All other records must be set up
-manually or confirmed after installation.
+The following master data must be set up before the module can be used:
 
+``real_estate.object_party.role``
+   Partner roles in combination with the property type (``base_object.type``),
+   e.g. *Tenant*, *Owner*, *Administrator*.
 
-WoWi Chart of Accounts **[auto]**
-===================================
+``real_estate.measurement.type``
+   Named measurements linked to a unit of measure,
+   e.g. *Living Area (m²)*, *Number of Rooms*, *Gross Floor Area (m²)*.
 
-The module ships a complete German "Kontenrahmen der Wohnungswirtschaft"
-(WoWi, housing-industry chart of accounts) under ``wowi/``.  It is loaded
-automatically at installation and provides:
+``real_estate.contract.type``
+   Contract types defining invoice direction (in/out), default journal,
+   tax defaults, contract number prefix, and whether occupancy exclusivity
+   is enforced.
 
-- Account types and accounts (e.g. 6000 Sollmieten, 2000
-  Mietenkontokorrent-Sammelkonto)
-- Tax groups, tax templates (7 % / 19 % MwSt.)
-- Tax code templates and tax rule templates
+``real_estate.contract.term.type``
+   Term type definitions with default rhythm (monthly / quarterly / …),
+   default quantity source (measurement type), and default account.
 
-After installation, open *Accounting → Configuration → Account Templates*
-and apply the chart to your company (button *Create Chart of Account*) if
-it has not been applied yet.
+``real_estate.use_class``
+   Dynamic use-class catalogue replacing the former static selection field.
+   Each record carries two boolean flags:
 
-Rental Book Journal **[auto]**
--------------------------------
+   ``has_basement_nr``
+      Show/hide the *Basement Number* field on rental objects.
 
-A journal named **Rental Book** (code ``RE``, type *Revenue*) is created
-automatically.  It is used as the default posting journal for all contract
-types.  If you prefer a different journal, you can change it on each
-contract type individually.
+   ``has_parking_nr``
+      Show/hide the *Parking Number* field on rental objects.
 
+   Six default records are loaded at module installation:
+   *Apartment* (has_basement_nr), *Office* (has_basement_nr),
+   *Retail* (has_basement_nr), *Warehouse* (has_basement_nr),
+   *Parking* (has_parking_nr), *Garage* (has_parking_nr).
+   Additional classes can be created without changing code.
 
-Account Configuration
-=====================
+``real_estate.cost_category_group`` / ``real_estate.cost_type``
+   Cost categories (e.g. *Heating*, *Water*) and individual cost types
+   used to structure operating cost settlements.
+   Default values for German BetrKV (§ 2) are loaded at module installation.
 
-Open *Accounting → Configuration → Configuration* and fill in the
-real-estate-specific defaults (added by this module via
-``account_configuration.py``, model ``account.configuration.real_estate``):
+``real_estate.re_accounting``  (``re_accounting.py``)
+   Standalone, company-scoped real-estate accounting configuration,
+   referenced one-directionally from ``company.company.re_accounting``
+   (``company.py``; optional — a company without a linked
+   ``re_accounting`` record gets none of the automation below).
 
-``Vacancy Cost Account`` (``re_account_allocation_by_owner``)
-   Account used for direct GL postings of vacancy settlement results
-   (cost shares with no contract, i.e. the owner's share of unoccupied
-   periods) — both the debit and credit side of the posting.
+   ``re_account_allocation_by_owner``
+      Vacancy cost account (debit and credit side of vacancy postings).
 
-``Operating Cost Settlement Journal`` (``re_journal_billing``)
-   Journal used for the vacancy GL postings above.
+   ``re_journal_billing``
+      Journal used for direct GL postings in operating cost settlements.
 
-``Operating Cost Billing Payment Term`` (``re_payment_term_billing``)
-   Default payment term for operating cost settlement invoices, used
-   whenever the contract itself has no payment term set.
+   ``re_payment_term_billing``
+      Default payment term for operating cost settlement invoices, used
+      when the contract itself has none set.
 
-``Vacancy Cost Account`` and ``Operating Cost Settlement Journal`` are
-required before vacancy results can be billed (see
-``BillingUnit.billing_wizard`` / ``billing`` in ``billing_unit.py``); tenant
-invoices are unaffected and use the contract's own accounts/journal.
+   ``co2_landlord_share_commercial``
+      Default CO2 cost landlord share (%, 0–100) for commercial properties,
+      which are not covered by the residential 10-tier distribution model —
+      see *CO2 Cost Allocation (CO2KostAufG)* under *Operating Cost
+      Settlement* below. Shown right before the *Cron Tasks* table on the
+      form.
 
+   ``cron_tasks``
+      One2Many to ``real_estate.cron_task`` — the company's scheduled
+      task configuration, see below.
 
-Use Classes **[auto]**
-======================
+``real_estate.cron_task``  (``cron_task.py``)
+   Per-``re_accounting`` (i.e. per-company) row configuring one recurring
+   operation: ``task`` (selection, currently ``update_contract_status`` /
+   ``update_contract_cash_flow`` / ``book_contract_cash_flow`` /
+   ``update_option_rate``), ``valid_from``, ``valid_until``,
+   ``interval_days``, ``interval_months``, ``schedule_day_of_month``,
+   ``horizon_months_ahead``, ``invoice_state``, ``future_contracts_horizon_days``,
+   ``last_run`` (updated by the dispatcher), ``active``. Task names are
+   deliberately rhythm-agnostic (no "daily"/"rolling"/... in the name) —
+   how often each task actually runs is a per-row configuration choice made
+   by the user, not implied by the task itself; see *Scheduling and
+   parameters* below. None of ``interval_days``/``interval_months``/
+   ``schedule_day_of_month`` is individually required, but ``validate()``
+   rejects a row that has none of the three set. A unique SQL constraint
+   prevents duplicate rows for the same ``(re_accounting, task)`` pair. No
+   rows are seeded
+   automatically — a company gets no automatic behaviour until at least
+   one row is added under the *Cron Tasks* tab of its
+   ``real_estate.re_accounting`` record.
 
-Six use classes are loaded automatically:
+   **Dispatch.** A single ``ir.cron`` entry ("Real Estate Daily Tasks",
+   method ``real_estate.contract|cron_daily`` — registered via a small
+   ``ir.cron.method`` selection extension in ``ir.py``, since that field is
+   otherwise a fixed core list) runs daily and calls
+   ``Contract.cron_daily()`` (``contract_core.py``). It iterates all active
+   ``cron_task`` rows and, for each one that is due (see *Scheduling*
+   below), calls the matching ``Contract._cron_<task>(re_accounting, task)``
+   classmethod and updates ``last_run``. A future recurring operation only
+   needs a new ``_cron_<code>`` classmethod plus a new ``get_tasks()``
+   option — no new ``ir.cron`` entry.
 
-.. list-table::
-   :header-rows: 1
-   :widths: 10 30 15 15
+   **Scheduling and parameters.** Each ``cron_task`` row carries its own
+   parameters, read by its handler from the ``task`` record passed in, and
+   its own rhythm - e.g. ``update_contract_status`` daily
+   (``interval_days = 1``), ``update_contract_cash_flow`` every six months
+   (``interval_months = 6``), ``book_contract_cash_flow`` and
+   ``update_option_rate`` monthly (``schedule_day_of_month`` set, e.g. 15
+   and 1 respectively).
 
-   * - Seq.
-     - Name
-     - Basement No.
-     - Parking No.
-   * - 10
-     - Apartment
-     - yes
-     - —
-   * - 20
-     - Office
-     - yes
-     - —
-   * - 30
-     - Retail
-     - yes
-     - —
-   * - 40
-     - Warehouse
-     - yes
-     - —
-   * - 50
-     - Parking
-     - —
-     - yes
-   * - 60
-     - Garage
-     - —
-     - yes
+   ``valid_from``/``valid_until`` (both optional) are hard lower/upper
+   bounds checked before all three modes below - the task never runs while
+   ``today < valid_from`` or ``today > valid_until``. If the task has
+   never run yet and today is already past ``valid_from``, it becomes due
+   immediately (using today, not ``valid_from``, as the actual first
+   ``last_run``). E.g. setting ``valid_from = 15.03.2026`` on a row
+   activated on 20.03.2026 makes it run right away on 20.03.2026, not wait
+   until the next scheduled date. ``valid_until`` just stops execution
+   once passed - the row itself, and its ``last_run`` history, stay in
+   place. ``validate()`` rejects a row where ``valid_until`` is before
+   ``valid_from``.
 
-Additional classes can be created under
-*Real Estate → Configuration → Use Classes* without changing any code.
-The ``has_basement_nr`` / ``has_parking_nr`` flags control which extra
-fields appear on the rental-object form.
+   Three scheduling modes, checked by ``Contract._cron_task_is_due()`` in
+   this priority order:
 
+   1. **Day-of-month-based**: if ``schedule_day_of_month`` (1-31) is set,
+      it takes priority over both interval fields — the task runs at most
+      once a month, on or after that calendar day (capped to the last day
+      of shorter months), guarded by comparing ``last_run``'s year/month
+      to today's so a delayed run still catches up without re-running
+      twice in the same month.
+   2. **Month-interval-based**: otherwise, if ``interval_months`` is set,
+      it takes priority over ``interval_days``. If ``valid_from`` is also
+      set, ``Contract._add_months()`` computes the exact recurring date
+      ``valid_from + k * interval_months`` months (same day-of-month as
+      ``valid_from``, clamped to shorter months), advancing ``k`` past
+      ``last_run`` each time - so e.g. ``valid_from = 15.03.2026`` with
+      ``interval_months = 1`` runs on 15.03., 15.04., 15.05., ... and
+      re-aligns to the correct slot even after a delayed run, instead of
+      drifting from whatever date the delayed run actually happened on.
+      Without ``valid_from``, falls back to a looser check: due once at
+      least that many calendar months (year/month difference, not exact
+      days) have passed since ``last_run`` - a convenience for longer
+      rhythms (e.g. 6 for half-yearly) without day-of-month precision.
+   3. **Day-interval-based** (default): otherwise, due once ``today -
+      last_run >= interval_days`` (or ``last_run`` is unset).
 
-Measurement Types **[auto]**
-=============================
+   ``_cron_update_contract_status``
+      Auto-terminates ``running`` contracts of the company whose
+      ``end_date`` has passed and which have no active termination yet
+      (``termination_date`` unset): sets ``state = 'terminated'``,
+      ``termination_date = end_date``, ``terminated_by_type = 'expired'``,
+      and a ``contract.log`` entry — reusing the existing ``terminated``
+      state rather than adding a new one, so all state-dependent logic
+      (occupancy, ``create_moves``, item validation) keeps working
+      unchanged. See ``get_effective_end_date()`` (``termination_date`` if
+      set and earlier than ``end_date``, else ``end_date``) which already
+      governs occupancy for both ``running`` and ``terminated`` contracts
+      regardless of whether this task has run yet.
 
-The following measurement types are loaded automatically:
+   ``_cron_update_contract_cash_flow``
+      **Cash-flow recalculation only** (``action='re_calc'``): calls
+      ``Contract.call_create_moves()`` for running/terminated contracts of
+      the company, and for not-yet-started contracts whose ``start_date``
+      is within ``today + future_contracts_horizon_days`` (the row's own
+      field, default 60) — already-running/-ended contracts are always
+      included regardless of this value; it only decides how far ahead of
+      their actual start not-yet-started contracts get pulled in early.
+      For every contract included, ``Term.re_calc()`` (``contract_term.py``)
+      recalculates that term's cash flow up to a **fixed** horizon of
+      exactly 1 year from today (``_re_calc_year = 1``, not related to and
+      not affected by ``future_contracts_horizon_days``). It does **not**
+      create invoices — booking is a separate, explicitly scheduled step,
+      see ``_cron_book_contract_cash_flow`` below.
 
-.. list-table::
-   :header-rows: 1
-   :widths: 10 35 15 20 10
+   ``_cron_book_contract_cash_flow``
+      Books (creates invoices for) all due terms, using
+      ``action='re_calc_and_create'`` so it is self-sufficient regardless of
+      whether ``_cron_update_contract_cash_flow``'s horizon already covers
+      the target date. The horizon is the end of the month that is
+      ``horizon_months_ahead`` months after the run date — e.g. with
+      ``schedule_day_of_month = 15`` and ``horizon_months_ahead = 1``, a run
+      on 15.07 books everything due up to 31.08. The row's own
+      ``invoice_state`` (``draft``/``posted``, default ``draft``) is passed
+      through to ``call_create_moves``/``_create_moves`` and determines
+      whether the created invoices are posted immediately or left as
+      drafts for manual review. Note: each invoice's own ``invoice_date``/
+      ``accounting_date`` is *not* forced to this month-end horizon — it is
+      the individual term's own computed ``document_date`` (see
+      ``_create_moves``, ``inv_date = invoice_date or document_date`` with
+      ``invoice_date=None`` here), which may differ per term/rhythm.
 
-   * - Seq.
-     - Name
-     - Unit
-     - Applies to
-     - Group
-   * - 05
-     - Usable Space
-     - m²
-     - object
-     - yes (root)
-   * - 10
-     - Living Space
-     - m²
-     - object
-     - child of *Usable Space*
-   * - 15
-     - Commercial Space
-     - m²
-     - object
-     - child of *Usable Space*
-   * - 20
-     - Number of rooms
-     - unit
-     - object
-     - —
-   * - 30
-     - Gross floor area
-     - m²
-     - building
-     - —
-   * - 40
-     - Land area
-     - m²
-     - land
-     - —
-   * - 50
-     - Number of items
-     - unit
-     - equipment
-     - —
-   * - 60
-     - Property value
-     - EUR
-     - property
-     - —
-
-**Usable Space** is a group type: when it is referenced in a term type or
-settlement unit, the system automatically includes measurements of all
-child types (*Living Space*, *Commercial Space*) in the calculation.
-
-Additional types can be created under
-*Real Estate → Configuration → Measurement Types*.  All children of a
-group must share the same unit; circular parent references are rejected.
-
-
-Object Party Roles **[auto]**
-==============================
-
-Three roles are loaded automatically:
-
-.. list-table::
-   :header-rows: 1
-   :widths: 10 30 30
-
-   * - Seq.
-     - Name
-     - Applies to object types
-   * - 10
-     - Caretaker (default)
-     - property
-   * - 20
-     - Administrator
-     - property
-   * - 30
-     - Owner
-     - property, object
-
-Additional roles can be created under
-*Real Estate → Configuration → Object Party Roles*.
-
-
-Contract Types **[auto]**
-==========================
-
-Six contract types are loaded automatically:
-
-.. list-table::
-   :header-rows: 1
-   :widths: 5 35 10 10 10 10
-
-   * - Seq.
-     - Name
-     - Prefix
-     - Direction
-     - Occupancy
-     - Type of use
-   * - 10
-     - Rental agreement
-     - 1
-     - Debit (out)
-     - yes
-     - residential
-   * - 20
-     - Parking Space Lease Agreement
-     - 2
-     - Debit (out)
-     - yes
-     - residential
-   * - 30
-     - Debit Costs Agreement
-     - 3
-     - Debit (out)
-     - —
-     - all
-   * - 40
-     - Credit Costs Agreement
-     - 4
-     - Credit (in)
-     - —
-     - all
-   * - 50
-     - Commercial lease agreement
-     - 5
-     - Debit (out)
-     - yes
-     - commercial
-   * - 80
-     - Condominium fee agreement
-     - 8
-     - Debit (out)
-     - yes
-     - property
-
-For each contract type you should check and set, if not already done:
-
-- **Default account** — the revenue/expense account for invoice lines
-- **Default taxes** — e.g. 19 % USt. for commercial contracts
-- **Payment term** — optional default payment term
-
-
-Contract Term Types **[auto]**
-===============================
-
-Seven term types are loaded automatically:
-
-.. list-table::
-   :header-rows: 1
-   :widths: 10 35 15 20
-
-   * - Seq.
-     - Name
-     - Rhythm
-     - Type of use / m_type
-   * - 1000
-     - Apartment rent (monthly)
-     - 1 × monthly
-     - residential / Living Space
-   * - 1100
-     - Parking space rent (monthly)
-     - 1 × monthly
-     - residential, commercial, internal / —
-   * - 2000
-     - AP for Operating costs (monthly)
-     - 1 × monthly
-     - all / Living Space
-   * - 3000
-     - AP for Heating costs (monthly)
-     - 1 × monthly
-     - all / Living Space
-   * - 8000
-     - Commercial rent (monthly)
-     - 1 × monthly
-     - commercial / Commercial Space
-   * - 9000
-     - Condominium fees (monthly)
-     - 1 × monthly
-     - property / —
-
-For each term type you can optionally set:
-
-- **Default account** — pre-filled on the contract term when this type is
-  selected
-- **m_type** — measurement type used to derive the default quantity
-  (the value is looked up from the referenced contract item's objects)
-
-
-Cost Category Groups **[auto]**
-================================
-
-Five groups are loaded automatically, following the BetrKV paragraph
-structure:
-
-- I · Grundbesitzabgaben & Versicherungen (seq. 100)
-- II · Ver- und Entsorgung (seq. 200)
-- III · Reinigung, Pflege & Sicherheit (seq. 300)
-- IV · Sonstige Betriebskosten (seq. 400)
-- V · Keine Umlage (seq. 900)
-
-
-Cost Types (§ 2 BetrKV) **[auto]**
-=====================================
-
-The following cost types are loaded automatically, covering the standard
-positions of § 2 BetrKV:
-
-.. list-table::
-   :header-rows: 1
-   :widths: 8 45 10
-
-   * - Seq.
-     - Name (§ 2 BetrKV)
-     - Group
-   * - 100
-     - Grundsteuer (Nr. 1)
-     - I
-   * - 110
-     - Gebäudeversicherung (Nr. 13)
-     - I
-   * - 200
-     - Wasserversorgung, Abwasser (Nr. 2 + 3)
-     - II
-   * - 300
-     - Heizung – Brennstoff (Nr. 4)
-     - II
-   * - 310
-     - Heizung – Wartung (Nr. 4)
-     - II
-   * - 320
-     - Warmwasser (Nr. 5)
-     - II
-   * - 330
-     - Verbundene Heizungs- und Warmwasserversorgung (Nr. 6)
-     - II
-   * - 400
-     - Aufzug (Nr. 7)
-     - II
-   * - 500
-     - Straßenreinigung (Nr. 8)
-     - III
-   * - 510
-     - Müllabfuhr (Nr. 8)
-     - III
-   * - 520
-     - Hausreinigung (Nr. 9)
-     - III
-   * - 600
-     - Gartenpflege (Nr. 10)
-     - III
-   * - 610
-     - Hausstrom (Nr. 11)
-     - III
-   * - 620
-     - Schornsteinfeger (Nr. 12)
-     - III
-   * - 700
-     - Hausmeister (Nr. 14)
-     - IV
-
-Additional cost types (e.g. antenna, broadband, communal laundry) can be
-added freely under *Real Estate → Configuration → Cost Types*.
-
-
-Taxes
-=====
-
-The WoWi templates include tax records for 7 % and 19 % VAT.  After
-applying the chart of accounts, verify that the tax record
-*USt. 19 % Umsatzsteuer voller Satz Waren Inland* exists under
-*Accounting → Taxes*.  This tax is used by ``test_contracts.py`` for
-commercial leases and should be assigned to the *Commercial lease
-agreement* contract type as a default tax.
+   ``_cron_update_option_rate``
+      Recomputes and, where the rate actually changed, books new option
+      rates via ``OptionRate.process_update()`` (``option_rate.py`` — the
+      same logic as the manual ``real_estate.option_rate_update.wizard``,
+      see `Wizards <wizards.rst>`__) for every property of every company using this
+      ``re_accounting`` configuration, as of today's date. Intended to run
+      monthly with ``schedule_day_of_month = 1``, which also determines
+      the ``effective_date`` used by ``process_update`` (the 1st of the
+      current month). Per-record results (created/updated/unchanged/
+      skipped counts, plus one detail line per processed object) go to the
+      Python logger, not ``contract.log``, since this task is not tied to
+      individual contracts.

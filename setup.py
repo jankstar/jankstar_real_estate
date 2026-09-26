@@ -54,6 +54,11 @@ setup(name=name,
     author='jankstar',
     author_email='jankstar.berlin@gmail.com',
     url='www.jankstar.de',
+    project_urls={
+        'Source': 'https://github.com/jankstar/jankstar_real_estate',
+        'Documentation':
+            'https://github.com/jankstar/jankstar_real_estate/tree/main/doc',
+        },
     keywords='Tryton',
     package_dir={'trytond.modules.real_estate': '.'},
     packages=(
