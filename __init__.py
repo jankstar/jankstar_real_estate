@@ -8,6 +8,7 @@ from . import contract_core
 from . import contract_type
 from . import contract_item
 from . import contract_term
+from . import contract_party
 from . import contract_wizard
 from . import contract_report
 from . import sequence
@@ -67,11 +68,15 @@ def register():
         contract_term.ContractTermCashFlowContext,
         contract_term.ContractTerm,
         contract_term.ContractTermAdjustment,
+        contract_party.ContractPartyRoleCType,
+        contract_party.ContractPartyRole,
+        contract_party.ContractParty,
         contract_wizard.CreateContractMovesStart,
         contract_wizard.CreateContractMovesConfirm,
         contract_wizard.CreateContractMovesResult,
         contract_wizard.CancelPeriodBookingStart,
         contract_wizard.TerminateContractStart,
+        contract_wizard.ChangeContractPartnerStart,
         billing_unit_wizard.BillingUnitStart,
         billing_unit_wizard.BillingUnitConfirm,
         billing_unit_wizard.BillingUnitResult,
@@ -89,6 +94,7 @@ def register():
         invoice.InvoiceLine,
         invoice.AccountMoveLine,
         invoice.ContractMoveLinePayableReceivableContext,
+        invoice.ContractMoveLinePayableReceivableRelateContext,
         invoice.GeneralLedgerLine,
         company.Company,
         re_accounting.ReAccounting,
@@ -129,6 +135,7 @@ def register():
     Pool.register(
         contract_wizard.CreateContractMovesWizard,
         contract_wizard.CancelPeriodBookingWizard,
+        contract_wizard.ChangeContractPartnerWizard,
         contract_wizard.TerminateContractWizard,
         contract_wizard.ContractRunningWizard,
         base_object.EstimateConsumptionWizard,

@@ -4,7 +4,7 @@ from trytond.model.exceptions import ValidationError
 from trytond.i18n import gettext
 from trytond.pool import Pool
 from trytond.transaction import Transaction
-from trytond.pyson import Eval
+from trytond.pyson import Bool, Eval, If
 from trytond.wizard import (
     Button, StateTransition, StateView, Wizard)
 from trytond.transaction import check_access, without_check_access
@@ -767,3 +767,90 @@ class ContractTermAdjustmentWizard(Wizard):
             'processed': self.result.processed,
             'message': self.result.message,
         }
+
+
+#**********************************************************************
+class ChangeContractPartnerStart(ModelView):
+    'Change Contract Partner - Start'
+    __name__ = 'real_estate.change_contract_partner.start'
+
+    contract = fields.Many2One('real_estate.contract', 'Contract',
+        required=True, readonly=True)
+    current_party = fields.Function(
+        fields.Many2One('party.party', 'Current Partner'),
+        'on_change_with_current_party')
+    new_party = fields.Many2One('party.party', 'New Partner', required=True,
+        domain=[('id', '!=', Eval('current_party', -1))],
+        depends=['current_party'],
+        help="Only still-open (unreconciled) booked items are rebooked to "
+             "this partner - already settled invoices are left untouched.")
+    contract_start_date = fields.Function(
+        fields.Date('Contract Start Date'),
+        'on_change_with_contract_start_date')
+    contract_end_date = fields.Function(
+        fields.Date('Contract End Date'),
+        'on_change_with_contract_end_date')
+    change_date = fields.Date('Change Date', required=True,
+        domain=[
+            If(Bool(Eval('contract_start_date')),
+                ('change_date', '>=', Eval('contract_start_date')),
+                ()),
+            If(Bool(Eval('contract_end_date')),
+                ('change_date', '<=', Eval('contract_end_date')),
+                ()),
+            ],
+        depends=['contract_start_date', 'contract_end_date'],
+        help="Effective date of the change: the old partner's 'Main "
+             "Tenant Role' assignment ends the day before, the old "
+             "partner's 'Secondary Tenant Role' and the new partner's "
+             "'Main Tenant Role' assignments start on this date. Also "
+             "used as the booking date for the rebooked open invoices. "
+             "Must not be before the contract's start date or after its "
+             "(effective) end date.")
+
+    @classmethod
+    def default_contract(cls):
+        return Transaction().context.get('active_id')
+
+    @classmethod
+    def default_change_date(cls):
+        return Pool().get('ir.date').today()
+
+    @fields.depends('contract', '_parent_contract.contractual_partner')
+    def on_change_with_current_party(self, name=None):
+        if self.contract:
+            return self.contract.contractual_partner
+        return None
+
+    @fields.depends('contract', '_parent_contract.start_date')
+    def on_change_with_contract_start_date(self, name=None):
+        return self.contract.start_date if self.contract else None
+
+    @fields.depends(
+        'contract', '_parent_contract.end_date',
+        '_parent_contract.termination_date')
+    def on_change_with_contract_end_date(self, name=None):
+        if self.contract:
+            return self.contract.get_effective_end_date()
+        return None
+
+
+#**********************************************************************
+class ChangeContractPartnerWizard(Wizard):
+    'Change Contract Partner Wizard'
+    __name__ = 'real_estate.change_contract_partner.wizard'
+
+    start = StateView('real_estate.change_contract_partner.start',
+        'real_estate.change_contract_partner_start_view_form', [
+            Button('Cancel', 'end', 'tryton-cancel'),
+            Button('OK', 'do_change', 'tryton-ok', True),
+        ])
+    do_change = StateTransition()
+
+    def transition_do_change(self):
+        pool = Pool()
+        Contract = pool.get('real_estate.contract')
+        Contract.execute_change_partner(
+            [self.start.contract], self.start.new_party,
+            change_date=self.start.change_date)
+        return 'end'

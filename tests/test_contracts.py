@@ -84,6 +84,10 @@ START_DATE = datetime.date(2025, 1, 1)
 YEAR_END_DATE = datetime.date(2025, 12, 31)
 PARKING_PRICE = Decimal('50.00')
 
+# Role sequence for 'Main Tenant' (see contract_party.xml) - looked up by
+# sequence rather than name, more robust against translations.
+MAIN_TENANT_ROLE_SEQUENCE = 10
+
 # (termination_date, receipt_of_notice) — notice 3 months before termination
 TERMINATIONS = [
     (datetime.date(2025, 5, 31), datetime.date(2025, 2, 28)),
@@ -269,6 +273,15 @@ def create_party(name: str, country, lang):
     return party, address
 
 
+def get_main_tenant_role():
+    # contractual_partner is now a Function field auto-filled from the
+    # 'Main Tenant Role' party assignment (see contract_core.py); assign
+    # the partner there instead of setting contractual_partner directly.
+    Role = Model.get('real_estate.contract.party.role')
+    results = Role.find([('sequence', '=', MAIN_TENANT_ROLE_SEQUENCE)])
+    return results[0] if results else None
+
+
 def create_contract(company, property_obj, c_type, currency,
                     partner, invoice_address, sequence: int,
                     type_of_use: str = 'residential'):
@@ -280,9 +293,18 @@ def create_contract(company, property_obj, c_type, currency,
     contract.c_type = c_type
     contract.currency = currency
     contract.start_date = START_DATE
-    contract.contractual_partner = partner
-    contract.invoice_address = invoice_address
     contract.sequence = sequence
+    main_tenant_role = get_main_tenant_role()
+    if main_tenant_role:
+        assignment = contract.parties.new()
+        assignment.party = partner
+        assignment.role = main_tenant_role
+        assignment.valid_from = START_DATE
+        assignment.invoice_address = invoice_address
+    else:
+        print('  Warning: "Main Tenant" role not found (sequence='
+              f'{MAIN_TENANT_ROLE_SEQUENCE}) - contractual_partner will '
+              'stay empty until it is assigned manually.')
     contract.save()
     print(f'  Vertrag:         id={contract.id}, Sequenz={sequence}')
     return contract
@@ -315,8 +337,7 @@ def record_meter_reading(contract, reading_date, t_wfl, admin_user):
     MeterReading = Model.get('real_estate.meter_reading')
     seen_object_ids = set()
     for item in contract.items:
-        for item_obj in item.objects:
-            obj = item_obj.object
+        for obj in item.objects:
             if obj.id in seen_object_ids:
                 continue
             seen_object_ids.add(obj.id)
@@ -370,8 +391,7 @@ def record_year_end_reading(contract, target_date, admin_user):
     MeterReading = Model.get('real_estate.meter_reading')
     seen_object_ids = set()
     for item in contract.items:
-        for item_obj in item.objects:
-            obj = item_obj.object
+        for obj in item.objects:
             if obj.id in seen_object_ids:
                 continue
             seen_object_ids.add(obj.id)
@@ -442,9 +462,14 @@ def create_followup_contract(terminated_contract, company, property_obj, c_type,
     contract.c_type = c_type
     contract.currency = currency
     contract.start_date = start_date
-    contract.contractual_partner = partner
-    contract.invoice_address = invoice_address
     contract.sequence = sequence
+    main_tenant_role = get_main_tenant_role()
+    if main_tenant_role:
+        assignment = contract.parties.new()
+        assignment.party = partner
+        assignment.role = main_tenant_role
+        assignment.valid_from = start_date
+        assignment.invoice_address = invoice_address
     contract.save()
     print(f'  Folgevertrag: id={contract.id}, Start={start_date}')
 
@@ -457,11 +482,10 @@ def create_followup_contract(terminated_contract, company, property_obj, c_type,
         new_item.valid_from = start_date
         new_item.sequence = old_item.sequence
         new_item.save()
-        for old_obj in old_item.objects:
+        for obj in old_item.objects:
             new_obj = ContractItemObject()
             new_obj.item = new_item
-            new_obj.object = Model.get('real_estate.base_object')(old_obj.object.id)
-            new_obj.sequence = old_obj.sequence
+            new_obj.object = Model.get('real_estate.base_object')(obj.id)
             new_obj.save()
         item_map[old_item.id] = new_item
         label = old_item.label or '–'

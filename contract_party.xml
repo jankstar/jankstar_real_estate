@@ -1,0 +1,229 @@
+<tryton>
+
+    <data>
+
+        <record model="ir.ui.view" id="contract_party_view_list">
+            <field name="model">real_estate.contract.party</field>
+            <field name="type">tree</field>
+            <field name="name">contract_party_list</field>
+        </record>
+
+        <record model="ir.ui.view" id="contract_party_view_form">
+            <field name="model">real_estate.contract.party</field>
+            <field name="type">form</field>
+            <field name="name">contract_party_form</field>
+        </record>
+
+        <record model="ir.action.act_window" id="act_contract_party_tree">
+            <field name="name">Contract Parties</field>
+            <field name="res_model">real_estate.contract.party</field>
+        </record>
+
+        <record model="ir.action.act_window.view" id="act_contract_party_tree_view1">
+            <field name="sequence" eval="10"/>
+            <field name="view" ref="contract_party_view_list"/>
+            <field name="act_window" ref="act_contract_party_tree"/>
+        </record>
+        <record model="ir.action.act_window.view" id="act_contract_party_tree_view2">
+            <field name="sequence" eval="20"/>
+            <field name="view" ref="contract_party_view_form"/>
+            <field name="act_window" ref="act_contract_party_tree"/>
+        </record>
+
+        <record model="ir.ui.view" id="contract_party_role_view_list">
+            <field name="model">real_estate.contract.party.role</field>
+            <field name="type">tree</field>
+            <field name="name">contract_party_role_list</field>
+        </record>
+        <record model="ir.ui.view" id="contract_party_role_view_form">
+            <field name="model">real_estate.contract.party.role</field>
+            <field name="type">form</field>
+            <field name="name">contract_party_role_form</field>
+        </record>
+        <record model="ir.action.act_window" id="act_contract_party_role">
+            <field name="name">Contract Party Roles</field>
+            <field name="res_model">real_estate.contract.party.role</field>
+        </record>
+        <record model="ir.action.act_window.view" id="act_contract_party_role_view1">
+            <field name="sequence" eval="10"/>
+            <field name="view" ref="contract_party_role_view_list"/>
+            <field name="act_window" ref="act_contract_party_role"/>
+        </record>
+        <record model="ir.action.act_window.view" id="act_contract_party_role_view2">
+            <field name="sequence" eval="20"/>
+            <field name="view" ref="contract_party_role_view_form"/>
+            <field name="act_window" ref="act_contract_party_role"/>
+        </record>
+
+        <!-- Change Contract Partner Wizard -->
+        <record model="ir.ui.view" id="change_contract_partner_start_view_form">
+            <field name="model">real_estate.change_contract_partner.start</field>
+            <field name="type">form</field>
+            <field name="name">change_contract_partner_start_form</field>
+        </record>
+        <record model="ir.action.wizard" id="wizard_change_contract_partner">
+            <field name="name">Change Partner</field>
+            <field name="wiz_name">real_estate.change_contract_partner.wizard</field>
+        </record>
+
+        <!-- ContractParty: Contract group full access, Object/Billing read -->
+        <record model="ir.model.access" id="access_contract_party_contract_group">
+            <field name="model">real_estate.contract.party</field>
+            <field name="group" ref="group_real_estate_contract"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+        <record model="ir.model.access" id="access_contract_party_admin">
+            <field name="model">real_estate.contract.party</field>
+            <field name="group" ref="group_real_estate_admin"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+        <record model="ir.model.access" id="access_contract_party_object_group">
+            <field name="model">real_estate.contract.party</field>
+            <field name="group" ref="group_real_estate_object"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_contract_party_billing">
+            <field name="model">real_estate.contract.party</field>
+            <field name="group" ref="group_real_estate_billing"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_contract_party_default">
+            <field name="model">real_estate.contract.party</field>
+            <field name="perm_read" eval="False"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+
+        <!-- ContractPartyRole: Configuration - Admin write, others read -->
+        <record model="ir.model.access" id="access_contract_party_role_admin">
+            <field name="model">real_estate.contract.party.role</field>
+            <field name="group" ref="group_real_estate_admin"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+        <record model="ir.model.access" id="access_contract_party_role_contract_group">
+            <field name="model">real_estate.contract.party.role</field>
+            <field name="group" ref="group_real_estate_contract"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_contract_party_role_object_group">
+            <field name="model">real_estate.contract.party.role</field>
+            <field name="group" ref="group_real_estate_object"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_contract_party_role_billing">
+            <field name="model">real_estate.contract.party.role</field>
+            <field name="group" ref="group_real_estate_billing"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_contract_party_role_default">
+            <field name="model">real_estate.contract.party.role</field>
+            <field name="perm_read" eval="False"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+
+        <menuitem
+            parent="menu_real_estate_configuration"
+            sequence="25"
+            action="act_contract_party_role"
+            id="menu_contract_party_role"/>
+
+        <menuitem
+            parent="menu_real_estate_parties"
+            action="act_contract_party_tree"
+            sequence="30"
+            id="menu_contract_parties_form"/>
+
+    </data>
+
+    <data noupdate="1">
+
+        <record model="real_estate.contract.party.role" id="contract_party_role_main_tenant">
+            <field name="name">Hauptmieter</field>
+            <field name="sequence">10</field>
+            <field name="default" eval="False"/>
+            <field name="mandatory" eval="True"/>
+            <field name="only_once" eval="False"/>
+        </record>
+
+        <record model="real_estate.contract.party.role" id="contract_party_role_secondary_tenant">
+            <field name="name">Nebenmieter</field>
+            <field name="sequence">20</field>
+            <field name="default" eval="False"/>
+            <field name="mandatory" eval="False"/>
+            <field name="only_once" eval="False"/>
+        </record>
+
+        <record model="real_estate.contract.party.role" id="contract_party_role_owner">
+            <field name="name">Eigentümer</field>
+            <field name="default" eval="False"/>
+            <field name="mandatory" eval="True"/>
+            <field name="only_once" eval="False"/>
+        </record>
+
+        <!-- Applicable contract types per role, via the M2M relation model -->
+        <record model="real_estate.contract.party.role-contract.type"
+                id="contract_party_role_main_tenant_rental">
+            <field name="role" ref="contract_party_role_main_tenant"/>
+            <field name="c_type" ref="contract_rental_agreement_type"/>
+        </record>
+        <record model="real_estate.contract.party.role-contract.type"
+                id="contract_party_role_main_tenant_parking">
+            <field name="role" ref="contract_party_role_main_tenant"/>
+            <field name="c_type" ref="contract_parking_space_lease_agreement_type"/>
+        </record>
+        <record model="real_estate.contract.party.role-contract.type"
+                id="contract_party_role_main_tenant_debit_costs">
+            <field name="role" ref="contract_party_role_main_tenant"/>
+            <field name="c_type" ref="contract_debit_costs_agreement_type"/>
+        </record>
+        <record model="real_estate.contract.party.role-contract.type"
+                id="contract_party_role_main_tenant_credit_costs">
+            <field name="role" ref="contract_party_role_main_tenant"/>
+            <field name="c_type" ref="contract_credit_costs_agreement_type"/>
+        </record>
+        <record model="real_estate.contract.party.role-contract.type"
+                id="contract_party_role_main_tenant_commercial">
+            <field name="role" ref="contract_party_role_main_tenant"/>
+            <field name="c_type" ref="contract_commercial_lease_agreement_type"/>
+        </record>
+        <record model="real_estate.contract.party.role-contract.type"
+                id="contract_party_role_secondary_tenant_rental">
+            <field name="role" ref="contract_party_role_secondary_tenant"/>
+            <field name="c_type" ref="contract_rental_agreement_type"/>
+        </record>
+        <record model="real_estate.contract.party.role-contract.type"
+                id="contract_party_role_owner_condominium">
+            <field name="role" ref="contract_party_role_owner"/>
+            <field name="c_type" ref="contract_condominium_fee_agreement_type"/>
+        </record>
+
+    </data>
+
+</tryton>

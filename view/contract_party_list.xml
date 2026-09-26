@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<tree>
+    <field name="party"/>
+    <field name="role"/>
+    <field name="valid_from"/>
+    <field name="valid_to"/>
+    <field name="invoice_address" optional="1"/>
+    <field name="phone_partner" optional="1"/>
+</tree>

@@ -182,20 +182,41 @@
             <field name="action" ref="report_contract_move_line_payable_receivable_de"/>
         </record>
 
-        <!-- Payable/Receivable Lines, relate button on the contract itself -
-             same list/view as the standalone menu above, but pre-scoped to
-             the current contract via active_ids instead of a context
-             selection panel, and fixed to open (unreconciled) items only. -->
+        <!-- Payable/Receivable Lines, relate button on the contract itself.
+             Scoping to the triggering contract(s) is done via a plain,
+             static 'domain' (Eval('active_ids') - reliably resolved at
+             action-invocation time, unlike a context_model's default_get,
+             which never sees active_id/active_ids/active_model: sao strips
+             those before building the RPC context used to fetch a
+             context_model's defaults). The context selection panel here is
+             therefore a separate, minimal context_model
+             (ContractMoveLinePayableReceivableRelateContext) offering only
+             the date range and the Receivable/Payable/Reconciled toggles -
+             no company/party/contract/account fields, since those would
+             have no working default and would be misleading to show. -->
         <record model="ir.action.act_window"
             id="act_contract_move_line_payable_receivable_relate">
             <field name="name">Payable/Receivable Lines</field>
             <field name="res_model">account.move.line</field>
             <field name="domain"
-                eval="[('effective_contract', 'in', Eval('active_ids')), ['OR', ('account.type.receivable', '=', True), ('account.type.payable', '=', True)], ('reconciliation', '=', None)]"
+                eval="[('effective_contract', 'in', Eval('active_ids'))]"
+                pyson="1"/>
+            <field name="context_model">
+                real_estate.contract.move_line_payable_receivable.relate_context</field>
+            <field name="context_domain"
+                eval="[['OR', If(Eval('receivable', True), ('account.type.receivable', '=', True), ('id', '&lt;', 0)), If(Eval('payable', True), ('account.type.payable', '=', True), ('id', '&lt;', 0))], If(Eval('reconciled', False), (), ('reconciliation', '=', None)), If(Eval('date_from', None), [('date', '&gt;=', Eval('date_from', None))], []), If(Eval('date_to', None), [('date', '&lt;=', Eval('date_to', None))], [])]"
                 pyson="1"/>
             <field name="order"
                 eval="[('payable_receivable_date', 'ASC NULLS FIRST'), ('move', 'ASC')]"
                 pyson="1"/>
+        </record>
+        <record model="ir.ui.view"
+            id="contract_move_line_payable_receivable_relate_context_form_view">
+            <field name="model">
+                real_estate.contract.move_line_payable_receivable.relate_context</field>
+            <field name="type">form</field>
+            <field name="name">
+                contract_move_line_payable_receivable_relate_context_form</field>
         </record>
         <record model="ir.action.act_window.view"
             id="act_contract_move_line_payable_receivable_relate_view1">
@@ -300,12 +321,6 @@
             <field name="model">real_estate.contract.item</field>
             <field name="type">tree</field>
             <field name="name">contract_view_list_object_item</field>
-        </record>
-
-        <record model="ir.ui.view" id="contract_item_object_list">
-            <field name="model">real_estate.contract.item.object</field>
-            <field name="type">tree</field>
-            <field name="name">contract_item_object_list</field>
         </record>
 
         <record model="ir.ui.view" id="contract_item_measurement_tree">

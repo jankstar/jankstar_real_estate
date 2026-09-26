@@ -414,14 +414,19 @@ class ContractTerm(sequence_ordered(), ModelSQL, ModelView, TaxableMixin):
 
     term_type = fields.Many2One(
         'real_estate.contract.term.type', "Term Type", required=True,
+        # Own fields (type_of_use/company_re_accounting/c_type below),
+        # not _parent_contract: a term can be added either directly under
+        # the contract's own 'Terms' tab (parent field 'contract') or
+        # inline under an item's 'Terms' list (parent field
+        # 'reference_item', see ContractItem.terms) - _parent_contract
+        # only resolves in the former case, leaving this domain empty
+        # (no term types selectable) in the latter.
         domain=[
-            ('types_of_use', 'in', Eval('_parent_contract', {}).get('type_of_use')),
-            ('re_accounting', '=',
-                Eval('_parent_contract', {}).get('company_re_accounting', -1)),
+            ('types_of_use', 'in', Eval('type_of_use')),
+            ('re_accounting', '=', Eval('company_re_accounting', -1)),
             ['OR',
                 ('c_type', '=', None),
-                ('c_type', '=',
-                    Eval('_parent_contract', {}).get('c_type', -1)),
+                ('c_type', '=', Eval('c_type', -1)),
                 ],
             ],
        )
@@ -485,6 +490,14 @@ class ContractTerm(sequence_ordered(), ModelSQL, ModelView, TaxableMixin):
 
     type_of_use = fields.Function(fields.Char("Type of Use"),
         'on_change_with_type_of_use')
+
+    company_re_accounting = fields.Function(
+        fields.Many2One('real_estate.re_accounting', "Company Accounting"),
+        'on_change_with_company_re_accounting')
+
+    c_type = fields.Function(
+        fields.Many2One('real_estate.contract.type', "Contract Type"),
+        'on_change_with_c_type')
 
     currency = fields.Function(fields.Many2One('currency.currency',
         'Currency'),
@@ -1035,9 +1048,15 @@ class ContractTerm(sequence_ordered(), ModelSQL, ModelView, TaxableMixin):
         Measurement = Pool().get('real_estate.measurement')
         m_type_unit = m_type.unit
         total = None
-        for item_obj in (ref_item.objects or []):
-            obj = item_obj.object
-            if not obj or not obj.measurements:
+        # ref_item may be a not-yet-saved item (e.g. a term added inline
+        # under the item's own 'Terms' list, see ContractItem.terms) whose
+        # 'objects' the client hasn't included in this particular on_change
+        # payload - getattr() avoids an AttributeError in that case (falls
+        # back to no measurement found, same as an item with no objects).
+        # 'objects' is a Many2Many straight to real_estate.base_object
+        # (see ContractItem.objects), so no '.object' indirection here.
+        for obj in (getattr(ref_item, 'objects', None) or []):
+            if not obj.measurements:
                 continue
             mval = Measurement.get_total_value(obj.id, m_type, reference_date)
             if mval is not None:
@@ -1133,6 +1152,18 @@ class ContractTerm(sequence_ordered(), ModelSQL, ModelView, TaxableMixin):
             return self.contract.type_of_use
         return None
 
+    @fields.depends('contract', '_parent_contract.company_re_accounting')
+    def on_change_with_company_re_accounting(self, name=None):
+        if self.contract:
+            return self.contract.company_re_accounting
+        return None
+
+    @fields.depends('contract', '_parent_contract.c_type')
+    def on_change_with_c_type(self, name=None):
+        if self.contract:
+            return self.contract.c_type
+        return None
+
     @fields.depends('term_type')
     def on_change_with_term_type_m_type(self, name=None):
         if self.term_type and self.term_type.m_type:
@@ -1194,11 +1225,7 @@ class ContractTerm(sequence_ordered(), ModelSQL, ModelView, TaxableMixin):
             if not term.reference_item:
                 continue
             effective_ids = set(term.term_type.m_type.get_hierarchy_ids())
-            obj_ids = [
-                io.object.id
-                for io in (term.reference_item.objects or [])
-                if io.object
-            ]
+            obj_ids = [obj.id for obj in (term.reference_item.objects or [])]
             if not obj_ids:
                 continue
             term_filters[term.id] = (effective_ids, obj_ids)

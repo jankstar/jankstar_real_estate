@@ -131,6 +131,19 @@ class ContractType(DeactivableMixin, base_object.re_sequence_ordered(), ModelSQL
     occupancy = fields.Boolean("Occupancy",
         help='If set, only one active contract per object is allowed at a time.')
 
+    main_tenant_role = fields.Many2One(
+        'real_estate.contract.party.role', "Main Tenant Role",
+        help="Role used to mark a contract's own contractual partner as "
+             "the main tenant in the party assignment list, including the "
+             "new partner assigned by the 'Change Partner' function.")
+
+    secondary_tenant_role = fields.Many2One(
+        'real_estate.contract.party.role', "Secondary Tenant Role",
+        help="Role assigned to the previous contractual partner when "
+             "using 'Change Partner' on a contract of this type - their "
+             "'Main Tenant Role' assignment is ended and this role is "
+             "assigned instead, both as of the change date.")
+
     @classmethod
     def default_step_item(cls):
         return 10

@@ -198,6 +198,33 @@ Either run "Ready for Billing" for each billing unit first, or bill individual b
         <record model="ir.message" id="msg_contract_term_type_c_type_unique">
             <field name="text">This contract type is already assigned to this term type.</field>
         </record>
+        <record model="ir.message" id="msg_contract_party_role_c_type_unique">
+            <field name="text">This contract type is already assigned to this party role.</field>
+        </record>
+        <record model="ir.message" id="msg_contract_party_unique">
+            <field name="text">This party, role and valid-from date combination already exists for this contract.</field>
+        </record>
+        <record model="ir.message" id="msg_contract_party_role_mandatory_missing">
+            <field name="text">Contract "%(contract)s" does not have the mandatory role "%(role)s" assigned without gaps for its whole validity period.</field>
+        </record>
+        <record model="ir.message" id="msg_contract_party_role_only_once_violated">
+            <field name="text">Contract "%(contract)s" has more than one party assigned to role "%(role)s" at the same time - this role may only be assigned once at a time.</field>
+        </record>
+        <record model="ir.message" id="msg_change_partner_same_party">
+            <field name="text">Cannot change the partner of contract "%(contract)s": the new partner must be different from the current one.</field>
+        </record>
+        <record model="ir.message" id="msg_change_partner_date_out_of_range">
+            <field name="text">The change date for contract "%(contract)s" must be between its start date and its (effective) end date (%(start_date)s - %(end_date)s).</field>
+        </record>
+        <record model="ir.message" id="msg_contract_partner_changed_has_bookings">
+            <field name="text">Warning: contract "%(contract)s" already has booked entries under partner "%(party)s" - the contractual partner is about to change. Continue?</field>
+        </record>
+        <record model="ir.message" id="msg_contract_party_delete_has_bookings">
+            <field name="text">Cannot remove party "%(party)s" from contract "%(contract)s": it still has booked entries in the cash flow, and no other party assignment row for it remains on this contract.</field>
+        </record>
+        <record model="ir.message" id="msg_contract_partner_change_draft_invoices">
+            <field name="text">Warning: contract "%(contract)s" still has %(count)s draft invoice(s) under partner "%(party)s". These will NOT be rebooked to the new partner (only posted, still open items are). Continue anyway?</field>
+        </record>
         <record model="ir.message" id="msg_contract_item_object_unique">
             <field name="text">This object is already assigned to this contract item.</field>
         </record>

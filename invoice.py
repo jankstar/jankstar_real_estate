@@ -585,10 +585,9 @@ class InvoiceLine(metaclass=PoolMeta):
                         if line.settlement_unit.billing_unit else '')))
             if line.base_object and line.contract:
                 contract_object_ids = {
-                    item_obj.object.id
+                    obj.id
                     for item in line.contract.items
-                    for item_obj in item.objects
-                    if item_obj.object}
+                    for obj in item.objects}
                 if line.base_object.id not in contract_object_ids:
                     raise ValidationError(gettext(
                         'real_estate.msg_invoice_line_object_not_in_contract',
@@ -756,7 +755,17 @@ class ContractMoveLinePayableReceivableContext(ModelView):
     'Payable/Receivable Lines' relate action
     (account.move.line.receivable_payable.context), but reachable
     without first opening a specific party, and filterable additionally
-    by party, contract, account, and a date range."""
+    by party, contract, account, and a date range.
+
+    NOTE: this context_model's default_<field>() methods can only ever
+    read 'company' (and any other key already in the client's session
+    context) from Transaction().context - sao strips active_id/active_ids/
+    active_model before building the RPC context used for a context_model's
+    default_get(), unlike for wizards. So this class must never rely on
+    active_id to pre-fill a field; see
+    ContractMoveLinePayableReceivableRelateContext for the relate button,
+    which instead scopes by a plain, static action domain
+    (Eval('active_ids')), which IS evaluated with active_ids available."""
     __name__ = 'real_estate.contract.move_line_payable_receivable.context'
 
     company = fields.Many2One('company.company', "Company", required=True)
@@ -774,6 +783,48 @@ class ContractMoveLinePayableReceivableContext(ModelView):
     @classmethod
     def default_company(cls):
         return Transaction().context.get('company')
+
+    @classmethod
+    def default_receivable(cls):
+        return Transaction().context.get('receivable', True)
+
+    @classmethod
+    def default_payable(cls):
+        return Transaction().context.get('payable', True)
+
+    @classmethod
+    def default_reconciled(cls):
+        return Transaction().context.get('reconciled', False)
+
+
+#**********************************************************************
+class ContractMoveLinePayableReceivableRelateContext(ModelView):
+    """Selection panel for the 'Payable/Receivable Lines' relate button on
+    the contract form itself. Deliberately has no company/party/contract/
+    account fields - the contract itself already scopes the result (via a
+    plain, static domain on the act_window using Eval('active_ids'), see
+    contract.xml, which - unlike this context_model's own defaults - can
+    reliably see the triggering contract), so only the date range and the
+    receivable/payable/reconciled toggles are offered here."""
+    __name__ = 'real_estate.contract.move_line_payable_receivable.relate_context'
+
+    date_from = fields.Date("Date From")
+    date_to = fields.Date("Date To")
+    receivable = fields.Boolean("Receivable")
+    payable = fields.Boolean("Payable")
+    reconciled = fields.Boolean("Reconciled")
+
+    @classmethod
+    def default_receivable(cls):
+        return Transaction().context.get('receivable', True)
+
+    @classmethod
+    def default_payable(cls):
+        return Transaction().context.get('payable', True)
+
+    @classmethod
+    def default_reconciled(cls):
+        return Transaction().context.get('reconciled', False)
 
     @classmethod
     def default_receivable(cls):

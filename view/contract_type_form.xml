@@ -18,9 +18,13 @@
         <label name="step_item"/><field name="step_item"/>
         <label name="step_term"/><field name="step_term"/>
         <newline/>
-        <label name="occupancy"/><field name="occupancy"/>    
+        <label name="occupancy"/><field name="occupancy"/>
         <newline/>
         <label name="types_of_use"/><field name="types_of_use" yexpand="0"/>
+        <newline/>
+        <label name="main_tenant_role"/><field name="main_tenant_role"/>
+        <newline/>
+        <label name="secondary_tenant_role"/><field name="secondary_tenant_role"/>
     </group>
 
         <newline/>

@@ -33,7 +33,7 @@
             
             <label name="payment_term"/><field name="payment_term"/>
             <newline/>   
-            <label name="invoice_address"/><field name="invoice_address"/>
+            <label name="invoice_address"/><field name="invoice_address" readonly="1"/>
             <label name="phone_partner"/><field name="phone_partner" readonly="1"/>
             <newline/>   
             <label name="date_of_signature"/><field name="date_of_signature"/>
@@ -43,6 +43,14 @@
             <separator name="comment" colspan="6"/>
             <field name="comment" colspan="6"/>
         </page>
+
+        <page name="parties" col="6">
+            <field name="parties" colspan="6"
+                view_ids="real_estate.contract_party_view_list"/>
+            <newline/>
+            <button name="change_partner" string="Change Partner" icon="real_estate-swap-horiz" colspan="2"/>
+        </page>
+
         <page string="Termination" id="page_termination" col="6">
             <newline/>
             <label name="terminated_by_type"/><field name="terminated_by_type"/>
@@ -65,8 +73,8 @@
                 <label name="next_term_sequence"/><field name="next_term_sequence"/>
             </group-->
             <newline/>
-            <field name="terms" 
-                view_ids="real_estate.contract_view_list_object_term"/>        
+            <field name="terms"
+                view_ids="real_estate.contract_view_list_object_term"/>
         </page>
 
         <page string="Cash Flow" id="page_cash_flow">
@@ -117,7 +125,6 @@
     <button name="revert_termination" string="Revert Termination" icon="tryton-back"/>
     <button name="terminate" string="Terminate" icon="tryton-forward"/>
     <button name="cancel" string="Cancel" icon="tryton-cancel"/>
-    <button name="change_partner" string="Change Partner" icon="real_estate-swap-horiz"/>
     <button name="open_party_ledger" string="Party Ledger" icon="real_estate-account-balance"/>
 
 </form>

@@ -1201,7 +1201,7 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
                 accounting_date=billing_date,
                 journal=c_type.account_journal.id,
                 account=header_account,
-                invoice_address=contract.invoice_address,
+                invoice_address=contract.get_invoice_address(),
                 currency=contract.currency.id,
                 payment_term=(payment_term
                               if payment_term

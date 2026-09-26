@@ -580,6 +580,18 @@ class ContractCancelWarning(UserWarning):
     pass
 
 
+class ContractPartyRoleWarning(UserWarning):
+    pass
+
+
+class ContractPartnerChangedWarning(UserWarning):
+    pass
+
+
+class ContractPartnerChangeDraftInvoicesWarning(UserWarning):
+    pass
+
+
 #**********************************************************************
 class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), ModelSQL, ModelView):
     "Contract - base class for contracts"
@@ -597,14 +609,28 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
             ('company', '=', Eval('company', -1)),
             ('type', '=', 'property'),],)
 
+    # Contract type is picked first (always visible); type of use stays
+    # visible too, but is only editable once a contract type is chosen AND
+    # that contract type actually allows more than one type of use (see
+    # c_type_multi_use/on_change_c_type below). If it allows just one,
+    # that one is preset automatically and the field is readonly, since
+    # there is nothing left to choose; same while no contract type is
+    # chosen yet.
     type_of_use = fields.Selection('get_term_types_of_use',
         "Type of Use",
         required=True,
         sort=False,
         states={
-            'readonly': ((Eval('state') != 'draft') | ((Bool(Eval('c_type')) != False))),
+            'readonly': (
+                (Eval('state') != 'draft')
+                | ~Bool(Eval('c_type'))
+                | ~Eval('c_type_multi_use', False)),
             }
         )
+
+    c_type_multi_use = fields.Function(
+        fields.Boolean("Contract Type Has Multiple Types of Use"),
+        'on_change_with_c_type_multi_use')
 
     company_re_accounting = fields.Function(
         fields.Many2One('real_estate.re_accounting', "Company Accounting"),
@@ -613,12 +639,10 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
     c_type = fields.Many2One(
         'real_estate.contract.type', "Contract Type", required=True,
         domain=[
-            ('types_of_use', 'in', Eval('type_of_use')),
             ('re_accounting', '=', Eval('company_re_accounting', -1)),
             ],
         states={
             'readonly': ((Eval('state') != 'draft')),
-            'invisible': ((Bool(Eval('type_of_use', 0)) == False)),
             }
         )
 
@@ -652,24 +676,54 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
 
     contract_number = fields.Char("No", states={'readonly': True})
 
+    sequence = fields.Integer("Sequence", required=True,
+        states={'readonly': (Eval('state') != 'draft')})
+
     comment = fields.Text("Comment")
 
     date_of_signature = fields.Date('Date of Signature')
 
+    main_tenant_party_ids = fields.Function(
+        fields.Many2Many('party.party', None, None, 'Main Tenant Party Ids'),
+        'on_change_with_main_tenant_party_ids')
+
     contractual_partner = fields.Many2One(
-        'party.party', "Contractual Partner", required=True, ondelete='CASCADE',
+        'party.party', "Contractual Partner", ondelete='CASCADE',
         states={
             'readonly': (Eval('terms', [0]) | (Eval('state') != 'draft')),
-            })
-    invoice_address = fields.Many2One('party.address', 'Invoice Address',
-        required=True,
-        domain=[('party', '=', Eval('contractual_partner', -1))])
+            'invisible': ~Bool(Eval('parties', [])),
+            },
+        domain=[('id', 'in', Eval('main_tenant_party_ids', []))],
+        depends=['main_tenant_party_ids', 'parties'],
+        help="Auto-filled from the party assignment list (see the "
+             "'Parties' tab) with whichever party currently holds the "
+             "contract type's 'Main Tenant Role', as of today (clamped to "
+             "this contract's own start/end date). Can only be picked "
+             "manually among parties already assigned that role there. "
+             "Hidden until at least one party is assigned; whether it is "
+             "actually mandatory to fill in is enforced by the 'Mandatory "
+             "Role' flag on the party role itself (a warning while the "
+             "contract is 'Draft', an error otherwise), not by this field "
+             "directly - see ContractPartyRole.mandatory.")
+    invoice_address = fields.Function(
+        fields.Many2One('party.address', 'Invoice Address',
+            help="Maintained on the current main tenant's row in the "
+                 "'Parties' tab (real_estate.contract.party."
+                 "invoice_address), not here - falls back to that "
+                 "party's own default invoice address if left empty "
+                 "there. See Contract.get_invoice_address."),
+        'on_change_with_invoice_address')
 
     payment_term = fields.Many2One(
         'account.invoice.payment_term', "Payment Term",
         ondelete='RESTRICT')
 
-    phone_partner = fields.Function(fields.Char("Phone Partner"), 'get_phone_partner')
+    phone_partner = fields.Function(
+        fields.Char("Phone Partner",
+            help="Maintained on the current main tenant's row in the "
+                 "'Parties' tab (real_estate.contract.party."
+                 "phone_partner), not here."),
+        'on_change_with_phone_partner')
 
     name = fields.Function(fields.Char("Name"),
         'on_change_with_name',
@@ -712,6 +766,9 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
 
     next_term_sequence = fields.Function(fields.Integer("Next Term Sequence"),
         'on_change_with_next_term_sequence')
+
+    parties = fields.One2Many('real_estate.contract.party', 'contract', 'Parties',
+        order=[('valid_from', 'DESC NULLS LAST')])
 
     cash_flow_draft = fields.Function(
         fields.One2Many('real_estate.contract.term.cash_flow', None, 'Cash Flow draft', readonly=True),
@@ -860,6 +917,104 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
                 raise ValidationError(gettext(
                     'real_estate.msg_contract_unlimited_with_end_date',
                     name=contract.rec_name))
+        cls._check_party_roles(contracts)
+
+    @staticmethod
+    def _party_role_overlaps(assignments):
+        """True if any two of these ContractParty records (same role,
+        same contract) overlap in time - None valid_from/valid_to is
+        treated as open-ended."""
+        ranges = sorted(
+            (cp.valid_from or datetime.date.min,
+                cp.valid_to or datetime.date.max)
+            for cp in assignments)
+        for (_, prev_to), (next_from, _) in zip(ranges, ranges[1:]):
+            if prev_to >= next_from:
+                return True
+        return False
+
+    @staticmethod
+    def _party_role_has_gap(assignments, start, end):
+        """True if these ContractParty records (same role, same contract)
+        do not cover [start, end] without gaps - end=None means the
+        contract itself is open-ended, so coverage must be open-ended too
+        (some assignment with valid_to=None). None valid_from is treated
+        as covering from the beginning."""
+        ranges = sorted(
+            (cp.valid_from or datetime.date.min, cp.valid_to)
+            for cp in assignments)
+        cursor = start
+        for from_, to_ in ranges:
+            if from_ > cursor:
+                return True
+            if to_ is None:
+                return False
+            if to_ >= cursor:
+                cursor = to_ + datetime.timedelta(days=1)
+        return end is None or cursor <= end
+
+    @classmethod
+    def _check_party_roles(cls, contracts):
+        """'Mandatory Role' and 'Only Once' checks from
+        real_estate.contract.party.role - a warning while the contract is
+        still 'Draft' (the user is still assembling the party list), an
+        error otherwise (see ContractPartyRole.mandatory/only_once)."""
+        pool = Pool()
+        PartyRole = pool.get('real_estate.contract.party.role')
+        Warning = pool.get('res.user.warning')
+
+        for contract in contracts:
+            by_role = defaultdict(list)
+            for cp in contract.parties:
+                by_role[cp.role.id].append(cp)
+
+            roles = PartyRole.search(['OR',
+                ('contract_types', '=', None),
+                ('contract_types', '=',
+                    contract.c_type.id if contract.c_type else -1),
+            ])
+            for role in roles:
+                assignments = by_role.get(role.id, [])
+
+                if role.mandatory and cls._party_role_has_gap(
+                        assignments, contract.start_date,
+                        contract.get_effective_end_date()):
+                    message = gettext(
+                        'real_estate.msg_contract_party_role_mandatory_missing',
+                        contract=contract.rec_name, role=role.name)
+                    if contract.state == 'draft':
+                        # No records in the key on purpose: Warning.format()
+                        # hashes str(records), i.e. includes the contract's
+                        # own id - fine for an existing contract (write()),
+                        # but during create() of a brand-new contract the
+                        # first, warned attempt is rolled back and retried
+                        # with the SAME values, yet gets a DIFFERENT id
+                        # (PostgreSQL sequences aren't rolled back), so the
+                        # confirmed key would never match on retry -
+                        # confirming 'Yes' would just re-ask forever. A
+                        # role-scoped (not contract-instance-scoped) key
+                        # is stable across that retry and is precise enough
+                        # for what is only an advisory, draft-only warning.
+                        key = Warning.format(
+                            f'contract_party_role_mandatory_{role.id}', [])
+                        if Warning.check(key):
+                            raise ContractPartyRoleWarning(key, message)
+                    else:
+                        raise ValidationError(message)
+
+                if (role.only_once and len(assignments) > 1
+                        and cls._party_role_overlaps(assignments)):
+                    message = gettext(
+                        'real_estate.msg_contract_party_role_only_once_violated',
+                        contract=contract.rec_name, role=role.name)
+                    if contract.state == 'draft':
+                        # Same reasoning as above - no contract in the key.
+                        key = Warning.format(
+                            f'contract_party_role_only_once_{role.id}', [])
+                        if Warning.check(key):
+                            raise ContractPartyRoleWarning(key, message)
+                    else:
+                        raise ValidationError(message)
 
     @classmethod
     @ModelView.button_action(
@@ -943,11 +1098,193 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
             contract.save()
 
     @classmethod
-    @ModelView.button
-    def change_partner(cls, contrats):
-        for contract in contrats:
-            contract.add_log('change_partner', f'contract partner changed from {contract.contractual_partner.name if contract.contractual_partner else "None"} to {contract.contractual_partner.name if contract.contractual_partner else "None"}')
+    @ModelView.button_action('real_estate.wizard_change_contract_partner')
+    def change_partner(cls, contracts):
+        pass
+
+    @classmethod
+    def execute_change_partner(cls, contracts, new_party, change_date=None):
+        """Reassign the contractual partner as of change_date (defaults to
+        today). Only still-open (unreconciled) booked items are rebooked -
+        already settled invoices are left untouched. Per open original
+        invoice ("Beleg"): a credit note closes the old partner's open
+        item (same mechanism as BillingUnit.cancel_units), and a new
+        invoice with identical lines (same values, only accounting_date is
+        change_date) reopens the same charge under the new partner.
+
+        Party assignment: the old partner's open 'Main Tenant Role'
+        assignment is ended on change_date - 1 day, and (if configured on
+        the contract type) the old partner is given 'Secondary Tenant
+        Role' from change_date; the new partner is given 'Main Tenant
+        Role' from change_date."""
+        pool = Pool()
+        Invoice = pool.get('account.invoice')
+        InvoiceLine = pool.get('account.invoice.line')
+        MoveLine = pool.get('account.move.line')
+        CashFlowLine = pool.get('real_estate.contract.term.cash_flow')
+        ContractParty = pool.get('real_estate.contract.party')
+        Date = pool.get('ir.date')
+
+        if change_date is None:
+            change_date = Date.today()
+
+        for contract in contracts:
+            old_party = contract.contractual_partner
+            if not old_party or new_party.id == old_party.id:
+                raise ValidationError(gettext(
+                    'real_estate.msg_change_partner_same_party',
+                    contract=contract.rec_name))
+
+            effective_end = contract.get_effective_end_date()
+            if ((contract.start_date and change_date < contract.start_date)
+                    or (effective_end and change_date > effective_end)):
+                raise ValidationError(gettext(
+                    'real_estate.msg_change_partner_date_out_of_range',
+                    contract=contract.rec_name,
+                    start_date=str(contract.start_date),
+                    end_date=str(effective_end) if effective_end else '-'))
+
+            # Draft invoices for the old party are never picked up by the
+            # rebooking below (it only rebooks posted/done cash flow lines)
+            # and would otherwise silently stay with the old party - warn
+            # and let the user abort instead of just missing them.
+            draft_invoices = Invoice.search([
+                ('contract', '=', contract.id),
+                ('party', '=', old_party.id),
+                ('state', '=', 'draft'),
+            ])
+            if draft_invoices:
+                Warning = pool.get('res.user.warning')
+                key = Warning.format(
+                    'contract_partner_change_draft_invoices',
+                    [contract] + draft_invoices)
+                if Warning.check(key):
+                    raise ContractPartnerChangeDraftInvoicesWarning(
+                        key, gettext(
+                            'real_estate.'
+                            'msg_contract_partner_change_draft_invoices',
+                            contract=contract.rec_name,
+                            party=old_party.rec_name,
+                            count=len(draft_invoices)))
+
+            cash_flow_lines = CashFlowLine.search([
+                ('term.contract', '=', contract.id),
+                ('state', '=', 'done'),
+                ('invoice_state', '=', 'posted'),
+            ])
+            invoice_ids = {cf.invoice.id for cf in cash_flow_lines if cf.invoice}
+            open_invoices = [
+                invoice for invoice in Invoice.browse(list(invoice_ids))
+                if any(not line.reconciliation for line in invoice.lines_to_pay)]
+
+            rebooked = 0
+            for invoice in open_invoices:
+                # 1) Close the old party's open item via a credit note -
+                # same mechanism as BillingUnit.cancel_units.
+                credit_notes = Invoice.credit(
+                    [invoice], refund=False, invoice_date=change_date)
+                Invoice.post(credit_notes)
+                credit_note = credit_notes[0]
+
+                open_lines = [
+                    line for line in
+                    list(invoice.lines_to_pay) + list(credit_note.lines_to_pay)
+                    if not line.reconciliation]
+                if open_lines and sum(
+                        line.debit - line.credit
+                        for line in open_lines) == Decimal(0):
+                    MoveLine.reconcile(open_lines)
+
+                # 2) Re-issue the same charges to the new party, booked on
+                # change_date - all other values (account, amount, taxes,
+                # invoice_date, ...) are copied 1:1 from the original.
+                new_lines = []
+                for line in invoice.lines:
+                    if line.type != 'line':
+                        continue
+                    new_line = InvoiceLine(
+                        type='line',
+                        company=line.company.id,
+                        party=new_party.id,
+                        invoice_type=line.invoice_type,
+                        description=line.description,
+                        quantity=line.quantity,
+                        unit=line.unit.id if line.unit else None,
+                        unit_price=line.unit_price,
+                        account=line.account.id,
+                        taxes=[t.id for t in line.taxes],
+                        currency=line.currency.id,
+                        contract=contract.id,
+                        term=line.term.id if line.term else None,
+                        base_object=line.base_object.id if line.base_object else None,
+                        assignment_control=line.assignment_control,
+                    )
+                    new_line.save()
+                    new_lines.append(new_line)
+
+                new_invoice = Invoice(
+                    company=invoice.company.id,
+                    type=invoice.type,
+                    party=new_party.id,
+                    invoice_date=invoice.invoice_date,
+                    accounting_date=change_date,
+                    journal=invoice.journal.id,
+                    account=invoice.account.id,
+                    invoice_address=new_party.address_get(type='invoice'),
+                    currency=invoice.currency.id,
+                    payment_term=invoice.payment_term.id if invoice.payment_term else None,
+                    description=f"{invoice.description} (Change Partner)",
+                    reference=invoice.reference,
+                    lines=new_lines,
+                    contract=contract.id,
+                )
+                Invoice.save([new_invoice])
+                Invoice.post([new_invoice])
+                rebooked += 1
+
+            main_role = contract.c_type.main_tenant_role
+            secondary_role = contract.c_type.secondary_tenant_role
+            if main_role:
+                open_main_assignments = ContractParty.search([
+                    ('contract', '=', contract.id),
+                    ('party', '=', old_party.id),
+                    ('role', '=', main_role.id),
+                    ('valid_to', '=', None),
+                ])
+                if open_main_assignments:
+                    ContractParty.write(
+                        open_main_assignments,
+                        {'valid_to': change_date - datetime.timedelta(days=1)})
+                if secondary_role:
+                    ContractParty.create([{
+                        'contract': contract.id,
+                        'party': old_party.id,
+                        'role': secondary_role.id,
+                        'valid_from': change_date,
+                    }])
+                new_party_address = new_party.address_get(type='invoice')
+                ContractParty.create([{
+                    'contract': contract.id,
+                    'party': new_party.id,
+                    'role': main_role.id,
+                    'valid_from': change_date,
+                    'invoice_address': (
+                        new_party_address.id if new_party_address else None),
+                }])
+
+            contract.contractual_partner = new_party
             contract.save()
+            contract.add_log('change_partner',
+                f'Partner changed from {old_party.name} to {new_party.name} '
+                f'({rebooked} open invoice(s) rebooked).')
+
+            # Re-calculate (not create/book) the cash flow so that still-
+            # draft plan entries reflect the new partner right away instead
+            # of only picking it up whenever the next scheduled
+            # create_moves run happens to process this contract.
+            cls.call_create_moves(
+                [contract.id], change_date, action='re_calc',
+                execute_in_queue=False)
 
     @classmethod
     def _refresh_occupancy_for_contracts(cls, contracts):
@@ -958,9 +1295,8 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
         base_object_ids = set()
         for contract in contracts:
             for item in contract.items:
-                for item_obj in item.objects:
-                    if item_obj.object:
-                        base_object_ids.add(item_obj.object.id)
+                for obj in item.objects:
+                    base_object_ids.add(obj.id)
         if base_object_ids:
             BaseObjectOccupancy.refresh(BaseObject.browse(list(base_object_ids)))
             ContractItem._trigger_billing_unit_selection(base_object_ids)
@@ -989,7 +1325,46 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
                     term.save()
 
     @classmethod
+    def _warn_contractual_partner_change(cls, args):
+        """Warn (not block) when contractual_partner is being changed away
+        from a party that already has booked (state='done') cash flow
+        entries on this contract - e.g. editing the 'Parties' tab
+        directly (deleting the old main tenant's row, adding a new one)
+        rather than going through the dedicated 'Change Partner' wizard,
+        which handles rebooking open items itself. Must run before
+        super().write() so contract.contractual_partner still reflects
+        the pre-write value."""
+        pool = Pool()
+        Warning = pool.get('res.user.warning')
+        CashFlowLine = pool.get('real_estate.contract.term.cash_flow')
+
+        actions = iter(args)
+        for contracts, values in zip(actions, actions):
+            if 'contractual_partner' not in values:
+                continue
+            new_partner_id = values['contractual_partner']
+            for contract in contracts:
+                old_partner = contract.contractual_partner
+                if not old_partner or old_partner.id == new_partner_id:
+                    continue
+                has_bookings = any(
+                    cf.invoice and cf.invoice.party.id == old_partner.id
+                    for cf in CashFlowLine.search([
+                        ('term.contract', '=', contract.id),
+                        ('state', '=', 'done'),
+                    ]))
+                if not has_bookings:
+                    continue
+                key = Warning.format(
+                    'contract_partner_changed_has_bookings', [contract])
+                if Warning.check(key):
+                    raise ContractPartnerChangedWarning(key, gettext(
+                        'real_estate.msg_contract_partner_changed_has_bookings',
+                        contract=contract.rec_name, party=old_partner.name))
+
+    @classmethod
     def write(cls, *args):
+        cls._warn_contractual_partner_change(args)
         super().write(*args)
         occ_ids = set()
         re_calc_ids = set()
@@ -1025,9 +1400,8 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
         return [
             measurement
             for item in self.items
-            for item_obj in item.objects
-            if item_obj.object
-            for measurement in item_obj.object.measurements]
+            for obj in item.objects
+            for measurement in obj.measurements]
 
     @classmethod
     def get_cost_shares(cls, contracts, name):
@@ -1070,10 +1444,9 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
             if not contract.property:
                 continue
             contract_object_ids = {
-                item_obj.object.id
+                obj.id
                 for item in contract.items
-                for item_obj in item.objects
-                if item_obj.object}
+                for obj in item.objects}
             if not contract_object_ids:
                 continue
 
@@ -1109,11 +1482,21 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
                         result[contract.id].append(su.id)
         return result
 
-    @classmethod
-    def get_term_types_of_use(cls):
+    @fields.depends('c_type')
+    def get_term_types_of_use(self, name=None):
+        # Instance method (not classmethod) on purpose: restricts the
+        # dropdown to only the types of use the chosen contract type
+        # actually allows, once one is chosen - the field is invisible
+        # anyway while c_type is empty or unambiguous, see 'type_of_use'
+        # states above.
         pool = Pool()
         BaseObject = pool.get('real_estate.base_object')
-        return BaseObject.fields_get(['type_of_use'])['type_of_use']['selection']
+        all_selection = BaseObject.fields_get(
+            ['type_of_use'])['type_of_use']['selection']
+        if self.c_type and self.c_type.types_of_use:
+            allowed = set(self.c_type.types_of_use)
+            return [(k, v) for k, v in all_selection if k in allowed]
+        return all_selection
 
     @classmethod
     def default_company(cls):
@@ -1132,8 +1515,14 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
                 return True
             inv = cf.invoice_line.invoice
             return inv is None or inv.state in ('draft', 'validated')
+        # A new, unsaved term (negative/virtual id) cannot have any cash
+        # flow yet - term.cash_flow is a required FK to a saved term, so
+        # there is nothing to look up. The client also doesn't send the
+        # 'cash_flow' sub-field for such rows in the on_change payload,
+        # which would otherwise raise an AttributeError here.
         return sorted(
-            [cf for term in self.terms for cf in term.cash_flow if _is_draft(cf)],
+            [cf for term in self.terms if isinstance(term.id, int) and term.id > 0
+                for cf in term.cash_flow if _is_draft(cf)],
             key=lambda line: (line.document_date, line.posting_date, line.name))
 
     def add_log(self, event, description=None):
@@ -1246,7 +1635,12 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
         sets end_date = termination_date unconditionally,
         contract_wizard.py:46) but ended up with no end_date - e.g. state/
         termination_date set by some other path than the wizard. Once its
-        termination_date has passed, end_date is synced to it here too."""
+        termination_date has passed, end_date is synced to it here too.
+
+        Also auto-fills contractual_partner (see get_main_tenant) for any
+        contract where it is still empty, so contracts entered without
+        going through the on_change-driven fill (e.g. via import) still
+        end up with a partner once a Main Tenant party is assigned."""
         Date = Pool().get('ir.date')
         today = Date.today()
         contracts = cls.search([
@@ -1282,6 +1676,22 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
                 f'contract end date synced to termination date '
                 f'{contract.termination_date} (was empty on an already '
                 f'terminated, unlimited contract)')
+
+        # Auto-fill contractual_partner from the party assignment list
+        # (see Contract.get_main_tenant) for any contract where it is
+        # still empty - never overwrites an already-set value.
+        unassigned_contracts = cls.search([
+            ('contractual_partner', '=', None),
+            ('company.re_accounting', '=', re_accounting.id),
+        ])
+        for contract in unassigned_contracts:
+            main_tenant = contract.get_main_tenant()
+            if main_tenant:
+                contract.contractual_partner = main_tenant
+                contract.save()
+                contract.add_log('state_change',
+                    f'contractual_partner auto-filled from party '
+                    f'assignment list: {main_tenant.name}')
 
     @classmethod
     def _cron_update_contract_cash_flow(cls, re_accounting, task=None):
@@ -1400,15 +1810,101 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
 
     @fields.depends('contractual_partner', 'c_type')
     def on_change_contractual_partner(self, name=None):
+        # invoice_address is no longer settable here - it is a Function
+        # field derived from the main tenant's own party-assignment row
+        # (see on_change_with_invoice_address).
         if self.contractual_partner:
-            self.invoice_address = self.contractual_partner.address_get(type='invoice')
             if self.c_type.invoice_type == 'out':
                 self.payment_term = self.contractual_partner.customer_payment_term
             elif self.c_type.invoice_type == 'in':
                 self.payment_term = self.contractual_partner.supplier_payment_term
         else:
-            self.invoice_address = None
             self.payment_term = None
+
+    @fields.depends('parties', 'c_type')
+    def on_change_with_main_tenant_party_ids(self, name=None):
+        role = self.c_type.main_tenant_role if self.c_type else None
+        if not role:
+            return []
+        return [cp.party.id for cp in (self.parties or [])
+            if cp.role and cp.role.id == role.id]
+
+    def get_main_tenant_assignment(self, date=None):
+        """Return the real_estate.contract.party record currently holding
+        the contract type's 'Main Tenant Role', as of date (defaults to
+        today), clamped to this contract's own validity period
+        [start_date, effective end date]. Returns the first matching
+        assignment, or None if no role is configured or none matches."""
+        role = self.c_type.main_tenant_role if self.c_type else None
+        if not role:
+            return None
+        if date is None:
+            date = Pool().get('ir.date').today()
+        start = self.start_date
+        end = self.get_effective_end_date()
+        if start and date < start:
+            date = start
+        if end and date > end:
+            date = end
+        for cp in (self.parties or []):
+            if not cp.role or cp.role.id != role.id:
+                continue
+            if cp.valid_from and date < cp.valid_from:
+                continue
+            if cp.valid_to and date > cp.valid_to:
+                continue
+            return cp
+        return None
+
+    def get_main_tenant(self, date=None):
+        """Return the party of get_main_tenant_assignment(date), or None."""
+        assignment = self.get_main_tenant_assignment(date)
+        return assignment.party if assignment else None
+
+    def get_invoice_address(self, date=None):
+        """Return the invoice address to use for booking (and for
+        display in the 'invoice_address' Function field): the address
+        maintained on the current main tenant's own party-assignment row
+        (see get_main_tenant_assignment), falling back to that party's
+        own default invoice address if the assignment doesn't have one
+        set. None if there is no current main tenant assignment."""
+        assignment = self.get_main_tenant_assignment(date)
+        if not assignment:
+            return None
+        if assignment.invoice_address:
+            return assignment.invoice_address
+        return assignment.party.address_get(type='invoice')
+
+    @fields.depends(
+        'parties', 'c_type', 'start_date', 'end_date', 'termination_date')
+    def on_change_with_invoice_address(self, name=None):
+        address = self.get_invoice_address()
+        return address.id if address else None
+
+    @fields.depends(
+        'parties', 'c_type', 'start_date', 'end_date', 'termination_date')
+    def on_change_with_phone_partner(self, name=None):
+        assignment = self.get_main_tenant_assignment()
+        return assignment.phone_partner if assignment else ''
+
+    @fields.depends(
+        'parties', 'c_type', 'contractual_partner', 'start_date',
+        'end_date', 'termination_date',
+        methods=['on_change_contractual_partner'])
+    def on_change_parties(self):
+        # contractual_partner is derived/auto-managed (its own domain
+        # already restricts manual picks to the same 'currently valid
+        # main tenant' set), so always keep it in sync here rather than
+        # only filling it when empty - otherwise replacing the main
+        # tenant (delete the old party-assignment row, add a new one)
+        # leaves the stale, now out-of-domain party in place and fails
+        # validation on save.
+        main_tenant = self.get_main_tenant()
+        old_id = self.contractual_partner.id if self.contractual_partner else None
+        new_id = main_tenant.id if main_tenant else None
+        if old_id != new_id:
+            self.contractual_partner = main_tenant
+            self.on_change_contractual_partner()
 
     @fields.depends('unlimited')
     def on_change_unlimited(self, name=None):
@@ -1424,6 +1920,28 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
         if self.company and self.company.re_accounting:
             return self.company.re_accounting.id
         return None
+
+    @fields.depends('c_type')
+    def on_change_with_c_type_multi_use(self, name=None):
+        if self.c_type and self.c_type.types_of_use:
+            return len(self.c_type.types_of_use) > 1
+        return False
+
+    @fields.depends('c_type', 'type_of_use',
+        methods=['on_change_with_c_type_multi_use'])
+    def on_change_c_type(self):
+        # Preset type_of_use automatically when the chosen contract type
+        # only allows exactly one - nothing left to pick, and the field
+        # stays hidden (see its 'invisible' state). Clear it when it no
+        # longer matches the (new) contract type's allowed values.
+        if not self.c_type or not self.c_type.types_of_use:
+            self.type_of_use = None
+            return
+        allowed = self.c_type.types_of_use
+        if len(allowed) == 1:
+            self.type_of_use = allowed[0]
+        elif self.type_of_use not in allowed:
+            self.type_of_use = None
 
     @fields.depends('c_type', 'property', 'company', 'sequence')
     def on_change_with_sequence(self, name=None):
@@ -1457,15 +1975,6 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
             party = Party(self.contractual_partner)
             if party and party.addresses:
                 return party.addresses[0].full_address.replace('\n', ' / ')
-        return ''
-
-    def get_phone_partner(self, name=None):
-        if self.contractual_partner:
-            Party = Pool().get('party.party')
-            party = Party(self.contractual_partner)
-            phone = party.contact_mechanism_get(types='phone')
-            if phone:
-                return phone.value.replace('\n', ' / ')
         return ''
 
     @classmethod
@@ -1539,12 +2048,9 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
                                 and len(ref_item.objects) > 1):
                             from .contract_term import ContractTerm
                             per_obj_lines = []
-                            for item_obj in ref_item.objects:
-                                obj = item_obj.object
-                                if not obj:
-                                    continue
+                            for obj in ref_item.objects:
                                 obj_qty = ContractTerm._sum_measurements(
-                                    type('_R', (), {'objects': [item_obj]})(),
+                                    type('_R', (), {'objects': [obj]})(),
                                     m_type,
                                     cash_flow.document_date)
                                 if not obj_qty:
@@ -1597,7 +2103,7 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
 
                         # Default: single invoice line
                         first_obj = (
-                            ref_item.objects[0].object
+                            ref_item.objects[0]
                             if ref_item and ref_item.objects else None)
                         if (m_type and not term.quantity
                                 and not (ref_item and ref_item.objects
@@ -1678,7 +2184,7 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
                 invoice_date=inv_date,
                 accounting_date=posting_date,
                 payment_term_date=due_date,
-                invoice_address=self.invoice_address,
+                invoice_address=self.get_invoice_address(),
                 currency=self.currency.id,
                 journal=self.c_type.account_journal.id,
                 account=l_account,

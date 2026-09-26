@@ -5,5 +5,6 @@
     <field name="type" optional="1"/>
     <field name="type_of_use" optional="1"/>
     <field name="company" expand="1" optional="1"/>
+    <field name="occupancy_state" optional="1"/>
     <field name="state"/>
 </tree>

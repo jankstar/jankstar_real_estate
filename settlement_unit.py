@@ -1378,7 +1378,11 @@ class SettlementUnit(DeactivableMixin, base_object.re_sequence_ordered(), ModelS
                 cost_share.error_message = error_msg
             cost_share.save()
 
-        self.value_total = total
+        # Summing individually-rounded floats can still drift past 4
+        # decimals (binary float representation, e.g. 1652.2575000000002)
+        # even though each addend was itself round(v, 4) above - round the
+        # total too, or saving fails the field's digits=(16, 4) check.
+        self.value_total = round(total, 4)
         self.save()
 
         self._compute_heizkostenv_split()
@@ -1518,7 +1522,7 @@ class SettlementUnit(DeactivableMixin, base_object.re_sequence_ordered(), ModelS
             combined_actual = ((self.actual_costs or Decimal(0))
                 + (self.actual_costs_from_references or Decimal(0)))
             self.planned_costs = self.planned_costs_from_references or Decimal(0)
-            self.value_total = float(combined_actual)
+            self.value_total = round(float(combined_actual), 4)
             self.save()
             self._compute_heizkostenv_split()
         else:
@@ -1541,7 +1545,7 @@ class SettlementUnit(DeactivableMixin, base_object.re_sequence_ordered(), ModelS
             if not has_error:
                 self.actual_costs = total_actual
                 self.planned_costs = total_planned
-                self.value_total = float(total_actual)
+                self.value_total = round(float(total_actual), 4)
                 self.save()
                 self._compute_heizkostenv_split()
 

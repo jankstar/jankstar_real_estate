@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<form col="2">
+    <label name="contract"/><field name="contract" colspan="2" readonly="1"/>
+    <newline/>
+    <label name="current_party"/><field name="current_party"/>
+    <label name="new_party"/><field name="new_party"/>
+    <newline/>
+    <label name="change_date"/><field name="change_date"/>
+</form>

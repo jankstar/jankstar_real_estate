@@ -14,8 +14,7 @@
             <label name="valid_from"/><field name="valid_from"/>
             <label name="valid_to"/><field name="valid_to"/>
             <separator id="sep_objects" string="Objects" colspan="6"/>
-            <field name="objects" colspan="6"
-                view_ids="real_estate.contract_item_object_list"/>
+            <field name="objects" colspan="6"/>
             <separator id="sep_terms" string="Terms" colspan="6"/>
             <field name="terms" colspan="6"
                 view_ids="real_estate.contract_view_list_object_term"/>

@@ -194,7 +194,17 @@ class BaseObject(Workflow, DeactivableMixin, re_sequence_ordered(), tree(separat
 
     number_of_objects = fields.Function(fields.Integer("Number of Sub-Objects"), 'get_number_of_objects')
 
-    
+    occupancy_state = fields.Function(
+        fields.Selection('get_occupancy_state_selection', "Occupancy",
+            sort=False,
+            help="Rented/Vacant/Under Negotiation as of the "
+                 "'occupancy_date' context key (defaults to today when not "
+                 "set) - lets a contract item's object search show whether "
+                 "an object is still free as of the item's own valid_from, "
+                 "not just today. Empty for objects without occupancy "
+                 "tracking (only type 'object' has it)."),
+        'get_occupancy_state')
+
     measurements = fields.One2Many('real_estate.measurement', 'base_object', 'Measurements',)
 
     parties = fields.One2Many('real_estate.object_party', 'base_object', 'Parties',)
@@ -823,8 +833,34 @@ class BaseObject(Workflow, DeactivableMixin, re_sequence_ordered(), tree(separat
                 cls.compute_value_shares(cls.browse(list(property_ids)))
 
     def get_number_of_objects(self, name=None):
-        return len(self.children)   
-    
+        return len(self.children)
+
+    @classmethod
+    def get_occupancy_state_selection(cls):
+        pool = Pool()
+        Occupancy = pool.get('real_estate.base_object.occupancy')
+        return [('', '')] + list(Occupancy.fields_get(['state'])['state']['selection'])
+
+    @classmethod
+    def get_occupancy_state(cls, records, name=None):
+        pool = Pool()
+        Occupancy = pool.get('real_estate.base_object.occupancy')
+        Date = pool.get('ir.date')
+        date = Transaction().context.get('occupancy_date') or Date.today()
+        result = {r.id: '' for r in records}
+        obj_ids = [r.id for r in records if r.type == 'object']
+        if obj_ids:
+            for occ in Occupancy.search([
+                    ('base_object', 'in', obj_ids),
+                    ('start_date', '<=', date),
+                    ['OR',
+                        ('end_date', '=', None),
+                        ('end_date', '>=', date)],
+                    ]):
+                result[occ.base_object.id] = occ.state
+        return result
+
+
     def on_change_with_meter_id(self, name=None):
         # get last meter id
         MeterReading = Pool().get('real_estate.meter_reading')
@@ -1053,7 +1089,9 @@ class BaseObjectOccupancy(ModelSQL, ModelView):
         property_ = cls._get_property(base_object)
 
         items = ContractItem.search([
-            ('objects.object', '=', base_object.id),
+            # 'objects' is a Many2Many straight to real_estate.base_object
+            # (see ContractItem.objects), so no '.object' indirection here.
+            ('objects', '=', base_object.id),
             ('contract.c_type.occupancy', '=', True),
             ('contract.state', 'in', ('running', 'terminated', 'draft')),
         ], order=[('valid_from', 'ASC')])

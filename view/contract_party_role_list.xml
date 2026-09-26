@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<tree sequence="sequence">
+    <field name="name"/>
+    <field name="contract_types" expand="1"/>
+    <field name="default"/>
+    <field name="mandatory"/>
+    <field name="only_once"/>
+</tree>
