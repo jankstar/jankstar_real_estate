@@ -7,43 +7,19 @@ Genshi/relatorio; ``template_extension`` on the ``ir.action.report`` record is
 ``odt``. Values are inserted with ``text:span py:content="..."`` rather than
 literal ``${...}`` interpolation (which relatorio escapes in ODT text), and
 control flow (``py:if``/``py:for``/``py:choose``) is written as attributes on
-the surrounding ODF elements. Superseded ``.html`` versions of these templates
-remain in ``report/`` for reference but are no longer registered.
+the surrounding ODF elements. Older ``.html`` versions of these templates
+remain in ``report/`` for reference only and are not registered.
+
+Templates are maintained as ODF XML (``content.xml``/``styles.xml``), not by
+re-saving the ``.odt`` in an office suite (which drops the ``py:``
+attributes). Context helpers exposed to templates must not start with an
+underscore and templates must not contain ``import`` statements (Genshi
+sandbox); the shared ``format_value`` helper and ``Decimal`` are provided
+via ``get_context()``.
 
 ``real_estate.contract.report``  (``contract_report.py``)
    General contract report.
    Templates: ``contract_en.odt``, ``contract_letter_de.odt``.
-
-   .. note::
-      **Two genuine, pre-existing bugs found and fixed** while
-      implementing the termination confirmation report below (both had
-      always been broken — module-consistency tests never render a
-      template, so neither was ever caught):
-
-      1. The context helper was named ``_format`` (leading underscore).
-         Trytond's report rendering runs Genshi templates through a
-         ``SafeASTTransformer`` (``trytond/_safe_genshi.py``) that
-         rejects any bare name starting with ``_`` — so
-         ``py:content="_format(...)"`` raised
-         ``ValueError: invalid name '_format'`` the moment
-         ``contract_letter_de.odt`` was actually printed. Renamed to
-         ``format_value`` throughout (also in
-         ``ContractAnnex4Report``/``anlage4_contract_de.odt``, which had
-         the same issue).
-      2. ``contract_letter_de.odt`` additionally had a literal
-         ``from decimal import Decimal`` inside its ``<?python?>`` block
-         (needed for ``sum(..., Decimal(0))``). The same
-         ``SafeASTTransformer`` unconditionally forbids *any* import
-         statement, raising ``ValueError: invalid import from`` —
-         independently of the ``_format`` issue, and would have kept the
-         report broken even after fixing that. Fixed by injecting
-         ``Decimal`` via ``get_context()`` instead (the same pattern
-         core itself uses for ``datetime``), removing the import from
-         the template entirely. Also added a ``Decimal`` branch to
-         ``format_value()`` (previously missing, so ``total_amount``
-         would have rendered as Python's own ``str(Decimal(...))``
-         instead of a properly formatted German amount once the import
-         itself was fixed).
 
 ``real_estate.contract.annex4.report``  (``contract_report.py``)
    Annex 4 – Betriebskostenaufstellung.

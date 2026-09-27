@@ -156,17 +156,10 @@ immediately before *Betriebskostenabrechnung*), bundling all models below.
       into M-Satz field 58 (Kennzeichen Zahlungsart) of every record
       for this provider.
 
-   .. note::
-      ``owner_rule``, ``tenant_rule``, ``invoice_number_rule``,
-      ``tax_id_flag``, ``tax_rate_flag``, ``invoice_number_flag``, and
-      ``direct_debit_flag`` all include an explicit blank ``('', '')``
-      choice, even where a default value is set — a plain optional
-      ``fields.Selection`` with a static choice list otherwise rejects
-      ``None``/``''`` as "not a valid selection" on save once the
-      field's own default no longer applies (e.g. after the value is
-      cleared again in the client). Fields that are unconditionally
-      ``required=True`` (``field7_mode``, ``provider_org_rule``) don't
-      need this, since a blank value is never legal for them anyway.
+   The optional selection fields ``owner_rule``, ``tenant_rule``,
+   ``invoice_number_rule``, ``tax_id_flag``, ``tax_rate_flag``,
+   ``invoice_number_flag`` and ``direct_debit_flag`` include a blank
+   choice, so they can be left empty.
 
 ``real_estate.bved.provider_assignment``  (``bved.py``, form label "BVED Provider-Liegenschaft")
    Anchors one provider + customer number + 9-digit Liegenschaftsnummer
@@ -201,10 +194,9 @@ immediately before *Betriebskostenabrechnung*), bundling all models below.
       default ``'0'``). Written unchanged into M-Satz field 68
       (Kennzeichen Umlage Nutzerwechselgebühr) of every record generated
       for this provider assignment — unlike the other M-Satz catalog
-      settings introduced so far (all on ``real_estate.bved.
-      service_provider``), this one lives on the assignment itself,
-      since whether a tenant-change fee is allocated can plausibly
-      differ per property/Liegenschaft even under the same provider.
+      settings (on ``real_estate.bved.service_provider``), this one is
+      set per assignment, since it may differ per Liegenschaft under the
+      same provider.
 
    *L-Satz Preview* page — read-only preview of how this assignment's
    L-Satz (Liegenschaft) record would look today, split into two field
@@ -545,13 +537,6 @@ data, typically entered only on the heating-cost settlement unit):
       model. ``bved_fuel_data`` and ``bved_fuel_rule`` are left
       unnumbered since they are module-only controls, not fields of the
       B-Satz record itself.
-
-   .. note::
-      ``bved_fuel_rule`` did not exist before this field group split; a
-      migration in ``SettlementUnit.__register__`` backfills it to
-      ``'stock'`` for every pre-existing row with ``bved_fuel_data`` set,
-      so previously entered stock/hot-water data stays visible after the
-      upgrade (it was, in effect, the only option before).
 
    K-Satz cost records (``BvedExport._build_b_k_records()``) are built not
    only from invoice lines booked directly on the externally-billed

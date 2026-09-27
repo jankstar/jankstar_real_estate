@@ -12,7 +12,7 @@ settlement units referencing one gets no *CO2 Costs* page at all.
 
 .. note::
    The reference and the raw consumption-row table live on
-   ``real_estate.settlement_unit`` (unchanged from earlier versions), but
+   ``real_estate.settlement_unit``, but
    every *derived* figure (totals, area, per-m² emission, tenant/landlord
    shares) is aggregated on the parent ``real_estate.billing_unit`` instead
    — across **all** of its settlement units that carry a ``co2_kostaufg``
@@ -108,8 +108,7 @@ the remaining fields are shown:
       instead. This is also the corresponding BVED L-Satz field 19
       (Kennzeichen Nichtwohngebäude) — see *BVED External Billing
       Interface* below, whose provider-assignment L-Satz preview and real
-      export both read this field directly (no longer derived from the
-      Optionssatz).
+      export both read this field directly.
 
       - **False** (default): ``co2_measurement_type``, ``co2_consumptions``,
         the four totals, ``co2_emission_per_m2``, and the residential-tier

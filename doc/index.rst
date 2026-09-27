@@ -8,29 +8,42 @@ Covers property management, lease and sales contracts, tenant/owner party roles,
 operating cost settlement, CO2 cost allocation under the German CO2KostAufG,
 and a German "Kontenrahmen der Wohnungswirtschaft" (WoWi) accounting chart.
 
-Full documentation (Configuration, Access Control, Data Model, Wizards,
-Reports, …) is split into per-topic pages under ``doc/`` — see *Contents*
-below.
+Structure
+=========
+
+- **Master data** — real-estate objects in a tree (property → building →
+  apartment/commercial unit/parking, equipment such as meters), addresses,
+  measurements (areas, rooms, meter readings), occupancy, and party roles
+  per object.
+- **Contracts** — contract types, contract parties with roles and validity
+  periods, items (rented objects) and terms (recurring charges such as rent
+  and operating cost advances); terms generate a planned cash flow that is
+  booked as invoices via the *Create Contract Moves* wizard or a cron task.
+- **Operating cost settlement** — billing units and settlement units
+  allocate supplier invoice costs to contracts (by measurement,
+  consumption, external billing, …), including CO2 cost allocation
+  (CO2KostAufG) and the BVED interface to external metering providers.
+- **Accounting** — German WoWi chart of accounts, company-specific
+  real-estate accounting configuration, input VAT option rate, and
+  real-estate fields on invoices and journal lines.
+
+Full documentation is split into per-topic pages under ``doc/`` — see
+*Contents* below and *Source Layout* for the file-to-model mapping.
 
 | ISO_4217 Currency https://de.wikipedia.org/wiki/ISO_4217
 | ISO_3166 Country Codes https://www.laenderdaten.de/kuerzel/iso_3166-1.aspx
 |
 
-This module was developed with the support of AI cloude code — all requirements,
+This module was developed with the support of Claude Code — all requirements,
 specifications, tests, corrections, and optimizations were carried out by
 human contributors.
 
 Contents
 ========
 
-.. note::
-   The links below are absolute GitHub URLs, not relative paths — this
-   file is also displayed as the repository's ``README.rst`` via a
-   symlink at the repo root, and GitHub resolves relative links against
-   *that* location, not against ``doc/`` where the target files actually
-   live; a plain relative link (e.g. ``module_dependencies.rst``) 404s
-   when opened from the root-level README. Absolute URLs work correctly
-   from both places (and also from PyPI's rendered description).
+..
+   The links below are absolute GitHub URLs because this file is also
+   shown as the repository's root README.rst (symlink) and on PyPI.
 
 - `Module Dependencies <https://github.com/jankstar/jankstar_real_estate/blob/main/doc/module_dependencies.rst>`_
 - `Installation <https://github.com/jankstar/jankstar_real_estate/blob/main/doc/installation.rst>`_

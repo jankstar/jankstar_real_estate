@@ -141,9 +141,7 @@ Property Management
       (L-Satz *Gesamtfläche*), ``BillingUnit.on_change_with_co2_total_area``,
       ``SettlementUnit.compute_value_shares`` (``allocation_by_measurement``),
       ``ContractTerm._sum_measurements``, and
-      ``OptionRate._measurement_value`` (dynamic option-rate weighting) —
-      previously each of these re-implemented its own (in several cases
-      incompletely hierarchy-aware, or not hierarchy-aware at all) lookup.
+      ``OptionRate._measurement_value`` (dynamic option-rate weighting).
 
    ``company`` / ``property`` (Function fields)
       Display/search-only, derived from ``base_object`` — ``company`` is

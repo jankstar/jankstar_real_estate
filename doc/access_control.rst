@@ -102,36 +102,18 @@ multiple groups.
    accounting moves/invoices behind them) without being able to change
    either.
 
-   .. note::
-      ``ir.model.access`` alone does not make a menu item appear in the
-      client. The top-level *Rechnungswesen* menu (``account.menu_account``)
-      is only shown to groups explicitly linked to it via
-      ``ir.ui.menu-res.group`` — by default just ``group_account`` and
-      ``group_account_admin`` (this is the *only* menu in the whole
-      ``account`` module gated this way, confirmed by querying a live
-      database for every menu linked to ``group_account``; everything
-      below it in the tree is unrestricted at the menu level, relying
-      solely on each item's own ``ir.model.access`` once opened). Without
-      an equivalent link, a user placed in ``group_account_view`` alone
-      would have read access to all ten models yet never see the menu to
-      reach them — ``group_account_view.xml`` therefore also adds
-      ``menu_account_group_account_view`` (an ``ir.ui.menu-res.group``
-      record pointing ``group_account_view`` at ``account.menu_account``),
-      the same mechanism core itself uses for the other two groups.
+   ``group_account_view.xml`` also links the group to the top-level
+   *Rechnungswesen* menu (``account.menu_account``) via
+   ``menu_account_group_account_view`` (``ir.ui.menu-res.group``), since
+   that menu is only shown to explicitly linked groups.
 
 ``group_party_access`` — **Party Access** (German: *Partner Zugriff*)
-   ``party.party`` has no ``ir.model.access`` records anywhere in core or
-   in the rest of this module — Tryton's default for a model with zero
-   access rows is full CRUD for everyone, since parties are normally
-   shared openly across whatever modules happen to be installed
-   alongside ``real_estate`` (sales, purchasing, accounting...). Per
-   explicit request, party editing is now a separately-assigned
-   privilege: only members of ``group_party_access`` may create, modify,
-   or delete parties; every *other* role — including this module's own
+   Party editing is a separately-assigned privilege: only members of
+   ``group_party_access`` may create, modify, or delete parties; every
+   *other* role — including this module's own
    ``group_real_estate_admin``/``object``/``contract``/``billing`` and
-   both "view" groups above — is downgraded to read-only (still needed
-   so party names keep displaying wherever a party is merely referenced:
-   contracts, invoices, lists...). Defined in ``group_party_access.xml``:
+   both "view" groups above — has read-only access (so party names still
+   display wherever a party is referenced: contracts, invoices, lists...). Defined in ``group_party_access.xml``:
    a ``_default`` (no-group) ``ir.model.access`` row
    (``perm_read=True``, the rest ``False``) plus one full-CRUD row for
    ``group_party_access`` itself. The built-in ``admin`` user is
@@ -141,13 +123,10 @@ multiple groups.
    out-of-the-box admin account is not locked out.
 
    .. warning::
-      Deliberately does **not** reference any group from optional
-      modules this one does not depend on (``sale``, ``purchase``, ...) —
-      doing so from XML would break installation wherever those modules
-      are absent. If such a module's own users need to keep creating or
-      editing parties after this change, an administrator must add them
-      to ``group_party_access`` directly (Administration → User → the
-      user's *Groups* field), independently of this module.
+      Groups of optional modules (``sale``, ``purchase``, ...) are not
+      included. Users of such modules who need to create or edit parties
+      must be added to ``group_party_access`` by an administrator
+      (Administration → User → the user's *Groups* field).
 
 Permission matrix (``C`` = CRUD · ``R`` = read · ``—`` = no access). The
 ``view`` group is not shown as its own column since its value is ``R`` for

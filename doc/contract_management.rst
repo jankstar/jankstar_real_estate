@@ -44,23 +44,14 @@ Contract Management
    - ``sequence`` is only editable in ``draft``; readonly once
      ``running``/``terminated``/``cancelled``.
 
-   **Contract type before type of use.** ``c_type`` is always visible
-   and picked first (its own domain only filters by the company's
-   accounting scheme, ``re_accounting`` — no longer by ``type_of_use``).
-   ``type_of_use`` stays visible too, but is only *editable* — via a
-   new Function field ``c_type_multi_use`` — once ``c_type`` is chosen
-   **and** that contract type actually allows more than one type of use
-   (its ``types_of_use`` ``MultiSelection``); its own selection getter
-   (``get_term_types_of_use``, now an *instance* method, not a
-   classmethod, so it can see ``self.c_type``) is restricted to just the
-   chosen contract type's allowed values, which — as a side effect
-   Tryton provides automatically for instance-method-backed Selection
-   fields — also makes the *saved* value validated against those
-   allowed values, with no extra check needed. If the contract type
+   **Contract type before type of use.** ``c_type`` is picked first (its
+   domain filters by the company's accounting scheme, ``re_accounting``).
+   ``type_of_use`` is only editable (Function field ``c_type_multi_use``)
+   once a contract type is chosen **and** it allows more than one type of
+   use (its ``types_of_use`` ``MultiSelection``); the selection is then
+   restricted to the contract type's allowed values. If the contract type
    allows only one, ``on_change_c_type`` presets ``type_of_use`` to it
-   automatically (still shown, just readonly — nothing left to choose).
-   This is the reverse of the field's original behaviour (pick
-   ``type_of_use`` first, which then filtered ``c_type``'s own domain).
+   (readonly).
 
    ``settlement_units`` (Function field, ``get_settlement_units``)
       The contract's *last valid* settlement units: settlement units of the
@@ -89,22 +80,19 @@ Contract Management
      ``end_date`` regardless of ``unlimited`` (see below).
 
    The *Terminate* button (``real_estate.terminate_contract.wizard``, see
-   *Wizards*) now also writes the resolved ``termination_date`` into
+   *Wizards*) also writes the resolved ``termination_date`` into
    ``end_date`` — so ``end_date`` always reflects the contract's actual
    end once terminated, fixed-term or not.
 
-   Reactivating a **terminated** contract no longer uses the *Running*
-   button (that button is now only shown for ``draft``/``cancelled``).
-   Instead, a dedicated *Revert Termination* button
-   (``revert_termination``, same underlying ``terminated → running``
-   transition) is shown only for ``state = 'terminated'``. Besides
-   clearing the termination fields (``termination_date``,
-   ``terminated_by_type``, ``receipt_of_termination_notice``,
-   ``termination_notice``, ``termination_reason`` — same as *Running*
-   already did), it additionally clears ``end_date`` back to empty, but
-   **only if the contract is ``unlimited``** — a fixed-term contract that
-   was terminated early keeps whatever is in ``end_date`` after being
-   reactivated.
+   The *Running* button is only shown for ``draft``/``cancelled``. A
+   **terminated** contract is reactivated via the *Revert Termination*
+   button (``revert_termination``, transition ``terminated → running``,
+   only shown for ``state = 'terminated'``). It clears the termination
+   fields (``termination_date``, ``terminated_by_type``,
+   ``receipt_of_termination_notice``, ``termination_notice``,
+   ``termination_reason``) and, **only if the contract is
+   ``unlimited``**, also ``end_date`` — a fixed-term contract that was
+   terminated early keeps its ``end_date``.
 
    See also the ``update_contract_status`` cron task (*Configuration*
    above) for the automatic ``expired`` termination of fixed-term
@@ -145,22 +133,9 @@ Contract Management
       assignments) — same warning-in-draft/error-otherwise split as
       ``mandatory``.
 
-   .. note::
-      Both checks raise via ``Warning.format(name, records)``, which
-      hashes ``str(records)`` — i.e. includes a record's own id. For an
-      *existing* contract (``write()``) that id is stable, so a
-      confirmed warning is correctly remembered on retry. For a
-      **brand-new** contract, though, the first (warned) ``create()``
-      attempt is rolled back, and PostgreSQL sequences are *not* rolled
-      back with it — the retried ``create()`` (same values, resubmitted
-      by the client after "Yes") gets a *different* id, so a
-      contract-keyed warning would never be recognised as already
-      confirmed and would re-ask forever. Both checks therefore key
-      *only* on the (pre-existing, stable) role id, not the contract
-      itself — a deliberate precision/robustness trade-off: confirming
-      "yes, proceed" once for a given missing-role situation also skips
-      it for any other draft contract with the same gap, rather than
-      looping indefinitely.
+   Confirmed warnings of both checks are remembered per role (not per
+   contract): confirming a missing/overlapping role once also skips the
+   warning for other draft contracts with the same gap.
 
 ``real_estate.contract.party``  (``contract_party.py``)
    One party assignment row (``party``, ``role``, ``valid_from``/
@@ -170,15 +145,11 @@ Contract Management
    mechanism of the party). A unique SQL constraint on
    ``(party, contract, valid_from, role)`` prevents exact duplicates.
 
-   ``Contract.contractual_partner`` (see below) is **derived** from
-   whichever party currently holds the contract type's configured
-   *Main Tenant Role* here, not set directly — ``on_change_parties``
-   keeps it in sync client-side, and it stays a real, required, stored
-   ``Many2One`` column (not a Function field) because
-   ``AccountContract.table_query()`` (*Kontenblatt*, see below) joins
-   ``account.move.line`` to ``real_estate.contract`` directly on that
-   SQL column; converting it to a Function field would have broken that
-   raw-SQL join.
+   ``Contract.contractual_partner`` is **derived** from whichever party
+   currently holds the contract type's configured *Main Tenant Role*
+   here, not set directly — ``on_change_parties`` keeps it in sync. It is
+   a stored, required ``Many2One`` column (used by the *Kontenblatt*
+   query ``AccountContract.table_query()``).
 
    ``delete()`` blocks removing the *last* assignment row for a party
    that still has booked (``state='done'``) cash flow entries on the
@@ -197,57 +168,32 @@ Contract Management
    Associates one or more rental objects with a contract for a given
    validity period (``label``, ``valid_from``/``valid_to``).
 
-   ``objects`` is a ``Many2Many`` straight to ``real_estate.base_object``
-   — the relation table is still ``real_estate.contract.item.object``
-   (unchanged; still required, since every Many2Many in Tryton needs an
-   explicit "through" model with the two FK columns — there is no
-   implicit, code-free join table as in some other ORMs), but the *field
-   type* on ``ContractItem`` matters for which views the client shows:
-   a ``Many2Many`` widget uses the *target* model's own list/form views
-   (here ``base_object`` — its normal list, including the ``occupancy_state``
-   column below, and its full form on double-click), whereas the
-   previous ``One2Many`` showed the much sparser relation model's own
-   views instead (only ``sequence`` + ``object``). Reading ``item.objects``
-   (Python or proteus) therefore yields ``base_object`` records directly
-   now, not relation rows with a further ``.object`` step. The object
-   selector always restricts to objects belonging to the **same
-   property** as the contract (preventing cross-property assignments);
-   it is additionally restricted to ``type = 'object'`` only for
-   **occupancy contracts** (``contract.c_type.occupancy`` set — the
-   Function field ``occupancy`` mirrors this from the contract type, now
-   present on ``ContractItem`` itself, not only on the relation model). A
-   unique SQL constraint on ``(item, object)`` (still on the relation
-   model) prevents assigning the same object twice to the same item; the
-   same object may still be assigned to a different item (e.g. on
-   another contract).
+   ``objects`` is a ``Many2Many`` to ``real_estate.base_object`` via the
+   relation model ``real_estate.contract.item.object``; the client shows
+   the objects with their normal list/form views (including
+   ``occupancy_state``). The object selector is restricted to objects of
+   the **same property** as the contract, and additionally to
+   ``type = 'object'`` for **occupancy contracts**
+   (``contract.c_type.occupancy``, mirrored by the Function field
+   ``occupancy``). A unique SQL constraint on ``(item, object)`` prevents
+   assigning the same object twice to the same item; the same object may
+   be assigned to an item of another contract.
 
    On create/write/delete, triggers occupancy refresh and re-runs
    BillingUnit selection and value-share calculation for the affected
    property.
 
    ``_check_occupancy_overlap`` — only for occupancy contracts, only
-   while the contract isn't ``cancelled`` — checks, for every assigned
-   object, whether *this item's own* ``valid_from``/``valid_to`` range
-   (the whole range, not just today) overlaps an existing
-   ``BaseObjectOccupancy`` period of a *different* contract. This can
-   only be checked dynamically at save time (it depends on a date-range
-   comparison against other contracts' data, not on any single field's
-   static value) — the object selector's own ``domain`` (above) never
-   expresses occupancy at all, only object type/property. The check
-   distinguishes two overlap kinds:
+   while the contract isn't ``cancelled`` — checks at save time, for every
+   assigned object, whether this item's ``valid_from``/``valid_to`` range
+   overlaps an existing ``BaseObjectOccupancy`` period of a *different*
+   contract:
 
-   - Overlap with an already ``rented`` period → hard
-     ``ValidationError`` (``msg_occupancy_overlap``) — two firm
-     tenancies can't coexist.
+   - Overlap with a ``rented`` period → ``ValidationError``
+     (``msg_occupancy_overlap``).
    - Overlap with an ``under_negotiation`` period only → confirmable
-     ``ContractItemOccupancyWarning`` (``msg_occupancy_overlap_warning``)
-     — that other prospect may still fall through, so the user can
-     proceed deliberately instead of being blocked outright. Keyed on
-     the (pre-existing, stable) object only, not the item — an item
-     being newly created together with a new contract has no stable id
-     across a warned-then-confirmed retry (see the note on
-     ``_check_party_roles`` below), which would otherwise re-ask the
-     same warning forever.
+     ``ContractItemOccupancyWarning`` (``msg_occupancy_overlap_warning``),
+     remembered per object.
 
 ``real_estate.contract.term``  (``contract_term.py``)
    A recurring charge line on a contract (rent, operating cost advance, etc.).
