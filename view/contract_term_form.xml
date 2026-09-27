@@ -28,6 +28,8 @@
         <label name="quantity"/><field name="quantity"/>
         <label name="unit_price"/><field name="unit_price"/>
         <label name="amount"/><field name="amount"/>
+        <newline/>
+        <label name="object_distribution"/><field name="object_distribution"/>
         <newline/>   
         <!--label name="unit"/><field name="unit"/-->
         <!--label name="currency"/><field name="currency"/-->

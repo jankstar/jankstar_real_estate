@@ -767,6 +767,18 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
     next_term_sequence = fields.Function(fields.Integer("Next Term Sequence"),
         'on_change_with_next_term_sequence')
 
+    current_terms_date = fields.Function(fields.Date("Key Date",
+            help="Date for which the current terms are shown: today, the "
+                 "contract's start date if it lies in the future, or its "
+                 "(effective) end date if it lies in the past."),
+        'on_change_with_current_terms_date')
+    current_terms = fields.Function(fields.One2Many(
+            'real_estate.contract.term', None, "Current Terms",
+            readonly=True,
+            help="Terms valid on the key date (valid from <= key date and "
+                 "valid to empty or >= key date)."),
+        'on_change_with_current_terms')
+
     parties = fields.One2Many('real_estate.contract.party', 'contract', 'Parties',
         order=[('valid_from', 'DESC NULLS LAST')])
 
@@ -1508,6 +1520,28 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
             return self.termination_date
         return self.end_date
 
+    @fields.depends('start_date', 'end_date', 'termination_date')
+    def on_change_with_current_terms_date(self, name=None):
+        today = Pool().get('ir.date').today()
+        if self.start_date and today < self.start_date:
+            return self.start_date
+        end_date = self.get_effective_end_date()
+        if end_date and today > end_date:
+            return end_date
+        return today
+
+    @fields.depends('terms', methods=['on_change_with_current_terms_date'])
+    def on_change_with_current_terms(self, name=None):
+        key_date = self.on_change_with_current_terms_date()
+        # Unsaved terms (negative/virtual id) cannot be listed in a
+        # Function One2Many - they appear here once the contract is saved.
+        terms = [t for t in (self.terms or [])
+            if t.id is not None and t.id >= 0
+            and t.valid_from and t.valid_from <= key_date
+            and (not t.valid_to or t.valid_to >= key_date)]
+        terms.sort(key=lambda t: (t.sequence is None, t.sequence or 0))
+        return [t.id for t in terms]
+
     @fields.depends('terms')
     def on_change_with_cash_flow_draft(self, name=None):
         def _is_draft(cf):
@@ -2041,13 +2075,19 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
                         m_type = (term.term_type.m_type
                             if term.term_type else None)
 
-                        # Build per-object lines when measurement-based and
-                        # multiple objects are assigned; otherwise single line.
-                        if (ref_item and m_type
-                                and ref_item.objects
-                                and len(ref_item.objects) > 1):
+                        multi_objects = bool(ref_item and ref_item.objects
+                            and len(ref_item.objects) > 1)
+
+                        # Build per-object lines when multiple objects are
+                        # assigned: measurement-based terms get each
+                        # object's own measurement as quantity, absolute
+                        # terms (no measurement type) split their unit
+                        # price by the term's object_distribution;
+                        # otherwise single line.
+                        per_obj_lines = []
+                        per_obj_values = []
+                        if multi_objects and m_type:
                             from .contract_term import ContractTerm
-                            per_obj_lines = []
                             for obj in ref_item.objects:
                                 obj_qty = ContractTerm._sum_measurements(
                                     type('_R', (), {'objects': [obj]})(),
@@ -2062,44 +2102,57 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
                                         f'invoice line created for this '
                                         f'object.')
                                     continue
-                                line = InvoiceLine(
-                                    type='line',
-                                    company=self.company.id,
-                                    party=self.contractual_partner.id,
-                                    invoice_type=self.c_type.invoice_type,
-                                    description=(
-                                        cash_flow.name + ' – ' + obj.name),
-                                    quantity=obj_qty,
-                                    unit=term.unit,
-                                    unit_price=term.unit_price,
-                                    account=l_account,
-                                    currency=self.currency.id,
-                                    taxes=list(taxes),
-                                    contract=self,
-                                    term=term,
-                                    base_object=obj.id,
-                                    assignment_control='contract',
-                                )
-                                line.save()
-                                per_obj_lines.append(line)
-                            if not per_obj_lines:
-                                # No object had a measurement — fall through to
-                                # single-line behaviour below
-                                pass
-                            else:
-                                cash_flow.state = 'done'
-                                cash_flow.posting_date = cash_flow.document_date
-                                cash_flow.create_moves_run_id = create_moves_run_id
-                                group = lines_by_date[cash_flow.posting_date]
-                                group['lines'].extend(per_obj_lines)
-                                if group['document_date'] is None:
-                                    group['document_date'] = cash_flow.document_date
-                                    group['due_date'] = cash_flow.due_date
-                                # link first line to cash_flow for traceability
-                                cash_flow.invoice_line = per_obj_lines[0]
-                                cash_flow.save()
-                                term.last_posting_date = cash_flow.posting_date
-                                continue
+                                per_obj_values.append(
+                                    (obj, obj_qty, term.unit_price))
+                        elif multi_objects:
+                            parts, warnings = term.split_unit_price(
+                                list(ref_item.objects),
+                                cash_flow.document_date)
+                            for warning in warnings:
+                                self.add_log('warning',
+                                    f'term "{term.name}": {warning}')
+                            per_obj_values = [
+                                (obj, term.quantity, part_price)
+                                for obj, part_price in parts if part_price]
+
+                        for obj, obj_qty, obj_unit_price in per_obj_values:
+                            line = InvoiceLine(
+                                type='line',
+                                company=self.company.id,
+                                party=self.contractual_partner.id,
+                                invoice_type=self.c_type.invoice_type,
+                                description=(
+                                    cash_flow.name + ' – ' + obj.name),
+                                quantity=obj_qty,
+                                unit=term.unit,
+                                unit_price=obj_unit_price,
+                                account=l_account,
+                                currency=self.currency.id,
+                                taxes=list(taxes),
+                                contract=self,
+                                term=term,
+                                base_object=obj.id,
+                                assignment_control='contract',
+                            )
+                            line.save()
+                            per_obj_lines.append(line)
+
+                        # No object had a measurement / share — fall
+                        # through to single-line behaviour below
+                        if per_obj_lines:
+                            cash_flow.state = 'done'
+                            cash_flow.posting_date = cash_flow.document_date
+                            cash_flow.create_moves_run_id = create_moves_run_id
+                            group = lines_by_date[cash_flow.posting_date]
+                            group['lines'].extend(per_obj_lines)
+                            if group['document_date'] is None:
+                                group['document_date'] = cash_flow.document_date
+                                group['due_date'] = cash_flow.due_date
+                            # link first line to cash_flow for traceability
+                            cash_flow.invoice_line = per_obj_lines[0]
+                            cash_flow.save()
+                            term.last_posting_date = cash_flow.posting_date
+                            continue
 
                         # Default: single invoice line
                         first_obj = (

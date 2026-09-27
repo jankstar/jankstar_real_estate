@@ -1499,7 +1499,7 @@
             <field name="name">Apartment rent (monthly)</field>
             <field name="sequence" >1000</field>
             <field name="types_of_use" eval="['residential']" />
-            <field name="m_type" ref="measurement_living_space_type" />
+            <field name="info_m_type" ref="measurement_living_space_type" />
             <field name="default_quantity">1</field>
             <field name="rhythm">1</field>
             <field name="rhythm_type">monthly</field>
@@ -1511,7 +1511,7 @@
             <field name="name">Rent reduction (monthly)</field>
             <field name="sequence" >1010</field>
             <field name="types_of_use" eval="['residential']" />
-            <field name="m_type" ref="measurement_living_space_type" />
+            <field name="info_m_type" ref="measurement_living_space_type" />
             <field name="default_quantity">1</field>
             <field name="rhythm">1</field>
             <field name="rhythm_type">monthly</field>
@@ -1523,7 +1523,7 @@
             <field name="name">Subletting surcharge (monthly)</field>
             <field name="sequence" >1020</field>
             <field name="types_of_use" eval="['residential']" />
-            <field name="m_type" ref="measurement_living_space_type" />
+            <field name="info_m_type" ref="measurement_living_space_type" />
             <field name="default_quantity">1</field>
             <field name="rhythm">1</field>
             <field name="rhythm_type">monthly</field>
@@ -1541,12 +1541,23 @@
             <field name="oc_processing" >none</field>
         </record>
 
+        <record model="real_estate.contract.term.type" id="contract_term_type_rent_deposit">
+            <field name="re_accounting" ref="re_accounting_default"/>
+            <field name="name">Rent deposit (one-time)</field>
+            <field name="sequence" >1900</field>
+            <field name="types_of_use" eval="['residential']" />
+            <field name="default_quantity">1</field>
+            <field name="rhythm">1</field>
+            <field name="rhythm_type">one_time</field>
+            <field name="oc_processing" >none</field>
+        </record>
+
         <record model="real_estate.contract.term.type" id="contract_term_type_operating_costs">
             <field name="re_accounting" ref="re_accounting_default"/>
             <field name="name">AP for Operating costs (monthly)</field>
             <field name="sequence" >2000</field>
             <field name="types_of_use" eval="['residential', 'commercial', 'internal']" />
-            <field name="m_type" ref="measurement_living_space_type" />
+            <field name="info_m_type" ref="measurement_usable_space_type" />
             <field name="default_quantity">1</field>
             <field name="rhythm">1</field>
             <field name="rhythm_type">monthly</field>
@@ -1558,7 +1569,7 @@
             <field name="name">AP for Heating costs (monthly)</field>
             <field name="sequence" >3000</field>
             <field name="types_of_use" eval="['residential', 'commercial', 'internal']" />
-            <field name="m_type" ref="measurement_living_space_type" />
+            <field name="info_m_type" ref="measurement_usable_space_type" />
             <field name="default_quantity">1</field>
             <field name="rhythm">1</field>
             <field name="rhythm_type">monthly</field>
@@ -1570,7 +1581,7 @@
             <field name="name">Commercial rent (monthly)</field>
             <field name="sequence" >8000</field>
             <field name="types_of_use" eval="['commercial']" />
-            <field name="m_type" ref="measurement_commercial_space_type" />
+            <field name="info_m_type" ref="measurement_commercial_space_type" />
             <field name="default_quantity">1</field>
             <field name="rhythm">1</field>
             <field name="rhythm_type">monthly</field>

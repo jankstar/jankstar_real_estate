@@ -16,10 +16,15 @@ Je Wirtschaftseinheit (16 Wohnungen, 4 Stellplätze):
   - Vertragsart: erste ContractType für type_of_use 'residential'
   - Startdatum: 01.01.2025
   - Je Vertrag 1 ContractItem (sequence=10) mit der zugeordneten Wohnung
-  - 3 Konditionen je Wohnungsvertrag, monatlich:
-      - Apartment rent (sequence=1000): zufällig 11,00–16,00 EUR, Menge 1
-      - Betriebskosten (sequence=2000): zufällig  3,00– 4,00 EUR, Menge 1
-      - Heizkosten     (sequence=3000): zufällig  3,00– 4,00 EUR, Menge 1
+  - 3 Konditionen je Wohnungsvertrag, monatlich, absoluter Betrag (Menge 1).
+    Der Betrag wird aus einem zufälligen Preis je m² × Wohnfläche der
+    Wohnung berechnet (57 m² bzw. 83 m² aus test_immo.py):
+      - Apartment rent (sequence=1000): 11,00–16,00 EUR/m²
+      - Betriebskosten (sequence=2000):  3,00– 4,00 EUR/m²
+      - Heizkosten     (sequence=3000):  3,00– 4,00 EUR/m²
+    Die Konditionsarten haben keine Bemessung (m_type) mehr, sondern nur
+    eine informative Bemessung (info_m_type) - der Wert je m² wird in der
+    Kondition nur zurückgerechnet angezeigt.
   - Alle Verträge werden aktiviert (→ running).
   - 3 Verträge werden zufällig gekündigt:
       - Kündigung 1: Vertragsende 31.05.2025, Eingang Kündigung 28.02.2025
@@ -45,7 +50,9 @@ GEWERBEMIETVERTRÄGE (type_of_use='commercial')
     - Vertragspartner: "Gewerbemieter 1"
     - 1 ContractItem (sequence=10, Label "Gewerbeflächen EG")
       mit allen 4 Gewerbeobjekten (ContractItemObject)
-    - 3 Konditionen, monatlich (Menge jeweils 4 × 140 m² = 560 m²):
+    - 3 Konditionen, monatlich, absoluter Betrag (Menge 1) auf Basis der
+      Gesamtfläche 4 × 140 m² = 560 m², Verteilung auf Objekte
+      (object_distribution) "nach Info-Fläche" statt Default "gleichanteilig":
         - Gewerbemiete    (sequence=8000): 25,00 EUR/m²
         - Betriebskosten  (sequence=2000): zufällig 3,00–4,00 EUR/m²
         - Heizkosten      (sequence=3000): zufällig 3,00–4,00 EUR/m²
@@ -53,7 +60,8 @@ GEWERBEMIETVERTRÄGE (type_of_use='commercial')
   Musterstraße 5-8 — je 1 Einzelvertrag pro Gewerbefläche (4 Verträge):
     - Vertragspartner: "Gewerbemieter 2–5"
     - Je 1 ContractItem (sequence=10) mit dem zugeordneten Gewerbeobjekt
-    - 3 Konditionen je Vertrag, monatlich (Menge jeweils 140 m²):
+    - 3 Konditionen je Vertrag, monatlich, absoluter Betrag (Menge 1)
+      auf Basis 140 m²:
         - Gewerbemiete    (sequence=8000): 25,00 EUR/m²
         - Betriebskosten  (sequence=2000): zufällig 3,00–4,00 EUR/m²
         - Heizkosten      (sequence=3000): zufällig 3,00–4,00 EUR/m²
@@ -64,9 +72,10 @@ HINWEISE
   - Idempotenz: Abbruch wenn Party "Mieter 1" bereits existiert.
   - UseClass wird per Sequenznummer gesucht (sprachunabhängig):
       Apartment=10, Parking=50, Retail=30
-  - Für NK/HK-Konditionen bei Gewerbeverträgen wird die Menge explizit
-    auf die Gewerbefläche gesetzt, da proteus on_change_with_quantity
-    vor dem Setzen von reference_item feuert.
+  - Konditionen werden immer absolut angelegt (Menge 1, Einzelpreis =
+    Preis je m² × Fläche, auf 2 Nachkommastellen gerundet). Die Fläche
+    wird aus den Bemessungen der Objekte gelesen (Wohnfläche sequence=10,
+    Gewerbefläche sequence=15, sprachunabhängig per sequence gesucht).
 
 Verwendung:
     python tests/test_contracts.py --database <Datenbankname> [--config <trytond.conf>]
@@ -197,6 +206,40 @@ def get_measurement_type(name: str):
         print(f'WARNUNG: Bemessungstyp "{name}" nicht gefunden.', file=sys.stderr)
         return None
     return results[0]
+
+
+def get_measurement_type_by_sequence(sequence: int, label: str):
+    MeasurementType = Model.get('real_estate.measurement.type')
+    results = MeasurementType.find([('sequence', '=', sequence)], limit=1)
+    if not results:
+        print(f'WARNUNG: Bemessungstyp sequence={sequence} ("{label}") '
+              f'nicht gefunden.', file=sys.stderr)
+        return None
+    return results[0]
+
+
+def get_area(objects, m_type, fallback: Decimal = None) -> Decimal:
+    """Sum the measurement value of m_type over the given objects - used to
+    derive an absolute term amount from a price per m²."""
+    total = Decimal(0)
+    for obj in objects:
+        value = get_measurement_value(obj, m_type)
+        if value is None:
+            if fallback is None:
+                print(f'WARNUNG: Keine Bemessung "{m_type.name if m_type else "?"}" '
+                      f'für {obj.name} gefunden.', file=sys.stderr)
+                continue
+            value = fallback
+        total += Decimal(str(value))
+    return total
+
+
+def random_price_per_m2(low: float, high: float) -> Decimal:
+    return Decimal(str(round(random.uniform(low, high), 2)))
+
+
+def absolute_amount(price_per_m2: Decimal, area: Decimal) -> Decimal:
+    return (price_per_m2 * area).quantize(Decimal('0.01'))
 
 
 def get_water_meter(base_object):
@@ -550,7 +593,9 @@ def get_tax(name: str):
 def create_contract_term(contract, term_type, reference_item,
                          unit_price: Decimal, sequence: int,
                          quantity: Decimal = Decimal(1),
-                         taxes=None) -> None:
+                         taxes=None, price_per_m2: Decimal = None,
+                         area: Decimal = None,
+                         object_distribution: str = None) -> None:
     ContractTerm = Model.get('real_estate.contract.term')
     Tax = Model.get('account.tax')
     term = ContractTerm()
@@ -563,14 +608,34 @@ def create_contract_term(contract, term_type, reference_item,
     term.quantity = quantity
     term.unit_price = unit_price
     term.sequence = sequence
+    if object_distribution:
+        term.object_distribution = object_distribution
     term.save()
     if taxes:
         term = ContractTerm(term.id)
         term.taxes.extend([Tax(t.id) for t in taxes])
         term.save()
     tax_info = f', Steuer: {[t.name for t in taxes]}' if taxes else ''
-    print(f'    Kondition:     {term_type.name}, EP={unit_price} EUR, '
-          f'Menge={quantity}, monatlich{tax_info}')
+    calc_info = (f' ({price_per_m2} EUR/m² × {area} m²)'
+                 if price_per_m2 is not None and area is not None else '')
+    print(f'    Kondition:     {term_type.name}, EP={unit_price} EUR'
+          f'{calc_info}, Menge={quantity}, monatlich{tax_info}')
+
+
+def create_commercial_terms(contract, item, area: Decimal,
+                            tt_commercial, tt_nk, tt_hz,
+                            rent_per_m2: Decimal, taxes,
+                            object_distribution: str = None) -> None:
+    """Commercial rent, operating and heating cost advance as absolute
+    amounts (price per m² × area)."""
+    for tt, price_m2, seq in (
+            (tt_commercial, rent_per_m2, 10),
+            (tt_nk, random_price_per_m2(3, 4), 20),
+            (tt_hz, random_price_per_m2(3, 4), 30)):
+        create_contract_term(
+            contract, tt, item, absolute_amount(price_m2, area),
+            sequence=seq, taxes=taxes, price_per_m2=price_m2, area=area,
+            object_distribution=object_distribution)
 
 
 def main():
@@ -604,6 +669,10 @@ def main():
     tt_commercial = get_term_type(8000)  # Gewerbemiete
 
     t_wfl = get_measurement_type('Wohnfläche')
+    # Area basis for the absolute term amounts (looked up by sequence,
+    # language independent - see measurement.xml)
+    t_living = get_measurement_type_by_sequence(10, 'Wohnfläche')
+    t_commercial = get_measurement_type_by_sequence(15, 'Gewerbefläche')
     admin_user = get_admin_user()
 
     Country = Model.get('country.country')
@@ -666,13 +735,15 @@ def main():
             )
             item = create_contract_item(contract, apartment, sequence=10)
 
-            rent_price = Decimal(str(round(random.uniform(11, 16), 2)))
-            nk_price   = Decimal(str(round(random.uniform(3, 4), 2)))
-            hz_price   = Decimal(str(round(random.uniform(3, 4), 2)))
-
-            create_contract_term(contract, tt_rent, item, rent_price,   sequence=10)
-            create_contract_term(contract, tt_nk,   item, nk_price,     sequence=20)
-            create_contract_term(contract, tt_hz,   item, hz_price,     sequence=30)
+            area = get_area([apartment], t_living)
+            for tt, (low, high), seq in (
+                    (tt_rent, (11, 16), 10),
+                    (tt_nk, (3, 4), 20),
+                    (tt_hz, (3, 4), 30)):
+                price_m2 = random_price_per_m2(low, high)
+                create_contract_term(
+                    contract, tt, item, absolute_amount(price_m2, area),
+                    sequence=seq, price_per_m2=price_m2, area=area)
 
             contracts_this_prop.append(contract)
             mieter_nr += 1
@@ -832,18 +903,13 @@ def main():
         label='Gewerbeflächen EG',
         sequence=10,
     )
-    qty_total = RETAIL_AREA * len(retail_p1)
-    create_contract_term(g_contract, tt_commercial, g_item,
-                         COMMERCIAL_RENT, sequence=10, quantity=qty_total,
-                         taxes=commercial_taxes)
-    create_contract_term(g_contract, tt_nk, g_item,
-                         Decimal(str(round(random.uniform(3, 4), 2))),
-                         sequence=20, quantity=qty_total,
-                         taxes=commercial_taxes)
-    create_contract_term(g_contract, tt_hz, g_item,
-                         Decimal(str(round(random.uniform(3, 4), 2))),
-                         sequence=30, quantity=qty_total,
-                         taxes=commercial_taxes)
+    area_total = get_area(retail_p1, t_commercial, fallback=RETAIL_AREA)
+    # Several objects on one item: split the absolute amounts by commercial
+    # space when booking (default would be equal shares)
+    create_commercial_terms(g_contract, g_item, area_total,
+                            tt_commercial, tt_nk, tt_hz,
+                            COMMERCIAL_RENT, commercial_taxes,
+                            object_distribution='info_measurement')
     g_contract.click('running')
     print(f'  Vertrag id={g_contract.id} → running')
     year_end_contracts.append(g_contract)
@@ -876,17 +942,10 @@ def main():
         g_contract_seq += 10
 
         g_item = create_contract_item(g_contract, retail_obj, sequence=10)
-        create_contract_term(g_contract, tt_commercial, g_item,
-                             COMMERCIAL_RENT, sequence=10, quantity=RETAIL_AREA,
-                             taxes=commercial_taxes)
-        create_contract_term(g_contract, tt_nk, g_item,
-                             Decimal(str(round(random.uniform(3, 4), 2))),
-                             sequence=20, quantity=RETAIL_AREA,
-                             taxes=commercial_taxes)
-        create_contract_term(g_contract, tt_hz, g_item,
-                             Decimal(str(round(random.uniform(3, 4), 2))),
-                             sequence=30, quantity=RETAIL_AREA,
-                             taxes=commercial_taxes)
+        area = get_area([retail_obj], t_commercial, fallback=RETAIL_AREA)
+        create_commercial_terms(g_contract, g_item, area,
+                                tt_commercial, tt_nk, tt_hz,
+                                COMMERCIAL_RENT, commercial_taxes)
         g_contract.click('running')
         print(f'  Vertrag id={g_contract.id} → running')
         year_end_contracts.append(g_contract)

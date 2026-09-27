@@ -1191,6 +1191,13 @@
             <field eval="10" name="sequence"/>
             <field name="statement">balance</field>
         </record>
+        <record id="wowi_type_u_4391" model="account.account.type.template">
+            <field name="name">Mietkautionen</field>
+            <field name="parent" ref="wowi_type_g_43"/>
+            <field eval="10" name="sequence"/>
+            <field name="statement">balance</field>
+            <field name="deposit" eval="True"/>
+        </record>
         <record id="wowi_type_g_44" model="account.account.type.template">
             <field name="name">Verbindlichkeiten aus Vermietung und Lieferungen und Leistungen</field>
             <field name="parent" ref="wowi_type_k4"/>

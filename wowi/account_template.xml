@@ -1636,6 +1636,14 @@
             <field name="code">4390</field>
             <field name="type" ref="wowi_type_u_439"/>
         </record>
+        <record id="wowi_account_4391" model="account.account.template">
+            <field name="name">Mietkautionen</field>
+            <field name="parent" ref="wowi_view_u_439"/>
+            <field name="code">4391</field>
+            <field name="type" ref="wowi_type_u_4391"/>
+            <field name="reconcile" eval="True"/>
+            <field name="party_required" eval="True"/>
+        </record>
         <record id="wowi_view_g_44" model="account.account.template">
             <field name="name">Verbindlichkeiten aus Vermietung und Lieferungen und Leistungen</field>
             <field name="parent" ref="wowi_view_k4"/>

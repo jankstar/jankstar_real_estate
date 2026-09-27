@@ -73,8 +73,20 @@
                 <label name="next_term_sequence"/><field name="next_term_sequence"/>
             </group-->
             <newline/>
-            <field name="terms"
-                view_ids="real_estate.contract_view_list_object_term"/>
+            <notebook colspan="8">
+                <page string="All Terms" id="page_terms_all">
+                    <field name="terms"
+                        view_ids="real_estate.contract_view_list_object_term"/>
+                </page>
+                <page string="Current Terms" id="page_terms_current">
+                    <label name="current_terms_date"/>
+                    <field name="current_terms_date"/>
+                    <newline/>
+                    <field name="current_terms" colspan="6"
+                        view_ids="real_estate.contract_view_list_object_term"
+                        readonly="1"/>
+                </page>
+            </notebook>
         </page>
 
         <page string="Cash Flow" id="page_cash_flow">

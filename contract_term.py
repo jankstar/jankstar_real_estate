@@ -13,6 +13,8 @@ from trytond.modules.product import price_digits
 
 from dateutil.relativedelta import relativedelta
 
+from sql import Null
+
 import logging
 import re
 from decimal import Decimal
@@ -562,6 +564,24 @@ class ContractTerm(sequence_ordered(), ModelSQL, ModelView, TaxableMixin):
             'invisible': (Eval('term_type', None) == None),
             })
 
+    object_distribution = fields.Selection([
+            ('equal', 'Equal Shares'),
+            ('info_measurement', 'By Informative Measurement'),
+            ], "Object Distribution", sort=False,
+        states={
+            'invisible': ((Eval('term_type', None) == None)
+                | (Eval('term_type_m_type', None) != None)),
+            },
+        help="Only for terms with an absolute amount (term type without "
+             "measurement type) whose reference item has several objects: "
+             "how the amount is split into one invoice line per object "
+             "when booking.\n"
+             "Equal Shares: same share for every object.\n"
+             "By Informative Measurement: proportional to each object's "
+             "value of the term type's informative measurement type (e.g. "
+             "living space); falls back to equal shares if no object has "
+             "such a value.")
+
     amount = fields.Function(Monetary(
             "Amount", currency='currency', digits='currency',
           states={
@@ -580,6 +600,16 @@ class ContractTerm(sequence_ordered(), ModelSQL, ModelView, TaxableMixin):
     total_amount = fields.Function(Monetary(
             "Total", currency='currency', digits='currency'),
         'get_amount_and_tax', )
+
+    # Total split by rhythm: one-time terms (e.g. a rent deposit) vs.
+    # recurring terms, so both can be summed up separately in the
+    # contract's term list
+    total_amount_periodic = fields.Function(Monetary(
+            "Total Periodic", currency='currency', digits='currency'),
+        'get_amount_and_tax')
+    total_amount_one_time = fields.Function(Monetary(
+            "Total One-Time", currency='currency', digits='currency'),
+        'get_amount_and_tax')
 
     taxes = fields.Many2Many('real_estate.contract.term.tax',
         'term', 'tax', 'Taxes',
@@ -786,10 +816,23 @@ class ContractTerm(sequence_ordered(), ModelSQL, ModelView, TaxableMixin):
                 tax_amount[term.id] = result['tax_amount'] or Decimal(0)
                 total_amount[term.id] = result['total_amount'] or Decimal(0)
 
+        total_amount_periodic = {}
+        total_amount_one_time = {}
+        for term in terms:
+            zero = term.currency.round(Decimal(0))
+            if term.rhythm_type == 'one_time':
+                total_amount_periodic[term.id] = zero
+                total_amount_one_time[term.id] = total_amount[term.id]
+            else:
+                total_amount_periodic[term.id] = total_amount[term.id]
+                total_amount_one_time[term.id] = zero
+
         result = {
             'untaxed_amount': untaxed_amount,
             'tax_amount': tax_amount,
             'total_amount': total_amount,
+            'total_amount_periodic': total_amount_periodic,
+            'total_amount_one_time': total_amount_one_time,
             }
         for key in list(result.keys()):
             if key not in names:
@@ -1004,6 +1047,72 @@ class ContractTerm(sequence_ordered(), ModelSQL, ModelView, TaxableMixin):
         if results:
             return results[0].id
         return None
+
+    @classmethod
+    def __register__(cls, module):
+        super().__register__(module)
+        cursor = Transaction().connection.cursor()
+        table = cls.__table__()
+        # Existing terms: fill the new column with its default value
+        cursor.execute(*table.update(
+                [table.object_distribution], ['equal'],
+                where=table.object_distribution == Null))
+
+    @staticmethod
+    def default_object_distribution():
+        return 'equal'
+
+    def split_unit_price(self, objects, reference_date):
+        """Split this term's unit price across the given objects according
+        to object_distribution. Returns ([(object, unit_price_part)],
+        [warning messages]). The parts are rounded to the currency digits
+        (so the invoice line amounts add up to the term amount for
+        quantity 1); the last object with a non-zero share takes the
+        rounding remainder, so the parts always sum up exactly to the unit
+        price."""
+        warnings = []
+        unit_price = self.unit_price or Decimal(0)
+        weights = [Decimal(1)] * len(objects)
+        if self.object_distribution == 'info_measurement':
+            info_m_type = (self.term_type.info_m_type
+                if self.term_type else None)
+            if not info_m_type:
+                warnings.append(
+                    'term type has no informative measurement type - '
+                    'split into equal shares.')
+            else:
+                measured = []
+                for obj in objects:
+                    value = self._sum_measurements(
+                        type('_R', (), {'objects': [obj]})(),
+                        info_m_type, reference_date)
+                    if not value:
+                        warnings.append(
+                            f'object "{obj.name}" has no measurement '
+                            f'"{info_m_type.name}" for {reference_date} - '
+                            f'share 0.')
+                        value = Decimal(0)
+                    measured.append(Decimal(str(value)))
+                if sum(measured):
+                    weights = measured
+                else:
+                    warnings.append(
+                        f'no object has a measurement "{info_m_type.name}" '
+                        f'- split into equal shares.')
+        total_weight = sum(weights)
+        currency = getattr(self, 'currency', None)
+        exp = Decimal(1).scaleb(-(currency.digits if currency else 2))
+        parts = []
+        for obj, weight in zip(objects, weights):
+            parts.append([obj, (unit_price * weight / total_weight
+                ).quantize(exp) if weight else Decimal(0)])
+        remainder = unit_price - sum(p[1] for p in parts)
+        if remainder:
+            for part, weight in zip(reversed(parts), reversed(weights)):
+                if weight:
+                    part[1] += remainder
+                    break
+        return [tuple(p) for p in parts], warnings
 
     def _calc_quantity(self):
         if self.term_type and self.term_type.m_type and self.reference_item:
