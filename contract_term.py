@@ -2,6 +2,7 @@
 from trytond.model import (sequence_ordered,
     ModelSQL, ModelView, fields, Unique)
 from trytond.model.exceptions import ValidationError
+from trytond.exceptions import UserWarning
 from trytond.i18n import gettext
 from trytond.pool import Pool
 from trytond.transaction import Transaction
@@ -24,6 +25,10 @@ import calendar
 logger = logging.getLogger(__name__)
 
 _re_calc_year = 1
+
+
+class ContractTermZeroMeasurementWarning(UserWarning):
+    pass
 
 
 class Quantitative(fields.Numeric):
@@ -131,6 +136,12 @@ class ContractTermCashFlow(ModelView, ModelSQL):
 
     company = fields.Function(fields.Many2One('company.company', 'Company'),
         'on_change_with_company', searcher='search_company')
+
+    # Quantity planned for this entry's document date - only set for
+    # measurement-based terms (measurement as of the document date, see
+    # ContractTerm.re_calc); otherwise the term's quantity applies
+    planned_quantity = fields.Float(
+        "Planned Quantity", digits='unit', readonly=True)
 
     quantity = fields.Function(fields.Float(
         "Quantity", digits='unit',
@@ -297,10 +308,13 @@ class ContractTermCashFlow(ModelView, ModelSQL):
                 ]
         return [('invoice_line.invoice.state',) + tuple(clause[1:])]
 
-    @fields.depends('term', 'invoice_line', '_parent_term.quantity')
+    @fields.depends(
+        'term', 'invoice_line', 'planned_quantity', '_parent_term.quantity')
     def on_change_with_quantity(self, name=None):
         if self.invoice_line:
             return self.invoice_line.quantity
+        elif self.planned_quantity is not None:
+            return self.planned_quantity
         elif self.term:
             return self.term.quantity
         return 0
@@ -334,7 +348,7 @@ class ContractTermCashFlow(ModelView, ModelSQL):
             return self.currency.round(amount)
         return amount
 
-    @fields.depends('term', 'invoice_line')
+    @fields.depends('term', 'invoice_line', 'planned_quantity')
     def get_amount_and_tax(self, names=None):
         total_amount = Decimal(0)
         tax_amount = Decimal(0)
@@ -347,6 +361,20 @@ class ContractTermCashFlow(ModelView, ModelSQL):
         elif self.term:
             total_amount = self.term.total_amount
             tax_amount = self.term.tax_amount
+            # Planned quantity differs from the term's (measurement as of
+            # this entry's document date): scale the term's tax/total
+            # proportionally
+            if (self.planned_quantity is not None
+                    and self.term.quantity
+                    and Decimal(str(self.planned_quantity))
+                    != self.term.quantity):
+                factor = (Decimal(str(self.planned_quantity))
+                    / Decimal(str(self.term.quantity)))
+                tax_amount = (tax_amount or Decimal(0)) * factor
+                total_amount = (total_amount or Decimal(0)) * factor
+                if self.term.currency:
+                    tax_amount = self.term.currency.round(tax_amount)
+                    total_amount = self.term.currency.round(total_amount)
 
         result = {
             'tax_amount': tax_amount,
@@ -546,7 +574,10 @@ class ContractTerm(sequence_ordered(), ModelSQL, ModelView, TaxableMixin):
         "Quantity", unit='unit', digits='unit',
          states={
             'required': True,
-            'readonly': (Eval('valid_to', None) != None),
+            # With a measurement type the quantity is always the measured
+            # value (see on_change_with_quantity)
+            'readonly': ((Eval('valid_to', None) != None)
+                | (Eval('term_type_m_type', None) != None)),
             'invisible': (Eval('term_type', None) == None),
             })
 
@@ -712,6 +743,32 @@ class ContractTerm(sequence_ordered(), ModelSQL, ModelView, TaxableMixin):
             ('invoice.state', '!=', 'cancelled'),
             ('assignment_control', '=', 'contract'),
             ])
+        # Credited lines (e.g. 'Cancel Period Booking', 'Change Partner'):
+        # neither a credit line itself (origin = original line) nor an
+        # original line with a posted credit note counts as booked - the
+        # period gets a draft entry again and is booked by the next run.
+        # Credit notes are searched via origin, so ones without the
+        # real-estate fields (created before InvoiceLine._credit copied
+        # them) are recognised too.
+        invoice_lines = [l for l in invoice_lines
+            if not isinstance(l.origin, InvoiceLine)]
+        credited_ids = set()
+        if invoice_lines:
+            credited_ids = {l.origin.id for l in InvoiceLine.search([
+                    ('origin', 'in', [str(l) for l in invoice_lines]),
+                    ('invoice.state', 'in', ('posted', 'paid')),
+                    ])}
+        invoice_lines = [l for l in invoice_lines
+            if l.id not in credited_ids]
+
+        # Keep the booking run id (Sollstellungs-ID) of booked entries -
+        # they are rebuilt below from their invoice lines, which don't
+        # carry it. Keyed by invoice: all lines of one invoice come from
+        # the same run (a per-object booking links only its first line).
+        run_ids = {cf.invoice_line.invoice.id: cf.create_moves_run_id
+            for cf in self.cash_flow
+            if cf.create_moves_run_id and cf.invoice_line
+            and cf.invoice_line.invoice}
 
         for cash_flow in self.cash_flow:
             CashFlow.delete([cash_flow])
@@ -733,6 +790,8 @@ class ContractTerm(sequence_ordered(), ModelSQL, ModelView, TaxableMixin):
                     quantity=invoice_line.quantity,
                     unit=invoice_line.unit.id if invoice_line.unit else None,
                     unit_price=invoice_line.unit_price,
+                    create_moves_run_id=run_ids.get(
+                        invoice_line.invoice.id),
                     )
                 cash_flow.save()
 
@@ -746,26 +805,59 @@ class ContractTerm(sequence_ordered(), ModelSQL, ModelView, TaxableMixin):
 
         my_last_document_date = self.last_document_date
         my_next_document_date = self._next_document_date(calc_document_date=my_last_document_date)
+        # Measurement-based terms: the quantity is determined per document
+        # date (the measurement may change on a key date), so the stored
+        # quantity - valid for the next document date only - must not
+        # stop the projection
+        measured = bool(self.term_type and self.term_type.m_type)
+        # Measurement-based term: the term's own quantity is the
+        # measurement as of its next document date - written back to the
+        # term right away if it changed (e.g. new measurement from a key
+        # date on), without triggering another cash flow rebuild
+        if measured and my_next_document_date is not None:
+            quantity = self.get_measured_quantity(my_next_document_date)
+            if quantity != self.quantity:
+                old_quantity = self.quantity
+                self.quantity = quantity
+                if self.id is not None and self.id >= 0:
+                    with Transaction().set_context(_skip_re_calc=True):
+                        self.__class__.write([self], {'quantity': quantity})
+                    if self.contract:
+                        self.contract.add_log('re_calc',
+                            f'term "{self.name}": quantity changed from '
+                            f'{old_quantity} to {quantity} (measurement '
+                            f'"{self.term_type.m_type.name}" as of '
+                            f'{my_next_document_date})'
+                            + (' - no measurement value, amount is 0'
+                                if not quantity else ''))
+        has_amount = (self.unit_price != 0) if measured \
+            else (self.total_amount != 0)
         while my_next_document_date is not None \
             and (my_last_document_date is None or my_last_document_date < my_next_document_date) \
-            and self.total_amount != 0 \
+            and has_amount \
             and (not self.valid_from or my_next_document_date >= self.valid_from) \
             and (not self.valid_to or my_next_document_date <= self.valid_to) \
             and my_next_document_date <= today_plus_year:
 
-                cash_flow = CashFlow(
-                    state='draft',
-                    document_date=my_next_document_date,
-                    due_date=self._on_change_with_next_due_date(calc_document_date=my_next_document_date),
-                    contract=self.contract.id,
-                    term=self.id,
-                    property=self.contract.property.id if self.contract else None,
-                    company=self.contract.company.id if self.contract else None,
-                    quantity=self.quantity,
-                    unit=self.unit.id if self.unit else None,
-                    unit_price=self.unit_price,
-                    )
-                cash_flow.save()
+                quantity = (self.get_measured_quantity(my_next_document_date)
+                    if measured else self.quantity)
+                # No measurement value on this date: no planned entry (the
+                # amount would be 0), continue with the next date
+                if quantity:
+                    cash_flow = CashFlow(
+                        state='draft',
+                        document_date=my_next_document_date,
+                        due_date=self._on_change_with_next_due_date(calc_document_date=my_next_document_date),
+                        contract=self.contract.id,
+                        term=self.id,
+                        property=self.contract.property.id if self.contract else None,
+                        company=self.contract.company.id if self.contract else None,
+                        planned_quantity=(
+                            float(quantity) if measured else None),
+                        unit=self.unit.id if self.unit else None,
+                        unit_price=self.unit_price,
+                        )
+                    cash_flow.save()
 
                 my_last_document_date = my_next_document_date
                 my_next_document_date = self._next_document_date(calc_document_date=my_last_document_date)
@@ -859,6 +951,36 @@ class ContractTerm(sequence_ordered(), ModelSQL, ModelView, TaxableMixin):
                         term.rec_name,
                         term.valid_from.isoformat(),
                         term.contract.get_effective_end_date().isoformat()))
+        # Interactive changes only - not for system recalculations
+        # (re_calc() writing the measured quantity, cron, wizards), where a
+        # warning would abort the whole run
+        if (fields & {'quantity', 'term_type', 'reference_item'}
+                and not Transaction().context.get('_skip_re_calc')):
+            cls._check_zero_measurement(instances)
+
+    @classmethod
+    def _check_zero_measurement(cls, terms):
+        """Warn (confirmable) when a term with a measurement type has a
+        quantity of 0 - i.e. no assigned object has a value for that
+        measurement, so the term's amount is 0 as well."""
+        Warning = Pool().get('res.user.warning')
+        for term in terms:
+            if not (term.term_type and term.term_type.m_type):
+                continue
+            if term.quantity:
+                continue
+            objects = list(term.reference_item.objects
+                if term.reference_item else [])
+            # Keyed on pre-existing records only (term type, objects), not
+            # on the term itself - a new term has no stable id across a
+            # warned-then-confirmed retry (see ContractItem
+            # _check_occupancy_overlap for the same issue)
+            key = Warning.format(
+                'term_zero_measurement', [term.term_type] + objects)
+            if Warning.check(key):
+                raise ContractTermZeroMeasurementWarning(key, gettext(
+                    'real_estate.msg_term_zero_measurement').format(
+                        term.rec_name, term.term_type.m_type.rec_name))
 
     @fields.depends('cash_flow')
     def on_change_with_last_document_date(self, name=None):
@@ -1114,25 +1236,40 @@ class ContractTerm(sequence_ordered(), ModelSQL, ModelView, TaxableMixin):
                     break
         return [tuple(p) for p in parts], warnings
 
-    def _calc_quantity(self):
-        if self.term_type and self.term_type.m_type and self.reference_item:
-            ref_item = Pool().get('real_estate.contract.item')(self.reference_item)
-            total = self._sum_measurements(
-                ref_item, self.term_type.m_type, self.next_document_date)
-            if total is not None:
-                self.quantity = total
+    def get_measured_quantity(self, reference_date):
+        """Quantity of a measurement-based term as of reference_date: the
+        sum of the term type's measurement over the reference item's
+        objects, 0 if none of them has a value. None for terms without
+        measurement type (their quantity is entered manually)."""
+        if not (self.term_type and self.term_type.m_type):
+            return None
+        if not self.reference_item:
+            return Decimal(0)
+        total = self._sum_measurements(
+            self.reference_item, self.term_type.m_type, reference_date)
+        return total if total is not None else Decimal(0)
 
     @fields.depends(
         'term_type', 'reference_item', 'next_document_date', 'valid_from',
-        'contract', '_parent_contract.start_booking_date')
+        'quantity', 'contract', '_parent_contract.start_booking_date')
     def on_change_with_quantity(self, name=None):
-        if self.term_type is not None and self.term_type.m_type is not None \
-                and self.reference_item is not None:
+        # Term with measurement type: the quantity is always the measured
+        # value - 0 if no assigned object has a value (warned about on
+        # save, see _check_zero_measurement)
+        if self.term_type is not None and self.term_type.m_type is not None:
+            if self.reference_item is None:
+                return Decimal(0)
             ref_item = Pool().get('real_estate.contract.item')(self.reference_item)
             total = self._sum_measurements(
                 ref_item, self.term_type.m_type, self.next_document_date)
-            if total is not None:
-                return total
+            return total if total is not None else Decimal(0)
+
+        # Absolute term (no measurement type): keep a quantity the user
+        # entered, an empty one is preset with the default quantity (1)
+        if self.term_type and not self.term_type.m_type:
+            if self.quantity:
+                return self.quantity
+            return Decimal(str(self.term_type.default_quantity or 1))
 
         if self.term_type and self.term_type.default_quantity:
             return self.term_type.default_quantity

@@ -46,6 +46,9 @@
         <record model="ir.message" id="msg_invalid_calculation_method">
             <field name="text">For Cash basis, the start date {} must be the first day of the year.</field>
         </record>
+        <record model="ir.message" id="msg_term_zero_measurement">
+            <field name="text">Term "{}": the assigned objects have no value (or 0) for the measurement "{}" - quantity and amount of this term are 0. Do you want to proceed anyway?</field>
+        </record>
         <record model="ir.message" id="msg_term_valid_from_before_contract_start">
             <field name="text">Term "{}": Valid from ({}) must not be before the contract start date ({})!</field>
         </record>
@@ -142,7 +145,7 @@ Add all billing units of this period to the selection or remove the billing unit
 Either run "Ready for Billing" for each billing unit first, or bill individual billing units directly in the billing unit form.</field>
         </record>
         <record model="ir.message" id="msg_cancel_contract_has_postings">
-            <field name="text">Contract "{}": existing postings (done cash flow items) will NOT be cancelled automatically. Only draft items have been deleted. Continue with cancellation?</field>
+            <field name="text">Contract "{}": there are postings for this contract (terms with a last posting date). They are NOT cancelled automatically and have to be cancelled manually. Continue with cancellation?</field>
         </record>
         <record model="ir.message" id="msg_measurement_type_cycle">
             <field name="text">Measurement type "{}": circular reference detected in the group hierarchy!</field>

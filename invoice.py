@@ -66,6 +66,17 @@ class Invoice(metaclass=PoolMeta):
         line.contract = self.contract
         return line
 
+    def _credit(self, **values):
+        # Keep the contract on the credit note (e.g. from 'Cancel Period
+        # Booking' or 'Change Partner'), so it shows up on the contract
+        # and its move lines stay assigned to it - and the reference (e.g.
+        # the contract number), which core does not copy
+        credit = super()._credit(**values)
+        credit.contract = self.contract
+        if 'reference' not in values:
+            credit.reference = self.reference
+        return credit
+
 
 #**********************************************************************
 class InvoiceLine(metaclass=PoolMeta):
@@ -513,6 +524,22 @@ class InvoiceLine(metaclass=PoolMeta):
                 values['taxes_deductible_rate'] = rate
 
         return super().create(vlist)
+
+    def _credit(self):
+        # Copy the real-estate assignment onto the credit line, so the
+        # reversal is booked on the same contract/term/object resp.
+        # billing/settlement unit as the original line (core only copies
+        # its own fields). origin (set by core) links it to this line -
+        # used by ContractTerm.re_calc() to recognise credited lines.
+        line = super()._credit()
+        for field in [
+                'assignment_control', 'contract', 'term', 'base_object',
+                'billing_unit', 'settlement_unit', 'service_period_from',
+                'service_period_to', 'estg_35a', 'bved_fuel_type']:
+            setattr(line, field, getattr(self, field))
+        if self.bved_fuel_quantity:
+            line.bved_fuel_quantity = -self.bved_fuel_quantity
+        return line
 
     def get_move_lines(self):
         lines = super().get_move_lines()

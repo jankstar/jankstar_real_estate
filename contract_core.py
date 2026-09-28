@@ -873,7 +873,7 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
             ))
         cls._buttons.update({
             'running': {
-                'invisible': (~Eval('state').in_(['draft', 'cancelled'])),
+                'invisible': (Eval('state') != 'draft'),
                 'depends': ['state'],
                 },
             'revert_termination': {
@@ -1088,17 +1088,15 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
         CashFlow = pool.get('real_estate.contract.term.cash_flow')
         Warning = pool.get('res.user.warning')
         for contract in contrats:
-            done_flows = CashFlow.search([
-                ('term.contract', '=', contract.id),
-                ('state', '=', 'done'),
-            ], limit=1)
-            if done_flows:
+            # Booked terms (with a last posting date): their postings are
+            # not reversed here and have to be cancelled manually
+            if any(term.last_posting_date for term in contract.terms):
                 key = Warning.format('cancel_contract_has_postings', [contract])
                 if Warning.check(key):
                     raise ContractCancelWarning(
                         key,
-                        gettext('real_estate.msg_cancel_contract_has_postings',
-                            contract.rec_name))
+                        gettext('real_estate.msg_cancel_contract_has_postings'
+                            ).format(contract.rec_name))
             draft_flows = CashFlow.search([
                 ('term.contract', '=', contract.id),
                 ('state', '=', 'draft'),
@@ -2158,21 +2156,24 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
                         first_obj = (
                             ref_item.objects[0]
                             if ref_item and ref_item.objects else None)
-                        if (m_type and not term.quantity
-                                and not (ref_item and ref_item.objects
-                                    and len(ref_item.objects) > 1)):
+                        # Planned quantity of this cash flow entry (for
+                        # measurement-based terms the measurement as of its
+                        # document date, see ContractTerm.re_calc)
+                        line_quantity = cash_flow.quantity
+                        if (m_type and not line_quantity
+                                and not multi_objects):
                             self.add_log('warning',
                                 f'term "{term.name}": no assigned object '
                                 f'has a matching measurement "{m_type.name}" '
                                 f'for {cash_flow.document_date} - quantity '
-                                f'defaulted to {term.quantity or 0}.')
+                                f'is 0.')
                         new_invoice_line = InvoiceLine(
                             type='line',
                             company=self.company.id,
                             party=self.contractual_partner.id,
                             invoice_type=self.c_type.invoice_type,
                             description=cash_flow.name,
-                            quantity=term.quantity,
+                            quantity=line_quantity,
                             unit=term.unit,
                             unit_price=term.unit_price,
                             account=l_account,
@@ -2369,7 +2370,10 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
                 if action in ('re_calc', 're_calc_and_create'):
                     contract.add_log('process', f'term {term.name} with re-calc')
                     term.re_calc()
-                term.save()
+                # re_calc() may update the quantity of a measurement-based
+                # term - save without a second cash flow rebuild via write()
+                with Transaction().set_context(_skip_re_calc=True):
+                    term.save()
 
                 if term.next_document_date <= date \
                     and term.next_document_date != term.last_document_date \
