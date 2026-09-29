@@ -169,6 +169,13 @@ class ContractItem(sequence_ordered(), ModelSQL, ModelView, metaclass=PoolMeta):
         },
         help="Terms referencing this item. Save the item first (Ctrl+S) "
              "before adding terms here.")
+    current_terms = fields.Function(fields.One2Many(
+            'real_estate.contract.term', None, "Current Terms",
+            readonly=True,
+            help="Terms of this item valid on the contract's key date (see "
+                 "'Current Terms' on the contract). Terms are added and "
+                 "removed on the contract."),
+        'get_current_terms')
     valid_from = fields.Date('Valid from', required=True)
     valid_to = fields.Date('Valid to')
 
@@ -405,6 +412,16 @@ class ContractItem(sequence_ordered(), ModelSQL, ModelView, metaclass=PoolMeta):
                         'real_estate.msg_occupancy_overlap_warning').format(
                             obj.rec_name, date_from, date_to))
 
+    def get_current_terms(self, name=None):
+        if not self.contract:
+            return []
+        key_date = self.contract.on_change_with_current_terms_date()
+        terms = [t for t in (self.terms or [])
+            if t.valid_from and t.valid_from <= key_date
+            and (not t.valid_to or t.valid_to >= key_date)]
+        terms.sort(key=lambda t: (t.sequence is None, t.sequence or 0))
+        return [t.id for t in terms]
+
     @classmethod
     def create(cls, vlist):
         records = super().create(vlist)
@@ -432,6 +449,17 @@ class ContractItem(sequence_ordered(), ModelSQL, ModelView, metaclass=PoolMeta):
 
     @classmethod
     def delete(cls, records):
+        pool = Pool()
+        Term = pool.get('real_estate.contract.term')
+        # An item may only be deleted once no term references it any more
+        # (clear message instead of the database's foreign key error)
+        for record in records:
+            terms = Term.search([('reference_item', '=', record.id)])
+            if terms:
+                raise ValidationError(gettext(
+                    'real_estate.msg_item_delete_has_terms',
+                    item=record.rec_name,
+                    terms=', '.join(t.rec_name.strip() for t in terms)))
         base_object_ids = {o.id for r in records for o in r.objects}
         super().delete(records)
         if base_object_ids:

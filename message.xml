@@ -46,6 +46,21 @@
         <record model="ir.message" id="msg_invalid_calculation_method">
             <field name="text">For Cash basis, the start date {} must be the first day of the year.</field>
         </record>
+        <record model="ir.message" id="msg_item_delete_has_terms">
+            <field name="text">Item "%(item)s" cannot be deleted because terms still reference it: %(terms)s. Delete these terms first or assign them to another item.</field>
+        </record>
+        <record model="ir.message" id="msg_term_booked_values_changed">
+            <field name="text">Term "%(term)s" has already been booked (last document date %(date)s). Changing %(fields)s does not change the booked periods - their postings keep the old values. To change values from a date on, end this term ("Valid to") and add a new one.</field>
+        </record>
+        <record model="ir.message" id="msg_term_valid_to_booked">
+            <field name="text">Term "%(term)s" is booked for the period after the new term end (valid to %(valid_to)s, booked up to %(booked_to)s). Existing postings are not cancelled automatically.</field>
+        </record>
+        <record model="ir.message" id="msg_term_create_contract_state">
+            <field name="text">Contract "%(contract)s": terms can only be added to draft or running contracts.</field>
+        </record>
+        <record model="ir.message" id="msg_term_delete_booked">
+            <field name="text">Term "%(term)s" has already been booked and cannot be deleted. End it by setting "Valid to" instead.</field>
+        </record>
         <record model="ir.message" id="msg_term_zero_measurement">
             <field name="text">Term "{}": the assigned objects have no value (or 0) for the measurement "{}" - quantity and amount of this term are 0. Do you want to proceed anyway?</field>
         </record>

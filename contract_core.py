@@ -761,7 +761,8 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
             ('sequence', 'ASC NULLS FIRST'),
         ],
         states={
-            'readonly': ((Eval('items', []) == []) | (Eval('state') != 'draft')),
+            'readonly': ((Eval('items', []) == [])
+                | ~Eval('state').in_(['draft', 'running'])),
         })
 
     next_term_sequence = fields.Function(fields.Integer("Next Term Sequence"),
@@ -777,7 +778,7 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
             readonly=True,
             help="Terms valid on the key date (valid from <= key date and "
                  "valid to empty or >= key date)."),
-        'on_change_with_current_terms')
+        'on_change_with_current_terms', setter='set_current_terms')
 
     parties = fields.One2Many('real_estate.contract.party', 'contract', 'Parties',
         order=[('valid_from', 'DESC NULLS LAST')])
@@ -885,7 +886,7 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
                 'depends': ['state'],
                 },
             'cancel': {
-                'invisible': ~Eval('state').in_(['draft', 'running']),
+                'invisible': Eval('state') != 'running',
                 'depends': ['state'],
                 },
             'change_partner': {
@@ -1399,6 +1400,13 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
 
     @classmethod
     def set_cash_flow(cls, record, name, value):
+        pass
+
+    @classmethod
+    def set_current_terms(cls, records, name, value):
+        # Display only: the client sends the recomputed list back on save
+        # (e.g. after a term was deleted under 'All Terms'); terms are
+        # created/deleted via 'terms' only
         pass
 
     @fields.depends('company', 'items')

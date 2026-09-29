@@ -31,6 +31,14 @@ class ContractTermZeroMeasurementWarning(UserWarning):
     pass
 
 
+class ContractTermValidToBookedWarning(UserWarning):
+    pass
+
+
+class ContractTermBookedValuesWarning(UserWarning):
+    pass
+
+
 class Quantitative(fields.Numeric):
     """
     Define a numeric field with unit (``decimal``).
@@ -719,7 +727,135 @@ class ContractTerm(sequence_ordered(), ModelSQL, ModelView, TaxableMixin):
     })
 
     @classmethod
+    def create(cls, vlist):
+        pool = Pool()
+        Contract = pool.get('real_estate.contract')
+        # New terms only on draft or running contracts (a terminated or
+        # cancelled contract gets no new conditions)
+        contract_ids = {v['contract'] for v in vlist if v.get('contract')}
+        for contract in Contract.browse(list(contract_ids)):
+            if contract.state not in ('draft', 'running'):
+                raise ValidationError(gettext(
+                    'real_estate.msg_term_create_contract_state',
+                    contract=contract.rec_name))
+        terms = super().create(vlist)
+        # A term added to a running contract needs its cash flow right away
+        # (write() only recalculates on changes)
+        if not Transaction().context.get('_skip_re_calc'):
+            running = {t.contract for t in terms
+                if t.contract and t.contract.state in ('running', 'terminated')}
+            if running:
+                Contract._re_calc_terms(list(running))
+        return terms
+
+    # Stored fields determining amount, account, object assignment or
+    # booking schedule of a term ('valid_to' has its own warning)
+    _BOOKED_VALUE_FIELDS = (
+        'term_type', 'reference_item', 'valid_from', 'rhythm', 'rhythm_type',
+        'rhythm_start', 'quantity', 'unit_price', 'object_distribution',
+        'taxes', 'taxes_deductible_rate')
+
+    @classmethod
+    def _check_booked_values_changed(cls, args):
+        """Warn (confirmable) when calculation values of an already booked
+        term (with a last document date) are changed: the booked periods
+        keep their old values, so the term no longer matches them."""
+        Warning = Pool().get('res.user.warning')
+        actions = iter(args)
+        for records, values in zip(actions, actions):
+            fnames = [f for f in cls._BOOKED_VALUE_FIELDS if f in values]
+            if not fnames:
+                continue
+            for term in records:
+                if not term.last_document_date:
+                    continue
+                changed = []
+                for fname in fnames:
+                    new = values[fname]
+                    if fname == 'taxes':
+                        # Many2Many actions ('add', 'remove', ...) - any
+                        # action counts as a change
+                        if new:
+                            changed.append(fname)
+                        continue
+                    old = getattr(term, fname)
+                    if hasattr(old, 'id'):
+                        old = old.id
+                    if old != new:
+                        changed.append(fname)
+                if not changed:
+                    continue
+                labels = cls.fields_get(changed)
+                key = Warning.format(
+                    'term_booked_values_changed_' + '_'.join(sorted(changed)),
+                    [term])
+                if Warning.check(key):
+                    raise ContractTermBookedValuesWarning(key, gettext(
+                        'real_estate.msg_term_booked_values_changed',
+                        term=term.rec_name.strip(),
+                        date=term.last_document_date.isoformat(),
+                        fields=', '.join(
+                            labels[f]['string'] for f in changed)))
+
+    @classmethod
+    def _check_valid_to_booked(cls, args):
+        """Warn (confirmable) when 'Valid to' is set/changed to a date
+        inside an already booked period: the term is booked up to the day
+        before its next document date after the last document date - an
+        earlier end leaves postings after the new term end, which are not
+        cancelled automatically."""
+        Warning = Pool().get('res.user.warning')
+        actions = iter(args)
+        for records, values in zip(actions, actions):
+            valid_to = values.get('valid_to')
+            if not valid_to:
+                continue
+            for term in records:
+                if not term.last_document_date:
+                    continue
+                # Next document date after the last booked one, ignoring
+                # the term's (old or new) end - evaluated on an unsaved
+                # copy of the stored record
+                probe = cls(term.id)
+                probe.valid_to = None
+                next_date = probe._next_document_date(
+                    calc_document_date=term.last_document_date)
+                if not next_date or next_date <= term.last_document_date:
+                    continue
+                booked_to = next_date - datetime.timedelta(days=1)
+                if valid_to < booked_to:
+                    key = Warning.format(
+                        f'term_valid_to_booked_{valid_to.isoformat()}',
+                        [term])
+                    if Warning.check(key):
+                        raise ContractTermValidToBookedWarning(key, gettext(
+                            'real_estate.msg_term_valid_to_booked',
+                            term=term.rec_name.strip(),
+                            valid_to=valid_to.isoformat(),
+                            booked_to=booked_to.isoformat()))
+
+    @classmethod
+    def delete(cls, terms):
+        pool = Pool()
+        InvoiceLine = pool.get('account.invoice.line')
+        # Booked terms must not be deleted - they are ended via 'Valid to'
+        # instead (deleting would drop their cash flow and detach the
+        # booked invoice/move lines from the term)
+        for term in terms:
+            if term.last_posting_date or InvoiceLine.search([
+                        ('term', '=', term.id),
+                        ('invoice.state', '!=', 'cancelled'),
+                        ], limit=1):
+                raise ValidationError(gettext(
+                    'real_estate.msg_term_delete_booked',
+                    term=term.rec_name))
+        super().delete(terms)
+
+    @classmethod
     def write(cls, *args):
+        if not Transaction().context.get('_skip_re_calc'):
+            cls._check_valid_to_booked(args)
+            cls._check_booked_values_changed(args)
         super().write(*args)
         if Transaction().context.get('_skip_re_calc'):
             return
@@ -1029,6 +1165,20 @@ class ContractTerm(sequence_ordered(), ModelSQL, ModelView, TaxableMixin):
         result = self._get_taxes()
         return result['total_amount'] or Decimal(0)
 
+    # Same split as get_amount_and_tax, so the contract's term list shows
+    # both totals for new/changed terms before saving
+    @fields.depends('rhythm_type', methods=['on_change_with_total_amount'])
+    def on_change_with_total_amount_periodic(self, name=None):
+        if self.rhythm_type == 'one_time':
+            return Decimal(0)
+        return self.on_change_with_total_amount()
+
+    @fields.depends('rhythm_type', methods=['on_change_with_total_amount'])
+    def on_change_with_total_amount_one_time(self, name=None):
+        if self.rhythm_type != 'one_time':
+            return Decimal(0)
+        return self.on_change_with_total_amount()
+
     @fields.depends(
         'term_type', 'quantity', 'unit_price', 'currency', 'contract',
         'taxes_deductible_rate',
@@ -1082,10 +1232,16 @@ class ContractTerm(sequence_ordered(), ModelSQL, ModelView, TaxableMixin):
         return self._on_change_with_next_due_date(calc_document_date=self.next_document_date)
 
     @fields.depends('rhythm', 'valid_from', 'last_document_date', 'rhythm_type', 'rhythm_start', 'contract',
-                    'unit_price', '_parent_contract.start_booking_date')
+                    'unit_price', '_parent_contract.start_booking_date',
+                    '_parent_contract.start_date')
     def _next_document_date(self, calc_document_date=None):
         def _check_valid_to(i_date: datetime.date):
-            if (self.valid_to is not None and self.valid_to < i_date and self.contract.start_booking_date < i_date) \
+            # Booking start: start_booking_date if set, else the contract's
+            # start date (start_booking_date is optional)
+            booking_start = (self.contract.start_booking_date
+                or self.contract.start_date)
+            if (self.valid_to is not None and self.valid_to < i_date
+                    and (booking_start is None or booking_start < i_date)) \
                 or (self.contract.get_effective_end_date() is not None and self.contract.get_effective_end_date() < i_date):
                 return self.last_document_date
             else:
