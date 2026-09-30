@@ -46,6 +46,135 @@
         <record model="ir.message" id="msg_invalid_calculation_method">
             <field name="text">For Cash basis, the start date {} must be the first day of the year.</field>
         </record>
+        <record model="ir.message" id="msg_graduated_contract_state">
+            <field name="text">Graduated rent "%(rent_adjustment)s": only possible for a draft or running contract without termination (G09).</field>
+        </record>
+        <record model="ir.message" id="msg_graduated_measurement">
+            <field name="text">Graduated rent "%(rent_adjustment)s": the base term has to be an absolute amount - its term type "%(term_type)s" has a measurement type (G15).</field>
+        </record>
+        <record model="ir.message" id="msg_graduated_rhythm">
+            <field name="text">Graduated rent "%(rent_adjustment)s": the rhythm has to be at least 12 months (§ 557a para. 2 BGB, G02).</field>
+        </record>
+        <record model="ir.message" id="msg_graduated_step_count">
+            <field name="text">Graduated rent "%(rent_adjustment)s": at least one step is required (G03).</field>
+        </record>
+        <record model="ir.message" id="msg_graduated_zero_quantity">
+            <field name="text">Graduated rent "%(rent_adjustment)s": the base term has no quantity.</field>
+        </record>
+        <record model="ir.message" id="msg_graduated_no_area">
+            <field name="text">Graduated rent "%(rent_adjustment)s": no area found for the increase per area - the term type needs an informative measurement type with a value for the objects (G14).</field>
+        </record>
+        <record model="ir.message" id="msg_graduated_increase">
+            <field name="text">Graduated rent "%(rent_adjustment)s": the increase has to be positive and at least 0.01 per step (G04).</field>
+        </record>
+        <record model="ir.message" id="msg_graduated_term_booked">
+            <field name="text">Graduated rent "%(rent_adjustment)s": the base term "%(term)s" is already booked (last document date %(date)s) (G05).</field>
+        </record>
+        <record model="ir.message" id="msg_graduated_term_locked">
+            <field name="text">Graduated rent "%(rent_adjustment)s": the base term is part of the graduated rent "%(other)s" - only its last step can be the base of a follow-up graduated rent (G08).</field>
+        </record>
+        <record model="ir.message" id="msg_graduated_follow_up">
+            <field name="text">Graduated rent "%(rent_adjustment)s": the follow-up term "%(follow_up)s" of the same type and item already exists (G06).</field>
+        </record>
+        <record model="ir.message" id="msg_graduated_too_many_steps">
+            <field name="text">Graduated rent "%(rent_adjustment)s": the last step would start on %(date)s, after the end of the term or contract (%(end)s) - at most %(max)s steps are possible (G07).</field>
+        </record>
+        <record model="ir.message" id="msg_graduated_written_form">
+            <field name="text">Graduated rent "%(rent_adjustment)s": a residential graduated rent has to be agreed in writing - confirm "Written Form" (§ 557a para. 1 BGB, G10).</field>
+        </record>
+        <record model="ir.message" id="msg_graduated_written_form_warning">
+            <field name="text">Graduated rent "%(rent_adjustment)s": the written form is not confirmed (G10).</field>
+        </record>
+        <record model="ir.message" id="msg_graduated_waiver">
+            <field name="text">Graduated rent "%(rent_adjustment)s": the termination waiver until %(date)s exceeds 4 years after the agreement - the waiver is invalid beyond that (§ 557a para. 3 BGB, G11).</field>
+        </record>
+        <record model="ir.message" id="msg_graduated_rounding">
+            <field name="text">Graduated rent "%(rent_adjustment)s": with quantity %(quantity)s, quantity × unit price deviates from the step amount by up to %(deviation)s (G12). A quantity of 1 avoids this.</field>
+        </record>
+        <record model="ir.message" id="msg_graduated_rhythm_mismatch">
+            <field name="text">Graduated rent "%(rent_adjustment)s": the step starting on %(date)s does not match the billing rhythm of the base term (G13).</field>
+        </record>
+        <record model="ir.message" id="msg_graduated_booked">
+            <field name="text">Graduated rent "%(rent_adjustment)s" is already booked - reset is not possible. Use "Regenerate" (only the steps not yet booked) or "End Graduated Rent".</field>
+        </record>
+        <record model="ir.message" id="msg_graduated_follow_up_rent_adjustment">
+            <field name="text">Graduated rent "%(rent_adjustment)s": the follow-up graduated rent "%(other)s" is based on its last step - reset or delete that one first.</field>
+        </record>
+        <record model="ir.message" id="msg_graduated_last_step_changed">
+            <field name="text">Graduated rent "%(rent_adjustment)s": its last step "%(term)s" has been changed (end date) - reset is not possible.</field>
+        </record>
+        <record model="ir.message" id="msg_term_graduated_locked">
+            <field name="text">Term "%(term)s" is part of the graduated rent "%(rent_adjustment)s" and cannot be changed (dates, type, item, rhythm, taxes). Use the graduated rent (regenerate, reset) instead.</field>
+        </record>
+        <record model="ir.message" id="msg_term_graduated_delete">
+            <field name="text">Term "%(term)s" is part of the graduated rent "%(rent_adjustment)s" and can only be removed by resetting the graduated rent.</field>
+        </record>
+        <record model="ir.message" id="msg_term_split_locked">
+            <field name="text">Term "%(term)s" is locked by a graduated rent and cannot be split.</field>
+        </record>
+        <record model="ir.message" id="msg_rent_adjustment_term_locked">
+            <field name="text">Term "%(term)s" is locked by a graduated rent - no other rent adjustment is possible during the graduated rent (§ 557a para. 2 BGB).</field>
+        </record>
+        <record model="ir.message" id="msg_graduated_rent_contract_change">
+            <field name="text">Contract "%(contract)s" contains a graduated rent agreement dated %(agreement_date)s (%(steps)s steps, %(first_date)s - %(last_date)s). The graduated rent is part of the contract; the contract explicitly does not provide for any change of the agreed amounts or dates. A change requires a contract amendment agreed with the tenant. The graduated rent is booked up to %(booked_to)s; the change only affects steps not yet booked, from %(first_open_date)s. Continue?</field>
+        </record>
+        <record model="ir.message" id="msg_graduated_rent_contract_change_term">
+            <field name="text">Contract "%(contract)s" contains a graduated rent agreement dated %(agreement_date)s (%(steps)s steps, %(first_date)s - %(last_date)s). The graduated rent is part of the contract; the contract explicitly does not provide for any change of the agreed amounts or dates. A change requires a contract amendment agreed with the tenant. Changed is step %(step)s from %(valid_from)s. Continue?</field>
+        </record>
+        <record model="ir.message" id="msg_graduated_booked_period">
+            <field name="text">Graduated rent "%(rent_adjustment)s": the next step would start on %(date)s, but the graduated rent is booked up to %(booked_to)s. Booked periods are not changed - cancel the period booking first.</field>
+        </record>
+        <record model="ir.message" id="msg_graduated_step_count_booked">
+            <field name="text">Graduated rent "%(rent_adjustment)s": steps up to step %(step)s are booked - the number of steps cannot be smaller.</field>
+        </record>
+        <record model="ir.message" id="msg_graduated_nothing_to_terminate">
+            <field name="text">Graduated rent "%(rent_adjustment)s": all steps are booked - there is nothing to end.</field>
+        </record>
+        <record model="ir.message" id="msg_graduated_preview_increase">
+            <field name="text">(increase: %(increase)s)</field>
+        </record>
+        <record model="ir.message" id="msg_graduated_preview_increase_area">
+            <field name="text">(increase: %(increase)s, i.e. %(per_area)s %(currency)s / m²)</field>
+        </record>
+        <record model="ir.message" id="msg_graduated_preview_area">
+            <field name="text">(i.e. %(per_area)s %(currency)s / m²)</field>
+        </record>
+        <record model="ir.message" id="msg_rent_adjustment_delete_draft">
+            <field name="text">Rent adjustment "%(rent_adjustment)s" can only be deleted in state draft.</field>
+        </record>
+        <record model="ir.message" id="msg_rent_adjustment_term_contract">
+            <field name="text">Term "%(term)s" does not belong to contract "%(contract)s".</field>
+        </record>
+        <record model="ir.message" id="msg_rent_adjustment_contract_type">
+            <field name="text">The procedure "%(procedure)s" is not allowed for the contract type "%(c_type)s".</field>
+        </record>
+        <record model="ir.message" id="msg_rent_adjustment_term_type">
+            <field name="text">The procedure "%(procedure)s" is not allowed for the term type "%(term_type)s".</field>
+        </record>
+        <record model="ir.message" id="msg_rent_adjustment_agreed_exclusive">
+            <field name="text">Term "%(term)s" already has the agreed rent adjustment "%(other)s" - a term can only have one graduated or index rent (§§ 557a, 557b BGB).</field>
+        </record>
+        <record model="ir.message" id="msg_term_split_before_start">
+            <field name="text">Term "%(term)s" cannot be split on %(date)s: the date must be after its start (%(valid_from)s).</field>
+        </record>
+        <record model="ir.message" id="msg_term_split_after_end">
+            <field name="text">Term "%(term)s" cannot be split on %(date)s: the term ends on %(valid_to)s.</field>
+        </record>
+        <record model="ir.message" id="msg_term_split_booked">
+            <field name="text">Term "%(term)s" cannot be split on %(date)s: it is booked up to %(booked_to)s. Booked periods are not changed - cancel the period booking first.</field>
+        </record>
+        <record model="ir.message" id="msg_term_split_follow_up">
+            <field name="text">Term "%(term)s" cannot be split on %(date)s: the follow-up term "%(follow_up)s" of the same type and item already starts on or after this date.</field>
+        </record>
+        <record model="ir.message" id="msg_term_type_procedures_one_time">
+            <field name="text">Term type "%(term_type)s": one-time terms cannot have adjustment procedures.</field>
+        </record>
+        <record model="ir.message" id="msg_term_type_procedures_need_oc">
+            <field name="text">Term type "%(term_type)s": the procedures %(procedures)s are only allowed with an operating cost processing.</field>
+        </record>
+        <record model="ir.message" id="msg_term_type_procedures_without_oc">
+            <field name="text">Term type "%(term_type)s": the procedures %(procedures)s are only allowed without operating cost processing.</field>
+        </record>
         <record model="ir.message" id="msg_item_delete_has_terms">
             <field name="text">Item "%(item)s" cannot be deleted because terms still reference it: %(terms)s. Delete these terms first or assign them to another item.</field>
         </record>

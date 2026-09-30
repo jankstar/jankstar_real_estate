@@ -1,0 +1,55 @@
+<?xml version="1.0"?>
+<form col="6">
+    <label name="contract"/><field name="contract" colspan="3"/>
+    <label name="state"/><field name="state"/>
+    <label name="procedure"/><field name="procedure"/>
+    <label name="term"/><field name="term" colspan="3"/>
+    <label name="valid_from"/><field name="valid_from"/>
+    <label name="term_type"/><field name="term_type"/>
+    <label name="reference_item"/><field name="reference_item"/>
+    <notebook colspan="6">
+        <page string="Agreement" id="page_agreement" col="4">
+            <label name="agreement_date"/><field name="agreement_date"/>
+            <label name="written_form"/><field name="written_form"/>
+            <label name="termination_waiver_until"/><field name="termination_waiver_until"/>
+            <label name="base_valid_to_orig"/><field name="base_valid_to_orig"/>
+            <separator name="comment" colspan="4"/>
+            <field name="comment" colspan="4"/>
+        </page>
+        <page string="Graduated Rent" id="page_parameters" col="6">
+            <label name="rhythm_months"/><field name="rhythm_months"/>
+            <label name="step_count"/><field name="step_count"/>
+            <newline/>
+            <label name="increase_mode"/><field name="increase_mode"/>
+            <label name="increase_value"/><field name="increase_value"/>
+            <label name="percent_basis"/><field name="percent_basis"/>
+            <label name="area"/><field name="area"/>
+            <separator string="Information" id="sep_info" colspan="6"/>
+            <label name="base_amount"/><field name="base_amount"/>
+            <label name="increase_amount"/><field name="increase_amount"/>
+            <label name="increase_percent"/><field name="increase_percent"/>
+            <label name="final_amount"/><field name="final_amount"/>
+            <label name="total_increase_percent"/><field name="total_increase_percent"/>
+            <label name="last_step_date"/><field name="last_step_date"/>
+            <separator string="Preview" id="sep_preview" colspan="6"/>
+            <field name="preview" colspan="6" readonly="1"/>
+        </page>
+        <page string="Steps" id="page_steps" col="6">
+            <label name="booked"/><field name="booked"/>
+            <label name="last_booked_date"/><field name="last_booked_date"/>
+            <label name="last_booked_step"/><field name="last_booked_step"/>
+            <label name="predecessor"/><field name="predecessor" colspan="2"/>
+            <label name="successor"/><field name="successor" colspan="2"/>
+            <field name="terms" colspan="6"
+                view_ids="real_estate.contract_rent_adjustment_term_view_list"/>
+            <separator name="generated_parameters" colspan="6"/>
+            <field name="generated_parameters" colspan="6" height="40"/>
+        </page>
+    </notebook>
+    <group id="buttons" colspan="6" col="-1">
+        <button name="reset" icon="tryton-back"/>
+        <button name="terminate" icon="tryton-cancel"/>
+        <button name="regenerate" icon="tryton-refresh"/>
+        <button name="generate" icon="tryton-forward"/>
+    </group>
+</form>

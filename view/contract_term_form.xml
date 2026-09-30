@@ -42,6 +42,17 @@
         <label name="last_document_date"/><field name="last_document_date"/>
         <label name="last_posting_date"/><field name="last_posting_date"/>
 
+
+        <newline/>
+        <group string="Rent Adjustment" id="rent_adjustment" col="6" colspan="6">
+            <label name="rent_adjustment"/><field name="rent_adjustment" colspan="3"/>
+            <label name="graduated_step"/><field name="graduated_step"/>
+            <label name="graduated_amount"/><field name="graduated_amount"/>
+            <label name="graduated_increase_percent"/><field name="graduated_increase_percent"/>
+            <label id="graduated_locked_info" colspan="6"
+                string="Part of a graduated rent: dates, type, item, rhythm and taxes cannot be changed."/>
+        </group>
+
         <newline/>
         <group string="Value per Measurement" id="value_per_measurement" col="4" colspan="6">
             <label name="term_type_info_m_type"/><field name="term_type_info_m_type" readonly="1"/>

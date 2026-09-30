@@ -9,6 +9,7 @@ from . import contract_type
 from . import contract_item
 from . import contract_term
 from . import contract_party
+from . import contract_rent_adjustment
 from . import contract_wizard
 from . import contract_report
 from . import sequence
@@ -68,6 +69,8 @@ def register():
         contract_term.ContractTermCashFlowContext,
         contract_term.ContractTerm,
         contract_term.ContractTermAdjustment,
+        contract_rent_adjustment.ContractRentAdjustment,
+        contract_rent_adjustment.Contract,
         contract_party.ContractPartyRoleCType,
         contract_party.ContractPartyRole,
         contract_party.ContractParty,

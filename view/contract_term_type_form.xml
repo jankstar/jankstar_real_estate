@@ -34,6 +34,11 @@
     <newline/>
     <label name="oc_processing"/><field name="oc_processing" />
     <newline/>
+    <group string="Rent Adjustment" id="adjustment" colspan="6" col="4">
+        <label name="adjustment_procedures"/>
+        <field name="adjustment_procedures" widget="multiselection" yexpand="0"/>
+    </group>
+    <newline/>
     <label name="account"/><field name="account" />
 
 </form>

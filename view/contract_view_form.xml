@@ -89,6 +89,10 @@
             </notebook>
         </page>
 
+        <page string="Rent Adjustments" id="page_rent_adjustments">
+            <field name="rent_adjustments" colspan="6"/>
+        </page>
+
         <page string="Cash Flow" id="page_cash_flow">
             <newline/>
             <notebook colspan="8">

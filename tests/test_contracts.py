@@ -32,6 +32,15 @@ Je Wirtschaftseinheit (16 Wohnungen, 4 Stellplätze):
       - Kündigung 3: Vertragsende 30.11.2025, Eingang Kündigung 31.08.2025
   - Für Kündigung 1: Folgevertrag ab 01.06.2025 (neuer Mieter, gleiche Wohnung)
   - Für Kündigung 2: Folgevertrag ab 16.09.2025 (neuer Mieter, gleiche Wohnung)
+  - Staffelmieten (§ 557a BGB): bis zu 3 laufende, nicht gekündigte
+    Wohnungsverträge je WE erhalten eine Mietanpassung mit Verfahren
+    "Staffelmiete" auf ihre Miet-Kondition (sequence=1000): Rhythmus 12
+    Monate, 5 Staffeln, Vereinbarung zum Vertragsbeginn, Schriftform; je
+    Vertrag eine andere Eingabeart der Erhöhung (+30,00 EUR absolut,
+    +0,40 EUR/m² über die informative Fläche, +3 % vom Ausgangsbetrag).
+    Die Staffelkonditionen werden per "Generieren" angelegt. Das Verfahren
+    "Staffelmiete" wird dafür an der Vertragsart (residential) und der
+    Konditionsart 1000 zugelassen, falls noch nicht vorhanden.
 
   Stellplätze (4 je WE, zufällig auf Wohnungsmieter verteilt):
     2x als zusätzliches ContractItem im vorhandenen Wohnungsvertrag:
@@ -285,6 +294,55 @@ def get_term_type(sequence: int):
               file=sys.stderr)
         sys.exit(1)
     return results[0]
+
+
+# Graduated rents (Staffelmiete, § 557a BGB) of the demo data: per property
+# up to three running apartment contracts get one, each with a different
+# increase mode - (increase_mode, increase_value, percent_basis)
+GRADUATED_RENTS = [
+    ('absolute', Decimal('30.00'), None),
+    ('per_area', Decimal('0.40'), None),
+    ('percent', Decimal('3'), 'base'),
+    ]
+GRADUATED_RHYTHM_MONTHS = 12
+GRADUATED_STEP_COUNT = 5
+
+
+def allow_procedure(record, procedure: str) -> None:
+    """Add a rent adjustment procedure to the allowed procedures of a
+    contract type or term type (if missing)."""
+    procedures = list(record.adjustment_procedures or [])
+    if procedure not in procedures:
+        record.adjustment_procedures = procedures + [procedure]
+        record.save()
+        print(f'  Verfahren "{procedure}" zugelassen für "{record.name}"')
+
+
+def create_graduated_rent(contract, term, increase_mode, increase_value,
+                          percent_basis=None):
+    """Create a graduated rent (rent adjustment, procedure
+    'graduated_rent') for the given base term and generate its steps."""
+    RentAdjustment = Model.get('real_estate.contract.rent_adjustment')
+    rent_adjustment = RentAdjustment()
+    rent_adjustment.contract = contract
+    rent_adjustment.procedure = 'graduated_rent'
+    rent_adjustment.term = term
+    rent_adjustment.rhythm_months = GRADUATED_RHYTHM_MONTHS
+    rent_adjustment.step_count = GRADUATED_STEP_COUNT
+    rent_adjustment.increase_mode = increase_mode
+    rent_adjustment.increase_value = increase_value
+    if percent_basis:
+        rent_adjustment.percent_basis = percent_basis
+    rent_adjustment.agreement_date = contract.start_date
+    rent_adjustment.written_form = True
+    rent_adjustment.save()
+    rent_adjustment.click('generate')
+    rent_adjustment.reload()
+    amounts = [str(t.graduated_amount) for t in sorted(
+            rent_adjustment.terms, key=lambda t: t.graduated_step)]
+    print(f'  Staffelmiete Vertrag id={contract.id}: {increase_mode} '
+          f'{increase_value} → {" / ".join(amounts)} EUR')
+    return rent_adjustment
 
 
 def create_party(name: str, country, lang):
@@ -663,6 +721,10 @@ def main():
     uc_retail = get_use_class('Retail')
 
     tt_rent       = get_term_type(1000)  # Apartment rent
+
+    # Graduated rent needs the procedure on contract type and term type
+    allow_procedure(c_type, 'graduated_rent')
+    allow_procedure(tt_rent, 'graduated_rent')
     tt_nk         = get_term_type(2000)  # Betriebskosten
     tt_hz         = get_term_type(3000)  # Heizkosten
     tt_parking    = get_term_type(1100)  # Miete Stellplatz
@@ -863,6 +925,20 @@ def main():
             followup.click('running')
             print(f'  Folgevertrag id={followup.id} → running')
             year_end_contracts.append(followup)
+
+        # Graduated rents for up to three running (not terminated) apartment
+        # contracts of this property
+        candidates = [c for c in contracts_this_prop if c not in to_terminate]
+        print(f'\n--- Staffelmieten ({min(len(GRADUATED_RENTS), len(candidates))}x) ---')
+        for contract, (mode, value, basis) in zip(
+                random.sample(candidates, min(len(GRADUATED_RENTS),
+                        len(candidates))), GRADUATED_RENTS):
+            contract.reload()
+            rent_terms = [t for t in contract.terms
+                if t.term_type.id == tt_rent.id]
+            if rent_terms:
+                create_graduated_rent(contract, rent_terms[0], mode, value,
+                    basis)
 
     # --- Gewerbemietverträge ---
     print(f'\n{"=" * 60}')

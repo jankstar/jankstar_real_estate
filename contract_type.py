@@ -1,6 +1,8 @@
 'Contract Type and Term Type'
 from trytond.model import (sequence_ordered,
     DeactivableMixin, ModelSQL, ModelView, fields, Unique)
+from trytond.model.exceptions import ValidationError
+from trytond.i18n import gettext
 from trytond.pool import Pool
 from trytond.pyson import Eval, If
 from trytond import backend
@@ -10,6 +12,26 @@ from . import base_object
 import logging
 
 logger = logging.getLogger(__name__)
+
+# Rent adjustment procedures - shared by term type (allowed/default
+# procedures), contract term (agreed procedures) and the adjustment wizard
+ADJUSTMENT_PROCEDURES = [
+    ('graduated_rent', 'Graduated Rent'),
+    ('index_rent', 'Index Rent'),
+    ('comparative_rent', 'Comparative Rent'),
+    ('modernisation', 'Modernisation'),
+    ('operation_costs_billing', 'Operation Costs Billing'),
+    ('operation_costs_plan', 'Operation Costs Plan'),
+    ('free_adjustment', 'Free Adjustment'),
+    ]
+# Procedures adjusting the rent itself - only for terms without operating
+# cost processing
+RENT_ADJUSTMENT_PROCEDURES = {
+    'graduated_rent', 'index_rent', 'comparative_rent', 'modernisation'}
+# Procedures adjusting operating cost advances/flat rates - only for terms
+# with operating cost processing
+OC_ADJUSTMENT_PROCEDURES = {'operation_costs_billing', 'operation_costs_plan'}
+
 
 
 #**********************************************************************
@@ -73,6 +95,12 @@ class ContractType(DeactivableMixin, base_object.re_sequence_ordered(), ModelSQL
     types_of_use = fields.MultiSelection(
             'get_term_types_of_use', "Types",
             help="The type of object which can use this contract type.")
+
+    adjustment_procedures = fields.MultiSelection(
+        ADJUSTMENT_PROCEDURES, "Allowed Adjustment Procedures", sort=False,
+        help="Rent adjustment procedures allowed for contracts of this type. "
+             "A rent adjustment is only possible for a term if both the "
+             "contract type and the term type allow its procedure.")
 
     invoice_type = fields.Selection('get_invoice_types',
                                     "Invoice Type", required=True,)
@@ -223,6 +251,12 @@ class ContractTermType(DeactivableMixin, base_object.re_sequence_ordered(), Mode
 
     rhythm = fields.Integer("Rhythm (count)",)
 
+    adjustment_procedures = fields.MultiSelection(
+        ADJUSTMENT_PROCEDURES, "Allowed Adjustment Procedures", sort=False,
+        help="Rent adjustment procedures allowed for contract terms of this "
+             "type. Empty = terms of this type cannot be adjusted (e.g. "
+             "deposit).")
+
     rhythm_type = fields.Selection([
         ('daily', 'Daily'),
         ('weekly', 'Weekly'),
@@ -261,6 +295,42 @@ class ContractTermType(DeactivableMixin, base_object.re_sequence_ordered(), Mode
     @classmethod
     def default_oc_processing(cls):
         return 'advance_with_settlement'
+
+    @classmethod
+    def default_adjustment_procedures(cls):
+        return []
+
+    @classmethod
+    def validate_fields(cls, term_types, field_names):
+        super().validate_fields(term_types, field_names)
+        if field_names & {
+                'adjustment_procedures', 'oc_processing', 'rhythm_type'}:
+            cls._check_adjustment_procedures(term_types)
+
+    @classmethod
+    def _check_adjustment_procedures(cls, term_types):
+        labels = dict(cls.fields_get(
+            ['adjustment_procedures'])['adjustment_procedures']['selection'])
+
+        def names(procedures):
+            return ', '.join(labels.get(p, p) for p in sorted(procedures))
+
+        for term_type in term_types:
+            allowed = set(term_type.adjustment_procedures or [])
+            if allowed and term_type.rhythm_type == 'one_time':
+                raise ValidationError(gettext(
+                    'real_estate.msg_term_type_procedures_one_time',
+                    term_type=term_type.rec_name))
+            if term_type.oc_processing == 'none':
+                wrong = allowed & OC_ADJUSTMENT_PROCEDURES
+                message = 'real_estate.msg_term_type_procedures_need_oc'
+            else:
+                wrong = allowed & RENT_ADJUSTMENT_PROCEDURES
+                message = 'real_estate.msg_term_type_procedures_without_oc'
+            if wrong:
+                raise ValidationError(gettext(message,
+                        term_type=term_type.rec_name,
+                        procedures=names(wrong)))
 
     @classmethod
     def get_term_types_of_use(cls):

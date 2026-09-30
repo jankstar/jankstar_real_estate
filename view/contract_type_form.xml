@@ -22,6 +22,9 @@
         <newline/>
         <label name="types_of_use"/><field name="types_of_use" yexpand="0"/>
         <newline/>
+        <label name="adjustment_procedures"/>
+        <field name="adjustment_procedures" widget="multiselection" yexpand="0"/>
+        <newline/>
         <label name="main_tenant_role"/><field name="main_tenant_role"/>
         <newline/>
         <label name="secondary_tenant_role"/><field name="secondary_tenant_role"/>

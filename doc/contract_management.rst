@@ -13,14 +13,27 @@ Contract Management
       back to ``"Operating Cost Settlement"`` / ``"Operating Costs"`` when
       empty.
 
+   ``adjustment_procedures``
+      Rent adjustment procedures allowed for contracts of this type
+      (MultiSelection, see *Rent Adjustments* below). A procedure is only
+      possible for a term if both the contract type and the term type
+      allow it.
+
 ``real_estate.contract.type.tax``  (``contract_type.py``)
    Many2Many relation table between ``ContractType`` and ``account.tax``.
 
 ``real_estate.contract.term.type``  (``contract_type.py``)
    Template for contract terms. Defines default rhythm, rhythm type
    (daily / weekly / monthly / quarterly / annually / one-time),
-   rhythm start day, measurement type for quantity derivation,
-   default quantity, and default account.
+   rhythm start day, measurement type for quantity derivation
+   (``m_type``), informative measurement type for a value per area only
+   (``info_m_type``), default quantity, and default account.
+
+   ``adjustment_procedures``
+      Rent adjustment procedures allowed for terms of this type
+      (MultiSelection). Consistency rules: operating cost procedures only
+      with an operating cost processing, rent procedures only without;
+      one-time terms have no procedures.
 
 ``real_estate.contract``  (``contract_core.py``)
    Main contract record.
@@ -202,6 +215,21 @@ Contract Management
    ``rhythm`` + ``rhythm_type`` + ``rhythm_start``, ``quantity``,
    ``unit``, ``unit_price``, ``taxes``.
 
+   Graduated rent fields: ``rent_adjustment`` (the graduated rent the term
+   belongs to), ``graduated_step`` (0 = base term, 1…n = steps),
+   ``graduated_amount`` (agreed net amount of the step),
+   ``graduated_increase_percent`` (information) and ``graduated_locked``
+   (Function field with searcher, see *Rent Adjustments*).
+
+   ``_split(term, valid_from, unit_price, quantity=None, values=None)``
+      Common term split: ends ``term`` the day before ``valid_from`` and
+      copies it into a follow-up term from ``valid_from`` on (cash flow and
+      graduated rent membership are not copied). Refuses a date not after
+      the term's start, after its end, inside its booked period
+      (``get_booked_to()``) or when a follow-up term of the same type and
+      item exists. Writes with ``_skip_re_calc`` - the caller recalculates
+      the cash flow once afterwards.
+
    Key methods:
 
    ``re_calc()``
@@ -270,3 +298,106 @@ Contract Management
       nothing currently creates these records. See the *Adjustment of
       Contract Terms* wizard (below, under *Wizards*), which defines the
       full input mask but still has placeholder processing logic only.
+
+``real_estate.contract.rent_adjustment``  (``contract_rent_adjustment.py``)
+   **Rent Adjustments** (*Mietanpassungen*): one record per adjustment of
+   one contract term, for every procedure, shown on the contract's *Rent
+   Adjustments* tab (O2M ``rent_adjustments``) and in the menu *Contracts →
+   Rent Adjustments*. A new record is created there via *New*: first the
+   procedure, then the term.
+
+   Procedures (``contract_type.ADJUSTMENT_PROCEDURES``): ``graduated_rent``
+   (§ 557a BGB), ``index_rent`` (§ 557b), ``comparative_rent`` (§§ 558 ff.),
+   ``modernisation`` (§§ 559 ff.), ``operation_costs_billing`` /
+   ``operation_costs_plan`` (§ 560), ``free_adjustment``. So far only the
+   graduated rent has processing; the other procedures are header records.
+
+   Header fields (all procedures): ``contract``, ``procedure``, ``term``
+   (exactly one term - offered are terms of the contract whose contract
+   type and term type both allow the procedure, and in state ``draft`` no
+   term locked by a graduated rent), ``valid_from``, ``agreement_date``
+   (required for graduated/index rent), ``written_form``, ``comment``,
+   ``state`` (``draft`` / ``generated``). Checks on save: term belongs to
+   the contract, procedure allowed by contract type and term type, at most
+   one agreed procedure (graduated or index rent) per term (§§ 557a,
+   557b BGB). Only drafts can be deleted.
+
+   **Graduated rent** (``procedure = 'graduated_rent'``): all steps are
+   generated in advance as terms. The procedure-specific fields are only
+   visible (and required) for this procedure:
+
+   - Parameters: ``rhythm_months`` (≥ 12), ``step_count`` (≥ 1),
+     ``increase_mode`` (``absolute`` € per period, ``per_area`` € per m²,
+     ``percent``), ``increase_value``, ``percent_basis`` (``base`` = same
+     increase for all steps, ``previous`` = compound). ``valid_from`` is
+     always the start of the base term.
+   - Area for ``per_area``: the base term's informative measurement
+     (``info_m_type``) as of its start, hierarchy-aware; fixed on
+     generation (``generated_area``).
+   - Information: base amount (net, quantity × unit price), increase and
+     increase % of the 1st step, final amount, total increase %, start of
+     the last step, and a text preview of all steps (amount, increase and -
+     with an informative area - the new amount per m²). Preview and
+     generation use the same calculation ``compute_amounts()``: the
+     increase is rounded (half up) per step, every step is an exact cent
+     amount.
+   - Steps tab: the step terms, booking state (``booked``,
+     ``last_booked_date``, ``last_booked_step``), ``predecessor`` /
+     ``successor`` (chain of follow-up graduated rents) and
+     ``generated_parameters`` (snapshot of the last generation).
+
+   Buttons (``ir.model.button`` records, restrictable per group):
+
+   *Generate* (``draft → generated``)
+      Checks G01-G15 (errors: procedure allowed, rhythm ≥ 12, ≥ 1 step,
+      increase ≥ 0.01 per step, base term not booked, no follow-up term,
+      last step before the term's/contract's end with the maximum number of
+      steps in the message, base term not an intermediate step of another
+      graduated rent, contract draft/running without termination, written
+      form for residential, area found, term type without ``m_type``;
+      confirmable warnings: written form for commercial, termination waiver
+      over 4 years, rounding with quantity ≠ 1, step start not matching the
+      billing rhythm). Then the base term becomes step 0 and each step is
+      created with ``ContractTerm._split()``; the last step takes over the
+      original end of the base term (``base_valid_to_orig``). Cash flow is
+      recalculated and the contract log gets parameters and step overview.
+   *Regenerate*
+      Not booked: reset and generate again. Booked: after the graduated
+      rent warning (below), only the steps after the last booked step are
+      recalculated from that step on; booked steps keep amount and start.
+      Refused if the next step would start inside a booked period.
+   *Reset* (``generated → draft``, not booked)
+      Deletes steps 1…n and restores the base term (original end, no
+      membership).
+   *End Graduated Rent* (booked)
+      After the warning, deletes the steps not yet booked; the last booked
+      step becomes the last step (open, unlocked, ``step_count`` adjusted).
+      If only the base term is booked, the graduated rent is dissolved like
+      *Reset*.
+
+   Lock (``ContractTerm.graduated_locked``): the base term and all steps
+   except the last one of a generated graduated rent - and the last step
+   carrying a follow-up graduated rent - cannot change ``valid_from``,
+   ``valid_to``, ``term_type``, ``reference_item``, rhythm fields or
+   ``taxes`` (readonly in the form, muted rows in the list, note in the
+   form), cannot be split and get no other rent adjustment (§ 557a para. 2
+   BGB). No term of a graduated rent can be deleted individually. Quantity
+   and unit price can be corrected; ``graduated_amount`` follows. Only the
+   graduated rent itself changes its terms (context
+   ``_graduated_rent_generate``).
+
+   After the first booking every change (regenerate, end, manual amount
+   correction of a step) needs confirmation of
+   ``ContractGraduatedRentChangeWarning``: the graduated rent is part of the
+   contract, a change requires an amendment agreed with the tenant. It
+   comes before the existing warnings for booked terms, is keyed on the new
+   parameters/values, and every confirmed change is logged in the contract
+   log (old/new parameters, steps before/after).
+
+   Follow-up graduated rent: the last step of graduated rent A can be the
+   base term of a new graduated rent B. The step stays a member of A and is
+   step 0 of B only via ``B.term``; while B exists (also as draft), A cannot
+   be regenerated, reset or ended.
+
+   Specification: ``spezifikation-mietanpassung.md`` (not part of the
+   repository).

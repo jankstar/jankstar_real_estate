@@ -1,7 +1,13 @@
 import datetime
 from decimal import Decimal
+from itertools import groupby
 
-from sql import Column
+from sql import Column, Literal, Null, Window
+from sql.aggregate import Sum
+from sql.conditionals import Case, Coalesce
+
+from trytond import backend
+from trytond.tools import sqlite_apply_types
 
 from trytond.model import Index, ModelSQL, ModelView, fields
 from trytond.model.exceptions import ValidationError
@@ -772,6 +778,91 @@ class AccountMoveLine(metaclass=PoolMeta):
             ('contract',) + tuple(clause[1:]),
             ('reconciliation.lines.contract',) + tuple(clause[1:]),
             ]
+
+    @classmethod
+    def get_payable_receivable_balance(cls, lines, name):
+        """Running balance of the payable/receivable lists. Core sums all
+        receivable/payable lines of the party; when the list is scoped to
+        contracts (context 'payable_receivable_contracts' from the contract
+        form's relate action, or 'contract' from the Contracts menu filter)
+        only the lines of these contracts count - the lines with the
+        contract plus the lines reconciled with them (payments), like the
+        list's own effective_contract filter."""
+        context = Transaction().context
+        contract_ids = context.get('payable_receivable_contracts')
+        if not contract_ids and context.get('contract'):
+            contract_ids = [context['contract']]
+        if not contract_ids:
+            return super().get_payable_receivable_balance(lines, name)
+        contract_ids = [int(i) for i in contract_ids]
+
+        pool = Pool()
+        Account = pool.get('account.account')
+        AccountType = pool.get('account.account.type')
+        Move = pool.get('account.move')
+        cursor = Transaction().connection.cursor()
+
+        line = cls.__table__()
+        other = cls.__table__()
+        account = Account.__table__()
+        account_type = AccountType.__table__()
+        move = Move.__table__()
+
+        balances = dict.fromkeys(map(int, lines))
+        date = Coalesce(line.maturity_date, move.date)
+        contract_where = (fields.SQL_OPERATORS['in'](
+                line.contract, contract_ids)
+            | fields.SQL_OPERATORS['in'](line.reconciliation,
+                other.select(other.reconciliation,
+                    where=fields.SQL_OPERATORS['in'](
+                        other.contract, contract_ids)
+                    & (other.reconciliation != Null))))
+
+        for company, company_lines in groupby(lines, lambda l: l.company):
+            company_lines = list(company_lines)
+            id2currency = {
+                l.id: l.second_currency or company.currency
+                for l in company_lines}
+            where = (account.company == company.id) & contract_where
+            where_type = Literal(False)
+            if context.get('receivable', True):
+                where_type |= account_type.receivable
+            if context.get('payable', True):
+                where_type |= account_type.payable
+            where &= where_type
+            if not context.get('reconciled'):
+                where &= line.reconciliation == Null
+
+            currency = Coalesce(line.second_currency, company.currency.id)
+            sign = Case(
+                (account_type.statement == 'income', -1),
+                else_=1)
+            balance = sign * Case(
+                (line.amount_second_currency != Null,
+                    line.amount_second_currency),
+                else_=line.debit - line.credit)
+            balance = Sum(balance,
+                window=Window(
+                    [line.party, currency],
+                    order_by=[date.asc.nulls_first, line.id.desc]))
+
+            query = (line
+                .join(move, condition=line.move == move.id)
+                .join(account, condition=line.account == account.id)
+                .join(account_type,
+                    condition=account.type == account_type.id)
+                .select(line.id.as_('id'), balance.as_('balance'),
+                    where=where))
+            query = query.select(
+                query.id, query.balance.as_('balance'),
+                where=fields.SQL_OPERATORS['in'](
+                    query.id, [l.id for l in company_lines]))
+            if backend.name == 'sqlite':
+                sqlite_apply_types(query, [None, 'NUMERIC'])
+            cursor.execute(*query)
+            balances.update(
+                (i, id2currency[i].round(a)) for (i, a) in cursor)
+        return balances
 
 
 #**********************************************************************

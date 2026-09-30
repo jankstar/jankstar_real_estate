@@ -31,7 +31,12 @@ builds on the previous one's data):
    contract item) and new standalone parking contracts. Also creates
    commercial lease contracts for the retail units — one combined contract
    for all four retail units on *Musterstraße 1-4*, one contract per unit on
-   *Musterstraße 5-8*::
+   *Musterstraße 5-8*. Terms are absolute amounts (price per m² × area,
+   quantity 1). Up to three running apartment contracts per property get a
+   graduated rent (rent adjustment with procedure ``graduated_rent`` on the
+   rent term: 12-month rhythm, 5 steps, +30 € / +0.40 €/m² / +3 %), whose
+   steps are generated; the procedure is allowed on the residential
+   contract type and the rent term type first if missing::
 
       python tests/test_contracts.py --database <db> [--config trytond.conf]
 

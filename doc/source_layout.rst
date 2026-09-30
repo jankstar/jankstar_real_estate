@@ -25,6 +25,8 @@ Source Layout
    ├── contract_term.py         # real_estate.contract.term, term.tax, cash_flow,
    │                            #   term.adjustment, Quantitative
    ├── contract_type.py         # real_estate.contract.type, term.type
+   ├── contract_rent_adjustment.py  # real_estate.contract.rent_adjustment (rent
+   │                            #   adjustments, graduated rent generation)
    ├── contract_report.py       # ContractReport, ContractAnnex4Report,
    │                            #   ContractTerminationConfirmationReport
    ├── contract_wizard.py       # wizards: TerminateContract, CreateContractMoves,

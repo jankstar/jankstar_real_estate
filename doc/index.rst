@@ -19,6 +19,9 @@ Structure
   periods, items (rented objects) and terms (recurring charges such as rent
   and operating cost advances); terms generate a planned cash flow that is
   booked as invoices via the *Create Contract Moves* wizard or a cron task.
+  Rent adjustments per term (graduated rent generated in advance; index,
+  comparative rent, modernisation and operating cost procedures as
+  headers).
 - **Operating cost settlement** — billing units and settlement units
   allocate supplier invoice costs to contracts (by measurement,
   consumption, external billing, …), including CO2 cost allocation

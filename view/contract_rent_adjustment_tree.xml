@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<tree>
+    <field name="contract" expand="1"/>
+    <field name="procedure"/>
+    <field name="term" expand="1"/>
+    <field name="valid_from"/>
+    <field name="agreement_date" optional="0"/>
+    <field name="rhythm_months" optional="1"/>
+    <field name="step_count" optional="1"/>
+    <field name="final_amount" optional="0"/>
+    <field name="state"/>
+    <field name="booked" optional="0"/>
+</tree>

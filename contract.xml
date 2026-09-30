@@ -201,6 +201,9 @@
             <field name="domain"
                 eval="[('effective_contract', 'in', Eval('active_ids'))]"
                 pyson="1"/>
+            <field name="context"
+                eval="{'payable_receivable_contracts': Eval('active_ids'), 'receivable': Eval('receivable', True), 'payable': Eval('payable', True), 'reconciled': Eval('reconciled', False)}"
+                pyson="1"/>
             <field name="context_model">
                 real_estate.contract.move_line_payable_receivable.relate_context</field>
             <field name="context_domain"
@@ -1412,6 +1415,7 @@
             <field name="invoice_type">out</field>
             <field name="types_of_use" eval="['residential']"/>
             <field name="oc_mark" >Operating Cost Settlement</field>
+            <field name="adjustment_procedures" eval="['graduated_rent', 'index_rent', 'comparative_rent', 'modernisation', 'operation_costs_billing', 'operation_costs_plan', 'free_adjustment']"/>
         </record>
 
         <record model="real_estate.contract.type" id="contract_parking_space_lease_agreement_type">
@@ -1428,6 +1432,7 @@
             <field name="invoice_type">out</field>
             <field name="types_of_use" eval="['residential']"/>
             <field name="oc_mark" >Operating Cost Settlement</field>
+            <field name="adjustment_procedures" eval="['graduated_rent', 'index_rent', 'free_adjustment']"/>
         </record>
 
         <record model="real_estate.contract.type" id="contract_debit_costs_agreement_type">
@@ -1443,6 +1448,7 @@
             <field name="invoice_type">out</field>
             <field name="types_of_use" eval="['residential', 'commercial', 'property', 'internal']"/>
             <field name="oc_mark" >Operating Cost Settlement</field>
+            <field name="adjustment_procedures" eval="['operation_costs_billing', 'operation_costs_plan', 'free_adjustment']"/>
         </record>
 
         <record model="real_estate.contract.type" id="contract_credit_costs_agreement_type">
@@ -1458,6 +1464,7 @@
             <field name="invoice_type">in</field>
             <field name="types_of_use" eval="['residential', 'commercial', 'property', 'internal']"/>
             <field name="oc_mark" >Operating Cost Settlement</field>
+            <field name="adjustment_procedures" eval="['free_adjustment']"/>
         </record>
 
         <record model="real_estate.contract.type" id="contract_commercial_lease_agreement_type">
@@ -1474,6 +1481,7 @@
             <field name="invoice_type">out</field>
             <field name="types_of_use" eval="['commercial']"/>
             <field name="oc_mark" >Operating Cost Settlement</field>
+            <field name="adjustment_procedures" eval="['graduated_rent', 'index_rent', 'operation_costs_billing', 'operation_costs_plan', 'free_adjustment']"/>
         </record>
 
         <record model="real_estate.contract.type" id="contract_condominium_fee_agreement_type">
@@ -1490,6 +1498,7 @@
             <field name="invoice_type">out</field>
             <field name="types_of_use" eval="['property']"/>
             <field name="oc_mark" >Operating Cost Settlement</field>
+            <field name="adjustment_procedures" eval="['operation_costs_plan', 'free_adjustment']"/>
         </record>
 
         <!-- Term Types -->
@@ -1504,6 +1513,7 @@
             <field name="rhythm">1</field>
             <field name="rhythm_type">monthly</field>
             <field name="oc_processing" >none</field>
+            <field name="adjustment_procedures" eval="['graduated_rent', 'index_rent', 'comparative_rent', 'modernisation', 'free_adjustment']"/>
         </record>
 
         <record model="real_estate.contract.term.type" id="contract_term_type_rent_reduction">
@@ -1539,6 +1549,7 @@
             <field name="rhythm">1</field>
             <field name="rhythm_type">monthly</field>
             <field name="oc_processing" >none</field>
+            <field name="adjustment_procedures" eval="['graduated_rent', 'index_rent', 'free_adjustment']"/>
         </record>
 
         <record model="real_estate.contract.term.type" id="contract_term_type_rent_deposit">
@@ -1562,6 +1573,7 @@
             <field name="rhythm">1</field>
             <field name="rhythm_type">monthly</field>
             <field name="oc_processing" >advance_with_settlement</field>
+            <field name="adjustment_procedures" eval="['operation_costs_billing', 'operation_costs_plan', 'free_adjustment']"/>
         </record>
 
         <record model="real_estate.contract.term.type" id="contract_term_type_heating_costs">
@@ -1574,6 +1586,7 @@
             <field name="rhythm">1</field>
             <field name="rhythm_type">monthly</field>
             <field name="oc_processing" >advance_with_settlement</field>
+            <field name="adjustment_procedures" eval="['operation_costs_billing', 'operation_costs_plan', 'free_adjustment']"/>
         </record>
 
         <record model="real_estate.contract.term.type" id="contract_term_type_commercial_rent">
@@ -1586,6 +1599,7 @@
             <field name="rhythm">1</field>
             <field name="rhythm_type">monthly</field>
             <field name="oc_processing" >none</field>
+            <field name="adjustment_procedures" eval="['graduated_rent', 'index_rent', 'free_adjustment']"/>
         </record>
 
         <record model="real_estate.contract.term.type" id="contract_term_type_service_charge">
@@ -1598,6 +1612,7 @@
             <field name="rhythm">1</field>
             <field name="rhythm_type">monthly</field>
             <field name="oc_processing" >advance_with_settlement</field>
+            <field name="adjustment_procedures" eval="['operation_costs_plan', 'free_adjustment']"/>
         </record>
 
 

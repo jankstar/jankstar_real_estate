@@ -12,10 +12,12 @@ from trytond.modules.currency.fields import Monetary
 from trytond.modules.account.tax import TaxableMixin
 from trytond.modules.product import price_digits
 
+
 from dateutil.relativedelta import relativedelta
 
 from sql import Null
 
+import hashlib
 import logging
 import re
 from decimal import Decimal
@@ -36,6 +38,10 @@ class ContractTermValidToBookedWarning(UserWarning):
 
 
 class ContractTermBookedValuesWarning(UserWarning):
+    pass
+
+
+class ContractGraduatedRentChangeWarning(UserWarning):
     pass
 
 
@@ -603,6 +609,34 @@ class ContractTerm(sequence_ordered(), ModelSQL, ModelView, TaxableMixin):
             'invisible': (Eval('term_type', None) == None),
             })
 
+    rent_adjustment = fields.Many2One('real_estate.contract.rent_adjustment',
+        "Rent Adjustment", readonly=True, ondelete='RESTRICT',
+        help="Rent adjustment (graduated rent) this term belongs to - as "
+             "base term or step.")
+    graduated_step = fields.Integer("Step", readonly=True,
+        help="0 = base term, 1...n = graduated rent steps.")
+    graduated_amount = Monetary("Graduated Amount", currency='currency',
+        digits='currency', readonly=True,
+        help="Agreed net amount of this step per rhythm period.")
+    graduated_increase_percent = fields.Function(fields.Numeric(
+            "Increase (%)", digits=(16, 2),
+            help="Increase of this step against the previous step - "
+                 "information only."),
+        'get_graduated_increase_percent')
+    graduated_locked = fields.Function(fields.Boolean(
+            "Locked by Graduated Rent",
+            help="Base term or intermediate step of a generated graduated "
+                 "rent (or last step carrying a follow-up graduated rent): "
+                 "dates, type, item, rhythm and taxes cannot be changed and "
+                 "the term cannot be deleted or adjusted otherwise "
+                 "(§ 557a para. 2 BGB)."),
+        'get_graduated_locked', searcher='search_graduated_locked')
+
+    # Fields of a locked graduated rent term that cannot be changed
+    _GRADUATED_LOCKED_FIELDS = (
+        'valid_from', 'valid_to', 'term_type', 'reference_item', 'rhythm',
+        'rhythm_type', 'rhythm_start', 'taxes')
+
     object_distribution = fields.Selection([
             ('equal', 'Equal Shares'),
             ('info_measurement', 'By Informative Measurement'),
@@ -703,10 +737,30 @@ class ContractTerm(sequence_ordered(), ModelSQL, ModelView, TaxableMixin):
             }
 
     @classmethod
+    def __setup__(cls):
+        super().__setup__()
+        # Locked graduated rent terms: the protected fields are readonly
+        for fname in cls._GRADUATED_LOCKED_FIELDS:
+            field = getattr(cls, fname)
+            field.states = dict(field.states or {})
+            readonly = field.states.get('readonly')
+            locked = Eval('graduated_locked', False)
+            field.states['readonly'] = (
+                (readonly | locked) if readonly is not None else locked)
+
+    @classmethod
     def view_attributes(cls):
         return super().view_attributes() + [
+            ('//label[@id="graduated_locked_info"]', 'states',
+                {'invisible': ~Eval('graduated_locked', False)},
+                ['graduated_locked']),
+            ('/tree', 'visual',
+                If(Eval('graduated_locked', False), 'muted', ''),
+                ['graduated_locked']),
             ('/form/notebook/page[@id="page_measurements"]', 'states', cls._states_term_type_with_m_type),
             ('//group[@id="value_per_measurement"]', 'states', cls._states_term_type_with_info_m_type),
+            ('//group[@id="rent_adjustment"]', 'states',
+                {'invisible': ~Eval('rent_adjustment')}, ['rent_adjustment']),
             ]
 
     @classmethod
@@ -725,6 +779,67 @@ class ContractTerm(sequence_ordered(), ModelSQL, ModelView, TaxableMixin):
         'unit_price', 'quantity', 'rhythm', 'rhythm_type', 'rhythm_start',
         'valid_from', 'valid_to', 'term_type',
     })
+
+    @classmethod
+    def copy(cls, terms, default=None):
+        # The rent adjustment membership is not copied - only the rent
+        # adjustment itself sets it (via _split() values)
+        default = default.copy() if default else {}
+        default.setdefault('rent_adjustment', None)
+        default.setdefault('graduated_step', None)
+        default.setdefault('graduated_amount', None)
+        return super().copy(terms, default=default)
+
+    @classmethod
+    def _graduated_locked_ids(cls, terms=None):
+        """Ids of locked graduated rent terms (among 'terms' if given):
+        (a) members of a generated graduated rent below its last step,
+        (b) the base term of a generated graduated rent (the last step of
+        a previous graduated rent carrying a follow-up graduated rent)."""
+        RentAdjustment = Pool().get('real_estate.contract.rent_adjustment')
+        domain = [('rent_adjustment', '!=', None)]
+        if terms is not None:
+            domain.append(('id', 'in', [t.id for t in terms]))
+        locked = {t.id for t in cls.search(domain)
+            if t.rent_adjustment.state == 'generated'
+            and (t.graduated_step or 0) < (t.rent_adjustment.step_count or 0)}
+        domain = [
+            ('procedure', '=', 'graduated_rent'),
+            ('state', '=', 'generated'),
+            ]
+        if terms is not None:
+            domain.append(('term', 'in', [t.id for t in terms]))
+        locked |= {r.term.id for r in RentAdjustment.search(domain)}
+        return locked
+
+    @classmethod
+    def get_graduated_locked(cls, terms, name):
+        locked = cls._graduated_locked_ids(terms)
+        return {t.id: t.id in locked for t in terms}
+
+    @classmethod
+    def search_graduated_locked(cls, name, clause):
+        _, operator, value = clause[:3]
+        locked = list(cls._graduated_locked_ids())
+        if (operator == '=') == bool(value):
+            return [('id', 'in', locked)]
+        return [('id', 'not in', locked)]
+
+    def get_graduated_increase_percent(self, name=None):
+        if not self.rent_adjustment or not self.graduated_step:
+            return None
+        previous = [t for t in self.rent_adjustment.terms
+            if t.graduated_step == self.graduated_step - 1]
+        if not previous and self.graduated_step == 1:
+            # Follow-up graduated rent: step 0 is the last step of the
+            # previous graduated rent
+            previous = [self.rent_adjustment.term]
+        if (not previous or not previous[0].graduated_amount
+                or self.graduated_amount is None):
+            return None
+        amount = previous[0].graduated_amount
+        return ((self.graduated_amount - amount) / amount * 100).quantize(
+            Decimal('0.01'))
 
     @classmethod
     def create(cls, vlist):
@@ -797,6 +912,95 @@ class ContractTerm(sequence_ordered(), ModelSQL, ModelView, TaxableMixin):
                         fields=', '.join(
                             labels[f]['string'] for f in changed)))
 
+    def get_booked_to(self):
+        """Last day covered by the booked periods of this term, None if
+        nothing is booked: the day before the next document date after the
+        last booked document date (by the term's rhythm, ignoring its
+        'Valid to'). Falls back to the last document date itself when no
+        later document date follows (e.g. one-time term, contract end)."""
+        last = self.last_document_date
+        if not last:
+            return None
+        # Evaluated on an unsaved copy of the stored record, without end
+        probe = self.__class__(self.id)
+        probe.valid_to = None
+        next_date = probe._next_document_date(calc_document_date=last)
+        if not next_date or next_date <= last:
+            return last
+        return next_date - datetime.timedelta(days=1)
+
+    @classmethod
+    def _split(cls, term, valid_from, unit_price, quantity=None,
+            values=None):
+        """End 'term' the day before 'valid_from' and add a follow-up term
+        from 'valid_from' on (same values, new unit price/quantity) - the
+        common term split of graduated rent and later adjustment
+        procedures. Returns the new term. Does not recalculate the cash
+        flow: the caller calls Contract._re_calc_terms() once afterwards.
+        Written with context _skip_re_calc, so the warnings for booked
+        terms don't apply here - the caller does the business checks."""
+        if (not Transaction().context.get('_graduated_rent_generate')
+                and term.graduated_locked):
+            raise ValidationError(gettext(
+                'real_estate.msg_term_split_locked',
+                term=term.rec_name.strip()))
+        if term.valid_from >= valid_from:
+            raise ValidationError(gettext(
+                'real_estate.msg_term_split_before_start',
+                term=term.rec_name.strip(),
+                date=valid_from.isoformat(),
+                valid_from=term.valid_from.isoformat()))
+        if term.valid_to and term.valid_to < valid_from:
+            raise ValidationError(gettext(
+                'real_estate.msg_term_split_after_end',
+                term=term.rec_name.strip(),
+                date=valid_from.isoformat(),
+                valid_to=term.valid_to.isoformat()))
+        # Never change booked periods
+        booked_to = term.get_booked_to()
+        if booked_to and booked_to >= valid_from:
+            raise ValidationError(gettext(
+                'real_estate.msg_term_split_booked',
+                term=term.rec_name.strip(),
+                date=valid_from.isoformat(),
+                booked_to=booked_to.isoformat()))
+        # No follow-up term of the same type/item from 'valid_from' on
+        follow_ups = cls.search([
+                ('contract', '=', term.contract.id),
+                ('term_type', '=', term.term_type.id),
+                ('reference_item', '=',
+                    term.reference_item.id if term.reference_item else None),
+                ('valid_from', '>=', valid_from),
+                ('id', '!=', term.id),
+                ])
+        if follow_ups:
+            raise ValidationError(gettext(
+                'real_estate.msg_term_split_follow_up',
+                term=term.rec_name.strip(),
+                date=valid_from.isoformat(),
+                follow_up=follow_ups[0].rec_name.strip()))
+
+        sequences = [t.sequence for t in term.contract.terms
+            if t.sequence is not None]
+        step = (term.contract.c_type.step_term
+            if term.contract.c_type and term.contract.c_type.step_term
+            else 1)
+        default = {
+            'valid_from': valid_from,
+            'valid_to': term.valid_to,
+            'unit_price': unit_price,
+            'quantity': (quantity if quantity is not None
+                else term.quantity),
+            'sequence': (max(sequences) + step) if sequences else step,
+            'cash_flow': [],
+            }
+        default.update(values or {})
+        with Transaction().set_context(_skip_re_calc=True):
+            new, = cls.copy([term], default=default)
+            cls.write([term], {
+                    'valid_to': valid_from - datetime.timedelta(days=1)})
+        return new
+
     @classmethod
     def _check_valid_to_booked(cls, args):
         """Warn (confirmable) when 'Valid to' is set/changed to a date
@@ -811,19 +1015,8 @@ class ContractTerm(sequence_ordered(), ModelSQL, ModelView, TaxableMixin):
             if not valid_to:
                 continue
             for term in records:
-                if not term.last_document_date:
-                    continue
-                # Next document date after the last booked one, ignoring
-                # the term's (old or new) end - evaluated on an unsaved
-                # copy of the stored record
-                probe = cls(term.id)
-                probe.valid_to = None
-                next_date = probe._next_document_date(
-                    calc_document_date=term.last_document_date)
-                if not next_date or next_date <= term.last_document_date:
-                    continue
-                booked_to = next_date - datetime.timedelta(days=1)
-                if valid_to < booked_to:
+                booked_to = term.get_booked_to()
+                if booked_to and valid_to < booked_to:
                     key = Warning.format(
                         f'term_valid_to_booked_{valid_to.isoformat()}',
                         [term])
@@ -835,9 +1028,82 @@ class ContractTerm(sequence_ordered(), ModelSQL, ModelView, TaxableMixin):
                             booked_to=booked_to.isoformat()))
 
     @classmethod
+    def _check_graduated_locked(cls, args):
+        """Locked graduated rent terms: dates, type, item, rhythm and
+        taxes cannot be changed (spec 4.3) - only the graduated rent itself
+        does (context _graduated_rent_generate)."""
+        actions = iter(args)
+        for records, values in zip(actions, actions):
+            changed = set(values) & set(cls._GRADUATED_LOCKED_FIELDS)
+            if not changed:
+                continue
+            locked = cls._graduated_locked_ids(records)
+            for term in records:
+                if term.id in locked:
+                    raise ValidationError(gettext(
+                        'real_estate.msg_term_graduated_locked',
+                        term=term.rec_name.strip(),
+                        rent_adjustment=term.rent_adjustment.rec_name
+                        if term.rent_adjustment else ''))
+
+    @classmethod
+    def _check_graduated_contract_change(cls, args):
+        """Manual correction of quantity/unit price of a step of an already
+        booked graduated rent: the graduated rent is part of the contract,
+        a change needs a contract amendment - confirmable warning (6.5)."""
+        Warning = Pool().get('res.user.warning')
+        actions = iter(args)
+        for records, values in zip(actions, actions):
+            if not {'quantity', 'unit_price'} & set(values):
+                continue
+            for term in records:
+                rent_adjustment = term.rent_adjustment
+                if not (rent_adjustment and rent_adjustment.booked):
+                    continue
+                new_values = (term.id, str(values.get('quantity')),
+                    str(values.get('unit_price')))
+                key = Warning.format(
+                    'graduated_rent_contract_change_term_'
+                    + hashlib.md5(repr(new_values).encode()).hexdigest()[:12],
+                    [rent_adjustment])
+                if Warning.check(key):
+                    raise ContractGraduatedRentChangeWarning(key, gettext(
+                        'real_estate.msg_graduated_rent_contract_change_term',
+                        **rent_adjustment._contract_change_values(),
+                        step=term.graduated_step,
+                        valid_from=term.valid_from.isoformat()))
+
+    @classmethod
+    def _sync_graduated_amount(cls, args):
+        """A manual correction of quantity/unit price of a graduated rent
+        step updates its agreed step amount (spec 4.3)."""
+        actions = iter(args)
+        to_sync = []
+        for records, values in zip(actions, actions):
+            if {'quantity', 'unit_price'} & set(values):
+                to_sync.extend(t for t in records if t.rent_adjustment)
+        with Transaction().set_context(_graduated_rent_generate=True):
+            for term in to_sync:
+                amount = (Decimal(str(term.quantity or 0))
+                    * (term.unit_price or 0))
+                if term.currency:
+                    amount = term.currency.round(amount)
+                if amount != term.graduated_amount:
+                    super().write([term], {'graduated_amount': amount})
+
+    @classmethod
     def delete(cls, terms):
         pool = Pool()
         InvoiceLine = pool.get('account.invoice.line')
+        # Terms of a graduated rent are only deleted by the graduated rent
+        # itself (reset/regenerate) - otherwise the steps would get a gap
+        if not Transaction().context.get('_graduated_rent_generate'):
+            for term in terms:
+                if term.rent_adjustment:
+                    raise ValidationError(gettext(
+                        'real_estate.msg_term_graduated_delete',
+                        term=term.rec_name.strip(),
+                        rent_adjustment=term.rent_adjustment.rec_name))
         # Booked terms must not be deleted - they are ended via 'Valid to'
         # instead (deleting would drop their cash flow and detach the
         # booked invoice/move lines from the term)
@@ -853,10 +1119,19 @@ class ContractTerm(sequence_ordered(), ModelSQL, ModelView, TaxableMixin):
 
     @classmethod
     def write(cls, *args):
+        generating = Transaction().context.get('_graduated_rent_generate')
+        if not generating:
+            cls._check_graduated_locked(args)
         if not Transaction().context.get('_skip_re_calc'):
+            # graduated rent warning first (contractual statement), then
+            # the warnings for booked terms (spec 6.5)
+            if not generating:
+                cls._check_graduated_contract_change(args)
             cls._check_valid_to_booked(args)
             cls._check_booked_values_changed(args)
         super().write(*args)
+        if not generating:
+            cls._sync_graduated_amount(args)
         if Transaction().context.get('_skip_re_calc'):
             return
         contract_ids = set()
@@ -1278,7 +1553,14 @@ class ContractTerm(sequence_ordered(), ModelSQL, ModelView, TaxableMixin):
             elif self.rhythm_type == 'annually':
                 return _check_valid_to(my_document_Date + relativedelta(years=self.rhythm))
 
-        return self.contract.start_booking_date if (self.contract and self.contract.start_booking_date) else self.valid_from
+        # First document date: the later of the contract's booking start
+        # and the term's own start - a follow-up term starting after the
+        # booking start (split, graduated rent) must not start before its
+        # valid_from, or re_calc() would plan no cash flow at all
+        starts = [d for d in (
+                self.contract.start_booking_date if self.contract else None,
+                self.valid_from) if d]
+        return max(starts) if starts else None
 
     @fields.depends('rhythm', 'valid_from', 'last_document_date', 'rhythm_type',
                     'unit_price', 'contract', '_parent_contract.start_booking_date',
@@ -1520,7 +1802,8 @@ class ContractTerm(sequence_ordered(), ModelSQL, ModelView, TaxableMixin):
                     return item
         return getattr(self, 'reference_item', None)
 
-    @fields.depends('reference_item', 'contract', '_parent_reference_item.contract')
+    @fields.depends('reference_item', 'contract',
+        '_parent_reference_item.contract', '_parent_contract.id')
     def on_change_reference_item(self):
         # Lets a term be created directly under the item's own 'Terms' list
         # (reference_item set implicitly there, unlike the required

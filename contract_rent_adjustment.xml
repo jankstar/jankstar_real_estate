@@ -1,0 +1,105 @@
+<?xml version="1.0"?>
+<tryton>
+    <data>
+        <!-- Rent adjustments (Mietanpassungen): graduated rent, index rent, ... -->
+        <record model="ir.ui.view" id="contract_rent_adjustment_view_form">
+            <field name="model">real_estate.contract.rent_adjustment</field>
+            <field name="type">form</field>
+            <field name="name">contract_rent_adjustment_form</field>
+        </record>
+        <record model="ir.ui.view" id="contract_rent_adjustment_view_tree">
+            <field name="model">real_estate.contract.rent_adjustment</field>
+            <field name="type">tree</field>
+            <field name="name">contract_rent_adjustment_tree</field>
+        </record>
+        <record model="ir.ui.view" id="contract_rent_adjustment_term_view_list">
+            <field name="model">real_estate.contract.term</field>
+            <field name="type">tree</field>
+            <field name="priority" eval="30"/>
+            <field name="name">contract_rent_adjustment_term_list</field>
+        </record>
+
+        <record model="ir.model.button" id="contract_rent_adjustment_generate_button">
+            <field name="model">real_estate.contract.rent_adjustment</field>
+            <field name="name">generate</field>
+            <field name="string">Generate</field>
+        </record>
+        <record model="ir.model.button" id="contract_rent_adjustment_regenerate_button">
+            <field name="model">real_estate.contract.rent_adjustment</field>
+            <field name="name">regenerate</field>
+            <field name="string">Regenerate</field>
+        </record>
+        <record model="ir.model.button" id="contract_rent_adjustment_reset_button">
+            <field name="model">real_estate.contract.rent_adjustment</field>
+            <field name="name">reset</field>
+            <field name="string">Reset</field>
+        </record>
+
+        <record model="ir.model.button" id="contract_rent_adjustment_terminate_button">
+            <field name="model">real_estate.contract.rent_adjustment</field>
+            <field name="name">terminate</field>
+            <field name="string">End Graduated Rent</field>
+        </record>
+
+        <record model="ir.action.act_window" id="act_contract_rent_adjustment">
+            <field name="name">Rent Adjustments</field>
+            <field name="res_model">real_estate.contract.rent_adjustment</field>
+        </record>
+        <record model="ir.action.act_window.view" id="act_contract_rent_adjustment_view1">
+            <field name="sequence" eval="10"/>
+            <field name="view" ref="contract_rent_adjustment_view_tree"/>
+            <field name="act_window" ref="act_contract_rent_adjustment"/>
+        </record>
+        <record model="ir.action.act_window.view" id="act_contract_rent_adjustment_view2">
+            <field name="sequence" eval="20"/>
+            <field name="view" ref="contract_rent_adjustment_view_form"/>
+            <field name="act_window" ref="act_contract_rent_adjustment"/>
+        </record>
+
+        <menuitem
+            parent="menu_real_estate_contracts"
+            action="act_contract_rent_adjustment"
+            sequence="94"
+            id="menu_contract_rent_adjustment"/>
+
+        <record model="ir.model.access" id="access_contract_rent_adjustment_contract_group">
+            <field name="model">real_estate.contract.rent_adjustment</field>
+            <field name="group" ref="group_real_estate_contract"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+        <record model="ir.model.access" id="access_contract_rent_adjustment_admin">
+            <field name="model">real_estate.contract.rent_adjustment</field>
+            <field name="group" ref="group_real_estate_admin"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+        <record model="ir.model.access" id="access_contract_rent_adjustment_object_group">
+            <field name="model">real_estate.contract.rent_adjustment</field>
+            <field name="group" ref="group_real_estate_object"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_contract_rent_adjustment_billing">
+            <field name="model">real_estate.contract.rent_adjustment</field>
+            <field name="group" ref="group_real_estate_billing"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_contract_rent_adjustment_default">
+            <field name="model">real_estate.contract.rent_adjustment</field>
+            <field name="perm_read" eval="False"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+    </data>
+</tryton>

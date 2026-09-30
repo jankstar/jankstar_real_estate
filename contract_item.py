@@ -158,24 +158,18 @@ class ContractItem(sequence_ordered(), ModelSQL, ModelView, metaclass=PoolMeta):
             'occupancy_date': Eval('valid_from'),
         },
         depends=['valid_from'])
-    terms = fields.One2Many('real_estate.contract.term', 'reference_item', 'Terms',
-        states={
-            # Adding a term here implicitly sets 'reference_item' to this
-            # (not-yet-saved) item, which then can't resolve related data
-            # (measurements, objects, ...) needed for term calculations -
-            # so require the item to be saved first (Ctrl+S); the list
-            # itself stays visible, just not editable, until then.
-            'readonly': Eval('id', 0) <= 0,
-        },
-        help="Terms referencing this item. Save the item first (Ctrl+S) "
-             "before adding terms here.")
+    # Read-only: terms are created and deleted on the contract only (the
+    # item form shows 'current_terms')
+    terms = fields.One2Many('real_estate.contract.term', 'reference_item',
+        'Terms', readonly=True,
+        help="Terms referencing this item - maintained on the contract.")
     current_terms = fields.Function(fields.One2Many(
             'real_estate.contract.term', None, "Current Terms",
             readonly=True,
             help="Terms of this item valid on the contract's key date (see "
                  "'Current Terms' on the contract). Terms are added and "
                  "removed on the contract."),
-        'get_current_terms')
+        'get_current_terms', setter='set_current_terms')
     valid_from = fields.Date('Valid from', required=True)
     valid_to = fields.Date('Valid to')
 
@@ -253,7 +247,7 @@ class ContractItem(sequence_ordered(), ModelSQL, ModelView, metaclass=PoolMeta):
             return self.contract.property
         return None
 
-    @fields.depends('contract')
+    @fields.depends('contract', '_parent_contract.c_type')
     def on_change_with_occupancy(self, name=None):
         if self.contract and self.contract.c_type:
             return self.contract.c_type.occupancy
@@ -411,6 +405,11 @@ class ContractItem(sequence_ordered(), ModelSQL, ModelView, metaclass=PoolMeta):
                     raise ContractItemOccupancyWarning(key, gettext(
                         'real_estate.msg_occupancy_overlap_warning').format(
                             obj.rec_name, date_from, date_to))
+
+    @classmethod
+    def set_current_terms(cls, records, name, value):
+        # Display only - terms are created/deleted on the contract
+        pass
 
     def get_current_terms(self, name=None):
         if not self.contract:
