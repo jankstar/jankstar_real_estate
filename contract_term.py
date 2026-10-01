@@ -428,10 +428,30 @@ class ContractTermCashFlowContext(ModelView):
         ])
     from_date = fields.Date('From Date')
     to_date = fields.Date('To Date')
+    create_moves_run_id = fields.Selection(
+        'get_run_ids', "Create Moves Run ID", sort=False,
+        help="Only cash flow entries of this periodic posting run - the "
+             "date range above is ignored then. Newest runs first.")
 
     @classmethod
     def default_company(cls):
         return Transaction().context.get('company')
+
+    @fields.depends('company', 'property', 'contract')
+    def get_run_ids(self):
+        pool = Pool()
+        CashFlow = pool.get('real_estate.contract.term.cash_flow')
+        domain = [('create_moves_run_id', '!=', None)]
+        if self.company:
+            domain.append(('company', '=', self.company.id))
+        if self.property:
+            domain.append(('property', '=', self.property.id))
+        if self.contract:
+            domain.append(('contract', '=', self.contract.id))
+        run_ids = {r['create_moves_run_id'] for r in CashFlow.search_read(
+                domain, fields_names=['create_moves_run_id'])}
+        return [(None, '')] + [
+            (run_id, run_id) for run_id in sorted(run_ids, reverse=True)]
 
     @classmethod
     def default_from_date(cls):

@@ -1282,7 +1282,7 @@
             <field name="res_model">real_estate.contract.term.cash_flow</field>
             <field name="context_model">real_estate.contract.term.cash_flow.context</field>
             <field name="context_domain"
-                eval="[('company', '=', Eval('company', -1)), If(Eval('property', None), [('property', '=', Eval('property', None))], []), If(Eval('contract', None), [('contract', '=', Eval('contract', None))], []), If(Eval('from_date', None), [('document_date', '>=', Eval('from_date', None))], []), If(Eval('to_date', None), [('document_date', '&lt;=', Eval('to_date', None))], [])]"
+                eval="[('company', '=', Eval('company', -1)), If(Eval('property', None), [('property', '=', Eval('property', None))], []), If(Eval('contract', None), [('contract', '=', Eval('contract', None))], []), If(Eval('create_moves_run_id', None), [('create_moves_run_id', '=', Eval('create_moves_run_id', None))], []), If(Bool(Eval('from_date', None)) &amp; ~Bool(Eval('create_moves_run_id', None)), [('document_date', '>=', Eval('from_date', None))], []), If(Bool(Eval('to_date', None)) &amp; ~Bool(Eval('create_moves_run_id', None)), [('document_date', '&lt;=', Eval('to_date', None))], [])]"
                 pyson="1"/>
         </record>
 

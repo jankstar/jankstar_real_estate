@@ -8,4 +8,6 @@
     <newline/>
     <label name="from_date"/><field name="from_date"/>
     <label name="to_date"/><field name="to_date"/>
+    <newline/>
+    <label name="create_moves_run_id"/><field name="create_moves_run_id" colspan="2"/>
 </form>
