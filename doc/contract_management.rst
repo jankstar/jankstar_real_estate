@@ -35,6 +35,15 @@ Contract Management
       with an operating cost processing, rent procedures only without;
       one-time terms have no procedures.
 
+   ``separate_move`` / ``move_description``
+      *Separate Move*: terms of this type are posted in periodic postings
+      as an invoice of their own per contract and posting date instead of
+      together with the other terms of the contract (e.g. rent deposit).
+      ``move_description`` (translatable, only visible with
+      ``separate_move``) is the description of that invoice; empty = the
+      default description (contract type mark or name). The contract
+      reference is kept on every invoice.
+
 ``real_estate.contract``  (``contract_core.py``)
    Main contract record.
 
@@ -46,7 +55,16 @@ Contract Management
      ``real_estate.contract.party`` above), ``base_object`` (property),
      and one or more ``ContractItem`` records
    - Generates Tryton accounting moves (invoices) for all active terms
-     via ``CreateContractMoves`` wizard (``call_create_moves``)
+     via ``CreateContractMoves`` wizard (``call_create_moves``): one
+     invoice per posting date for the regular terms, one per term type
+     (and own payment term) for terms of a ``separate_move`` term type
+     (``_move_group_key``, ``_move_description``)
+   - ``get_move_payment_term(term=None)`` resolves the payment term of
+     these invoices and of the cash flow due dates: the term's own
+     ``payment_term`` (separate move only) → the contract's
+     ``payment_term`` → the party's customer/supplier payment term (by
+     invoice type) → the default customer payment term of
+     ``account.configuration`` (no default on the supplier side)
    - Cash flow tabs on the contract form: *Draft* (invoice state
      ``draft``/``validated``), *Pending* (``posted``), *Paid* (``paid``)
    - ``_refresh_occupancy_for_contracts`` updates occupancy records when
@@ -213,7 +231,9 @@ Contract Management
 
    Key fields: ``term_type``, ``reference_item``, ``valid_from``/``valid_to``,
    ``rhythm`` + ``rhythm_type`` + ``rhythm_start``, ``quantity``,
-   ``unit``, ``unit_price``, ``taxes``.
+   ``unit``, ``unit_price``, ``taxes``, ``payment_term`` (optional, only
+   visible for a term type with ``separate_move``, Function field
+   ``term_type_separate_move``).
 
    Graduated rent fields: ``rent_adjustment`` (the graduated rent the term
    belongs to), ``graduated_step`` (0 = base term, 1…n = steps),
@@ -240,7 +260,8 @@ Contract Management
       Calculates the next invoice date based on rhythm and last posting date.
 
    ``_on_change_with_next_due_date()``
-      Applies the contract's payment term to derive the due date.
+      Applies the payment term of ``Contract.get_move_payment_term()`` to
+      derive the due date.
 
 ``real_estate.contract.term.tax``  (``contract_term.py``)
    Many2Many relation table between ``ContractTerm`` and ``account.tax``.

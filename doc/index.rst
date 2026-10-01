@@ -18,7 +18,9 @@ Structure
 - **Contracts** — contract types, contract parties with roles and validity
   periods, items (rented objects) and terms (recurring charges such as rent
   and operating cost advances); terms generate a planned cash flow that is
-  booked as invoices via the *Create Contract Moves* wizard or a cron task.
+  booked as invoices via the *Create Contract Moves* wizard or a cron task
+  (one invoice per contract and posting date; term types flagged as
+  *Separate Move*, e.g. the rent deposit, get an invoice of their own).
   Rent adjustments per term (graduated rent generated in advance; index,
   comparative rent, modernisation and operating cost procedures as
   headers).

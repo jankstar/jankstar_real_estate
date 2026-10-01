@@ -8,7 +8,9 @@ Wizards
    ``create``
       Generate invoices up to a given date. All ``ContractTermCashFlow``
       entries created in this run share the same ``create_moves_run_id``
-      (``YYYYMMDD-HHMMSS-U<userid>``).
+      (``YYYYMMDD-HHMMSS-U<userid>``). One invoice per contract and
+      posting date; terms of a term type with ``separate_move`` get an
+      invoice of their own per term type (see *Contract Management*).
 
    ``re_calc``
       Rebuild cash flow projections without creating invoices.

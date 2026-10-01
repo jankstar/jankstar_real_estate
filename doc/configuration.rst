@@ -19,7 +19,9 @@ The following master data must be set up before the module can be used:
 
 ``real_estate.contract.term.type``
    Term type definitions with default rhythm (monthly / quarterly / …),
-   default quantity source (measurement type), and default account.
+   default quantity source (measurement type), default account, and
+   whether terms of this type are posted as a separate move (own invoice,
+   optional own move description).
 
 ``real_estate.use_class``
    Dynamic use-class catalogue replacing the former static selection field.
