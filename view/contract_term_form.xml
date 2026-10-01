@@ -69,6 +69,9 @@
     <page string="Accounting" id="accounting">
         <label name="account"/><field name="account"/>
         <label name="taxes_date"/><field name="taxes_date"/>
+        <newline/>
+        <label name="term_type_separate_move"/><field name="term_type_separate_move"/>
+        <label name="payment_term"/><field name="payment_term"/>
         <newline/>   
         <label name="taxes"/><field name="taxes"/>
         <group colspan="1" id="taxaccounts">

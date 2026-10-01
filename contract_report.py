@@ -44,7 +44,34 @@ class ContractReport(Report):
         # block), so it must be injected here instead, the same way core
         # itself injects 'datetime' in Report.get_context().
         context['Decimal'] = Decimal
+        context['term_groups'] = {
+            record.id: cls.get_term_groups(record) for record in records}
         return context
+
+    @classmethod
+    def get_term_groups(cls, contract):
+        """Terms of the contract for § 4 of the contract letter:
+        'initial' = recurring terms starting at the contract start (with
+        their sum 'initial_total'), 'one_time' = one-time terms (e.g.
+        deposit), 'later' = recurring terms starting after the contract
+        start (e.g. graduated rent steps) - each ordered by start and
+        sequence."""
+        start = contract.start_date
+        terms = sorted(contract.terms,
+            key=lambda t: (t.valid_from or datetime.date.min,
+                t.sequence or 0))
+        one_time = [t for t in terms if t.rhythm_type == 'one_time']
+        recurring = [t for t in terms if t.rhythm_type != 'one_time']
+        initial = [t for t in recurring
+            if not start or not t.valid_from or t.valid_from <= start]
+        later = [t for t in recurring if t not in initial]
+        return {
+            'initial': initial,
+            'initial_total': sum((t.total_amount for t in initial
+                    if t.total_amount is not None), Decimal(0)),
+            'one_time': one_time,
+            'later': later,
+            }
 
 
 #**********************************************************************

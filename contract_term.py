@@ -554,6 +554,10 @@ class ContractTerm(sequence_ordered(), ModelSQL, ModelView, TaxableMixin):
         fields.Many2One('real_estate.measurement.type', "Term Measurement Type"),
         'on_change_with_term_type_m_type')
 
+    term_type_separate_move = fields.Function(
+        fields.Boolean("Separate Move"),
+        'on_change_with_term_type_separate_move')
+
     term_measurements = fields.Function(
         fields.One2Many('real_estate.measurement', None, "Measurements"),
         'get_term_measurements', setter='set_term_measurements')
@@ -583,6 +587,15 @@ class ContractTerm(sequence_ordered(), ModelSQL, ModelView, TaxableMixin):
             'invisible': (Eval('term_type', None) == None),
             'readonly': True,
             },)
+
+    payment_term = fields.Many2One(
+        'account.invoice.payment_term', "Payment Term", ondelete='RESTRICT',
+        states={
+            'invisible': ~Eval('term_type_separate_move', False),
+            },
+        help="Optional - payment term of the separate move of this term. "
+             "Empty = payment term of the contract, else of the party, "
+             "else the default of the accounting configuration.")
 
     quantity = Quantitative(
         "Quantity", unit='unit', digits='unit',
@@ -1486,22 +1499,28 @@ class ContractTerm(sequence_ordered(), ModelSQL, ModelView, TaxableMixin):
             return Decimal(0)
 
     @fields.depends('next_document_date', 'contract', 'rhythm', 'rhythm_type',
-                    'unit_price',
-                    '_parent_contract.payment_term', '_parent_contract.currency')
+                    'unit_price', 'term_type', 'payment_term',
+                    '_parent_contract.payment_term', '_parent_contract.currency',
+                    '_parent_contract.contractual_partner',
+                    '_parent_contract.c_type')
     def _on_change_with_next_due_date(self, calc_document_date=None):
-        if self.contract and self.contract.payment_term \
-            and calc_document_date and self.unit_price:
-            payment_term = Pool().get('account.invoice.payment_term')
-            term = payment_term(self.contract.payment_term)
-            term_lines = term.compute(
+        # Same payment term as the invoice of the periodic posting: term
+        # (separate move) -> contract -> party -> accounting default (see
+        # Contract.get_move_payment_term)
+        payment_term = (self.contract.get_move_payment_term(self)
+            if self.contract else None)
+        if payment_term and calc_document_date and self.unit_price:
+            term_lines = payment_term.compute(
                 self.unit_price, self.contract.currency, calc_document_date)
             return term_lines[-1][0] if term_lines else calc_document_date
         else:
             return calc_document_date
 
     @fields.depends('next_document_date', 'contract', 'rhythm', 'rhythm_type',
-                    'unit_price',
+                    'unit_price', 'term_type', 'payment_term',
                     '_parent_contract.payment_term', '_parent_contract.currency',
+                    '_parent_contract.contractual_partner',
+                    '_parent_contract.c_type',
                     methods=['_on_change_with_next_due_date'])
     def on_change_with_next_due_date(self, name=None):
         return self._on_change_with_next_due_date(calc_document_date=self.next_document_date)
@@ -1848,6 +1867,10 @@ class ContractTerm(sequence_ordered(), ModelSQL, ModelView, TaxableMixin):
         if self.contract:
             return self.contract.c_type
         return None
+
+    @fields.depends('term_type')
+    def on_change_with_term_type_separate_move(self, name=None):
+        return bool(self.term_type and self.term_type.separate_move)
 
     @fields.depends('term_type')
     def on_change_with_term_type_m_type(self, name=None):

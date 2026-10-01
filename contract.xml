@@ -1561,6 +1561,8 @@
             <field name="rhythm">1</field>
             <field name="rhythm_type">one_time</field>
             <field name="oc_processing" >none</field>
+            <field name="separate_move" eval="True"/>
+            <field name="move_description">Rental deposit</field>
         </record>
 
         <record model="real_estate.contract.term.type" id="contract_term_type_operating_costs">

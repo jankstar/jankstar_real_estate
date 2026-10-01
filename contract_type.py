@@ -249,6 +249,15 @@ class ContractTermType(DeactivableMixin, base_object.re_sequence_ordered(), Mode
             "a vacancy allocation, borne by the owner."
         ))
 
+    separate_move = fields.Boolean("Separate Move",
+        help="Post terms of this type in periodic postings as a separate "
+             "move (own invoice per contract and posting date) instead of "
+             "together with the other terms of the contract.")
+    move_description = fields.Char("Move Description", translate=True,
+        states={'invisible': ~Eval('separate_move', False)},
+        help="Description of the separate move - empty = default "
+             "description of the contract type.")
+
     rhythm = fields.Integer("Rhythm (count)",)
 
     adjustment_procedures = fields.MultiSelection(
@@ -299,6 +308,10 @@ class ContractTermType(DeactivableMixin, base_object.re_sequence_ordered(), Mode
     @classmethod
     def default_adjustment_procedures(cls):
         return []
+
+    @classmethod
+    def default_separate_move(cls):
+        return False
 
     @classmethod
     def validate_fields(cls, term_types, field_names):

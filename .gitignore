@@ -55,7 +55,6 @@ htmlcov/
 .hypothesis/
 TEST-*.xml
 coverage.xml
-Kontenplan.md
 alt/
 tests/DT*.DAT
 tests/*.pdf
@@ -64,6 +63,7 @@ tests/*.pdf
 .claude/
 CLAUDE.md
 *.skill
+Kontenplan.md
 rechercheergebnis-bved-schnittstelle.md
 spezifikation-tryton-bved-modul.md
 claude_BVED.md

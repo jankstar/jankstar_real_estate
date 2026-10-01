@@ -2044,6 +2044,58 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
             ('contractual_partner.name',) + tuple(clause[1:]),
         ]
 
+    @staticmethod
+    def _move_term_type(term):
+        "Term type of the term if it is posted as a separate move, else None"
+        term_type = term.term_type
+        if term_type and term_type.separate_move:
+            return term_type
+        return None
+
+    @classmethod
+    def _move_group_key(cls, term, posting_date):
+        """Invoice grouping key of a term's cash flow in periodic postings:
+        regular terms share one invoice per posting date, terms of a
+        'separate_move' term type get one invoice per term type (and per
+        own payment term of the term)."""
+        term_type = cls._move_term_type(term)
+        if not term_type:
+            return (posting_date, 0, 0)
+        return (posting_date, term_type.id,
+            term.payment_term.id if term.payment_term else 0)
+
+    def _move_description(self, term_type, posting_date):
+        """Invoice description: the term type's move description for a
+        separate move (if set), else the contract type's default."""
+        description = None
+        if term_type:
+            description = term_type.move_description
+        if not description:
+            description = self.c_type.mark or self.c_type.name
+        return f'{description} - {posting_date.strftime("%Y-%m-%d")}'
+
+    def get_move_payment_term(self, term=None):
+        """Payment term of a periodic posting invoice: the term's own
+        payment term (separate move only), else the contract's, else the
+        party's (customer/supplier by invoice type), else the default
+        customer payment term of the accounting configuration."""
+        if (term and term.payment_term
+                and self._move_term_type(term)):
+            return term.payment_term
+        if self.payment_term:
+            return self.payment_term
+        party = self.contractual_partner
+        invoice_type = self.c_type.invoice_type if self.c_type else None
+        if party:
+            if invoice_type == 'out' and party.customer_payment_term:
+                return party.customer_payment_term
+            if invoice_type == 'in' and party.supplier_payment_term:
+                return party.supplier_payment_term
+        if invoice_type == 'out':
+            Configuration = Pool().get('account.configuration')
+            return Configuration(1).default_customer_payment_term
+        return None
+
     def _create_moves(self, terms, date, invoice_state='draft', invoice_date=None, run_id=None):
         self.add_log('process', f'start quere contract {self.id} at {date}')
         if not terms:
@@ -2063,8 +2115,13 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
         Configuration = pool.get('account.configuration')
         config = Configuration(1)
 
+        # One invoice per posting date - terms whose term type is flagged
+        # 'separate_move' get an own invoice per term type and posting date
+        # (key: (posting_date, term type id or 0, payment term id or 0),
+        # see _move_group_key)
         lines_by_date = defaultdict(
-            lambda: {'lines': [], 'document_date': None, 'due_date': None})
+            lambda: {'lines': [], 'document_date': None, 'due_date': None,
+                'term_type': None, 'payment_term': None})
 
         for term_id in terms:
             term = next(
@@ -2149,7 +2206,11 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
                             cash_flow.state = 'done'
                             cash_flow.posting_date = cash_flow.document_date
                             cash_flow.create_moves_run_id = create_moves_run_id
-                            group = lines_by_date[cash_flow.posting_date]
+                            group = lines_by_date[self._move_group_key(
+                                term, cash_flow.posting_date)]
+                            group['term_type'] = self._move_term_type(term)
+                            group['payment_term'] = (
+                                self.get_move_payment_term(term))
                             group['lines'].extend(per_obj_lines)
                             if group['document_date'] is None:
                                 group['document_date'] = cash_flow.document_date
@@ -2197,7 +2258,11 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
                         cash_flow.state = 'done'
                         cash_flow.posting_date = cash_flow.document_date
                         cash_flow.create_moves_run_id = create_moves_run_id
-                        group = lines_by_date[cash_flow.posting_date]
+                        group = lines_by_date[self._move_group_key(
+                            term, cash_flow.posting_date)]
+                        group['term_type'] = self._move_term_type(term)
+                        group['payment_term'] = (
+                            self.get_move_payment_term(term))
                         group['lines'].append(new_invoice_line)
                         if group['document_date'] is None:
                             group['document_date'] = cash_flow.document_date
@@ -2231,13 +2296,12 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
                 if self.contractual_partner.account_payable
                 else config.default_account_payable.id)
 
-        for posting_date, group in sorted(lines_by_date.items()):
+        for (posting_date, _, _), group in sorted(lines_by_date.items()):
             invoice_lines = sorted(group['lines'], key=lambda l: l.description)
             document_date = group['document_date']
             due_date = group['due_date']
             inv_date = invoice_date or document_date
-
-            l_description = self.c_type.mark if self.c_type.mark else self.c_type.name
+            payment_term = group['payment_term']
 
             invoice = Invoice(
                 company=self.company.id,
@@ -2250,8 +2314,9 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
                 currency=self.currency.id,
                 journal=self.c_type.account_journal.id,
                 account=l_account,
-                payment_term=self.payment_term.id if self.payment_term else None,
-                description=f'{l_description} - {posting_date.strftime("%Y-%m-%d")}',
+                payment_term=payment_term.id if payment_term else None,
+                description=self._move_description(
+                    group['term_type'], posting_date),
                 reference=self.contract_number,
                 lines=invoice_lines,
                 contract=self,

@@ -34,6 +34,12 @@
     <newline/>
     <label name="oc_processing"/><field name="oc_processing" />
     <newline/>
+    <group string="Periodic Posting" id="separate_move" colspan="6" col="4">
+        <label name="separate_move"/><field name="separate_move"/>
+        <newline/>
+        <label name="move_description"/><field name="move_description"/>
+    </group>
+    <newline/>
     <group string="Rent Adjustment" id="adjustment" colspan="6" col="4">
         <label name="adjustment_procedures"/>
         <field name="adjustment_procedures" widget="multiselection" yexpand="0"/>
