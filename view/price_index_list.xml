@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<tree>
+    <field name="code"/>
+    <field name="name" expand="1"/>
+    <field name="source"/>
+    <field name="base_year"/>
+    <field name="residential_allowed"/>
+    <field name="last_value_month"/>
+    <field name="last_import_date" widget="date" optional="1"/>
+</tree>

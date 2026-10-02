@@ -228,3 +228,60 @@ class ContractTerminationConfirmationReport(Report):
                 record.termination_notice, '')
             for record in records}
         return context
+
+
+#**********************************************************************
+class IndexAdjustmentLetterReport(Report):
+    """Declaration of an index rent adjustment to the tenants (§ 557b
+    para. 3 BGB, spezifikation-indexmiete.md 6.1) - one letter per
+    adjustment, addressed jointly to all main tenants of the contract.
+    'Declare' archives the original (data 'original'); later prints are
+    marked as duplicate, prints before the declaration as draft."""
+    __name__ = 'real_estate.contract.index_adjustment.letter'
+
+    @classmethod
+    def format_value(cls, value):
+        return ContractReport.format_value(value)
+
+    @classmethod
+    def format_percent(cls, value):
+        if value is None:
+            return ''
+        return cls.format_number(value, None, digits=2)
+
+    @classmethod
+    def format_index(cls, value):
+        # Index values are published with one decimal
+        if value is None:
+            return ''
+        return cls.format_number(value, None, digits=1)
+
+    @classmethod
+    def get_context(cls, records, header, data):
+        pool = Pool()
+        Party = pool.get('party.party')
+        context = super().get_context(records, header, data)
+        context['format_value'] = cls.format_value
+        context['format_percent'] = cls.format_percent
+        context['format_index'] = cls.format_index
+        original = bool(data and data.get('original'))
+        marks, tenants = {}, {}
+        for record in records:
+            if original:
+                marks[record.id] = ''
+            elif record.state in ('declared', 'done'):
+                marks[record.id] = 'Zweitschrift'
+            else:
+                marks[record.id] = 'ENTWURF'
+            contract = record.contract
+            party_ids = (contract.main_tenant_party_ids or []
+                if contract else [])
+            parties = Party.browse(party_ids) if party_ids else (
+                [contract.contractual_partner]
+                if contract and contract.contractual_partner else [])
+            tenants[record.id] = [
+                (party, party.address_get(type='invoice'))
+                for party in parties]
+        context['marks'] = marks
+        context['tenants'] = tenants
+        return context

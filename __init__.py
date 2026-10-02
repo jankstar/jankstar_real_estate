@@ -28,6 +28,8 @@ from . import option_rate
 from . import option_rate_wizard
 from . import co2_kostaufg
 from . import bved
+from . import price_index
+from . import contract_index_rent
 
 __all__ = ['register']
 
@@ -116,6 +118,17 @@ def register():
         settlement_result.SettlementResultContext,
         settlement_result.CostShare,
         settlement_result.SettlementResult,
+        price_index.PriceIndex,
+        price_index.PriceIndexValue,
+        price_index.PriceIndexValueContext,
+        price_index.PriceIndexImportStart,
+        price_index.PriceIndexImportPreview,
+        price_index.PriceIndexImportResult,
+        price_index.IndexCapRule,
+        contract_index_rent.ContractRentAdjustment,
+        contract_index_rent.ContractTermAdjustment,
+        contract_index_rent.ContractTermAdjustmentRun,
+        price_index.Contract,
         option_rate.OptionRateContext,
         option_rate.OptionRate,
         option_rate_wizard.OptionRateUpdateStart,
@@ -147,12 +160,14 @@ def register():
         billing_unit_wizard.ReconcileAdvancePaymentsWizard,
         contract_wizard.ContractTermAdjustmentWizard,
         option_rate_wizard.OptionRateUpdateWizard,
+        price_index.PriceIndexImport,
         module='real_estate', type_='wizard')
     Pool.register(
         base_object.BaseObjectReport,
         contract_report.ContractReport,
         contract_report.ContractAnnex4Report,
         contract_report.ContractTerminationConfirmationReport,
+        contract_report.IndexAdjustmentLetterReport,
         invoice.ContractMoveLinePayableReceivableReport,
         contract_core.ContractGeneralLedgerAccountContractReport,
         module='real_estate', type_='report')

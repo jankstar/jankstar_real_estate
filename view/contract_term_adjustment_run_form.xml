@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<form col="4">
+    <label name="run_id"/><field name="run_id"/>
+    <label name="run_date"/><field name="run_date"/>
+    <label name="procedure"/><field name="procedure"/>
+    <label name="company"/><field name="company"/>
+    <label name="price_index"/><field name="price_index"/>
+    <label name="index_month"/><field name="index_month"/>
+    <label name="declaration_date"/><field name="declaration_date"/>
+    <newline/>
+    <label name="include_decreases"/><field name="include_decreases"/>
+    <label name="auto_approve"/><field name="auto_approve"/>
+    <notebook colspan="4">
+        <page name="protocol">
+            <field name="summary" colspan="4" height="60"/>
+            <field name="protocol" colspan="4"/>
+        </page>
+        <page name="adjustments">
+            <field name="adjustments" colspan="4"/>
+        </page>
+    </notebook>
+</form>

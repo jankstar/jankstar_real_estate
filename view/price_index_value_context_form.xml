@@ -1,0 +1,5 @@
+<?xml version="1.0"?>
+<form>
+    <label name="price_index"/><field name="price_index"/>
+    <label name="base_year"/><field name="base_year"/>
+</form>

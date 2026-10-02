@@ -1,6 +1,7 @@
 'Rent Adjustment (Mietanpassung)'
 import datetime
 import hashlib
+import operator
 from decimal import Decimal, ROUND_HALF_UP
 
 from dateutil.relativedelta import relativedelta
@@ -26,6 +27,10 @@ class RentAdjustmentGenerateWarning(UserWarning):
     pass
 
 
+class RentAdjustmentIndexWarning(UserWarning):
+    pass
+
+
 #**********************************************************************
 class ContractRentAdjustment(Workflow, ModelSQL, ModelView):
     'Rent Adjustment'
@@ -39,6 +44,16 @@ class ContractRentAdjustment(Workflow, ModelSQL, ModelView):
     _states_graduated = {
         'invisible': ~_graduated,
         'required': _graduated,
+        }
+    _index = Eval('procedure') == 'index_rent'
+    _states_index = {
+        'invisible': ~_index,
+        'required': _index,
+        'readonly': Eval('state') != 'draft',
+        }
+    _states_index_optional = {
+        'invisible': ~_index,
+        'readonly': Eval('state') != 'draft',
         }
 
     contract = fields.Many2One('real_estate.contract', "Contract",
@@ -159,6 +174,110 @@ class ContractRentAdjustment(Workflow, ModelSQL, ModelView):
         help="Tenant's waiver of termination until - at most 4 years after "
              "the agreement (§ 557a para. 3 BGB).")
 
+    # Index rent (§ 557b BGB, spezifikation-indexmiete.md 4.1)
+    type_of_use = fields.Function(fields.Char("Type of Use"),
+        'on_change_with_type_of_use')
+    price_index = fields.Many2One('real_estate.price_index', "Price Index",
+        ondelete='RESTRICT',
+        domain=[If(Eval('type_of_use') == 'residential',
+                ('residential_allowed', '=', True), ())],
+        states=_states_index,
+        help="Index series of the agreement - for residential contracts "
+             "only the consumer price index for Germany (§ 557b para. 1 "
+             "BGB).")
+    index_base_month = fields.Date("Base Month", states=_states_index,
+        help="Month of the base index according to the contract (first "
+             "day of the month).")
+    index_base_value_contract = fields.Numeric("Base Value (Contract)",
+        digits=(16, 1), states=_states_index_optional,
+        help="Base index as stated in the contract (possibly in an older "
+             "base year) - documentation only.")
+    index_base_year_contract = fields.Integer("Base Year (Contract)",
+        states=_states_index_optional,
+        help="Base year of the value stated in the contract.")
+    index_base_value = fields.Function(fields.Numeric("Base Value",
+            digits=(16, 1),
+            states={'invisible': ~_index},
+            help="Value of the base month in the current base year of "
+                 "the series - basis of the first adjustment."),
+        'get_index_info')
+    threshold_type = fields.Selection([
+            ('none', "None"),
+            ('percent', "Percent"),
+            ('points', "Index Points"),
+            ], "Threshold", sort=False,
+        states={
+            'invisible': ~_index,
+            'required': _index,
+            'readonly': ~Eval('state').in_(['draft', 'active']),
+            },
+        help="Minimum change agreed in the contract before the rent is "
+             "adjusted.")
+    threshold_value = fields.Numeric("Threshold Value", digits=(16, 2),
+        states={
+            'invisible': ~_index | (Eval('threshold_type') == 'none'),
+            'required': _index & (Eval('threshold_type') != 'none'),
+            'readonly': ~Eval('state').in_(['draft', 'active']),
+            })
+    effective_rule = fields.Selection([
+            ('statutory', "Statutory (§ 557b para. 3 BGB)"),
+            ('contract_month', "Contract Month"),
+            ], "Effective Date Rule", sort=False, states=_states_index,
+        help="Statutory: from the start of the month after next following "
+             "the receipt of the declaration (mandatory for residential "
+             "contracts). Contract Month: commercial only - from the given "
+             "number of months after the index month.")
+    effective_offset_months = fields.Integer("Offset (Months)",
+        domain=[If(Eval('effective_rule') == 'contract_month',
+                ('effective_offset_months', '>=', 0), ())],
+        states={
+            'invisible': ~_index | (Eval('effective_rule') != 'contract_month'),
+            'required': _index & (Eval('effective_rule') == 'contract_month'),
+            'readonly': Eval('state') != 'draft',
+            })
+    apply_cap = fields.Selection([
+            ('auto', "Automatic"),
+            ('never', "Never"),
+            ], "Apply Cap", sort=False, states=_states_index,
+        help="Automatic: the index rent cap rule applies if an active rule "
+             "and a tight housing market apply. Never: e.g. commercial.")
+    current_term = fields.Function(fields.Many2One(
+            'real_estate.contract.term', "Current Term",
+            states={'invisible': ~_index},
+            help="Currently valid term of the chain (same term type and "
+                 "item from the agreed term on)."),
+        'get_index_info')
+    current_index_month = fields.Function(fields.Date("Current Index Month",
+            states={'invisible': ~_index},
+            help="Index month of the last executed adjustment, else the "
+                 "base month - reference of the next adjustment."),
+        'get_index_info')
+    current_index_value = fields.Function(fields.Numeric(
+            "Current Index Value", digits=(16, 1),
+            states={'invisible': ~_index}),
+        'get_index_info')
+    last_change_date = fields.Function(fields.Date("Last Change",
+            states={'invisible': ~_index},
+            help="Effective date of the last executed index adjustment, "
+                 "else the start of the agreement ('Valid from')."),
+        'get_index_info')
+    next_possible_date = fields.Function(fields.Date("Next Possible Date",
+            states={'invisible': ~_index},
+            help="Last change + 12 months (§ 557b para. 2 BGB)."),
+        'get_index_info')
+    declaration_deadline = fields.Function(fields.Date("Declaration until",
+            states={'invisible': ~_index},
+            help="Follow-up: latest date to send the declaration so that "
+                 "the adjustment takes effect on the next possible date "
+                 "(receipt in the month before last, minus the receipt "
+                 "days of the real estate accounting) - start the "
+                 "adjustment run before this date."),
+        'get_declaration_deadline', searcher='search_declaration_deadline')
+
+    adjustments = fields.One2Many('real_estate.contract.term.adjustment',
+        'rent_adjustment', "Adjustments", readonly=True,
+        states={'invisible': ~_index})
+
     terms = fields.One2Many('real_estate.contract.term', 'rent_adjustment',
         "Steps", readonly=True, order=[('graduated_step', 'ASC')])
     booked = fields.Function(fields.Boolean("Booked"), 'get_booked_info')
@@ -184,6 +303,8 @@ class ContractRentAdjustment(Workflow, ModelSQL, ModelView):
     state = fields.Selection([
             ('draft', "Draft"),
             ('generated', "Generated"),
+            ('active', "Active"),
+            ('closed', "Closed"),
             ], "State", readonly=True, required=True, sort=False)
     comment = fields.Text("Comment")
 
@@ -195,9 +316,25 @@ class ContractRentAdjustment(Workflow, ModelSQL, ModelView):
         cls._transitions |= {
             ('draft', 'generated'),
             ('generated', 'draft'),
+            ('draft', 'active'),
+            ('active', 'draft'),
+            ('active', 'closed'),
             }
         graduated = Eval('procedure') == 'graduated_rent'
+        index = Eval('procedure') == 'index_rent'
         cls._buttons.update({
+            'activate': {
+                'invisible': ~index | (Eval('state') != 'draft'),
+                'depends': ['procedure', 'state'],
+                },
+            'draft': {
+                'invisible': ~index | (Eval('state') != 'active'),
+                'depends': ['procedure', 'state'],
+                },
+            'close': {
+                'invisible': ~index | (Eval('state') != 'active'),
+                'depends': ['procedure', 'state'],
+                },
             'generate': {
                 'invisible': ~graduated | (Eval('state') != 'draft'),
                 'depends': ['procedure', 'state'],
@@ -225,6 +362,8 @@ class ContractRentAdjustment(Workflow, ModelSQL, ModelView):
                 {'invisible': ~cls._graduated}, ['procedure']),
             ('//page[@id="page_steps"]', 'states',
                 {'invisible': ~cls._graduated}, ['procedure']),
+            ('//page[@id="page_index"]', 'states',
+                {'invisible': ~cls._index}, ['procedure']),
             ]
 
     @staticmethod
@@ -247,6 +386,18 @@ class ContractRentAdjustment(Workflow, ModelSQL, ModelView):
     def default_percent_basis():
         return 'base'
 
+    @staticmethod
+    def default_threshold_type():
+        return 'none'
+
+    @staticmethod
+    def default_effective_rule():
+        return 'statutory'
+
+    @staticmethod
+    def default_apply_cap():
+        return 'auto'
+
     def get_rec_name(self, name):
         labels = dict(self.fields_get(['procedure'])['procedure']['selection'])
         parts = [labels.get(self.procedure, self.procedure or '')]
@@ -262,15 +413,27 @@ class ContractRentAdjustment(Workflow, ModelSQL, ModelView):
         if self.contract and not self.agreement_date:
             self.agreement_date = self.contract.date_of_signature
 
-    @fields.depends('term', 'procedure')
+    @fields.depends('term', 'procedure', 'valid_from')
     def on_change_term(self):
-        # A graduated rent starts with its base term
-        if self.term and self.procedure == 'graduated_rent':
+        # A graduated rent starts with its base term, an index rent by
+        # default with the agreed term
+        if self.term and (self.procedure == 'graduated_rent'
+                or (self.procedure == 'index_rent' and not self.valid_from)):
             self.valid_from = self.term.valid_from
 
-    @fields.depends('term', 'procedure')
+    @fields.depends('term', 'procedure', 'valid_from')
     def on_change_procedure(self):
         self.on_change_term()
+
+    @fields.depends('contract', '_parent_contract.type_of_use')
+    def on_change_with_type_of_use(self, name=None):
+        return self.contract.type_of_use if self.contract else None
+
+    @fields.depends('index_base_month')
+    def on_change_index_base_month(self):
+        # The base index is a month value: always the first of the month
+        if self.index_base_month:
+            self.index_base_month = self.index_base_month.replace(day=1)
 
     @fields.depends('term')
     def on_change_with_term_type(self, name=None):
@@ -536,6 +699,13 @@ class ContractRentAdjustment(Workflow, ModelSQL, ModelView):
         super().validate_fields(records, field_names)
         if field_names & {'procedure', 'term', 'contract'}:
             cls._check_procedure(records)
+        if 'index_base_month' in field_names:
+            for record in records:
+                if (record.index_base_month
+                        and record.index_base_month.day != 1):
+                    raise ValidationError(gettext(
+                        'real_estate.msg_index_rent_base_month_first_day',
+                        rent_adjustment=record.rec_name))
 
     @classmethod
     def _check_procedure(cls, records):
@@ -575,6 +745,7 @@ class ContractRentAdjustment(Workflow, ModelSQL, ModelView):
                 others = cls.search([
                         ('term', '=', term.id),
                         ('procedure', 'in', list(AGREED_PROCEDURES)),
+                        ('state', '!=', 'closed'),
                         ('id', '!=', record.id),
                         ], limit=1)
                 if others:
@@ -582,6 +753,20 @@ class ContractRentAdjustment(Workflow, ModelSQL, ModelView):
                         'real_estate.msg_rent_adjustment_agreed_exclusive',
                         term=term.rec_name.strip(),
                         other=others[0].rec_name))
+            # I10: no comparative rent (§ 558 BGB) for a residential term
+            # with an active index rent (§ 557b para. 2 sentence 3 BGB)
+            if (record.procedure == 'comparative_rent'
+                    and record.contract.type_of_use == 'residential'):
+                for index_rent in cls.search([
+                            ('contract', '=', record.contract.id),
+                            ('procedure', '=', 'index_rent'),
+                            ('state', '=', 'active'),
+                            ]):
+                    if term in index_rent._chain_terms():
+                        raise ValidationError(gettext(
+                            'real_estate.msg_index_rent_comparative',
+                            term=term.rec_name.strip(),
+                            index_rent=index_rent.rec_name))
 
     # ------------------------------------------------------------------
     # Graduated rent: generate / reset / regenerate (spec 5.3, 6.2, 6.3)
@@ -1062,6 +1247,197 @@ class ContractRentAdjustment(Workflow, ModelSQL, ModelView):
             cls.write([record], {
                     'generated_parameters': (record._parameters_text()
                         if record.state == 'generated' else None)})
+
+    # ------------------------------------------------------------------
+    # Index rent: agreement (spezifikation-indexmiete.md 4)
+
+    def _chain_terms(self):
+        """Terms of the chain of the agreed term: same contract, term type
+        and item, starting with the agreed term - ordered by start (also
+        covers splits by other procedures)."""
+        Term = Pool().get('real_estate.contract.term')
+        term = self.term
+        if not term:
+            return []
+        return Term.search([
+                ('contract', '=', term.contract.id),
+                ('term_type', '=', term.term_type.id),
+                ('reference_item', '=',
+                    term.reference_item.id if term.reference_item else None),
+                ('valid_from', '>=', term.valid_from),
+                ], order=[('valid_from', 'ASC'), ('id', 'ASC')])
+
+    @classmethod
+    def get_index_info(cls, records, names):
+        result = {name: {} for name in names}
+        for record in records:
+            index_rent = record.procedure == 'index_rent'
+            chain = record._chain_terms() if index_rent else []
+            base_value = None
+            if (index_rent and record.price_index
+                    and record.index_base_month):
+                value = record.price_index.get_value(record.index_base_month)
+                base_value = value.value if value else None
+            # Reference: the last executed adjustment (index month read
+            # again from the current series), else the base index; last
+            # change: its effective date, else the start of the agreement
+            month, value = (record.index_base_month if index_rent
+                else None), base_value
+            last_change = record.valid_from if index_rent else None
+            done = [a for a in (record.adjustments if index_rent else [])
+                if a.state == 'done' and a.index_month_new]
+            if done:
+                last = max(done, key=lambda a: (a.planned_valid_from
+                        or datetime.date.min, a.id))
+                month = last.index_month_new
+                current = (record.price_index.get_value(month)
+                    if record.price_index else None)
+                value = current.value if current else None
+                last_change = last.planned_valid_from or last_change
+            values = {
+                'index_base_value': base_value,
+                'current_term': chain[-1].id if chain else None,
+                'current_index_month': month,
+                'current_index_value': value,
+                'last_change_date': last_change,
+                'next_possible_date': (
+                    last_change + relativedelta(months=12)
+                    if last_change else None),
+                }
+            for name in names:
+                result[name][record.id] = values[name]
+        return result
+
+    def get_declaration_deadline(self, name):
+        return self._declaration_deadline()
+
+    @classmethod
+    def search_declaration_deadline(cls, name, clause):
+        # Computed in Python over the active index rents (follow-up list)
+        _, operator_, value = clause[:3]
+        compare = {
+            '=': operator.eq, '!=': operator.ne,
+            '<': operator.lt, '<=': operator.le,
+            '>': operator.gt, '>=': operator.ge,
+            }[operator_]
+        ids = []
+        for record in cls.search([
+                    ('procedure', '=', 'index_rent'),
+                    ('state', '=', 'active'),
+                    ]):
+            deadline = record._declaration_deadline()
+            if deadline is None:
+                if value is None and operator_ == '=':
+                    ids.append(record.id)
+                continue
+            if value is not None and compare(deadline, value):
+                ids.append(record.id)
+        return [('id', 'in', ids)]
+
+    @property
+    def _residential(self):
+        return bool(self.contract
+            and self.contract.type_of_use == 'residential')
+
+    def _index_warning(self, code, message):
+        Warning = Pool().get('res.user.warning')
+        key = Warning.format(f'index_rent_{code}', [self])
+        if Warning.check(key):
+            raise RentAdjustmentIndexWarning(key, message)
+
+    def _check_activate(self):
+        """Checks I01-I03, I10, I12 when activating an index rent
+        agreement (errors for residential, hints for commercial)."""
+        name = self.rec_name
+        # I01: written form and agreement date (§ 557b para. 1 BGB)
+        if not self.written_form or not self.agreement_date:
+            message = gettext('real_estate.msg_index_rent_written_form',
+                rent_adjustment=name)
+            if self._residential:
+                raise ValidationError(message)
+            self._index_warning('written_form', message)
+        # Residential: statutory effective date (§ 557b para. 3, 5 BGB)
+        if self._residential and self.effective_rule != 'statutory':
+            raise ValidationError(gettext(
+                'real_estate.msg_index_rent_effective_rule',
+                rent_adjustment=name))
+        # I02: only the VPI for residential contracts
+        if self._residential and not self.price_index.residential_allowed:
+            raise ValidationError(gettext(
+                'real_estate.msg_index_rent_residential_index',
+                rent_adjustment=name, index=self.price_index.rec_name))
+        # I03: value of the base month in the current series
+        if not self.price_index.get_value(self.index_base_month):
+            raise ValidationError(gettext(
+                'real_estate.msg_index_rent_base_value_missing',
+                rent_adjustment=name, index=self.price_index.rec_name,
+                month=self.index_base_month.strftime('%m.%Y'),
+                base_year=self.price_index.base_year))
+        # I10: no comparative rent, modernisation only confirmed
+        if self._residential:
+            chain = [t.id for t in self._chain_terms()]
+            others = self.search([
+                    ('term', 'in', chain),
+                    ('procedure', 'in', ['comparative_rent', 'modernisation']),
+                    ('state', '!=', 'closed'),
+                    ('id', '!=', self.id),
+                    ])
+            for other in others:
+                if other.procedure == 'comparative_rent':
+                    raise ValidationError(gettext(
+                        'real_estate.msg_index_rent_comparative',
+                        term=other.term.rec_name.strip(),
+                        index_rent=name))
+            if any(o.procedure == 'modernisation' for o in others):
+                self._index_warning('modernisation', gettext(
+                    'real_estate.msg_index_rent_modernisation',
+                    rent_adjustment=name))
+        # I12: commercial - Preisklauselgesetz (long-term contract)
+        else:
+            contract = self.contract
+            long_term = bool(not contract.unlimited and contract.end_date
+                and contract.start_date and contract.end_date
+                >= contract.start_date + relativedelta(years=10)
+                - datetime.timedelta(days=1))
+            if not long_term:
+                self._index_warning('price_clause', gettext(
+                    'real_estate.msg_index_rent_price_clause',
+                    rent_adjustment=name))
+
+    @classmethod
+    @ModelView.button
+    @Workflow.transition('active')
+    def activate(cls, records):
+        for record in records:
+            if record.procedure == 'index_rent':
+                record._check_activate()
+
+    @classmethod
+    @ModelView.button
+    @Workflow.transition('draft')
+    def draft(cls, records):
+        # Master data can only be corrected before the first approval
+        for record in records:
+            used = [a for a in record.adjustments
+                if a.state in ('approved', 'declared', 'done')]
+            if used:
+                raise ValidationError(gettext(
+                        'real_estate.msg_index_rent_draft_adjustments',
+                        rent_adjustment=record.rec_name,
+                        adjustment=used[0].rec_name))
+
+    @classmethod
+    @ModelView.button
+    @Workflow.transition('closed')
+    def close(cls, records):
+        for record in records:
+            open_ = [a for a in record.adjustments
+                if a.state in ('draft', 'approved', 'declared')]
+            if open_:
+                raise ValidationError(gettext(
+                        'real_estate.msg_index_rent_close_open',
+                        rent_adjustment=record.rec_name,
+                        adjustment=open_[0].rec_name))
 
     @classmethod
     def delete(cls, records):

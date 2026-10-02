@@ -33,6 +33,10 @@ this repository contains the full copyright notices and license terms. -->
 
             <label name="address"/><field name="address"/>
             <label name="number_of_objects"/><field name="number_of_objects" readonly="1"/>
+            <newline/>
+            <label name="tight_market"/><field name="tight_market"/>
+            <label name="tight_market_valid_from"/><field name="tight_market_valid_from"/>
+            <label name="tight_market_valid_to"/><field name="tight_market_valid_to"/>
 
             <separator name="comment" colspan="6"/>
             <field name="comment" colspan="6"/>

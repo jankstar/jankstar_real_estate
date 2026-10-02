@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<form col="4">
+    <label name="code"/><field name="code"/>
+    <label name="active"/><field name="active"/>
+    <label name="name"/><field name="name" colspan="3"/>
+    <label name="source"/><field name="source"/>
+    <label name="base_year"/><field name="base_year"/>
+    <label name="genesis_table"/><field name="genesis_table"/>
+    <label name="genesis_series"/><field name="genesis_series"/>
+    <label name="residential_allowed"/><field name="residential_allowed"/>
+    <label name="last_value_month"/><field name="last_value_month"/>
+    <notebook colspan="4">
+        <page name="values">
+            <field name="values" colspan="4"
+                view_ids="real_estate.price_index_value_view_list_inline"/>
+        </page>
+        <page string="Import" id="import">
+            <label name="last_import_date"/><field name="last_import_date"/>
+            <group id="genesis_buttons" colspan="2" col="-1">
+                <button name="fetch" icon="tryton-refresh"/>
+                <button name="fetch_full" icon="tryton-download"/>
+            </group>
+            <newline/>
+            <label name="last_import_message"/>
+            <field name="last_import_message" colspan="3"/>
+        </page>
+        <page name="comment">
+            <field name="comment" colspan="4"/>
+        </page>
+    </notebook>
+</form>

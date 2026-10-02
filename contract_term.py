@@ -1,6 +1,6 @@
 'Contract Term, Tax, Cash Flow'
 from trytond.model import (sequence_ordered,
-    ModelSQL, ModelView, fields, Unique)
+    ModelSQL, ModelView, Workflow, fields, Unique)
 from trytond.model.exceptions import ValidationError
 from trytond.exceptions import UserWarning
 from trytond.i18n import gettext
@@ -1999,11 +1999,12 @@ class ContractTerm(sequence_ordered(), ModelSQL, ModelView, TaxableMixin):
 
 
 #**********************************************************************
-class ContractTermAdjustment(ModelSQL, ModelView):
+class ContractTermAdjustment(Workflow, ModelSQL, ModelView):
     'Contract Term Adjustment'
     __name__ = 'real_estate.contract.term.adjustment'
 
     adjustment_mode = fields.Selection([
+        (None, ''),
         ('percentage', 'Percentage'),
         ('absolute', 'Absolute'),
         ], 'Adjustment Mode', sort=False)
@@ -2011,7 +2012,10 @@ class ContractTermAdjustment(ModelSQL, ModelView):
     state = fields.Selection([
         ('draft', 'Draft'),
         ('approved', 'Approved'),
-        ], 'State', required=True, sort=False)
+        ('declared', 'Declared'),
+        ('done', 'Done'),
+        ('cancelled', 'Cancelled'),
+        ], 'State', required=True, readonly=True, sort=False)
 
     term_old = fields.Many2One('real_estate.contract.term', 'Term Old',
         required=True, ondelete='RESTRICT')

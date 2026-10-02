@@ -41,6 +41,17 @@ Je Wirtschaftseinheit (16 Wohnungen, 4 Stellplätze):
     Die Staffelkonditionen werden per "Generieren" angelegt. Das Verfahren
     "Staffelmiete" wird dafür an der Vertragsart (residential) und der
     Konditionsart 1000 zugelassen, falls noch nicht vorhanden.
+  - Indexmieten (§ 557b BGB): bis zu 2 weitere laufende, nicht gekündigte
+    Wohnungsverträge je WE (ohne Staffelmiete) erhalten eine Mietanpassung
+    mit Verfahren "Indexmiete" auf ihre Miet-Kondition: Preisindex VPI-DE,
+    Ausgangsmonat 01/2025, Vereinbarung zum Vertragsbeginn, Schriftform,
+    keine Schwelle, gesetzliche Wirksamkeit, Kappung automatisch; die
+    Vereinbarung wird aktiviert. Die VPI-Monatswerte werden vorher aus
+    tests/61111-0002_de.csv (Tabellen-Download aus GENESIS-Online)
+    übernommen, soweit sie im Basisjahr der Reihe noch fehlen. Fehlen die
+    Datei oder die Reihe VPI-DE, werden keine Indexmieten angelegt. Der
+    Anpassungslauf selbst wird nicht ausgeführt (Menü Verträge ›
+    Anpassung › Anpassung, Verfahren Indexmiete).
 
   Stellplätze (4 je WE, zufällig auf Wohnungsmieter verteilt):
     2x als zusätzliches ContractItem im vorhandenen Wohnungsvertrag:
@@ -92,6 +103,7 @@ Verwendung:
 
 import argparse
 import datetime
+import os
 import random
 import sys
 from decimal import Decimal
@@ -342,6 +354,84 @@ def create_graduated_rent(contract, term, increase_mode, increase_value,
             rent_adjustment.terms, key=lambda t: t.graduated_step)]
     print(f'  Staffelmiete Vertrag id={contract.id}: {increase_mode} '
           f'{increase_value} → {" / ".join(amounts)} EUR')
+    return rent_adjustment
+
+
+# Index rents (Indexmiete, § 557b BGB) of the demo data: per property up to
+# two further running apartment contracts (without graduated rent)
+INDEX_RENTS_PER_PROPERTY = 2
+INDEX_BASE_MONTH = datetime.date(2025, 1, 1)
+VPI_CSV = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+    '61111-0002_de.csv')
+
+
+def ensure_vpi_values():
+    """Price index VPI-DE with its monthly values: missing values of the
+    current base year are taken over from the GENESIS-Online download
+    tests/61111-0002_de.csv (parsed like the CSV import wizard). Returns
+    the index or None if the series or the base month value is missing."""
+    from trytond.modules.real_estate.price_index import parse_index_csv
+
+    PriceIndex = Model.get('real_estate.price_index')
+    Value = Model.get('real_estate.price_index.value')
+    indices = PriceIndex.find([('code', '=', 'VPI-DE')])
+    if not indices:
+        print('  Preisindex VPI-DE nicht gefunden - keine Indexmieten.')
+        return None
+    vpi = indices[0]
+    existing = {v.month for v in Value.find([
+                ('index', '=', vpi.id), ('base_year', '=', vpi.base_year)])}
+    if os.path.exists(VPI_CSV):
+        raw = open(VPI_CSV, 'rb').read()
+        for encoding in ('utf-8-sig', 'cp1252'):
+            try:
+                content = raw.decode(encoding)
+                break
+            except UnicodeDecodeError:
+                continue
+        values, _, errors = parse_index_csv(content)
+        created = 0
+        if not errors:
+            for month, value in sorted(values.items()):
+                if month in existing:
+                    continue
+                record = Value(index=vpi, base_year=vpi.base_year,
+                    month=month, value=value, final=True)
+                record.save()
+                existing.add(month)
+                created += 1
+        print(f'  VPI-DE: {created} Monatswerte aus {os.path.basename(VPI_CSV)}'
+              f' übernommen ({len(existing)} vorhanden)')
+    if INDEX_BASE_MONTH not in existing:
+        print(f'  VPI-DE: kein Wert für {INDEX_BASE_MONTH:%m/%Y} - keine '
+              f'Indexmieten.')
+        return None
+    return vpi
+
+
+def create_index_rent(contract, term, price_index):
+    """Create and activate an index rent agreement (rent adjustment,
+    procedure 'index_rent') for the given rent term."""
+    RentAdjustment = Model.get('real_estate.contract.rent_adjustment')
+    rent_adjustment = RentAdjustment()
+    rent_adjustment.contract = contract
+    rent_adjustment.procedure = 'index_rent'
+    rent_adjustment.term = term
+    rent_adjustment.valid_from = term.valid_from
+    rent_adjustment.agreement_date = contract.start_date
+    rent_adjustment.written_form = True
+    rent_adjustment.price_index = price_index
+    rent_adjustment.index_base_month = INDEX_BASE_MONTH
+    rent_adjustment.threshold_type = 'none'
+    rent_adjustment.effective_rule = 'statutory'
+    rent_adjustment.apply_cap = 'auto'
+    rent_adjustment.save()
+    rent_adjustment.click('activate')
+    rent_adjustment.reload()
+    print(f'  Indexmiete Vertrag id={contract.id}: Basis '
+          f'{INDEX_BASE_MONTH:%m/%Y} = {rent_adjustment.index_base_value}, '
+          f'nächstmöglich {rent_adjustment.next_possible_date}, '
+          f'Erklärung bis {rent_adjustment.declaration_deadline}')
     return rent_adjustment
 
 
@@ -722,9 +812,14 @@ def main():
 
     tt_rent       = get_term_type(1000)  # Apartment rent
 
-    # Graduated rent needs the procedure on contract type and term type
+    # Graduated and index rent need the procedure on contract type and
+    # term type
     allow_procedure(c_type, 'graduated_rent')
     allow_procedure(tt_rent, 'graduated_rent')
+    allow_procedure(c_type, 'index_rent')
+    allow_procedure(tt_rent, 'index_rent')
+    print('\n--- VPI-Monatswerte für Indexmieten ---')
+    vpi = ensure_vpi_values()
     tt_nk         = get_term_type(2000)  # Betriebskosten
     tt_hz         = get_term_type(3000)  # Heizkosten
     tt_parking    = get_term_type(1100)  # Miete Stellplatz
@@ -929,16 +1024,31 @@ def main():
         # Graduated rents for up to three running (not terminated) apartment
         # contracts of this property
         candidates = [c for c in contracts_this_prop if c not in to_terminate]
-        print(f'\n--- Staffelmieten ({min(len(GRADUATED_RENTS), len(candidates))}x) ---')
-        for contract, (mode, value, basis) in zip(
-                random.sample(candidates, min(len(GRADUATED_RENTS),
-                        len(candidates))), GRADUATED_RENTS):
+        graduated = random.sample(candidates, min(len(GRADUATED_RENTS),
+                len(candidates)))
+        print(f'\n--- Staffelmieten ({len(graduated)}x) ---')
+        for contract, (mode, value, basis) in zip(graduated,
+                GRADUATED_RENTS):
             contract.reload()
             rent_terms = [t for t in contract.terms
                 if t.term_type.id == tt_rent.id]
             if rent_terms:
                 create_graduated_rent(contract, rent_terms[0], mode, value,
                     basis)
+
+        # Index rents for up to two further running apartment contracts
+        # (a term can only have one agreed procedure)
+        if vpi:
+            others = [c for c in candidates if c not in graduated]
+            indexed = random.sample(others,
+                min(INDEX_RENTS_PER_PROPERTY, len(others)))
+            print(f'\n--- Indexmieten ({len(indexed)}x) ---')
+            for contract in indexed:
+                contract.reload()
+                rent_terms = [t for t in contract.terms
+                    if t.term_type.id == tt_rent.id]
+                if rent_terms:
+                    create_index_rent(contract, rent_terms[0], vpi)
 
     # --- Gewerbemietverträge ---
     print(f'\n{"=" * 60}')

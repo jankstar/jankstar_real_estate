@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<form>
+    <label name="index"/><field name="index"/>
+    <label name="base_year"/><field name="base_year"/>
+    <label name="month"/><field name="month"/>
+    <label name="value"/><field name="value"/>
+    <label name="final"/><field name="final"/>
+    <label name="origin"/><field name="origin"/>
+    <label name="import_date"/><field name="import_date"/>
+</form>

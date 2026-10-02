@@ -8,6 +8,9 @@
     <field name="rhythm_months" optional="1"/>
     <field name="step_count" optional="1"/>
     <field name="final_amount" optional="0"/>
+    <field name="price_index" optional="1"/>
+    <field name="next_possible_date" optional="1"/>
+    <field name="declaration_deadline" optional="0"/>
     <field name="state"/>
     <field name="booked" optional="0"/>
 </tree>

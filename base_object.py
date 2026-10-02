@@ -401,6 +401,30 @@ class BaseObject(Workflow, DeactivableMixin, re_sequence_ordered(), tree(separat
                 | Bool(Eval('purchase_taxes_expense', False)),
             }
 
+    # Index rent cap (spezifikation-indexmiete.md 4.3) - property only
+    tight_market = fields.Boolean("Tight Housing Market",
+        states={'invisible': Eval('type') != 'property'},
+        help="The property lies in an area with a tight housing market "
+             "according to the state regulation (relevant for the index "
+             "rent cap rule).")
+    tight_market_valid_from = fields.Date("Tight Market from",
+        states={
+            'invisible': (Eval('type') != 'property')
+                | ~Eval('tight_market', False),
+            },
+        help="Start of validity of the regulation - empty = no limit.")
+    tight_market_valid_to = fields.Date("Tight Market to",
+        domain=[If(Bool(Eval('tight_market_valid_to'))
+                & Bool(Eval('tight_market_valid_from')),
+                ('tight_market_valid_to', '>=',
+                    Eval('tight_market_valid_from', None)),
+                ())],
+        states={
+            'invisible': (Eval('type') != 'property')
+                | ~Eval('tight_market', False),
+            },
+        help="End of validity of the regulation - empty = no limit.")
+
     option_rate_method = fields.Selection([
             ('fix_0', 'Fix: Option Rate 0.0 %'),
             ('fix_100', 'Fix: Option Rate 100.0 %'),
@@ -436,6 +460,17 @@ class BaseObject(Workflow, DeactivableMixin, re_sequence_ordered(), tree(separat
     purchase_taxes_expense = fields.Function(
         fields.Boolean("Purchase Taxes as Expense"),
         'on_change_with_purchase_taxes_expense')
+
+    def is_tight_market(self, date):
+        """True if the property lies in a tight housing market area on
+        'date' (validity of the state regulation)."""
+        if not self.tight_market or not date:
+            return False
+        if self.tight_market_valid_from and date < self.tight_market_valid_from:
+            return False
+        if self.tight_market_valid_to and date > self.tight_market_valid_to:
+            return False
+        return True
 
     @classmethod
     def view_attributes(cls):

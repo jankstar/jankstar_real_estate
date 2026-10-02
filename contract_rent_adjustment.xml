@@ -41,6 +41,22 @@
             <field name="string">End Graduated Rent</field>
         </record>
 
+        <record model="ir.model.button" id="contract_rent_adjustment_activate_button">
+            <field name="model">real_estate.contract.rent_adjustment</field>
+            <field name="name">activate</field>
+            <field name="string">Activate</field>
+        </record>
+        <record model="ir.model.button" id="contract_rent_adjustment_draft_button">
+            <field name="model">real_estate.contract.rent_adjustment</field>
+            <field name="name">draft</field>
+            <field name="string">Draft</field>
+        </record>
+        <record model="ir.model.button" id="contract_rent_adjustment_close_button">
+            <field name="model">real_estate.contract.rent_adjustment</field>
+            <field name="name">close</field>
+            <field name="string">Close Index Rent</field>
+        </record>
+
         <record model="ir.action.act_window" id="act_contract_rent_adjustment">
             <field name="name">Rent Adjustments</field>
             <field name="res_model">real_estate.contract.rent_adjustment</field>
@@ -61,6 +77,48 @@
             action="act_contract_rent_adjustment"
             sequence="94"
             id="menu_contract_rent_adjustment"/>
+
+        <!-- Follow-up of the active index rents: declaration deadline -->
+        <record model="ir.action.act_window" id="act_index_rent_follow_up">
+            <field name="name">Index Rents - Follow-up</field>
+            <field name="res_model">real_estate.contract.rent_adjustment</field>
+            <field name="domain" eval="[('procedure', '=', 'index_rent'), ('state', '=', 'active')]" pyson="1"/>
+        </record>
+        <record model="ir.action.act_window.view" id="act_index_rent_follow_up_view1">
+            <field name="sequence" eval="10"/>
+            <field name="view" ref="contract_rent_adjustment_view_tree"/>
+            <field name="act_window" ref="act_index_rent_follow_up"/>
+        </record>
+        <record model="ir.action.act_window.view" id="act_index_rent_follow_up_view2">
+            <field name="sequence" eval="20"/>
+            <field name="view" ref="contract_rent_adjustment_view_form"/>
+            <field name="act_window" ref="act_index_rent_follow_up"/>
+        </record>
+        <record model="ir.action.act_window.domain" id="act_index_rent_follow_up_domain_due">
+            <field name="name">Due</field>
+            <field name="sequence" eval="10"/>
+            <field name="domain" eval="[('declaration_deadline', '&lt;=', Date())]" pyson="1"/>
+            <field name="count" eval="True"/>
+            <field name="act_window" ref="act_index_rent_follow_up"/>
+        </record>
+        <record model="ir.action.act_window.domain" id="act_index_rent_follow_up_domain_3_months">
+            <field name="name">Next 3 Months</field>
+            <field name="sequence" eval="20"/>
+            <field name="domain" eval="[('declaration_deadline', '&lt;=', Date(delta_months=3))]" pyson="1"/>
+            <field name="count" eval="True"/>
+            <field name="act_window" ref="act_index_rent_follow_up"/>
+        </record>
+        <record model="ir.action.act_window.domain" id="act_index_rent_follow_up_domain_all">
+            <field name="name">All</field>
+            <field name="sequence" eval="90"/>
+            <field name="domain"></field>
+            <field name="act_window" ref="act_index_rent_follow_up"/>
+        </record>
+        <menuitem
+            parent="menu_contract_rent_adjustment"
+            action="act_index_rent_follow_up"
+            sequence="10"
+            id="menu_index_rent_follow_up"/>
 
         <record model="ir.model.access" id="access_contract_rent_adjustment_contract_group">
             <field name="model">real_estate.contract.rent_adjustment</field>

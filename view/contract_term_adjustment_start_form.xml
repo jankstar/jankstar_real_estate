@@ -4,6 +4,12 @@
     <label name="adjustment_mode"/><field name="adjustment_mode"/>
     <label name="company"/><field name="company"/>
     <label name="property"/><field name="property"/>
+    <label name="contracts"/><field name="contracts"/>
+    <label name="price_index"/><field name="price_index"/>
+    <label name="index_month"/><field name="index_month"/>
+    <label name="declaration_date"/><field name="declaration_date"/>
+    <label name="include_decreases"/><field name="include_decreases"/>
+    <label name="auto_approve"/><field name="auto_approve"/>
     <label name="billing_run_id"/><field name="billing_run_id"/>
     <group col="2" id="gr_condition" colspan="2" string="Condition">
         <label name="no_terminated_contracts"/><field name="no_terminated_contracts"/>

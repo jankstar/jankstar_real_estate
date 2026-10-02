@@ -2,4 +2,5 @@
 <form col="2">
     <label name="processed"/><field name="processed"/>
     <label name="message"/><field name="message" colspan="2"/>
+    <field name="run_id" invisible="1"/>
 </form>

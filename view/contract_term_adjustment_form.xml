@@ -3,6 +3,10 @@
     <label name="state"/><field name="state"/>
     <label name="adjustment_mode"/><field name="adjustment_mode"/>
     <newline/>
+    <label name="rent_adjustment"/><field name="rent_adjustment" colspan="3"/>
+    <label name="procedure"/><field name="procedure"/>
+    <label name="run_id"/><field name="run_id"/>
+    <newline/>
     <label name="company"/><field name="company" readonly="1"/>
     <label name="property"/><field name="property" readonly="1"/>
     <newline/>
@@ -32,5 +36,47 @@
     <newline/>
     <label name="total_amount_new"/><field name="total_amount_new" readonly="1"/>
     <newline/>
+    <notebook colspan="4">
+        <page string="Index" id="page_index" col="4">
+            <label name="index_base_year"/><field name="index_base_year"/>
+            <label name="direction"/><field name="direction"/>
+            <label name="index_month_old"/><field name="index_month_old"/>
+            <label name="index_value_old"/><field name="index_value_old"/>
+            <label name="index_month_new"/><field name="index_month_new"/>
+            <label name="index_value_new"/><field name="index_value_new"/>
+            <label name="index_change_percent"/><field name="index_change_percent"/>
+            <label name="applied_change_percent"/><field name="applied_change_percent"/>
+            <label name="cap_rule"/><field name="cap_rule" colspan="3"/>
+            <label name="planned_quantity"/><field name="planned_quantity"/>
+            <label name="planned_unit_price"/><field name="planned_unit_price"/>
+            <label name="planned_amount"/><field name="planned_amount"/>
+            <label name="difference_amount"/><field name="difference_amount"/>
+        </page>
+        <page string="Declaration" id="page_declaration" col="4">
+            <label name="declaration_date"/><field name="declaration_date"/>
+            <label name="dispatch_method"/><field name="dispatch_method"/>
+            <label name="receipt_date"/><field name="receipt_date"/>
+            <label name="planned_valid_from"/><field name="planned_valid_from"/>
+            <label name="letter"/><field name="letter" colspan="3"/>
+            <label name="executed_by"/><field name="executed_by"/>
+            <label name="executed_date"/><field name="executed_date"/>
+            <label id="receipt_hint" colspan="4"
+                string="The receipt of the declaration must be proven - a registered letter (Einwurf-Einschreiben) or a messenger is recommended. The new rent applies from the start of the month after next following the receipt."/>
+        </page>
+        <page string="Check" id="page_check" col="4">
+            <label name="check_state"/><field name="check_state"/>
+            <newline/>
+            <field name="check_message" colspan="4"/>
+        </page>
+    </notebook>
+    <group id="buttons" colspan="4" col="-1">
+        <button name="draft" icon="tryton-back"/>
+        <button name="cancel" icon="tryton-cancel"/>
+        <button name="recompute" icon="tryton-refresh"/>
+        <button name="approve" icon="tryton-ok"/>
+        <button name="declare" icon="tryton-print"/>
+        <button name="execute" icon="tryton-launch"/>
+        <field name="effective_rule" invisible="1"/>
+    </group>
     <field name="currency" invisible="1"/>
 </form>

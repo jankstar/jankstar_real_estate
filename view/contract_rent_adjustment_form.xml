@@ -34,6 +34,26 @@
             <separator string="Preview" id="sep_preview" colspan="6"/>
             <field name="preview" colspan="6" readonly="1"/>
         </page>
+        <page string="Index" id="page_index" col="4">
+            <label name="price_index"/><field name="price_index"/>
+            <label name="apply_cap"/><field name="apply_cap"/>
+            <label name="index_base_month"/><field name="index_base_month"/>
+            <label name="index_base_value"/><field name="index_base_value"/>
+            <label name="index_base_value_contract"/><field name="index_base_value_contract"/>
+            <label name="index_base_year_contract"/><field name="index_base_year_contract"/>
+            <label name="threshold_type"/><field name="threshold_type"/>
+            <label name="threshold_value"/><field name="threshold_value"/>
+            <label name="effective_rule"/><field name="effective_rule"/>
+            <label name="effective_offset_months"/><field name="effective_offset_months"/>
+            <separator string="Current State" id="sep_index_current" colspan="4"/>
+            <label name="current_term"/><field name="current_term" colspan="3"/>
+            <label name="current_index_month"/><field name="current_index_month"/>
+            <label name="current_index_value"/><field name="current_index_value"/>
+            <label name="last_change_date"/><field name="last_change_date"/>
+            <label name="next_possible_date"/><field name="next_possible_date"/>
+            <label name="declaration_deadline"/><field name="declaration_deadline"/>
+            <field name="adjustments" colspan="4"/>
+        </page>
         <page string="Steps" id="page_steps" col="6">
             <label name="booked"/><field name="booked"/>
             <label name="last_booked_date"/><field name="last_booked_date"/>
@@ -47,6 +67,9 @@
         </page>
     </notebook>
     <group id="buttons" colspan="6" col="-1">
+        <button name="draft" icon="tryton-back"/>
+        <button name="close" icon="tryton-cancel"/>
+        <button name="activate" icon="tryton-forward"/>
         <button name="reset" icon="tryton-back"/>
         <button name="terminate" icon="tryton-cancel"/>
         <button name="regenerate" icon="tryton-refresh"/>

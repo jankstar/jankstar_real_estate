@@ -499,5 +499,182 @@ Either run "Ready for Billing" for each billing unit first, or bill individual b
         <record model="ir.message" id="msg_billing_unit_bved_assignment_conflict">
             <field name="text">"%(name)s": the following objects are covered by this billing unit but lie outside the chosen BVED provider assignment's property/building: %(details)s. Either choose a different assignment, or split this billing unit so each part matches one assignment.</field>
         </record>
+        <record model="ir.message" id="msg_price_index_code_unique">
+            <field name="text">The code of a price index must be unique.</field>
+        </record>
+        <record model="ir.message" id="msg_price_index_value_unique">
+            <field name="text">There is already a value for this month and base year of the price index.</field>
+        </record>
+        <record model="ir.message" id="msg_price_index_value_first_day">
+            <field name="text">The month of the index value "%(value)s" must be the first day of a month.</field>
+        </record>
+        <record model="ir.message" id="msg_price_index_value_positive">
+            <field name="text">The index value "%(value)s" must be greater than zero.</field>
+        </record>
+        <record model="ir.message" id="msg_price_index_import_summary">
+            <field name="text">Base year %(base_year)s: %(created)s created, %(updated)s updated, %(unchanged)s unchanged.</field>
+        </record>
+        <record model="ir.message" id="msg_price_index_import_errors">
+            <field name="text">Conflicting values for the same month (fix the file before importing):</field>
+        </record>
+        <record model="ir.message" id="msg_price_index_import_changed">
+            <field name="text">Changed values (existing -&gt; file):</field>
+        </record>
+        <record model="ir.message" id="msg_price_index_import_range">
+            <field name="text">Months in the file: %(first)s to %(last)s</field>
+        </record>
+        <record model="ir.message" id="msg_price_index_import_ignored">
+            <field name="text">Ignored rows (no month/value):</field>
+        </record>
+        <record model="ir.message" id="msg_index_rent_written_form">
+            <field name="text">Index rent "%(rent_adjustment)s": the agreement must be made in writing (§ 557b para. 1 BGB) - confirm the written form and enter the agreement date.</field>
+        </record>
+        <record model="ir.message" id="msg_index_rent_effective_rule">
+            <field name="text">Index rent "%(rent_adjustment)s": residential contracts must use the statutory effective date (§ 557b para. 3 BGB).</field>
+        </record>
+        <record model="ir.message" id="msg_index_rent_residential_index">
+            <field name="text">Index rent "%(rent_adjustment)s": the index "%(index)s" is not allowed for residential contracts - only the consumer price index for Germany (§ 557b para. 1 BGB).</field>
+        </record>
+        <record model="ir.message" id="msg_index_rent_base_value_missing">
+            <field name="text">Index rent "%(rent_adjustment)s": the index "%(index)s" has no final value for the base month %(month)s in the current base year %(base_year)s.</field>
+        </record>
+        <record model="ir.message" id="msg_index_rent_comparative">
+            <field name="text">The term "%(term)s" has an active index rent "%(index_rent)s" - a rent increase up to the comparative rent (§ 558 BGB) is excluded (§ 557b para. 2 BGB).</field>
+        </record>
+        <record model="ir.message" id="msg_index_rent_modernisation">
+            <field name="text">Index rent "%(rent_adjustment)s": the term also has a modernisation adjustment. During an index rent an increase for modernisation is only allowed for measures the landlord is not responsible for (§ 557b para. 2 BGB).</field>
+        </record>
+        <record model="ir.message" id="msg_index_rent_price_clause">
+            <field name="text">Index rent "%(rent_adjustment)s": commercial index clauses are only allowed under the Preisklauselgesetz for long-term contracts (e.g. at least 10 years term or a corresponding waiver of termination by the landlord) - please check the clause.</field>
+        </record>
+        <record model="ir.message" id="msg_index_rent_base_month_first_day">
+            <field name="text">Index rent "%(rent_adjustment)s": the base month must be the first day of a month.</field>
+        </record>
+        <record model="ir.message" id="msg_index_adjustment_values">
+            <field name="text">Index values missing: the series "%(index)s" needs final values of the reference month %(month_old)s and of a later new month %(month_new)s in the current base year %(base_year)s.</field>
+        </record>
+        <record model="ir.message" id="msg_index_adjustment_threshold">
+            <field name="text">The agreed threshold is not reached (change %(change)s %%).</field>
+        </record>
+        <record model="ir.message" id="msg_index_adjustment_cap_value">
+            <field name="text">Cap rule: the index value of %(month)s is missing.</field>
+        </record>
+        <record model="ir.message" id="msg_index_adjustment_rounding">
+            <field name="text">Rounding: quantity x new unit price differs from the new amount %(amount)s - the new amount is decisive.</field>
+        </record>
+        <record model="ir.message" id="msg_index_adjustment_decrease">
+            <field name="text">The index has decreased - the tenant can claim a rent reduction.</field>
+        </record>
+        <record model="ir.message" id="msg_index_adjustment_lock_period">
+            <field name="text">The rent has to remain unchanged for at least 12 months (§ 557b para. 2 BGB): effective date %(valid_from)s is before %(next_date)s.</field>
+        </record>
+        <record model="ir.message" id="msg_index_adjustment_contract_state">
+            <field name="text">The contract "%(contract)s" is not running.</field>
+        </record>
+        <record model="ir.message" id="msg_index_adjustment_contract_end">
+            <field name="text">The effective date %(valid_from)s is after the end of the contract %(end)s.</field>
+        </record>
+        <record model="ir.message" id="msg_index_adjustment_booked">
+            <field name="text">The term "%(term)s" is booked up to %(booked_to)s, beyond the effective date %(valid_from)s - cancel the postings first.</field>
+        </record>
+        <record model="ir.message" id="msg_index_adjustment_locked">
+            <field name="text">The term "%(term)s" is locked by a graduated rent.</field>
+        </record>
+        <record model="ir.message" id="msg_index_adjustment_approve_error">
+            <field name="text">The adjustment "%(adjustment)s" has errors and cannot be approved:
+%(protocol)s</field>
+        </record>
+        <record model="ir.message" id="msg_index_adjustment_approve_warning">
+            <field name="text">The adjustment "%(adjustment)s" has findings:
+%(protocol)s</field>
+        </record>
+        <record model="ir.message" id="msg_index_adjustment_cancel_declared">
+            <field name="text">The tenant has already received a declaration for: %(adjustments)s.</field>
+        </record>
+        <record model="ir.message" id="msg_index_adjustment_open">
+            <field name="text">"%(rent_adjustment)s" already has an open adjustment "%(adjustment)s".</field>
+        </record>
+        <record model="ir.message" id="msg_index_adjustment_delete">
+            <field name="text">The adjustment "%(adjustment)s" can only be deleted in state draft or cancelled.</field>
+        </record>
+        <record model="ir.message" id="msg_index_rent_draft_adjustments">
+            <field name="text">Index rent "%(rent_adjustment)s" cannot be reset to draft: the adjustment "%(adjustment)s" is already approved, declared or done.</field>
+        </record>
+        <record model="ir.message" id="msg_index_rent_close_open">
+            <field name="text">Index rent "%(rent_adjustment)s" cannot be closed: the adjustment "%(adjustment)s" is still open.</field>
+        </record>
+        <record model="ir.message" id="msg_index_run_decrease_listed">
+            <field name="text">%(rent_adjustment)s: decrease %(change)s %% - not created.</field>
+        </record>
+        <record model="ir.message" id="msg_index_run_result">
+            <field name="text">Run %(run_id)s: %(created)s adjustments created (%(approved)s approved, %(error)s with errors); skipped: %(open)s with an open adjustment, %(lock_period)s in the lock period, %(threshold)s threshold not reached, %(decrease)s decreases, %(no_value)s without index values.</field>
+        </record>
+        <record model="ir.message" id="msg_price_index_value_used">
+            <field name="text">The index value "%(value)s" is used by the declared or executed adjustment "%(adjustment)s" and cannot be changed.</field>
+        </record>
+        <record model="ir.message" id="msg_index_run_line_open">
+            <field name="text">%(rent_adjustment)s: skipped - open adjustment "%(adjustment)s" (I07).</field>
+        </record>
+        <record model="ir.message" id="msg_index_run_line_no_value">
+            <field name="text">%(rent_adjustment)s: skipped - index values missing.</field>
+        </record>
+        <record model="ir.message" id="msg_index_run_line_lock_period">
+            <field name="text">%(rent_adjustment)s: skipped - effective date %(valid_from)s inside the lock period / not possible:</field>
+        </record>
+        <record model="ir.message" id="msg_index_run_line_threshold">
+            <field name="text">%(rent_adjustment)s: skipped - threshold not reached (change %(change)s %%).</field>
+        </record>
+        <record model="ir.message" id="msg_index_run_line_decrease">
+            <field name="text">%(rent_adjustment)s: skipped - decrease %(change)s %% (decreases not included).</field>
+        </record>
+        <record model="ir.message" id="msg_index_run_line_created">
+            <field name="text">%(rent_adjustment)s: adjustment created - %(change)s %%, new amount %(amount)s, effective from %(valid_from)s.</field>
+        </record>
+        <record model="ir.message" id="msg_index_run_line_created_error">
+            <field name="text">%(rent_adjustment)s: adjustment created with errors - %(change)s %%, new amount %(amount)s, effective from %(valid_from)s:</field>
+        </record>
+        <record model="ir.message" id="msg_index_run_line_approved">
+            <field name="text">%(rent_adjustment)s: adjustment created and approved - %(change)s %%, new amount %(amount)s, effective from %(valid_from)s.</field>
+        </record>
+        <record model="ir.message" id="msg_index_run_line_none">
+            <field name="text">No active index rent agreement matches the selection (index series, company, property, contracts).</field>
+        </record>
+        <record model="ir.message" id="msg_index_adjustment_receipt_missing">
+            <field name="text">The adjustment "%(adjustment)s" cannot be executed: enter the receipt date of the declaration first (statutory effective date).</field>
+        </record>
+        <record model="ir.message" id="msg_index_adjustment_term_changed">
+            <field name="text">The adjustment "%(adjustment)s" cannot be executed: the term "%(term)s" is no longer the current term of the index rent - create a new adjustment.</field>
+        </record>
+        <record model="ir.message" id="msg_index_adjustment_execute_errors">
+            <field name="text">The adjustment "%(adjustment)s" cannot be executed:
+%(protocol)s</field>
+        </record>
+        <record model="ir.message" id="msg_index_adjustment_cap_changed">
+            <field name="text">The adjustment "%(adjustment)s" cannot be executed: with the cap rule on the actual receipt date only %(allowed)s are allowed, but %(declared)s were declared (I11) - a new declaration is required.</field>
+        </record>
+        <record model="ir.message" id="msg_index_adjustment_log">
+            <field name="text">Index rent adjusted: %(index)s %(month_old)s %(value_old)s -&gt; %(month_new)s %(value_new)s, change %(change)s %%, applied %(applied)s %% (cap rule: %(cap)s); rent %(amount_old)s -&gt; %(amount_new)s from %(valid_from)s; receipt %(receipt)s, dispatch %(dispatch)s.</field>
+        </record>
+        <record model="ir.message" id="msg_price_index_genesis_no_token">
+            <field name="text">No GENESIS-Online API token configured (trytond.conf, section [real_estate], option genesis_token).</field>
+        </record>
+        <record model="ir.message" id="msg_price_index_genesis_connection">
+            <field name="text">GENESIS-Online cannot be reached: %(error)s</field>
+        </record>
+        <record model="ir.message" id="msg_price_index_genesis_status">
+            <field name="text">GENESIS-Online returned no file: %(message)s</field>
+        </record>
+        <record model="ir.message" id="msg_price_index_genesis_format">
+            <field name="text">The GENESIS-Online file cannot be read: %(errors)s</field>
+        </record>
+        <record model="ir.message" id="msg_price_index_genesis_base_year">
+            <field name="text">The GENESIS-Online values have the base year %(file_base_year)s, the series %(base_year)s - nothing imported. Change the base year of the series first (spec 3.2).</field>
+        </record>
+        <record model="ir.message" id="msg_price_index_genesis_locked">
+            <field name="text">Revisions not taken over (values used by declared or executed adjustments): %(months)s</field>
+        </record>
+        <record model="ir.message" id="msg_price_index_genesis_error">
+            <field name="text">GENESIS-Online import failed: %(error)s</field>
+        </record>
     </data>
 </tryton>

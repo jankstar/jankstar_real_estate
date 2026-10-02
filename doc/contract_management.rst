@@ -330,18 +330,106 @@ Contract Management
    Procedures (``contract_type.ADJUSTMENT_PROCEDURES``): ``graduated_rent``
    (§ 557a BGB), ``index_rent`` (§ 557b), ``comparative_rent`` (§§ 558 ff.),
    ``modernisation`` (§§ 559 ff.), ``operation_costs_billing`` /
-   ``operation_costs_plan`` (§ 560), ``free_adjustment``. So far only the
-   graduated rent has processing; the other procedures are header records.
+   ``operation_costs_plan`` (§ 560), ``free_adjustment``. So far the
+   graduated rent has processing and the index rent its agreement (see
+   below); the other procedures are header records.
 
    Header fields (all procedures): ``contract``, ``procedure``, ``term``
    (exactly one term - offered are terms of the contract whose contract
    type and term type both allow the procedure, and in state ``draft`` no
    term locked by a graduated rent), ``valid_from``, ``agreement_date``
    (required for graduated/index rent), ``written_form``, ``comment``,
-   ``state`` (``draft`` / ``generated``). Checks on save: term belongs to
-   the contract, procedure allowed by contract type and term type, at most
-   one agreed procedure (graduated or index rent) per term (§§ 557a,
-   557b BGB). Only drafts can be deleted.
+   ``state`` (``draft`` / ``generated`` for a graduated rent, ``draft`` /
+   ``active`` / ``closed`` for an index rent). Checks on save: term belongs
+   to the contract, procedure allowed by contract type and term type, at
+   most one agreed procedure (graduated or index rent) per term (§§ 557a,
+   557b BGB; a closed index rent no longer counts), no comparative rent
+   for a residential term with an active index rent. Only drafts can be
+   deleted.
+
+   **Index rent** (``procedure = 'index_rent'``, § 557b BGB,
+   ``spezifikation-indexmiete.md``) - so far the agreement; the adjustment
+   runs, declarations and execution follow. Tab *Index*: ``price_index``
+   (residential: only series with ``residential_allowed``, i.e. the VPI),
+   ``index_base_month`` (first of the month) with the contract's own
+   statement ``index_base_value_contract`` / ``index_base_year_contract``
+   (documentation) and the computed ``index_base_value`` from the current
+   base year of the series, ``threshold_type`` / ``threshold_value``
+   (none / percent / index points), ``effective_rule`` (``statutory`` -
+   mandatory for residential - or ``contract_month`` with
+   ``effective_offset_months`` for commercial), ``apply_cap`` (``auto`` /
+   ``never``). Information: ``current_term`` (latest term of the chain of
+   the same term type and item from ``term`` on, also after splits by other
+   procedures), ``current_index_month`` / ``current_index_value``,
+   ``last_change_date`` (start of the agreement ``valid_from`` resp. later
+   the last executed adjustment) and ``next_possible_date`` (+12 months,
+   § 557b para. 2 BGB). ``declaration_deadline`` (*Declaration until*,
+   searchable) is the follow-up date: latest date to send the declaration
+   so that the adjustment takes effect on the next possible date (receipt
+   in the month before last minus ``receipt_days``; none for the commercial
+   contract month rule). Menu *Contracts › Rent Adjustments › Index Rents -
+   Follow-up* lists the active index rents with the tabs *Due* / *Next 3
+   Months* / *All*.
+
+   *Activate* (``draft → active``) checks: written form and agreement date
+   (I01; residential error, commercial confirmable warning), statutory
+   effective rule for residential, index allowed for residential (I02),
+   final value of the base month in the current base year (I03), no
+   comparative rent on the term chain and a confirmable warning for a
+   modernisation adjustment (I10, residential), hint on the
+   Preisklauselgesetz for commercial contracts not fixed for at least 10
+   years (I12). *Draft* (``active → draft``) and *Close Index Rent*
+   (``active → closed``) change the state; in ``active`` index series,
+   base month and term are readonly, threshold and comment stay editable.
+   *Draft* is refused once an adjustment is approved, declared or done,
+   *Close* while an adjustment is open.
+
+   Index adjustments (``real_estate.contract.term.adjustment`` with
+   ``rent_adjustment``, ``contract_index_rent.py``, list on the *Index*
+   tab): created by the adjustment run (see *Wizards*). Reference
+   (``index_month_old``/``index_value_old``) is the agreement's current
+   index (last executed adjustment, else the base month), the new value
+   the run's index month - both from the current base year.
+   ``compute_index_adjustment`` calculates the change (exact ratio, shown
+   with 2 digits), the threshold (percent or points, on the uncapped
+   change), the cap (``apply_cap = 'auto'``, active cap rule for the
+   planned receipt date and the property's tight market), the new amount
+   ``planned_amount`` = old amount × ratio (resp. × capped change), rounded
+   half up to the cent - the decisive amount - and ``planned_unit_price``
+   = amount / quantity (4 digits). ``planned_valid_from``: statutory first
+   day of the month after next following ``receipt_date`` (before that a
+   preview from ``declaration_date`` + ``receipt_days`` of the real estate
+   accounting, default 3), for ``contract_month`` the index month +
+   offset. Check protocol ``check_state``/``check_message`` (codes I04
+   lock period, I05 index values, I06 contract running/end, I08 rounding,
+   I09 booked beyond the effective date, I13 decrease, I14 graduated rent
+   lock, S01 threshold). States ``draft → approved → declared → done``,
+   ``cancelled``: *Recompute* (draft), *Approve* (refused with errors,
+   confirmable warning with findings), *Cancel* (warning if declared),
+   *Draft* (from cancelled, at most one open adjustment per agreement).
+   *Declare* (``approved → declared``, declaration date default today)
+   renders the declaration ``real_estate.contract.index_adjustment.letter``
+   (``report/index_adjustment_letter_de.odt``: one letter per adjustment,
+   addressed jointly to all main tenants, with index series and base
+   year, reference and new index month/value, change in percent and
+   points, cap rule if applied, old and new net rent and the difference,
+   expected effective date) and archives the original as attachment
+   (``letter``); the values are frozen from then on. Printing it again
+   from the print menu marks it *Zweitschrift*, before the declaration
+   *ENTWURF*. Receipt date and dispatch method are entered in the
+   adjustment form or the editable list *Contracts › Adjustment › Capture
+   Receipt* (declared adjustments). *Execute* (``declared → done``, for
+   the statutory rule only with a receipt date) recalculates the
+   effective date from the receipt, checks again (I04, I06, I09, I14, the
+   current term must still be ``term_old``) and I11 (the declared rent
+   must not exceed the rent allowed by the cap rule on the actual receipt
+   date), splits the term (``ContractTerm._split`` with the new unit
+   price from the effective date), recalculates the cash flow, sets
+   ``term_new``, ``executed_by``/``executed_date`` and logs the
+   adjustment in the contract log (event ``index_rent``). The agreement
+   then takes the executed adjustment as reference for the next one.
+   Index values used by a declared or executed adjustment cannot be
+   changed or deleted.
 
    **Graduated rent** (``procedure = 'graduated_rent'``): all steps are
    generated in advance as terms. The procedure-specific fields are only

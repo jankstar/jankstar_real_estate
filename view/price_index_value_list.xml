@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<tree editable="1">
+    <field name="index"/>
+    <field name="base_year"/>
+    <field name="month"/>
+    <field name="value"/>
+    <field name="final"/>
+    <field name="origin"/>
+    <field name="import_date" widget="date" optional="1"/>
+</tree>

@@ -25,6 +25,13 @@ class ReAccounting(base_object.re_sequence_ordered(), ModelSQL, ModelView):
             ],
         help="Journal used for direct GL postings in vacancy settlements.")
 
+    receipt_days = fields.Integer("Receipt Days (Index Rent)",
+        domain=[('receipt_days', '>=', 0)],
+        help="Days from the declaration date to the expected receipt by "
+             "the tenant - only a preview of the effective date of an "
+             "index rent adjustment, the actual receipt has to be "
+             "confirmed.")
+
     re_payment_term_billing = fields.Many2One(
         'account.invoice.payment_term', 'Operating Cost Billing Payment Term',
         help="Default payment term for operating cost settlement invoices, "
@@ -50,3 +57,7 @@ class ReAccounting(base_object.re_sequence_ordered(), ModelSQL, ModelView):
     @classmethod
     def default_name(cls):
         return 'Real Estate Accounting'
+
+    @classmethod
+    def default_receipt_days(cls):
+        return 3

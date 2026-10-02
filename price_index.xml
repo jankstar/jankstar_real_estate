@@ -1,0 +1,307 @@
+<?xml version="1.0"?>
+<tryton>
+    <data>
+        <!-- Price index series and monthly values (index rent, § 557b BGB) -->
+        <record model="ir.ui.view" id="price_index_view_list">
+            <field name="model">real_estate.price_index</field>
+            <field name="type">tree</field>
+            <field name="name">price_index_list</field>
+        </record>
+        <record model="ir.ui.view" id="price_index_view_form">
+            <field name="model">real_estate.price_index</field>
+            <field name="type">form</field>
+            <field name="name">price_index_form</field>
+        </record>
+        <record model="ir.ui.view" id="price_index_value_view_list">
+            <field name="model">real_estate.price_index.value</field>
+            <field name="type">tree</field>
+            <field name="name">price_index_value_list</field>
+        </record>
+        <record model="ir.ui.view" id="price_index_value_view_list_inline">
+            <field name="model">real_estate.price_index.value</field>
+            <field name="type">tree</field>
+            <field name="name">price_index_value_list_inline</field>
+        </record>
+        <record model="ir.ui.view" id="price_index_value_view_form">
+            <field name="model">real_estate.price_index.value</field>
+            <field name="type">form</field>
+            <field name="name">price_index_value_form</field>
+        </record>
+        <record model="ir.ui.view" id="price_index_value_context_view_form">
+            <field name="model">real_estate.price_index.value.context</field>
+            <field name="type">form</field>
+            <field name="name">price_index_value_context_form</field>
+        </record>
+
+        <record model="ir.action.act_window" id="act_price_index">
+            <field name="name">Price Indices</field>
+            <field name="res_model">real_estate.price_index</field>
+        </record>
+        <record model="ir.action.act_window.view" id="act_price_index_view1">
+            <field name="sequence" eval="10"/>
+            <field name="view" ref="price_index_view_list"/>
+            <field name="act_window" ref="act_price_index"/>
+        </record>
+        <record model="ir.action.act_window.view" id="act_price_index_view2">
+            <field name="sequence" eval="20"/>
+            <field name="view" ref="price_index_view_form"/>
+            <field name="act_window" ref="act_price_index"/>
+        </record>
+        <menuitem
+            parent="menu_real_estate_configuration"
+            sequence="40"
+            action="act_price_index"
+            id="menu_price_index"/>
+
+        <record model="ir.action.act_window" id="act_price_index_value">
+            <field name="name">Price Index Values</field>
+            <field name="res_model">real_estate.price_index.value</field>
+            <field name="context_model">real_estate.price_index.value.context</field>
+            <field name="context_domain"
+                eval="[If(Eval('price_index', None), [('index', '=', Eval('price_index', None))], []), If(Eval('base_year', None), [('base_year', '=', Eval('base_year', None))], [])]"
+                pyson="1"/>
+        </record>
+        <record model="ir.action.act_window.view" id="act_price_index_value_view1">
+            <field name="sequence" eval="10"/>
+            <field name="view" ref="price_index_value_view_list"/>
+            <field name="act_window" ref="act_price_index_value"/>
+        </record>
+        <record model="ir.action.act_window.view" id="act_price_index_value_view2">
+            <field name="sequence" eval="20"/>
+            <field name="view" ref="price_index_value_view_form"/>
+            <field name="act_window" ref="act_price_index_value"/>
+        </record>
+        <menuitem
+            parent="menu_price_index"
+            sequence="10"
+            action="act_price_index_value"
+            id="menu_price_index_value"/>
+
+        <record model="ir.model.button" id="price_index_fetch_button">
+            <field name="model">real_estate.price_index</field>
+            <field name="name">fetch</field>
+            <field name="string">Fetch Values</field>
+        </record>
+        <record model="ir.model.button-res.group" id="price_index_fetch_button_group_admin">
+            <field name="button" ref="price_index_fetch_button"/>
+            <field name="group" ref="group_real_estate_admin"/>
+        </record>
+        <record model="ir.model.button" id="price_index_fetch_full_button">
+            <field name="model">real_estate.price_index</field>
+            <field name="name">fetch_full</field>
+            <field name="string">Fetch from Base Year</field>
+        </record>
+        <record model="ir.model.button-res.group" id="price_index_fetch_full_button_group_admin">
+            <field name="button" ref="price_index_fetch_full_button"/>
+            <field name="group" ref="group_real_estate_admin"/>
+        </record>
+
+        <!-- CSV import wizard (administration only) -->
+        <record model="ir.ui.view" id="price_index_import_start_view_form">
+            <field name="model">real_estate.price_index.import.start</field>
+            <field name="type">form</field>
+            <field name="name">price_index_import_start_form</field>
+        </record>
+        <record model="ir.ui.view" id="price_index_import_preview_view_form">
+            <field name="model">real_estate.price_index.import.preview</field>
+            <field name="type">form</field>
+            <field name="name">price_index_import_preview_form</field>
+        </record>
+        <record model="ir.ui.view" id="price_index_import_result_view_form">
+            <field name="model">real_estate.price_index.import.result</field>
+            <field name="type">form</field>
+            <field name="name">price_index_import_result_form</field>
+        </record>
+        <record model="ir.action.wizard" id="wizard_price_index_import">
+            <field name="name">Import Index Values</field>
+            <field name="wiz_name">real_estate.price_index.import</field>
+        </record>
+        <record model="ir.action-res.group" id="wizard_price_index_import_group_admin">
+            <field name="action" ref="wizard_price_index_import"/>
+            <field name="group" ref="group_real_estate_admin"/>
+        </record>
+        <record model="ir.action.keyword" id="wizard_price_index_import_keyword">
+            <field name="keyword">form_action</field>
+            <field name="model">real_estate.price_index,-1</field>
+            <field name="action" ref="wizard_price_index_import"/>
+        </record>
+        <menuitem
+            parent="menu_price_index"
+            sequence="20"
+            action="wizard_price_index_import"
+            id="menu_price_index_import"/>
+
+        <!-- Access: read for the functional groups, maintenance by the
+             administration only -->
+        <record model="ir.model.access" id="access_price_index_object">
+            <field name="model">real_estate.price_index</field>
+            <field name="group" ref="group_real_estate_object"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_price_index_contract">
+            <field name="model">real_estate.price_index</field>
+            <field name="group" ref="group_real_estate_contract"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_price_index_billing">
+            <field name="model">real_estate.price_index</field>
+            <field name="group" ref="group_real_estate_billing"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_price_index_admin">
+            <field name="model">real_estate.price_index</field>
+            <field name="group" ref="group_real_estate_admin"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+        <record model="ir.model.access" id="access_price_index_default">
+            <field name="model">real_estate.price_index</field>
+            <field name="perm_read" eval="False"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_price_index_value_object">
+            <field name="model">real_estate.price_index.value</field>
+            <field name="group" ref="group_real_estate_object"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_price_index_value_contract">
+            <field name="model">real_estate.price_index.value</field>
+            <field name="group" ref="group_real_estate_contract"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_price_index_value_billing">
+            <field name="model">real_estate.price_index.value</field>
+            <field name="group" ref="group_real_estate_billing"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_price_index_value_admin">
+            <field name="model">real_estate.price_index.value</field>
+            <field name="group" ref="group_real_estate_admin"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+        <record model="ir.model.access" id="access_price_index_value_default">
+            <field name="model">real_estate.price_index.value</field>
+            <field name="perm_read" eval="False"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+
+        <!-- Index rent cap rules ("Mietrecht II", prepared, inactive) -->
+        <record model="ir.ui.view" id="index_cap_rule_view_list">
+            <field name="model">real_estate.index_cap_rule</field>
+            <field name="type">tree</field>
+            <field name="name">index_cap_rule_list</field>
+        </record>
+        <record model="ir.ui.view" id="index_cap_rule_view_form">
+            <field name="model">real_estate.index_cap_rule</field>
+            <field name="type">form</field>
+            <field name="name">index_cap_rule_form</field>
+        </record>
+        <record model="ir.action.act_window" id="act_index_cap_rule">
+            <field name="name">Index Rent Cap Rules</field>
+            <field name="res_model">real_estate.index_cap_rule</field>
+        </record>
+        <record model="ir.action.act_window.view" id="act_index_cap_rule_view1">
+            <field name="sequence" eval="10"/>
+            <field name="view" ref="index_cap_rule_view_list"/>
+            <field name="act_window" ref="act_index_cap_rule"/>
+        </record>
+        <record model="ir.action.act_window.view" id="act_index_cap_rule_view2">
+            <field name="sequence" eval="20"/>
+            <field name="view" ref="index_cap_rule_view_form"/>
+            <field name="act_window" ref="act_index_cap_rule"/>
+        </record>
+        <menuitem
+            parent="menu_real_estate_configuration"
+            sequence="41"
+            action="act_index_cap_rule"
+            id="menu_index_cap_rule"/>
+
+        <record model="ir.model.access" id="access_index_cap_rule_object">
+            <field name="model">real_estate.index_cap_rule</field>
+            <field name="group" ref="group_real_estate_object"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_index_cap_rule_contract">
+            <field name="model">real_estate.index_cap_rule</field>
+            <field name="group" ref="group_real_estate_contract"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_index_cap_rule_billing">
+            <field name="model">real_estate.index_cap_rule</field>
+            <field name="group" ref="group_real_estate_billing"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_index_cap_rule_admin">
+            <field name="model">real_estate.index_cap_rule</field>
+            <field name="group" ref="group_real_estate_admin"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+        <record model="ir.model.access" id="access_index_cap_rule_default">
+            <field name="model">real_estate.index_cap_rule</field>
+            <field name="perm_read" eval="False"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+    </data>
+
+    <data noupdate="1">
+        <!-- Default series: VPI Germany (the only index allowed for
+             residential index rents, § 557b BGB) and HVPI as manual
+             template for commercial contracts (Preisklauselgesetz) -->
+        <record model="real_estate.price_index" id="price_index_vpi_de">
+            <field name="code">VPI-DE</field>
+            <field name="name">Consumer Price Index Germany (VPI)</field>
+            <field name="source">destatis_genesis</field>
+            <field name="genesis_table">61111-0002</field>
+            <field name="base_year" eval="2020"/>
+            <field name="residential_allowed" eval="True"/>
+        </record>
+        <record model="real_estate.price_index" id="price_index_hvpi_de">
+            <field name="code">HVPI-DE</field>
+            <field name="name">Harmonised Index of Consumer Prices Germany (HICP)</field>
+            <field name="source">manual</field>
+            <field name="base_year" eval="2015"/>
+            <field name="residential_allowed" eval="False"/>
+        </record>
+    </data>
+</tryton>

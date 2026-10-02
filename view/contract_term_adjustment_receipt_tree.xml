@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<tree editable="1">
+    <field name="contract"/>
+    <field name="term_old"/>
+    <field name="planned_amount"/>
+    <field name="declaration_date"/>
+    <field name="dispatch_method"/>
+    <field name="receipt_date"/>
+    <field name="planned_valid_from"/>
+    <field name="letter"/>
+    <field name="procedure" tree_invisible="1"/>
+    <field name="state" tree_invisible="1"/>
+    <button name="execute"/>
+</tree>

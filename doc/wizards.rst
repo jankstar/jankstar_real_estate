@@ -179,15 +179,34 @@ Wizards
 
 ``real_estate.contract_term_adjustment.wizard``  (``contract_wizard.py``, class ``ContractTermAdjustmentWizard``)
    .. note::
-      **Skeleton only.** The *Start* → *Confirm* → *Process* → *Result*
-      flow and every field below already work end-to-end, but the actual
-      selection of contracts/terms and the write-back to ``ContractTerm`` /
-      ``real_estate.contract.term.adjustment`` are not implemented yet.
-      ``transition_do_adjustment`` dispatches by ``procedure`` to one of
-      three placeholder methods (``_adjustment_operation_costs_billing``,
-      ``_adjustment_operation_costs_plan``, ``_adjustment_free_adjustment``),
-      each of which currently just returns ``processed = 0`` and a
-      "not yet implemented" message without changing any data.
+      Only the procedure ``index_rent`` is implemented. For the operating
+      cost procedures and ``free_adjustment`` the *Start* → *Confirm* →
+      *Process* → *Result* flow works, but the placeholder methods
+      (``_adjustment_operation_costs_billing``,
+      ``_adjustment_operation_costs_plan``, ``_adjustment_free_adjustment``)
+      return ``processed = 0`` and a "not yet implemented" message.
+
+   **Index rent run** (``procedure = 'index_rent'``,
+   ``_adjustment_index_rent`` → ``RentAdjustment.index_run``): fields
+   ``price_index`` (default ``VPI-DE``), ``index_month`` (default: last
+   final month of the series), ``declaration_date`` (planned, default
+   today - preview of effective date, lock period and cap),
+   ``include_decreases``, ``auto_approve`` and the filters ``company``,
+   ``property``, ``contracts``; ``valid_from_new`` and the operating cost
+   fields are hidden. For every active index rent agreement of the series
+   one draft ``real_estate.contract.term.adjustment`` is created with the
+   run's ``run_id`` - skipped (and counted) are agreements with an open
+   adjustment (I07), residential agreements whose effective date would be
+   inside the 12-month lock period (I04), threshold not reached, decreases
+   without ``include_decreases`` (listed) and missing index values (I05).
+   Adjustments without findings are approved directly with
+   ``auto_approve``. *Confirm* shows the number of matching agreements;
+   *Result* the summary, the protocol and the button *Open Adjustments*
+   (domain ``run_id``). Every run is stored as
+   ``real_estate.contract.term.adjustment.run`` (menu *Contracts ›
+   Adjustment › Adjustment Runs*) with its parameters, the summary, a
+   protocol line per agreement (result, effective date and the check
+   findings, i.e. the cause of a skip) and its adjustments.
 
    *Start* — ``procedure`` (``operation_costs_billing`` / ``operation_costs_plan``
    / ``free_adjustment``, required), ``company``, ``property`` (defaulted
@@ -208,5 +227,5 @@ Wizards
    *Result* — ``processed`` count and a details message.
 
    Menu: *Real Estate → Contracts → Adjustment* (submenu with the wizard
-   itself and a read-only list of ``real_estate.contract.term.adjustment``
-   records).
+   itself and the list of ``real_estate.contract.term.adjustment`` records
+   with tabs *Draft* / *Approved* / *Declared* / *Done* / *All*).

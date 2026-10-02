@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<form col="2">
+    <label name="price_index"/><field name="price_index"/>
+    <label name="base_year"/><field name="base_year"/>
+    <label name="final"/><field name="final"/>
+    <label name="file"/><field name="file"/>
+    <label name="filename"/><field name="filename"/>
+</form>

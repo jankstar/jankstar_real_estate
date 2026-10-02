@@ -36,7 +36,15 @@ builds on the previous one's data):
    graduated rent (rent adjustment with procedure ``graduated_rent`` on the
    rent term: 12-month rhythm, 5 steps, +30 € / +0.40 €/m² / +3 %), whose
    steps are generated; the procedure is allowed on the residential
-   contract type and the rent term type first if missing::
+   contract type and the rent term type first if missing. Up to two
+   further running apartment contracts per property (without graduated
+   rent) get an active index rent (procedure ``index_rent``: price index
+   ``VPI-DE``, base month 01/2025, statutory effective date, no
+   threshold, cap automatic); missing VPI values of the current base year
+   are first taken over from ``tests/61111-0002_de.csv`` (GENESIS-Online
+   table download, parsed like the CSV import wizard) - without the file
+   or the base month value no index rents are created. The adjustment run
+   itself is not executed::
 
       python tests/test_contracts.py --database <db> [--config trytond.conf]
 

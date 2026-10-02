@@ -47,6 +47,17 @@ via ``get_context()``.
    fields) via ``Contract.fields_get()`` rather than exposing the raw
    storage keys to the template.
 
+``real_estate.contract.index_adjustment.letter``  (``contract_report.py``)
+   Declaration of an index rent adjustment (§ 557b para. 3 BGB) on
+   ``real_estate.contract.term.adjustment``. Template:
+   ``index_adjustment_letter_de.odt`` - one letter per selected
+   adjustment (page break), addressed jointly to all main tenants
+   (``contract.main_tenant_party_ids``, invoice address). The button
+   *Declare* renders it with ``data['original']`` and archives the
+   original as attachment; printed from the print menu it is marked
+   *Zweitschrift* (declared/done) or *ENTWURF* (before the declaration).
+   Index values are formatted with one decimal (``format_index``).
+
 ``real_estate.base_object.report``  (``base_object.py``)
    Fact sheet for a property or object.
    Template: ``fact_sheet.odt``.

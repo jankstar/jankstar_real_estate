@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<form col="4">
+    <label name="n_values"/><field name="n_values"/>
+    <label name="n_errors"/><field name="n_errors"/>
+    <label name="n_new"/><field name="n_new"/>
+    <label name="n_changed"/><field name="n_changed"/>
+    <label name="n_unchanged"/><field name="n_unchanged"/>
+    <label name="n_ignored"/><field name="n_ignored"/>
+    <field name="details" colspan="4"/>
+</form>

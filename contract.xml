@@ -1103,6 +1103,62 @@
         <field name="act_window" ref="act_contract_term_adjustment"/>
     </record>
 
+    <record model="ir.action.act_window.domain" id="act_contract_term_adjustment_domain_draft">
+        <field name="name">Draft</field>
+        <field name="sequence" eval="10"/>
+        <field name="domain" eval="[('state', '=', 'draft')]" pyson="1"></field>
+        <field name="count" eval="True"/>
+        <field name="act_window" ref="act_contract_term_adjustment"/>
+    </record>
+    <record model="ir.action.act_window.domain" id="act_contract_term_adjustment_domain_approved">
+        <field name="name">Approved</field>
+        <field name="sequence" eval="20"/>
+        <field name="domain" eval="[('state', '=', 'approved')]" pyson="1"></field>
+        <field name="count" eval="True"/>
+        <field name="act_window" ref="act_contract_term_adjustment"/>
+    </record>
+    <record model="ir.action.act_window.domain" id="act_contract_term_adjustment_domain_declared">
+        <field name="name">Declared</field>
+        <field name="sequence" eval="30"/>
+        <field name="domain" eval="[('state', '=', 'declared')]" pyson="1"></field>
+        <field name="count" eval="True"/>
+        <field name="act_window" ref="act_contract_term_adjustment"/>
+    </record>
+    <record model="ir.action.act_window.domain" id="act_contract_term_adjustment_domain_done">
+        <field name="name">Done</field>
+        <field name="sequence" eval="40"/>
+        <field name="domain" eval="[('state', '=', 'done')]" pyson="1"></field>
+        <field name="count" eval="False"/>
+        <field name="act_window" ref="act_contract_term_adjustment"/>
+    </record>
+    <record model="ir.action.act_window.domain" id="act_contract_term_adjustment_domain_all">
+        <field name="name">All</field>
+        <field name="sequence" eval="50"/>
+        <field name="domain"></field>
+        <field name="count" eval="False"/>
+        <field name="act_window" ref="act_contract_term_adjustment"/>
+    </record>
+    <record model="ir.model.button" id="contract_term_adjustment_recompute_button">
+        <field name="model">real_estate.contract.term.adjustment</field>
+        <field name="name">recompute</field>
+        <field name="string">Recompute</field>
+    </record>
+    <record model="ir.model.button" id="contract_term_adjustment_approve_button">
+        <field name="model">real_estate.contract.term.adjustment</field>
+        <field name="name">approve</field>
+        <field name="string">Approve</field>
+    </record>
+    <record model="ir.model.button" id="contract_term_adjustment_cancel_button">
+        <field name="model">real_estate.contract.term.adjustment</field>
+        <field name="name">cancel</field>
+        <field name="string">Cancel</field>
+    </record>
+    <record model="ir.model.button" id="contract_term_adjustment_draft_button">
+        <field name="model">real_estate.contract.term.adjustment</field>
+        <field name="name">draft</field>
+        <field name="string">Draft</field>
+    </record>
+
     <menuitem
         parent="menu_real_estate_contracts"
         sequence="95"
@@ -1120,6 +1176,129 @@
         action="act_contract_term_adjustment"
         sequence="20"
         id="menu_contract_term_adjustment_list"/>
+
+    <record model="ir.model.button" id="contract_term_adjustment_declare_button">
+        <field name="model">real_estate.contract.term.adjustment</field>
+        <field name="name">declare</field>
+        <field name="string">Declare</field>
+    </record>
+    <record model="ir.model.button" id="contract_term_adjustment_execute_button">
+        <field name="model">real_estate.contract.term.adjustment</field>
+        <field name="name">execute</field>
+        <field name="string">Execute</field>
+    </record>
+
+    <!-- Declaration of an index rent adjustment (ODT) -->
+    <record model="ir.action.report" id="report_index_adjustment_letter_de">
+        <field name="name">Index Rent Declaration (de)</field>
+        <field name="report_name">real_estate.contract.index_adjustment.letter</field>
+        <field name="model">real_estate.contract.term.adjustment</field>
+        <field name="report">real_estate/report/index_adjustment_letter_de.odt</field>
+        <field name="template_extension">odt</field>
+    </record>
+    <record model="ir.action.keyword" id="report_index_adjustment_letter_keyword">
+        <field name="keyword">form_print</field>
+        <field name="model">real_estate.contract.term.adjustment,-1</field>
+        <field name="action" ref="report_index_adjustment_letter_de"/>
+    </record>
+
+    <!-- Declared index adjustments: capture receipt and dispatch method -->
+    <record model="ir.ui.view" id="contract_term_adjustment_receipt_view_tree">
+        <field name="model">real_estate.contract.term.adjustment</field>
+        <field name="type">tree</field>
+        <field name="priority" eval="20"/>
+        <field name="name">contract_term_adjustment_receipt_tree</field>
+    </record>
+    <record model="ir.action.act_window" id="act_contract_term_adjustment_receipt">
+        <field name="name">Capture Receipt</field>
+        <field name="res_model">real_estate.contract.term.adjustment</field>
+        <field name="domain" eval="[('state', '=', 'declared')]" pyson="1"/>
+    </record>
+    <record model="ir.action.act_window.view" id="act_contract_term_adjustment_receipt_view1">
+        <field name="sequence" eval="10"/>
+        <field name="view" ref="contract_term_adjustment_receipt_view_tree"/>
+        <field name="act_window" ref="act_contract_term_adjustment_receipt"/>
+    </record>
+    <record model="ir.action.act_window.view" id="act_contract_term_adjustment_receipt_view2">
+        <field name="sequence" eval="20"/>
+        <field name="view" ref="contract_term_adjustment_view_form"/>
+        <field name="act_window" ref="act_contract_term_adjustment_receipt"/>
+    </record>
+    <menuitem
+        parent="menu_real_estate_contracts_adjustment"
+        action="act_contract_term_adjustment_receipt"
+        sequence="25"
+        id="menu_contract_term_adjustment_receipt"/>
+
+    <!-- Adjustment runs with their protocol -->
+    <record model="ir.ui.view" id="contract_term_adjustment_run_view_tree">
+        <field name="model">real_estate.contract.term.adjustment.run</field>
+        <field name="type">tree</field>
+        <field name="name">contract_term_adjustment_run_tree</field>
+    </record>
+    <record model="ir.ui.view" id="contract_term_adjustment_run_view_form">
+        <field name="model">real_estate.contract.term.adjustment.run</field>
+        <field name="type">form</field>
+        <field name="name">contract_term_adjustment_run_form</field>
+    </record>
+    <record model="ir.action.act_window" id="act_contract_term_adjustment_run">
+        <field name="name">Adjustment Runs</field>
+        <field name="res_model">real_estate.contract.term.adjustment.run</field>
+    </record>
+    <record model="ir.action.act_window.view" id="act_contract_term_adjustment_run_view1">
+        <field name="sequence" eval="10"/>
+        <field name="view" ref="contract_term_adjustment_run_view_tree"/>
+        <field name="act_window" ref="act_contract_term_adjustment_run"/>
+    </record>
+    <record model="ir.action.act_window.view" id="act_contract_term_adjustment_run_view2">
+        <field name="sequence" eval="20"/>
+        <field name="view" ref="contract_term_adjustment_run_view_form"/>
+        <field name="act_window" ref="act_contract_term_adjustment_run"/>
+    </record>
+    <menuitem
+        parent="menu_real_estate_contracts_adjustment"
+        action="act_contract_term_adjustment_run"
+        sequence="30"
+        id="menu_contract_term_adjustment_run"/>
+    <record model="ir.model.access" id="access_contract_term_adjustment_run_contract">
+        <field name="model">real_estate.contract.term.adjustment.run</field>
+        <field name="group" ref="group_real_estate_contract"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_delete" eval="True"/>
+    </record>
+    <record model="ir.model.access" id="access_contract_term_adjustment_run_admin">
+        <field name="model">real_estate.contract.term.adjustment.run</field>
+        <field name="group" ref="group_real_estate_admin"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_delete" eval="True"/>
+    </record>
+    <record model="ir.model.access" id="access_contract_term_adjustment_run_object">
+        <field name="model">real_estate.contract.term.adjustment.run</field>
+        <field name="group" ref="group_real_estate_object"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_delete" eval="False"/>
+    </record>
+    <record model="ir.model.access" id="access_contract_term_adjustment_run_billing">
+        <field name="model">real_estate.contract.term.adjustment.run</field>
+        <field name="group" ref="group_real_estate_billing"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_delete" eval="False"/>
+    </record>
+    <record model="ir.model.access" id="access_contract_term_adjustment_run_default">
+        <field name="model">real_estate.contract.term.adjustment.run</field>
+        <field name="perm_read" eval="False"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_delete" eval="False"/>
+    </record>
 
     <record model="ir.model.access" id="access_contract_term_adjustment_contract_group">
         <field name="model">real_estate.contract.term.adjustment</field>

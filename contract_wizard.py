@@ -4,9 +4,9 @@ from trytond.model.exceptions import ValidationError
 from trytond.i18n import gettext
 from trytond.pool import Pool
 from trytond.transaction import Transaction
-from trytond.pyson import Bool, Eval, If
+from trytond.pyson import Bool, Eval, If, PYSONEncoder
 from trytond.wizard import (
-    Button, StateTransition, StateView, Wizard)
+    Button, StateAction, StateTransition, StateView, Wizard)
 from trytond.transaction import check_access, without_check_access
 from trytond.modules.currency.fields import Monetary
 
@@ -481,11 +481,14 @@ class ContractTermAdjustmentStart(ModelView):
         ('operation_costs_billing', 'Operation Costs Billing'),
         ('operation_costs_plan', 'Operation Costs Plan'),
         ('free_adjustment', 'Free Adjustment'),
+        ('index_rent', 'Index Rent'),
         ], 'Adjustment Procedure', required=True, sort=False,
         help="Operation Costs Billing: adjust advance payments based on an "
              "operating cost billing run. Operation Costs Plan: adjust "
              "advance payments based on an operating cost plan. Free "
-             "Adjustment: adjust by a free percentage or absolute value.")
+             "Adjustment: adjust by a free percentage or absolute value. "
+             "Index Rent: create the adjustments of the active index rent "
+             "agreements for a new index value.")
     adjustment_mode = fields.Selection('get_adjustment_mode',
         'Adjustment Mode', sort=False,
         states={
@@ -500,9 +503,49 @@ class ContractTermAdjustmentStart(ModelView):
             ('company', '=', Eval('company', -1)),
         ])
 
-    valid_from_new = fields.Date('Valid From (New Term)', required=True,
+    valid_from_new = fields.Date('Valid From (New Term)',
+        states={
+            'invisible': Eval('procedure') == 'index_rent',
+            'required': Eval('procedure') != 'index_rent',
+            },
         help="Effective date from which the new, adjusted term is valid. "
              "The old term is closed the day before this date.")
+
+    # Index rent run (spezifikation-indexmiete.md 8)
+    contracts = fields.Many2Many('real_estate.contract', None, None,
+        'Contracts',
+        domain=[
+            ('company', '=', Eval('company', -1)),
+            If(Eval('property', None),
+                [('property', '=', Eval('property', None))], []),
+            ],
+        states={'invisible': Eval('procedure') != 'index_rent'},
+        help="Optional - only these contracts.")
+    price_index = fields.Many2One('real_estate.price_index', 'Price Index',
+        states={
+            'invisible': Eval('procedure') != 'index_rent',
+            'required': Eval('procedure') == 'index_rent',
+            })
+    index_month = fields.Date('Index Month',
+        states={
+            'invisible': Eval('procedure') != 'index_rent',
+            'required': Eval('procedure') == 'index_rent',
+            },
+        help="New index month - default: last final month of the series.")
+    declaration_date = fields.Date('Declaration Date',
+        states={
+            'invisible': Eval('procedure') != 'index_rent',
+            'required': Eval('procedure') == 'index_rent',
+            },
+        help="Planned date of the declarations - basis of the preview of "
+             "effective date, lock period and cap.")
+    include_decreases = fields.Boolean('Include Decreases',
+        states={'invisible': Eval('procedure') != 'index_rent'},
+        help="Also create adjustments for index decreases - otherwise they "
+             "are only counted and listed.")
+    auto_approve = fields.Boolean('Approve without Findings',
+        states={'invisible': Eval('procedure') != 'index_rent'},
+        help="Approve adjustments without findings directly.")
 
     billing_run_id = fields.Selection('get_billing_run_ids', 'Billing Run ID',
         states={
@@ -572,6 +615,27 @@ class ContractTermAdjustmentStart(ModelView):
     def default_procedure():
         return 'operation_costs_billing'
 
+    @classmethod
+    def default_price_index(cls):
+        Index = Pool().get('real_estate.price_index')
+        indices = Index.search([('code', '=', 'VPI-DE')], limit=1)
+        return indices[0].id if indices else None
+
+    @classmethod
+    def default_index_month(cls):
+        Index = Pool().get('real_estate.price_index')
+        indices = Index.search([('code', '=', 'VPI-DE')], limit=1)
+        return indices[0].last_value_month if indices else None
+
+    @staticmethod
+    def default_declaration_date():
+        return Pool().get('ir.date').today()
+
+    @fields.depends('price_index')
+    def on_change_price_index(self):
+        if self.price_index:
+            self.index_month = self.price_index.last_value_month
+
     @staticmethod
     def default_valid_from_new():
         return Pool().get('ir.date').today()
@@ -628,22 +692,45 @@ class ContractTermAdjustmentConfirm(ModelView):
     __name__ = 'real_estate.contract_term_adjustment.confirm'
 
     procedure = fields.Char('Adjustment Procedure', readonly=True)
-    adjustment_mode = fields.Char('Adjustment Mode', readonly=True)
+    procedure_code = fields.Char('Procedure Code', readonly=True)
+    price_index = fields.Many2One('real_estate.price_index', 'Price Index',
+        readonly=True,
+        states={'invisible': Eval('procedure_code') != 'index_rent'})
+    index_month = fields.Date('Index Month', readonly=True,
+        states={'invisible': Eval('procedure_code') != 'index_rent'})
+    declaration_date = fields.Date('Declaration Date', readonly=True,
+        states={'invisible': Eval('procedure_code') != 'index_rent'})
+    n_agreements = fields.Integer('Active Agreements', readonly=True,
+        states={'invisible': Eval('procedure_code') != 'index_rent'})
+    include_decreases = fields.Boolean('Include Decreases', readonly=True,
+        states={'invisible': Eval('procedure_code') != 'index_rent'})
+    auto_approve = fields.Boolean('Approve without Findings', readonly=True,
+        states={'invisible': Eval('procedure_code') != 'index_rent'})
+    adjustment_mode = fields.Char('Adjustment Mode', readonly=True,
+        states={'invisible': Eval('procedure_code') == 'index_rent'})
     company = fields.Many2One('company.company', 'Company', readonly=True)
     property = fields.Many2One('real_estate.base_object', 'Property',
         readonly=True)
-    valid_from_new = fields.Date('Valid From (New Term)', readonly=True)
-    billing_run_id = fields.Char('Billing Run ID', readonly=True)
+    valid_from_new = fields.Date('Valid From (New Term)', readonly=True,
+        states={'invisible': Eval('procedure_code') == 'index_rent'})
+    billing_run_id = fields.Char('Billing Run ID', readonly=True,
+        states={'invisible': Eval('procedure_code') == 'index_rent'})
     no_terminated_contracts = fields.Boolean('No Contracts with Termination',
-        readonly=True)
-    no_future_terms = fields.Boolean('No Future Terms', readonly=True)
+        readonly=True,
+        states={'invisible': Eval('procedure_code') == 'index_rent'})
+    no_future_terms = fields.Boolean('No Future Terms', readonly=True,
+        states={'invisible': Eval('procedure_code') == 'index_rent'})
     no_booked_terms = fields.Boolean('Do Not Adjust Booked Terms',
-        readonly=True)
+        readonly=True,
+        states={'invisible': Eval('procedure_code') == 'index_rent'})
     only_rhythm_monthly_1 = fields.Boolean('Only Rhythm Monthly x1',
-        readonly=True)
-    max_adjustment_percent = fields.Numeric('Max Adjustment %', readonly=True)
+        readonly=True,
+        states={'invisible': Eval('procedure_code') == 'index_rent'})
+    max_adjustment_percent = fields.Numeric('Max Adjustment %', readonly=True,
+        states={'invisible': Eval('procedure_code') == 'index_rent'})
     max_adjustment_absolute = fields.Numeric('Max Adjustment Absolute',
-        readonly=True)
+        readonly=True,
+        states={'invisible': Eval('procedure_code') == 'index_rent'})
 
 
 #**********************************************************************
@@ -653,6 +740,7 @@ class ContractTermAdjustmentResult(ModelView):
 
     processed = fields.Integer('Processed', readonly=True)
     message = fields.Text('Message', readonly=True)
+    run_id = fields.Char('Run ID', readonly=True)
 
 
 #**********************************************************************
@@ -673,21 +761,53 @@ class ContractTermAdjustmentWizard(Wizard):
     do_adjustment = StateTransition()
     result = StateView('real_estate.contract_term_adjustment.result',
         'real_estate.contract_term_adjustment_result_view_form', [
+            Button('Open Adjustments', 'open_adjustments', 'tryton-list',
+                states={'invisible': ~Eval('run_id')}),
             Button('Close', 'end', 'tryton-ok', True),
         ])
+    open_adjustments = StateAction(
+        'real_estate.act_contract_term_adjustment')
 
     _procedure_labels = {
         'operation_costs_billing': 'Operation Costs Billing',
         'operation_costs_plan': 'Operation Costs Plan',
         'free_adjustment': 'Free Adjustment',
+        'index_rent': 'Index Rent',
     }
     _adjustment_mode_labels = {
         'percentage': 'Percentage',
         'absolute': 'Absolute',
     }
 
+    def _index_agreements_domain(self):
+        domain = [
+            ('procedure', '=', 'index_rent'),
+            ('state', '=', 'active'),
+            ('contract.company', '=', self.start.company.id),
+            ]
+        if self.start.price_index:
+            domain.append(('price_index', '=', self.start.price_index.id))
+        if self.start.property:
+            domain.append(('contract.property', '=', self.start.property.id))
+        if self.start.contracts:
+            domain.append(('contract', 'in',
+                    [c.id for c in self.start.contracts]))
+        return domain
+
     def default_confirm(self, fields):
+        RentAdjustment = Pool().get('real_estate.contract.rent_adjustment')
+        index_rent = self.start.procedure == 'index_rent'
         return {
+            'procedure_code': self.start.procedure,
+            'price_index': (self.start.price_index.id
+                if index_rent and self.start.price_index else None),
+            'index_month': self.start.index_month if index_rent else None,
+            'declaration_date': (self.start.declaration_date
+                if index_rent else None),
+            'n_agreements': (RentAdjustment.search_count(
+                    self._index_agreements_domain()) if index_rent else 0),
+            'include_decreases': self.start.include_decreases,
+            'auto_approve': self.start.auto_approve,
             'procedure': self._procedure_labels.get(
                 self.start.procedure, self.start.procedure or ''),
             'adjustment_mode': self._adjustment_mode_labels.get(
@@ -709,7 +829,30 @@ class ContractTermAdjustmentWizard(Wizard):
         result = self._adjustment()
         self.result.processed = result.get('processed', 0)
         self.result.message = result.get('message', '')
+        self.result.run_id = result.get('run_id')
         return 'result'
+
+    def _adjustment_index_rent(self):
+        RentAdjustment = Pool().get('real_estate.contract.rent_adjustment')
+        start = self.start
+        run = RentAdjustment.index_run(
+            start.company, start.price_index, start.index_month,
+            start.declaration_date,
+            properties=[start.property] if start.property else None,
+            contracts=list(start.contracts) or None,
+            include_decreases=start.include_decreases,
+            auto_approve=start.auto_approve)
+        return {
+            'processed': len(run.adjustments),
+            'message': '\n\n'.join(filter(None, [run.summary, run.protocol])),
+            'run_id': run.run_id if run.adjustments else None,
+            }
+
+    def do_open_adjustments(self, action):
+        action['pyson_domain'] = PYSONEncoder().encode(
+            [('run_id', '=', self.result.run_id)])
+        action['name'] += f' ({self.result.run_id})'
+        return action, {}
 
     def _adjustment_operation_costs_billing(self):
         # Implementation for operation costs billing adjustment
@@ -753,6 +896,8 @@ class ContractTermAdjustmentWizard(Wizard):
                 return self._adjustment_operation_costs_plan()
             case 'free_adjustment':
                 return self._adjustment_free_adjustment()
+            case 'index_rent':
+                return self._adjustment_index_rent()
             case _: 
 
                 return {
@@ -766,6 +911,7 @@ class ContractTermAdjustmentWizard(Wizard):
         return {
             'processed': self.result.processed,
             'message': self.result.message,
+            'run_id': self.result.run_id,
         }
 
 

@@ -23,6 +23,57 @@ The following master data must be set up before the module can be used:
    whether terms of this type are posted as a separate move (own invoice,
    optional own move description).
 
+``real_estate.price_index`` / ``real_estate.price_index.value``
+   Price index series for index rents (§ 557b BGB) with their monthly
+   values per base year (menu *Configuration › Price Indices*). Default
+   series ``VPI-DE`` (consumer price index Germany, Destatis table
+   61111-0002, base 2020, ``residential_allowed`` - the only index allowed
+   for residential index rents) and ``HVPI-DE`` (manual template for
+   commercial contracts). Values are imported with the wizard *Import
+   Index Values* (CSV with ``Month;Value`` rows, month as ``YYYY-MM`` or
+   ``MM.YYYY``, or ``Year;Month name;Value`` rows of a GENESIS-Online
+   table download; preview before import) or entered manually in the
+   editable value list. Only ``final`` values of the series' current
+   ``base_year`` count (``last_value_month``, ``get_value()``).
+   Maintenance is restricted to the administration group.
+
+   **GENESIS-Online import** (series with ``source = 'destatis_genesis'``
+   and ``genesis_table``): buttons *Fetch Values* (from the year before
+   the last value, catches revisions) and *Fetch from Base Year* on the
+   series form (tab *Import*, administration only) and the scheduled task
+   ``price_index_import`` (*Real Estate Accounting › Scheduled Tasks*,
+   e.g. *Run on Day of Month* 20 - Destatis publishes the VPI in the middle
+   of the following month). The web service is called by POST with the
+   API token in the request header (``data/tablefile``, format ``ffcsv``);
+   only the index rows (unit ``YYYY=100``) are imported (origin
+   ``import``), a different base year is refused, revisions of values
+   used by declared or executed adjustments are not taken over. Result
+   and errors are shown in *Last Import Message*; errors never abort the
+   scheduled run. The token is configured in ``trytond.conf`` (not in the
+   database)::
+
+      [real_estate]
+      genesis_token = <API token from GENESIS-Online, menu Webservice (API)>
+      # optional
+      genesis_url = https://genesis.destatis.de/genesisWS/rest/2020/
+      genesis_timeout = 60
+
+   The Tryton server and the cron process need outgoing HTTPS access to
+   ``genesis.destatis.de``. A flat file CSV downloaded manually from
+   GENESIS-Online can also be imported with *Import Index Values*.
+
+``real_estate.index_cap_rule``
+   Prepared cap rule for index rents ("Mietrecht II", not in force yet;
+   menu *Configuration › Index Rent Cap Rules*): validity of the received
+   declaration (``valid_from``/``valid_to``), ``threshold_percent``
+   (default 3, counted in full per year), ``excess_share_percent`` (default
+   50) and ``tight_market_only``. New rules are inactive by default.
+   ``apply()`` computes the counted change in sections of 12 months (rest
+   pro rata, compounded, no cap for decreases); ``find()`` returns the
+   active rule for a receipt date and property. The tight housing market
+   is marked on the property (``tight_market`` with validity
+   ``tight_market_valid_from``/``tight_market_valid_to``, tab *General*).
+
 ``real_estate.use_class``
    Dynamic use-class catalogue replacing the former static selection field.
    Each record carries two boolean flags:
