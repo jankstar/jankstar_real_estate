@@ -181,5 +181,25 @@ Extensions to Core Modules
    (``view/general_ledger_line_list.xml``, inherits
    ``account.general_ledger_line_view_list``).
 
-``res.user``  (``res.py``)
-   Adds ``phone`` and ``mobile`` fields.
+``res.user``  (``res.py``, ``task.py``)
+   Adds ``phone`` and ``mobile`` fields and the preference
+   ``task_email`` (task reminders by e-mail, default on - see `Tasks,
+   Processes and Handover Reports <tasks.rst>`__).
+
+``company.company``  (``company.py``)
+   Adds ``re_accounting`` - the company's real estate accounting
+   configuration (see `Configuration <configuration.rst>`__).
+
+``ir.cron``  (``ir.py``)
+   Adds the method ``real_estate.contract|cron_daily`` (*Real Estate Daily
+   Tasks*) to the fixed selection of cron methods; it dispatches the
+   per-company scheduled tasks (``real_estate.cron_task``).
+
+``ir.rule``  (``ir.py``)
+   Adds ``user_id`` to the evaluation context of record rules and the user
+   to their cache key, for rules that depend on the current user (task
+   rule "assigned to me").
+
+``ir.sequence``  (``sequence.py``)
+   Adds the sequence type ``string timestamp`` (formatted UTC timestamp
+   ``YYYY-MM-DD HH:MM:SS``).

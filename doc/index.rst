@@ -78,8 +78,8 @@ Contents
   - `CO2 Cost Allocation (CO2KostAufG) <https://github.com/jankstar/jankstar_real_estate/blob/main/doc/co2_kostaufg.rst>`_
   - `BVED External Billing Interface <https://github.com/jankstar/jankstar_real_estate/blob/main/doc/bved.rst>`_
   - `Option Rate (Input VAT Deduction) <https://github.com/jankstar/jankstar_real_estate/blob/main/doc/option_rate.rst>`_
-  - `Extensions to Core Modules <https://github.com/jankstar/jankstar_real_estate/blob/main/doc/core_extensions.rst>`_
   - `Tasks, Processes and Handover Reports <https://github.com/jankstar/jankstar_real_estate/blob/main/doc/tasks.rst>`_
+  - `Extensions to Core Modules <https://github.com/jankstar/jankstar_real_estate/blob/main/doc/core_extensions.rst>`_
 
 - `Wizards <https://github.com/jankstar/jankstar_real_estate/blob/main/doc/wizards.rst>`_
 - `Reports <https://github.com/jankstar/jankstar_real_estate/blob/main/doc/reports.rst>`_
