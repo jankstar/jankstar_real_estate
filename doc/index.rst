@@ -21,10 +21,12 @@ Structure
   booked as invoices via the *Create Contract Moves* wizard or a cron task
   (one invoice per contract and posting date; term types flagged as
   *Separate Move*, e.g. the rent deposit, get an invoice of their own).
-  Rent adjustments per term: graduated rent generated in advance, index
-  rent (§ 557b BGB) with consumer price index import (CSV or GENESIS
-  API), adjustment run, declaration letter and receipt; comparative rent,
-  modernisation and operating cost procedures as headers so far.
+- **Rent adjustments** — per contract term: graduated rent (§ 557a BGB)
+  generated in advance as terms; index rent (§ 557b BGB) with price index
+  series and import (CSV or GENESIS-Online API), adjustment run with
+  checks and cap rule, declaration letter, receipt and execution;
+  comparative rent, modernisation and operating cost procedures as
+  headers so far.
 - **Operating cost settlement** — billing units and settlement units
   allocate supplier invoice costs to contracts (by measurement,
   consumption, external billing, …), including CO2 cost allocation
@@ -71,6 +73,7 @@ Contents
 
   - `Property Management <https://github.com/jankstar/jankstar_real_estate/blob/main/doc/property_management.rst>`_
   - `Contract Management <https://github.com/jankstar/jankstar_real_estate/blob/main/doc/contract_management.rst>`_
+  - `Rent Adjustments <https://github.com/jankstar/jankstar_real_estate/blob/main/doc/rent_adjustment.rst>`_
   - `Operating Cost Settlement <https://github.com/jankstar/jankstar_real_estate/blob/main/doc/operating_cost_settlement.rst>`_
   - `CO2 Cost Allocation (CO2KostAufG) <https://github.com/jankstar/jankstar_real_estate/blob/main/doc/co2_kostaufg.rst>`_
   - `BVED External Billing Interface <https://github.com/jankstar/jankstar_real_estate/blob/main/doc/bved.rst>`_
@@ -99,6 +102,7 @@ Contents
    data_model
    property_management
    contract_management
+   rent_adjustment
    operating_cost_settlement
    co2_kostaufg
    bved
