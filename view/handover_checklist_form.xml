@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<form col="4">
+    <label name="name"/><field name="name"/>
+    <label name="active"/><field name="active"/>
+    <label name="types_of_use"/><field name="types_of_use" colspan="3" widget="multiselection" yexpand="0"/>
+    <field name="lines" colspan="4"/>
+</form>

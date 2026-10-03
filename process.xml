@@ -1,0 +1,664 @@
+<?xml version="1.0"?>
+<tryton>
+    <data>
+        <!-- Processes (spezifikation-wiedervorlage.md 8, phase D) -->
+        <record model="ir.ui.view" id="process_template_view_tree">
+            <field name="model">real_estate.process.template</field>
+            <field name="type">tree</field>
+            <field name="name">process_template_tree</field>
+        </record>
+        <record model="ir.ui.view" id="process_template_view_form">
+            <field name="model">real_estate.process.template</field>
+            <field name="type">form</field>
+            <field name="name">process_template_form</field>
+        </record>
+        <record model="ir.ui.view" id="process_template_step_view_tree">
+            <field name="model">real_estate.process.template.step</field>
+            <field name="type">tree</field>
+            <field name="name">process_template_step_tree</field>
+        </record>
+        <record model="ir.ui.view" id="process_template_step_view_form">
+            <field name="model">real_estate.process.template.step</field>
+            <field name="type">form</field>
+            <field name="name">process_template_step_form</field>
+        </record>
+        <record model="ir.ui.view" id="process_view_tree">
+            <field name="model">real_estate.process</field>
+            <field name="type">tree</field>
+            <field name="name">process_tree</field>
+        </record>
+        <record model="ir.ui.view" id="process_view_form">
+            <field name="model">real_estate.process</field>
+            <field name="type">form</field>
+            <field name="name">process_form</field>
+        </record>
+        <record model="ir.ui.view" id="process_step_view_tree">
+            <field name="model">real_estate.process.step</field>
+            <field name="type">tree</field>
+            <field name="name">process_step_tree</field>
+        </record>
+        <record model="ir.ui.view" id="process_start_start_view_form">
+            <field name="model">real_estate.process.start.start</field>
+            <field name="type">form</field>
+            <field name="name">process_start_start_form</field>
+        </record>
+        <record model="ir.action.act_window" id="act_process_template">
+            <field name="name">Process Templates</field>
+            <field name="res_model">real_estate.process.template</field>
+        </record>
+        <record model="ir.action.act_window.view" id="act_process_template_view1">
+            <field name="sequence" eval="10"/>
+            <field name="view" ref="process_template_view_tree"/>
+            <field name="act_window" ref="act_process_template"/>
+        </record>
+        <record model="ir.action.act_window.view" id="act_process_template_view2">
+            <field name="sequence" eval="20"/>
+            <field name="view" ref="process_template_view_form"/>
+            <field name="act_window" ref="act_process_template"/>
+        </record>
+        <record model="ir.action.act_window" id="act_process">
+            <field name="name">Processes</field>
+            <field name="res_model">real_estate.process</field>
+        </record>
+        <record model="ir.action.act_window.view" id="act_process_view1">
+            <field name="sequence" eval="10"/>
+            <field name="view" ref="process_view_tree"/>
+            <field name="act_window" ref="act_process"/>
+        </record>
+        <record model="ir.action.act_window.view" id="act_process_view2">
+            <field name="sequence" eval="20"/>
+            <field name="view" ref="process_view_form"/>
+            <field name="act_window" ref="act_process"/>
+        </record>
+        <record model="ir.action.act_window.domain" id="act_process_domain_running">
+            <field name="name">Running</field>
+            <field name="sequence" eval="10"/>
+            <field name="domain" eval="[('state', '=', 'running')]" pyson="1"></field>
+            <field name="count" eval="True"/>
+            <field name="act_window" ref="act_process"/>
+        </record>
+        <record model="ir.action.act_window.domain" id="act_process_domain_done">
+            <field name="name">Done</field>
+            <field name="sequence" eval="20"/>
+            <field name="domain" eval="[('state', '=', 'done')]" pyson="1"></field>
+            <field name="count" eval="False"/>
+            <field name="act_window" ref="act_process"/>
+        </record>
+        <record model="ir.action.act_window.domain" id="act_process_domain_cancelled">
+            <field name="name">Cancelled</field>
+            <field name="sequence" eval="30"/>
+            <field name="domain" eval="[('state', '=', 'cancelled')]" pyson="1"></field>
+            <field name="count" eval="False"/>
+            <field name="act_window" ref="act_process"/>
+        </record>
+        <record model="ir.action.act_window.domain" id="act_process_domain_all">
+            <field name="name">All</field>
+            <field name="sequence" eval="40"/>
+            <field name="domain"></field>
+            <field name="count" eval="False"/>
+            <field name="act_window" ref="act_process"/>
+        </record>
+        <menuitem
+            parent="menu_tasks"
+            action="act_process"
+            sequence="30"
+            id="menu_process"/>
+        <menuitem
+            parent="menu_task_configuration"
+            action="act_process_template"
+            sequence="30"
+            id="menu_process_template"/>
+
+        <record model="ir.action.wizard" id="wizard_task_execute_action">
+            <field name="name">Execute Action</field>
+            <field name="wiz_name">real_estate.task.execute_action</field>
+            <field name="model">real_estate.task</field>
+        </record>
+        <record model="ir.action.wizard" id="wizard_process_start">
+            <field name="name">Start Process</field>
+            <field name="wiz_name">real_estate.process.start</field>
+        </record>
+        <record model="ir.action.keyword" id="wizard_process_start_keyword_contract">
+            <field name="keyword">form_action</field>
+            <field name="model">real_estate.contract,-1</field>
+            <field name="action" ref="wizard_process_start"/>
+        </record>
+        <record model="ir.action.keyword" id="wizard_process_start_keyword_rent_adjustment">
+            <field name="keyword">form_action</field>
+            <field name="model">real_estate.contract.rent_adjustment,-1</field>
+            <field name="action" ref="wizard_process_start"/>
+        </record>
+        <record model="ir.action.keyword" id="wizard_process_start_keyword_base_object">
+            <field name="keyword">form_action</field>
+            <field name="model">real_estate.base_object,-1</field>
+            <field name="action" ref="wizard_process_start"/>
+        </record>
+        <record model="ir.action.keyword" id="wizard_process_start_keyword_billing_unit">
+            <field name="keyword">form_action</field>
+            <field name="model">real_estate.billing_unit,-1</field>
+            <field name="action" ref="wizard_process_start"/>
+        </record>
+        <record model="ir.model.button" id="process_check_button">
+            <field name="model">real_estate.process</field>
+            <field name="name">check</field>
+            <field name="string">Check State</field>
+        </record>
+        <record model="ir.model.button" id="process_reschedule_button">
+            <field name="model">real_estate.process</field>
+            <field name="name">reschedule</field>
+            <field name="string">Reschedule</field>
+        </record>
+        <record model="ir.model.button" id="process_cancel_button">
+            <field name="model">real_estate.process</field>
+            <field name="name">cancel</field>
+            <field name="string">Cancel</field>
+        </record>
+        <record model="ir.model.button" id="task_execute_action_button">
+            <field name="model">real_estate.task</field>
+            <field name="name">execute_action</field>
+            <field name="string">Execute Action</field>
+        </record>
+
+        <record model="ir.rule.group" id="rule_group_process_companies">
+            <field name="name">User in companies</field>
+            <field name="model">real_estate.process</field>
+            <field name="global_p" eval="True"/>
+        </record>
+        <record model="ir.rule" id="rule_process_companies">
+            <field name="domain" eval="[('company', 'in', Eval('companies', []))]" pyson="1"/>
+            <field name="rule_group" ref="rule_group_process_companies"/>
+        </record>
+        <record model="ir.model.access" id="access_process_template_admin">
+            <field name="model">real_estate.process.template</field>
+            <field name="group" ref="group_real_estate_admin"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+        <record model="ir.model.access" id="access_process_template_object">
+            <field name="model">real_estate.process.template</field>
+            <field name="group" ref="group_real_estate_object"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_process_template_contract">
+            <field name="model">real_estate.process.template</field>
+            <field name="group" ref="group_real_estate_contract"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_process_template_billing">
+            <field name="model">real_estate.process.template</field>
+            <field name="group" ref="group_real_estate_billing"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_process_template_default">
+            <field name="model">real_estate.process.template</field>
+            <field name="perm_read" eval="False"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_process_template_step_admin">
+            <field name="model">real_estate.process.template.step</field>
+            <field name="group" ref="group_real_estate_admin"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+        <record model="ir.model.access" id="access_process_template_step_object">
+            <field name="model">real_estate.process.template.step</field>
+            <field name="group" ref="group_real_estate_object"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_process_template_step_contract">
+            <field name="model">real_estate.process.template.step</field>
+            <field name="group" ref="group_real_estate_contract"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_process_template_step_billing">
+            <field name="model">real_estate.process.template.step</field>
+            <field name="group" ref="group_real_estate_billing"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_process_template_step_default">
+            <field name="model">real_estate.process.template.step</field>
+            <field name="perm_read" eval="False"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_process_object">
+            <field name="model">real_estate.process</field>
+            <field name="group" ref="group_real_estate_object"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+        <record model="ir.model.access" id="access_process_contract">
+            <field name="model">real_estate.process</field>
+            <field name="group" ref="group_real_estate_contract"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+        <record model="ir.model.access" id="access_process_billing">
+            <field name="model">real_estate.process</field>
+            <field name="group" ref="group_real_estate_billing"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+        <record model="ir.model.access" id="access_process_admin">
+            <field name="model">real_estate.process</field>
+            <field name="group" ref="group_real_estate_admin"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+        <record model="ir.model.access" id="access_process_default">
+            <field name="model">real_estate.process</field>
+            <field name="perm_read" eval="False"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_process_step_object">
+            <field name="model">real_estate.process.step</field>
+            <field name="group" ref="group_real_estate_object"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+        <record model="ir.model.access" id="access_process_step_contract">
+            <field name="model">real_estate.process.step</field>
+            <field name="group" ref="group_real_estate_contract"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+        <record model="ir.model.access" id="access_process_step_billing">
+            <field name="model">real_estate.process.step</field>
+            <field name="group" ref="group_real_estate_billing"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+        <record model="ir.model.access" id="access_process_step_admin">
+            <field name="model">real_estate.process.step</field>
+            <field name="group" ref="group_real_estate_admin"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+        <record model="ir.model.access" id="access_process_step_default">
+            <field name="model">real_estate.process.step</field>
+            <field name="perm_read" eval="False"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+    </data>
+
+    <data noupdate="1">
+        <!-- Default process templates - not assigned to a contract type -->
+        <record model="real_estate.process.template" id="process_template_move_out">
+            <field name="name">Move-out</field>
+            <field name="code">move_out</field>
+            <field name="model">real_estate.contract</field>
+            <field name="anchor_field">termination_date</field>
+        </record>
+        <record model="real_estate.process.template.step" id="process_template_move_out_confirm">
+            <field name="template" ref="process_template_move_out"/>
+            <field name="sequence" eval="10"/>
+            <field name="name">Check termination and send confirmation</field>
+            <field name="task_type" ref="task_type_process_step"/>
+            <field name="responsible_group" ref="group_real_estate_contract"/>
+            <field name="due_base">start</field>
+            <field name="offset_months" eval="0"/>
+            <field name="offset_days" eval="3"/>
+            <field name="completion">manual</field>
+            <field name="action" ref="report_contract_termination_confirmation_de"/>
+            <field name="result_required" eval="True"/>
+            <field name="description">Check the termination: written form, signature of all tenants, receipt and notice period. Enter the termination date in the contract. Print and send the termination confirmation with 'Execute Action'. In the tab 'Result' note when and how the confirmation was sent.</field>
+        </record>
+        <record model="real_estate.process.template.step" id="process_template_move_out_pre_arrange">
+            <field name="template" ref="process_template_move_out"/>
+            <field name="sequence" eval="20"/>
+            <field name="name">Arrange pre-inspection</field>
+            <field name="task_type" ref="task_type_process_step"/>
+            <field name="responsible_group" ref="group_real_estate_object"/>
+            <field name="due_base">anchor</field>
+            <field name="offset_months" eval="0"/>
+            <field name="offset_days" eval="-42"/>
+            <field name="completion">manual</field>
+            <field name="description">Arrange a date for the pre-inspection with the tenant (about 4-6 weeks before moving out) and confirm it in writing. Involve the caretaker or a technician if necessary. Note the date in the result.</field>
+        </record>
+        <record model="real_estate.process.template.step" id="process_template_move_out_meters">
+            <field name="template" ref="process_template_move_out"/>
+            <field name="sequence" eval="50"/>
+            <field name="name">Meter readings (all meters)</field>
+            <field name="task_type" ref="task_type_process_step"/>
+            <field name="responsible_group" ref="group_real_estate_object"/>
+            <field name="due_base">anchor</field>
+            <field name="offset_months" eval="0"/>
+            <field name="offset_days" eval="0"/>
+            <field name="completion">condition</field>
+            <field name="action" ref="act_meter_reading_form"/>
+            <field name="done_method">meter_readings_complete</field>
+            <field name="description">Record a reading for every meter of the rented objects (water, heat, electricity, gas) at the moving-out date. For meters of a metering service provider order an interim reading. The task is done as soon as every meter has a reading within 7 days of the moving-out date.</field>
+        </record>
+        <record model="real_estate.process.template.step" id="process_template_move_out_deposit">
+            <field name="template" ref="process_template_move_out"/>
+            <field name="sequence" eval="70"/>
+            <field name="name">Settle deposit</field>
+            <field name="task_type" ref="task_type_process_step"/>
+            <field name="responsible_group" ref="group_real_estate_contract"/>
+            <field name="due_base">anchor</field>
+            <field name="offset_months" eval="0"/>
+            <field name="offset_days" eval="0"/>
+            <field name="completion">manual</field>
+            <field name="action" ref="act_contract_move_line_payable_receivable_relate"/>
+            <field name="offset_setting">deposit_task_months</field>
+            <field name="description">Settle the deposit: offset open claims (rent, damages according to the acceptance report) against the deposit including interest. Retain an appropriate amount for the outstanding operating cost billing. Send the settlement to the tenant and pay out the remaining amount. The due date follows the setting 'Months until Deposit Settlement' in the real estate accounting.</field>
+        </record>
+        <record model="real_estate.process.template.step" id="process_template_move_out_deposit_rest">
+            <field name="template" ref="process_template_move_out"/>
+            <field name="sequence" eval="80"/>
+            <field name="name">Settle remaining deposit after operating cost billing</field>
+            <field name="task_type" ref="task_type_process_step"/>
+            <field name="responsible_group" ref="group_real_estate_billing"/>
+            <field name="due_base">method</field>
+            <field name="offset_months" eval="1"/>
+            <field name="offset_days" eval="0"/>
+            <field name="completion">manual</field>
+            <field name="action" ref="act_contract_move_line_payable_receivable_relate"/>
+            <field name="date_method">billing_deadline_for_contract</field>
+            <field name="mandatory" eval="False"/>
+            <field name="description">After the operating cost billing settle the retained amount: offset an additional payment against it or pay out the credit and the retained amount. If nothing was retained, cancel this step.</field>
+        </record>
+        <record model="real_estate.process.template.step" id="process_template_move_out_claims">
+            <field name="template" ref="process_template_move_out"/>
+            <field name="sequence" eval="90"/>
+            <field name="name">Check claims for damages (§ 548 BGB)</field>
+            <field name="task_type" ref="task_type_process_step"/>
+            <field name="responsible_group" ref="group_real_estate_contract"/>
+            <field name="due_base">anchor</field>
+            <field name="offset_months" eval="5"/>
+            <field name="offset_days" eval="0"/>
+            <field name="completion">manual</field>
+            <field name="mandatory" eval="False"/>
+            <field name="description">Claims for changes or deterioration of the rented property become time-barred six months after the return (§ 548 BGB). Check before that whether damages are claimed and assert them in time (e.g. offsetting against the deposit, court dunning procedure). If there are no claims, cancel this step.</field>
+        </record>
+        <record model="real_estate.process.template.step" id="process_template_move_out_final_billing">
+            <field name="template" ref="process_template_move_out"/>
+            <field name="sequence" eval="100"/>
+            <field name="name">Final operating cost billing</field>
+            <field name="task_type" ref="task_type_process_step"/>
+            <field name="responsible_group" ref="group_real_estate_billing"/>
+            <field name="due_base">method</field>
+            <field name="offset_months" eval="0"/>
+            <field name="offset_days" eval="0"/>
+            <field name="completion">condition</field>
+            <field name="action" ref="act_billing_unit_tree"/>
+            <field name="date_method">billing_deadline_for_contract</field>
+            <field name="done_method">billing_settled</field>
+            <field name="description">Create the operating cost billing of the period containing the moving-out date; the former tenant is included pro rata. The billing deadline is 12 months after the end of the billing period (§ 556 (3) BGB). The task is done as soon as the billing unit is billed.</field>
+        </record>
+        <record model="real_estate.process.template" id="process_template_move_in">
+            <field name="name">Move-in</field>
+            <field name="code">move_in</field>
+            <field name="model">real_estate.contract</field>
+            <field name="anchor_field">start_date</field>
+        </record>
+        <record model="real_estate.process.template.step" id="process_template_move_in_deposit">
+            <field name="template" ref="process_template_move_in"/>
+            <field name="sequence" eval="10"/>
+            <field name="name">Deposit received</field>
+            <field name="task_type" ref="task_type_process_step"/>
+            <field name="responsible_group" ref="group_real_estate_contract"/>
+            <field name="due_base">anchor</field>
+            <field name="offset_months" eval="0"/>
+            <field name="offset_days" eval="-7"/>
+            <field name="completion">condition</field>
+            <field name="action" ref="act_contract_move_line_payable_receivable_relate"/>
+            <field name="done_method">deposit_paid</field>
+            <field name="description">Check that the agreed deposit (or its first instalment, § 551 BGB allows three) has been received before the keys are handed over. The task is done automatically as soon as the deposit (term type 1900) is paid.</field>
+        </record>
+        <record model="real_estate.process.template.step" id="process_template_move_in_meters">
+            <field name="template" ref="process_template_move_in"/>
+            <field name="sequence" eval="30"/>
+            <field name="name">Meter readings (all meters)</field>
+            <field name="task_type" ref="task_type_process_step"/>
+            <field name="responsible_group" ref="group_real_estate_object"/>
+            <field name="due_base">anchor</field>
+            <field name="offset_months" eval="0"/>
+            <field name="offset_days" eval="0"/>
+            <field name="completion">condition</field>
+            <field name="action" ref="act_meter_reading_form"/>
+            <field name="done_method">meter_readings_complete</field>
+            <field name="description">Record a reading for every meter of the rented objects at the moving-in date (usually together with the handover report). The task is done as soon as every meter has a reading within 7 days of the moving-in date.</field>
+        </record>
+        <record model="real_estate.process.template.step" id="process_template_move_in_mandate">
+            <field name="template" ref="process_template_move_in"/>
+            <field name="sequence" eval="50"/>
+            <field name="name">Direct debit mandate</field>
+            <field name="task_type" ref="task_type_process_step"/>
+            <field name="responsible_group" ref="group_real_estate_contract"/>
+            <field name="due_base">anchor</field>
+            <field name="offset_months" eval="0"/>
+            <field name="offset_days" eval="7"/>
+            <field name="completion">manual</field>
+            <field name="description">Obtain the SEPA direct debit mandate of the tenant and store it with mandate reference and date at the party. If the tenant pays by standing order, note this in the result.</field>
+        </record>
+        <record model="real_estate.process.template" id="process_template_partner_change">
+            <field name="name">Change of Tenant in the Contract</field>
+            <field name="code">partner_change</field>
+            <field name="model">real_estate.contract</field>
+        </record>
+        <record model="real_estate.process.template.step" id="process_template_partner_change_credit">
+            <field name="template" ref="process_template_partner_change"/>
+            <field name="sequence" eval="10"/>
+            <field name="name">Check creditworthiness of the new tenant</field>
+            <field name="task_type" ref="task_type_process_step"/>
+            <field name="responsible_group" ref="group_real_estate_contract"/>
+            <field name="due_base">start</field>
+            <field name="offset_months" eval="0"/>
+            <field name="offset_days" eval="0"/>
+            <field name="completion">manual</field>
+            <field name="description">Check the creditworthiness of the new tenant (self-disclosure, proof of income, credit agency report, confirmation of no rent arrears). Document approval or rejection in the result.</field>
+        </record>
+        <record model="real_estate.process.template.step" id="process_template_partner_change_deposit">
+            <field name="template" ref="process_template_partner_change"/>
+            <field name="sequence" eval="20"/>
+            <field name="name">Transfer of the deposit</field>
+            <field name="task_type" ref="task_type_process_step"/>
+            <field name="responsible_group" ref="group_real_estate_contract"/>
+            <field name="due_base">start</field>
+            <field name="offset_months" eval="0"/>
+            <field name="offset_days" eval="14"/>
+            <field name="completion">manual</field>
+            <field name="action" ref="act_contract_move_line_payable_receivable_relate"/>
+            <field name="description">Clarify whether the deposit stays with the contract (taken over by the new tenant, settled between the tenants) or is settled with the leaving tenant and newly paid by the new tenant. Make the postings accordingly and note the decision in the result.</field>
+        </record>
+        <record model="real_estate.process.template.step" id="process_template_partner_change_mandate">
+            <field name="template" ref="process_template_partner_change"/>
+            <field name="sequence" eval="30"/>
+            <field name="name">Direct debit mandate of the new tenant</field>
+            <field name="task_type" ref="task_type_process_step"/>
+            <field name="responsible_group" ref="group_real_estate_contract"/>
+            <field name="due_base">start</field>
+            <field name="offset_months" eval="0"/>
+            <field name="offset_days" eval="14"/>
+            <field name="completion">manual</field>
+            <field name="description">Obtain and store the SEPA direct debit mandate of the new tenant; end the mandate of the leaving tenant at the date of the change.</field>
+        </record>
+        <record model="real_estate.process.template.step" id="process_template_partner_change_letter">
+            <field name="template" ref="process_template_partner_change"/>
+            <field name="sequence" eval="40"/>
+            <field name="name">Inform the tenants</field>
+            <field name="task_type" ref="task_type_process_step"/>
+            <field name="responsible_group" ref="group_real_estate_contract"/>
+            <field name="due_base">start</field>
+            <field name="offset_months" eval="0"/>
+            <field name="offset_days" eval="7"/>
+            <field name="completion">action</field>
+            <field name="action" ref="report_contract_letter_de"/>
+            <field name="description">Create the letter on the change of tenant with 'Execute Action' and send it to the leaving and the new tenant (confirmation of the contract transfer, bank details or mandate if applicable). The task is done by executing the action.</field>
+        </record>
+        <record model="real_estate.process.template" id="process_template_index_adjustment">
+            <field name="name">Index Rent Adjustment</field>
+            <field name="code">index_adjustment</field>
+            <field name="model">real_estate.contract.rent_adjustment</field>
+            <field name="anchor_field">declaration_deadline</field>
+        </record>
+        <record model="real_estate.process.template.step" id="process_template_index_adjustment_prepare">
+            <field name="template" ref="process_template_index_adjustment"/>
+            <field name="sequence" eval="10"/>
+            <field name="name">Prepare: run the index adjustment</field>
+            <field name="task_type" ref="task_type_process_step"/>
+            <field name="responsible_group" ref="group_real_estate_contract"/>
+            <field name="due_base">anchor</field>
+            <field name="offset_months" eval="0"/>
+            <field name="offset_days" eval="-14"/>
+            <field name="completion">manual</field>
+            <field name="action" ref="wizard_contract_term_adjustment"/>
+            <field name="description">Start the adjustment run for the index rent with 'Execute Action': check that the current index value is available (import index values if necessary), observe the waiting period of 12 months since the last adjustment (§ 557b (2) BGB) and the cap rules. Check the proposal of the run.</field>
+        </record>
+        <record model="real_estate.process.template.step" id="process_template_index_adjustment_declare">
+            <field name="template" ref="process_template_index_adjustment"/>
+            <field name="sequence" eval="20"/>
+            <field name="name">Approve and declare the adjustment</field>
+            <field name="task_type" ref="task_type_process_step"/>
+            <field name="responsible_group" ref="group_real_estate_contract"/>
+            <field name="due_base">previous_done</field>
+            <field name="offset_months" eval="0"/>
+            <field name="offset_days" eval="3"/>
+            <field name="completion">manual</field>
+            <field name="action" ref="act_contract_term_adjustment"/>
+            <field name="description">Check and approve the calculated adjustment, then create the declaration in text form and send it to the tenant. It must state the change of the index and the new rent or the increase as an amount (§ 557b (3) BGB).</field>
+        </record>
+        <record model="real_estate.process.template.step" id="process_template_index_adjustment_receipt">
+            <field name="template" ref="process_template_index_adjustment"/>
+            <field name="sequence" eval="30"/>
+            <field name="name">Capture the receipt of the declaration</field>
+            <field name="task_type" ref="task_type_process_step"/>
+            <field name="responsible_group" ref="group_real_estate_contract"/>
+            <field name="due_base">previous_done</field>
+            <field name="offset_months" eval="0"/>
+            <field name="offset_days" eval="7"/>
+            <field name="completion">manual</field>
+            <field name="action" ref="act_contract_term_adjustment_receipt"/>
+            <field name="description">Capture the date the declaration was received by the tenant. It determines the effective date: the changed rent is payable from the beginning of the second month after receipt.</field>
+        </record>
+        <record model="real_estate.process.template.step" id="process_template_index_adjustment_execute">
+            <field name="template" ref="process_template_index_adjustment"/>
+            <field name="sequence" eval="40"/>
+            <field name="name">Execute the adjustment</field>
+            <field name="task_type" ref="task_type_process_step"/>
+            <field name="responsible_group" ref="group_real_estate_contract"/>
+            <field name="due_base">previous_done</field>
+            <field name="offset_months" eval="0"/>
+            <field name="offset_days" eval="3"/>
+            <field name="completion">manual</field>
+            <field name="action" ref="act_contract_term_adjustment"/>
+            <field name="description">Execute the approved and received adjustment: the new rent is created as a new contract term from the effective date. Then check the cash flow of the contract.</field>
+        </record>
+        <record model="real_estate.process.template.step" id="process_template_move_out_pre_inspection">
+            <field name="template" ref="process_template_move_out"/>
+            <field name="sequence" eval="30"/>
+            <field name="name">Carry out pre-inspection</field>
+            <field name="task_type" ref="task_type_process_step"/>
+            <field name="responsible_group" ref="group_real_estate_object"/>
+            <field name="due_base">anchor</field>
+            <field name="offset_months" eval="0"/>
+            <field name="offset_days" eval="-28"/>
+            <field name="completion">condition</field>
+            <field name="action" ref="act_handover_pre_inspection"/>
+            <field name="done_method">handover_pre_inspection_done</field>
+            <field name="description">Carry out the pre-inspection: create a handover report of kind 'Pre-inspection' with 'Execute Action', take over the check points of the checklist and record defects and the work the tenant has to do before moving out (decorative repairs, removal of installations). The task is done as soon as the report is done.</field>
+        </record>
+        <record model="real_estate.process.template.step" id="process_template_move_out_handover">
+            <field name="template" ref="process_template_move_out"/>
+            <field name="sequence" eval="40"/>
+            <field name="name">Handover / acceptance report</field>
+            <field name="task_type" ref="task_type_process_step"/>
+            <field name="responsible_group" ref="group_real_estate_object"/>
+            <field name="due_base">anchor</field>
+            <field name="offset_months" eval="0"/>
+            <field name="offset_days" eval="0"/>
+            <field name="completion">condition</field>
+            <field name="action" ref="act_handover_move_out"/>
+            <field name="done_method">handover_move_out_done</field>
+            <field name="description">Acceptance on the moving-out date: create the handover report (move-out) with 'Execute Action', inspect the rooms along the check points, record defects, meter readings and returned keys, have the report signed by the tenant and set it done. The task is done with the report.</field>
+        </record>
+        <record model="real_estate.process.template.step" id="process_template_move_out_keys">
+            <field name="template" ref="process_template_move_out"/>
+            <field name="sequence" eval="60"/>
+            <field name="name">Document return of keys</field>
+            <field name="task_type" ref="task_type_process_step"/>
+            <field name="responsible_group" ref="group_real_estate_object"/>
+            <field name="due_base">anchor</field>
+            <field name="offset_months" eval="0"/>
+            <field name="offset_days" eval="0"/>
+            <field name="completion">condition</field>
+            <field name="action" ref="act_handover_move_out"/>
+            <field name="done_method">handover_move_out_done</field>
+            <field name="description">Record the return of all keys (number according to the move-in report) in the move-out handover report. Note missing keys; if necessary check the replacement of locks and charge the costs to the tenant. The task is done with the report.</field>
+        </record>
+        <record model="real_estate.process.template.step" id="process_template_move_in_handover">
+            <field name="template" ref="process_template_move_in"/>
+            <field name="sequence" eval="20"/>
+            <field name="name">Handover / handover report</field>
+            <field name="task_type" ref="task_type_process_step"/>
+            <field name="responsible_group" ref="group_real_estate_object"/>
+            <field name="due_base">anchor</field>
+            <field name="offset_months" eval="0"/>
+            <field name="offset_days" eval="0"/>
+            <field name="completion">condition</field>
+            <field name="action" ref="act_handover_move_in"/>
+            <field name="done_method">handover_move_in_done</field>
+            <field name="description">Handover to the new tenant: create the handover report (move-in) with 'Execute Action', record the condition of the rooms along the check points and existing defects, enter meter readings and handed-over keys, have it signed by both parties and set it done. The task is done with the report.</field>
+        </record>
+        <record model="real_estate.process.template.step" id="process_template_move_in_keys">
+            <field name="template" ref="process_template_move_in"/>
+            <field name="sequence" eval="40"/>
+            <field name="name">Name plates and keys</field>
+            <field name="task_type" ref="task_type_process_step"/>
+            <field name="responsible_group" ref="group_real_estate_object"/>
+            <field name="due_base">anchor</field>
+            <field name="offset_months" eval="0"/>
+            <field name="offset_days" eval="0"/>
+            <field name="completion">condition</field>
+            <field name="action" ref="act_handover_move_in"/>
+            <field name="done_method">handover_move_in_done</field>
+            <field name="description">Arrange name plates for door bell, letter box and apartment door; record number and kind of the handed-over keys in the handover report (move-in). The task is done with the report.</field>
+        </record>
+    </data>
+</tryton>

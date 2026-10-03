@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<form col="4">
+    <label name="template"/><field name="template"/>
+    <label name="state"/><field name="state"/>
+    <label name="resource"/><field name="resource" colspan="3"/>
+    <label name="contract"/><field name="contract"/>
+    <label name="property"/><field name="property"/>
+    <label name="start_date"/><field name="start_date"/>
+    <label name="anchor_date"/><field name="anchor_date"/>
+    <label name="progress"/><field name="progress"/>
+    <label name="company"/><field name="company"/>
+    <notebook colspan="4">
+        <page name="steps" col="1">
+            <field name="steps"/>
+        </page>
+        <page name="tasks" col="1">
+            <field name="tasks" view_ids="real_estate.task_view_list_resource"/>
+        </page>
+        <page name="history" col="1">
+            <field name="history"/>
+        </page>
+    </notebook>
+    <group id="buttons" colspan="4" col="-1">
+        <button name="cancel" icon="tryton-cancel"/>
+        <button name="reschedule" icon="tryton-date"/>
+        <button name="check" icon="tryton-refresh"/>
+    </group>
+</form>

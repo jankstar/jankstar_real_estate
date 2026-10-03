@@ -676,5 +676,186 @@ Either run "Ready for Billing" for each billing unit first, or bill individual b
         <record model="ir.message" id="msg_price_index_genesis_error">
             <field name="text">GENESIS-Online import failed: %(error)s</field>
         </record>
+        <record model="ir.message" id="msg_task_type_code_unique">
+            <field name="text">The code of a task type must be unique.</field>
+        </record>
+        <record model="ir.message" id="msg_task_type_unknown">
+            <field name="text">There is no task type with the code "%(code)s".</field>
+        </record>
+        <record model="ir.message" id="msg_task_responsible">
+            <field name="text">The task "%(task)s" needs a responsible user or group.</field>
+        </record>
+        <record model="ir.message" id="msg_task_origin_key">
+            <field name="text">There is already an open task for "%(task)s" from the same origin.</field>
+        </record>
+        <record model="ir.message" id="msg_task_note_done">
+            <field name="text">Task done: %(task)s
+%(result)s</field>
+        </record>
+        <record model="ir.message" id="msg_task_cancel_result">
+            <field name="text">Enter the reason in "Result" before cancelling the task "%(task)s".</field>
+        </record>
+        <record model="ir.message" id="msg_task_cancel_auto">
+            <field name="text">Cancelled automatically.</field>
+        </record>
+        <record model="ir.message" id="msg_task_reopen">
+            <field name="text">Only the creator or the real estate administration can reopen the task "%(task)s".</field>
+        </record>
+        <record model="ir.message" id="msg_task_postponed">
+            <field name="text">%(date)s %(user)s: postponed %(old)s -&gt; %(new)s - %(reason)s</field>
+        </record>
+        <record model="ir.message" id="msg_task_code_manual">
+            <field name="text">Follow-up</field>
+        </record>
+        <record model="ir.message" id="msg_task_code_contract_unsigned">
+            <field name="text">Contract not signed</field>
+        </record>
+        <record model="ir.message" id="msg_task_code_contract_end">
+            <field name="text">Fixed-term contract ends</field>
+        </record>
+        <record model="ir.message" id="msg_task_code_no_follow_up">
+            <field name="text">No follow-up contract</field>
+        </record>
+        <record model="ir.message" id="msg_task_code_party_end">
+            <field name="text">Contract party ends</field>
+        </record>
+        <record model="ir.message" id="msg_task_code_index_prepare">
+            <field name="text">Prepare index rent adjustment</field>
+        </record>
+        <record model="ir.message" id="msg_task_code_graduated_end">
+            <field name="text">Graduated rent ends</field>
+        </record>
+        <record model="ir.message" id="msg_task_code_waiver_end">
+            <field name="text">Termination waiver ends</field>
+        </record>
+        <record model="ir.message" id="msg_task_code_index_declare">
+            <field name="text">Declare index rent adjustment</field>
+        </record>
+        <record model="ir.message" id="msg_task_code_index_receipt">
+            <field name="text">Capture receipt of index declaration</field>
+        </record>
+        <record model="ir.message" id="msg_task_code_index_execute">
+            <field name="text">Execute index rent adjustment</field>
+        </record>
+        <record model="ir.message" id="msg_task_code_index_values">
+            <field name="text">Index values outdated</field>
+        </record>
+        <record model="ir.message" id="msg_task_code_tight_market_end">
+            <field name="text">Tight market regulation / cap rule ends</field>
+        </record>
+        <record model="ir.message" id="msg_task_code_billing_deadline">
+            <field name="text">Operating cost billing deadline</field>
+        </record>
+        <record model="ir.message" id="msg_task_code_prepayment_adjust">
+            <field name="text">Adjust operating cost prepayments</field>
+        </record>
+        <record model="ir.message" id="msg_task_code_bved_cutoff">
+            <field name="text">BVED exchange cutoff</field>
+        </record>
+        <record model="ir.message" id="msg_task_code_meter_reading">
+            <field name="text">Record meter readings</field>
+        </record>
+        <record model="ir.message" id="msg_task_code_meter_calibration">
+            <field name="text">Meter calibration expires / meter exchange</field>
+        </record>
+        <record model="ir.message" id="msg_task_code_object_end">
+            <field name="text">Object ends</field>
+        </record>
+        <record model="ir.message" id="msg_task_code_cron_error">
+            <field name="text">Scheduled task failed</field>
+        </record>
+        <record model="ir.message" id="msg_task_code_cron_missing">
+            <field name="text">Scheduled task not run</field>
+        </record>
+        <record model="ir.message" id="msg_task_reminder_label">
+            <field name="text">Task due: %(task)s</field>
+        </record>
+        <record model="ir.message" id="msg_task_escalation_label">
+            <field name="text">Overdue: %(task)s</field>
+        </record>
+        <record model="ir.message" id="msg_task_reminder_description">
+            <field name="text">due %(due_date)s - %(resource)s</field>
+        </record>
+        <record model="ir.message" id="msg_task_cron_error">
+            <field name="text">%(date)s: the scheduled task "%(task)s" failed: %(error)s</field>
+        </record>
+        <record model="ir.message" id="msg_task_rule_domain">
+            <field name="text">The domain "%(domain)s" of the task rule "%(rule)s" is not a valid PYSON domain.</field>
+        </record>
+        <record model="ir.message" id="msg_task_rule_result">
+            <field name="text">%(created)s created, %(done)s done automatically, %(renewed)s renewed</field>
+        </record>
+        <record model="ir.message" id="msg_task_rule_auto_done">
+            <field name="text">Done automatically (rule).</field>
+        </record>
+        <record model="ir.message" id="msg_task_rule_date_changed">
+            <field name="text">Reference date changed - a new task was created.</field>
+        </record>
+        <record model="ir.message" id="msg_task_rule_method_billing_deadline">
+            <field name="text">Billing deadline (end of period + 12 months)</field>
+        </record>
+        <record model="ir.message" id="msg_task_rule_method_meter_reading_due">
+            <field name="text">Meter readings missing at the end of the billing period</field>
+        </record>
+        <record model="ir.message" id="msg_task_rule_method_index_values_stale">
+            <field name="text">Index values outdated</field>
+        </record>
+        <record model="ir.message" id="msg_task_rule_method_no_follow_up_contract">
+            <field name="text">No follow-up contract after termination</field>
+        </record>
+        <record model="ir.message" id="msg_task_rule_method_state_since">
+            <field name="text">Date of the last state change</field>
+        </record>
+        <record model="ir.message" id="msg_task_rule_method_cron_overdue">
+            <field name="text">Scheduled task overdue</field>
+        </record>
+        <record model="ir.message" id="msg_task_code_process_step">
+            <field name="text">Process step</field>
+        </record>
+        <record model="ir.message" id="msg_process_template_code_unique">
+            <field name="text">The code of a process template must be unique.</field>
+        </record>
+        <record model="ir.message" id="msg_process_step_condition">
+            <field name="text">The done condition of the step "%(step)s" is not a valid PYSON domain.</field>
+        </record>
+        <record model="ir.message" id="msg_process_progress">
+            <field name="text">%(done)s / %(total)s done</field>
+        </record>
+        <record model="ir.message" id="msg_process_step_auto_done">
+            <field name="text">Done automatically (condition met).</field>
+        </record>
+        <record model="ir.message" id="msg_process_rescheduled">
+            <field name="text">%(step)s: %(old)s -&gt; %(new)s</field>
+        </record>
+        <record model="ir.message" id="msg_process_cancelled">
+            <field name="text">Process cancelled.</field>
+        </record>
+        <record model="ir.message" id="msg_process_step_result">
+            <field name="text">The step "%(task)s" requires a result: enter a text in the tab "Result" of the task (e.g. how and when the letter was sent), save and then set it done.</field>
+        </record>
+        <record model="ir.message" id="msg_process_step_action_done">
+            <field name="text">Done by executing the action "%(action)s".</field>
+        </record>
+        <record model="ir.message" id="msg_handover_delete_done">
+            <field name="text">The handover report "%(handover)s" is done and cannot be deleted.</field>
+        </record>
+        <record model="ir.message" id="msg_handover_meter_missing">
+            <field name="text">Handover report "%(handover)s": no reading for the meters %(meters)s.</field>
+        </record>
+        <record model="ir.message" id="msg_handover_log">
+            <field name="text">Handover report done: %(handover)s, keys %(keys)s, defects %(defects)s.</field>
+        </record>
+        <record model="ir.message" id="msg_handover_no_objects">
+            <field name="text">The handover report "%(handover)s" needs at least one object.</field>
+        </record>
+        <record model="ir.message" id="msg_handover_no_keys">
+            <field name="text">The handover report "%(handover)s" needs the keys handed over or returned.</field>
+        </record>
+        <record model="ir.message" id="msg_handover_unique">
+            <field name="text">There is already a done handover report of this kind for the contract: "%(other)s".</field>
+        </record>
+        <record model="ir.message" id="msg_handover_reopen">
+            <field name="text">Only the real estate administration can reset a done handover report to draft.</field>
+        </record>
     </data>
 </tryton>

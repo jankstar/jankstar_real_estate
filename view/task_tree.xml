@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<tree editable="1">
+    <field name="due_date"/>
+    <field name="name" expand="1"/>
+    <field name="task_type" optional="0"/>
+    <field name="resource" expand="1" optional="0"/>
+    <field name="contract" optional="1"/>
+    <field name="property" optional="1"/>
+    <field name="responsible_user" optional="0"/>
+    <field name="responsible_group" optional="0"/>
+    <field name="priority"/>
+    <field name="remind_date" optional="1"/>
+    <field name="state"/>
+    <field name="overdue" tree_invisible="1"/>
+    <button name="done"/>
+</tree>

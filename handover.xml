@@ -1,0 +1,884 @@
+<?xml version="1.0"?>
+<tryton>
+    <data>
+        <!-- Handover reports (spezifikation-uebergabeprotokoll.md) -->
+        <record model="ir.ui.view" id="handover_view_tree">
+            <field name="model">real_estate.contract.handover</field>
+            <field name="type">tree</field>
+            <field name="name">handover_tree</field>
+        </record>
+        <record model="ir.ui.view" id="handover_view_form">
+            <field name="model">real_estate.contract.handover</field>
+            <field name="type">form</field>
+            <field name="name">handover_form</field>
+        </record>
+        <record model="ir.ui.view" id="handover_line_view_tree">
+            <field name="model">real_estate.contract.handover.line</field>
+            <field name="type">tree</field>
+            <field name="name">handover_line_tree</field>
+        </record>
+        <record model="ir.ui.view" id="handover_line_view_form">
+            <field name="model">real_estate.contract.handover.line</field>
+            <field name="type">form</field>
+            <field name="name">handover_line_form</field>
+        </record>
+        <record model="ir.ui.view" id="handover_key_view_tree">
+            <field name="model">real_estate.contract.handover.key</field>
+            <field name="type">tree</field>
+            <field name="name">handover_key_tree</field>
+        </record>
+        <record model="ir.ui.view" id="handover_meter_view_tree">
+            <field name="model">real_estate.contract.handover.meter</field>
+            <field name="type">tree</field>
+            <field name="name">handover_meter_tree</field>
+        </record>
+        <record model="ir.ui.view" id="handover_checklist_view_tree">
+            <field name="model">real_estate.handover.checklist</field>
+            <field name="type">tree</field>
+            <field name="name">handover_checklist_tree</field>
+        </record>
+        <record model="ir.ui.view" id="handover_checklist_view_form">
+            <field name="model">real_estate.handover.checklist</field>
+            <field name="type">form</field>
+            <field name="name">handover_checklist_form</field>
+        </record>
+        <record model="ir.ui.view" id="handover_checklist_line_view_tree">
+            <field name="model">real_estate.handover.checklist.line</field>
+            <field name="type">tree</field>
+            <field name="name">handover_checklist_line_tree</field>
+        </record>
+        <record model="ir.action.act_window" id="act_handover">
+            <field name="name">Handover Reports</field>
+            <field name="res_model">real_estate.contract.handover</field>
+        </record>
+        <record model="ir.action.act_window.view" id="act_handover_view1">
+            <field name="sequence" eval="10"/>
+            <field name="view" ref="handover_view_tree"/>
+            <field name="act_window" ref="act_handover"/>
+        </record>
+        <record model="ir.action.act_window.view" id="act_handover_view2">
+            <field name="sequence" eval="20"/>
+            <field name="view" ref="handover_view_form"/>
+            <field name="act_window" ref="act_handover"/>
+        </record>
+        <record model="ir.action.act_window.domain" id="act_handover_domain_draft">
+            <field name="name">Draft</field>
+            <field name="sequence" eval="10"/>
+            <field name="domain" eval="[('state', '=', 'draft')]" pyson="1"></field>
+            <field name="count" eval="True"/>
+            <field name="act_window" ref="act_handover"/>
+        </record>
+        <record model="ir.action.act_window.domain" id="act_handover_domain_done">
+            <field name="name">Done</field>
+            <field name="sequence" eval="20"/>
+            <field name="domain" eval="[('state', '=', 'done')]" pyson="1"></field>
+            <field name="count" eval="False"/>
+            <field name="act_window" ref="act_handover"/>
+        </record>
+        <record model="ir.action.act_window.domain" id="act_handover_domain_all">
+            <field name="name">All</field>
+            <field name="sequence" eval="30"/>
+            <field name="domain"></field>
+            <field name="count" eval="False"/>
+            <field name="act_window" ref="act_handover"/>
+        </record>
+        <record model="ir.action.act_window" id="act_handover_move_in">
+            <field name="name">Move-in Report</field>
+            <field name="res_model">real_estate.contract.handover</field>
+            <field name="domain" eval="[('contract', '=', Eval('active_id', -1)), ('kind', '=', 'move_in')]" pyson="1"/>
+            <field name="context" eval="{'default_contract': Eval('active_id'), 'default_kind': 'move_in'}" pyson="1"/>
+        </record>
+        <record model="ir.action.act_window.view" id="act_handover_move_in_view1">
+            <field name="sequence" eval="10"/>
+            <field name="view" ref="handover_view_tree"/>
+            <field name="act_window" ref="act_handover_move_in"/>
+        </record>
+        <record model="ir.action.act_window.view" id="act_handover_move_in_view2">
+            <field name="sequence" eval="20"/>
+            <field name="view" ref="handover_view_form"/>
+            <field name="act_window" ref="act_handover_move_in"/>
+        </record>
+        <record model="ir.action.act_window" id="act_handover_pre_inspection">
+            <field name="name">Pre-inspection Report</field>
+            <field name="res_model">real_estate.contract.handover</field>
+            <field name="domain" eval="[('contract', '=', Eval('active_id', -1)), ('kind', '=', 'pre_inspection')]" pyson="1"/>
+            <field name="context" eval="{'default_contract': Eval('active_id'), 'default_kind': 'pre_inspection'}" pyson="1"/>
+        </record>
+        <record model="ir.action.act_window.view" id="act_handover_pre_inspection_view1">
+            <field name="sequence" eval="10"/>
+            <field name="view" ref="handover_view_tree"/>
+            <field name="act_window" ref="act_handover_pre_inspection"/>
+        </record>
+        <record model="ir.action.act_window.view" id="act_handover_pre_inspection_view2">
+            <field name="sequence" eval="20"/>
+            <field name="view" ref="handover_view_form"/>
+            <field name="act_window" ref="act_handover_pre_inspection"/>
+        </record>
+        <record model="ir.action.act_window" id="act_handover_move_out">
+            <field name="name">Move-out Report</field>
+            <field name="res_model">real_estate.contract.handover</field>
+            <field name="domain" eval="[('contract', '=', Eval('active_id', -1)), ('kind', '=', 'move_out')]" pyson="1"/>
+            <field name="context" eval="{'default_contract': Eval('active_id'), 'default_kind': 'move_out'}" pyson="1"/>
+        </record>
+        <record model="ir.action.act_window.view" id="act_handover_move_out_view1">
+            <field name="sequence" eval="10"/>
+            <field name="view" ref="handover_view_tree"/>
+            <field name="act_window" ref="act_handover_move_out"/>
+        </record>
+        <record model="ir.action.act_window.view" id="act_handover_move_out_view2">
+            <field name="sequence" eval="20"/>
+            <field name="view" ref="handover_view_form"/>
+            <field name="act_window" ref="act_handover_move_out"/>
+        </record>
+        <record model="ir.action.act_window" id="act_handover_checklist">
+            <field name="name">Handover Checklists</field>
+            <field name="res_model">real_estate.handover.checklist</field>
+        </record>
+        <record model="ir.action.act_window.view" id="act_handover_checklist_view1">
+            <field name="sequence" eval="10"/>
+            <field name="view" ref="handover_checklist_view_tree"/>
+            <field name="act_window" ref="act_handover_checklist"/>
+        </record>
+        <record model="ir.action.act_window.view" id="act_handover_checklist_view2">
+            <field name="sequence" eval="20"/>
+            <field name="view" ref="handover_checklist_view_form"/>
+            <field name="act_window" ref="act_handover_checklist"/>
+        </record>
+        <menuitem
+            parent="menu_real_estate_contracts"
+            action="act_handover"
+            sequence="40"
+            id="menu_handover"/>
+        <menuitem
+            parent="menu_task_configuration"
+            action="act_handover_checklist"
+            sequence="40"
+            id="menu_handover_checklist"/>
+
+        <record model="ir.action.report" id="report_handover_de">
+            <field name="name">Handover Report (de)</field>
+            <field name="report_name">real_estate.contract.handover.report</field>
+            <field name="model">real_estate.contract.handover</field>
+            <field name="report">real_estate/report/contract_handover_de.odt</field>
+            <field name="template_extension">odt</field>
+        </record>
+        <record model="ir.action.keyword" id="report_handover_keyword">
+            <field name="keyword">form_print</field>
+            <field name="model">real_estate.contract.handover,-1</field>
+            <field name="action" ref="report_handover_de"/>
+        </record>
+        <record model="ir.model.button" id="handover_done_button">
+            <field name="model">real_estate.contract.handover</field>
+            <field name="name">done</field>
+            <field name="string">Complete</field>
+        </record>
+        <record model="ir.model.button" id="handover_cancel_button">
+            <field name="model">real_estate.contract.handover</field>
+            <field name="name">cancel</field>
+            <field name="string">Cancel</field>
+        </record>
+        <record model="ir.model.button" id="handover_draft_button">
+            <field name="model">real_estate.contract.handover</field>
+            <field name="name">draft</field>
+            <field name="string">Reset to Draft</field>
+        </record>
+        <record model="ir.model.button" id="handover_fill_lines_button">
+            <field name="model">real_estate.contract.handover</field>
+            <field name="name">fill_lines</field>
+            <field name="string">Apply Proposals</field>
+        </record>
+        <record model="ir.rule.group" id="rule_group_handover_companies">
+            <field name="name">User in companies</field>
+            <field name="model">real_estate.contract.handover</field>
+            <field name="global_p" eval="True"/>
+        </record>
+        <record model="ir.rule" id="rule_handover_companies">
+            <field name="domain" eval="[('company', 'in', Eval('companies', []))]" pyson="1"/>
+            <field name="rule_group" ref="rule_group_handover_companies"/>
+        </record>
+        <record model="ir.model.access" id="access_handover_object">
+            <field name="model">real_estate.contract.handover</field>
+            <field name="group" ref="group_real_estate_object"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+        <record model="ir.model.access" id="access_handover_contract">
+            <field name="model">real_estate.contract.handover</field>
+            <field name="group" ref="group_real_estate_contract"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+        <record model="ir.model.access" id="access_handover_admin">
+            <field name="model">real_estate.contract.handover</field>
+            <field name="group" ref="group_real_estate_admin"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+        <record model="ir.model.access" id="access_handover_billing">
+            <field name="model">real_estate.contract.handover</field>
+            <field name="group" ref="group_real_estate_billing"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_handover_default">
+            <field name="model">real_estate.contract.handover</field>
+            <field name="perm_read" eval="False"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_handover_line_object">
+            <field name="model">real_estate.contract.handover.line</field>
+            <field name="group" ref="group_real_estate_object"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+        <record model="ir.model.access" id="access_handover_line_contract">
+            <field name="model">real_estate.contract.handover.line</field>
+            <field name="group" ref="group_real_estate_contract"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+        <record model="ir.model.access" id="access_handover_line_admin">
+            <field name="model">real_estate.contract.handover.line</field>
+            <field name="group" ref="group_real_estate_admin"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+        <record model="ir.model.access" id="access_handover_line_billing">
+            <field name="model">real_estate.contract.handover.line</field>
+            <field name="group" ref="group_real_estate_billing"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_handover_line_default">
+            <field name="model">real_estate.contract.handover.line</field>
+            <field name="perm_read" eval="False"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_handover_key_object">
+            <field name="model">real_estate.contract.handover.key</field>
+            <field name="group" ref="group_real_estate_object"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+        <record model="ir.model.access" id="access_handover_key_contract">
+            <field name="model">real_estate.contract.handover.key</field>
+            <field name="group" ref="group_real_estate_contract"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+        <record model="ir.model.access" id="access_handover_key_admin">
+            <field name="model">real_estate.contract.handover.key</field>
+            <field name="group" ref="group_real_estate_admin"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+        <record model="ir.model.access" id="access_handover_key_billing">
+            <field name="model">real_estate.contract.handover.key</field>
+            <field name="group" ref="group_real_estate_billing"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_handover_key_default">
+            <field name="model">real_estate.contract.handover.key</field>
+            <field name="perm_read" eval="False"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_handover_meter_object">
+            <field name="model">real_estate.contract.handover.meter</field>
+            <field name="group" ref="group_real_estate_object"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+        <record model="ir.model.access" id="access_handover_meter_contract">
+            <field name="model">real_estate.contract.handover.meter</field>
+            <field name="group" ref="group_real_estate_contract"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+        <record model="ir.model.access" id="access_handover_meter_admin">
+            <field name="model">real_estate.contract.handover.meter</field>
+            <field name="group" ref="group_real_estate_admin"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+        <record model="ir.model.access" id="access_handover_meter_billing">
+            <field name="model">real_estate.contract.handover.meter</field>
+            <field name="group" ref="group_real_estate_billing"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_handover_meter_default">
+            <field name="model">real_estate.contract.handover.meter</field>
+            <field name="perm_read" eval="False"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_handover_object_object">
+            <field name="model">real_estate.contract.handover-base_object</field>
+            <field name="group" ref="group_real_estate_object"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+        <record model="ir.model.access" id="access_handover_object_contract">
+            <field name="model">real_estate.contract.handover-base_object</field>
+            <field name="group" ref="group_real_estate_contract"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+        <record model="ir.model.access" id="access_handover_object_admin">
+            <field name="model">real_estate.contract.handover-base_object</field>
+            <field name="group" ref="group_real_estate_admin"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+        <record model="ir.model.access" id="access_handover_object_billing">
+            <field name="model">real_estate.contract.handover-base_object</field>
+            <field name="group" ref="group_real_estate_billing"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_handover_object_default">
+            <field name="model">real_estate.contract.handover-base_object</field>
+            <field name="perm_read" eval="False"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_handover_party_object">
+            <field name="model">real_estate.contract.handover-party</field>
+            <field name="group" ref="group_real_estate_object"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+        <record model="ir.model.access" id="access_handover_party_contract">
+            <field name="model">real_estate.contract.handover-party</field>
+            <field name="group" ref="group_real_estate_contract"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+        <record model="ir.model.access" id="access_handover_party_admin">
+            <field name="model">real_estate.contract.handover-party</field>
+            <field name="group" ref="group_real_estate_admin"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+        <record model="ir.model.access" id="access_handover_party_billing">
+            <field name="model">real_estate.contract.handover-party</field>
+            <field name="group" ref="group_real_estate_billing"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_handover_party_default">
+            <field name="model">real_estate.contract.handover-party</field>
+            <field name="perm_read" eval="False"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_handover_checklist_admin">
+            <field name="model">real_estate.handover.checklist</field>
+            <field name="group" ref="group_real_estate_admin"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+        <record model="ir.model.access" id="access_handover_checklist_object">
+            <field name="model">real_estate.handover.checklist</field>
+            <field name="group" ref="group_real_estate_object"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_handover_checklist_contract">
+            <field name="model">real_estate.handover.checklist</field>
+            <field name="group" ref="group_real_estate_contract"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_handover_checklist_billing">
+            <field name="model">real_estate.handover.checklist</field>
+            <field name="group" ref="group_real_estate_billing"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_handover_checklist_default">
+            <field name="model">real_estate.handover.checklist</field>
+            <field name="perm_read" eval="False"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_handover_checklist_line_admin">
+            <field name="model">real_estate.handover.checklist.line</field>
+            <field name="group" ref="group_real_estate_admin"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+        <record model="ir.model.access" id="access_handover_checklist_line_object">
+            <field name="model">real_estate.handover.checklist.line</field>
+            <field name="group" ref="group_real_estate_object"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_handover_checklist_line_contract">
+            <field name="model">real_estate.handover.checklist.line</field>
+            <field name="group" ref="group_real_estate_contract"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_handover_checklist_line_billing">
+            <field name="model">real_estate.handover.checklist.line</field>
+            <field name="group" ref="group_real_estate_billing"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_handover_checklist_line_default">
+            <field name="model">real_estate.handover.checklist.line</field>
+            <field name="perm_read" eval="False"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+    </data>
+
+    <data noupdate="1">
+        <!-- Default checklists -->
+        <record model="real_estate.handover.checklist" id="handover_checklist_residential">
+            <field name="name">Apartment</field>
+            <field name="types_of_use" eval="['residential']"/>
+        </record>
+        <record model="real_estate.handover.checklist.line" id="handover_checklist_residential_hall_walls">
+            <field name="checklist" ref="handover_checklist_residential"/>
+            <field name="sequence" eval="10"/>
+            <field name="room">Hall</field>
+            <field name="item">Walls / ceilings</field>
+        </record>
+        <record model="real_estate.handover.checklist.line" id="handover_checklist_residential_hall_floor">
+            <field name="checklist" ref="handover_checklist_residential"/>
+            <field name="sequence" eval="20"/>
+            <field name="room">Hall</field>
+            <field name="item">Floor</field>
+        </record>
+        <record model="real_estate.handover.checklist.line" id="handover_checklist_residential_hall_windows">
+            <field name="checklist" ref="handover_checklist_residential"/>
+            <field name="sequence" eval="30"/>
+            <field name="room">Hall</field>
+            <field name="item">Windows</field>
+        </record>
+        <record model="real_estate.handover.checklist.line" id="handover_checklist_residential_hall_doors">
+            <field name="checklist" ref="handover_checklist_residential"/>
+            <field name="sequence" eval="40"/>
+            <field name="room">Hall</field>
+            <field name="item">Doors</field>
+        </record>
+        <record model="real_estate.handover.checklist.line" id="handover_checklist_residential_hall_radiators">
+            <field name="checklist" ref="handover_checklist_residential"/>
+            <field name="sequence" eval="50"/>
+            <field name="room">Hall</field>
+            <field name="item">Radiators</field>
+        </record>
+        <record model="real_estate.handover.checklist.line" id="handover_checklist_residential_hall_electrics">
+            <field name="checklist" ref="handover_checklist_residential"/>
+            <field name="sequence" eval="60"/>
+            <field name="room">Hall</field>
+            <field name="item">Electrics (switches, sockets)</field>
+        </record>
+        <record model="real_estate.handover.checklist.line" id="handover_checklist_residential_living_walls">
+            <field name="checklist" ref="handover_checklist_residential"/>
+            <field name="sequence" eval="70"/>
+            <field name="room">Living room</field>
+            <field name="item">Walls / ceilings</field>
+        </record>
+        <record model="real_estate.handover.checklist.line" id="handover_checklist_residential_living_floor">
+            <field name="checklist" ref="handover_checklist_residential"/>
+            <field name="sequence" eval="80"/>
+            <field name="room">Living room</field>
+            <field name="item">Floor</field>
+        </record>
+        <record model="real_estate.handover.checklist.line" id="handover_checklist_residential_living_windows">
+            <field name="checklist" ref="handover_checklist_residential"/>
+            <field name="sequence" eval="90"/>
+            <field name="room">Living room</field>
+            <field name="item">Windows</field>
+        </record>
+        <record model="real_estate.handover.checklist.line" id="handover_checklist_residential_living_doors">
+            <field name="checklist" ref="handover_checklist_residential"/>
+            <field name="sequence" eval="100"/>
+            <field name="room">Living room</field>
+            <field name="item">Doors</field>
+        </record>
+        <record model="real_estate.handover.checklist.line" id="handover_checklist_residential_living_radiators">
+            <field name="checklist" ref="handover_checklist_residential"/>
+            <field name="sequence" eval="110"/>
+            <field name="room">Living room</field>
+            <field name="item">Radiators</field>
+        </record>
+        <record model="real_estate.handover.checklist.line" id="handover_checklist_residential_living_electrics">
+            <field name="checklist" ref="handover_checklist_residential"/>
+            <field name="sequence" eval="120"/>
+            <field name="room">Living room</field>
+            <field name="item">Electrics (switches, sockets)</field>
+        </record>
+        <record model="real_estate.handover.checklist.line" id="handover_checklist_residential_bedroom_walls">
+            <field name="checklist" ref="handover_checklist_residential"/>
+            <field name="sequence" eval="130"/>
+            <field name="room">Bedroom</field>
+            <field name="item">Walls / ceilings</field>
+        </record>
+        <record model="real_estate.handover.checklist.line" id="handover_checklist_residential_bedroom_floor">
+            <field name="checklist" ref="handover_checklist_residential"/>
+            <field name="sequence" eval="140"/>
+            <field name="room">Bedroom</field>
+            <field name="item">Floor</field>
+        </record>
+        <record model="real_estate.handover.checklist.line" id="handover_checklist_residential_bedroom_windows">
+            <field name="checklist" ref="handover_checklist_residential"/>
+            <field name="sequence" eval="150"/>
+            <field name="room">Bedroom</field>
+            <field name="item">Windows</field>
+        </record>
+        <record model="real_estate.handover.checklist.line" id="handover_checklist_residential_bedroom_doors">
+            <field name="checklist" ref="handover_checklist_residential"/>
+            <field name="sequence" eval="160"/>
+            <field name="room">Bedroom</field>
+            <field name="item">Doors</field>
+        </record>
+        <record model="real_estate.handover.checklist.line" id="handover_checklist_residential_bedroom_radiators">
+            <field name="checklist" ref="handover_checklist_residential"/>
+            <field name="sequence" eval="170"/>
+            <field name="room">Bedroom</field>
+            <field name="item">Radiators</field>
+        </record>
+        <record model="real_estate.handover.checklist.line" id="handover_checklist_residential_bedroom_electrics">
+            <field name="checklist" ref="handover_checklist_residential"/>
+            <field name="sequence" eval="180"/>
+            <field name="room">Bedroom</field>
+            <field name="item">Electrics (switches, sockets)</field>
+        </record>
+        <record model="real_estate.handover.checklist.line" id="handover_checklist_residential_kitchen_walls">
+            <field name="checklist" ref="handover_checklist_residential"/>
+            <field name="sequence" eval="190"/>
+            <field name="room">Kitchen</field>
+            <field name="item">Walls / ceilings</field>
+        </record>
+        <record model="real_estate.handover.checklist.line" id="handover_checklist_residential_kitchen_floor">
+            <field name="checklist" ref="handover_checklist_residential"/>
+            <field name="sequence" eval="200"/>
+            <field name="room">Kitchen</field>
+            <field name="item">Floor</field>
+        </record>
+        <record model="real_estate.handover.checklist.line" id="handover_checklist_residential_kitchen_windows">
+            <field name="checklist" ref="handover_checklist_residential"/>
+            <field name="sequence" eval="210"/>
+            <field name="room">Kitchen</field>
+            <field name="item">Windows</field>
+        </record>
+        <record model="real_estate.handover.checklist.line" id="handover_checklist_residential_kitchen_doors">
+            <field name="checklist" ref="handover_checklist_residential"/>
+            <field name="sequence" eval="220"/>
+            <field name="room">Kitchen</field>
+            <field name="item">Doors</field>
+        </record>
+        <record model="real_estate.handover.checklist.line" id="handover_checklist_residential_kitchen_radiators">
+            <field name="checklist" ref="handover_checklist_residential"/>
+            <field name="sequence" eval="230"/>
+            <field name="room">Kitchen</field>
+            <field name="item">Radiators</field>
+        </record>
+        <record model="real_estate.handover.checklist.line" id="handover_checklist_residential_kitchen_electrics">
+            <field name="checklist" ref="handover_checklist_residential"/>
+            <field name="sequence" eval="240"/>
+            <field name="room">Kitchen</field>
+            <field name="item">Electrics (switches, sockets)</field>
+        </record>
+        <record model="real_estate.handover.checklist.line" id="handover_checklist_residential_kitchen_kitchen_unit">
+            <field name="checklist" ref="handover_checklist_residential"/>
+            <field name="sequence" eval="250"/>
+            <field name="room">Kitchen</field>
+            <field name="item">Fitted kitchen / sink</field>
+        </record>
+        <record model="real_estate.handover.checklist.line" id="handover_checklist_residential_bath_walls">
+            <field name="checklist" ref="handover_checklist_residential"/>
+            <field name="sequence" eval="260"/>
+            <field name="room">Bathroom / WC</field>
+            <field name="item">Walls / ceilings</field>
+        </record>
+        <record model="real_estate.handover.checklist.line" id="handover_checklist_residential_bath_floor">
+            <field name="checklist" ref="handover_checklist_residential"/>
+            <field name="sequence" eval="270"/>
+            <field name="room">Bathroom / WC</field>
+            <field name="item">Floor</field>
+        </record>
+        <record model="real_estate.handover.checklist.line" id="handover_checklist_residential_bath_windows">
+            <field name="checklist" ref="handover_checklist_residential"/>
+            <field name="sequence" eval="280"/>
+            <field name="room">Bathroom / WC</field>
+            <field name="item">Windows</field>
+        </record>
+        <record model="real_estate.handover.checklist.line" id="handover_checklist_residential_bath_doors">
+            <field name="checklist" ref="handover_checklist_residential"/>
+            <field name="sequence" eval="290"/>
+            <field name="room">Bathroom / WC</field>
+            <field name="item">Doors</field>
+        </record>
+        <record model="real_estate.handover.checklist.line" id="handover_checklist_residential_bath_radiators">
+            <field name="checklist" ref="handover_checklist_residential"/>
+            <field name="sequence" eval="300"/>
+            <field name="room">Bathroom / WC</field>
+            <field name="item">Radiators</field>
+        </record>
+        <record model="real_estate.handover.checklist.line" id="handover_checklist_residential_bath_electrics">
+            <field name="checklist" ref="handover_checklist_residential"/>
+            <field name="sequence" eval="310"/>
+            <field name="room">Bathroom / WC</field>
+            <field name="item">Electrics (switches, sockets)</field>
+        </record>
+        <record model="real_estate.handover.checklist.line" id="handover_checklist_residential_bath_sanitary">
+            <field name="checklist" ref="handover_checklist_residential"/>
+            <field name="sequence" eval="320"/>
+            <field name="room">Bathroom / WC</field>
+            <field name="item">Sanitary fittings</field>
+        </record>
+        <record model="real_estate.handover.checklist.line" id="handover_checklist_residential_bath_tiles">
+            <field name="checklist" ref="handover_checklist_residential"/>
+            <field name="sequence" eval="330"/>
+            <field name="room">Bathroom / WC</field>
+            <field name="item">Tiles</field>
+        </record>
+        <record model="real_estate.handover.checklist.line" id="handover_checklist_residential_balcony_floor">
+            <field name="checklist" ref="handover_checklist_residential"/>
+            <field name="sequence" eval="340"/>
+            <field name="room">Balcony / loggia</field>
+            <field name="item">Floor</field>
+        </record>
+        <record model="real_estate.handover.checklist.line" id="handover_checklist_residential_balcony_railing">
+            <field name="checklist" ref="handover_checklist_residential"/>
+            <field name="sequence" eval="350"/>
+            <field name="room">Balcony / loggia</field>
+            <field name="item">Railing</field>
+        </record>
+        <record model="real_estate.handover.checklist.line" id="handover_checklist_residential_cellar_doors">
+            <field name="checklist" ref="handover_checklist_residential"/>
+            <field name="sequence" eval="360"/>
+            <field name="room">Cellar</field>
+            <field name="item">Doors</field>
+        </record>
+        <record model="real_estate.handover.checklist.line" id="handover_checklist_residential_cellar_floor">
+            <field name="checklist" ref="handover_checklist_residential"/>
+            <field name="sequence" eval="370"/>
+            <field name="room">Cellar</field>
+            <field name="item">Floor</field>
+        </record>
+        <record model="real_estate.handover.checklist" id="handover_checklist_commercial">
+            <field name="name">Commercial unit</field>
+            <field name="types_of_use" eval="['commercial']"/>
+        </record>
+        <record model="real_estate.handover.checklist.line" id="handover_checklist_commercial_sales_walls">
+            <field name="checklist" ref="handover_checklist_commercial"/>
+            <field name="sequence" eval="10"/>
+            <field name="room">Sales area / office</field>
+            <field name="item">Walls / ceilings</field>
+        </record>
+        <record model="real_estate.handover.checklist.line" id="handover_checklist_commercial_sales_floor">
+            <field name="checklist" ref="handover_checklist_commercial"/>
+            <field name="sequence" eval="20"/>
+            <field name="room">Sales area / office</field>
+            <field name="item">Floor</field>
+        </record>
+        <record model="real_estate.handover.checklist.line" id="handover_checklist_commercial_sales_windows">
+            <field name="checklist" ref="handover_checklist_commercial"/>
+            <field name="sequence" eval="30"/>
+            <field name="room">Sales area / office</field>
+            <field name="item">Windows</field>
+        </record>
+        <record model="real_estate.handover.checklist.line" id="handover_checklist_commercial_sales_doors">
+            <field name="checklist" ref="handover_checklist_commercial"/>
+            <field name="sequence" eval="40"/>
+            <field name="room">Sales area / office</field>
+            <field name="item">Doors</field>
+        </record>
+        <record model="real_estate.handover.checklist.line" id="handover_checklist_commercial_sales_radiators">
+            <field name="checklist" ref="handover_checklist_commercial"/>
+            <field name="sequence" eval="50"/>
+            <field name="room">Sales area / office</field>
+            <field name="item">Radiators</field>
+        </record>
+        <record model="real_estate.handover.checklist.line" id="handover_checklist_commercial_sales_electrics">
+            <field name="checklist" ref="handover_checklist_commercial"/>
+            <field name="sequence" eval="60"/>
+            <field name="room">Sales area / office</field>
+            <field name="item">Electrics (switches, sockets)</field>
+        </record>
+        <record model="real_estate.handover.checklist.line" id="handover_checklist_commercial_storage_walls">
+            <field name="checklist" ref="handover_checklist_commercial"/>
+            <field name="sequence" eval="70"/>
+            <field name="room">Storage</field>
+            <field name="item">Walls / ceilings</field>
+        </record>
+        <record model="real_estate.handover.checklist.line" id="handover_checklist_commercial_storage_floor">
+            <field name="checklist" ref="handover_checklist_commercial"/>
+            <field name="sequence" eval="80"/>
+            <field name="room">Storage</field>
+            <field name="item">Floor</field>
+        </record>
+        <record model="real_estate.handover.checklist.line" id="handover_checklist_commercial_storage_windows">
+            <field name="checklist" ref="handover_checklist_commercial"/>
+            <field name="sequence" eval="90"/>
+            <field name="room">Storage</field>
+            <field name="item">Windows</field>
+        </record>
+        <record model="real_estate.handover.checklist.line" id="handover_checklist_commercial_storage_doors">
+            <field name="checklist" ref="handover_checklist_commercial"/>
+            <field name="sequence" eval="100"/>
+            <field name="room">Storage</field>
+            <field name="item">Doors</field>
+        </record>
+        <record model="real_estate.handover.checklist.line" id="handover_checklist_commercial_storage_radiators">
+            <field name="checklist" ref="handover_checklist_commercial"/>
+            <field name="sequence" eval="110"/>
+            <field name="room">Storage</field>
+            <field name="item">Radiators</field>
+        </record>
+        <record model="real_estate.handover.checklist.line" id="handover_checklist_commercial_storage_electrics">
+            <field name="checklist" ref="handover_checklist_commercial"/>
+            <field name="sequence" eval="120"/>
+            <field name="room">Storage</field>
+            <field name="item">Electrics (switches, sockets)</field>
+        </record>
+        <record model="real_estate.handover.checklist.line" id="handover_checklist_commercial_staff_walls">
+            <field name="checklist" ref="handover_checklist_commercial"/>
+            <field name="sequence" eval="130"/>
+            <field name="room">Staff room</field>
+            <field name="item">Walls / ceilings</field>
+        </record>
+        <record model="real_estate.handover.checklist.line" id="handover_checklist_commercial_staff_floor">
+            <field name="checklist" ref="handover_checklist_commercial"/>
+            <field name="sequence" eval="140"/>
+            <field name="room">Staff room</field>
+            <field name="item">Floor</field>
+        </record>
+        <record model="real_estate.handover.checklist.line" id="handover_checklist_commercial_staff_windows">
+            <field name="checklist" ref="handover_checklist_commercial"/>
+            <field name="sequence" eval="150"/>
+            <field name="room">Staff room</field>
+            <field name="item">Windows</field>
+        </record>
+        <record model="real_estate.handover.checklist.line" id="handover_checklist_commercial_staff_doors">
+            <field name="checklist" ref="handover_checklist_commercial"/>
+            <field name="sequence" eval="160"/>
+            <field name="room">Staff room</field>
+            <field name="item">Doors</field>
+        </record>
+        <record model="real_estate.handover.checklist.line" id="handover_checklist_commercial_staff_radiators">
+            <field name="checklist" ref="handover_checklist_commercial"/>
+            <field name="sequence" eval="170"/>
+            <field name="room">Staff room</field>
+            <field name="item">Radiators</field>
+        </record>
+        <record model="real_estate.handover.checklist.line" id="handover_checklist_commercial_staff_electrics">
+            <field name="checklist" ref="handover_checklist_commercial"/>
+            <field name="sequence" eval="180"/>
+            <field name="room">Staff room</field>
+            <field name="item">Electrics (switches, sockets)</field>
+        </record>
+        <record model="real_estate.handover.checklist.line" id="handover_checklist_commercial_wc_sanitary">
+            <field name="checklist" ref="handover_checklist_commercial"/>
+            <field name="sequence" eval="190"/>
+            <field name="room">WC</field>
+            <field name="item">Sanitary fittings</field>
+        </record>
+        <record model="real_estate.handover.checklist.line" id="handover_checklist_commercial_wc_tiles">
+            <field name="checklist" ref="handover_checklist_commercial"/>
+            <field name="sequence" eval="200"/>
+            <field name="room">WC</field>
+            <field name="item">Tiles</field>
+        </record>
+        <record model="real_estate.handover.checklist.line" id="handover_checklist_commercial_wc_doors">
+            <field name="checklist" ref="handover_checklist_commercial"/>
+            <field name="sequence" eval="210"/>
+            <field name="room">WC</field>
+            <field name="item">Doors</field>
+        </record>
+        <record model="real_estate.handover.checklist.line" id="handover_checklist_commercial_outdoor_floor">
+            <field name="checklist" ref="handover_checklist_commercial"/>
+            <field name="sequence" eval="220"/>
+            <field name="room">Outdoor area</field>
+            <field name="item">Floor</field>
+        </record>
+        <record model="real_estate.handover.checklist.line" id="handover_checklist_commercial_outdoor_lighting">
+            <field name="checklist" ref="handover_checklist_commercial"/>
+            <field name="sequence" eval="230"/>
+            <field name="room">Outdoor area</field>
+            <field name="item">Lighting</field>
+        </record>
+    </data>
+</tryton>

@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<form col="4">
+    <label name="room"/><field name="room"/>
+    <label name="item"/><field name="item"/>
+    <label name="condition"/><field name="condition"/>
+    <label name="from_pre_inspection"/><field name="from_pre_inspection"/>
+    <label name="remedy_by"/><field name="remedy_by"/>
+    <label name="remedy_until"/><field name="remedy_until"/>
+    <label name="cost_estimate"/><field name="cost_estimate"/>
+    <separator name="description" colspan="4"/>
+    <field name="description" colspan="4"/>
+    <field name="currency" invisible="1"/>
+</form>

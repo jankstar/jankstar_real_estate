@@ -1,0 +1,47 @@
+<?xml version="1.0"?>
+<form col="4">
+    <label name="contract"/><field name="contract"/>
+    <label name="kind"/><field name="kind"/>
+    <label name="date"/><field name="date"/>
+    <label name="time"/><field name="time"/>
+    <label name="tenant_present"/><field name="tenant_present"/>
+    <label name="landlord_employee"/><field name="landlord_employee"/>
+    <label name="checklist"/><field name="checklist"/>
+    <label name="state"/><field name="state"/>
+    <notebook colspan="4">
+        <page string="Check Items" id="page_lines" col="1">
+            <field name="lines"/>
+        </page>
+        <page name="keys" col="1">
+            <field name="keys"/>
+        </page>
+        <page name="meters" col="1">
+            <field name="meters"/>
+        </page>
+        <page string="Participants" id="page_participants" col="2">
+            <field name="objects" colspan="2"/>
+            <field name="tenants" colspan="2"/>
+            <separator name="other_participants" colspan="2"/>
+            <field name="other_participants" colspan="2"/>
+        </page>
+        <page string="Result" id="page_result" col="4">
+            <label name="general_condition"/><field name="general_condition"/>
+            <label name="cleaned"/><field name="cleaned"/>
+            <label name="cost_total"/><field name="cost_total"/>
+            <label name="signed_document"/><field name="signed_document"/>
+            <separator name="notes" colspan="4"/>
+            <field name="notes" colspan="4"/>
+            <label name="done_by"/><field name="done_by"/>
+            <label name="done_date"/><field name="done_date"/>
+            <label name="company"/><field name="company"/>
+            <label name="property"/><field name="property"/>
+        </page>
+    </notebook>
+    <group id="buttons" colspan="4" col="-1">
+        <button name="draft" icon="tryton-back"/>
+        <button name="cancel" icon="tryton-cancel"/>
+        <button name="fill_lines" icon="tryton-refresh"/>
+        <button name="done" icon="tryton-ok"/>
+    </group>
+    <field name="currency" invisible="1"/>
+</form>

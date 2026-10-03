@@ -548,15 +548,21 @@ class ContractTermAdjustment(metaclass=PoolMeta):
 
     @classmethod
     def write(cls, *args):
+        Task = Pool().get('real_estate.task')
         super().write(*args)
         # The effective date follows declaration/receipt date until done
         actions = iter(args)
-        to_update = []
+        to_update, received = [], []
         for records, values in zip(actions, actions):
             if {'declaration_date', 'receipt_date'} & set(values):
                 to_update.extend(r for r in records
                     if r.procedure == 'index_rent'
                     and r.state in ('draft', 'approved', 'declared'))
+            if values.get('receipt_date'):
+                received.extend(records)
+        for record in received:
+            # Task "capture receipt" is done with the receipt date
+            Task.close_for(record, 'index_receipt')
         for record in to_update:
             valid_from = record.rent_adjustment.planned_valid_from(
                 record.index_month_new, record.declaration_date,
@@ -654,6 +660,7 @@ class ContractTermAdjustment(metaclass=PoolMeta):
         Date = pool.get('ir.date')
         Letter = pool.get('real_estate.contract.index_adjustment.letter',
             type='report')
+        Task = pool.get('real_estate.task')
         today = Date.today()
         for record in records:
             if record.procedure != 'index_rent':
@@ -670,6 +677,11 @@ class ContractTermAdjustment(metaclass=PoolMeta):
                         'data': content,
                         }])
             cls.write([record], {'letter': attachment.id})
+            # Task: capture the receipt of the declaration
+            record = cls(record.id)
+            Task.create_for(record, 'index_receipt',
+                record.declaration_date + datetime.timedelta(days=7),
+                company=record.contract.company if record.contract else None)
 
     @classmethod
     @ModelView.button
@@ -683,6 +695,7 @@ class ContractTermAdjustment(metaclass=PoolMeta):
         Contract = pool.get('real_estate.contract')
         User = pool.get('res.user')
         Date = pool.get('ir.date')
+        Task = pool.get('real_estate.task')
         cls.lock(records)
         employee = User(Transaction().user).employee
         for record in records:
@@ -747,6 +760,10 @@ class ContractTermAdjustment(metaclass=PoolMeta):
                     receipt=(record.receipt_date.strftime('%d.%m.%Y')
                         if record.receipt_date else '-'),
                     dispatch=record.dispatch_method or '-'))
+            # Tasks of this adjustment and of the agreement are done
+            for code in ('index_receipt', 'index_execute', 'index_declare'):
+                Task.close_for(record, code)
+            Task.close_for(agreement, 'index_prepare')
 
 #**********************************************************************
 class ContractTermAdjustmentRun(ModelSQL, ModelView):

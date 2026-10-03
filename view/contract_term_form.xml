@@ -84,5 +84,8 @@
 
     </page>
     </notebook>
-
+    <newline/>
+    <group colspan="8" col="-1" id="buttons">
+        <button name="open_cash_flow" icon="tryton-list"/>
+    </group>
 </form>

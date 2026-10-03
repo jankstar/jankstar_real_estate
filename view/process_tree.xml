@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<tree>
+    <field name="template"/>
+    <field name="resource" expand="1"/>
+    <field name="contract" optional="1"/>
+    <field name="property" optional="1"/>
+    <field name="start_date"/>
+    <field name="anchor_date"/>
+    <field name="progress"/>
+    <field name="state"/>
+</tree>

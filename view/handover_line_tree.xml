@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<tree editable="1">
+    <field name="sequence" tree_invisible="1"/>
+    <field name="room"/>
+    <field name="item"/>
+    <field name="condition"/>
+    <field name="description" expand="1"/>
+    <field name="remedy_by" optional="0"/>
+    <field name="remedy_until" optional="0"/>
+    <field name="cost_estimate" optional="0"/>
+    <field name="from_pre_inspection" optional="1"/>
+    <field name="currency" tree_invisible="1"/>
+</tree>

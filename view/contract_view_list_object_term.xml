@@ -9,4 +9,5 @@
     <field name="rhythm_type" />
     <field name="total_amount_periodic" sum="1"/>
     <field name="total_amount_one_time" sum="1"/>
+    <button name="open_cash_flow"/>
 </tree>

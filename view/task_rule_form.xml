@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<form col="4">
+    <label name="name"/><field name="name"/>
+    <label name="active"/><field name="active"/>
+    <label name="model"/><field name="model"/>
+    <label name="company"/><field name="company"/>
+    <label name="task_type"/><field name="task_type"/>
+    <label name="name_template"/><field name="name_template"/>
+    <separator string="Reference Date" id="sep_date" colspan="4"/>
+    <label name="date_source"/><field name="date_source"/>
+    <newline/>
+    <label name="date_field"/><field name="date_field"/>
+    <label name="date_method"/><field name="date_method"/>
+    <label name="offset_months"/><field name="offset_months"/>
+    <label name="offset_days"/><field name="offset_days"/>
+    <label name="horizon_days"/><field name="horizon_days"/>
+    <label name="on_date_change"/><field name="on_date_change"/>
+    <separator string="Records" id="sep_domain" colspan="4"/>
+    <label name="domain"/><field name="domain" colspan="3"/>
+    <label name="done_domain"/><field name="done_domain" colspan="3"/>
+    <separator name="description" colspan="4"/>
+    <field name="description" colspan="4"/>
+    <label name="last_run"/><field name="last_run"/>
+    <label name="last_message"/><field name="last_message"/>
+    <group id="buttons" colspan="4" col="-1">
+        <button name="run_now" icon="tryton-launch"/>
+    </group>
+</form>

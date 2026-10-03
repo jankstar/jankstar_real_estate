@@ -65,6 +65,9 @@
             <separator name="generated_parameters" colspan="6"/>
             <field name="generated_parameters" colspan="6" height="40"/>
         </page>
+            <page name="tasks" col="1">
+            <field name="tasks" view_ids="real_estate.task_view_list_resource"/>
+        </page>
     </notebook>
     <group id="buttons" colspan="6" col="-1">
         <button name="draft" icon="tryton-back"/>

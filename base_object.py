@@ -369,6 +369,28 @@ class BaseObject(Workflow, DeactivableMixin, re_sequence_ordered(), tree(separat
         states=_states_only_equipment_meter,
         help="If checked, meter readings are stored without decimal places.")
 
+    # Calibration (Eichung, spezifikation-wiedervorlage.md 3.7, rule O03)
+    meter_calibration_date = fields.Date("Last Calibration",
+        states=_states_only_equipment_meter,
+        help="Date of the last calibration or of the installation of a "
+             "calibrated meter.")
+    meter_calibration_years = fields.Integer("Calibration Validity (Years)",
+        domain=[If(Bool(Eval('meter_calibration_years')),
+                ('meter_calibration_years', '>', 0), ())],
+        states=_states_only_equipment_meter)
+    meter_calibration_valid_to = fields.Date("Calibration Valid to",
+        states=_states_only_equipment_meter,
+        help="End of the calibration validity - proposed as 31.12. of the "
+             "year of the last calibration + validity (usually the "
+             "validity ends with the calendar year, to be checked), can "
+             "be overwritten.")
+    meter_calibration_due = fields.Function(fields.Boolean(
+            "Calibration Due",
+            states=_states_only_equipment_meter,
+            help="The calibration validity ends within the next 3 months "
+                 "or has ended."),
+        'get_meter_calibration_due', searcher='search_meter_calibration_due')
+
 
     meter_id = fields.Function(fields.Char("Meter ID"),
         'on_change_with_meter_id')
@@ -460,6 +482,36 @@ class BaseObject(Workflow, DeactivableMixin, re_sequence_ordered(), tree(separat
     purchase_taxes_expense = fields.Function(
         fields.Boolean("Purchase Taxes as Expense"),
         'on_change_with_purchase_taxes_expense')
+
+    @fields.depends('meter_calibration_date', 'meter_calibration_years')
+    def on_change_meter_calibration_date(self):
+        if self.meter_calibration_date and self.meter_calibration_years:
+            self.meter_calibration_valid_to = datetime.date(
+                self.meter_calibration_date.year
+                + self.meter_calibration_years, 12, 31)
+
+    @fields.depends('meter_calibration_date', 'meter_calibration_years',
+        methods=['on_change_meter_calibration_date'])
+    def on_change_meter_calibration_years(self):
+        self.on_change_meter_calibration_date()
+
+    def get_meter_calibration_due(self, name):
+        Date = Pool().get('ir.date')
+        return bool(self.meter_calibration_valid_to
+            and self.meter_calibration_valid_to
+            <= Date.today() + relativedelta(months=3))
+
+    @classmethod
+    def search_meter_calibration_due(cls, name, clause):
+        Date = Pool().get('ir.date')
+        _, operator, value = clause[:3]
+        due = [('meter_calibration_valid_to', '<=',
+                Date.today() + relativedelta(months=3))]
+        if (operator == '=') == bool(value):
+            return due
+        return ['OR', ('meter_calibration_valid_to', '=', None),
+            ('meter_calibration_valid_to', '>',
+                Date.today() + relativedelta(months=3))]
 
     def is_tight_market(self, date):
         """True if the property lies in a tight housing market area on

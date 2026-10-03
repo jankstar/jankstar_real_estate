@@ -614,4 +614,553 @@ class RealEstateTestCase(ModuleTestCase):
         finally:
             Index._genesis_request = original
 
+    @with_transaction()
+    def test_task_basics(self):
+        "Follow-up: defaults, idempotent hooks, recurrence, cancel, mine"
+        from trytond.modules.company.tests import create_company, set_company
+        from trytond.transaction import Transaction
+
+        pool = Pool()
+        Task = pool.get('real_estate.task')
+        Type = pool.get('real_estate.task.type')
+        Index = pool.get('real_estate.price_index')
+        ModelData = pool.get('ir.model.data')
+        User = pool.get('res.user')
+        admin_group = ModelData.get_id('real_estate', 'group_real_estate_admin')
+
+        company = create_company()
+        with set_company(company):
+            index, = Index.create([{'code': 'T', 'name': 'T',
+                        'base_year': 2020}])
+            type_, = Type.search([('code', '=', 'manual')])
+            Type.write([type_], {'remind_days': 3,
+                    'responsible_group': admin_group})
+
+            # Hook API: idempotent, responsibility and reminder from type
+            due = datetime.date(2026, 3, 31)
+            first = Task.create_for(index, 'manual', due)
+            second = Task.create_for(index, 'manual', due)
+            self.assertEqual(first, second)
+            self.assertEqual(first.responsible_group.id, admin_group)
+            self.assertEqual(first.remind_date, datetime.date(2026, 3, 28))
+            self.assertEqual(first.company, company)
+
+            # Mine: via the group of the user
+            user = User(Transaction().user)
+            self.assertEqual(admin_group in User.get_groups(),
+                first.is_mine)
+            self.assertEqual(
+                bool(Task.search([('is_mine', '=', True)])),
+                admin_group in User.get_groups())
+
+            # close_for: done (W06-like hook)
+            Task.close_for(index, 'manual', result='ok')
+            first = Task(first.id)
+            self.assertEqual(first.state, 'done')
+            self.assertEqual(first.result, 'ok')
+
+            # W02: recurrence creates the next follow-up
+            recurring, = Task.create([{'name': 'Jährlich',
+                        'task_type': type_.id, 'resource': str(index),
+                        'due_date': due, 'recurrence_months': 12}])
+            Task.done([recurring])
+            following, = Task.search([('previous', '=', recurring.id)])
+            self.assertEqual(following.due_date, datetime.date(2027, 3, 31))
+            self.assertEqual(following.remind_date, datetime.date(2027, 3, 28))
+            self.assertEqual(following.state, 'open')
+
+            # Cancel needs a reason
+            with self.assertRaises(ValidationError):
+                Task.cancel([following])
+            Task.cancel_for(index, 'manual')
+            self.assertEqual(Task(following.id).state, 'cancelled')
+
+    @with_transaction()
+    def test_task_postpone(self):
+        "W03: postpone - new due date, history, reminder reset"
+        from trytond.modules.company.tests import create_company, set_company
+        from trytond.transaction import Transaction
+
+        pool = Pool()
+        Task = pool.get('real_estate.task')
+        Type = pool.get('real_estate.task.type')
+        Index = pool.get('real_estate.price_index')
+        Postpone = pool.get('real_estate.task.postpone', type='wizard')
+
+        company = create_company()
+        with set_company(company):
+            index, = Index.create([{'code': 'T', 'name': 'T',
+                        'base_year': 2020}])
+            manual, = Type.search([('code', '=', 'manual')])
+            Type.write([manual], {'remind_days': 2})
+            task = Task.create_for(index, 'manual',
+                datetime.date(2026, 3, 31))
+            Task.write([task], {
+                    'notified_date': datetime.date(2026, 3, 29)})
+            session_id, _, _ = Postpone.create()
+            with Transaction().set_context(
+                    active_model='real_estate.task',
+                    active_id=task.id, active_ids=[task.id]):
+                Postpone.execute(session_id, {'start': {
+                            'due_date': datetime.date(2026, 4, 30),
+                            'reason': 'Mieter im Urlaub'}}, 'postpone')
+            task = Task(task.id)
+            self.assertEqual(task.due_date, datetime.date(2026, 4, 30))
+            self.assertEqual(task.remind_date, datetime.date(2026, 4, 28))
+            self.assertIsNone(task.notified_date)
+            self.assertIn('Mieter im Urlaub', task.description)
+            self.assertIn('31.03.2026', task.description)
+
+    @with_transaction()
+    def test_task_visibility(self):
+        "W15: users see own and group follow-ups, administration all"
+        from trytond.modules.company.tests import create_company, set_company
+        from trytond.transaction import Transaction
+
+        pool = Pool()
+        Task = pool.get('real_estate.task')
+        Type = pool.get('real_estate.task.type')
+        Index = pool.get('real_estate.price_index')
+        User = pool.get('res.user')
+        ModelData = pool.get('ir.model.data')
+        group = lambda name: ModelData.get_id('real_estate', name)
+
+        company = create_company()
+        with set_company(company):
+            index, = Index.create([{'code': 'T', 'name': 'T',
+                        'base_year': 2020}])
+            Type.search([('code', '=', 'manual')])
+            contract_user, billing_user, admin_user = User.create([{
+                        'name': name, 'login': name,
+                        'groups': [('add', [group(g)])],
+                        'companies': [('add', [company.id])],
+                        'company': company.id,
+                        } for name, g in [
+                        ('vertrag', 'group_real_estate_contract'),
+                        ('abrechnung', 'group_real_estate_billing'),
+                        ('verwaltung', 'group_real_estate_admin')]])
+            for_contract = Task.create_for(index, 'manual',
+                datetime.date(2026, 3, 31),
+                group=group('group_real_estate_contract'))
+            for_billing_user = Task.create_for(index, 'manual',
+                datetime.date(2026, 4, 30), user=billing_user,
+                origin_key='second')
+
+            def visible(user):
+                # Record rules only apply with access checks (as for
+                # client calls)
+                with Transaction().set_user(user.id), \
+                        Transaction().set_context(company=company.id,
+                            _check_access=True):
+                    return set(Task.search([]))
+            self.assertEqual(visible(contract_user), {for_contract})
+            self.assertEqual(visible(billing_user), {for_billing_user})
+            self.assertEqual(visible(admin_user),
+                {for_contract, for_billing_user})
+
+    @with_transaction()
+    def test_task_type_catalog(self):
+        "Follow-up types: catalog codes, reference objects, manual filter"
+        from trytond.model.exceptions import DomainValidationError
+        from trytond.modules.company.tests import create_company, set_company
+
+        pool = Pool()
+        Type = pool.get('real_estate.task.type')
+        Task = pool.get('real_estate.task')
+        Index = pool.get('real_estate.price_index')
+
+        def codes(model):
+            return {t.code or t.name for t in Type.search([
+                        ('for_model', '=', model), ('manual', '=', True)])}
+
+        own_billing, own_all = Type.create([
+                {'name': 'Rauchmelder', 'custom_models': [
+                        'real_estate.billing_unit']},
+                {'name': 'Anrufen'}])
+        self.assertTrue(own_all.all_models)
+        self.assertEqual(own_all.resource_models, ())
+        self.assertFalse(own_billing.all_models)
+
+        contract = codes('real_estate.contract')
+        self.assertTrue({'manual', 'contract_unsigned', 'contract_end',
+                'Anrufen'} <= contract)
+        self.assertFalse({'meter_reading', 'index_receipt', 'Rauchmelder'}
+            & contract)
+        billing = codes('real_estate.billing_unit')
+        self.assertTrue({'manual', 'billing_deadline', 'Rauchmelder',
+                'Anrufen'} <= billing)
+        # automatic-only codes are never offered for manual follow-ups
+        self.assertNotIn('index_receipt',
+            codes('real_estate.contract.term.adjustment'))
+        receipt, = Type.search([('code', '=', 'index_receipt')])
+        self.assertEqual(receipt.resource_models,
+            ('real_estate.contract.term.adjustment',))
+        self.assertFalse(receipt.manual)
+
+        company = create_company()
+        with set_company(company):
+            index, = Index.create([{'code': 'T', 'name': 'T',
+                        'base_year': 2020}])
+            meter, = Type.search([('code', '=', 'meter_reading')])
+            # a type for another object is refused
+            with self.assertRaises(DomainValidationError):
+                Task.create([{'name': 'x', 'task_type': meter.id,
+                            'resource': str(index),
+                            'due_date': datetime.date(2026, 1, 1)}])
+            # automatic follow-up of the price index (hook)
+            self.assertTrue(Task.create_for(index, 'index_values',
+                    datetime.date(2026, 1, 1)).automatic)
+
+    @with_transaction()
+    def test_task_notify(self):
+        "W07-W09, W19: reminders per user/group, once a day, escalation"
+        from trytond.modules.company.tests import create_company, set_company
+        from trytond.transaction import Transaction
+
+        pool = Pool()
+        Task = pool.get('real_estate.task')
+        Type = pool.get('real_estate.task.type')
+        Index = pool.get('real_estate.price_index')
+        User = pool.get('res.user')
+        Group = pool.get('res.group')
+        Email = pool.get('ir.email')
+        transaction = Transaction()
+
+        company = create_company()
+        with set_company(company):
+            index, = Index.create([{'code': 'T', 'name': 'T',
+                        'base_year': 2020}])
+            group, escalation = Group.create([{'name': 'Team'},
+                    {'name': 'Leitung'}])
+            u1, u2, u3, boss = User.create([{'name': n, 'login': n,
+                        'email': mail, 'groups': [('add', [g.id])]}
+                    for n, mail, g in [('u1', 'u1@example.com', group),
+                        ('u2', None, group), ('u3', None, group),
+                        ('boss', None, escalation)]])
+            User.write([u3], {'active': False})
+            type_, = Type.search([('code', '=', 'manual')])
+            Type.write([type_], {'remind_days': 0, 'escalate_days': 2,
+                    'escalation_group': escalation.id, 'email': True})
+            today = datetime.date(2026, 10, 2)
+            for_group, = Task.create([{'name': 'Gruppe',
+                        'task_type': type_.id, 'resource': str(index),
+                        'due_date': today, 'responsible_group': group.id}])
+            for_user, = Task.create([{'name': 'Benutzer',
+                        'task_type': type_.id, 'resource': str(index),
+                        'due_date': today + datetime.timedelta(days=1),
+                        'remind_date': today, 'responsible_user': u2.id}])
+
+            sent = []
+            original = Email.send
+            Email.send = classmethod(lambda cls, **kw: sent.append(kw['to']))
+            try:
+                del transaction.user_notifications[:]
+                self.assertEqual(Task.notify(date=today), (2, 0))
+                users = sorted(int(n.user) for n in transaction.user_notifications)
+                # group: 2 active members, user: 1
+                self.assertEqual(users, sorted([u1.id, u2.id, u2.id]))
+                # e-mail only to the member with an address (W09)
+                self.assertEqual(sent, ['u1@example.com'])
+                # second run on the same day: nothing (W07)
+                del transaction.user_notifications[:]
+                self.assertEqual(Task.notify(date=today), (0, 0))
+                self.assertEqual(transaction.user_notifications, [])
+                # W19: no e-mail when the user disabled it
+                User.write([u1], {'task_email': False})
+                Type.write([type_], {'remind_daily': True})
+                sent.clear()
+                self.assertEqual(Task.notify(
+                        date=today + datetime.timedelta(days=1)), (2, 0))
+                self.assertEqual(sent, [])
+                # W08: escalation after 2 days, once
+                del transaction.user_notifications[:]
+                later = today + datetime.timedelta(days=3)
+                self.assertEqual(Task.notify(date=later)[1], 2)
+                self.assertIn(boss.id,
+                    [int(n.user) for n in transaction.user_notifications])
+                self.assertEqual(Task.notify(date=later)[1], 0)
+                self.assertEqual(Task(for_group.id).escalated_date, later)
+            finally:
+                Email.send = original
+
+    @with_transaction()
+    def test_task_rule_run(self):
+        "W04-W06: idempotent rule run, changed date, done condition"
+        from trytond.modules.company.tests import create_company, set_company
+
+        pool = Pool()
+        Rule = pool.get('real_estate.task.rule')
+        Task = pool.get('real_estate.task')
+        Type = pool.get('real_estate.task.type')
+        Index = pool.get('real_estate.price_index')
+        Value = pool.get('real_estate.price_index.value')
+
+        company = create_company()
+        with set_company(company):
+            index, = Index.create([{'code': 'T', 'name': 'T',
+                        'base_year': 2020}])
+            Value.create([{'index': index.id, 'base_year': 2020,
+                        'month': datetime.date(2026, 8, 1),
+                        'value': Decimal('125.8')}])
+            type_, = Type.create([{'name': 'Index prüfen',
+                        'custom_models': ['real_estate.price_index']}])
+            rule, = Rule.create([{'name': 'Test',
+                        'model': 'real_estate.price_index',
+                        'domain': '[["code", "=", "T"]]',
+                        'date_source': 'field',
+                        'date_field': 'last_value_month',
+                        'offset_months': 2, 'horizon_days': 30,
+                        'task_type': type_.id,
+                        'done_domain': '[["residential_allowed", "=", true]]',
+                        }])
+            today = datetime.date(2026, 9, 10)
+
+            def tasks(state='open'):
+                return Task.search([('origin', '=', str(rule)),
+                        ('state', '=', state)])
+
+            # due 01.10.2026 within 30 days: created once (W04)
+            Rule.run([rule], date=today)
+            Rule.run([rule], date=today)
+            created, = tasks()
+            self.assertEqual(created.due_date, datetime.date(2026, 10, 1))
+            self.assertTrue(created.automatic)
+            self.assertEqual(created.company, company)
+            self.assertEqual(Rule(rule.id).last_run, today)
+
+            # W05: new value - old task cancelled, new one for 01.11.
+            Value.create([{'index': index.id, 'base_year': 2020,
+                        'month': datetime.date(2026, 9, 1),
+                        'value': Decimal('126.0')}])
+            Rule.run([rule], date=datetime.date(2026, 10, 5))
+            self.assertEqual(Task(created.id).state, 'cancelled')
+            renewed, = tasks()
+            self.assertEqual(renewed.due_date, datetime.date(2026, 11, 1))
+
+            # W06: done condition met - done, no new task
+            Index.write([index], {'residential_allowed': True})
+            Rule.run([rule], date=datetime.date(2026, 10, 6))
+            self.assertEqual(Task(renewed.id).state, 'done')
+            Rule.run([rule], date=datetime.date(2026, 10, 7))
+            self.assertEqual(tasks(), [])
+
+            # a done task is not created again for the same date; a new
+            # date (new value 10/2026, due 01.12.) respects the lead time
+            Index.write([index], {'residential_allowed': False})
+            Rule.run([rule], date=datetime.date(2026, 10, 7))
+            self.assertEqual(tasks(), [])
+            Value.create([{'index': index.id, 'base_year': 2020,
+                        'month': datetime.date(2026, 10, 1),
+                        'value': Decimal('126.2')}])
+            Rule.run([rule], date=datetime.date(2026, 10, 7))
+            self.assertEqual(tasks(), [])
+            Rule.run([rule], date=datetime.date(2026, 11, 2))
+            again, = tasks()
+            self.assertEqual(again.due_date, datetime.date(2026, 12, 1))
+            # record no longer matching the domain: done automatically
+            Index.write([index], {'code': 'X'})
+            Rule.run([rule], date=datetime.date(2026, 11, 3))
+            self.assertEqual(Task(again.id).state, 'done')
+
+    @with_transaction()
+    def test_task_rule_methods(self):
+        "Named date methods: index values stale, meter calibration (W17)"
+        pool = Pool()
+        Rule = pool.get('real_estate.task.rule')
+        BaseObject = pool.get('real_estate.base_object')
+
+        rule = Rule()
+        stale = _StubRecord(__name__='real_estate.price_index',
+            last_value_month=datetime.date(2026, 6, 1))
+        current = _StubRecord(__name__='real_estate.price_index',
+            last_value_month=datetime.date(2026, 8, 1))
+        result = rule._date_index_values_stale([stale, current],
+            datetime.date(2026, 10, 2))
+        self.assertEqual(result, [(stale, datetime.date(2026, 8, 1))])
+
+        # W17: last calibration 15.03.2021, 6 years -> 31.12.2027
+        meter = BaseObject()
+        meter.meter_calibration_date = datetime.date(2021, 3, 15)
+        meter.meter_calibration_years = 6
+        meter.on_change_meter_calibration_years()
+        self.assertEqual(meter.meter_calibration_valid_to,
+            datetime.date(2027, 12, 31))
+        rule = Rule(offset_months=-3, offset_days=0)
+        self.assertEqual(rule._due_date(meter.meter_calibration_valid_to),
+            datetime.date(2027, 9, 30))
+
+    @with_transaction()
+    def test_process(self):
+        "W11-W13, W22, W24-W27: process steps, progress, actions"
+        from trytond.modules.company.tests import create_company, set_company
+        from trytond.transaction import Transaction
+
+        pool = Pool()
+        Template = pool.get('real_estate.process.template')
+        Process = pool.get('real_estate.process')
+        Task = pool.get('real_estate.task')
+        Type = pool.get('real_estate.task.type')
+        Index = pool.get('real_estate.price_index')
+        Value = pool.get('real_estate.price_index.value')
+        ModelData = pool.get('ir.model.data')
+        Execute = pool.get('real_estate.task.execute_action', type='wizard')
+
+        company = create_company()
+        with set_company(company):
+            index, = Index.create([{'code': 'T', 'name': 'T',
+                        'base_year': 2020}])
+            Value.create([{'index': index.id, 'base_year': 2020,
+                        'month': datetime.date(2026, 8, 1),
+                        'value': Decimal('125.8')}])
+            step_type, = Type.search([('code', '=', 'process_step')])
+            action_id = ModelData.get_id('real_estate', 'act_task_mine')
+            template, = Template.create([{
+                        'name': 'Test', 'model': 'real_estate.price_index',
+                        'anchor_field': 'last_value_month',
+                        'steps': [('create', [
+                                    {'sequence': 10, 'name': 'Start',
+                                        'task_type': step_type.id,
+                                        'due_base': 'start',
+                                        'offset_days': 3,
+                                        'result_required': True},
+                                    {'sequence': 20, 'name': 'Anker',
+                                        'task_type': step_type.id,
+                                        'due_base': 'anchor',
+                                        'offset_months': 1},
+                                    {'sequence': 30, 'name': 'Danach',
+                                        'task_type': step_type.id,
+                                        'due_base': 'previous_done',
+                                        'offset_days': 2},
+                                    {'sequence': 40, 'name': 'Optional',
+                                        'task_type': step_type.id,
+                                        'due_base': 'start',
+                                        'mandatory': False},
+                                    {'sequence': 50, 'name': 'Bedingung',
+                                        'task_type': step_type.id,
+                                        'due_base': 'anchor',
+                                        'completion': 'condition',
+                                        'done_condition':
+                                            '[["residential_allowed", "=", true]]'},
+                                    {'sequence': 60, 'name': 'Aktion',
+                                        'task_type': step_type.id,
+                                        'due_base': 'start',
+                                        'action': action_id,
+                                        'completion': 'action'},
+                                    ])],
+                        }])
+            start = datetime.date(2026, 10, 1)
+            process = Process.start(template, index, start)
+            self.assertEqual(Process.start(template, index, start), process)
+            self.assertEqual(process.anchor_date, datetime.date(2026, 8, 1))
+            steps = {s.name: s for s in process.steps}
+            # W26: the previous_done step is planned, no task yet
+            self.assertEqual(steps['Danach'].state, 'planned')
+            self.assertIsNone(steps['Danach'].task)
+            self.assertEqual(steps['Start'].task.due_date,
+                datetime.date(2026, 10, 4))
+            self.assertEqual(steps['Anker'].task.due_date,
+                datetime.date(2026, 9, 1))
+            self.assertEqual(steps['Start'].task.process, process)
+
+            # W25: result required
+            with self.assertRaises(ValidationError):
+                Task.done([steps['Start'].task])
+            Task.write([steps['Start'].task], {'result': 'versendet'})
+            Task.done([steps['Start'].task])
+
+            # W11: anchor changed - open anchor tasks rescheduled
+            Process.write([process], {
+                    'anchor_date': datetime.date(2026, 9, 1)})
+            Process.reschedule([process])
+            self.assertEqual(Task(steps['Anker'].task.id).due_date,
+                datetime.date(2026, 10, 1))
+            self.assertIn('Anker', Process(process.id).history)
+
+            # W12: previous_done step created after the previous one
+            Task.done([steps['Anker'].task])
+            danach = Process(process.id).steps[2]
+            self.assertEqual(danach.name, 'Danach')
+            self.assertEqual(danach.state, 'open')
+
+            # W24: condition met - done by 'check'
+            Index.write([index], {'residential_allowed': True})
+            Process.check([process])
+            self.assertEqual(Task(steps['Bedingung'].task.id).state, 'done')
+
+            # W22: executing the action returns it for the reference
+            # record and completes the step
+            session_id, _, _ = Execute.create()
+            aktion = steps['Aktion'].task
+            with Transaction().set_context(active_model='real_estate.task',
+                    active_id=aktion.id, active_ids=[aktion.id]):
+                result = Execute.execute(session_id, {}, 'open_')
+            action = result['actions'][0]
+            self.assertEqual(action[0]['res_model'], 'real_estate.task')
+            self.assertEqual(action[1]['model'], 'real_estate.price_index')
+            self.assertEqual(action[1]['ids'], [index.id])
+            self.assertEqual(Task(aktion.id).state, 'done')
+
+            # W27: optional step cancelled = skipped; W13: process done
+            optional = steps['Optional'].task
+            Task.write([optional], {'result': 'nicht nötig'})
+            Task.cancel([optional])
+            self.assertEqual(Process(process.id).state, 'running')
+            Task.done([danach.task])
+            process = Process(process.id)
+            self.assertEqual({s.name: s.state for s in process.steps}[
+                    'Optional'], 'skipped')
+            self.assertEqual(process.state, 'done')
+            self.assertEqual(process.progress, '5 / 5 done')
+
+    def test_handover_report_template(self):
+        "Handover report template renders check items, keys and meters"
+        import io
+        import os
+        import re
+        import zipfile
+
+        from relatorio.templates.opendocument import Template
+
+        address = _StubRecord(street_single_line='Musterstraße 1',
+            postal_code='14163', city='Berlin')
+        contract = _StubRecord(contract_number='1-20-191',
+            company=_StubRecord(party=_StubRecord(name='Immo GmbH',
+                    addresses=[address])),
+            property=_StubRecord(address=address))
+        record = _StubRecord(id=1, contract=contract, kind='move_out',
+            date=datetime.date(2026, 3, 31), time='10:00',
+            objects=[_StubRecord(rec_name='Wohnung 01', address=address)],
+            tenant_present=False, landlord_employee=None,
+            other_participants=None, general_condition='defects',
+            cleaned=True, notes='Mieter beseitigt Bohrlöcher bis 15.04.',
+            lines=[_StubRecord(room='Bad', item='Fliesen',
+                    condition='damage', description='Sprung',
+                    remedy_by='tenant',
+                    remedy_until=datetime.date(2026, 4, 15))],
+            keys=[_StubRecord(key_type='apartment', description='',
+                    quantity=2, quantity_expected=3)],
+            meters=[_StubRecord(meter=_StubRecord(rec_name='Wasser'),
+                    meter_id='Z-2025-0001', value=Decimal('42.5'))])
+        tenant = _StubRecord(full_name='Rudi Völler', name='Rudi Völler')
+        path = os.path.join(os.path.dirname(__file__), '..', 'report',
+            'contract_handover_de.odt')
+        data = Template(source=None, filepath=path).generate(
+            records=[record], record=record, format_value=str,
+            kinds={'move_out': 'Auszug'},
+            general_conditions={'defects': 'Mängel'},
+            conditions={'damage': 'Schaden'},
+            remedies={'tenant': 'Mieter'},
+            key_types={'apartment': 'Wohnungstür'},
+            marks={1: 'ENTWURF'},
+            tenants={1: [(tenant, address)]}).render().getvalue()
+        with zipfile.ZipFile(io.BytesIO(data)) as odt:
+            content = odt.read('content.xml').decode()
+        text = re.sub(r'\s+', ' ', re.sub(r'<[^>]+>', ' ', content))
+        for expected in ['ENTWURF', 'Übergabeprotokoll', 'Auszug',
+                'in Abwesenheit des Mieters', 'Rudi Völler', 'Bad',
+                'Fliesen', 'Schaden', 'Mieter 2026-04-15', 'Wohnungstür',
+                'zurückgegeben', 'Z-2025-0001', '42.5', 'Mängel',
+                'besenrein: ja', 'Bohrlöcher']:
+            self.assertIn(expected, text)
+
 del ModuleTestCase

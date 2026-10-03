@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<form col="4">
+    <label name="template"/><field name="template"/>
+    <label name="sequence"/><field name="sequence"/>
+    <label name="name"/><field name="name" colspan="3"/>
+    <label name="task_type"/><field name="task_type"/>
+    <label name="responsible_group"/><field name="responsible_group"/>
+    <separator string="Due Date" id="sep_due" colspan="4"/>
+    <label name="due_base"/><field name="due_base"/>
+    <label name="date_method"/><field name="date_method"/>
+    <label name="offset_months"/><field name="offset_months"/>
+    <label name="offset_days"/><field name="offset_days"/>
+    <label name="offset_setting"/><field name="offset_setting"/>
+    <label name="mandatory"/><field name="mandatory"/>
+    <separator string="Action and Completion" id="sep_action" colspan="4"/>
+    <label name="action"/><field name="action"/>
+    <label name="completion"/><field name="completion"/>
+    <label name="done_condition"/><field name="done_condition"/>
+    <label name="done_method"/><field name="done_method"/>
+    <label name="result_required"/><field name="result_required"/>
+    <separator name="description" colspan="4"/>
+    <field name="description" colspan="4"/>
+    <field name="template_model" invisible="1"/>
+</form>

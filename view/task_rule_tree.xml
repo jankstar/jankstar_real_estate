@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<tree>
+    <field name="name" expand="1"/>
+    <field name="model"/>
+    <field name="task_type"/>
+    <field name="date_source" optional="1"/>
+    <field name="date_field" optional="0"/>
+    <field name="date_method" optional="0"/>
+    <field name="offset_months" optional="0"/>
+    <field name="offset_days" optional="0"/>
+    <field name="last_run" optional="0"/>
+    <field name="last_message" optional="1"/>
+    <field name="active"/>
+</tree>

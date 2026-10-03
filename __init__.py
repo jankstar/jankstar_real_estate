@@ -30,6 +30,10 @@ from . import co2_kostaufg
 from . import bved
 from . import price_index
 from . import contract_index_rent
+from . import task
+from . import task_rule
+from . import process
+from . import handover
 
 __all__ = ['register']
 
@@ -129,6 +133,36 @@ def register():
         contract_index_rent.ContractTermAdjustment,
         contract_index_rent.ContractTermAdjustmentRun,
         price_index.Contract,
+        task.TaskType,
+        task.Task,
+        task.TaskPostponeStart,
+        task.TaskCreateStart,
+        task.Contract,
+        task.RentAdjustment,
+        task.BillingUnit,
+        task.BaseObject,
+        task.User,
+        task_rule.TaskRule,
+        task_rule.Contract,
+        process.ProcessTemplate,
+        process.ProcessTemplateStep,
+        process.Process,
+        process.ProcessStep,
+        process.Task,
+        process.ProcessStartStart,
+        process.ContractType,
+        process.Contract,
+        handover.HandoverChecklist,
+        handover.HandoverChecklistLine,
+        handover.Handover,
+        handover.HandoverObject,
+        handover.HandoverParty,
+        handover.HandoverLine,
+        handover.HandoverKey,
+        handover.HandoverMeter,
+        handover.Contract,
+        handover.Process,
+        ir.Rule,
         option_rate.OptionRateContext,
         option_rate.OptionRate,
         option_rate_wizard.OptionRateUpdateStart,
@@ -159,8 +193,15 @@ def register():
         billing_unit_wizard.CancelBillingWizard,
         billing_unit_wizard.ReconcileAdvancePaymentsWizard,
         contract_wizard.ContractTermAdjustmentWizard,
+        contract_wizard.OpenContractSettlementUnits,
         option_rate_wizard.OptionRateUpdateWizard,
         price_index.PriceIndexImport,
+        task.TaskPostpone,
+        task.TaskCreate,
+        process.TaskExecuteAction,
+        process.ProcessStart,
+        process.TerminateContractWizard,
+        process.ChangeContractPartnerWizard,
         module='real_estate', type_='wizard')
     Pool.register(
         base_object.BaseObjectReport,
@@ -168,6 +209,7 @@ def register():
         contract_report.ContractAnnex4Report,
         contract_report.ContractTerminationConfirmationReport,
         contract_report.IndexAdjustmentLetterReport,
+        contract_report.HandoverReport,
         invoice.ContractMoveLinePayableReceivableReport,
         contract_core.ContractGeneralLedgerAccountContractReport,
         module='real_estate', type_='report')

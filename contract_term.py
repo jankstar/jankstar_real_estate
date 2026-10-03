@@ -426,6 +426,9 @@ class ContractTermCashFlowContext(ModelView):
                 [('property', '=', Eval('property', None))],
                 []),
         ])
+    term = fields.Many2One('real_estate.contract.term', 'Term',
+        domain=[('contract', '=', Eval('contract', -1))],
+        states={'readonly': ~Eval('contract')})
     from_date = fields.Date('From Date')
     to_date = fields.Date('To Date')
     create_moves_run_id = fields.Selection(
@@ -436,6 +439,37 @@ class ContractTermCashFlowContext(ModelView):
     @classmethod
     def default_company(cls):
         return Transaction().context.get('company')
+
+    # Relates "Cash Flow of the Contract" / "... and Term" pass their own
+    # keys - not 'contract', which other code reads from the context
+    @staticmethod
+    def _relate_term():
+        Term = Pool().get('real_estate.contract.term')
+        term_id = Transaction().context.get('cash_flow_term')
+        return Term(term_id) if term_id else None
+
+    @classmethod
+    def _from_relate(cls):
+        context = Transaction().context
+        return bool(context.get('cash_flow_contract')
+            or context.get('cash_flow_term'))
+
+    @classmethod
+    def default_contract(cls):
+        term = cls._relate_term()
+        if term:
+            return term.contract.id
+        return Transaction().context.get('cash_flow_contract')
+
+    @classmethod
+    def default_term(cls):
+        term = cls._relate_term()
+        return term.id if term else None
+
+    @fields.depends('contract', 'term')
+    def on_change_contract(self):
+        if self.term and self.term.contract != self.contract:
+            self.term = None
 
     @fields.depends('company', 'property', 'contract')
     def get_run_ids(self):
@@ -455,11 +489,16 @@ class ContractTermCashFlowContext(ModelView):
 
     @classmethod
     def default_from_date(cls):
+        # all periods when opened from a contract or term
+        if cls._from_relate():
+            return None
         today = Pool().get('ir.date').today()
         return today.replace(month=1, day=1)
 
     @classmethod
     def default_to_date(cls):
+        if cls._from_relate():
+            return None
         return Pool().get('ir.date').today()
 
 
@@ -780,6 +819,17 @@ class ContractTerm(sequence_ordered(), ModelSQL, ModelView, TaxableMixin):
             locked = Eval('graduated_locked', False)
             field.states['readonly'] = (
                 (readonly | locked) if readonly is not None else locked)
+        cls._buttons.update({
+                'open_cash_flow': {
+                    'readonly': Eval('id', -1) < 0,
+                    'depends': ['id'],
+                    },
+                })
+
+    @classmethod
+    @ModelView.button_action('real_estate.act_contract_term_cash_flow_term')
+    def open_cash_flow(cls, terms):
+        pass
 
     @classmethod
     def view_attributes(cls):

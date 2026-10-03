@@ -1461,7 +1461,7 @@
             <field name="res_model">real_estate.contract.term.cash_flow</field>
             <field name="context_model">real_estate.contract.term.cash_flow.context</field>
             <field name="context_domain"
-                eval="[('company', '=', Eval('company', -1)), If(Eval('property', None), [('property', '=', Eval('property', None))], []), If(Eval('contract', None), [('contract', '=', Eval('contract', None))], []), If(Eval('create_moves_run_id', None), [('create_moves_run_id', '=', Eval('create_moves_run_id', None))], []), If(Bool(Eval('from_date', None)) &amp; ~Bool(Eval('create_moves_run_id', None)), [('document_date', '>=', Eval('from_date', None))], []), If(Bool(Eval('to_date', None)) &amp; ~Bool(Eval('create_moves_run_id', None)), [('document_date', '&lt;=', Eval('to_date', None))], [])]"
+                eval="[('company', '=', Eval('company', -1)), If(Eval('property', None), [('property', '=', Eval('property', None))], []), If(Eval('contract', None), [('contract', '=', Eval('contract', None))], []), If(Eval('term', None), [('term', '=', Eval('term', None))], []), If(Eval('create_moves_run_id', None), [('create_moves_run_id', '=', Eval('create_moves_run_id', None))], []), If(Bool(Eval('from_date', None)) &amp; ~Bool(Eval('create_moves_run_id', None)), [('document_date', '>=', Eval('from_date', None))], []), If(Bool(Eval('to_date', None)) &amp; ~Bool(Eval('create_moves_run_id', None)), [('document_date', '&lt;=', Eval('to_date', None))], [])]"
                 pyson="1"/>
         </record>
 
@@ -1559,7 +1559,197 @@
             sequence="90"
             id="menu_contract_log"/>
 
-   </data>
+       <!-- Contract: operating costs - participation in settlement units
+         (tab) and relates to the evaluations -->
+    <record model="ir.ui.view" id="contract_settlement_unit_view_list">
+        <field name="model">real_estate.settlement_unit</field>
+        <field name="type">tree</field>
+        <field name="name">contract_settlement_unit_list</field>
+    </record>
+
+    <record model="ir.action.act_window" id="act_contract_settlement_unit_relate">
+        <field name="name">Operating Costs Settlement Units</field>
+        <field name="res_model">real_estate.settlement_unit</field>
+    </record>
+    <record model="ir.action.act_window.view" id="act_contract_settlement_unit_relate_view1">
+        <field name="sequence" eval="10"/>
+        <field name="view" ref="settlement_unit_list"/>
+        <field name="act_window" ref="act_contract_settlement_unit_relate"/>
+    </record>
+    <record model="ir.action.act_window.view" id="act_contract_settlement_unit_relate_view2">
+        <field name="sequence" eval="20"/>
+        <field name="view" ref="settlement_unit_form"/>
+        <field name="act_window" ref="act_contract_settlement_unit_relate"/>
+    </record>
+    <record model="ir.action.wizard" id="wizard_contract_open_settlement_units">
+        <field name="name">Operating Costs Settlement Units</field>
+        <field name="wiz_name">real_estate.contract.open_settlement_units</field>
+        <field name="model">real_estate.contract</field>
+    </record>
+    <record model="ir.action.keyword" id="wizard_contract_open_settlement_units_keyword">
+        <field name="keyword">form_relate</field>
+        <field name="model">real_estate.contract,-1</field>
+        <field name="action" ref="wizard_contract_open_settlement_units"/>
+    </record>
+
+    <record model="ir.action.act_window" id="act_contract_cost_share_relate">
+        <field name="name">Operating Costs Cost Shares</field>
+        <field name="res_model">real_estate.cost_share</field>
+        <field name="domain"
+            eval="[If(Eval('active_ids', []) == [Eval('active_id')], ('contract', '=', Eval('active_id')), ('contract', 'in', Eval('active_ids', [])))]"
+            pyson="1"/>
+    </record>
+    <record model="ir.action.act_window.view" id="act_contract_cost_share_relate_view1">
+        <field name="sequence" eval="10"/>
+        <field name="view" ref="cost_share_list"/>
+        <field name="act_window" ref="act_contract_cost_share_relate"/>
+    </record>
+    <record model="ir.action.act_window.view" id="act_contract_cost_share_relate_view2">
+        <field name="sequence" eval="20"/>
+        <field name="view" ref="cost_share_form"/>
+        <field name="act_window" ref="act_contract_cost_share_relate"/>
+    </record>
+    <record model="ir.action.keyword" id="act_contract_cost_share_relate_keyword">
+        <field name="keyword">form_relate</field>
+        <field name="model">real_estate.contract,-1</field>
+        <field name="action" ref="act_contract_cost_share_relate"/>
+    </record>
+
+    <record model="ir.action.act_window" id="act_contract_settlement_result_relate">
+        <field name="name">Operating Costs Settlement Results</field>
+        <field name="res_model">real_estate.settlement_result</field>
+        <field name="domain"
+            eval="[If(Eval('active_ids', []) == [Eval('active_id')], ('contract', '=', Eval('active_id')), ('contract', 'in', Eval('active_ids', [])))]"
+            pyson="1"/>
+    </record>
+    <record model="ir.action.act_window.view" id="act_contract_settlement_result_relate_view1">
+        <field name="sequence" eval="10"/>
+        <field name="view" ref="settlement_result_tree_view"/>
+        <field name="act_window" ref="act_contract_settlement_result_relate"/>
+    </record>
+    <record model="ir.action.act_window.view" id="act_contract_settlement_result_relate_view2">
+        <field name="sequence" eval="20"/>
+        <field name="view" ref="settlement_result_form_view"/>
+        <field name="act_window" ref="act_contract_settlement_result_relate"/>
+    </record>
+    <record model="ir.action.keyword" id="act_contract_settlement_result_relate_keyword">
+        <field name="keyword">form_relate</field>
+        <field name="model">real_estate.contract,-1</field>
+        <field name="action" ref="act_contract_settlement_result_relate"/>
+    </record>
+
+
+    <!-- Contract: cash flow and invoices as relates (no tab on the form) -->
+    <record model="ir.action.act_window" id="act_contract_cash_flow_relate">
+        <field name="name">Cash Flow of the Contract</field>
+        <field name="res_model">real_estate.contract.term.cash_flow</field>
+        <field name="context" eval="{'cash_flow_contract': Eval('active_id')}" pyson="1"/>
+        <field name="context_model">real_estate.contract.term.cash_flow.context</field>
+        <field name="context_domain"
+                eval="[('company', '=', Eval('company', -1)), If(Eval('property', None), [('property', '=', Eval('property', None))], []), If(Eval('contract', None), [('contract', '=', Eval('contract', None))], []), If(Eval('term', None), [('term', '=', Eval('term', None))], []), If(Eval('create_moves_run_id', None), [('create_moves_run_id', '=', Eval('create_moves_run_id', None))], []), If(Bool(Eval('from_date', None)) &amp; ~Bool(Eval('create_moves_run_id', None)), [('document_date', '>=', Eval('from_date', None))], []), If(Bool(Eval('to_date', None)) &amp; ~Bool(Eval('create_moves_run_id', None)), [('document_date', '&lt;=', Eval('to_date', None))], [])]"
+                pyson="1"/>
+    </record>
+    <record model="ir.action.act_window.view" id="act_contract_cash_flow_relate_view1">
+        <field name="sequence" eval="10"/>
+        <field name="view" ref="contract_term_cash_flow_view_tree"/>
+        <field name="act_window" ref="act_contract_cash_flow_relate"/>
+    </record>
+    <record model="ir.action.act_window.view" id="act_contract_cash_flow_relate_view2">
+        <field name="sequence" eval="20"/>
+        <field name="view" ref="contract_term_cash_flow_view_form"/>
+        <field name="act_window" ref="act_contract_cash_flow_relate"/>
+    </record>
+    <record model="ir.action.act_window.domain" id="act_contract_cash_flow_relate_domain_draft">
+        <field name="name">Draft</field>
+        <field name="sequence" eval="10"/>
+        <field name="domain" eval="[('state', '=', 'draft')]" pyson="1"/>
+        <field name="act_window" ref="act_contract_cash_flow_relate"/>
+    </record>
+    <record model="ir.action.act_window.domain" id="act_contract_cash_flow_relate_domain_done">
+        <field name="name">Done</field>
+        <field name="sequence" eval="20"/>
+        <field name="domain" eval="[('state', '=', 'done')]" pyson="1"/>
+        <field name="act_window" ref="act_contract_cash_flow_relate"/>
+    </record>
+    <record model="ir.action.act_window.domain" id="act_contract_cash_flow_relate_domain_all">
+        <field name="name">All</field>
+        <field name="sequence" eval="90"/>
+        <field name="domain"></field>
+        <field name="act_window" ref="act_contract_cash_flow_relate"/>
+    </record>
+    <record model="ir.action.keyword" id="act_contract_cash_flow_relate_keyword">
+        <field name="keyword">form_relate</field>
+        <field name="model">real_estate.contract,-1</field>
+        <field name="action" ref="act_contract_cash_flow_relate"/>
+    </record>
+    <record model="ir.action.act_window" id="act_contract_term_cash_flow_term">
+        <field name="name">Cash Flow of Contract and Term</field>
+        <field name="res_model">real_estate.contract.term.cash_flow</field>
+        <field name="context" eval="{'cash_flow_term': Eval('active_id')}" pyson="1"/>
+        <field name="context_model">real_estate.contract.term.cash_flow.context</field>
+        <field name="context_domain"
+                eval="[('company', '=', Eval('company', -1)), If(Eval('property', None), [('property', '=', Eval('property', None))], []), If(Eval('contract', None), [('contract', '=', Eval('contract', None))], []), If(Eval('term', None), [('term', '=', Eval('term', None))], []), If(Eval('create_moves_run_id', None), [('create_moves_run_id', '=', Eval('create_moves_run_id', None))], []), If(Bool(Eval('from_date', None)) &amp; ~Bool(Eval('create_moves_run_id', None)), [('document_date', '>=', Eval('from_date', None))], []), If(Bool(Eval('to_date', None)) &amp; ~Bool(Eval('create_moves_run_id', None)), [('document_date', '&lt;=', Eval('to_date', None))], [])]"
+                pyson="1"/>
+    </record>
+    <record model="ir.action.act_window.view" id="act_contract_term_cash_flow_term_view1">
+        <field name="sequence" eval="10"/>
+        <field name="view" ref="contract_term_cash_flow_view_tree"/>
+        <field name="act_window" ref="act_contract_term_cash_flow_term"/>
+    </record>
+    <record model="ir.action.act_window.view" id="act_contract_term_cash_flow_term_view2">
+        <field name="sequence" eval="20"/>
+        <field name="view" ref="contract_term_cash_flow_view_form"/>
+        <field name="act_window" ref="act_contract_term_cash_flow_term"/>
+    </record>
+    <record model="ir.action.act_window.domain" id="act_contract_term_cash_flow_term_domain_draft">
+        <field name="name">Draft</field>
+        <field name="sequence" eval="10"/>
+        <field name="domain" eval="[('state', '=', 'draft')]" pyson="1"/>
+        <field name="act_window" ref="act_contract_term_cash_flow_term"/>
+    </record>
+    <record model="ir.action.act_window.domain" id="act_contract_term_cash_flow_term_domain_done">
+        <field name="name">Done</field>
+        <field name="sequence" eval="20"/>
+        <field name="domain" eval="[('state', '=', 'done')]" pyson="1"/>
+        <field name="act_window" ref="act_contract_term_cash_flow_term"/>
+    </record>
+    <record model="ir.action.act_window.domain" id="act_contract_term_cash_flow_term_domain_all">
+        <field name="name">All</field>
+        <field name="sequence" eval="90"/>
+        <field name="domain"></field>
+        <field name="act_window" ref="act_contract_term_cash_flow_term"/>
+    </record>
+    <record model="ir.model.button" id="contract_term_open_cash_flow_button">
+        <field name="model">real_estate.contract.term</field>
+        <field name="name">open_cash_flow</field>
+        <field name="string">Cash Flow of Contract and Term</field>
+    </record>
+
+    <record model="ir.action.act_window" id="act_contract_invoice_relate">
+        <field name="name">Invoices of the Contract</field>
+        <field name="res_model">account.invoice</field>
+        <field name="domain"
+            eval="[If(Eval('active_ids', []) == [Eval('active_id')], ('contract', '=', Eval('active_id')), ('contract', 'in', Eval('active_ids', [])))]"
+            pyson="1"/>
+        <field name="order" eval="[('invoice_date', 'DESC'), ('id', 'DESC')]" pyson="1"/>
+    </record>
+    <record model="ir.action.act_window.view" id="act_contract_invoice_relate_view1">
+        <field name="sequence" eval="10"/>
+        <field name="view" ref="account_invoice.invoice_view_tree"/>
+        <field name="act_window" ref="act_contract_invoice_relate"/>
+    </record>
+    <record model="ir.action.act_window.view" id="act_contract_invoice_relate_view2">
+        <field name="sequence" eval="20"/>
+        <field name="view" ref="account_invoice.invoice_view_form"/>
+        <field name="act_window" ref="act_contract_invoice_relate"/>
+    </record>
+    <record model="ir.action.keyword" id="act_contract_invoice_relate_keyword">
+        <field name="keyword">form_relate</field>
+        <field name="model">real_estate.contract,-1</field>
+        <field name="action" ref="act_contract_invoice_relate"/>
+    </record>
+
+</data>
 
 
 
@@ -1800,5 +1990,6 @@
 
 
 
-   </data>
+   
+</data>
 </tryton>

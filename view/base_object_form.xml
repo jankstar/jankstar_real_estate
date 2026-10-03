@@ -82,6 +82,11 @@ this repository contains the full copyright notices and license terms. -->
                 <label name="meter_last_reading_date"/><field name="meter_last_reading_date" />
                 <label name="meter_last_reading_user"/><field name="meter_last_reading_user" />
                 <newline/>
+                <label name="meter_calibration_date"/><field name="meter_calibration_date"/>
+                <label name="meter_calibration_years"/><field name="meter_calibration_years"/>
+                <label name="meter_calibration_valid_to"/><field name="meter_calibration_valid_to"/>
+                <label name="meter_calibration_due"/><field name="meter_calibration_due"/>
+                <newline/>
                 <label name="meter_last_value"/><field name="meter_last_value" />
                 <label name="meter_last_consumption"/><field name="meter_last_consumption" />
                 <newline/>
@@ -156,6 +161,10 @@ this repository contains the full copyright notices and license terms. -->
         <page name="children" col="1">
             <field name="children"
                 view_ids="real_estate.base_object_view_list_children"/>
+        </page>
+            <page name="tasks" col="1">
+            <field name="tasks" view_ids="real_estate.task_view_list_resource"/>
+            <field name="property_tasks" view_ids="real_estate.task_view_list_resource"/>
         </page>
     </notebook>
 

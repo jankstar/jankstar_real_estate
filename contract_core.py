@@ -23,6 +23,7 @@ from itertools import groupby
 
 from . import base_object
 import logging
+import re
 from decimal import Decimal
 import datetime
 import calendar
@@ -1486,19 +1487,97 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
                         units = []
                 billing_units_by_property[property_id] = units
 
-            for bu in billing_units_by_property[property_id]:
-                for su in bu.settlement_units:
-                    # 'allocation_via_cost_collector' units generate no
-                    # cost shares/settlement results of their own (see
-                    # settlement_unit.py) - only the settlement unit they
-                    # reference should ever surface here, or the tenant
-                    # would see the same cost type twice (e.g. in the
-                    # Annex 4 report).
-                    if su.allocation_rule == 'allocation_via_cost_collector':
-                        continue
-                    if any(obj.id in contract_object_ids for obj in su.objects):
-                        result[contract.id].append(su.id)
+            result[contract.id] = [su.id for su in
+                cls._participating_settlement_units(contract_object_ids, [
+                        su for bu in billing_units_by_property[property_id]
+                        for su in bu.settlement_units])]
         return result
+
+    @classmethod
+    def _participating_settlement_units(cls, object_ids, settlement_units):
+        """Settlement units (in the given order) whose objects overlap with
+        ``object_ids``.
+
+        Batch equivalent of ``SettlementUnit.objects``
+        (``on_change_with_objects``): billed units by their cost shares,
+        the others by the approved objects of the property matching
+        ``reg_ex_object`` - without one object search per unit.
+
+        'allocation_via_cost_collector' units generate no cost
+        shares/settlement results of their own (see settlement_unit.py) -
+        only the settlement unit they reference should ever surface here,
+        or the tenant would see the same cost type twice (e.g. in the
+        Annex 4 report)."""
+        pool = Pool()
+        BaseObject = pool.get('real_estate.base_object')
+        CostShare = pool.get('real_estate.cost_share')
+        object_ids = list(object_ids)
+        units = [su for su in settlement_units
+            if su.allocation_rule != 'allocation_via_cost_collector']
+        if not object_ids or not units:
+            return []
+
+        billed_ids = [su.id for su in units if su.state == 'billed']
+        billed_hits = set()
+        if billed_ids:
+            billed_hits = {cs.settlement_unit.id for cs in CostShare.search([
+                        ('settlement_unit', 'in', billed_ids),
+                        ('base_object', 'in', object_ids),
+                        ])}
+
+        # names of the given objects that are approved objects of the
+        # property of the billing unit, per (company, property)
+        candidates = {}
+
+        def candidate_names(billing_unit):
+            key = (billing_unit.company.id if billing_unit.company else None,
+                billing_unit.property.id if billing_unit.property else None)
+            if key not in candidates:
+                candidates[key] = [o.name for o in BaseObject.search([
+                            ('company', '=', key[0]),
+                            ('property', '=', key[1]),
+                            ('type', '=', 'object'),
+                            ('state', '=', 'approved'),
+                            ('id', 'in', object_ids),
+                            ])]
+            return candidates[key]
+
+        result = []
+        for su in units:
+            if su.state == 'billed':
+                if su.id in billed_hits:
+                    result.append(su)
+                continue
+            if not su.billing_unit or su.allocation_rule == 'no_allocation':
+                continue
+            names = candidate_names(su.billing_unit)
+            if su.reg_ex_object:
+                pattern = re.compile(su.reg_ex_object)
+                names = [n for n in names if pattern.search(n)]
+            if names:
+                result.append(su)
+        return result
+
+    @classmethod
+    def get_settlement_units_all_periods(cls, contract):
+        """Settlement units of all billing units of the contract's property
+        overlapping the contract period that the contract takes part in
+        (relate 'Operating Costs Settlement Units')."""
+        BillingUnit = Pool().get('real_estate.billing_unit')
+        object_ids = {obj.id for item in contract.items
+            for obj in item.objects}
+        if not contract.property or not object_ids:
+            return []
+        domain = [('property', '=', contract.property.id)]
+        if contract.start_date:
+            domain.append(['OR', ('end_date', '=', None),
+                    ('end_date', '>=', contract.start_date)])
+        end = contract.get_effective_end_date()
+        if end:
+            domain.append(('start_date', '<=', end))
+        units = BillingUnit.search(domain, order=[('start_date', 'DESC')])
+        return cls._participating_settlement_units(object_ids, [
+                su for bu in units for su in bu.settlement_units])
 
     @fields.depends('c_type')
     def get_term_types_of_use(self, name=None):
@@ -1590,12 +1669,53 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
         for task in CronTask.search([('active', '=', True)]):
             if not cls._cron_task_is_due(task, today):
                 continue
-            handler = getattr(cls, f'_cron_{task.task}', None)
-            if handler is None:
+            if getattr(cls, f'_cron_{task.task}', None) is None:
                 continue
-            handler(task.re_accounting, task)
-            task.last_run = today
-            task.save()
+            cls._cron_run_task(task.id, today)
+
+    @classmethod
+    def _cron_run_task(cls, task_id, today):
+        """Run one scheduled task in its own transaction: an error rolls
+        back only this task, is logged and reported as task 'cron_error'
+        (S01, spezifikation-wiedervorlage.md 13.5) - the other scheduled
+        tasks continue."""
+        pool = Pool()
+        CronTask = pool.get('real_estate.cron_task')
+        try:
+            with Transaction().new_transaction() as transaction:
+                task = CronTask(task_id)
+                handler = getattr(cls, f'_cron_{task.task}')
+                handler(task.re_accounting, task)
+                task.last_run = today
+                task.save()
+                transaction.commit()
+        except Exception as e:
+            logger.exception('real_estate cron task %s failed', task_id)
+            cls._cron_report_error(task_id, e)
+
+    @classmethod
+    def _cron_report_error(cls, task_id, error):
+        pool = Pool()
+        CronTask = pool.get('real_estate.cron_task')
+        Company = pool.get('company.company')
+        Task = pool.get('real_estate.task')
+        try:
+            with Transaction().new_transaction() as transaction:
+                cron_task = CronTask(task_id)
+                companies = Company.search([
+                        ('re_accounting', '=', cron_task.re_accounting.id)],
+                    limit=1)
+                Task.cron_error(cron_task,
+                    companies[0] if companies else None,
+                    gettext('real_estate.msg_task_cron_error',
+                        task=cron_task.rec_name,
+                        date=Pool().get('ir.date').today().strftime(
+                            '%d.%m.%Y'),
+                        error=f'{error.__class__.__name__}: {error}'))
+                transaction.commit()
+        except Exception:
+            logger.exception(
+                'real_estate cron task %s: error task not created', task_id)
 
     @classmethod
     def _cron_task_is_due(cls, task, today):

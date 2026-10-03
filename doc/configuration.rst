@@ -15,7 +15,12 @@ The following master data must be set up before the module can be used:
 ``real_estate.contract.type``
    Contract types defining invoice direction (in/out), default journal,
    tax defaults, contract number prefix, and whether occupancy exclusivity
-   is enforced.
+   is enforced. Group *Processes*: process templates started
+   automatically when a contract is set to running
+   (``start_process_template``), terminated
+   (``termination_process_template``) or its partner is changed
+   (``partner_change_process_template``) - see `Tasks, Processes and
+   Handover Reports <tasks.rst>`__.
 
 ``real_estate.contract.term.type``
    Term type definitions with default rhythm (monthly / quarterly / …),
@@ -111,6 +116,15 @@ The following master data must be set up before the module can be used:
       Default payment term for operating cost settlement invoices, used
       when the contract itself has none set.
 
+   ``receipt_days`` (default 3)
+      Days from the declaration date of an index rent adjustment to the
+      expected receipt by the tenant - only a preview of the effective
+      date, the actual receipt is captured separately.
+
+   ``deposit_task_months`` (default 6)
+      Months after the end of a contract until the move-out process step
+      *Settle deposit* is due.
+
    ``co2_landlord_share_commercial``
       Default CO2 cost landlord share (%, 0–100) for commercial properties,
       which are not covered by the residential 10-tier distribution model —
@@ -126,7 +140,9 @@ The following master data must be set up before the module can be used:
    Per-``re_accounting`` (i.e. per-company) row configuring one recurring
    operation: ``task`` (selection, currently ``update_contract_status`` /
    ``update_contract_cash_flow`` / ``book_contract_cash_flow`` /
-   ``update_option_rate``), ``valid_from``, ``valid_until``,
+   ``update_option_rate`` / ``price_index_import`` (GENESIS-Online, see
+   above) / ``task_notify`` (task reminders and escalation) /
+   ``task_rules`` (task rules and process conditions)), ``valid_from``, ``valid_until``,
    ``interval_days``, ``interval_months``, ``schedule_day_of_month``,
    ``horizon_months_ahead``, ``invoice_state``, ``future_contracts_horizon_days``,
    ``last_run`` (updated by the dispatcher), ``active``. Task names are
@@ -255,3 +271,12 @@ The following master data must be set up before the module can be used:
       skipped counts, plus one detail line per processed object) go to the
       Python logger, not ``contract.log``, since this task is not tied to
       individual contracts.
+
+**Tasks and processes** (menu *Configuration › Tasks and Processes*)
+   Task types, task rules (delivered inactive), process templates and
+   handover checklists - see `Tasks, Processes and Handover Reports
+   <tasks.rst>`__. Per user: preference ``task_email`` (task reminders by
+   e-mail, default on).
+
+**Server configuration** (``trytond.conf``)
+   See `Installation <installation.rst>`__, section *trytond.conf*.

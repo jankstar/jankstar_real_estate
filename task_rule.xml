@@ -1,0 +1,343 @@
+<?xml version="1.0"?>
+<tryton>
+    <data>
+        <!-- Task rules (spezifikation-wiedervorlage.md 5, phase C) -->
+        <record model="ir.ui.view" id="task_rule_view_tree">
+            <field name="model">real_estate.task.rule</field>
+            <field name="type">tree</field>
+            <field name="name">task_rule_tree</field>
+        </record>
+        <record model="ir.ui.view" id="task_rule_view_form">
+            <field name="model">real_estate.task.rule</field>
+            <field name="type">form</field>
+            <field name="name">task_rule_form</field>
+        </record>
+        <record model="ir.action.act_window" id="act_task_rule">
+            <field name="name">Task Rules</field>
+            <field name="res_model">real_estate.task.rule</field>
+        </record>
+        <record model="ir.action.act_window.view" id="act_task_rule_view1">
+            <field name="sequence" eval="10"/>
+            <field name="view" ref="task_rule_view_tree"/>
+            <field name="act_window" ref="act_task_rule"/>
+        </record>
+        <record model="ir.action.act_window.view" id="act_task_rule_view2">
+            <field name="sequence" eval="20"/>
+            <field name="view" ref="task_rule_view_form"/>
+            <field name="act_window" ref="act_task_rule"/>
+        </record>
+        <record model="ir.action.act_window.domain" id="act_task_rule_domain_active">
+            <field name="name">Active</field>
+            <field name="sequence" eval="10"/>
+            <field name="domain" eval="[('active', '=', True)]" pyson="1"/>
+            <field name="act_window" ref="act_task_rule"/>
+        </record>
+        <record model="ir.action.act_window.domain" id="act_task_rule_domain_inactive">
+            <field name="name">Inactive</field>
+            <field name="sequence" eval="20"/>
+            <field name="domain" eval="[('active', '=', False)]" pyson="1"/>
+            <field name="act_window" ref="act_task_rule"/>
+        </record>
+        <record model="ir.action.act_window.domain" id="act_task_rule_domain_all">
+            <field name="name">All</field>
+            <field name="sequence" eval="30"/>
+            <field name="domain" eval="[('active', 'in', [True, False])]" pyson="1"/>
+            <field name="act_window" ref="act_task_rule"/>
+        </record>
+        <menuitem
+            parent="menu_task_configuration"
+            action="act_task_rule"
+            sequence="20"
+            id="menu_task_rule"/>
+        <record model="ir.model.button" id="task_rule_run_now_button">
+            <field name="model">real_estate.task.rule</field>
+            <field name="name">run_now</field>
+            <field name="string">Run Now</field>
+        </record>
+        <record model="ir.model.button-res.group" id="task_rule_run_now_button_group_admin">
+            <field name="button" ref="task_rule_run_now_button"/>
+            <field name="group" ref="group_real_estate_admin"/>
+        </record>
+        <record model="ir.model.access" id="access_task_rule_object">
+            <field name="model">real_estate.task.rule</field>
+            <field name="group" ref="group_real_estate_object"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_task_rule_contract">
+            <field name="model">real_estate.task.rule</field>
+            <field name="group" ref="group_real_estate_contract"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_task_rule_billing">
+            <field name="model">real_estate.task.rule</field>
+            <field name="group" ref="group_real_estate_billing"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_task_rule_admin">
+            <field name="model">real_estate.task.rule</field>
+            <field name="group" ref="group_real_estate_admin"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+        <record model="ir.model.access" id="access_task_rule_default">
+            <field name="model">real_estate.task.rule</field>
+            <field name="perm_read" eval="False"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+    </data>
+
+    <data noupdate="1">
+        <!-- Default rules - delivered inactive, activate as needed -->
+        <record model="real_estate.task.rule" id="task_rule_v02">
+            <field name="name">Contract not signed</field>
+            <field name="model">real_estate.contract</field>
+            <field name="domain" eval="[('state', '=', 'running'), ('date_of_signature', '=', None)]" pyson="1"/>
+            <field name="date_source">field</field>
+            <field name="date_field">start_date</field>
+            <field name="offset_months" eval="0"/>
+            <field name="offset_days" eval="14"/>
+            <field name="horizon_days" eval="30"/>
+            <field name="task_type" ref="task_type_contract_unsigned"/>
+            <field name="on_date_change">cancel</field>
+            <field name="active" eval="False"/>
+            <field name="description">The contract is running but has no date of signature. Request or file the signed contract and enter 'Date of Signature' in the contract.</field>
+        </record>
+        <record model="real_estate.task.rule" id="task_rule_v03">
+            <field name="name">Fixed-term contract ends</field>
+            <field name="model">real_estate.contract</field>
+            <field name="domain" eval="[('state', '=', 'running'), ('end_date', '!=', None), ('termination_date', '=', None)]" pyson="1"/>
+            <field name="date_source">field</field>
+            <field name="date_field">end_date</field>
+            <field name="offset_months" eval="-3"/>
+            <field name="offset_days" eval="0"/>
+            <field name="horizon_days" eval="30"/>
+            <field name="task_type" ref="task_type_contract_end"/>
+            <field name="on_date_change">cancel</field>
+            <field name="active" eval="False"/>
+            <field name="description">The fixed-term contract ends in three months. Clarify whether it is extended, replaced by a follow-up contract or ended; start the move-out process or the reletting if necessary.</field>
+        </record>
+        <record model="real_estate.task.rule" id="task_rule_v07">
+            <field name="name">Contract party ends</field>
+            <field name="model">real_estate.contract.party</field>
+            <field name="domain" eval="[('valid_to', '!=', None), ('contract.state', 'in', ['draft', 'running'])]" pyson="1"/>
+            <field name="date_source">field</field>
+            <field name="date_field">valid_to</field>
+            <field name="offset_months" eval="-1"/>
+            <field name="offset_days" eval="0"/>
+            <field name="horizon_days" eval="30"/>
+            <field name="task_type" ref="task_type_party_end"/>
+            <field name="on_date_change">cancel</field>
+            <field name="active" eval="False"/>
+            <field name="description">The assignment of a contract party ends in one month ('Valid to'). Check whether a successor has to be entered or the contract continues with the remaining parties; carry out a change of tenant if necessary.</field>
+        </record>
+        <record model="real_estate.task.rule" id="task_rule_v08">
+            <field name="name">No follow-up contract</field>
+            <field name="model">real_estate.contract</field>
+            <field name="domain" eval="[('state', '=', 'terminated')]" pyson="1"/>
+            <field name="date_source">method</field>
+            <field name="date_method">no_follow_up_contract</field>
+            <field name="offset_months" eval="-2"/>
+            <field name="offset_days" eval="0"/>
+            <field name="horizon_days" eval="30"/>
+            <field name="task_type" ref="task_type_no_follow_up"/>
+            <field name="on_date_change">cancel</field>
+            <field name="active" eval="False"/>
+            <field name="description">There is no follow-up contract yet for the objects of the terminated contract. Start the reletting (advertisement, viewings) or record the vacancy deliberately.</field>
+        </record>
+        <record model="real_estate.task.rule" id="task_rule_m01">
+            <field name="name">Prepare index rent adjustment</field>
+            <field name="model">real_estate.contract.rent_adjustment</field>
+            <field name="domain" eval="[('procedure', '=', 'index_rent'), ('state', '=', 'active')]" pyson="1"/>
+            <field name="date_source">field</field>
+            <field name="date_field">declaration_deadline</field>
+            <field name="offset_months" eval="0"/>
+            <field name="offset_days" eval="-14"/>
+            <field name="horizon_days" eval="30"/>
+            <field name="task_type" ref="task_type_index_prepare"/>
+            <field name="on_date_change">done</field>
+            <field name="active" eval="False"/>
+            <field name="description">The deadline for the next index rent declaration is approaching. Update the index values and run the adjustment of contract terms for this rent adjustment.</field>
+        </record>
+        <record model="real_estate.task.rule" id="task_rule_m02">
+            <field name="name">Index adjustment not declared</field>
+            <field name="model">real_estate.contract.term.adjustment</field>
+            <field name="domain" eval="[('state', '=', 'approved'), ('rent_adjustment.procedure', '=', 'index_rent')]" pyson="1"/>
+            <field name="date_source">method</field>
+            <field name="date_method">state_since</field>
+            <field name="offset_months" eval="0"/>
+            <field name="offset_days" eval="7"/>
+            <field name="horizon_days" eval="30"/>
+            <field name="task_type" ref="task_type_index_declare"/>
+            <field name="on_date_change">cancel</field>
+            <field name="active" eval="False"/>
+            <field name="description">An approved index adjustment has not been declared for a week. Create the declaration and send it to the tenant.</field>
+        </record>
+        <record model="real_estate.task.rule" id="task_rule_m04">
+            <field name="name">Index adjustment not executed</field>
+            <field name="model">real_estate.contract.term.adjustment</field>
+            <field name="domain" eval="[('state', '=', 'declared'), ('receipt_date', '!=', None)]" pyson="1"/>
+            <field name="date_source">field</field>
+            <field name="date_field">receipt_date</field>
+            <field name="offset_months" eval="0"/>
+            <field name="offset_days" eval="3"/>
+            <field name="horizon_days" eval="30"/>
+            <field name="task_type" ref="task_type_index_execute"/>
+            <field name="on_date_change">cancel</field>
+            <field name="active" eval="False"/>
+            <field name="description">The declaration has been received by the tenant, but the adjustment has not been executed yet. Execute the adjustment so that the new rent is posted.</field>
+        </record>
+        <record model="real_estate.task.rule" id="task_rule_m05">
+            <field name="name">Graduated rent ends</field>
+            <field name="model">real_estate.contract.rent_adjustment</field>
+            <field name="domain" eval="[('procedure', '=', 'graduated_rent'), ('state', '=', 'generated')]" pyson="1"/>
+            <field name="date_source">field</field>
+            <field name="date_field">last_step_date</field>
+            <field name="offset_months" eval="-3"/>
+            <field name="offset_days" eval="0"/>
+            <field name="horizon_days" eval="30"/>
+            <field name="task_type" ref="task_type_graduated_end"/>
+            <field name="on_date_change">cancel</field>
+            <field name="active" eval="False"/>
+            <field name="description">The last step of the graduated rent starts in three months. Check whether a follow-up graduated rent is agreed or another rent adjustment (e.g. comparative rent) is prepared.</field>
+        </record>
+        <record model="real_estate.task.rule" id="task_rule_m06">
+            <field name="name">Termination waiver ends</field>
+            <field name="model">real_estate.contract.rent_adjustment</field>
+            <field name="domain" eval="[('termination_waiver_until', '!=', None), ('state', '!=', 'draft')]" pyson="1"/>
+            <field name="date_source">field</field>
+            <field name="date_field">termination_waiver_until</field>
+            <field name="offset_months" eval="-3"/>
+            <field name="offset_days" eval="0"/>
+            <field name="horizon_days" eval="30"/>
+            <field name="task_type" ref="task_type_waiver_end"/>
+            <field name="on_date_change">cancel</field>
+            <field name="active" eval="False"/>
+            <field name="description">The agreed waiver of termination ends in three months. Check whether action is required (e.g. a new agreement).</field>
+        </record>
+        <record model="real_estate.task.rule" id="task_rule_m07">
+            <field name="name">Index values outdated</field>
+            <field name="model">real_estate.price_index</field>
+            <field name="domain" eval="[]" pyson="1"/>
+            <field name="date_source">method</field>
+            <field name="date_method">index_values_stale</field>
+            <field name="offset_months" eval="0"/>
+            <field name="offset_days" eval="0"/>
+            <field name="horizon_days" eval="0"/>
+            <field name="task_type" ref="task_type_index_values"/>
+            <field name="on_date_change">done</field>
+            <field name="active" eval="False"/>
+            <field name="description">There are no current values for this price index. Import the index values (manually or by the GENESIS retrieval) and check that the automatic retrieval works.</field>
+        </record>
+        <record model="real_estate.task.rule" id="task_rule_m08">
+            <field name="name">Tight market regulation ends</field>
+            <field name="model">real_estate.base_object</field>
+            <field name="domain" eval="[('type', '=', 'property'), ('tight_market', '=', True), ('tight_market_valid_to', '!=', None)]" pyson="1"/>
+            <field name="date_source">field</field>
+            <field name="date_field">tight_market_valid_to</field>
+            <field name="offset_months" eval="-2"/>
+            <field name="offset_days" eval="0"/>
+            <field name="horizon_days" eval="30"/>
+            <field name="task_type" ref="task_type_tight_market_end"/>
+            <field name="on_date_change">cancel</field>
+            <field name="active" eval="False"/>
+            <field name="description">The rent control (tight housing market) for this property expires in two months. Check whether the regulation has been extended and adjust 'Tight Market to' or remove the flag.</field>
+        </record>
+        <record model="real_estate.task.rule" id="task_rule_b01">
+            <field name="name">Operating cost billing deadline</field>
+            <field name="model">real_estate.billing_unit</field>
+            <field name="domain" eval="[('state', '!=', 'billed')]" pyson="1"/>
+            <field name="date_source">method</field>
+            <field name="date_method">billing_deadline</field>
+            <field name="offset_months" eval="-3"/>
+            <field name="offset_days" eval="0"/>
+            <field name="horizon_days" eval="30"/>
+            <field name="task_type" ref="task_type_billing_deadline"/>
+            <field name="on_date_change">cancel</field>
+            <field name="active" eval="False"/>
+            <field name="description">The billing deadline (12 months after the end of the billing period, § 556 (3) BGB) ends in three months. Complete missing costs and readings and create the billing; after the deadline additional claims are usually excluded.</field>
+        </record>
+        <record model="real_estate.task.rule" id="task_rule_b02">
+            <field name="name">Adjust operating cost prepayments</field>
+            <field name="model">real_estate.billing_unit</field>
+            <field name="domain" eval="[('state', '=', 'billed')]" pyson="1"/>
+            <field name="date_source">method</field>
+            <field name="date_method">state_since</field>
+            <field name="offset_months" eval="0"/>
+            <field name="offset_days" eval="14"/>
+            <field name="horizon_days" eval="30"/>
+            <field name="task_type" ref="task_type_prepayment_adjust"/>
+            <field name="on_date_change">cancel</field>
+            <field name="active" eval="False"/>
+            <field name="description">The operating cost billing has been created. Adjust the prepayments appropriately to the result (§ 560 (4) BGB) and inform the tenants.</field>
+        </record>
+        <record model="real_estate.task.rule" id="task_rule_o01">
+            <field name="name">Record meter readings</field>
+            <field name="model">real_estate.base_object</field>
+            <field name="domain" eval="[('type', '=', 'property')]" pyson="1"/>
+            <field name="date_source">method</field>
+            <field name="date_method">meter_reading_due</field>
+            <field name="offset_months" eval="0"/>
+            <field name="offset_days" eval="-7"/>
+            <field name="horizon_days" eval="30"/>
+            <field name="task_type" ref="task_type_meter_reading"/>
+            <field name="on_date_change">done</field>
+            <field name="active" eval="False"/>
+            <field name="description">The next meter reading date is approaching. Order the reading or the metering service provider and record the readings of all meters of the property.</field>
+        </record>
+        <record model="real_estate.task.rule" id="task_rule_o03">
+            <field name="name">Meter calibration expires</field>
+            <field name="model">real_estate.base_object</field>
+            <field name="domain" eval="[('type', '=', 'equipment'), ('e_type', '=', 'meters'), ('meter_calibration_valid_to', '!=', None)]" pyson="1"/>
+            <field name="date_source">field</field>
+            <field name="date_field">meter_calibration_valid_to</field>
+            <field name="offset_months" eval="-3"/>
+            <field name="offset_days" eval="0"/>
+            <field name="horizon_days" eval="30"/>
+            <field name="task_type" ref="task_type_meter_calibration"/>
+            <field name="on_date_change">done</field>
+            <field name="active" eval="False"/>
+            <field name="description">The calibration of the meter expires in three months. Order a meter replacement or recalibration and afterwards enter the new 'Calibration Valid to'; the task is then set done automatically.</field>
+        </record>
+        <record model="real_estate.task.rule" id="task_rule_o04">
+            <field name="name">Object ends</field>
+            <field name="model">real_estate.base_object</field>
+            <field name="domain" eval="[('end_date', '!=', None), ('state', '!=', 'deactivated')]" pyson="1"/>
+            <field name="date_source">field</field>
+            <field name="date_field">end_date</field>
+            <field name="offset_months" eval="-3"/>
+            <field name="offset_days" eval="0"/>
+            <field name="horizon_days" eval="30"/>
+            <field name="task_type" ref="task_type_object_end"/>
+            <field name="on_date_change">cancel</field>
+            <field name="active" eval="False"/>
+            <field name="description">The object ends in three months (end date). Check and end or transfer running contracts, meters and assignments.</field>
+        </record>
+        <record model="real_estate.task.rule" id="task_rule_s02">
+            <field name="name">Scheduled task not run</field>
+            <field name="model">real_estate.cron_task</field>
+            <field name="domain" eval="[]" pyson="1"/>
+            <field name="date_source">method</field>
+            <field name="date_method">cron_overdue</field>
+            <field name="offset_months" eval="0"/>
+            <field name="offset_days" eval="0"/>
+            <field name="horizon_days" eval="0"/>
+            <field name="task_type" ref="task_type_cron_missing"/>
+            <field name="on_date_change">done</field>
+            <field name="active" eval="False"/>
+            <field name="description">A scheduled task has not run as planned. Check the trytond-cron process and the log of the scheduled tasks, fix the cause and run the task manually if necessary.</field>
+        </record>
+    </data>
+</tryton>

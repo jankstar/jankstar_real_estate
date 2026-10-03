@@ -58,6 +58,13 @@ via ``get_context()``.
    *Zweitschrift* (declared/done) or *ENTWURF* (before the declaration).
    Index values are formatted with one decimal (``format_index``).
 
+``real_estate.contract.handover.report``  (``contract_report.py``)
+   Handover report on ``real_estate.contract.handover``, template
+   ``contract_handover_de.odt``: header with landlord, tenants, rented
+   object, kind and date, tables of check items, keys (move-out: expected
+   quantity) and meter readings, general condition, agreements and
+   signature fields; ENTWURF until the report is done.
+
 ``real_estate.base_object.report``  (``base_object.py``)
    Fact sheet for a property or object.
    Template: ``fact_sheet.odt``.

@@ -1,0 +1,554 @@
+<?xml version="1.0"?>
+<tryton>
+    <data>
+        <!-- Tasks (Wiedervorlagen), spezifikation-wiedervorlage.md -->
+        <record model="ir.ui.view" id="task_view_tree">
+            <field name="model">real_estate.task</field>
+            <field name="type">tree</field>
+            <field name="name">task_tree</field>
+        </record>
+        <record model="ir.ui.view" id="task_view_form">
+            <field name="model">real_estate.task</field>
+            <field name="type">form</field>
+            <field name="name">task_form</field>
+        </record>
+        <record model="ir.ui.view" id="task_view_calendar">
+            <field name="model">real_estate.task</field>
+            <field name="type">calendar</field>
+            <field name="name">task_calendar</field>
+        </record>
+        <record model="ir.ui.view" id="task_view_list_resource">
+            <field name="model">real_estate.task</field>
+            <field name="type">tree</field>
+            <field name="priority" eval="20"/>
+            <field name="name">task_list_resource</field>
+        </record>
+        <record model="ir.ui.view" id="task_type_view_tree">
+            <field name="model">real_estate.task.type</field>
+            <field name="type">tree</field>
+            <field name="name">task_type_tree</field>
+        </record>
+        <record model="ir.ui.view" id="task_type_view_form">
+            <field name="model">real_estate.task.type</field>
+            <field name="type">form</field>
+            <field name="name">task_type_form</field>
+        </record>
+        <record model="ir.ui.view" id="task_postpone_start_view_form">
+            <field name="model">real_estate.task.postpone.start</field>
+            <field name="type">form</field>
+            <field name="name">task_postpone_start_form</field>
+        </record>
+        <record model="ir.ui.view" id="task_create_start_view_form">
+            <field name="model">real_estate.task.create.start</field>
+            <field name="type">form</field>
+            <field name="name">task_create_start_form</field>
+        </record>
+        <record model="ir.action.act_window" id="act_task_mine">
+            <field name="name">My Tasks</field>
+            <field name="res_model">real_estate.task</field>
+            <field name="domain" eval="[('is_mine', '=', True)]" pyson="1"/>
+        </record>
+        <record model="ir.action.act_window.view" id="act_task_mine_view1">
+            <field name="sequence" eval="10"/>
+            <field name="view" ref="task_view_tree"/>
+            <field name="act_window" ref="act_task_mine"/>
+        </record>
+        <record model="ir.action.act_window.view" id="act_task_mine_view2">
+            <field name="sequence" eval="20"/>
+            <field name="view" ref="task_view_form"/>
+            <field name="act_window" ref="act_task_mine"/>
+        </record>
+        <record model="ir.action.act_window.view" id="act_task_mine_view3">
+            <field name="sequence" eval="30"/>
+            <field name="view" ref="task_view_calendar"/>
+            <field name="act_window" ref="act_task_mine"/>
+        </record>
+        <record model="ir.action.act_window.domain" id="act_task_mine_domain_due">
+            <field name="name">Due</field>
+            <field name="sequence" eval="10"/>
+            <field name="domain" eval="[('state', '=', 'open'), ('remind_date', '&lt;=', Date())]" pyson="1"></field>
+            <field name="count" eval="True"/>
+            <field name="act_window" ref="act_task_mine"/>
+        </record>
+        <record model="ir.action.act_window.domain" id="act_task_mine_domain_overdue">
+            <field name="name">Overdue</field>
+            <field name="sequence" eval="20"/>
+            <field name="domain" eval="[('overdue', '=', True)]" pyson="1"></field>
+            <field name="count" eval="True"/>
+            <field name="act_window" ref="act_task_mine"/>
+        </record>
+        <record model="ir.action.act_window.domain" id="act_task_mine_domain_next_30">
+            <field name="name">Next 30 Days</field>
+            <field name="sequence" eval="30"/>
+            <field name="domain" eval="[('state', '=', 'open'), ('due_date', '&lt;=', Date(delta_days=30))]" pyson="1"></field>
+            <field name="count" eval="True"/>
+            <field name="act_window" ref="act_task_mine"/>
+        </record>
+        <record model="ir.action.act_window.domain" id="act_task_mine_domain_open">
+            <field name="name">All Open</field>
+            <field name="sequence" eval="40"/>
+            <field name="domain" eval="[('state', '=', 'open')]" pyson="1"></field>
+            <field name="count" eval="False"/>
+            <field name="act_window" ref="act_task_mine"/>
+        </record>
+        <record model="ir.action.act_window.domain" id="act_task_mine_domain_done">
+            <field name="name">Done</field>
+            <field name="sequence" eval="50"/>
+            <field name="domain" eval="[('state', '=', 'done')]" pyson="1"></field>
+            <field name="count" eval="False"/>
+            <field name="act_window" ref="act_task_mine"/>
+        </record>
+        <record model="ir.action.act_window" id="act_task_all">
+            <field name="name">All Tasks</field>
+            <field name="res_model">real_estate.task</field>
+        </record>
+        <record model="ir.action.act_window.view" id="act_task_all_view1">
+            <field name="sequence" eval="10"/>
+            <field name="view" ref="task_view_tree"/>
+            <field name="act_window" ref="act_task_all"/>
+        </record>
+        <record model="ir.action.act_window.view" id="act_task_all_view2">
+            <field name="sequence" eval="20"/>
+            <field name="view" ref="task_view_form"/>
+            <field name="act_window" ref="act_task_all"/>
+        </record>
+        <record model="ir.action.act_window.view" id="act_task_all_view3">
+            <field name="sequence" eval="30"/>
+            <field name="view" ref="task_view_calendar"/>
+            <field name="act_window" ref="act_task_all"/>
+        </record>
+        <record model="ir.action.act_window.domain" id="act_task_all_domain_open">
+            <field name="name">Open</field>
+            <field name="sequence" eval="10"/>
+            <field name="domain" eval="[('state', '=', 'open')]" pyson="1"></field>
+            <field name="count" eval="False"/>
+            <field name="act_window" ref="act_task_all"/>
+        </record>
+        <record model="ir.action.act_window.domain" id="act_task_all_domain_overdue">
+            <field name="name">Overdue</field>
+            <field name="sequence" eval="20"/>
+            <field name="domain" eval="[('overdue', '=', True)]" pyson="1"></field>
+            <field name="count" eval="True"/>
+            <field name="act_window" ref="act_task_all"/>
+        </record>
+        <record model="ir.action.act_window.domain" id="act_task_all_domain_done">
+            <field name="name">Done</field>
+            <field name="sequence" eval="30"/>
+            <field name="domain" eval="[('state', '=', 'done')]" pyson="1"></field>
+            <field name="count" eval="False"/>
+            <field name="act_window" ref="act_task_all"/>
+        </record>
+        <record model="ir.action.act_window.domain" id="act_task_all_domain_cancelled">
+            <field name="name">Cancelled</field>
+            <field name="sequence" eval="40"/>
+            <field name="domain" eval="[('state', '=', 'cancelled')]" pyson="1"></field>
+            <field name="count" eval="False"/>
+            <field name="act_window" ref="act_task_all"/>
+        </record>
+        <record model="ir.action.act_window.domain" id="act_task_all_domain_all">
+            <field name="name">All</field>
+            <field name="sequence" eval="50"/>
+            <field name="domain"></field>
+            <field name="count" eval="False"/>
+            <field name="act_window" ref="act_task_all"/>
+        </record>
+        <record model="ir.action.act_window" id="act_task_type">
+            <field name="name">Task Types</field>
+            <field name="res_model">real_estate.task.type</field>
+        </record>
+        <record model="ir.action.act_window.view" id="act_task_type_view1">
+            <field name="sequence" eval="10"/>
+            <field name="view" ref="task_type_view_tree"/>
+            <field name="act_window" ref="act_task_type"/>
+        </record>
+        <record model="ir.action.act_window.view" id="act_task_type_view2">
+            <field name="sequence" eval="20"/>
+            <field name="view" ref="task_type_view_form"/>
+            <field name="act_window" ref="act_task_type"/>
+        </record>
+
+        <menuitem
+            parent="menu_real_estate"
+            name="Tasks and Follow-ups"
+            sequence="15"
+            icon="tryton-notification"
+            id="menu_tasks"/>
+        <menuitem
+            parent="menu_tasks"
+            action="act_task_mine"
+            sequence="10"
+            id="menu_task_mine"/>
+        <menuitem
+            parent="menu_tasks"
+            action="act_task_all"
+            sequence="20"
+            id="menu_task_all"/>
+        <menuitem
+            parent="menu_real_estate_configuration"
+            name="Tasks and Processes"
+            sequence="50"
+            icon="tryton-notification"
+            id="menu_task_configuration"/>
+        <menuitem
+            parent="menu_task_configuration"
+            action="act_task_type"
+            sequence="10"
+            id="menu_task_type"/>
+
+        <record model="ir.action.wizard" id="wizard_task_postpone">
+            <field name="name">Postpone Task</field>
+            <field name="wiz_name">real_estate.task.postpone</field>
+            <field name="model">real_estate.task</field>
+        </record>
+        <record model="ir.action.wizard" id="wizard_task_create">
+            <field name="name">New Task</field>
+            <field name="wiz_name">real_estate.task.create</field>
+        </record>
+        <record model="ir.action.keyword" id="wizard_task_create_keyword_contract">
+            <field name="keyword">form_action</field>
+            <field name="model">real_estate.contract,-1</field>
+            <field name="action" ref="wizard_task_create"/>
+        </record>
+        <record model="ir.action.keyword" id="wizard_task_create_keyword_rent_adjustment">
+            <field name="keyword">form_action</field>
+            <field name="model">real_estate.contract.rent_adjustment,-1</field>
+            <field name="action" ref="wizard_task_create"/>
+        </record>
+        <record model="ir.action.keyword" id="wizard_task_create_keyword_base_object">
+            <field name="keyword">form_action</field>
+            <field name="model">real_estate.base_object,-1</field>
+            <field name="action" ref="wizard_task_create"/>
+        </record>
+        <record model="ir.action.keyword" id="wizard_task_create_keyword_billing_unit">
+            <field name="keyword">form_action</field>
+            <field name="model">real_estate.billing_unit,-1</field>
+            <field name="action" ref="wizard_task_create"/>
+        </record>
+        <record model="ir.model.button" id="task_done_button">
+            <field name="model">real_estate.task</field>
+            <field name="name">done</field>
+            <field name="string">Done</field>
+        </record>
+        <record model="ir.model.button" id="task_cancel_button">
+            <field name="model">real_estate.task</field>
+            <field name="name">cancel</field>
+            <field name="string">Cancel</field>
+        </record>
+        <record model="ir.model.button" id="task_reopen_button">
+            <field name="model">real_estate.task</field>
+            <field name="name">reopen</field>
+            <field name="string">Reopen</field>
+        </record>
+        <record model="ir.model.button" id="task_postpone_button">
+            <field name="model">real_estate.task</field>
+            <field name="name">postpone</field>
+            <field name="string">Postpone</field>
+        </record>
+        <record model="ir.model.button" id="task_take_button">
+            <field name="model">real_estate.task</field>
+            <field name="name">take</field>
+            <field name="string">Take Over</field>
+        </record>
+        <record model="ir.model.button-res.group" id="task_reopen_button_group_admin">
+            <field name="button" ref="task_reopen_button"/>
+            <field name="group" ref="group_real_estate_admin"/>
+        </record>
+
+        <!-- Company rule and visibility: own / group tasks for the
+             functional groups, everything for the administration -->
+        <record model="ir.rule.group" id="rule_group_task_companies">
+            <field name="name">User in companies</field>
+            <field name="model">real_estate.task</field>
+            <field name="global_p" eval="True"/>
+        </record>
+        <record model="ir.rule" id="rule_task_companies">
+            <field name="domain" eval="[('company', 'in', Eval('companies', []))]" pyson="1"/>
+            <field name="rule_group" ref="rule_group_task_companies"/>
+        </record>
+        <record model="ir.rule.group" id="rule_group_task_mine">
+            <field name="name">Own or group tasks</field>
+            <field name="model">real_estate.task</field>
+            <field name="global_p" eval="False"/>
+            <field name="default_p" eval="False"/>
+        </record>
+        <record model="ir.rule" id="rule_task_mine">
+            <field name="domain" eval="['OR', ('responsible_user', '=', Eval('user_id', -1)), ('responsible_group', 'in', Eval('groups', [])), ('create_uid', '=', Eval('user_id', -1))]" pyson="1"/>
+            <field name="rule_group" ref="rule_group_task_mine"/>
+        </record>
+        <record model="ir.rule.group-res.group" id="rule_group_task_mine_object">
+            <field name="rule_group" ref="rule_group_task_mine"/>
+            <field name="group" ref="group_real_estate_object"/>
+        </record>
+        <record model="ir.rule.group-res.group" id="rule_group_task_mine_contract">
+            <field name="rule_group" ref="rule_group_task_mine"/>
+            <field name="group" ref="group_real_estate_contract"/>
+        </record>
+        <record model="ir.rule.group-res.group" id="rule_group_task_mine_billing">
+            <field name="rule_group" ref="rule_group_task_mine"/>
+            <field name="group" ref="group_real_estate_billing"/>
+        </record>
+        <record model="ir.rule.group" id="rule_group_task_admin">
+            <field name="name">All tasks</field>
+            <field name="model">real_estate.task</field>
+            <field name="global_p" eval="False"/>
+            <field name="default_p" eval="False"/>
+        </record>
+        <record model="ir.rule" id="rule_task_admin">
+            <field name="domain" eval="[]" pyson="1"/>
+            <field name="rule_group" ref="rule_group_task_admin"/>
+        </record>
+        <record model="ir.rule.group-res.group" id="rule_group_task_admin_admin">
+            <field name="rule_group" ref="rule_group_task_admin"/>
+            <field name="group" ref="group_real_estate_admin"/>
+        </record>
+        <record model="ir.model.access" id="access_task_object">
+            <field name="model">real_estate.task</field>
+            <field name="group" ref="group_real_estate_object"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+        <record model="ir.model.access" id="access_task_contract">
+            <field name="model">real_estate.task</field>
+            <field name="group" ref="group_real_estate_contract"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+        <record model="ir.model.access" id="access_task_billing">
+            <field name="model">real_estate.task</field>
+            <field name="group" ref="group_real_estate_billing"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+        <record model="ir.model.access" id="access_task_admin">
+            <field name="model">real_estate.task</field>
+            <field name="group" ref="group_real_estate_admin"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+        <record model="ir.model.access" id="access_task_default">
+            <field name="model">real_estate.task</field>
+            <field name="perm_read" eval="False"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_task_type_admin">
+            <field name="model">real_estate.task.type</field>
+            <field name="group" ref="group_real_estate_admin"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+        <record model="ir.model.access" id="access_task_type_object">
+            <field name="model">real_estate.task.type</field>
+            <field name="group" ref="group_real_estate_object"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_task_type_contract">
+            <field name="model">real_estate.task.type</field>
+            <field name="group" ref="group_real_estate_contract"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_task_type_billing">
+            <field name="model">real_estate.task.type</field>
+            <field name="group" ref="group_real_estate_billing"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_task_type_default">
+            <field name="model">real_estate.task.type</field>
+            <field name="perm_read" eval="False"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+    </data>
+
+    <data noupdate="1">
+        <record model="real_estate.task.type" id="task_type_manual">
+            <field name="sequence" eval="10"/>
+            <field name="code">manual</field>
+            <field name="name">Follow-up</field>
+            <field name="remind_days" eval="0"/>
+        </record>
+        <record model="real_estate.task.type" id="task_type_contract_unsigned">
+            <field name="sequence" eval="20"/>
+            <field name="code">contract_unsigned</field>
+            <field name="name">Contract not signed</field>
+            <field name="responsible_group" ref="group_real_estate_contract"/>
+            <field name="remind_days" eval="0"/>
+            <field name="escalate_days" eval="14"/>
+            <field name="escalation_group" ref="group_real_estate_admin"/>
+        </record>
+        <record model="real_estate.task.type" id="task_type_contract_end">
+            <field name="sequence" eval="30"/>
+            <field name="code">contract_end</field>
+            <field name="name">Fixed-term contract ends</field>
+            <field name="responsible_group" ref="group_real_estate_contract"/>
+            <field name="remind_days" eval="7"/>
+        </record>
+        <record model="real_estate.task.type" id="task_type_party_end">
+            <field name="sequence" eval="40"/>
+            <field name="code">party_end</field>
+            <field name="name">Contract party ends</field>
+            <field name="responsible_group" ref="group_real_estate_contract"/>
+            <field name="remind_days" eval="7"/>
+        </record>
+        <record model="real_estate.task.type" id="task_type_no_follow_up">
+            <field name="sequence" eval="50"/>
+            <field name="code">no_follow_up</field>
+            <field name="name">No follow-up contract</field>
+            <field name="responsible_group" ref="group_real_estate_contract"/>
+            <field name="remind_days" eval="7"/>
+        </record>
+        <record model="real_estate.task.type" id="task_type_index_prepare">
+            <field name="sequence" eval="60"/>
+            <field name="code">index_prepare</field>
+            <field name="name">Prepare index rent adjustment</field>
+            <field name="responsible_group" ref="group_real_estate_contract"/>
+            <field name="remind_days" eval="7"/>
+            <field name="escalate_days" eval="7"/>
+            <field name="escalation_group" ref="group_real_estate_admin"/>
+        </record>
+        <record model="real_estate.task.type" id="task_type_index_declare">
+            <field name="sequence" eval="70"/>
+            <field name="code">index_declare</field>
+            <field name="name">Declare index rent adjustment</field>
+            <field name="responsible_group" ref="group_real_estate_contract"/>
+            <field name="remind_days" eval="0"/>
+            <field name="escalate_days" eval="7"/>
+            <field name="escalation_group" ref="group_real_estate_admin"/>
+        </record>
+        <record model="real_estate.task.type" id="task_type_index_receipt">
+            <field name="sequence" eval="80"/>
+            <field name="code">index_receipt</field>
+            <field name="name">Capture receipt of index declaration</field>
+            <field name="responsible_group" ref="group_real_estate_contract"/>
+            <field name="remind_days" eval="0"/>
+            <field name="escalate_days" eval="7"/>
+            <field name="escalation_group" ref="group_real_estate_admin"/>
+        </record>
+        <record model="real_estate.task.type" id="task_type_index_execute">
+            <field name="sequence" eval="90"/>
+            <field name="code">index_execute</field>
+            <field name="name">Execute index rent adjustment</field>
+            <field name="responsible_group" ref="group_real_estate_contract"/>
+            <field name="remind_days" eval="0"/>
+            <field name="escalate_days" eval="7"/>
+            <field name="escalation_group" ref="group_real_estate_admin"/>
+        </record>
+        <record model="real_estate.task.type" id="task_type_index_values">
+            <field name="sequence" eval="100"/>
+            <field name="code">index_values</field>
+            <field name="name">Index values outdated</field>
+            <field name="responsible_group" ref="group_real_estate_admin"/>
+            <field name="remind_days" eval="0"/>
+        </record>
+        <record model="real_estate.task.type" id="task_type_graduated_end">
+            <field name="sequence" eval="110"/>
+            <field name="code">graduated_end</field>
+            <field name="name">Graduated rent ends</field>
+            <field name="responsible_group" ref="group_real_estate_contract"/>
+            <field name="remind_days" eval="7"/>
+        </record>
+        <record model="real_estate.task.type" id="task_type_waiver_end">
+            <field name="sequence" eval="120"/>
+            <field name="code">waiver_end</field>
+            <field name="name">Termination waiver ends</field>
+            <field name="responsible_group" ref="group_real_estate_contract"/>
+            <field name="remind_days" eval="7"/>
+        </record>
+        <record model="real_estate.task.type" id="task_type_tight_market_end">
+            <field name="sequence" eval="130"/>
+            <field name="code">tight_market_end</field>
+            <field name="name">Tight market regulation / cap rule ends</field>
+            <field name="responsible_group" ref="group_real_estate_admin"/>
+            <field name="remind_days" eval="7"/>
+        </record>
+        <record model="real_estate.task.type" id="task_type_billing_deadline">
+            <field name="sequence" eval="140"/>
+            <field name="code">billing_deadline</field>
+            <field name="name">Operating cost billing deadline</field>
+            <field name="responsible_group" ref="group_real_estate_billing"/>
+            <field name="remind_days" eval="14"/>
+            <field name="escalate_days" eval="0"/>
+            <field name="escalation_group" ref="group_real_estate_admin"/>
+        </record>
+        <record model="real_estate.task.type" id="task_type_prepayment_adjust">
+            <field name="sequence" eval="150"/>
+            <field name="code">prepayment_adjust</field>
+            <field name="name">Adjust operating cost prepayments</field>
+            <field name="responsible_group" ref="group_real_estate_billing"/>
+            <field name="remind_days" eval="0"/>
+            <field name="escalate_days" eval="14"/>
+            <field name="escalation_group" ref="group_real_estate_admin"/>
+        </record>
+        <record model="real_estate.task.type" id="task_type_bved_cutoff">
+            <field name="sequence" eval="160"/>
+            <field name="code">bved_cutoff</field>
+            <field name="name">BVED exchange cutoff</field>
+            <field name="responsible_group" ref="group_real_estate_billing"/>
+            <field name="remind_days" eval="7"/>
+        </record>
+        <record model="real_estate.task.type" id="task_type_meter_reading">
+            <field name="sequence" eval="170"/>
+            <field name="code">meter_reading</field>
+            <field name="name">Record meter readings</field>
+            <field name="responsible_group" ref="group_real_estate_object"/>
+            <field name="remind_days" eval="3"/>
+            <field name="escalate_days" eval="7"/>
+            <field name="escalation_group" ref="group_real_estate_admin"/>
+        </record>
+        <record model="real_estate.task.type" id="task_type_meter_calibration">
+            <field name="sequence" eval="180"/>
+            <field name="code">meter_calibration</field>
+            <field name="name">Meter calibration expires / meter exchange</field>
+            <field name="responsible_group" ref="group_real_estate_object"/>
+            <field name="remind_days" eval="14"/>
+        </record>
+        <record model="real_estate.task.type" id="task_type_object_end">
+            <field name="sequence" eval="190"/>
+            <field name="code">object_end</field>
+            <field name="name">Object ends</field>
+            <field name="responsible_group" ref="group_real_estate_object"/>
+            <field name="remind_days" eval="7"/>
+        </record>
+        <record model="real_estate.task.type" id="task_type_cron_error">
+            <field name="sequence" eval="200"/>
+            <field name="code">cron_error</field>
+            <field name="name">Scheduled task failed</field>
+            <field name="responsible_group" ref="group_real_estate_admin"/>
+            <field name="remind_days" eval="0"/>
+        </record>
+        <record model="real_estate.task.type" id="task_type_process_step">
+            <field name="sequence" eval="220"/>
+            <field name="code">process_step</field>
+            <field name="name">Process step</field>
+            <field name="remind_days" eval="3"/>
+        </record>
+        <record model="real_estate.task.type" id="task_type_cron_missing">
+            <field name="sequence" eval="210"/>
+            <field name="code">cron_missing</field>
+            <field name="name">Scheduled task not run</field>
+            <field name="responsible_group" ref="group_real_estate_admin"/>
+            <field name="remind_days" eval="0"/>
+        </record>
+    </data>
+</tryton>

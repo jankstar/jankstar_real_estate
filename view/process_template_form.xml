@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<form col="4">
+    <label name="name"/><field name="name"/>
+    <label name="code"/><field name="code"/>
+    <label name="model"/><field name="model"/>
+    <label name="anchor_field"/><field name="anchor_field"/>
+    <label name="active"/><field name="active"/>
+    <field name="steps" colspan="4"/>
+    <separator name="description" colspan="4"/>
+    <field name="description" colspan="4"/>
+</form>

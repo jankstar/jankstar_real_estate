@@ -3,6 +3,8 @@
       <newline/>
       <label name="phone"/><field name="phone"/>
       <label name="mobile"/><field name="mobile"/>
+      <newline/>
+      <label name="task_email"/><field name="task_email"/>
 
   </xpath>
 </data>

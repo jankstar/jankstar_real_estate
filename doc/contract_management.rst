@@ -90,11 +90,26 @@ Contract Management
       assigned to this contract via its items. Billing units are restricted
       to the property's ``next_billing_start_date`` (the earliest non-billed
       billing unit start date); if the property has none set, the most
-      recently ``billed`` period is used instead. Used by
-      ``get_cost_shares`` (cost shares of these settlement units belonging
-      to the contract) and by ``real_estate.contract.annex4.report`` for the
+      recently ``billed`` period is used instead. The overlap is
+      determined in one batch by ``_participating_settlement_units``
+      (billed units by their cost shares, the others by the approved
+      objects of the property matching ``reg_ex_object``) instead of the
+      ``objects`` function field of every unit. Shown in the tab
+      *Operation Costs* (participation only, no amounts), used by
+      ``get_cost_shares`` and by ``real_estate.contract.annex4.report`` for the
       Anlage 4 print (see `Reports <reports.rst>`__) — the report intentionally reuses
       this field instead of re-deriving the billing unit itself.
+
+      Costs and shares are opened from the contract with the relates
+      *Operating Costs Settlement Units* (wizard, all billing units of the
+      property overlapping the contract period, ``get_settlement_units_all_periods``),
+      *Operating Costs Cost Shares* and *Operating Costs Settlement
+      Results* (domain ``contract``).
+
+   Tab *Tasks and Processes*: sub tabs *Open* (open tasks - '+' creates a
+   task - and running processes) and *History* (done/cancelled tasks and
+   processes), filtered One2Many fields ``tasks_open``/``tasks_history``
+   and ``processes_open``/``processes_history``.
 
    **Fixed term / termination.** ``unlimited`` (Boolean, default ``True``)
    determines whether the contract has a fixed end date. Editable only in
@@ -510,3 +525,7 @@ Contract Management
 
    Specification: ``spezifikation-mietanpassung.md`` (not part of the
    repository).
+
+``real_estate.contract.handover``  (``handover.py``)
+   Handover report (*Übergabeprotokoll*) of a contract - see
+   `Tasks, Processes and Handover Reports <tasks.rst>`__.

@@ -21,16 +21,29 @@ Structure
   booked as invoices via the *Create Contract Moves* wizard or a cron task
   (one invoice per contract and posting date; term types flagged as
   *Separate Move*, e.g. the rent deposit, get an invoice of their own).
-  Rent adjustments per term (graduated rent generated in advance; index,
-  comparative rent, modernisation and operating cost procedures as
-  headers).
+  Rent adjustments per term: graduated rent generated in advance, index
+  rent (§ 557b BGB) with consumer price index import (CSV or GENESIS
+  API), adjustment run, declaration letter and receipt; comparative rent,
+  modernisation and operating cost procedures as headers so far.
 - **Operating cost settlement** — billing units and settlement units
   allocate supplier invoice costs to contracts (by measurement,
   consumption, external billing, …), including CO2 cost allocation
   (CO2KostAufG) and the BVED interface to external metering providers.
+- **Tasks, processes and handover reports** — tasks (follow-ups) on
+  contracts, objects, billing units and other records, created manually,
+  by the module, by scheduled task rules or by process steps, with
+  reminders and escalation; process templates (move-out, move-in, change
+  of tenant, index rent adjustment) started by the contract type; handover
+  reports (move-in, pre-inspection, move-out) with checklists, keys and
+  meter readings that complete the matching process steps.
 - **Accounting** — German WoWi chart of accounts, company-specific
   real-estate accounting configuration, input VAT option rate, and
   real-estate fields on invoices and journal lines.
+
+Setup: master data and per-company settings (real estate accounting,
+scheduled tasks, task and process configuration) are described in
+*Configuration*, the entries in ``trytond.conf`` (GENESIS-Online token,
+e-mail, bus) and the required cron process in *Installation*.
 
 Full documentation is split into per-topic pages under ``doc/`` — see
 *Contents* below and *Source Layout* for the file-to-model mapping.
@@ -51,7 +64,7 @@ Contents
    shown as the repository's root README.rst (symlink) and on PyPI.
 
 - `Module Dependencies <https://github.com/jankstar/jankstar_real_estate/blob/main/doc/module_dependencies.rst>`_
-- `Installation <https://github.com/jankstar/jankstar_real_estate/blob/main/doc/installation.rst>`_
+- `Installation (incl. trytond.conf) <https://github.com/jankstar/jankstar_real_estate/blob/main/doc/installation.rst>`_
 - `Configuration <https://github.com/jankstar/jankstar_real_estate/blob/main/doc/configuration.rst>`_
 - `Access Control <https://github.com/jankstar/jankstar_real_estate/blob/main/doc/access_control.rst>`_
 - `Data Model <https://github.com/jankstar/jankstar_real_estate/blob/main/doc/data_model.rst>`_
@@ -63,6 +76,7 @@ Contents
   - `BVED External Billing Interface <https://github.com/jankstar/jankstar_real_estate/blob/main/doc/bved.rst>`_
   - `Option Rate (Input VAT Deduction) <https://github.com/jankstar/jankstar_real_estate/blob/main/doc/option_rate.rst>`_
   - `Extensions to Core Modules <https://github.com/jankstar/jankstar_real_estate/blob/main/doc/core_extensions.rst>`_
+  - `Tasks, Processes and Handover Reports <https://github.com/jankstar/jankstar_real_estate/blob/main/doc/tasks.rst>`_
 
 - `Wizards <https://github.com/jankstar/jankstar_real_estate/blob/main/doc/wizards.rst>`_
 - `Reports <https://github.com/jankstar/jankstar_real_estate/blob/main/doc/reports.rst>`_
@@ -90,6 +104,7 @@ Contents
    bved
    option_rate
    core_extensions
+   tasks
    wizards
    reports
    accounting_wowi

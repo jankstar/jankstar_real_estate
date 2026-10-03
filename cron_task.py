@@ -140,6 +140,8 @@ class CronTask(ModelSQL, ModelView):
             ('book_contract_cash_flow', 'Book Contract Cash Flow'),
             ('update_option_rate', 'Update Option Rate'),
             ('price_index_import', 'Import Price Index Values'),
+            ('task_notify', 'Task Reminders'),
+            ('task_rules', 'Task Rules'),
         ]
 
     @fields.depends('task')

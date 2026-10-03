@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<tree editable="1">
+    <field name="key_type"/>
+    <field name="description" expand="1"/>
+    <field name="quantity"/>
+    <field name="quantity_expected"/>
+</tree>

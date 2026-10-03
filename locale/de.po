@@ -13778,3 +13778,3458 @@ msgstr ""
 "CSV-Datei mit den Spalten 'Monat;Wert' (Monat als JJJJ-MM oder MM.JJJJ), "
 "'Jahr;Monatsname;Wert' (Tabellen-Download aus GENESIS-Online) oder eine "
 "GENESIS-Flatfile-CSV (ffcsv). Andere Zeilen werden ignoriert."
+
+msgctxt "field:real_estate.base_object,tasks:"
+msgid "Tasks"
+msgstr "Aufgaben"
+
+msgctxt "field:real_estate.billing_unit,tasks:"
+msgid "Tasks"
+msgstr "Aufgaben"
+
+msgctxt "field:real_estate.contract,tasks:"
+msgid "Tasks"
+msgstr "Aufgaben"
+
+msgctxt "field:real_estate.contract.rent_adjustment,tasks:"
+msgid "Tasks"
+msgstr "Aufgaben"
+
+msgctxt "field:real_estate.task,company:"
+msgid "Company"
+msgstr "Unternehmen"
+
+msgctxt "field:real_estate.task,contract:"
+msgid "Contract"
+msgstr "Vertrag"
+
+msgctxt "field:real_estate.task,description:"
+msgid "Description"
+msgstr "Beschreibung"
+
+msgctxt "field:real_estate.task,done_by:"
+msgid "Done by"
+msgstr "Erledigt von"
+
+msgctxt "field:real_estate.task,done_date:"
+msgid "Done on"
+msgstr "Erledigt am"
+
+msgctxt "field:real_estate.task,due_date:"
+msgid "Due Date"
+msgstr "Fällig am"
+
+msgctxt "field:real_estate.task,escalated_date:"
+msgid "Escalated on"
+msgstr "Eskaliert am"
+
+msgctxt "field:real_estate.task,task_type:"
+msgid "Type"
+msgstr "Art"
+
+msgctxt "field:real_estate.task,is_mine:"
+msgid "Mine"
+msgstr "Meine"
+
+msgctxt "field:real_estate.task,name:"
+msgid "Subject"
+msgstr "Betreff"
+
+msgctxt "field:real_estate.task,notified_date:"
+msgid "Last Reminder"
+msgstr "Letzte Erinnerung"
+
+msgctxt "field:real_estate.task,origin:"
+msgid "Origin"
+msgstr "Herkunft"
+
+msgctxt "field:real_estate.task,origin_key:"
+msgid "Origin Key"
+msgstr "Herkunftsschlüssel"
+
+msgctxt "field:real_estate.task,overdue:"
+msgid "Overdue"
+msgstr "Überfällig"
+
+msgctxt "field:real_estate.task,previous:"
+msgid "Previous"
+msgstr "Vorgänger"
+
+msgctxt "field:real_estate.task,priority:"
+msgid "Priority"
+msgstr "Priorität"
+
+msgctxt "field:real_estate.task,property:"
+msgid "Property"
+msgstr "Liegenschaft"
+
+msgctxt "field:real_estate.task,recurrence_months:"
+msgid "Recurrence (Months)"
+msgstr "Wiederholung (Monate)"
+
+msgctxt "field:real_estate.task,remind_date:"
+msgid "Remind Date"
+msgstr "Erinnerung am"
+
+msgctxt "field:real_estate.task,resource:"
+msgid "Reference"
+msgstr "Bezug"
+
+msgctxt "field:real_estate.task,responsible_group:"
+msgid "Responsible Group"
+msgstr "Zuständige Gruppe"
+
+msgctxt "field:real_estate.task,responsible_user:"
+msgid "Responsible User"
+msgstr "Zuständiger Benutzer"
+
+msgctxt "field:real_estate.task,result:"
+msgid "Result"
+msgstr "Ergebnis"
+
+msgctxt "field:real_estate.task,state:"
+msgid "State"
+msgstr "Status"
+
+msgctxt "field:real_estate.task.create.start,description:"
+msgid "Description"
+msgstr "Beschreibung"
+
+msgctxt "field:real_estate.task.create.start,due_date:"
+msgid "Due Date"
+msgstr "Fällig am"
+
+msgctxt "field:real_estate.task.create.start,task_type:"
+msgid "Type"
+msgstr "Art"
+
+msgctxt "field:real_estate.task.create.start,name:"
+msgid "Subject"
+msgstr "Betreff"
+
+msgctxt "field:real_estate.task.create.start,priority:"
+msgid "Priority"
+msgstr "Priorität"
+
+msgctxt "field:real_estate.task.create.start,recurrence_months:"
+msgid "Recurrence (Months)"
+msgstr "Wiederholung (Monate)"
+
+msgctxt "field:real_estate.task.create.start,responsible_group:"
+msgid "Responsible Group"
+msgstr "Zuständige Gruppe"
+
+msgctxt "field:real_estate.task.create.start,responsible_user:"
+msgid "Responsible User"
+msgstr "Zuständiger Benutzer"
+
+msgctxt "field:real_estate.task.postpone.start,due_date:"
+msgid "New Due Date"
+msgstr "Neue Fälligkeit"
+
+msgctxt "field:real_estate.task.postpone.start,reason:"
+msgid "Reason"
+msgstr "Grund"
+
+msgctxt "field:real_estate.task.type,code:"
+msgid "Code"
+msgstr "Code"
+
+msgctxt "field:real_estate.task.type,description:"
+msgid "Description"
+msgstr "Beschreibung"
+
+msgctxt "field:real_estate.task.type,email:"
+msgid "E-Mail"
+msgstr "E-Mail"
+
+msgctxt "field:real_estate.task.type,escalate_days:"
+msgid "Escalate Days After"
+msgstr "Eskalation Tage nach Fälligkeit"
+
+msgctxt "field:real_estate.task.type,escalation_group:"
+msgid "Escalation Group"
+msgstr "Eskalationsgruppe"
+
+msgctxt "field:real_estate.task.type,icon:"
+msgid "Icon"
+msgstr "Symbol"
+
+msgctxt "field:real_estate.task.type,name:"
+msgid "Name"
+msgstr "Name"
+
+msgctxt "field:real_estate.task.type,note_on_done:"
+msgid "Note on Done"
+msgstr "Notiz bei Erledigung"
+
+msgctxt "field:real_estate.task.type,recurrence_months:"
+msgid "Recurrence (Months)"
+msgstr "Wiederholung (Monate)"
+
+msgctxt "field:real_estate.task.type,remind_daily:"
+msgid "Remind Daily"
+msgstr "Täglich erinnern"
+
+msgctxt "field:real_estate.task.type,remind_days:"
+msgid "Remind Days Before"
+msgstr "Erinnerung Tage vorher"
+
+msgctxt "field:real_estate.task.type,responsible_group:"
+msgid "Responsible Group"
+msgstr "Zuständige Gruppe"
+
+msgctxt "field:real_estate.task.type,responsible_user:"
+msgid "Responsible User"
+msgstr "Zuständiger Benutzer"
+
+msgctxt "help:real_estate.task,contract:"
+msgid "Contract of the reference (derived)."
+msgstr "Vertrag des Bezugs (abgeleitet)."
+
+msgctxt "help:real_estate.task,origin:"
+msgid "Rule or process - empty = manual."
+msgstr "Regel oder Prozess - leer = manuell."
+
+msgctxt "help:real_estate.task,property:"
+msgid "Property of the reference (derived)."
+msgstr "Liegenschaft des Bezugs (abgeleitet)."
+
+msgctxt "help:real_estate.task,recurrence_months:"
+msgid "When done, a new task is created this many months later."
+msgstr "Beim Erledigen wird so viele Monate später eine neue Aufgabe angelegt."
+
+msgctxt "help:real_estate.task,remind_date:"
+msgid ""
+"Date of the reminder - default: due date minus the remind days of the type."
+msgstr ""
+"Datum der Erinnerung - Vorgabe: Fälligkeit abzüglich der Erinnerungstage der "
+"Art."
+
+msgctxt "help:real_estate.task,resource:"
+msgid "Record the task refers to."
+msgstr "Datensatz, auf den sich die Aufgabe bezieht."
+
+msgctxt "help:real_estate.task,responsible_group:"
+msgid "All members of the group see the task and are reminded."
+msgstr "Alle Mitglieder der Gruppe sehen die Aufgabe und werden erinnert."
+
+msgctxt "help:real_estate.task,result:"
+msgid "Result / note on completion (required to cancel)."
+msgstr "Ergebnis / Erledigungsvermerk (Pflicht beim Stornieren)."
+
+msgctxt "help:real_estate.task.type,code:"
+msgid "Technical key used by the module code (hooks, rules)."
+msgstr "Technischer Schlüssel für den Modulcode (Hooks, Regeln)."
+
+msgctxt "help:real_estate.task.type,email:"
+msgid ""
+"Additionally remind by e-mail (needs an SMTP configuration of the server)."
+msgstr ""
+"Zusätzlich per E-Mail erinnern (benötigt eine SMTP-Konfiguration des "
+"Servers)."
+
+msgctxt "help:real_estate.task.type,escalate_days:"
+msgid "Escalation this many days after the due date - empty = no escalation."
+msgstr "Eskalation so viele Tage nach Fälligkeit - leer = keine Eskalation."
+
+msgctxt "help:real_estate.task.type,note_on_done:"
+msgid "Add a note to the referenced record when done."
+msgstr "Beim Erledigen eine Notiz am Bezugsdatensatz anlegen."
+
+msgctxt "help:real_estate.task.type,recurrence_months:"
+msgid "Default recurrence - empty = once."
+msgstr "Standard-Wiederholung - leer = einmalig."
+
+msgctxt "help:real_estate.task.type,remind_daily:"
+msgid "Remind every day until done, else once."
+msgstr "Bis zur Erledigung täglich erinnern, sonst einmalig."
+
+msgctxt "help:real_estate.task.type,remind_days:"
+msgid "Reminder this many days before the due date."
+msgstr "Erinnerung so viele Tage vor der Fälligkeit."
+
+msgctxt "help:real_estate.task.type,responsible_group:"
+msgid "Default responsibility: all members of the group."
+msgstr "Standard-Zuständigkeit: alle Mitglieder der Gruppe."
+
+msgctxt "help:real_estate.task.type,responsible_user:"
+msgid "Default responsibility - takes precedence over the group."
+msgstr "Standard-Zuständigkeit - hat Vorrang vor der Gruppe."
+
+msgctxt "model:ir.action,name:act_task_all"
+msgid "All Tasks"
+msgstr "Alle Aufgaben"
+
+msgctxt "model:ir.action,name:act_task_mine"
+msgid "My Tasks"
+msgstr "Meine Aufgaben"
+
+msgctxt "model:ir.action,name:act_task_type"
+msgid "Task Types"
+msgstr "Aufgabenarten"
+
+msgctxt "model:ir.action,name:wizard_task_create"
+msgid "New Task"
+msgstr "Neue Aufgabe"
+
+msgctxt "model:ir.action,name:wizard_task_postpone"
+msgid "Postpone Task"
+msgstr "Aufgabe verschieben"
+
+msgctxt "model:ir.action.act_window.domain,name:act_task_all_domain_all"
+msgid "All"
+msgstr "Alle"
+
+msgctxt "model:ir.action.act_window.domain,name:act_task_all_domain_cancelled"
+msgid "Cancelled"
+msgstr "Storniert"
+
+msgctxt "model:ir.action.act_window.domain,name:act_task_all_domain_done"
+msgid "Done"
+msgstr "Erledigt"
+
+msgctxt "model:ir.action.act_window.domain,name:act_task_all_domain_open"
+msgid "Open"
+msgstr "Offen"
+
+msgctxt "model:ir.action.act_window.domain,name:act_task_all_domain_overdue"
+msgid "Overdue"
+msgstr "Überfällig"
+
+msgctxt "model:ir.action.act_window.domain,name:act_task_mine_domain_done"
+msgid "Done"
+msgstr "Erledigt"
+
+msgctxt "model:ir.action.act_window.domain,name:act_task_mine_domain_due"
+msgid "Due"
+msgstr "Fällig"
+
+msgctxt "model:ir.action.act_window.domain,name:act_task_mine_domain_next_30"
+msgid "Next 30 Days"
+msgstr "Nächste 30 Tage"
+
+msgctxt "model:ir.action.act_window.domain,name:act_task_mine_domain_open"
+msgid "All Open"
+msgstr "Alle offenen"
+
+msgctxt "model:ir.action.act_window.domain,name:act_task_mine_domain_overdue"
+msgid "Overdue"
+msgstr "Überfällig"
+
+msgctxt "model:ir.message,text:msg_task_cancel_auto"
+msgid "Cancelled automatically."
+msgstr "Automatisch storniert."
+
+msgctxt "model:ir.message,text:msg_task_cancel_result"
+msgid "Enter the reason in \"Result\" before cancelling the task \"%(task)s\"."
+msgstr ""
+"Vor dem Stornieren der Aufgabe \"%(task)s\" den Grund unter \"Ergebnis\" "
+"eintragen."
+
+msgctxt "model:ir.message,text:msg_task_note_done"
+msgid ""
+"Task done: %(task)s\n"
+"%(result)s"
+msgstr ""
+"Aufgabe erledigt: %(task)s\n"
+"%(result)s"
+
+msgctxt "model:ir.message,text:msg_task_origin_key"
+msgid "There is already an open task for \"%(task)s\" from the same origin."
+msgstr ""
+"Für \"%(task)s\" gibt es bereits eine offene Aufgabe aus derselben Herkunft."
+
+msgctxt "model:ir.message,text:msg_task_postponed"
+msgid "%(date)s %(user)s: postponed %(old)s -> %(new)s - %(reason)s"
+msgstr "%(date)s %(user)s: verschoben %(old)s -> %(new)s - %(reason)s"
+
+msgctxt "model:ir.message,text:msg_task_reopen"
+msgid ""
+"Only the creator or the real estate administration can reopen the task "
+"\"%(task)s\"."
+msgstr ""
+"Nur der Anleger oder die Immobilien-Administration kann die Aufgabe "
+"\"%(task)s\" wieder öffnen."
+
+msgctxt "model:ir.message,text:msg_task_responsible"
+msgid "The task \"%(task)s\" needs a responsible user or group."
+msgstr ""
+"Die Aufgabe \"%(task)s\" braucht einen zuständigen Benutzer oder eine Gruppe."
+
+msgctxt "model:ir.message,text:msg_task_type_code_unique"
+msgid "The code of a task type must be unique."
+msgstr "Der Code einer Aufgabenart muss eindeutig sein."
+
+msgctxt "model:ir.message,text:msg_task_type_unknown"
+msgid "There is no task type with the code \"%(code)s\"."
+msgstr "Es gibt keine Aufgabenart mit dem Code \"%(code)s\"."
+
+msgctxt "model:ir.model.button,string:task_cancel_button"
+msgid "Cancel"
+msgstr "Stornieren"
+
+msgctxt "model:ir.model.button,string:task_done_button"
+msgid "Done"
+msgstr "Erledigt"
+
+msgctxt "model:ir.model.button,string:task_postpone_button"
+msgid "Postpone"
+msgstr "Verschieben"
+
+msgctxt "model:ir.model.button,string:task_reopen_button"
+msgid "Reopen"
+msgstr "Wieder öffnen"
+
+msgctxt "model:ir.model.button,string:task_take_button"
+msgid "Take Over"
+msgstr "Übernehmen"
+
+msgctxt "model:ir.rule.group,name:rule_group_task_admin"
+msgid "All tasks"
+msgstr "Alle Aufgaben"
+
+msgctxt "model:ir.rule.group,name:rule_group_task_companies"
+msgid "User in companies"
+msgstr "Benutzer in Unternehmen"
+
+msgctxt "model:ir.rule.group,name:rule_group_task_mine"
+msgid "Own or group tasks"
+msgstr "Eigene und Gruppen-Aufgaben"
+
+msgctxt "model:ir.ui.menu,name:menu_task_all"
+msgid "All Tasks"
+msgstr "Alle Aufgaben"
+
+msgctxt "model:ir.ui.menu,name:menu_task_mine"
+msgid "My Tasks"
+msgstr "Meine Aufgaben"
+
+msgctxt "model:ir.ui.menu,name:menu_task_type"
+msgid "Task Types"
+msgstr "Aufgabenarten"
+
+msgctxt "model:ir.ui.menu,name:menu_tasks"
+msgid "Tasks and Follow-ups"
+msgstr "Aufgaben und Wiedervorlagen"
+
+msgctxt "model:real_estate.task,string:"
+msgid "Real Estate Task"
+msgstr "Aufgabe"
+
+msgctxt "model:real_estate.task.create.start,string:"
+msgid "Real Estate Task Create Start"
+msgstr "Neue Aufgabe - Start"
+
+msgctxt "model:real_estate.task.postpone.start,string:"
+msgid "Real Estate Task Postpone Start"
+msgstr "Aufgabe verschieben - Start"
+
+msgctxt "model:real_estate.task.type,name:task_type_billing_deadline"
+msgid "Operating cost billing deadline"
+msgstr "Abrechnungsfrist Betriebskosten"
+
+msgctxt "model:real_estate.task.type,name:task_type_bved_cutoff"
+msgid "BVED exchange cutoff"
+msgstr "BVED-Stichtag"
+
+msgctxt "model:real_estate.task.type,name:task_type_contract_end"
+msgid "Fixed-term contract ends"
+msgstr "Befristeter Vertrag endet"
+
+msgctxt "model:real_estate.task.type,name:task_type_contract_unsigned"
+msgid "Contract not signed"
+msgstr "Vertrag nicht unterschrieben"
+
+msgctxt "model:real_estate.task.type,name:task_type_cron_error"
+msgid "Scheduled task failed"
+msgstr "Geplante Aufgabe fehlgeschlagen"
+
+msgctxt "model:real_estate.task.type,name:task_type_cron_missing"
+msgid "Scheduled task not run"
+msgstr "Geplante Aufgabe nicht gelaufen"
+
+msgctxt "model:real_estate.task.type,name:task_type_graduated_end"
+msgid "Graduated rent ends"
+msgstr "Staffelmiete endet"
+
+msgctxt "model:real_estate.task.type,name:task_type_index_declare"
+msgid "Declare index rent adjustment"
+msgstr "Indexanpassung erklären"
+
+msgctxt "model:real_estate.task.type,name:task_type_index_execute"
+msgid "Execute index rent adjustment"
+msgstr "Indexanpassung ausführen"
+
+msgctxt "model:real_estate.task.type,name:task_type_index_prepare"
+msgid "Prepare index rent adjustment"
+msgstr "Indexanpassung vorbereiten"
+
+msgctxt "model:real_estate.task.type,name:task_type_index_receipt"
+msgid "Capture receipt of index declaration"
+msgstr "Zugang der Indexerklärung erfassen"
+
+msgctxt "model:real_estate.task.type,name:task_type_index_values"
+msgid "Index values outdated"
+msgstr "Indexwerte veraltet"
+
+msgctxt "model:real_estate.task.type,name:task_type_manual"
+msgid "Follow-up"
+msgstr "Wiedervorlage"
+
+msgctxt "model:real_estate.task.type,name:task_type_meter_calibration"
+msgid "Meter calibration expires / meter exchange"
+msgstr "Eichfrist / Zählertausch"
+
+msgctxt "model:real_estate.task.type,name:task_type_meter_reading"
+msgid "Record meter readings"
+msgstr "Zählerstände erfassen"
+
+msgctxt "model:real_estate.task.type,name:task_type_no_follow_up"
+msgid "No follow-up contract"
+msgstr "Kein Folgevertrag"
+
+msgctxt "model:real_estate.task.type,name:task_type_object_end"
+msgid "Object ends"
+msgstr "Objekt endet"
+
+msgctxt "model:real_estate.task.type,name:task_type_party_end"
+msgid "Contract party ends"
+msgstr "Vertragspartei endet"
+
+msgctxt "model:real_estate.task.type,name:task_type_prepayment_adjust"
+msgid "Adjust operating cost prepayments"
+msgstr "Betriebskostenvorauszahlungen anpassen"
+
+msgctxt "model:real_estate.task.type,name:task_type_tight_market_end"
+msgid "Tight market regulation / cap rule ends"
+msgstr "Gebietsverordnung / Kappungsregel endet"
+
+msgctxt "model:real_estate.task.type,name:task_type_waiver_end"
+msgid "Termination waiver ends"
+msgstr "Kündigungsverzicht endet"
+
+msgctxt "model:real_estate.task.type,string:"
+msgid "Real Estate Task Type"
+msgstr "Aufgabenart"
+
+msgctxt "selection:real_estate.task,priority:"
+msgid "High"
+msgstr "Hoch"
+
+msgctxt "selection:real_estate.task,priority:"
+msgid "Low"
+msgstr "Niedrig"
+
+msgctxt "selection:real_estate.task,priority:"
+msgid "Normal"
+msgstr "Normal"
+
+msgctxt "selection:real_estate.task,state:"
+msgid "Cancelled"
+msgstr "Storniert"
+
+msgctxt "selection:real_estate.task,state:"
+msgid "Done"
+msgstr "Erledigt"
+
+msgctxt "selection:real_estate.task,state:"
+msgid "Open"
+msgstr "Offen"
+
+msgctxt "selection:real_estate.task.create.start,priority:"
+msgid "High"
+msgstr "Hoch"
+
+msgctxt "selection:real_estate.task.create.start,priority:"
+msgid "Low"
+msgstr "Niedrig"
+
+msgctxt "selection:real_estate.task.create.start,priority:"
+msgid "Normal"
+msgstr "Normal"
+
+msgctxt "view:real_estate.task:"
+msgid "Details"
+msgstr "Details"
+
+msgctxt "wizard_button:real_estate.task.create,start,create_:"
+msgid "Create"
+msgstr "Anlegen"
+
+msgctxt "wizard_button:real_estate.task.create,start,end:"
+msgid "Cancel"
+msgstr "Abbrechen"
+
+msgctxt "wizard_button:real_estate.task.postpone,start,end:"
+msgid "Cancel"
+msgstr "Abbrechen"
+
+msgctxt "wizard_button:real_estate.task.postpone,start,postpone:"
+msgid "Postpone"
+msgstr "Verschieben"
+
+msgctxt "help:real_estate.task,resource:"
+msgid ""
+"Record the task refers to - empty when created on the 'Tasks' tab of a "
+"contract: the contract."
+msgstr ""
+"Datensatz, auf den sich die Aufgabe bezieht - leer beim Anlegen im Reiter "
+"'Aufgaben' eines Vertrags: der Vertrag."
+
+msgctxt "model:ir.message,text:msg_task_code_manual"
+msgid "Follow-up"
+msgstr "Wiedervorlage"
+
+msgctxt "model:ir.message,text:msg_task_code_contract_unsigned"
+msgid "Contract not signed"
+msgstr "Vertrag nicht unterschrieben"
+
+msgctxt "model:ir.message,text:msg_task_code_contract_end"
+msgid "Fixed-term contract ends"
+msgstr "Befristeter Vertrag endet"
+
+msgctxt "model:ir.message,text:msg_task_code_no_follow_up"
+msgid "No follow-up contract"
+msgstr "Kein Folgevertrag"
+
+msgctxt "model:ir.message,text:msg_task_code_party_end"
+msgid "Contract party ends"
+msgstr "Vertragspartei endet"
+
+msgctxt "model:ir.message,text:msg_task_code_index_prepare"
+msgid "Prepare index rent adjustment"
+msgstr "Indexanpassung vorbereiten"
+
+msgctxt "model:ir.message,text:msg_task_code_graduated_end"
+msgid "Graduated rent ends"
+msgstr "Staffelmiete endet"
+
+msgctxt "model:ir.message,text:msg_task_code_waiver_end"
+msgid "Termination waiver ends"
+msgstr "Kündigungsverzicht endet"
+
+msgctxt "model:ir.message,text:msg_task_code_index_declare"
+msgid "Declare index rent adjustment"
+msgstr "Indexanpassung erklären"
+
+msgctxt "model:ir.message,text:msg_task_code_index_receipt"
+msgid "Capture receipt of index declaration"
+msgstr "Zugang der Indexerklärung erfassen"
+
+msgctxt "model:ir.message,text:msg_task_code_index_execute"
+msgid "Execute index rent adjustment"
+msgstr "Indexanpassung ausführen"
+
+msgctxt "model:ir.message,text:msg_task_code_index_values"
+msgid "Index values outdated"
+msgstr "Indexwerte veraltet"
+
+msgctxt "model:ir.message,text:msg_task_code_tight_market_end"
+msgid "Tight market regulation / cap rule ends"
+msgstr "Gebietsverordnung / Kappungsregel endet"
+
+msgctxt "model:ir.message,text:msg_task_code_billing_deadline"
+msgid "Operating cost billing deadline"
+msgstr "Abrechnungsfrist Betriebskosten"
+
+msgctxt "model:ir.message,text:msg_task_code_prepayment_adjust"
+msgid "Adjust operating cost prepayments"
+msgstr "Betriebskostenvorauszahlungen anpassen"
+
+msgctxt "model:ir.message,text:msg_task_code_bved_cutoff"
+msgid "BVED exchange cutoff"
+msgstr "BVED-Stichtag"
+
+msgctxt "model:ir.message,text:msg_task_code_meter_reading"
+msgid "Record meter readings"
+msgstr "Zählerstände erfassen"
+
+msgctxt "model:ir.message,text:msg_task_code_meter_calibration"
+msgid "Meter calibration expires / meter exchange"
+msgstr "Eichfrist / Zählertausch"
+
+msgctxt "model:ir.message,text:msg_task_code_object_end"
+msgid "Object ends"
+msgstr "Objekt endet"
+
+msgctxt "model:ir.message,text:msg_task_code_cron_error"
+msgid "Scheduled task failed"
+msgstr "Geplante Aufgabe fehlgeschlagen"
+
+msgctxt "model:ir.message,text:msg_task_code_cron_missing"
+msgid "Scheduled task not run"
+msgstr "Geplante Aufgabe nicht gelaufen"
+
+msgctxt "field:real_estate.base_object,property_tasks:"
+msgid "Tasks of the Property"
+msgstr "Aufgaben der Liegenschaft"
+
+msgctxt "field:real_estate.task,automatic:"
+msgid "Automatic"
+msgstr "Automatisch"
+
+msgctxt "field:real_estate.task,resource_model:"
+msgid "Reference Object"
+msgstr "Bezugsobjekt"
+
+msgctxt "field:real_estate.task.create.start,resource_model:"
+msgid "Reference Object"
+msgstr "Bezugsobjekt"
+
+msgctxt "field:real_estate.task.type,all_models:"
+msgid "All Objects"
+msgstr "Alle Objekte"
+
+msgctxt "field:real_estate.task.type,custom_models:"
+msgid "Reference Objects"
+msgstr "Bezugsobjekte"
+
+msgctxt "field:real_estate.task.type,for_model:"
+msgid "For Object"
+msgstr "Für Objekt"
+
+msgctxt "field:real_estate.task.type,manual:"
+msgid "Manual"
+msgstr "Manuell"
+
+msgctxt "field:real_estate.task.type,resource_models:"
+msgid "Reference Objects"
+msgstr "Bezugsobjekte"
+
+msgctxt "help:real_estate.task,automatic:"
+msgid "Created by the module (hook, rule or process)."
+msgstr "Vom Modul angelegt (Hook, Regel oder Prozess)."
+
+msgctxt "help:real_estate.task,task_type:"
+msgid ""
+"Only types for the reference object; types of the module marked as automatic "
+"only for automatically created tasks."
+msgstr ""
+"Nur Arten für das Bezugsobjekt; Arten des Moduls mit Kennzeichen automatisch "
+"nur für automatisch angelegte Aufgaben."
+
+msgctxt "help:real_estate.task.type,code:"
+msgid ""
+"Function of the type in the module (fixed catalog): hooks, rules and "
+"processes create and close tasks of this code. Cannot be changed once saved. "
+"Empty = own type without function in the module."
+msgstr ""
+"Funktion der Art im Modul (fester Katalog): Hooks, Regeln und Prozesse legen "
+"Aufgaben mit diesem Code an und erledigen sie. Nach dem Speichern nicht mehr "
+"änderbar. Leer = eigene Art ohne Funktion im Modul."
+
+msgctxt "help:real_estate.task.type,custom_models:"
+msgid "Objects tasks of this own type can refer to - empty = all."
+msgstr ""
+"Objekte, auf die sich Aufgaben dieser eigenen Art beziehen können - leer = "
+"alle."
+
+msgctxt "help:real_estate.task.type,manual:"
+msgid ""
+"Can be created by a user - types of the catalog marked as automatic are only "
+"created by the module."
+msgstr ""
+"Kann von Benutzern angelegt werden - Katalogarten mit Kennzeichen automatisch"
+" legt nur das Modul an."
+
+msgctxt "help:real_estate.task.type,resource_models:"
+msgid ""
+"Objects tasks of this type can refer to - from the catalog for a code, else "
+"as selected. Empty = all."
+msgstr ""
+"Objekte, auf die sich Aufgaben dieser Art beziehen können - bei einem Code "
+"aus dem Katalog, sonst wie ausgewählt. Leer = alle."
+
+msgctxt "field:res.user,task_email:"
+msgid "Task Reminders by E-Mail"
+msgstr "Aufgaben-Erinnerungen per E-Mail"
+
+msgctxt "help:res.user,task_email:"
+msgid ""
+"Receive the e-mail reminders of tasks whose type sends e-mails (in addition "
+"to the client notification)."
+msgstr ""
+"E-Mail-Erinnerungen für Aufgaben erhalten, deren Art E-Mails versendet "
+"(zusätzlich zur Benachrichtigung im Client)."
+
+msgctxt "model:ir.message,text:msg_task_reminder_label"
+msgid "Task due: %(task)s"
+msgstr "Aufgabe fällig: %(task)s"
+
+msgctxt "model:ir.message,text:msg_task_escalation_label"
+msgid "Overdue: %(task)s"
+msgstr "Überfällig: %(task)s"
+
+msgctxt "model:ir.message,text:msg_task_reminder_description"
+msgid "due %(due_date)s - %(resource)s"
+msgstr "fällig %(due_date)s - %(resource)s"
+
+msgctxt "model:ir.message,text:msg_task_cron_error"
+msgid "%(date)s: the scheduled task \"%(task)s\" failed: %(error)s"
+msgstr "%(date)s: Die geplante Aufgabe \"%(task)s\" ist fehlgeschlagen: %(error)s"
+
+msgctxt "field:real_estate.base_object,meter_calibration_date:"
+msgid "Last Calibration"
+msgstr "Letzte Eichung"
+
+msgctxt "field:real_estate.base_object,meter_calibration_due:"
+msgid "Calibration Due"
+msgstr "Eichung fällig"
+
+msgctxt "field:real_estate.base_object,meter_calibration_valid_to:"
+msgid "Calibration Valid to"
+msgstr "Eichfrist bis"
+
+msgctxt "field:real_estate.base_object,meter_calibration_years:"
+msgid "Calibration Validity (Years)"
+msgstr "Eichgültigkeit (Jahre)"
+
+msgctxt "field:real_estate.task.rule,company:"
+msgid "Company"
+msgstr "Unternehmen"
+
+msgctxt "field:real_estate.task.rule,date_field:"
+msgid "Date Field"
+msgstr "Datumsfeld"
+
+msgctxt "field:real_estate.task.rule,date_method:"
+msgid "Method"
+msgstr "Methode"
+
+msgctxt "field:real_estate.task.rule,date_source:"
+msgid "Date Source"
+msgstr "Datumsquelle"
+
+msgctxt "field:real_estate.task.rule,description:"
+msgid "Description"
+msgstr "Beschreibung"
+
+msgctxt "field:real_estate.task.rule,domain:"
+msgid "Domain"
+msgstr "Einschränkung"
+
+msgctxt "field:real_estate.task.rule,done_domain:"
+msgid "Done Condition"
+msgstr "Erledigungsbedingung"
+
+msgctxt "field:real_estate.task.rule,horizon_days:"
+msgid "Lead Time (Days)"
+msgstr "Vorlauf (Tage)"
+
+msgctxt "field:real_estate.task.rule,last_message:"
+msgid "Last Result"
+msgstr "Letztes Ergebnis"
+
+msgctxt "field:real_estate.task.rule,last_run:"
+msgid "Last Run"
+msgstr "Letzter Lauf"
+
+msgctxt "field:real_estate.task.rule,model:"
+msgid "Reference Object"
+msgstr "Bezugsobjekt"
+
+msgctxt "field:real_estate.task.rule,name:"
+msgid "Name"
+msgstr "Name"
+
+msgctxt "field:real_estate.task.rule,name_template:"
+msgid "Subject"
+msgstr "Betreff"
+
+msgctxt "field:real_estate.task.rule,offset_days:"
+msgid "Offset (Days)"
+msgstr "Versatz (Tage)"
+
+msgctxt "field:real_estate.task.rule,offset_months:"
+msgid "Offset (Months)"
+msgstr "Versatz (Monate)"
+
+msgctxt "field:real_estate.task.rule,on_date_change:"
+msgid "On Changed Reference Date"
+msgstr "Bei geändertem Bezugsdatum"
+
+msgctxt "field:real_estate.task.rule,task_type:"
+msgid "Task Type"
+msgstr "Aufgabenart"
+
+msgctxt "help:real_estate.base_object,meter_calibration_date:"
+msgid ""
+"Date of the last calibration or of the installation of a calibrated meter."
+msgstr "Datum der letzten Eichung bzw. des Einbaus eines geeichten Zählers."
+
+msgctxt "help:real_estate.base_object,meter_calibration_due:"
+msgid "The calibration validity ends within the next 3 months or has ended."
+msgstr ""
+"Die Eichfrist endet innerhalb der nächsten 3 Monate oder ist abgelaufen."
+
+msgctxt "help:real_estate.base_object,meter_calibration_valid_to:"
+msgid ""
+"End of the calibration validity - proposed as 31.12. of the year of the last "
+"calibration + validity (usually the validity ends with the calendar year, to "
+"be checked), can be overwritten."
+msgstr ""
+"Ende der Eichfrist - vorgeschlagen als 31.12. des Jahres der letzten Eichung "
+"+ Gültigkeit (die Eichfrist endet in der Regel mit dem Kalenderjahr, fachlich"
+" prüfen), überschreibbar."
+
+msgctxt "help:real_estate.task.rule,company:"
+msgid "Empty = all companies."
+msgstr "Leer = alle Unternehmen."
+
+msgctxt "help:real_estate.task.rule,domain:"
+msgid ""
+"Restriction of the records as PYSON domain (like the domain of an action), "
+"e.g. [[\"state\", \"=\", \"running\"]]. Empty = all records."
+msgstr ""
+"Einschränkung der Datensätze als PYSON-Domain (wie die Domain einer Aktion), "
+"z. B. [[\"state\", \"=\", \"running\"]]. Leer = alle Datensätze."
+
+msgctxt "help:real_estate.task.rule,done_domain:"
+msgid ""
+"PYSON domain: open tasks of the rule are done automatically as soon as the "
+"record matches it. Records no longer matching the domain above are done as "
+"well."
+msgstr ""
+"PYSON-Domain: Offene Aufgaben der Regel werden automatisch erledigt, sobald "
+"der Datensatz sie erfüllt. Datensätze, die die Einschränkung oben nicht mehr "
+"erfüllen, werden ebenfalls erledigt."
+
+msgctxt "help:real_estate.task.rule,horizon_days:"
+msgid ""
+"The task is created as soon as its due date is at most this many days ahead."
+msgstr ""
+"Die Aufgabe wird angelegt, sobald ihre Fälligkeit höchstens so viele Tage "
+"voraus liegt."
+
+msgctxt "help:real_estate.task.rule,name_template:"
+msgid ""
+"Subject of the tasks, %(record)s is replaced by the record - empty = name of "
+"the task type and the record."
+msgstr ""
+"Betreff der Aufgaben, %(record)s wird durch den Datensatz ersetzt - leer = "
+"Name der Aufgabenart und Datensatz."
+
+msgctxt "help:real_estate.task.rule,offset_months:"
+msgid "Due date = reference date + offset (negative = before)."
+msgstr "Fälligkeit = Bezugsdatum + Versatz (negativ = davor)."
+
+msgctxt "help:real_estate.task.rule,on_date_change:"
+msgid ""
+"When the reference date of an open task changes (e.g. a new calibration was "
+"entered): cancel it or set it done, a new task is created for the new date."
+msgstr ""
+"Ändert sich das Bezugsdatum einer offenen Aufgabe (z. B. neue Eichung "
+"erfasst): stornieren oder erledigen, für das neue Datum wird eine neue "
+"Aufgabe angelegt."
+
+msgctxt "model:ir.action,name:act_task_rule"
+msgid "Task Rules"
+msgstr "Aufgabenregeln"
+
+msgctxt "model:ir.action.act_window.domain,name:act_task_rule_domain_active"
+msgid "Active"
+msgstr "Aktiv"
+
+msgctxt "model:ir.action.act_window.domain,name:act_task_rule_domain_all"
+msgid "All"
+msgstr "Alle"
+
+msgctxt "model:ir.message,text:msg_task_rule_auto_done"
+msgid "Done automatically (rule)."
+msgstr "Automatisch erledigt (Regel)."
+
+msgctxt "model:ir.message,text:msg_task_rule_date_changed"
+msgid "Reference date changed - a new task was created."
+msgstr "Bezugsdatum geändert - eine neue Aufgabe wurde angelegt."
+
+msgctxt "model:ir.message,text:msg_task_rule_domain"
+msgid ""
+"The domain \"%(domain)s\" of the task rule \"%(rule)s\" is not a valid PYSON "
+"domain."
+msgstr ""
+"Die Einschränkung \"%(domain)s\" der Aufgabenregel \"%(rule)s\" ist keine "
+"gültige PYSON-Domain."
+
+msgctxt "model:ir.message,text:msg_task_rule_method_billing_deadline"
+msgid "Billing deadline (end of period + 12 months)"
+msgstr "Abrechnungsfrist (Ende des Zeitraums + 12 Monate)"
+
+msgctxt "model:ir.message,text:msg_task_rule_method_cron_overdue"
+msgid "Scheduled task overdue"
+msgstr "Geplante Aufgabe überfällig"
+
+msgctxt "model:ir.message,text:msg_task_rule_method_index_values_stale"
+msgid "Index values outdated"
+msgstr "Indexwerte veraltet"
+
+msgctxt "model:ir.message,text:msg_task_rule_method_meter_reading_due"
+msgid "Meter readings missing at the end of the billing period"
+msgstr "Zählerablesungen zum Ende des Abrechnungszeitraums fehlen"
+
+msgctxt "model:ir.message,text:msg_task_rule_method_no_follow_up_contract"
+msgid "No follow-up contract after termination"
+msgstr "Kein Folgevertrag nach Kündigung"
+
+msgctxt "model:ir.message,text:msg_task_rule_method_state_since"
+msgid "Date of the last state change"
+msgstr "Datum des letzten Statuswechsels"
+
+msgctxt "model:ir.message,text:msg_task_rule_result"
+msgid "%(created)s created, %(done)s done automatically, %(renewed)s renewed"
+msgstr ""
+"%(created)s angelegt, %(done)s automatisch erledigt, %(renewed)s erneuert"
+
+msgctxt "model:ir.model.button,string:task_rule_run_now_button"
+msgid "Run Now"
+msgstr "Jetzt ausführen"
+
+msgctxt "model:ir.ui.menu,name:menu_task_rule"
+msgid "Task Rules"
+msgstr "Aufgabenregeln"
+
+msgctxt "model:real_estate.task.rule,name:task_rule_b01"
+msgid "Operating cost billing deadline"
+msgstr "Abrechnungsfrist Betriebskosten"
+
+msgctxt "model:real_estate.task.rule,name:task_rule_b02"
+msgid "Adjust operating cost prepayments"
+msgstr "Betriebskostenvorauszahlungen anpassen"
+
+msgctxt "model:real_estate.task.rule,name:task_rule_m01"
+msgid "Prepare index rent adjustment"
+msgstr "Indexanpassung vorbereiten"
+
+msgctxt "model:real_estate.task.rule,name:task_rule_m02"
+msgid "Index adjustment not declared"
+msgstr "Indexvorgang nicht erklärt"
+
+msgctxt "model:real_estate.task.rule,name:task_rule_m04"
+msgid "Index adjustment not executed"
+msgstr "Indexvorgang nicht ausgeführt"
+
+msgctxt "model:real_estate.task.rule,name:task_rule_m05"
+msgid "Graduated rent ends"
+msgstr "Staffelmiete endet"
+
+msgctxt "model:real_estate.task.rule,name:task_rule_m06"
+msgid "Termination waiver ends"
+msgstr "Kündigungsverzicht endet"
+
+msgctxt "model:real_estate.task.rule,name:task_rule_m07"
+msgid "Index values outdated"
+msgstr "Indexwerte veraltet"
+
+msgctxt "model:real_estate.task.rule,name:task_rule_m08"
+msgid "Tight market regulation ends"
+msgstr "Gebietsverordnung endet"
+
+msgctxt "model:real_estate.task.rule,name:task_rule_o01"
+msgid "Record meter readings"
+msgstr "Zählerstände erfassen"
+
+msgctxt "model:real_estate.task.rule,name:task_rule_o03"
+msgid "Meter calibration expires"
+msgstr "Eichfrist läuft ab"
+
+msgctxt "model:real_estate.task.rule,name:task_rule_o04"
+msgid "Object ends"
+msgstr "Objekt endet"
+
+msgctxt "model:real_estate.task.rule,name:task_rule_s02"
+msgid "Scheduled task not run"
+msgstr "Geplante Aufgabe nicht gelaufen"
+
+msgctxt "model:real_estate.task.rule,name:task_rule_v02"
+msgid "Contract not signed"
+msgstr "Vertrag nicht unterschrieben"
+
+msgctxt "model:real_estate.task.rule,name:task_rule_v03"
+msgid "Fixed-term contract ends"
+msgstr "Befristeter Vertrag endet"
+
+msgctxt "model:real_estate.task.rule,name:task_rule_v07"
+msgid "Contract party ends"
+msgstr "Vertragspartei endet"
+
+msgctxt "model:real_estate.task.rule,name:task_rule_v08"
+msgid "No follow-up contract"
+msgstr "Kein Folgevertrag"
+
+msgctxt "model:real_estate.task.rule,string:"
+msgid "Real Estate Task Rule"
+msgstr "Aufgabenregel"
+
+msgctxt "selection:real_estate.task.rule,date_source:"
+msgid "Date Field"
+msgstr "Datumsfeld"
+
+msgctxt "selection:real_estate.task.rule,date_source:"
+msgid "Method"
+msgstr "Methode"
+
+msgctxt "selection:real_estate.task.rule,on_date_change:"
+msgid "Cancel and Create New"
+msgstr "Stornieren und neu anlegen"
+
+msgctxt "selection:real_estate.task.rule,on_date_change:"
+msgid "Done and Create New"
+msgstr "Erledigen und neu anlegen"
+
+msgctxt "view:real_estate.task.rule:"
+msgid "Records"
+msgstr "Datensätze"
+
+msgctxt "view:real_estate.task.rule:"
+msgid "Reference Date"
+msgstr "Bezugsdatum"
+
+msgctxt "model:ir.action.act_window.domain,name:act_task_rule_domain_inactive"
+msgid "Inactive"
+msgstr "Inaktiv"
+
+msgctxt "field:real_estate.contract,processes:"
+msgid "Processes"
+msgstr "Prozesse"
+
+msgctxt "field:real_estate.contract.type,partner_change_process_template:"
+msgid "Process at Partner Change"
+msgstr "Prozess bei Partnerwechsel"
+
+msgctxt "field:real_estate.contract.type,start_process_template:"
+msgid "Process at Contract Start"
+msgstr "Prozess bei Vertragsbeginn"
+
+msgctxt "field:real_estate.contract.type,termination_process_template:"
+msgid "Process at Termination"
+msgstr "Prozess bei Kündigung"
+
+msgctxt "field:real_estate.process,anchor_date:"
+msgid "Anchor Date"
+msgstr "Ankerdatum"
+
+msgctxt "field:real_estate.process,company:"
+msgid "Company"
+msgstr "Unternehmen"
+
+msgctxt "field:real_estate.process,contract:"
+msgid "Contract"
+msgstr "Vertrag"
+
+msgctxt "field:real_estate.process,history:"
+msgid "History"
+msgstr "Verlauf"
+
+msgctxt "field:real_estate.process,progress:"
+msgid "Progress"
+msgstr "Fortschritt"
+
+msgctxt "field:real_estate.process,property:"
+msgid "Property"
+msgstr "Liegenschaft"
+
+msgctxt "field:real_estate.process,resource:"
+msgid "Reference"
+msgstr "Bezug"
+
+msgctxt "field:real_estate.process,start_date:"
+msgid "Start Date"
+msgstr "Startdatum"
+
+msgctxt "field:real_estate.process,state:"
+msgid "State"
+msgstr "Status"
+
+msgctxt "field:real_estate.process,steps:"
+msgid "Steps"
+msgstr "Schritte"
+
+msgctxt "field:real_estate.process,tasks:"
+msgid "Tasks"
+msgstr "Aufgaben"
+
+msgctxt "field:real_estate.process,template:"
+msgid "Template"
+msgstr "Vorlage"
+
+msgctxt "field:real_estate.process.start.start,resource_model:"
+msgid "Reference Object"
+msgstr "Bezugsobjekt"
+
+msgctxt "field:real_estate.process.start.start,start_date:"
+msgid "Start Date"
+msgstr "Startdatum"
+
+msgctxt "field:real_estate.process.start.start,template:"
+msgid "Template"
+msgstr "Vorlage"
+
+msgctxt "field:real_estate.process.step,action:"
+msgid "Action"
+msgstr "Aktion"
+
+msgctxt "field:real_estate.process.step,due_date:"
+msgid "Due Date"
+msgstr "Fällig am"
+
+msgctxt "field:real_estate.process.step,mandatory:"
+msgid "Mandatory"
+msgstr "Pflicht"
+
+msgctxt "field:real_estate.process.step,name:"
+msgid "Step"
+msgstr "Schritt"
+
+msgctxt "field:real_estate.process.step,process:"
+msgid "Process"
+msgstr "Prozess"
+
+msgctxt "field:real_estate.process.step,responsible:"
+msgid "Responsible"
+msgstr "Zuständig"
+
+msgctxt "field:real_estate.process.step,state:"
+msgid "Step State"
+msgstr "Schrittstatus"
+
+msgctxt "field:real_estate.process.step,task:"
+msgid "Task"
+msgstr "Aufgabe"
+
+msgctxt "field:real_estate.process.step,template_step:"
+msgid "Template Step"
+msgstr "Vorlagenschritt"
+
+msgctxt "field:real_estate.process.template,anchor_field:"
+msgid "Anchor Date"
+msgstr "Ankerdatum"
+
+msgctxt "field:real_estate.process.template,code:"
+msgid "Code"
+msgstr "Code"
+
+msgctxt "field:real_estate.process.template,description:"
+msgid "Description"
+msgstr "Beschreibung"
+
+msgctxt "field:real_estate.process.template,model:"
+msgid "Reference Object"
+msgstr "Bezugsobjekt"
+
+msgctxt "field:real_estate.process.template,name:"
+msgid "Name"
+msgstr "Name"
+
+msgctxt "field:real_estate.process.template,steps:"
+msgid "Steps"
+msgstr "Schritte"
+
+msgctxt "field:real_estate.process.template.step,action:"
+msgid "Action"
+msgstr "Aktion"
+
+msgctxt "field:real_estate.process.template.step,completion:"
+msgid "Completion"
+msgstr "Erledigung"
+
+msgctxt "field:real_estate.process.template.step,date_method:"
+msgid "Date Method"
+msgstr "Datumsmethode"
+
+msgctxt "field:real_estate.process.template.step,description:"
+msgid "Work Instruction"
+msgstr "Arbeitsanweisung"
+
+msgctxt "field:real_estate.process.template.step,done_condition:"
+msgid "Done Condition"
+msgstr "Erledigungsbedingung"
+
+msgctxt "field:real_estate.process.template.step,done_method:"
+msgid "Done Method"
+msgstr "Erledigungsmethode"
+
+msgctxt "field:real_estate.process.template.step,due_base:"
+msgid "Due from"
+msgstr "Fällig ab"
+
+msgctxt "field:real_estate.process.template.step,mandatory:"
+msgid "Mandatory"
+msgstr "Pflicht"
+
+msgctxt "field:real_estate.process.template.step,name:"
+msgid "Name"
+msgstr "Name"
+
+msgctxt "field:real_estate.process.template.step,offset_days:"
+msgid "Offset (Days)"
+msgstr "Versatz (Tage)"
+
+msgctxt "field:real_estate.process.template.step,offset_months:"
+msgid "Offset (Months)"
+msgstr "Versatz (Monate)"
+
+msgctxt "field:real_estate.process.template.step,offset_setting:"
+msgid "Offset from Setting"
+msgstr "Versatz aus Einstellung"
+
+msgctxt "field:real_estate.process.template.step,responsible_group:"
+msgid "Responsible Group"
+msgstr "Zuständige Gruppe"
+
+msgctxt "field:real_estate.process.template.step,result_required:"
+msgid "Result Required"
+msgstr "Ergebnis Pflicht"
+
+msgctxt "field:real_estate.process.template.step,task_type:"
+msgid "Task Type"
+msgstr "Aufgabenart"
+
+msgctxt "field:real_estate.process.template.step,template:"
+msgid "Template"
+msgstr "Vorlage"
+
+msgctxt "field:real_estate.process.template.step,template_model:"
+msgid "Reference Object"
+msgstr "Bezugsobjekt"
+
+msgctxt "field:real_estate.re_accounting,deposit_task_months:"
+msgid "Months until Deposit Settlement"
+msgstr "Monate bis Kautionsabrechnung"
+
+msgctxt "field:real_estate.task,process:"
+msgid "Process"
+msgstr "Prozess"
+
+msgctxt "field:real_estate.task,process_step:"
+msgid "Process Step"
+msgstr "Prozessschritt"
+
+msgctxt "field:real_estate.task,step_action:"
+msgid "Action"
+msgstr "Aktion"
+
+msgctxt "help:real_estate.contract.type,partner_change_process_template:"
+msgid "Started when the contract partner is changed by the wizard."
+msgstr ""
+"Wird gestartet, wenn der Vertragspartner über den Assistenten gewechselt "
+"wird."
+
+msgctxt "help:real_estate.contract.type,start_process_template:"
+msgid "Started when a contract of this type is set to running (e.g. Move-in)."
+msgstr ""
+"Wird gestartet, wenn ein Vertrag dieser Art aktiviert wird (z. B. Einzug)."
+
+msgctxt "help:real_estate.contract.type,termination_process_template:"
+msgid "Started when a termination is entered (e.g. Move-out)."
+msgstr "Wird gestartet, wenn eine Kündigung erfasst wird (z. B. Auszug)."
+
+msgctxt "help:real_estate.process,anchor_date:"
+msgid ""
+"After a change, button 'Reschedule' moves the open tasks scheduled from the "
+"anchor date."
+msgstr ""
+"Nach einer Änderung verschiebt der Button 'Termine neu berechnen' die offenen"
+" Aufgaben, die vom Ankerdatum abhängen."
+
+msgctxt "help:real_estate.process.template,anchor_field:"
+msgid ""
+"Date field of the reference object the steps are scheduled from (e.g. "
+"contract end) - empty = start date of the process."
+msgstr ""
+"Datumsfeld des Bezugsobjekts, von dem aus die Schritte terminiert werden (z. "
+"B. Vertragsende) - leer = Startdatum des Prozesses."
+
+msgctxt "help:real_estate.process.template,code:"
+msgid "Optional technical key, e.g. move_out."
+msgstr "Optionaler technischer Schlüssel, z. B. move_out."
+
+msgctxt "help:real_estate.process.template.step,action:"
+msgid ""
+"Report, wizard or list to execute for the step (button 'Execute Action' on "
+"the task, with the reference record)."
+msgstr ""
+"Bericht, Assistent oder Liste, die für den Schritt ausgeführt wird (Button "
+"'Aktion ausführen' an der Aufgabe, mit dem Bezugsdatensatz)."
+
+msgctxt "help:real_estate.process.template.step,completion:"
+msgid ""
+"Manual: button Done. By Action: executing the action sets the step done. By "
+"Condition: done as soon as the reference record fulfils the condition."
+msgstr ""
+"Manuell: Button Erledigt. Durch Aktion: Das Ausführen der Aktion erledigt den"
+" Schritt. Durch Bedingung: erledigt, sobald der Bezugsdatensatz die Bedingung"
+" erfüllt."
+
+msgctxt "help:real_estate.process.template.step,done_condition:"
+msgid "PYSON domain on the reference record."
+msgstr "PYSON-Domain auf den Bezugsdatensatz."
+
+msgctxt "help:real_estate.process.template.step,due_base:"
+msgid ""
+"Previous Step Done: the task is created only when the previous step is done."
+msgstr ""
+"Vorgänger erledigt: Die Aufgabe wird erst angelegt, wenn der vorherige "
+"Schritt erledigt ist."
+
+msgctxt "help:real_estate.process.template.step,mandatory:"
+msgid ""
+"Required to complete the process - optional steps can be cancelled (skipped)."
+msgstr ""
+"Für den Abschluss des Prozesses erforderlich - optionale Schritte können "
+"storniert (übersprungen) werden."
+
+msgctxt "help:real_estate.process.template.step,offset_setting:"
+msgid ""
+"Offset in months from the real estate accounting instead of the fixed offset."
+msgstr ""
+"Versatz in Monaten aus der Immobilien-Buchhaltung statt des festen Versatzes."
+
+msgctxt "help:real_estate.process.template.step,responsible_group:"
+msgid "Responsibility of the step - empty = of the task type."
+msgstr "Zuständigkeit des Schritts - leer = die der Aufgabenart."
+
+msgctxt "help:real_estate.process.template.step,result_required:"
+msgid "Done only with an entry in 'Result'."
+msgstr "Erledigen nur mit Eintrag unter 'Ergebnis'."
+
+msgctxt "help:real_estate.process.template.step,task_type:"
+msgid "Reminder and escalation of the step; responsibility unless set below."
+msgstr ""
+"Erinnerung und Eskalation des Schritts; Zuständigkeit, sofern unten nicht "
+"gesetzt."
+
+msgctxt "help:real_estate.re_accounting,deposit_task_months:"
+msgid ""
+"Months after the end of a contract (move-out) until the task 'Settle deposit'"
+" of the move-out process is due."
+msgstr ""
+"Monate nach Vertragsende (Auszug), nach denen die Aufgabe 'Kaution abrechnen'"
+" des Auszugsprozesses fällig ist."
+
+msgctxt "model:ir.action,name:act_process"
+msgid "Processes"
+msgstr "Prozesse"
+
+msgctxt "model:ir.action,name:act_process_template"
+msgid "Process Templates"
+msgstr "Prozessvorlagen"
+
+msgctxt "model:ir.action,name:wizard_process_start"
+msgid "Start Process"
+msgstr "Prozess starten"
+
+msgctxt "model:ir.action,name:wizard_task_execute_action"
+msgid "Execute Action"
+msgstr "Aktion ausführen"
+
+msgctxt "model:ir.action.act_window.domain,name:act_process_domain_all"
+msgid "All"
+msgstr "Alle"
+
+msgctxt "model:ir.action.act_window.domain,name:act_process_domain_cancelled"
+msgid "Cancelled"
+msgstr "Storniert"
+
+msgctxt "model:ir.action.act_window.domain,name:act_process_domain_done"
+msgid "Done"
+msgstr "Erledigt"
+
+msgctxt "model:ir.action.act_window.domain,name:act_process_domain_running"
+msgid "Running"
+msgstr "Läuft"
+
+msgctxt "model:ir.message,text:msg_process_cancelled"
+msgid "Process cancelled."
+msgstr "Prozess abgebrochen."
+
+msgctxt "model:ir.message,text:msg_process_progress"
+msgid "%(done)s / %(total)s done"
+msgstr "%(done)s / %(total)s erledigt"
+
+msgctxt "model:ir.message,text:msg_process_rescheduled"
+msgid "%(step)s: %(old)s -> %(new)s"
+msgstr "%(step)s: %(old)s -> %(new)s"
+
+msgctxt "model:ir.message,text:msg_process_step_action_done"
+msgid "Done by executing the action \"%(action)s\"."
+msgstr "Erledigt durch Ausführen der Aktion \"%(action)s\"."
+
+msgctxt "model:ir.message,text:msg_process_step_auto_done"
+msgid "Done automatically (condition met)."
+msgstr "Automatisch erledigt (Bedingung erfüllt)."
+
+msgctxt "model:ir.message,text:msg_process_step_condition"
+msgid "The done condition of the step \"%(step)s\" is not a valid PYSON domain."
+msgstr ""
+"Die Erledigungsbedingung des Schritts \"%(step)s\" ist keine gültige PYSON-"
+"Domain."
+
+msgctxt "model:ir.message,text:msg_process_step_result"
+msgid ""
+"The step \"%(task)s\" requires a result: enter a text in the tab \"Result\" "
+"of the task (e.g. how and when the letter was sent), save and then set it "
+"done."
+msgstr ""
+"Der Schritt \"%(task)s\" erfordert ein Ergebnis: Bitte in der Aufgabe im "
+"Reiter \"Ergebnis\" einen Text erfassen (z. B. wie und wann das Schreiben "
+"versandt wurde), speichern und dann erledigen."
+
+msgctxt "model:ir.message,text:msg_process_template_code_unique"
+msgid "The code of a process template must be unique."
+msgstr "Der Code einer Prozessvorlage muss eindeutig sein."
+
+msgctxt "model:ir.message,text:msg_task_code_process_step"
+msgid "Process step"
+msgstr "Prozessschritt"
+
+msgctxt "model:ir.model.button,string:process_cancel_button"
+msgid "Cancel"
+msgstr "Prozess abbrechen"
+
+msgctxt "model:ir.model.button,string:process_check_button"
+msgid "Check State"
+msgstr "Status prüfen"
+
+msgctxt "model:ir.model.button,string:process_reschedule_button"
+msgid "Reschedule"
+msgstr "Termine neu berechnen"
+
+msgctxt "model:ir.model.button,string:task_execute_action_button"
+msgid "Execute Action"
+msgstr "Aktion ausführen"
+
+msgctxt "model:ir.rule.group,name:rule_group_process_companies"
+msgid "User in companies"
+msgstr "Benutzer in Unternehmen"
+
+msgctxt "model:ir.ui.menu,name:menu_process"
+msgid "Processes"
+msgstr "Prozesse"
+
+msgctxt "model:ir.ui.menu,name:menu_process_template"
+msgid "Process Templates"
+msgstr "Prozessvorlagen"
+
+msgctxt "model:real_estate.process,string:"
+msgid "Real Estate Process"
+msgstr "Prozess"
+
+msgctxt "model:real_estate.process.start.start,string:"
+msgid "Real Estate Process Start"
+msgstr "Prozess starten - Start"
+
+msgctxt "model:real_estate.process.step,string:"
+msgid "Real Estate Process Step"
+msgstr "Prozessschritt"
+
+msgctxt ""
+"model:real_estate.process.template,name:process_template_index_adjustment"
+msgid "Index Rent Adjustment"
+msgstr "Indexanpassung"
+
+msgctxt "model:real_estate.process.template,name:process_template_move_in"
+msgid "Move-in"
+msgstr "Einzug"
+
+msgctxt "model:real_estate.process.template,name:process_template_move_out"
+msgid "Move-out"
+msgstr "Auszug"
+
+msgctxt ""
+"model:real_estate.process.template,name:process_template_partner_change"
+msgid "Change of Tenant in the Contract"
+msgstr "Mieterwechsel im Vertrag"
+
+msgctxt "model:real_estate.process.template,string:"
+msgid "Real Estate Process Template"
+msgstr "Prozessvorlage"
+
+msgctxt ""
+"model:real_estate.process.template.step,name:process_template_index_adjustment_declare"
+msgid "Approve and declare the adjustment"
+msgstr "Vorgang freigeben und erklären"
+
+msgctxt ""
+"model:real_estate.process.template.step,name:process_template_index_adjustment_execute"
+msgid "Execute the adjustment"
+msgstr "Anpassung ausführen"
+
+msgctxt ""
+"model:real_estate.process.template.step,name:process_template_index_adjustment_prepare"
+msgid "Prepare: run the index adjustment"
+msgstr "Vorbereiten: Anpassungslauf ausführen"
+
+msgctxt ""
+"model:real_estate.process.template.step,name:process_template_index_adjustment_receipt"
+msgid "Capture the receipt of the declaration"
+msgstr "Zugang der Erklärung erfassen"
+
+msgctxt ""
+"model:real_estate.process.template.step,name:process_template_move_in_deposit"
+msgid "Deposit received"
+msgstr "Kaution eingegangen"
+
+msgctxt ""
+"model:real_estate.process.template.step,name:process_template_move_in_handover"
+msgid "Handover / handover report"
+msgstr "Übergabe / Übergabeprotokoll"
+
+msgctxt ""
+"model:real_estate.process.template.step,name:process_template_move_in_keys"
+msgid "Name plates and keys"
+msgstr "Namensschilder und Schlüssel"
+
+msgctxt ""
+"model:real_estate.process.template.step,name:process_template_move_in_mandate"
+msgid "Direct debit mandate"
+msgstr "Lastschriftmandat"
+
+msgctxt ""
+"model:real_estate.process.template.step,name:process_template_move_in_meters"
+msgid "Meter readings (all meters)"
+msgstr "Zählerablesung (alle Zähler)"
+
+msgctxt ""
+"model:real_estate.process.template.step,name:process_template_move_out_claims"
+msgid "Check claims for damages (§ 548 BGB)"
+msgstr "Ersatzansprüche prüfen (§ 548 BGB)"
+
+msgctxt ""
+"model:real_estate.process.template.step,name:process_template_move_out_confirm"
+msgid "Check termination and send confirmation"
+msgstr "Kündigung prüfen und Bestätigung senden"
+
+msgctxt ""
+"model:real_estate.process.template.step,name:process_template_move_out_deposit"
+msgid "Settle deposit"
+msgstr "Kaution abrechnen"
+
+msgctxt ""
+"model:real_estate.process.template.step,name:process_template_move_out_deposit_rest"
+msgid "Settle remaining deposit after operating cost billing"
+msgstr "Restkaution nach Betriebskostenabrechnung abrechnen"
+
+msgctxt ""
+"model:real_estate.process.template.step,name:process_template_move_out_final_billing"
+msgid "Final operating cost billing"
+msgstr "Betriebskosten-Endabrechnung"
+
+msgctxt ""
+"model:real_estate.process.template.step,name:process_template_move_out_handover"
+msgid "Handover / acceptance report"
+msgstr "Wohnungsübergabe / Abnahmeprotokoll"
+
+msgctxt ""
+"model:real_estate.process.template.step,name:process_template_move_out_keys"
+msgid "Document return of keys"
+msgstr "Schlüsselrückgabe dokumentieren"
+
+msgctxt ""
+"model:real_estate.process.template.step,name:process_template_move_out_meters"
+msgid "Meter readings (all meters)"
+msgstr "Zählerablesung (alle Zähler)"
+
+msgctxt ""
+"model:real_estate.process.template.step,name:process_template_move_out_pre_arrange"
+msgid "Arrange pre-inspection"
+msgstr "Vorabnahme vereinbaren"
+
+msgctxt ""
+"model:real_estate.process.template.step,name:process_template_move_out_pre_inspection"
+msgid "Carry out pre-inspection"
+msgstr "Vorabnahme durchführen"
+
+msgctxt ""
+"model:real_estate.process.template.step,name:process_template_partner_change_credit"
+msgid "Check creditworthiness of the new tenant"
+msgstr "Bonität des neuen Mieters prüfen"
+
+msgctxt ""
+"model:real_estate.process.template.step,name:process_template_partner_change_deposit"
+msgid "Transfer of the deposit"
+msgstr "Kautionsübertrag"
+
+msgctxt ""
+"model:real_estate.process.template.step,name:process_template_partner_change_letter"
+msgid "Inform the tenants"
+msgstr "Mieter informieren"
+
+msgctxt ""
+"model:real_estate.process.template.step,name:process_template_partner_change_mandate"
+msgid "Direct debit mandate of the new tenant"
+msgstr "Lastschriftmandat des neuen Mieters"
+
+msgctxt "model:real_estate.process.template.step,string:"
+msgid "Real Estate Process Template Step"
+msgstr "Vorlagenschritt"
+
+msgctxt "model:real_estate.task.type,name:task_type_process_step"
+msgid "Process step"
+msgstr "Prozessschritt"
+
+msgctxt "selection:real_estate.process,state:"
+msgid "Cancelled"
+msgstr "Storniert"
+
+msgctxt "selection:real_estate.process,state:"
+msgid "Done"
+msgstr "Erledigt"
+
+msgctxt "selection:real_estate.process,state:"
+msgid "Running"
+msgstr "Läuft"
+
+msgctxt "selection:real_estate.process.step,state:"
+msgid "Done"
+msgstr "Erledigt"
+
+msgctxt "selection:real_estate.process.step,state:"
+msgid "Open"
+msgstr "Offen"
+
+msgctxt "selection:real_estate.process.step,state:"
+msgid "Overdue"
+msgstr "Überfällig"
+
+msgctxt "selection:real_estate.process.step,state:"
+msgid "Planned"
+msgstr "Geplant"
+
+msgctxt "selection:real_estate.process.step,state:"
+msgid "Skipped"
+msgstr "Übersprungen"
+
+msgctxt "selection:real_estate.process.template.step,completion:"
+msgid "By Action"
+msgstr "Durch Aktion"
+
+msgctxt "selection:real_estate.process.template.step,completion:"
+msgid "By Condition"
+msgstr "Durch Bedingung"
+
+msgctxt "selection:real_estate.process.template.step,completion:"
+msgid "Manual"
+msgstr "Manuell"
+
+msgctxt "selection:real_estate.process.template.step,date_method:"
+msgid "billing_deadline_for_contract"
+msgstr "Abrechnungsfrist zum Vertragsende"
+
+msgctxt "selection:real_estate.process.template.step,done_method:"
+msgid "billing_settled"
+msgstr "Betriebskosten abgerechnet"
+
+msgctxt "selection:real_estate.process.template.step,done_method:"
+msgid "deposit_paid"
+msgstr "Kaution bezahlt"
+
+msgctxt "selection:real_estate.process.template.step,done_method:"
+msgid "meter_readings_complete"
+msgstr "Zählerablesungen vollständig"
+
+msgctxt "selection:real_estate.process.template.step,due_base:"
+msgid "Anchor Date"
+msgstr "Ankerdatum"
+
+msgctxt "selection:real_estate.process.template.step,due_base:"
+msgid "Method"
+msgstr "Methode"
+
+msgctxt "selection:real_estate.process.template.step,due_base:"
+msgid "Previous Step Done"
+msgstr "Vorgänger erledigt"
+
+msgctxt "selection:real_estate.process.template.step,due_base:"
+msgid "Start of the Process"
+msgstr "Prozessbeginn"
+
+msgctxt "selection:real_estate.process.template.step,offset_setting:"
+msgid "Months until Deposit Settlement"
+msgstr "Monate bis Kautionsabrechnung"
+
+msgctxt "view:real_estate.process.template.step:"
+msgid "Action and Completion"
+msgstr "Aktion und Erledigung"
+
+msgctxt "view:real_estate.process.template.step:"
+msgid "Due Date"
+msgstr "Fällig am"
+
+msgctxt "wizard_button:real_estate.process.start,start,end:"
+msgid "Cancel"
+msgstr "Abbrechen"
+
+msgctxt "wizard_button:real_estate.process.start,start,start_:"
+msgid "Start"
+msgstr "Starten"
+
+msgctxt "view:real_estate.contract.type:"
+msgid "Processes"
+msgstr "Prozesse"
+
+msgctxt "field:real_estate.contract,handovers:"
+msgid "Handover Reports"
+msgstr "Übergabeprotokolle"
+
+msgctxt "field:real_estate.contract.handover,checklist:"
+msgid "Checklist"
+msgstr "Prüfpunktvorlage"
+
+msgctxt "field:real_estate.contract.handover,cleaned:"
+msgid "Swept Clean"
+msgstr "Besenrein"
+
+msgctxt "field:real_estate.contract.handover,company:"
+msgid "Company"
+msgstr "Unternehmen"
+
+msgctxt "field:real_estate.contract.handover,contract:"
+msgid "Contract"
+msgstr "Vertrag"
+
+msgctxt "field:real_estate.contract.handover,cost_total:"
+msgid "Estimated Costs"
+msgstr "Geschätzte Kosten"
+
+msgctxt "field:real_estate.contract.handover,currency:"
+msgid "Currency"
+msgstr "Währung"
+
+msgctxt "field:real_estate.contract.handover,date:"
+msgid "Date"
+msgstr "Datum"
+
+msgctxt "field:real_estate.contract.handover,done_by:"
+msgid "Done by"
+msgstr "Abgeschlossen von"
+
+msgctxt "field:real_estate.contract.handover,done_date:"
+msgid "Done on"
+msgstr "Abgeschlossen am"
+
+msgctxt "field:real_estate.contract.handover,general_condition:"
+msgid "General Condition"
+msgstr "Gesamteindruck"
+
+msgctxt "field:real_estate.contract.handover,keys:"
+msgid "Keys"
+msgstr "Schlüssel"
+
+msgctxt "field:real_estate.contract.handover,kind:"
+msgid "Kind"
+msgstr "Art"
+
+msgctxt "field:real_estate.contract.handover,landlord_employee:"
+msgid "Landlord Representative"
+msgstr "Vertreter des Vermieters"
+
+msgctxt "field:real_estate.contract.handover,lines:"
+msgid "Check Items"
+msgstr "Prüfpunkte"
+
+msgctxt "field:real_estate.contract.handover,meters:"
+msgid "Meter Readings"
+msgstr "Zählerstände"
+
+msgctxt "field:real_estate.contract.handover,notes:"
+msgid "Agreements"
+msgstr "Vereinbarungen"
+
+msgctxt "field:real_estate.contract.handover,objects:"
+msgid "Objects"
+msgstr "Objekte"
+
+msgctxt "field:real_estate.contract.handover,other_participants:"
+msgid "Other Participants"
+msgstr "Weitere Teilnehmer"
+
+msgctxt "field:real_estate.contract.handover,property:"
+msgid "Property"
+msgstr "Liegenschaft"
+
+msgctxt "field:real_estate.contract.handover,signed_document:"
+msgid "Signed Report"
+msgstr "Unterschriebenes Protokoll"
+
+msgctxt "field:real_estate.contract.handover,state:"
+msgid "State"
+msgstr "Status"
+
+msgctxt "field:real_estate.contract.handover,tenant_present:"
+msgid "Tenant Present"
+msgstr "Mieter anwesend"
+
+msgctxt "field:real_estate.contract.handover,tenants:"
+msgid "Tenants Present"
+msgstr "Anwesende Mieter"
+
+msgctxt "field:real_estate.contract.handover,time:"
+msgid "Time"
+msgstr "Uhrzeit"
+
+msgctxt "field:real_estate.contract.handover-base_object,handover:"
+msgid "Handover"
+msgstr "Übergabeprotokoll"
+
+msgctxt "field:real_estate.contract.handover-base_object,object:"
+msgid "Object"
+msgstr "Objekt"
+
+msgctxt "field:real_estate.contract.handover-party,handover:"
+msgid "Handover"
+msgstr "Übergabeprotokoll"
+
+msgctxt "field:real_estate.contract.handover-party,party:"
+msgid "Party"
+msgstr "Partei"
+
+msgctxt "field:real_estate.contract.handover.key,description:"
+msgid "Description"
+msgstr "Beschreibung"
+
+msgctxt "field:real_estate.contract.handover.key,handover:"
+msgid "Handover"
+msgstr "Übergabeprotokoll"
+
+msgctxt "field:real_estate.contract.handover.key,key_type:"
+msgid "Key"
+msgstr "Schlüssel"
+
+msgctxt "field:real_estate.contract.handover.key,quantity:"
+msgid "Quantity"
+msgstr "Anzahl"
+
+msgctxt "field:real_estate.contract.handover.key,quantity_expected:"
+msgid "Expected"
+msgstr "Laut Einzug"
+
+msgctxt "field:real_estate.contract.handover.line,condition:"
+msgid "Condition"
+msgstr "Zustand"
+
+msgctxt "field:real_estate.contract.handover.line,cost_estimate:"
+msgid "Estimated Costs"
+msgstr "Geschätzte Kosten"
+
+msgctxt "field:real_estate.contract.handover.line,currency:"
+msgid "Currency"
+msgstr "Währung"
+
+msgctxt "field:real_estate.contract.handover.line,description:"
+msgid "Description"
+msgstr "Beschreibung"
+
+msgctxt "field:real_estate.contract.handover.line,from_pre_inspection:"
+msgid "From Pre-inspection"
+msgstr "Aus Vorabnahme"
+
+msgctxt "field:real_estate.contract.handover.line,handover:"
+msgid "Handover"
+msgstr "Übergabeprotokoll"
+
+msgctxt "field:real_estate.contract.handover.line,item:"
+msgid "Item"
+msgstr "Bauteil"
+
+msgctxt "field:real_estate.contract.handover.line,remedy_by:"
+msgid "Remedy by"
+msgstr "Behebung durch"
+
+msgctxt "field:real_estate.contract.handover.line,remedy_until:"
+msgid "Remedy until"
+msgstr "Behebung bis"
+
+msgctxt "field:real_estate.contract.handover.line,room:"
+msgid "Room"
+msgstr "Raum"
+
+msgctxt "field:real_estate.contract.handover.meter,handover:"
+msgid "Handover"
+msgstr "Übergabeprotokoll"
+
+msgctxt "field:real_estate.contract.handover.meter,meter:"
+msgid "Meter"
+msgstr "Zähler"
+
+msgctxt "field:real_estate.contract.handover.meter,meter_id:"
+msgid "Meter ID"
+msgstr "Zählernummer"
+
+msgctxt "field:real_estate.contract.handover.meter,reading:"
+msgid "Meter Reading"
+msgstr "Zählerablesung"
+
+msgctxt "field:real_estate.contract.handover.meter,value:"
+msgid "Value"
+msgstr "Stand"
+
+msgctxt "field:real_estate.handover.checklist,lines:"
+msgid "Check Items"
+msgstr "Prüfpunkte"
+
+msgctxt "field:real_estate.handover.checklist,name:"
+msgid "Name"
+msgstr "Name"
+
+msgctxt "field:real_estate.handover.checklist,types_of_use:"
+msgid "Types of Use"
+msgstr "Nutzungsarten"
+
+msgctxt "field:real_estate.handover.checklist.line,checklist:"
+msgid "Checklist"
+msgstr "Prüfpunktvorlage"
+
+msgctxt "field:real_estate.handover.checklist.line,item:"
+msgid "Item"
+msgstr "Bauteil"
+
+msgctxt "field:real_estate.handover.checklist.line,room:"
+msgid "Room"
+msgstr "Raum"
+
+msgctxt "help:real_estate.contract.handover,checklist:"
+msgid ""
+"Template of the check items - proposed by the type of use of the contract."
+msgstr ""
+"Vorlage der Prüfpunkte - vorgeschlagen nach der Nutzungsart des Vertrags."
+
+msgctxt "help:real_estate.contract.handover,cost_total:"
+msgid "Sum of the estimated costs of the damages."
+msgstr "Summe der geschätzten Kosten der Schäden."
+
+msgctxt "help:real_estate.contract.handover,objects:"
+msgid "Objects handed over - proposed: the objects of the contract items."
+msgstr ""
+"Übergebene Objekte - vorgeschlagen: die Objekte der Vertragspositionen."
+
+msgctxt "help:real_estate.contract.handover,signed_document:"
+msgid "Scan of the signed report - first add it as attachment."
+msgstr "Scan des unterschriebenen Protokolls - zuerst als Anhang hinzufügen."
+
+msgctxt "help:real_estate.contract.handover,tenant_present:"
+msgid "Uncheck if the handover took place in the absence of the tenant."
+msgstr "Abwählen, wenn die Übergabe in Abwesenheit des Mieters stattfand."
+
+msgctxt "help:real_estate.contract.handover.key,description:"
+msgid "E.g. locking system, key number."
+msgstr "Z. B. Schließanlage, Schlüsselnummer."
+
+msgctxt "help:real_estate.contract.handover.key,quantity:"
+msgid "Handed over (move-in) resp. returned (move-out)."
+msgstr "Übergeben (Einzug) bzw. zurückgegeben (Auszug)."
+
+msgctxt "help:real_estate.contract.handover.key,quantity_expected:"
+msgid "Move-out: quantity according to the move-in report."
+msgstr "Auszug: Anzahl laut Einzugsprotokoll."
+
+msgctxt "help:real_estate.contract.handover.line,cost_estimate:"
+msgid "Basis for a retention from the deposit."
+msgstr "Grundlage für einen Einbehalt von der Kaution."
+
+msgctxt "help:real_estate.handover.checklist,types_of_use:"
+msgid "Proposed for handover reports of contracts with these types of use."
+msgstr ""
+"Vorgeschlagen für Übergabeprotokolle von Verträgen mit diesen Nutzungsarten."
+
+msgctxt "model:ir.action,name:act_handover"
+msgid "Handover Reports"
+msgstr "Übergabeprotokolle"
+
+msgctxt "model:ir.action,name:act_handover_checklist"
+msgid "Handover Checklists"
+msgstr "Prüfpunktvorlagen"
+
+msgctxt "model:ir.action,name:act_handover_move_in"
+msgid "Move-in Report"
+msgstr "Einzugsprotokoll"
+
+msgctxt "model:ir.action,name:act_handover_move_out"
+msgid "Move-out Report"
+msgstr "Auszugsprotokoll"
+
+msgctxt "model:ir.action,name:act_handover_pre_inspection"
+msgid "Pre-inspection Report"
+msgstr "Vorabnahmeprotokoll"
+
+msgctxt "model:ir.action,name:report_handover_de"
+msgid "Handover Report (de)"
+msgstr "Übergabeprotokoll (de)"
+
+msgctxt "model:ir.action.act_window.domain,name:act_handover_domain_all"
+msgid "All"
+msgstr "Alle"
+
+msgctxt "model:ir.action.act_window.domain,name:act_handover_domain_done"
+msgid "Done"
+msgstr "Abgeschlossen"
+
+msgctxt "model:ir.action.act_window.domain,name:act_handover_domain_draft"
+msgid "Draft"
+msgstr "Entwurf"
+
+msgctxt "model:ir.message,text:msg_handover_delete_done"
+msgid "The handover report \"%(handover)s\" is done and cannot be deleted."
+msgstr ""
+"Das Übergabeprotokoll \"%(handover)s\" ist abgeschlossen und kann nicht "
+"gelöscht werden."
+
+msgctxt "model:ir.message,text:msg_handover_log"
+msgid "Handover report done: %(handover)s, keys %(keys)s, defects %(defects)s."
+msgstr ""
+"Übergabeprotokoll abgeschlossen: %(handover)s, Schlüssel %(keys)s, Mängel "
+"%(defects)s."
+
+msgctxt "model:ir.message,text:msg_handover_meter_missing"
+msgid "Handover report \"%(handover)s\": no reading for the meters %(meters)s."
+msgstr ""
+"Übergabeprotokoll \"%(handover)s\": kein Zählerstand für die Zähler "
+"%(meters)s."
+
+msgctxt "model:ir.message,text:msg_handover_no_keys"
+msgid ""
+"The handover report \"%(handover)s\" needs the keys handed over or returned."
+msgstr ""
+"Das Übergabeprotokoll \"%(handover)s\" braucht die übergebenen bzw. "
+"zurückgegebenen Schlüssel."
+
+msgctxt "model:ir.message,text:msg_handover_no_objects"
+msgid "The handover report \"%(handover)s\" needs at least one object."
+msgstr "Das Übergabeprotokoll \"%(handover)s\" braucht mindestens ein Objekt."
+
+msgctxt "model:ir.message,text:msg_handover_reopen"
+msgid ""
+"Only the real estate administration can reset a done handover report to "
+"draft."
+msgstr ""
+"Nur die Immobilien-Administration kann ein abgeschlossenes Übergabeprotokoll "
+"auf Entwurf zurücksetzen."
+
+msgctxt "model:ir.message,text:msg_handover_unique"
+msgid ""
+"There is already a done handover report of this kind for the contract: "
+"\"%(other)s\"."
+msgstr ""
+"Für den Vertrag gibt es bereits ein abgeschlossenes Übergabeprotokoll dieser "
+"Art: \"%(other)s\"."
+
+msgctxt "model:ir.model.button,string:handover_cancel_button"
+msgid "Cancel"
+msgstr "Stornieren"
+
+msgctxt "model:ir.model.button,string:handover_done_button"
+msgid "Complete"
+msgstr "Abschließen"
+
+msgctxt "model:ir.model.button,string:handover_draft_button"
+msgid "Reset to Draft"
+msgstr "Auf Entwurf zurücksetzen"
+
+msgctxt "model:ir.model.button,string:handover_fill_lines_button"
+msgid "Apply Proposals"
+msgstr "Vorschläge übernehmen"
+
+msgctxt "model:ir.rule.group,name:rule_group_handover_companies"
+msgid "User in companies"
+msgstr "Benutzer in Unternehmen"
+
+msgctxt "model:ir.ui.menu,name:menu_handover"
+msgid "Handover Reports"
+msgstr "Übergabeprotokolle"
+
+msgctxt "model:ir.ui.menu,name:menu_handover_checklist"
+msgid "Handover Checklists"
+msgstr "Prüfpunktvorlagen"
+
+msgctxt "model:real_estate.contract.handover,string:"
+msgid "Real Estate Contract Handover"
+msgstr "Übergabeprotokoll"
+
+msgctxt "model:real_estate.contract.handover-base_object,string:"
+msgid "Real Estate Contract Handover - Base Object"
+msgstr "Übergabeprotokoll - Objekt"
+
+msgctxt "model:real_estate.contract.handover-party,string:"
+msgid "Real Estate Contract Handover - Party"
+msgstr "Übergabeprotokoll - Partei"
+
+msgctxt "model:real_estate.contract.handover.key,string:"
+msgid "Real Estate Contract Handover Key"
+msgstr "Übergabeprotokoll - Schlüssel"
+
+msgctxt "model:real_estate.contract.handover.line,string:"
+msgid "Real Estate Contract Handover Line"
+msgstr "Übergabeprotokoll - Prüfpunkt"
+
+msgctxt "model:real_estate.contract.handover.meter,string:"
+msgid "Real Estate Contract Handover Meter"
+msgstr "Übergabeprotokoll - Zählerstand"
+
+msgctxt ""
+"model:real_estate.handover.checklist,name:handover_checklist_commercial"
+msgid "Commercial unit"
+msgstr "Gewerbeeinheit"
+
+msgctxt ""
+"model:real_estate.handover.checklist,name:handover_checklist_residential"
+msgid "Apartment"
+msgstr "Wohnung"
+
+msgctxt "model:real_estate.handover.checklist,string:"
+msgid "Real Estate Handover Checklist"
+msgstr "Prüfpunktvorlage"
+
+msgctxt ""
+"model:real_estate.handover.checklist.line,item:handover_checklist_commercial_outdoor_floor"
+msgid "Floor"
+msgstr "Boden"
+
+msgctxt ""
+"model:real_estate.handover.checklist.line,item:handover_checklist_commercial_outdoor_lighting"
+msgid "Lighting"
+msgstr "Beleuchtung"
+
+msgctxt ""
+"model:real_estate.handover.checklist.line,item:handover_checklist_commercial_sales_doors"
+msgid "Doors"
+msgstr "Türen"
+
+msgctxt ""
+"model:real_estate.handover.checklist.line,item:handover_checklist_commercial_sales_electrics"
+msgid "Electrics (switches, sockets)"
+msgstr "Elektro (Schalter, Steckdosen)"
+
+msgctxt ""
+"model:real_estate.handover.checklist.line,item:handover_checklist_commercial_sales_floor"
+msgid "Floor"
+msgstr "Boden"
+
+msgctxt ""
+"model:real_estate.handover.checklist.line,item:handover_checklist_commercial_sales_radiators"
+msgid "Radiators"
+msgstr "Heizkörper"
+
+msgctxt ""
+"model:real_estate.handover.checklist.line,item:handover_checklist_commercial_sales_walls"
+msgid "Walls / ceilings"
+msgstr "Wände / Decken"
+
+msgctxt ""
+"model:real_estate.handover.checklist.line,item:handover_checklist_commercial_sales_windows"
+msgid "Windows"
+msgstr "Fenster"
+
+msgctxt ""
+"model:real_estate.handover.checklist.line,item:handover_checklist_commercial_staff_doors"
+msgid "Doors"
+msgstr "Türen"
+
+msgctxt ""
+"model:real_estate.handover.checklist.line,item:handover_checklist_commercial_staff_electrics"
+msgid "Electrics (switches, sockets)"
+msgstr "Elektro (Schalter, Steckdosen)"
+
+msgctxt ""
+"model:real_estate.handover.checklist.line,item:handover_checklist_commercial_staff_floor"
+msgid "Floor"
+msgstr "Boden"
+
+msgctxt ""
+"model:real_estate.handover.checklist.line,item:handover_checklist_commercial_staff_radiators"
+msgid "Radiators"
+msgstr "Heizkörper"
+
+msgctxt ""
+"model:real_estate.handover.checklist.line,item:handover_checklist_commercial_staff_walls"
+msgid "Walls / ceilings"
+msgstr "Wände / Decken"
+
+msgctxt ""
+"model:real_estate.handover.checklist.line,item:handover_checklist_commercial_staff_windows"
+msgid "Windows"
+msgstr "Fenster"
+
+msgctxt ""
+"model:real_estate.handover.checklist.line,item:handover_checklist_commercial_storage_doors"
+msgid "Doors"
+msgstr "Türen"
+
+msgctxt ""
+"model:real_estate.handover.checklist.line,item:handover_checklist_commercial_storage_electrics"
+msgid "Electrics (switches, sockets)"
+msgstr "Elektro (Schalter, Steckdosen)"
+
+msgctxt ""
+"model:real_estate.handover.checklist.line,item:handover_checklist_commercial_storage_floor"
+msgid "Floor"
+msgstr "Boden"
+
+msgctxt ""
+"model:real_estate.handover.checklist.line,item:handover_checklist_commercial_storage_radiators"
+msgid "Radiators"
+msgstr "Heizkörper"
+
+msgctxt ""
+"model:real_estate.handover.checklist.line,item:handover_checklist_commercial_storage_walls"
+msgid "Walls / ceilings"
+msgstr "Wände / Decken"
+
+msgctxt ""
+"model:real_estate.handover.checklist.line,item:handover_checklist_commercial_storage_windows"
+msgid "Windows"
+msgstr "Fenster"
+
+msgctxt ""
+"model:real_estate.handover.checklist.line,item:handover_checklist_commercial_wc_doors"
+msgid "Doors"
+msgstr "Türen"
+
+msgctxt ""
+"model:real_estate.handover.checklist.line,item:handover_checklist_commercial_wc_sanitary"
+msgid "Sanitary fittings"
+msgstr "Sanitärobjekte"
+
+msgctxt ""
+"model:real_estate.handover.checklist.line,item:handover_checklist_commercial_wc_tiles"
+msgid "Tiles"
+msgstr "Fliesen"
+
+msgctxt ""
+"model:real_estate.handover.checklist.line,item:handover_checklist_residential_balcony_floor"
+msgid "Floor"
+msgstr "Boden"
+
+msgctxt ""
+"model:real_estate.handover.checklist.line,item:handover_checklist_residential_balcony_railing"
+msgid "Railing"
+msgstr "Geländer"
+
+msgctxt ""
+"model:real_estate.handover.checklist.line,item:handover_checklist_residential_bath_doors"
+msgid "Doors"
+msgstr "Türen"
+
+msgctxt ""
+"model:real_estate.handover.checklist.line,item:handover_checklist_residential_bath_electrics"
+msgid "Electrics (switches, sockets)"
+msgstr "Elektro (Schalter, Steckdosen)"
+
+msgctxt ""
+"model:real_estate.handover.checklist.line,item:handover_checklist_residential_bath_floor"
+msgid "Floor"
+msgstr "Boden"
+
+msgctxt ""
+"model:real_estate.handover.checklist.line,item:handover_checklist_residential_bath_radiators"
+msgid "Radiators"
+msgstr "Heizkörper"
+
+msgctxt ""
+"model:real_estate.handover.checklist.line,item:handover_checklist_residential_bath_sanitary"
+msgid "Sanitary fittings"
+msgstr "Sanitärobjekte"
+
+msgctxt ""
+"model:real_estate.handover.checklist.line,item:handover_checklist_residential_bath_tiles"
+msgid "Tiles"
+msgstr "Fliesen"
+
+msgctxt ""
+"model:real_estate.handover.checklist.line,item:handover_checklist_residential_bath_walls"
+msgid "Walls / ceilings"
+msgstr "Wände / Decken"
+
+msgctxt ""
+"model:real_estate.handover.checklist.line,item:handover_checklist_residential_bath_windows"
+msgid "Windows"
+msgstr "Fenster"
+
+msgctxt ""
+"model:real_estate.handover.checklist.line,item:handover_checklist_residential_bedroom_doors"
+msgid "Doors"
+msgstr "Türen"
+
+msgctxt ""
+"model:real_estate.handover.checklist.line,item:handover_checklist_residential_bedroom_electrics"
+msgid "Electrics (switches, sockets)"
+msgstr "Elektro (Schalter, Steckdosen)"
+
+msgctxt ""
+"model:real_estate.handover.checklist.line,item:handover_checklist_residential_bedroom_floor"
+msgid "Floor"
+msgstr "Boden"
+
+msgctxt ""
+"model:real_estate.handover.checklist.line,item:handover_checklist_residential_bedroom_radiators"
+msgid "Radiators"
+msgstr "Heizkörper"
+
+msgctxt ""
+"model:real_estate.handover.checklist.line,item:handover_checklist_residential_bedroom_walls"
+msgid "Walls / ceilings"
+msgstr "Wände / Decken"
+
+msgctxt ""
+"model:real_estate.handover.checklist.line,item:handover_checklist_residential_bedroom_windows"
+msgid "Windows"
+msgstr "Fenster"
+
+msgctxt ""
+"model:real_estate.handover.checklist.line,item:handover_checklist_residential_cellar_doors"
+msgid "Doors"
+msgstr "Türen"
+
+msgctxt ""
+"model:real_estate.handover.checklist.line,item:handover_checklist_residential_cellar_floor"
+msgid "Floor"
+msgstr "Boden"
+
+msgctxt ""
+"model:real_estate.handover.checklist.line,item:handover_checklist_residential_hall_doors"
+msgid "Doors"
+msgstr "Türen"
+
+msgctxt ""
+"model:real_estate.handover.checklist.line,item:handover_checklist_residential_hall_electrics"
+msgid "Electrics (switches, sockets)"
+msgstr "Elektro (Schalter, Steckdosen)"
+
+msgctxt ""
+"model:real_estate.handover.checklist.line,item:handover_checklist_residential_hall_floor"
+msgid "Floor"
+msgstr "Boden"
+
+msgctxt ""
+"model:real_estate.handover.checklist.line,item:handover_checklist_residential_hall_radiators"
+msgid "Radiators"
+msgstr "Heizkörper"
+
+msgctxt ""
+"model:real_estate.handover.checklist.line,item:handover_checklist_residential_hall_walls"
+msgid "Walls / ceilings"
+msgstr "Wände / Decken"
+
+msgctxt ""
+"model:real_estate.handover.checklist.line,item:handover_checklist_residential_hall_windows"
+msgid "Windows"
+msgstr "Fenster"
+
+msgctxt ""
+"model:real_estate.handover.checklist.line,item:handover_checklist_residential_kitchen_doors"
+msgid "Doors"
+msgstr "Türen"
+
+msgctxt ""
+"model:real_estate.handover.checklist.line,item:handover_checklist_residential_kitchen_electrics"
+msgid "Electrics (switches, sockets)"
+msgstr "Elektro (Schalter, Steckdosen)"
+
+msgctxt ""
+"model:real_estate.handover.checklist.line,item:handover_checklist_residential_kitchen_floor"
+msgid "Floor"
+msgstr "Boden"
+
+msgctxt ""
+"model:real_estate.handover.checklist.line,item:handover_checklist_residential_kitchen_kitchen_unit"
+msgid "Fitted kitchen / sink"
+msgstr "Einbauküche / Spüle"
+
+msgctxt ""
+"model:real_estate.handover.checklist.line,item:handover_checklist_residential_kitchen_radiators"
+msgid "Radiators"
+msgstr "Heizkörper"
+
+msgctxt ""
+"model:real_estate.handover.checklist.line,item:handover_checklist_residential_kitchen_walls"
+msgid "Walls / ceilings"
+msgstr "Wände / Decken"
+
+msgctxt ""
+"model:real_estate.handover.checklist.line,item:handover_checklist_residential_kitchen_windows"
+msgid "Windows"
+msgstr "Fenster"
+
+msgctxt ""
+"model:real_estate.handover.checklist.line,item:handover_checklist_residential_living_doors"
+msgid "Doors"
+msgstr "Türen"
+
+msgctxt ""
+"model:real_estate.handover.checklist.line,item:handover_checklist_residential_living_electrics"
+msgid "Electrics (switches, sockets)"
+msgstr "Elektro (Schalter, Steckdosen)"
+
+msgctxt ""
+"model:real_estate.handover.checklist.line,item:handover_checklist_residential_living_floor"
+msgid "Floor"
+msgstr "Boden"
+
+msgctxt ""
+"model:real_estate.handover.checklist.line,item:handover_checklist_residential_living_radiators"
+msgid "Radiators"
+msgstr "Heizkörper"
+
+msgctxt ""
+"model:real_estate.handover.checklist.line,item:handover_checklist_residential_living_walls"
+msgid "Walls / ceilings"
+msgstr "Wände / Decken"
+
+msgctxt ""
+"model:real_estate.handover.checklist.line,item:handover_checklist_residential_living_windows"
+msgid "Windows"
+msgstr "Fenster"
+
+msgctxt ""
+"model:real_estate.handover.checklist.line,room:handover_checklist_commercial_outdoor_floor"
+msgid "Outdoor area"
+msgstr "Außenbereich"
+
+msgctxt ""
+"model:real_estate.handover.checklist.line,room:handover_checklist_commercial_outdoor_lighting"
+msgid "Outdoor area"
+msgstr "Außenbereich"
+
+msgctxt ""
+"model:real_estate.handover.checklist.line,room:handover_checklist_commercial_sales_doors"
+msgid "Sales area / office"
+msgstr "Verkaufsfläche / Büro"
+
+msgctxt ""
+"model:real_estate.handover.checklist.line,room:handover_checklist_commercial_sales_electrics"
+msgid "Sales area / office"
+msgstr "Verkaufsfläche / Büro"
+
+msgctxt ""
+"model:real_estate.handover.checklist.line,room:handover_checklist_commercial_sales_floor"
+msgid "Sales area / office"
+msgstr "Verkaufsfläche / Büro"
+
+msgctxt ""
+"model:real_estate.handover.checklist.line,room:handover_checklist_commercial_sales_radiators"
+msgid "Sales area / office"
+msgstr "Verkaufsfläche / Büro"
+
+msgctxt ""
+"model:real_estate.handover.checklist.line,room:handover_checklist_commercial_sales_walls"
+msgid "Sales area / office"
+msgstr "Verkaufsfläche / Büro"
+
+msgctxt ""
+"model:real_estate.handover.checklist.line,room:handover_checklist_commercial_sales_windows"
+msgid "Sales area / office"
+msgstr "Verkaufsfläche / Büro"
+
+msgctxt ""
+"model:real_estate.handover.checklist.line,room:handover_checklist_commercial_staff_doors"
+msgid "Staff room"
+msgstr "Sozialraum"
+
+msgctxt ""
+"model:real_estate.handover.checklist.line,room:handover_checklist_commercial_staff_electrics"
+msgid "Staff room"
+msgstr "Sozialraum"
+
+msgctxt ""
+"model:real_estate.handover.checklist.line,room:handover_checklist_commercial_staff_floor"
+msgid "Staff room"
+msgstr "Sozialraum"
+
+msgctxt ""
+"model:real_estate.handover.checklist.line,room:handover_checklist_commercial_staff_radiators"
+msgid "Staff room"
+msgstr "Sozialraum"
+
+msgctxt ""
+"model:real_estate.handover.checklist.line,room:handover_checklist_commercial_staff_walls"
+msgid "Staff room"
+msgstr "Sozialraum"
+
+msgctxt ""
+"model:real_estate.handover.checklist.line,room:handover_checklist_commercial_staff_windows"
+msgid "Staff room"
+msgstr "Sozialraum"
+
+msgctxt ""
+"model:real_estate.handover.checklist.line,room:handover_checklist_commercial_storage_doors"
+msgid "Storage"
+msgstr "Lager"
+
+msgctxt ""
+"model:real_estate.handover.checklist.line,room:handover_checklist_commercial_storage_electrics"
+msgid "Storage"
+msgstr "Lager"
+
+msgctxt ""
+"model:real_estate.handover.checklist.line,room:handover_checklist_commercial_storage_floor"
+msgid "Storage"
+msgstr "Lager"
+
+msgctxt ""
+"model:real_estate.handover.checklist.line,room:handover_checklist_commercial_storage_radiators"
+msgid "Storage"
+msgstr "Lager"
+
+msgctxt ""
+"model:real_estate.handover.checklist.line,room:handover_checklist_commercial_storage_walls"
+msgid "Storage"
+msgstr "Lager"
+
+msgctxt ""
+"model:real_estate.handover.checklist.line,room:handover_checklist_commercial_storage_windows"
+msgid "Storage"
+msgstr "Lager"
+
+msgctxt ""
+"model:real_estate.handover.checklist.line,room:handover_checklist_commercial_wc_doors"
+msgid "WC"
+msgstr "WC"
+
+msgctxt ""
+"model:real_estate.handover.checklist.line,room:handover_checklist_commercial_wc_sanitary"
+msgid "WC"
+msgstr "WC"
+
+msgctxt ""
+"model:real_estate.handover.checklist.line,room:handover_checklist_commercial_wc_tiles"
+msgid "WC"
+msgstr "WC"
+
+msgctxt ""
+"model:real_estate.handover.checklist.line,room:handover_checklist_residential_balcony_floor"
+msgid "Balcony / loggia"
+msgstr "Balkon / Loggia"
+
+msgctxt ""
+"model:real_estate.handover.checklist.line,room:handover_checklist_residential_balcony_railing"
+msgid "Balcony / loggia"
+msgstr "Balkon / Loggia"
+
+msgctxt ""
+"model:real_estate.handover.checklist.line,room:handover_checklist_residential_bath_doors"
+msgid "Bathroom / WC"
+msgstr "Bad / WC"
+
+msgctxt ""
+"model:real_estate.handover.checklist.line,room:handover_checklist_residential_bath_electrics"
+msgid "Bathroom / WC"
+msgstr "Bad / WC"
+
+msgctxt ""
+"model:real_estate.handover.checklist.line,room:handover_checklist_residential_bath_floor"
+msgid "Bathroom / WC"
+msgstr "Bad / WC"
+
+msgctxt ""
+"model:real_estate.handover.checklist.line,room:handover_checklist_residential_bath_radiators"
+msgid "Bathroom / WC"
+msgstr "Bad / WC"
+
+msgctxt ""
+"model:real_estate.handover.checklist.line,room:handover_checklist_residential_bath_sanitary"
+msgid "Bathroom / WC"
+msgstr "Bad / WC"
+
+msgctxt ""
+"model:real_estate.handover.checklist.line,room:handover_checklist_residential_bath_tiles"
+msgid "Bathroom / WC"
+msgstr "Bad / WC"
+
+msgctxt ""
+"model:real_estate.handover.checklist.line,room:handover_checklist_residential_bath_walls"
+msgid "Bathroom / WC"
+msgstr "Bad / WC"
+
+msgctxt ""
+"model:real_estate.handover.checklist.line,room:handover_checklist_residential_bath_windows"
+msgid "Bathroom / WC"
+msgstr "Bad / WC"
+
+msgctxt ""
+"model:real_estate.handover.checklist.line,room:handover_checklist_residential_bedroom_doors"
+msgid "Bedroom"
+msgstr "Schlafzimmer"
+
+msgctxt ""
+"model:real_estate.handover.checklist.line,room:handover_checklist_residential_bedroom_electrics"
+msgid "Bedroom"
+msgstr "Schlafzimmer"
+
+msgctxt ""
+"model:real_estate.handover.checklist.line,room:handover_checklist_residential_bedroom_floor"
+msgid "Bedroom"
+msgstr "Schlafzimmer"
+
+msgctxt ""
+"model:real_estate.handover.checklist.line,room:handover_checklist_residential_bedroom_radiators"
+msgid "Bedroom"
+msgstr "Schlafzimmer"
+
+msgctxt ""
+"model:real_estate.handover.checklist.line,room:handover_checklist_residential_bedroom_walls"
+msgid "Bedroom"
+msgstr "Schlafzimmer"
+
+msgctxt ""
+"model:real_estate.handover.checklist.line,room:handover_checklist_residential_bedroom_windows"
+msgid "Bedroom"
+msgstr "Schlafzimmer"
+
+msgctxt ""
+"model:real_estate.handover.checklist.line,room:handover_checklist_residential_cellar_doors"
+msgid "Cellar"
+msgstr "Keller"
+
+msgctxt ""
+"model:real_estate.handover.checklist.line,room:handover_checklist_residential_cellar_floor"
+msgid "Cellar"
+msgstr "Keller"
+
+msgctxt ""
+"model:real_estate.handover.checklist.line,room:handover_checklist_residential_hall_doors"
+msgid "Hall"
+msgstr "Flur"
+
+msgctxt ""
+"model:real_estate.handover.checklist.line,room:handover_checklist_residential_hall_electrics"
+msgid "Hall"
+msgstr "Flur"
+
+msgctxt ""
+"model:real_estate.handover.checklist.line,room:handover_checklist_residential_hall_floor"
+msgid "Hall"
+msgstr "Flur"
+
+msgctxt ""
+"model:real_estate.handover.checklist.line,room:handover_checklist_residential_hall_radiators"
+msgid "Hall"
+msgstr "Flur"
+
+msgctxt ""
+"model:real_estate.handover.checklist.line,room:handover_checklist_residential_hall_walls"
+msgid "Hall"
+msgstr "Flur"
+
+msgctxt ""
+"model:real_estate.handover.checklist.line,room:handover_checklist_residential_hall_windows"
+msgid "Hall"
+msgstr "Flur"
+
+msgctxt ""
+"model:real_estate.handover.checklist.line,room:handover_checklist_residential_kitchen_doors"
+msgid "Kitchen"
+msgstr "Küche"
+
+msgctxt ""
+"model:real_estate.handover.checklist.line,room:handover_checklist_residential_kitchen_electrics"
+msgid "Kitchen"
+msgstr "Küche"
+
+msgctxt ""
+"model:real_estate.handover.checklist.line,room:handover_checklist_residential_kitchen_floor"
+msgid "Kitchen"
+msgstr "Küche"
+
+msgctxt ""
+"model:real_estate.handover.checklist.line,room:handover_checklist_residential_kitchen_kitchen_unit"
+msgid "Kitchen"
+msgstr "Küche"
+
+msgctxt ""
+"model:real_estate.handover.checklist.line,room:handover_checklist_residential_kitchen_radiators"
+msgid "Kitchen"
+msgstr "Küche"
+
+msgctxt ""
+"model:real_estate.handover.checklist.line,room:handover_checklist_residential_kitchen_walls"
+msgid "Kitchen"
+msgstr "Küche"
+
+msgctxt ""
+"model:real_estate.handover.checklist.line,room:handover_checklist_residential_kitchen_windows"
+msgid "Kitchen"
+msgstr "Küche"
+
+msgctxt ""
+"model:real_estate.handover.checklist.line,room:handover_checklist_residential_living_doors"
+msgid "Living room"
+msgstr "Wohnzimmer"
+
+msgctxt ""
+"model:real_estate.handover.checklist.line,room:handover_checklist_residential_living_electrics"
+msgid "Living room"
+msgstr "Wohnzimmer"
+
+msgctxt ""
+"model:real_estate.handover.checklist.line,room:handover_checklist_residential_living_floor"
+msgid "Living room"
+msgstr "Wohnzimmer"
+
+msgctxt ""
+"model:real_estate.handover.checklist.line,room:handover_checklist_residential_living_radiators"
+msgid "Living room"
+msgstr "Wohnzimmer"
+
+msgctxt ""
+"model:real_estate.handover.checklist.line,room:handover_checklist_residential_living_walls"
+msgid "Living room"
+msgstr "Wohnzimmer"
+
+msgctxt ""
+"model:real_estate.handover.checklist.line,room:handover_checklist_residential_living_windows"
+msgid "Living room"
+msgstr "Wohnzimmer"
+
+msgctxt "model:real_estate.handover.checklist.line,string:"
+msgid "Real Estate Handover Checklist Line"
+msgstr "Prüfpunktvorlage - Zeile"
+
+msgctxt "selection:real_estate.contract.handover,general_condition:"
+msgid "Defects"
+msgstr "Mängel"
+
+msgctxt "selection:real_estate.contract.handover,general_condition:"
+msgid "Good"
+msgstr "Gut"
+
+msgctxt "selection:real_estate.contract.handover,general_condition:"
+msgid "Normal Wear"
+msgstr "Übliche Abnutzung"
+
+msgctxt "selection:real_estate.contract.handover,kind:"
+msgid "Move-in"
+msgstr "Einzug"
+
+msgctxt "selection:real_estate.contract.handover,kind:"
+msgid "Move-out"
+msgstr "Auszug"
+
+msgctxt "selection:real_estate.contract.handover,kind:"
+msgid "Pre-inspection"
+msgstr "Vorabnahme"
+
+msgctxt "selection:real_estate.contract.handover,state:"
+msgid "Cancelled"
+msgstr "Storniert"
+
+msgctxt "selection:real_estate.contract.handover,state:"
+msgid "Done"
+msgstr "Abgeschlossen"
+
+msgctxt "selection:real_estate.contract.handover,state:"
+msgid "Draft"
+msgstr "Entwurf"
+
+msgctxt "selection:real_estate.contract.handover.key,key_type:"
+msgid "Apartment Door"
+msgstr "Wohnungstür"
+
+msgctxt "selection:real_estate.contract.handover.key,key_type:"
+msgid "Cellar"
+msgstr "Keller"
+
+msgctxt "selection:real_estate.contract.handover.key,key_type:"
+msgid "Front Door"
+msgstr "Haustür"
+
+msgctxt "selection:real_estate.contract.handover.key,key_type:"
+msgid "Garage"
+msgstr "Garage"
+
+msgctxt "selection:real_estate.contract.handover.key,key_type:"
+msgid "Mailbox"
+msgstr "Briefkasten"
+
+msgctxt "selection:real_estate.contract.handover.key,key_type:"
+msgid "Other"
+msgstr "Sonstige"
+
+msgctxt "selection:real_estate.contract.handover.line,condition:"
+msgid "Damage"
+msgstr "Schaden"
+
+msgctxt "selection:real_estate.contract.handover.line,condition:"
+msgid "Missing"
+msgstr "Fehlt"
+
+msgctxt "selection:real_estate.contract.handover.line,condition:"
+msgid "Normal Wear"
+msgstr "Übliche Abnutzung"
+
+msgctxt "selection:real_estate.contract.handover.line,condition:"
+msgid "OK"
+msgstr "In Ordnung"
+
+msgctxt "selection:real_estate.contract.handover.line,remedy_by:"
+msgid "Landlord"
+msgstr "Vermieter"
+
+msgctxt "selection:real_estate.contract.handover.line,remedy_by:"
+msgid "Tenant"
+msgstr "Mieter"
+
+msgctxt "selection:real_estate.process.template.step,done_method:"
+msgid "handover_move_in_done"
+msgstr "Einzugsprotokoll abgeschlossen"
+
+msgctxt "selection:real_estate.process.template.step,done_method:"
+msgid "handover_move_out_done"
+msgstr "Auszugsprotokoll abgeschlossen"
+
+msgctxt "selection:real_estate.process.template.step,done_method:"
+msgid "handover_pre_inspection_done"
+msgstr "Vorabnahme abgeschlossen"
+
+msgctxt "view:real_estate.contract.handover:"
+msgid "Check Items"
+msgstr "Prüfpunkte"
+
+msgctxt "view:real_estate.contract.handover:"
+msgid "Participants"
+msgstr "Teilnehmer"
+
+msgctxt "view:real_estate.contract.handover:"
+msgid "Result"
+msgstr "Ergebnis"
+
+msgctxt "model:ir.ui.menu,name:menu_task_configuration"
+msgid "Tasks and Processes"
+msgstr "Aufgaben und Prozesse"
+
+msgctxt ""
+"model:real_estate.process.template.step,description:process_template_move_out_confirm"
+msgid ""
+"Check the termination: written form, signature of all tenants, receipt and "
+"notice period. Enter the termination date in the contract. Print and send the"
+" termination confirmation with 'Execute Action'. In the tab 'Result' note "
+"when and how the confirmation was sent."
+msgstr ""
+"Kündigung prüfen: Schriftform, Unterschrift aller Mieter, Zugang und "
+"Kündigungsfrist. Den Kündigungstermin im Vertrag eintragen. Über „Aktion "
+"ausführen“ die Kündigungsbestätigung drucken und versenden. Im Reiter "
+"„Ergebnis“ festhalten, wann und wie die Bestätigung verschickt wurde."
+
+msgctxt ""
+"model:real_estate.process.template.step,description:process_template_move_out_pre_arrange"
+msgid ""
+"Arrange a date for the pre-inspection with the tenant (about 4-6 weeks before"
+" moving out) and confirm it in writing. Involve the caretaker or a technician"
+" if necessary. Note the date in the result."
+msgstr ""
+"Mit dem Mieter einen Termin für die Vorabnahme vereinbaren (ca. 4–6 Wochen "
+"vor dem Auszug) und schriftlich bestätigen. Bei Bedarf Hausmeister oder "
+"Techniker hinzuziehen. Den Termin im Ergebnis vermerken."
+
+msgctxt ""
+"model:real_estate.process.template.step,description:process_template_move_out_pre_inspection"
+msgid ""
+"Carry out the pre-inspection: create a handover report of kind 'Pre-"
+"inspection' with 'Execute Action', take over the check points of the "
+"checklist and record defects and the work the tenant has to do before moving "
+"out (decorative repairs, removal of installations). The task is done as soon "
+"as the report is done."
+msgstr ""
+"Vorabnahme durchführen: Über „Aktion ausführen“ ein Übergabeprotokoll der Art"
+" „Vorabnahme“ anlegen, die Prüfpunkte der Vorlage übernehmen und Mängel sowie"
+" die vom Mieter bis zum Auszug auszuführenden Arbeiten "
+"(Schönheitsreparaturen, Rückbau von Einbauten) festhalten. Die Aufgabe ist "
+"erledigt, sobald das Protokoll abgeschlossen ist."
+
+msgctxt ""
+"model:real_estate.process.template.step,description:process_template_move_out_handover"
+msgid ""
+"Acceptance on the moving-out date: create the handover report (move-out) with"
+" 'Execute Action', inspect the rooms along the check points, record defects, "
+"meter readings and returned keys, have the report signed by the tenant and "
+"set it done. The task is done with the report."
+msgstr ""
+"Wohnungsabnahme am Auszugstag: Über „Aktion ausführen“ das Übergabeprotokoll "
+"(Auszug) anlegen, die Räume anhand der Prüfpunkte begehen, Mängel, "
+"Zählerstände und zurückgegebene Schlüssel erfassen, vom Mieter unterschreiben"
+" lassen und abschließen. Die Aufgabe ist mit dem Abschluss des Protokolls "
+"erledigt."
+
+msgctxt ""
+"model:real_estate.process.template.step,description:process_template_move_out_meters"
+msgid ""
+"Record a reading for every meter of the rented objects (water, heat, "
+"electricity, gas) at the moving-out date. For meters of a metering service "
+"provider order an interim reading. The task is done as soon as every meter "
+"has a reading within 7 days of the moving-out date."
+msgstr ""
+"Zum Auszugstag für alle Zähler der Mietobjekte (Wasser, Wärme, Strom, Gas) "
+"eine Ablesung erfassen. Bei Zählern eines Messdienstleisters die "
+"Zwischenablesung beauftragen. Die Aufgabe ist erledigt, sobald für jeden "
+"Zähler eine Ablesung innerhalb von 7 Tagen um den Auszugstag vorliegt."
+
+msgctxt ""
+"model:real_estate.process.template.step,description:process_template_move_out_keys"
+msgid ""
+"Record the return of all keys (number according to the move-in report) in the"
+" move-out handover report. Note missing keys; if necessary check the "
+"replacement of locks and charge the costs to the tenant. The task is done "
+"with the report."
+msgstr ""
+"Die Rückgabe aller Schlüssel (Anzahl lt. Übergabeprotokoll Einzug) im "
+"Übergabeprotokoll Auszug erfassen. Fehlende Schlüssel vermerken; ggf. "
+"Austausch von Schließzylindern prüfen und die Kosten dem Mieter in Rechnung "
+"stellen. Die Aufgabe ist mit dem Abschluss des Protokolls erledigt."
+
+msgctxt ""
+"model:real_estate.process.template.step,description:process_template_move_out_deposit"
+msgid ""
+"Settle the deposit: offset open claims (rent, damages according to the "
+"acceptance report) against the deposit including interest. Retain an "
+"appropriate amount for the outstanding operating cost billing. Send the "
+"settlement to the tenant and pay out the remaining amount. The due date "
+"follows the setting 'Months until Deposit Settlement' in the real estate "
+"accounting."
+msgstr ""
+"Kaution abrechnen: offene Forderungen (Miete, Schäden lt. Abnahmeprotokoll) "
+"mit der Kaution einschließlich Zinsen verrechnen. Für die noch ausstehende "
+"Betriebskostenabrechnung einen angemessenen Betrag einbehalten. Die "
+"Abrechnung an den Mieter senden und den Restbetrag auszahlen. Die Fälligkeit "
+"richtet sich nach der Einstellung „Monate bis Kautionsabrechnung“ im RE-"
+"Rechnungswesen."
+
+msgctxt ""
+"model:real_estate.process.template.step,description:process_template_move_out_deposit_rest"
+msgid ""
+"After the operating cost billing settle the retained amount: offset an "
+"additional payment against it or pay out the credit and the retained amount. "
+"If nothing was retained, cancel this step."
+msgstr ""
+"Nach der Betriebskostenabrechnung den Einbehalt abrechnen: eine Nachzahlung "
+"mit dem Einbehalt verrechnen bzw. Guthaben und Einbehalt auszahlen. Wurde "
+"nichts einbehalten, den Schritt abbrechen."
+
+msgctxt ""
+"model:real_estate.process.template.step,description:process_template_move_out_claims"
+msgid ""
+"Claims for changes or deterioration of the rented property become time-barred"
+" six months after the return (§ 548 BGB). Check before that whether damages "
+"are claimed and assert them in time (e.g. offsetting against the deposit, "
+"court dunning procedure). If there are no claims, cancel this step."
+msgstr ""
+"Ersatzansprüche wegen Veränderungen oder Verschlechterungen der Mietsache "
+"verjähren sechs Monate nach der Rückgabe (§ 548 BGB). Vorher prüfen, ob "
+"Schadensersatz verlangt wird, und die Ansprüche rechtzeitig geltend machen "
+"(z. B. Verrechnung mit der Kaution, gerichtliches Mahnverfahren). Bestehen "
+"keine Ansprüche, den Schritt abbrechen."
+
+msgctxt ""
+"model:real_estate.process.template.step,description:process_template_move_out_final_billing"
+msgid ""
+"Create the operating cost billing of the period containing the moving-out "
+"date; the former tenant is included pro rata. The billing deadline is 12 "
+"months after the end of the billing period (§ 556 (3) BGB). The task is done "
+"as soon as the billing unit is billed."
+msgstr ""
+"Die Betriebskostenabrechnung der Abrechnungsperiode erstellen, in die der "
+"Auszug fällt; der ausgezogene Mieter wird zeitanteilig berücksichtigt. Die "
+"Abrechnungsfrist endet 12 Monate nach Ende des Abrechnungszeitraums (§ 556 "
+"Abs. 3 BGB). Die Aufgabe ist erledigt, sobald die Abrechnungseinheit "
+"abgerechnet ist."
+
+msgctxt ""
+"model:real_estate.process.template.step,description:process_template_move_in_deposit"
+msgid ""
+"Check that the agreed deposit (or its first instalment, § 551 BGB allows "
+"three) has been received before the keys are handed over. The task is done "
+"automatically as soon as the deposit (term type 1900) is paid."
+msgstr ""
+"Prüfen, ob die vereinbarte Kaution (bzw. die erste Rate, § 551 BGB erlaubt "
+"drei Raten) vor der Schlüsselübergabe eingegangen ist. Die Aufgabe wird "
+"automatisch erledigt, sobald die Kaution (Konditionsart 1900) bezahlt ist."
+
+msgctxt ""
+"model:real_estate.process.template.step,description:process_template_move_in_handover"
+msgid ""
+"Handover to the new tenant: create the handover report (move-in) with "
+"'Execute Action', record the condition of the rooms along the check points "
+"and existing defects, enter meter readings and handed-over keys, have it "
+"signed by both parties and set it done. The task is done with the report."
+msgstr ""
+"Wohnungsübergabe an den neuen Mieter: Über „Aktion ausführen“ das "
+"Übergabeprotokoll (Einzug) anlegen, den Zustand der Räume anhand der "
+"Prüfpunkte und vorhandene Mängel festhalten, Zählerstände und übergebene "
+"Schlüssel eintragen, von beiden Seiten unterschreiben lassen und abschließen."
+" Die Aufgabe ist mit dem Abschluss des Protokolls erledigt."
+
+msgctxt ""
+"model:real_estate.process.template.step,description:process_template_move_in_meters"
+msgid ""
+"Record a reading for every meter of the rented objects at the moving-in date "
+"(usually together with the handover report). The task is done as soon as "
+"every meter has a reading within 7 days of the moving-in date."
+msgstr ""
+"Zum Einzugstag für alle Zähler der Mietobjekte eine Ablesung erfassen (in der"
+" Regel zusammen mit dem Übergabeprotokoll). Die Aufgabe ist erledigt, sobald "
+"für jeden Zähler eine Ablesung innerhalb von 7 Tagen um den Einzugstag "
+"vorliegt."
+
+msgctxt ""
+"model:real_estate.process.template.step,description:process_template_move_in_keys"
+msgid ""
+"Arrange name plates for door bell, letter box and apartment door; record "
+"number and kind of the handed-over keys in the handover report (move-in). The"
+" task is done with the report."
+msgstr ""
+"Namensschilder an Klingel, Briefkasten und Wohnungstür veranlassen; Anzahl "
+"und Art der übergebenen Schlüssel im Übergabeprotokoll (Einzug) erfassen. Die"
+" Aufgabe ist mit dem Abschluss des Protokolls erledigt."
+
+msgctxt ""
+"model:real_estate.process.template.step,description:process_template_move_in_mandate"
+msgid ""
+"Obtain the SEPA direct debit mandate of the tenant and store it with mandate "
+"reference and date at the party. If the tenant pays by standing order, note "
+"this in the result."
+msgstr ""
+"Das SEPA-Lastschriftmandat des Mieters einholen und mit Mandatsreferenz und "
+"Datum beim Partner hinterlegen. Zahlt der Mieter per Dauerauftrag, dies im "
+"Ergebnis vermerken."
+
+msgctxt ""
+"model:real_estate.process.template.step,description:process_template_partner_change_credit"
+msgid ""
+"Check the creditworthiness of the new tenant (self-disclosure, proof of "
+"income, credit agency report, confirmation of no rent arrears). Document "
+"approval or rejection in the result."
+msgstr ""
+"Die Bonität des neuen bzw. eintretenden Mieters prüfen (Selbstauskunft, "
+"Einkommensnachweise, SCHUFA-Auskunft, Mietschuldenfreiheitsbescheinigung). "
+"Zustimmung oder Ablehnung im Ergebnis dokumentieren."
+
+msgctxt ""
+"model:real_estate.process.template.step,description:process_template_partner_change_deposit"
+msgid ""
+"Clarify whether the deposit stays with the contract (taken over by the new "
+"tenant, settled between the tenants) or is settled with the leaving tenant "
+"and newly paid by the new tenant. Make the postings accordingly and note the "
+"decision in the result."
+msgstr ""
+"Klären, ob die Kaution beim Vertrag verbleibt (Übernahme durch den neuen "
+"Mieter, Ausgleich unter den Mietern) oder mit dem ausscheidenden Mieter "
+"abgerechnet und vom neuen Mieter neu geleistet wird. Die Buchungen "
+"entsprechend vornehmen und die Entscheidung im Ergebnis festhalten."
+
+msgctxt ""
+"model:real_estate.process.template.step,description:process_template_partner_change_mandate"
+msgid ""
+"Obtain and store the SEPA direct debit mandate of the new tenant; end the "
+"mandate of the leaving tenant at the date of the change."
+msgstr ""
+"Das SEPA-Lastschriftmandat des neuen Mieters einholen und hinterlegen; das "
+"Mandat des ausscheidenden Mieters zum Wechseltermin beenden."
+
+msgctxt ""
+"model:real_estate.process.template.step,description:process_template_partner_change_letter"
+msgid ""
+"Create the letter on the change of tenant with 'Execute Action' and send it "
+"to the leaving and the new tenant (confirmation of the contract transfer, "
+"bank details or mandate if applicable). The task is done by executing the "
+"action."
+msgstr ""
+"Über „Aktion ausführen“ das Anschreiben zum Mieterwechsel erzeugen und an den"
+" ausscheidenden und den neuen Mieter senden (Bestätigung des "
+"Vertragsübergangs, ggf. Bankverbindung/Mandat). Die Aufgabe ist mit dem "
+"Ausführen der Aktion erledigt."
+
+msgctxt ""
+"model:real_estate.process.template.step,description:process_template_index_adjustment_prepare"
+msgid ""
+"Start the adjustment run for the index rent with 'Execute Action': check that"
+" the current index value is available (import index values if necessary), "
+"observe the waiting period of 12 months since the last adjustment (§ 557b (2)"
+" BGB) and the cap rules. Check the proposal of the run."
+msgstr ""
+"Über „Aktion ausführen“ den Anpassungslauf für die Indexmiete starten: "
+"prüfen, ob der aktuelle Indexwert vorliegt (ggf. Indexwerte importieren), die"
+" Wartefrist von 12 Monaten seit der letzten Anpassung (§ 557b Abs. 2 BGB) und"
+" die Kappungsregeln beachten. Den Vorschlag des Laufs kontrollieren."
+
+msgctxt ""
+"model:real_estate.process.template.step,description:process_template_index_adjustment_declare"
+msgid ""
+"Check and approve the calculated adjustment, then create the declaration in "
+"text form and send it to the tenant. It must state the change of the index "
+"and the new rent or the increase as an amount (§ 557b (3) BGB)."
+msgstr ""
+"Die berechnete Anpassung prüfen und freigeben, dann die Erklärung in Textform"
+" erstellen und an den Mieter senden. Sie muss die eingetretene Änderung des "
+"Index sowie die neue Miete oder die Erhöhung als Betrag angeben (§ 557b Abs. "
+"3 BGB)."
+
+msgctxt ""
+"model:real_estate.process.template.step,description:process_template_index_adjustment_receipt"
+msgid ""
+"Capture the date the declaration was received by the tenant. It determines "
+"the effective date: the changed rent is payable from the beginning of the "
+"second month after receipt."
+msgstr ""
+"Das Datum erfassen, an dem die Erklärung dem Mieter zugegangen ist. Davon "
+"hängt der Wirkungszeitpunkt ab: Die geänderte Miete ist ab Beginn des "
+"übernächsten Monats nach dem Zugang zu zahlen."
+
+msgctxt ""
+"model:real_estate.process.template.step,description:process_template_index_adjustment_execute"
+msgid ""
+"Execute the approved and received adjustment: the new rent is created as a "
+"new contract term from the effective date. Then check the cash flow of the "
+"contract."
+msgstr ""
+"Die freigegebene und zugegangene Anpassung ausführen: Die neue Miete wird als"
+" neue Kondition ab dem Wirkungsdatum angelegt. Anschließend den Finanzstrom "
+"des Vertrags kontrollieren."
+
+msgctxt "model:real_estate.task.rule,description:task_rule_v02"
+msgid ""
+"The contract is running but has no date of signature. Request or file the "
+"signed contract and enter 'Date of Signature' in the contract."
+msgstr ""
+"Der Vertrag läuft, hat aber kein Unterschriftsdatum. Den unterschriebenen "
+"Vertrag anfordern bzw. ablegen und „Unterschrieben am“ im Vertrag eintragen."
+
+msgctxt "model:real_estate.task.rule,description:task_rule_v03"
+msgid ""
+"The fixed-term contract ends in three months. Clarify whether it is extended,"
+" replaced by a follow-up contract or ended; start the move-out process or the"
+" reletting if necessary."
+msgstr ""
+"Der befristete Vertrag endet in drei Monaten. Klären, ob er verlängert, durch"
+" einen Folgevertrag ersetzt oder beendet wird; ggf. den Auszugsprozess bzw. "
+"die Neuvermietung einleiten."
+
+msgctxt "model:real_estate.task.rule,description:task_rule_v07"
+msgid ""
+"The assignment of a contract party ends in one month ('Valid to'). Check "
+"whether a successor has to be entered or the contract continues with the "
+"remaining parties; carry out a change of tenant if necessary."
+msgstr ""
+"Die Zuordnung eines Vertragspartners endet in einem Monat („gültig bis“). "
+"Prüfen, ob ein Nachfolger eingetragen werden muss oder der Vertrag mit den "
+"verbleibenden Partnern fortgesetzt wird; ggf. einen Mieterwechsel "
+"durchführen."
+
+msgctxt "model:real_estate.task.rule,description:task_rule_v08"
+msgid ""
+"There is no follow-up contract yet for the objects of the terminated "
+"contract. Start the reletting (advertisement, viewings) or record the vacancy"
+" deliberately."
+msgstr ""
+"Für die Objekte des gekündigten Vertrags gibt es noch keinen Folgevertrag. "
+"Die Neuvermietung einleiten (Inserat, Besichtigungen) oder den Leerstand "
+"bewusst festhalten."
+
+msgctxt "model:real_estate.task.rule,description:task_rule_m01"
+msgid ""
+"The deadline for the next index rent declaration is approaching. Update the "
+"index values and run the adjustment of contract terms for this rent "
+"adjustment."
+msgstr ""
+"Die Frist für die nächste Indexmieterklärung naht. Die Indexwerte "
+"aktualisieren und für diese Mietanpassung den Lauf „Anpassung Konditionen "
+"ausführen“ durchführen."
+
+msgctxt "model:real_estate.task.rule,description:task_rule_m02"
+msgid ""
+"An approved index adjustment has not been declared for a week. Create the "
+"declaration and send it to the tenant."
+msgstr ""
+"Eine freigegebene Indexanpassung ist seit einer Woche nicht erklärt. Die "
+"Erklärung erstellen und an den Mieter senden."
+
+msgctxt "model:real_estate.task.rule,description:task_rule_m04"
+msgid ""
+"The declaration has been received by the tenant, but the adjustment has not "
+"been executed yet. Execute the adjustment so that the new rent is posted."
+msgstr ""
+"Die Erklärung ist dem Mieter zugegangen, die Anpassung wurde aber noch nicht "
+"ausgeführt. Die Anpassung ausführen, damit die neue Miete gebucht wird."
+
+msgctxt "model:real_estate.task.rule,description:task_rule_m05"
+msgid ""
+"The last step of the graduated rent starts in three months. Check whether a "
+"follow-up graduated rent is agreed or another rent adjustment (e.g. "
+"comparative rent) is prepared."
+msgstr ""
+"Die letzte Staffel der Staffelmiete beginnt in drei Monaten. Prüfen, ob eine "
+"Folgestaffelmiete vereinbart oder eine andere Mietanpassung (z. B. "
+"Vergleichsmiete) vorbereitet wird."
+
+msgctxt "model:real_estate.task.rule,description:task_rule_m06"
+msgid ""
+"The agreed waiver of termination ends in three months. Check whether action "
+"is required (e.g. a new agreement)."
+msgstr ""
+"Der vereinbarte Kündigungsverzicht endet in drei Monaten. Prüfen, ob "
+"Handlungsbedarf besteht (z. B. neue Vereinbarung)."
+
+msgctxt "model:real_estate.task.rule,description:task_rule_m07"
+msgid ""
+"There are no current values for this price index. Import the index values "
+"(manually or by the GENESIS retrieval) and check that the automatic retrieval"
+" works."
+msgstr ""
+"Für diesen Preisindex liegen keine aktuellen Werte vor. Die Indexwerte "
+"importieren (manuell oder per GENESIS-Abruf) und prüfen, ob der automatische "
+"Abruf funktioniert."
+
+msgctxt "model:real_estate.task.rule,description:task_rule_m08"
+msgid ""
+"The rent control (tight housing market) for this property expires in two "
+"months. Check whether the regulation has been extended and adjust 'Tight "
+"Market to' or remove the flag."
+msgstr ""
+"Die Mietpreisbremse (angespannter Wohnungsmarkt) für diese Wirtschaftseinheit"
+" läuft in zwei Monaten aus. Prüfen, ob die Verordnung verlängert wurde, und "
+"„Angespannter Markt bis“ anpassen oder die Kennzeichnung entfernen."
+
+msgctxt "model:real_estate.task.rule,description:task_rule_b01"
+msgid ""
+"The billing deadline (12 months after the end of the billing period, § 556 "
+"(3) BGB) ends in three months. Complete missing costs and readings and create"
+" the billing; after the deadline additional claims are usually excluded."
+msgstr ""
+"Die Abrechnungsfrist (12 Monate nach Ende des Abrechnungszeitraums, § 556 "
+"Abs. 3 BGB) endet in drei Monaten. Fehlende Kosten und Ablesungen "
+"vervollständigen und die Abrechnung erstellen; nach Fristablauf sind "
+"Nachforderungen in der Regel ausgeschlossen."
+
+msgctxt "model:real_estate.task.rule,description:task_rule_b02"
+msgid ""
+"The operating cost billing has been created. Adjust the prepayments "
+"appropriately to the result (§ 560 (4) BGB) and inform the tenants."
+msgstr ""
+"Die Betriebskostenabrechnung ist erstellt. Die Vorauszahlungen dem Ergebnis "
+"entsprechend angemessen anpassen (§ 560 Abs. 4 BGB) und den Mietern "
+"mitteilen."
+
+msgctxt "model:real_estate.task.rule,description:task_rule_o01"
+msgid ""
+"The next meter reading date is approaching. Order the reading or the metering"
+" service provider and record the readings of all meters of the property."
+msgstr ""
+"Der nächste Ablesestichtag steht an. Die Ablesung bzw. den Messdienstleister "
+"beauftragen und die Ablesewerte aller Zähler der Wirtschaftseinheit erfassen."
+
+msgctxt "model:real_estate.task.rule,description:task_rule_o03"
+msgid ""
+"The calibration of the meter expires in three months. Order a meter "
+"replacement or recalibration and afterwards enter the new 'Calibration Valid "
+"to'; the task is then set done automatically."
+msgstr ""
+"Die Eichfrist des Zählers läuft in drei Monaten ab. Zählertausch oder "
+"Nacheichung beauftragen und danach die neue „Eichfrist bis“ eintragen; die "
+"Aufgabe wird dann automatisch erledigt."
+
+msgctxt "model:real_estate.task.rule,description:task_rule_o04"
+msgid ""
+"The object ends in three months (end date). Check and end or transfer running"
+" contracts, meters and assignments."
+msgstr ""
+"Das Objekt endet in drei Monaten (Enddatum). Laufende Verträge, Zähler und "
+"Zuordnungen prüfen und beenden bzw. übertragen."
+
+msgctxt "model:real_estate.task.rule,description:task_rule_s02"
+msgid ""
+"A scheduled task has not run as planned. Check the trytond-cron process and "
+"the log of the scheduled tasks, fix the cause and run the task manually if "
+"necessary."
+msgstr ""
+"Eine geplante Aufgabe ist nicht wie vorgesehen gelaufen. Den Prozess trytond-"
+"cron und das Protokoll der geplanten Aufgaben prüfen, die Ursache beheben und"
+" die Aufgabe ggf. manuell ausführen."
+
+msgctxt "field:real_estate.contract,tasks_open:"
+msgid "Tasks"
+msgstr "Aufgaben"
+
+msgctxt "field:real_estate.contract,tasks_history:"
+msgid "Tasks"
+msgstr "Aufgaben"
+
+msgctxt "field:real_estate.contract,processes_open:"
+msgid "Processes"
+msgstr "Prozesse"
+
+msgctxt "field:real_estate.contract,processes_history:"
+msgid "Processes"
+msgstr "Prozesse"
+
+msgctxt "view:real_estate.contract:"
+msgid "Tasks and Processes"
+msgstr "Aufgaben und Prozesse"
+
+msgctxt "view:real_estate.contract:"
+msgid "Open"
+msgstr "Offen"
+
+msgctxt "view:real_estate.contract:"
+msgid "History"
+msgstr "Historie"
+
+msgctxt "model:ir.action,name:act_contract_settlement_unit_relate"
+msgid "Operating Costs Settlement Units"
+msgstr "Betriebskosten Kostensammler"
+
+msgctxt "model:ir.action,name:wizard_contract_open_settlement_units"
+msgid "Operating Costs Settlement Units"
+msgstr "Betriebskosten Kostensammler"
+
+msgctxt "model:ir.action,name:act_contract_cost_share_relate"
+msgid "Operating Costs Cost Shares"
+msgstr "Betriebskosten Kostenanteile"
+
+msgctxt "model:ir.action,name:act_contract_settlement_result_relate"
+msgid "Operating Costs Settlement Results"
+msgstr "Betriebskosten Abrechnungsergebnisse"
+
+msgctxt "field:real_estate.contract.term.cash_flow.context,term:"
+msgid "Term"
+msgstr "Kondition"
+
+msgctxt "model:ir.action,name:act_contract_cash_flow_relate"
+msgid "Cash Flow of the Contract"
+msgstr "Finanzstrom zum Vertrag"
+
+msgctxt "model:ir.action,name:act_contract_term_cash_flow_term"
+msgid "Cash Flow of Contract and Term"
+msgstr "Finanzstrom zum Vertrag und Kondition"
+
+msgctxt "model:ir.model.button,string:contract_term_open_cash_flow_button"
+msgid "Cash Flow of Contract and Term"
+msgstr "Finanzstrom zum Vertrag und Kondition"
+
+msgctxt "model:ir.action,name:act_contract_invoice_relate"
+msgid "Invoices of the Contract"
+msgstr "Rechnungen zum Vertrag"
+
+msgctxt ""
+"model:ir.action.act_window.domain,name:act_contract_cash_flow_relate_domain_draft"
+msgid "Draft"
+msgstr "Entwurf"
+
+msgctxt ""
+"model:ir.action.act_window.domain,name:act_contract_cash_flow_relate_domain_done"
+msgid "Done"
+msgstr "Erledigt"
+
+msgctxt ""
+"model:ir.action.act_window.domain,name:act_contract_cash_flow_relate_domain_all"
+msgid "All"
+msgstr "Alle"
+
+msgctxt ""
+"model:ir.action.act_window.domain,name:act_contract_term_cash_flow_term_domain_draft"
+msgid "Draft"
+msgstr "Entwurf"
+
+msgctxt ""
+"model:ir.action.act_window.domain,name:act_contract_term_cash_flow_term_domain_done"
+msgid "Done"
+msgstr "Erledigt"
+
+msgctxt ""
+"model:ir.action.act_window.domain,name:act_contract_term_cash_flow_term_domain_all"
+msgid "All"
+msgstr "Alle"

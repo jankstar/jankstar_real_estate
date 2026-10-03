@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<tree editable="1" sequence="sequence">
+    <field name="sequence"/>
+    <field name="room"/>
+    <field name="item" expand="1"/>
+</tree>

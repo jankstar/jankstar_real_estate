@@ -31,6 +31,15 @@
     </group>
 
         <newline/>
+    <group string="Processes" colspan="6" id="contract_type_processes">
+        <label name="start_process_template"/><field name="start_process_template"/>
+        <newline/>
+        <label name="termination_process_template"/><field name="termination_process_template"/>
+        <newline/>
+        <label name="partner_change_process_template"/><field name="partner_change_process_template"/>
+    </group>
+
+        <newline/>
     <group string="Accounting" colspan="6" id="contract_type_accounting">
         <label name="invoice_type"/><field name="invoice_type" />
         <newline/>

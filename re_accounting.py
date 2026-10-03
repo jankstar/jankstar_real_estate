@@ -32,6 +32,11 @@ class ReAccounting(base_object.re_sequence_ordered(), ModelSQL, ModelView):
              "index rent adjustment, the actual receipt has to be "
              "confirmed.")
 
+    deposit_task_months = fields.Integer("Months until Deposit Settlement",
+        domain=[('deposit_task_months', '>=', 0)],
+        help="Months after the end of a contract (move-out) until the task "
+             "'Settle deposit' of the move-out process is due.")
+
     re_payment_term_billing = fields.Many2One(
         'account.invoice.payment_term', 'Operating Cost Billing Payment Term',
         help="Default payment term for operating cost settlement invoices, "
@@ -61,3 +66,7 @@ class ReAccounting(base_object.re_sequence_ordered(), ModelSQL, ModelView):
     @classmethod
     def default_receipt_days(cls):
         return 3
+
+    @classmethod
+    def default_deposit_task_months(cls):
+        return 6

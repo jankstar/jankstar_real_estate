@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<tree>
+    <field name="name" expand="1"/>
+    <field name="code"/>
+    <field name="model"/>
+    <field name="anchor_field"/>
+    <field name="active" optional="1"/>
+</tree>

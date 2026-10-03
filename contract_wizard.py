@@ -1000,3 +1000,22 @@ class ChangeContractPartnerWizard(Wizard):
             [self.start.contract], self.start.new_party,
             change_date=self.start.change_date)
         return 'end'
+
+
+#**********************************************************************
+class OpenContractSettlementUnits(Wizard):
+    "Open the Operating Cost Settlement Units of a Contract"
+    __name__ = 'real_estate.contract.open_settlement_units'
+
+    start_state = 'open_'
+    open_ = StateAction('real_estate.act_contract_settlement_unit_relate')
+
+    def do_open_(self, action):
+        Contract = Pool().get('real_estate.contract')
+        ids = []
+        for contract in self.records:
+            ids.extend(su.id for su in
+                Contract.get_settlement_units_all_periods(contract)
+                if su.id not in ids)
+        action['pyson_domain'] = PYSONEncoder().encode([('id', 'in', ids)])
+        return action, {}
