@@ -7,6 +7,7 @@
     <field name="offset_days"/>
     <field name="offset_setting" optional="1"/>
     <field name="responsible_group" optional="0"/>
+    <field name="responsible_role" optional="1"/>
     <field name="action" optional="0"/>
     <field name="completion"/>
     <field name="mandatory"/>

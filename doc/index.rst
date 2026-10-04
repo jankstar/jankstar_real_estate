@@ -34,8 +34,11 @@ Structure
 - **Tasks, processes and handover reports** — tasks (follow-ups) on
   contracts, objects, billing units and other records, created manually,
   by the module, by scheduled task rules or by process steps, with
-  reminders and escalation; process templates (move-out, move-in, change
-  of tenant, index rent adjustment) started by the contract type; handover
+  reminders and escalation; responsibility by group, user or the party
+  role on the object (e.g. property administrator, caretaker - resolved
+  to the linked user via the employee); process templates (move-out,
+  move-in, change of tenant, index rent adjustment) with work instructions,
+  started by the contract type; handover
   reports (move-in, pre-inspection, move-out) with checklists, keys and
   meter readings that complete the matching process steps.
 - **Accounting** — German WoWi chart of accounts, company-specific

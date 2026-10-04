@@ -387,6 +387,7 @@
             <field name="code">manual</field>
             <field name="name">Follow-up</field>
             <field name="remind_days" eval="0"/>
+            <field name="responsible_role" ref="object_party_administrator_role"/>
         </record>
         <record model="real_estate.task.type" id="task_type_contract_unsigned">
             <field name="sequence" eval="20"/>
@@ -396,6 +397,7 @@
             <field name="remind_days" eval="0"/>
             <field name="escalate_days" eval="14"/>
             <field name="escalation_group" ref="group_real_estate_admin"/>
+            <field name="responsible_role" ref="object_party_administrator_role"/>
         </record>
         <record model="real_estate.task.type" id="task_type_contract_end">
             <field name="sequence" eval="30"/>
@@ -403,6 +405,7 @@
             <field name="name">Fixed-term contract ends</field>
             <field name="responsible_group" ref="group_real_estate_contract"/>
             <field name="remind_days" eval="7"/>
+            <field name="responsible_role" ref="object_party_administrator_role"/>
         </record>
         <record model="real_estate.task.type" id="task_type_party_end">
             <field name="sequence" eval="40"/>
@@ -410,6 +413,7 @@
             <field name="name">Contract party ends</field>
             <field name="responsible_group" ref="group_real_estate_contract"/>
             <field name="remind_days" eval="7"/>
+            <field name="responsible_role" ref="object_party_administrator_role"/>
         </record>
         <record model="real_estate.task.type" id="task_type_no_follow_up">
             <field name="sequence" eval="50"/>
@@ -417,6 +421,7 @@
             <field name="name">No follow-up contract</field>
             <field name="responsible_group" ref="group_real_estate_contract"/>
             <field name="remind_days" eval="7"/>
+            <field name="responsible_role" ref="object_party_administrator_role"/>
         </record>
         <record model="real_estate.task.type" id="task_type_index_prepare">
             <field name="sequence" eval="60"/>
@@ -426,6 +431,7 @@
             <field name="remind_days" eval="7"/>
             <field name="escalate_days" eval="7"/>
             <field name="escalation_group" ref="group_real_estate_admin"/>
+            <field name="responsible_role" ref="object_party_administrator_role"/>
         </record>
         <record model="real_estate.task.type" id="task_type_index_declare">
             <field name="sequence" eval="70"/>
@@ -435,6 +441,7 @@
             <field name="remind_days" eval="0"/>
             <field name="escalate_days" eval="7"/>
             <field name="escalation_group" ref="group_real_estate_admin"/>
+            <field name="responsible_role" ref="object_party_administrator_role"/>
         </record>
         <record model="real_estate.task.type" id="task_type_index_receipt">
             <field name="sequence" eval="80"/>
@@ -444,6 +451,7 @@
             <field name="remind_days" eval="0"/>
             <field name="escalate_days" eval="7"/>
             <field name="escalation_group" ref="group_real_estate_admin"/>
+            <field name="responsible_role" ref="object_party_administrator_role"/>
         </record>
         <record model="real_estate.task.type" id="task_type_index_execute">
             <field name="sequence" eval="90"/>
@@ -453,6 +461,7 @@
             <field name="remind_days" eval="0"/>
             <field name="escalate_days" eval="7"/>
             <field name="escalation_group" ref="group_real_estate_admin"/>
+            <field name="responsible_role" ref="object_party_administrator_role"/>
         </record>
         <record model="real_estate.task.type" id="task_type_index_values">
             <field name="sequence" eval="100"/>
@@ -467,6 +476,7 @@
             <field name="name">Graduated rent ends</field>
             <field name="responsible_group" ref="group_real_estate_contract"/>
             <field name="remind_days" eval="7"/>
+            <field name="responsible_role" ref="object_party_administrator_role"/>
         </record>
         <record model="real_estate.task.type" id="task_type_waiver_end">
             <field name="sequence" eval="120"/>
@@ -474,6 +484,7 @@
             <field name="name">Termination waiver ends</field>
             <field name="responsible_group" ref="group_real_estate_contract"/>
             <field name="remind_days" eval="7"/>
+            <field name="responsible_role" ref="object_party_administrator_role"/>
         </record>
         <record model="real_estate.task.type" id="task_type_tight_market_end">
             <field name="sequence" eval="130"/>
@@ -481,6 +492,7 @@
             <field name="name">Tight market regulation / cap rule ends</field>
             <field name="responsible_group" ref="group_real_estate_admin"/>
             <field name="remind_days" eval="7"/>
+            <field name="responsible_role" ref="object_party_administrator_role"/>
         </record>
         <record model="real_estate.task.type" id="task_type_billing_deadline">
             <field name="sequence" eval="140"/>
@@ -490,6 +502,7 @@
             <field name="remind_days" eval="14"/>
             <field name="escalate_days" eval="0"/>
             <field name="escalation_group" ref="group_real_estate_admin"/>
+            <field name="responsible_role" ref="object_party_administrator_role"/>
         </record>
         <record model="real_estate.task.type" id="task_type_prepayment_adjust">
             <field name="sequence" eval="150"/>
@@ -499,6 +512,7 @@
             <field name="remind_days" eval="0"/>
             <field name="escalate_days" eval="14"/>
             <field name="escalation_group" ref="group_real_estate_admin"/>
+            <field name="responsible_role" ref="object_party_administrator_role"/>
         </record>
         <record model="real_estate.task.type" id="task_type_bved_cutoff">
             <field name="sequence" eval="160"/>
@@ -506,6 +520,7 @@
             <field name="name">BVED exchange cutoff</field>
             <field name="responsible_group" ref="group_real_estate_billing"/>
             <field name="remind_days" eval="7"/>
+            <field name="responsible_role" ref="object_party_administrator_role"/>
         </record>
         <record model="real_estate.task.type" id="task_type_meter_reading">
             <field name="sequence" eval="170"/>
@@ -515,6 +530,7 @@
             <field name="remind_days" eval="3"/>
             <field name="escalate_days" eval="7"/>
             <field name="escalation_group" ref="group_real_estate_admin"/>
+            <field name="responsible_role" ref="object_party_caretaker_role"/>
         </record>
         <record model="real_estate.task.type" id="task_type_meter_calibration">
             <field name="sequence" eval="180"/>
@@ -522,6 +538,7 @@
             <field name="name">Meter calibration expires / meter exchange</field>
             <field name="responsible_group" ref="group_real_estate_object"/>
             <field name="remind_days" eval="14"/>
+            <field name="responsible_role" ref="object_party_caretaker_role"/>
         </record>
         <record model="real_estate.task.type" id="task_type_object_end">
             <field name="sequence" eval="190"/>
@@ -529,6 +546,7 @@
             <field name="name">Object ends</field>
             <field name="responsible_group" ref="group_real_estate_object"/>
             <field name="remind_days" eval="7"/>
+            <field name="responsible_role" ref="object_party_administrator_role"/>
         </record>
         <record model="real_estate.task.type" id="task_type_cron_error">
             <field name="sequence" eval="200"/>
@@ -542,6 +560,7 @@
             <field name="code">process_step</field>
             <field name="name">Process step</field>
             <field name="remind_days" eval="3"/>
+            <field name="responsible_role" ref="object_party_administrator_role"/>
         </record>
         <record model="real_estate.task.type" id="task_type_cron_missing">
             <field name="sequence" eval="210"/>

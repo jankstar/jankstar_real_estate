@@ -676,6 +676,73 @@ class RealEstateTestCase(ModuleTestCase):
             self.assertEqual(Task(following.id).state, 'cancelled')
 
     @with_transaction()
+    def test_task_role_responsible(self):
+        "Responsibility by party role and creator on manual entry"
+        from trytond.modules.company.tests import create_company, set_company
+        from trytond.transaction import Transaction
+
+        pool = Pool()
+        Task = pool.get('real_estate.task')
+        Type = pool.get('real_estate.task.type')
+        BaseObject = pool.get('real_estate.base_object')
+        Role = pool.get('real_estate.object_party.role')
+        ObjectParty = pool.get('real_estate.object_party')
+        Party = pool.get('party.party')
+        Employee = pool.get('company.employee')
+        User = pool.get('res.user')
+        ModelData = pool.get('ir.model.data')
+        group = ModelData.get_id('real_estate', 'group_real_estate_object')
+
+        company = create_company()
+        with set_company(company):
+            prop, = BaseObject.create([{'name': 'P', 'type': 'property',
+                        'sequence': 1,
+                        'company': company.id,
+                        'start_date': datetime.date(2025, 1, 1)}])
+            role, = Role.create([{'name': 'Admin', 'types': ['property']}])
+            party, = Party.create([{'name': 'Verwalter'}])
+            employee, = Employee.create([{'party': party.id,
+                        'company': company.id}])
+            verwalter, = User.create([{'name': 'V', 'login': 'verwalter',
+                        'employees': [('add', [employee.id])]}])
+            creator = User(Transaction().user)
+            type_, = Type.search([('code', '=', 'manual')])
+            Type.write([type_], {'responsible_role': role.id,
+                    'responsible_group': group, 'responsible_user': None})
+            due = datetime.date(2026, 3, 31)
+
+            def manual():
+                return Task._default_responsible(Type(type_.id), prop, due,
+                    company, manual=True)
+
+            # Without assignment of the role, creator flag off: no user
+            user, grp, prt = manual()
+            self.assertEqual((user, grp.id, prt), (None, group, None))
+            # creator flag on: the creator (manual entry only)
+            Type.write([type_], {'creator_responsible': True})
+            user, grp, prt = manual()
+            self.assertEqual(user, creator)
+            self.assertIsNone(Task._default_responsible(Type(type_.id),
+                    prop, due, company, manual=False)[0])
+
+            # Assignment valid on the due date: the user of the party
+            ObjectParty.create([{'base_object': prop.id, 'party': party.id,
+                        'role': role.id,
+                        'valid_from': datetime.date(2025, 1, 1)}])
+            user, grp, prt = manual()
+            self.assertEqual((user, grp.id, prt), (verwalter, group, party))
+            # Not yet valid on the due date
+            self.assertIsNone(Task._role_responsible(role, prop,
+                    datetime.date(2024, 12, 31), company)[0])
+
+            # create: role user, party stored, group of the type kept
+            task, = Task.create([{'name': 'T', 'task_type': type_.id,
+                        'resource': str(prop), 'due_date': due}])
+            self.assertEqual(task.responsible_user, verwalter)
+            self.assertEqual(task.responsible_party, party)
+            self.assertEqual(task.responsible_group.id, group)
+
+    @with_transaction()
     def test_task_postpone(self):
         "W03: postpone - new due date, history, reminder reset"
         from trytond.modules.company.tests import create_company, set_company

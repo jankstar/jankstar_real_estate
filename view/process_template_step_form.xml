@@ -5,6 +5,7 @@
     <label name="name"/><field name="name" colspan="3"/>
     <label name="task_type"/><field name="task_type"/>
     <label name="responsible_group"/><field name="responsible_group"/>
+    <label name="responsible_role"/><field name="responsible_role"/>
     <separator string="Due Date" id="sep_due" colspan="4"/>
     <label name="due_base"/><field name="due_base"/>
     <label name="date_method"/><field name="date_method"/>

@@ -2,21 +2,33 @@
 <form col="4">
     <label name="name"/><field name="name"/>
     <label name="code"/><field name="code"/>
-    <label name="manual"/><field name="manual"/>
-    <label name="resource_models"/><field name="resource_models" colspan="3" widget="multiselection" yexpand="0"/>
-    <label name="custom_models"/><field name="custom_models" colspan="3" widget="multiselection" yexpand="0"/>
     <label name="sequence"/><field name="sequence"/>
     <label name="active"/><field name="active"/>
+    <label name="manual"/><field name="manual"/>
+    <newline/>
+    <label name="resource_models"/>
+    <field name="resource_models" colspan="3" widget="multiselection" yexpand="0"/>
+    <label name="custom_models"/>
+    <field name="custom_models" colspan="3" widget="multiselection" yexpand="0"/>
+
+    <separator string="Responsibility" id="sep_responsibility" colspan="4"/>
     <label name="responsible_group"/><field name="responsible_group"/>
     <label name="responsible_user"/><field name="responsible_user"/>
+    <label name="responsible_role"/><field name="responsible_role"/>
+    <label name="creator_responsible"/><field name="creator_responsible"/>
+
+    <separator string="Reminders and Escalation" id="sep_reminders" colspan="4"/>
     <label name="remind_days"/><field name="remind_days"/>
     <label name="remind_daily"/><field name="remind_daily"/>
     <label name="escalate_days"/><field name="escalate_days"/>
     <label name="escalation_group"/><field name="escalation_group"/>
-    <label name="recurrence_months"/><field name="recurrence_months"/>
-    <label name="icon"/><field name="icon"/>
     <label name="email"/><field name="email"/>
+    <label name="icon"/><field name="icon"/>
+
+    <separator string="Completion" id="sep_completion" colspan="4"/>
+    <label name="recurrence_months"/><field name="recurrence_months"/>
     <label name="note_on_done"/><field name="note_on_done"/>
+
     <separator name="description" colspan="4"/>
     <field name="description" colspan="4"/>
 </form>

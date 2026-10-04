@@ -2,10 +2,12 @@
 <form col="4">
     <label name="task_type"/><field name="task_type"/>
     <field name="resource_model" invisible="1"/>
+    <field name="resource" invisible="1"/>
     <label name="due_date"/><field name="due_date"/>
     <label name="name"/><field name="name" colspan="3"/>
     <label name="responsible_user"/><field name="responsible_user"/>
     <label name="responsible_group"/><field name="responsible_group"/>
+    <label name="responsible_party"/><field name="responsible_party"/>
     <label name="priority"/><field name="priority"/>
     <label name="recurrence_months"/><field name="recurrence_months"/>
     <separator name="description" colspan="4"/>

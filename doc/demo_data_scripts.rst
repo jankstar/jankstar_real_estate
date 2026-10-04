@@ -16,9 +16,15 @@ builds on the previous one's data):
    apartments, 4 retail units, and 20 water meters per property in total —
    plus one land parcel with four parking spaces. Meter names follow the
    pattern ``Wasser Zähler NN`` / ``Wasser Zähler EHNN``, each with an
-   initial and a consumption reading. Looks up ``real_estate.use_class`` by
-   ``sequence`` (language-independent) and measurement types by German name
-   — the ``admin`` user must be set to German::
+   initial and a consumption reading. Beforehand it creates the parties
+   *Verwalter 1* and *Hausmeister 1*, each with an employee of the company
+   (existing ones are reused), and assigns them to both properties as
+   object parties with the roles *Administrator* and *Caretaker* (valid
+   from 01.01.2025) - the basis of the task responsibility by party role
+   (see `Tasks, Processes and Handover Reports <tasks.rst>`__). Linking the
+   employees to users is left to the administrator; the script prints a
+   hint at the end. Looks up ``real_estate.use_class``, measurement types
+   and object party roles by ``sequence`` (language-independent)::
 
       python tests/test_immo.py --database <db> [--config trytond.conf]
 

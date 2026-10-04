@@ -12,7 +12,7 @@ from trytond.model.exceptions import AccessError, ValidationError
 from trytond.modules.company.model import employee_field
 from trytond.pool import Pool, PoolMeta
 from trytond.pyson import Bool, Eval, If
-from trytond.transaction import Transaction
+from trytond.transaction import Transaction, without_check_access
 from trytond.wizard import Button, StateTransition, StateView, Wizard
 
 logger = logging.getLogger(__name__)
@@ -117,6 +117,18 @@ class TaskType(
         help="Default responsibility: all members of the group.")
     responsible_user = fields.Many2One('res.user', "Responsible User",
         help="Default responsibility - takes precedence over the group.")
+    responsible_role = fields.Many2One('real_estate.object_party.role',
+        "Responsible Party Role", ondelete='SET NULL',
+        help="The party holding this role on the object of the task "
+             "(e.g. administrator of the property) on the due date "
+             "becomes responsible - as user if linked to a user via an "
+             "employee, else only shown; then user/group above apply.")
+    creator_responsible = fields.Boolean(
+        "Creator Responsible on Manual Entry",
+        help="For a task entered manually without a responsible user from "
+             "the party role: the creator becomes the responsible user - "
+             "else the user stays empty (group of the type, the task can "
+             "be taken over).")
     remind_days = fields.Integer("Remind Days Before",
         domain=[('remind_days', '>=', 0)],
         help="Reminder this many days before the due date.")
@@ -302,6 +314,11 @@ class Task(Workflow, ModelSQL, ModelView):
         states=_states_open,
         help="All members of the group see the task and are "
              "reminded.")
+    responsible_party = fields.Many2One('party.party', "Responsible Party",
+        ondelete='SET NULL', states={'readonly': True},
+        help="Party holding the responsible role of the type on the "
+             "object of the task on the due date (e.g. administrator, "
+             "caretaker).")
     priority = fields.Selection([
             ('low', "Low"),
             ('normal', "Normal"),
@@ -439,14 +456,17 @@ class Task(Workflow, ModelSQL, ModelView):
         return 'normal'
 
     @fields.depends('task_type', 'responsible_user', 'responsible_group',
-        'recurrence_months', 'due_date', 'remind_date', 'name')
+        'responsible_party', 'resource', 'contract', '_parent_contract.id',
+        'company', 'recurrence_months', 'due_date', 'remind_date', 'name')
     def on_change_task_type(self):
         type_ = self.task_type
         if not type_:
             return
         if not self.responsible_user and not self.responsible_group:
-            self.responsible_user = type_.responsible_user
-            self.responsible_group = type_.responsible_group
+            (self.responsible_user, self.responsible_group,
+                self.responsible_party) = self._default_responsible(type_,
+                self.resource or self.contract, self.due_date, self.company,
+                manual=True)
         if not self.recurrence_months:
             self.recurrence_months = type_.recurrence_months
         if not self.name:
@@ -534,6 +554,111 @@ class Task(Workflow, ModelSQL, ModelView):
             return None, getattr(resource, 'property', None)
         return None, None
 
+    @staticmethod
+    def _resource_instance(value):
+        "Record of a reference value ('model,id' or record)"
+        if not value or not isinstance(value, str):
+            return value or None
+        model, _, id_ = value.partition(',')
+        try:
+            return Pool().get(model)(int(id_))
+        except (KeyError, ValueError):
+            return None
+
+    @classmethod
+    def _role_objects(cls, resource):
+        """Object ids of a reference by level, most specific first: the
+        objects of the contract items (resp. the object itself or the
+        property), then their parents up to the property."""
+        if (not resource or getattr(resource, 'id', None) is None
+                or resource.id < 0):
+            return []
+        contract, property_ = cls._resource_links(resource)
+        if contract:
+            level = [o for item in contract.items for o in item.objects]
+            if not level and contract.property:
+                level = [contract.property]
+        elif resource.__name__ == 'real_estate.base_object':
+            level = [resource]
+        elif property_:
+            level = [property_]
+        else:
+            return []
+        levels, seen = [], set()
+        while level:
+            ids = []
+            for obj in level:
+                if obj.id not in seen:
+                    seen.add(obj.id)
+                    ids.append(obj.id)
+            if ids:
+                levels.append(ids)
+            level = [o.parent for o in level
+                if o.parent and o.parent.id not in seen]
+        return levels
+
+    @classmethod
+    def _role_responsible(cls, role, resource, date=None, company=None):
+        """(party, user) holding the party role on the objects of the
+        reference on 'date': the most specific object level wins, on one
+        level the latest 'valid from'. The user is the only active user
+        linked to an employee of the party in the company valid on the
+        date - else None."""
+        pool = Pool()
+        ObjectParty = pool.get('real_estate.object_party')
+        Employee = pool.get('company.employee')
+        User = pool.get('res.user')
+        if not role:
+            return None, None
+        date = date or pool.get('ir.date').today()
+        company = getattr(company, 'id', company)
+        with without_check_access():
+            party = None
+            for ids in cls._role_objects(resource):
+                found = ObjectParty.search([
+                        ('base_object', 'in', ids),
+                        ('role', '=', role.id),
+                        ['OR', ('valid_from', '=', None),
+                            ('valid_from', '<=', date)],
+                        ['OR', ('valid_to', '=', None),
+                            ('valid_to', '>=', date)],
+                        ], order=[('valid_from', 'DESC NULLS LAST'),
+                        ('id', 'DESC')], limit=1)
+                if found:
+                    party = found[0].party
+                    break
+            if not party:
+                return None, None
+            domain = [
+                ('party', '=', party.id),
+                ['OR', ('start_date', '=', None), ('start_date', '<=', date)],
+                ['OR', ('end_date', '=', None), ('end_date', '>=', date)],
+                ]
+            if company:
+                domain.append(('company', '=', company))
+            employees = Employee.search(domain)
+            users = User.search([
+                    ('employees', 'in', [e.id for e in employees]),
+                    ]) if employees else []
+        return party, (users[0] if len(users) == 1 else None)
+
+    @classmethod
+    def _default_responsible(cls, type_, resource, date=None, company=None,
+            manual=False):
+        """(user, group, party) of a new task of the type: the user of the
+        party role on the object, else the creator for a manual entry with
+        'creator_responsible', else the user of the type (may be empty);
+        the group of the type in any case."""
+        User = Pool().get('res.user')
+        party, user = cls._role_responsible(
+            type_.responsible_role, resource, date, company)
+        if not user:
+            if manual and type_.creator_responsible:
+                user = User(Transaction().user)
+            else:
+                user = type_.responsible_user
+        return user, type_.responsible_group, party
+
     @classmethod
     def _complete_values(cls, values):
         values = values.copy()
@@ -562,18 +687,28 @@ class Task(Workflow, ModelSQL, ModelView):
         for values in vlist:
             type_ = (Type(values['task_type'])
                 if values.get('task_type') else None)
-            # Responsibility: given, else of the type, else the creator
-            if (not values.get('responsible_user')
-                    and not values.get('responsible_group')):
-                if type_ and (type_.responsible_user
-                        or type_.responsible_group):
-                    values['responsible_user'] = (type_.responsible_user.id
-                        if type_.responsible_user else None)
+            # Responsibility: given, else the defaults of the type (party
+            # role, creator on manual entry, user/group of the type)
+            no_responsible = (not values.get('responsible_user')
+                and not values.get('responsible_group'))
+            if type_ and (no_responsible or (type_.responsible_role
+                        and not values.get('responsible_party'))):
+                r_user, r_group, r_party = cls._default_responsible(type_,
+                    cls._resource_instance(values.get('resource')),
+                    values.get('due_date'), values.get('company'),
+                    manual=not values.get('automatic'))
+                if not values.get('responsible_party'):
+                    values['responsible_party'] = (
+                        r_party.id if r_party else None)
+                if no_responsible:
+                    values['responsible_user'] = (
+                        r_user.id if r_user else None)
                     values['responsible_group'] = (
-                        type_.responsible_group.id
-                        if type_.responsible_group else None)
-                elif user:
-                    values['responsible_user'] = user
+                        r_group.id if r_group else None)
+            # Nobody responsible at all: the creator
+            if (not values.get('responsible_user')
+                    and not values.get('responsible_group') and user):
+                values['responsible_user'] = user
             if type_ and 'recurrence_months' not in values:
                 values['recurrence_months'] = type_.recurrence_months
             if (type_ and values.get('due_date')
@@ -965,10 +1100,13 @@ class TaskCreateStart(ModelView):
             ('for_model', '=', Eval('resource_model', '')),
             ('manual', '=', True),
             ])
+    resource = fields.Char("Reference")
     name = fields.Char("Subject", required=True)
     due_date = fields.Date("Due Date", required=True)
     responsible_user = fields.Many2One('res.user', "Responsible User")
     responsible_group = fields.Many2One('res.group', "Responsible Group")
+    responsible_party = fields.Many2One('party.party', "Responsible Party",
+        states={'readonly': True})
     priority = fields.Selection([
             ('low', "Low"),
             ('normal', "Normal"),
@@ -982,16 +1120,21 @@ class TaskCreateStart(ModelView):
         return 'normal'
 
     @fields.depends('task_type', 'name', 'responsible_user',
-        'responsible_group', 'recurrence_months')
+        'responsible_group', 'responsible_party', 'resource', 'due_date',
+        'recurrence_months')
     def on_change_task_type(self):
+        pool = Pool()
+        Task = pool.get('real_estate.task')
         type_ = self.task_type
         if not type_:
             return
         if not self.name:
             self.name = type_.name
         if not self.responsible_user and not self.responsible_group:
-            self.responsible_user = type_.responsible_user
-            self.responsible_group = type_.responsible_group
+            (self.responsible_user, self.responsible_group,
+                self.responsible_party) = Task._default_responsible(type_,
+                Task._resource_instance(self.resource), self.due_date,
+                Transaction().context.get('company'), manual=True)
         if not self.recurrence_months:
             self.recurrence_months = type_.recurrence_months
 
@@ -1009,7 +1152,12 @@ class TaskCreate(Wizard):
     create_ = StateTransition()
 
     def default_start(self, fields):
-        return {'resource_model': self.model.__name__ if self.model else None}
+        # the reference (for the party role) only for a single record
+        return {
+            'resource_model': self.model.__name__ if self.model else None,
+            'resource': (str(self.record)
+                if self.record and len(self.records) == 1 else None),
+            }
 
     def transition_create_(self):
         Task = Pool().get('real_estate.task')
@@ -1025,6 +1173,9 @@ class TaskCreate(Wizard):
                         if start.responsible_user else None),
                     'responsible_group': (start.responsible_group.id
                         if start.responsible_group else None),
+                    'responsible_party': (start.responsible_party.id
+                        if start.responsible_party
+                        and str(record) == start.resource else None),
                     'priority': start.priority,
                     'recurrence_months': start.recurrence_months,
                     'description': start.description,

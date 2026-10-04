@@ -31,11 +31,24 @@ Das Skript legt folgende Objekte an:
   - 1 Grundstück (Land) direkt unter der Wirtschaftseinheit mit 4 Stellplätzen
       (Type of Use: residential, Use: parking), Stellplatznummern 01–04.
 
+  Vorab (vor den Wirtschaftseinheiten):
+  - 2 Partner mit je einem Mitarbeiter der Company (ab 01.01.2025):
+    "Verwalter 1" und "Hausmeister 1" (vorhandene gleichnamige Partner bzw.
+    Mitarbeiter werden wiederverwendet).
+  - Beide werden jeder Wirtschaftseinheit als Partner zum Objekt zugeordnet
+    (Rolle Verwalter bzw. Hausmeister, gültig ab 01.01.2025) - Grundlage der
+    Zuständigkeit von Aufgaben über die Partnerrolle.
+  - Die Zuordnung Benutzer <-> Mitarbeiter erfolgt nicht im Skript; am Ende
+    wird ein Hinweis ausgegeben.
+
 Das Skript ist idempotent: es bricht ab, wenn eine Property mit dem Namen
 "Musterstraße 1-4" oder "Musterstraße 5-8" in der Zieldatenbank bereits vorhanden ist.
 
 Nutzungsklassen (real_estate.use_class) werden per Sequenznummer gesucht
 (sprachunabhängig): Apartment=10, Retail=30, Parking=50.
+
+Partnerrollen (real_estate.object_party.role) werden per Sequenznummer
+gesucht (sprachunabhängig): Hausmeister=10, Verwalter=20.
 
 Bemessungstypen (real_estate.measurement.type) werden per Sequenznummer
 gesucht (sprachunabhängig): Usable Space=5, Wohnfläche=10, Gewerbefläche=15,
@@ -248,6 +261,52 @@ def create_meter(parent, name: str, sequence: int, company, uom, admin_user) -> 
     print(f'    Zähler:    {name} (id={obj.id}, meter_id={meter_id}, Verbrauch={verbrauch} m³)')
 
 
+def get_role_by_sequence(sequence: int):
+    """Partnerrolle sprachunabhängig per Sequenznummer suchen
+    (Hausmeister=10, Verwalter=20, siehe object_party.xml)."""
+    Role = Model.get('real_estate.object_party.role')
+    roles = Role.find([('sequence', '=', sequence)])
+    if not roles:
+        print(f'ERROR: Partnerrolle mit sequence={sequence} nicht gefunden.',
+              file=sys.stderr)
+        sys.exit(1)
+    return roles[0]
+
+
+def get_or_create_staff(name: str, company):
+    """Partner mit Mitarbeiter der Company anlegen - vorhandene gleichnamige
+    Partner bzw. Mitarbeiter werden wiederverwendet."""
+    Party = Model.get('party.party')
+    Employee = Model.get('company.employee')
+    parties = Party.find([('name', '=', name)])
+    if parties:
+        party = parties[0]
+        print(f'  Partner:   {name} vorhanden (id={party.id})')
+    else:
+        party = Party(name=name)
+        party.save()
+        print(f'  Partner:   {name} angelegt (id={party.id})')
+    employees = Employee.find([
+        ('party', '=', party.id), ('company', '=', company.id)])
+    if employees:
+        print(f'  Mitarbeiter: {name} vorhanden (id={employees[0].id})')
+    else:
+        employee = Employee(party=party, company=company,
+            start_date=START_DATE)
+        employee.save()
+        print(f'  Mitarbeiter: {name} angelegt (id={employee.id})')
+    return party
+
+
+def assign_role(prop, party, role) -> None:
+    """Partner als Partner zum Objekt mit der Rolle zuordnen (ab START_DATE)."""
+    ObjectParty = Model.get('real_estate.object_party')
+    assignment = ObjectParty(base_object=prop, party=party, role=role)
+    assignment.valid_from = START_DATE
+    assignment.save()
+    print(f'  Rolle:     {role.name} = {party.name}')
+
+
 def create_land_with_parking(prop_name: str, prop, company, sequence: int,
                              uc_parking, usable_space_type=None) -> None:
     """Create one land entry with 4 parking spaces under the given property."""
@@ -390,6 +449,13 @@ def main():
 
     print(f'Erzeuge Daten für Company "{company.rec_name}" ...')
 
+    # Verwalter und Hausmeister (Partner + Mitarbeiter) vorab anlegen
+    print('\n=== Verwalter und Hausmeister ===')
+    role_caretaker = get_role_by_sequence(10)
+    role_administrator = get_role_by_sequence(20)
+    administrator = get_or_create_staff('Verwalter 1', company)
+    caretaker = get_or_create_staff('Hausmeister 1', company)
+
     building_args = dict(
         company=company, country=country_de,
         t_bgf=t_bgf, t_raume=t_raume, t_wfl=t_wfl, t_gwfl=t_gwfl, t_heiz=t_heiz,
@@ -405,6 +471,8 @@ def main():
         company=company, sequence=10,
         usable_space_type=t_usable_space,
     )
+    assign_role(prop1, administrator, role_administrator)
+    assign_role(prop1, caretaker, role_caretaker)
     apt_nr = 1
     retail_nr = 1
     for house_nr, building_seq in [(1, 10), (2, 20), (3, 30), (4, 40)]:
@@ -425,6 +493,8 @@ def main():
         company=company, sequence=20,
         usable_space_type=t_usable_space,
     )
+    assign_role(prop2, administrator, role_administrator)
+    assign_role(prop2, caretaker, role_caretaker)
     apt_nr = 1
     retail_nr = 1
     for house_nr, building_seq in [(5, 10), (6, 20), (7, 30), (8, 40)]:
@@ -439,6 +509,15 @@ def main():
                              uc_parking=uc_parking, usable_space_type=t_usable_space)
 
     print('\nFertig.')
+    print(
+        '\nHINWEIS: Die Mitarbeiter "Verwalter 1" und "Hausmeister 1" sind '
+        'noch keinem\nBenutzer zugeordnet. Damit Aufgaben mit Partnerrolle '
+        'einem Benutzer zugewiesen\nwerden, bitte in Tryton unter '
+        '"Verwaltung > Benutzer > Benutzer" beim jeweiligen\nBenutzer im Feld '
+        '"Mitarbeiter" den Mitarbeiter eintragen (und als "Aktueller\n'
+        'Mitarbeiter" wählen). Der Benutzer braucht zusätzlich eine Gruppe mit '
+        'Schreibrecht\nauf Aufgaben, z. B. "Immobilienvertrag" bzw. '
+        '"Immobilienobjekt".')
 
 
 if __name__ == '__main__':

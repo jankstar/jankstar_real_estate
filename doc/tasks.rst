@@ -49,7 +49,9 @@ Tasks
    ``all_models``). ``resource_models`` (catalog or own selection) and
    ``manual`` are shown; ``for_model`` (searcher only) filters the types
    allowed for an object. Default responsibility
-   (``responsible_group`` / ``responsible_user``), ``remind_days``,
+   (``responsible_group`` / ``responsible_user``, optionally
+   ``responsible_role`` - see *Responsibility by party role* below),
+   ``remind_days``,
    ``remind_daily``, escalation (``escalate_days``, ``escalation_group``),
    ``recurrence_months``, ``email``, ``icon``, ``note_on_done``. Default
    types (``task.xml``, ``noupdate``) for the uses of chapter 3 of the
@@ -68,6 +70,29 @@ Tasks
    ``origin_key`` (rule or process, idempotence), ``notified_date`` /
    ``escalated_date`` (reminders, phase B), ``is_mine`` and ``overdue``
    (searchable).
+
+   **Responsibility by party role.** With a ``responsible_role`` on the
+   task type (or on the process template step, which takes precedence)
+   the party holding this object party role (e.g. *Administrator*,
+   *Caretaker*) on the objects of the reference on the **due date**
+   becomes responsible: objects of the contract items (contract, contract
+   party, rent and term adjustments) resp. the object itself or the
+   property of a billing unit, then their parents up to the property -
+   the most specific level wins, on one level the latest *valid from*
+   (``Task._role_responsible``). The party is stored in
+   ``responsible_party`` (shown, also without a user, e.g. an external
+   caretaker). If exactly one active user is linked to an employee of the
+   party in the company of the task (user form, field *Employees*), this
+   user becomes the responsible user. Otherwise, for a task entered
+   manually, the creator becomes responsible if the type has
+   ``creator_responsible`` (*Creator Responsible on Manual Entry*); else
+   the user of the type applies, which may be empty - the task is then
+   visible to the group and can be taken over (*Take Over*). The group of
+   the type is kept in every case; a task without user and group goes to
+   the creator (``Task._default_responsible``). Resolved when a task
+   is created without given responsibility and in the form when the type
+   is chosen (``on_change_task_type``, also in *New Task*); open tasks are
+   not reassigned when an assignment changes.
 
    States ``open → done / cancelled``: *Done* (done by/on; with a
    recurrence the next task n months later; optional note on the

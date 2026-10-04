@@ -10,6 +10,7 @@
     <label name="remind_date"/><field name="remind_date"/>
     <label name="responsible_user"/><field name="responsible_user"/>
     <label name="responsible_group"/><field name="responsible_group"/>
+    <label name="responsible_party"/><field name="responsible_party"/>
     <label name="priority"/><field name="priority"/>
     <label name="recurrence_months"/><field name="recurrence_months"/>
     <notebook colspan="4">

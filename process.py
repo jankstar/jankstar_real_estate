@@ -91,6 +91,11 @@ class ProcessTemplateStep(sequence_ordered(), ModelSQL, ModelView):
              "set below.")
     responsible_group = fields.Many2One('res.group', "Responsible Group",
         help="Responsibility of the step - empty = of the task type.")
+    responsible_role = fields.Many2One('real_estate.object_party.role',
+        "Responsible Party Role", ondelete='SET NULL',
+        help="The party holding this role on the reference object on the "
+             "due date becomes responsible (as user if linked via an "
+             "employee) - empty = role of the task type.")
     due_base = fields.Selection([
             ('start', "Start of the Process"),
             ('anchor', "Anchor Date"),
@@ -325,23 +330,38 @@ class Process(Workflow, ModelSQL, ModelView):
                 else:
                     due = self._step_due_date(step)
                 if due is not None:
-                    task, = Task.create([{
-                                'company': self.company.id,
-                                'name': f'{step.name}: '
-                                    f'{self.resource.rec_name}',
-                                'task_type': template.task_type.id,
-                                'resource': str(self.resource),
-                                'due_date': due,
-                                'description': template.description,
-                                'responsible_group': (
-                                    template.responsible_group.id
-                                    if template.responsible_group else None),
-                                'origin': str(self),
-                                'origin_key': f'{self.id}:{step.id}',
-                                'automatic': True,
-                                'process': self.id,
-                                'process_step': step.id,
-                                }])
+                    values = {
+                        'company': self.company.id,
+                        'name': f'{step.name}: {self.resource.rec_name}',
+                        'task_type': template.task_type.id,
+                        'resource': str(self.resource),
+                        'due_date': due,
+                        'description': template.description,
+                        'responsible_group': (
+                            template.responsible_group.id
+                            if template.responsible_group else None),
+                        'origin': str(self),
+                        'origin_key': f'{self.id}:{step.id}',
+                        'automatic': True,
+                        'process': self.id,
+                        'process_step': step.id,
+                        }
+                    # Party role of the step, else of the task type
+                    role = (template.responsible_role
+                        or template.task_type.responsible_role)
+                    if role:
+                        party, user = Task._role_responsible(role,
+                            self.resource, due, self.company)
+                        values['responsible_party'] = (
+                            party.id if party else None)
+                        if user:
+                            values['responsible_user'] = user.id
+                            if not values['responsible_group']:
+                                type_group = (
+                                    template.task_type.responsible_group)
+                                values['responsible_group'] = (
+                                    type_group.id if type_group else None)
+                    task, = Task.create([values])
                     Step.write([step], {'task': task.id})
                     step = Step(step.id)
             previous = step
