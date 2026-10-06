@@ -4,10 +4,6 @@
 Rent Adjustments
 ****************
 
-Specifications: ``spezifikation-mietanpassung.md`` (rent adjustments,
-graduated rent) and ``spezifikation-indexmiete.md`` (index rent), both not
-part of the repository.
-
 Overview
 ========
 
@@ -212,8 +208,8 @@ Price index and cap rules
 Agreement and adjustments
 -------------------------
 
-**Index rent** (``procedure = 'index_rent'``, § 557b BGB,
-``spezifikation-indexmiete.md``): agreement, adjustment run,
+**Index rent** (``procedure = 'index_rent'``, § 557b BGB):
+agreement, adjustment run,
 declaration, receipt and execution. Tab *Index*: ``price_index``
 (residential: only series with ``residential_allowed``, i.e. the VPI),
 ``index_base_month`` (first of the month) with the contract's own

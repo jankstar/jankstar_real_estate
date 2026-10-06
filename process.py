@@ -269,12 +269,13 @@ class Process(Workflow, ModelSQL, ModelView):
         return f'{self.template.name}: {resource}'
 
     def _mandatory_tasks(self):
-        """Tasks of mandatory steps - a conditional step not opened does
-        not count"""
+        """Tasks of mandatory steps - a conditional step never opened
+        (planned, or cancelled without due date) does not count"""
         return [t for t in self.tasks if t.template_step
             and t.template_step.mandatory
-            and not (t.state == 'planned'
-                and t.template_step.create_condition == 'method')]
+            and not (t.template_step.create_condition == 'method'
+                and (t.state == 'planned'
+                    or (t.state == 'cancelled' and not t.due_date)))]
 
     def get_progress(self, name):
         tasks = self._mandatory_tasks()
@@ -446,6 +447,29 @@ class Process(Workflow, ModelSQL, ModelView):
                 to_done.append(process)
         if to_done:
             cls.done(to_done)
+            cls._skip_planned(to_done)
+
+    @classmethod
+    def _skip_planned(cls, processes):
+        "Cancel the steps still planned (not required) of done processes"
+        Task = Pool().get('real_estate.task')
+        planned = [t for p in cls.browse([p.id for p in processes])
+            for t in p.tasks if t.state == 'planned']
+        if planned:
+            Task.write(planned, {'result': gettext(
+                        'real_estate.msg_process_step_not_required')})
+            Task.cancel(planned)
+
+    @classmethod
+    def _markers(cls, message):
+        "Texts of a message in all translatable languages"
+        pool = Pool()
+        Lang = pool.get('ir.lang')
+        Message = pool.get('ir.message')
+        markers = {Message.gettext('real_estate', message, lang.code)
+            for lang in Lang.search([('translatable', '=', True)])}
+        markers.add(gettext('real_estate.' + message))
+        return markers
 
     @classmethod
     @Workflow.transition('done')
@@ -527,6 +551,10 @@ class Process(Workflow, ModelSQL, ModelView):
     @Workflow.transition('cancelled')
     def cancel(cls, processes):
         Task = Pool().get('real_estate.task')
+        # State written first: cancelling the last tasks must not complete
+        # the process (the workflow decorator writes the state only after
+        # this method and skips records whose state changed meanwhile)
+        cls.write(processes, {'state': 'cancelled'})
         for process in processes:
             open_ = [t for t in process.tasks
                 if t.state in ('open', 'planned')]
@@ -540,7 +568,14 @@ class Process(Workflow, ModelSQL, ModelView):
     @Workflow.transition('running')
     def reopen(cls, processes):
         """Reopen a done process (also automatically when one of its tasks
-        is reopened) - it is done again once all mandatory steps are done"""
+        is reopened) - it is done again once all mandatory steps are done;
+        the steps skipped as not required are planned again"""
+        Task = Pool().get('real_estate.task')
+        markers = cls._markers('msg_process_step_not_required')
+        tasks = [t for p in processes for t in p.tasks
+            if t.state == 'cancelled' and (t.result or '') in markers]
+        if tasks:
+            Task.replan(tasks)
         cls._add_history(processes, 'real_estate.msg_process_reopened')
 
     @classmethod
@@ -548,13 +583,8 @@ class Process(Workflow, ModelSQL, ModelView):
     def reactivate(cls, processes):
         """Reactivate a cancelled process: the tasks cancelled with the
         process are created again (steps skipped before stay skipped)"""
-        pool = Pool()
-        Task = pool.get('real_estate.task')
-        Lang = pool.get('ir.lang')
-        Message = pool.get('ir.message')
-        markers = {Message.gettext('real_estate', 'msg_process_cancelled',
-                lang.code) for lang in Lang.search([('translatable', '=', True)])}
-        markers.add(gettext('real_estate.msg_process_cancelled'))
+        Task = Pool().get('real_estate.task')
+        markers = cls._markers('msg_process_cancelled')
         cls._reactivate(processes)
         for process in cls.browse([p.id for p in processes]):
             tasks = [t for t in process.tasks if t.state == 'cancelled'

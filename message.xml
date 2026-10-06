@@ -830,6 +830,9 @@ Either run "Ready for Billing" for each billing unit first, or bill individual b
         <record model="ir.message" id="msg_process_cancelled">
             <field name="text">Process cancelled.</field>
         </record>
+        <record model="ir.message" id="msg_process_step_not_required">
+            <field name="text">Not required (process done).</field>
+        </record>
         <record model="ir.message" id="msg_process_step_result">
             <field name="text">The step "%(task)s" requires a result: enter a text in the tab "Result" of the task (e.g. how and when the letter was sent), save and then set it done.</field>
         </record>

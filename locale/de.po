@@ -20234,3 +20234,7 @@ msgstr "Entwurf"
 msgctxt "view:real_estate.meter_reading.sheet:"
 msgid "Other Info"
 msgstr "Weitere Informationen"
+
+msgctxt "model:ir.message,text:msg_process_step_not_required"
+msgid "Not required (process done)."
+msgstr "Nicht erforderlich (Prozess abgeschlossen)."

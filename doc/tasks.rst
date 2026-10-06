@@ -4,10 +4,6 @@
 Tasks, Processes and Handover Reports
 *************************************
 
-Specifications: ``spezifikation-wiedervorlage.md`` (tasks, reminders,
-rules, processes) and ``spezifikation-uebergabeprotokoll.md`` (handover
-reports).
-
 Overview
 ========
 
@@ -69,10 +65,10 @@ Tasks
    ``remind_days``,
    ``remind_daily``, escalation (``escalate_days``, ``escalation_group``),
    ``recurrence_months``, ``email``, ``icon``, ``note_on_done``. Default
-   types (``task.xml``, ``noupdate``) for the uses of chapter 3 of the
-   specification, e.g. ``manual``, ``contract_unsigned``,
-   ``index_prepare``, ``index_receipt``, ``billing_deadline``,
-   ``meter_calibration``, ``cron_error``.
+   types (``task.xml``, ``noupdate``) for the uses of the module, e.g.
+   ``manual``, ``contract_unsigned``, ``index_prepare``,
+   ``index_receipt``, ``billing_deadline``, ``meter_calibration``,
+   ``cron_error``.
 
 ``real_estate.task``  (``task.py``)
    Task of a record (``resource``: contract, contract party, rent
@@ -254,17 +250,20 @@ Processes
    of a process shows below its reference the **process**, the
    **process step** and the **step number**, both opening the record; the
    task lists have the sortable column *Step No.*, the template step list
-   the column *No.*. (Until version 1.7 of the specification the steps
-   were separate records ``real_estate.process.step``; the update takes
-   their data over into the tasks.) The task of a step with an action shows the button
+   the column *No.*. (In earlier versions the steps were separate
+   records ``real_estate.process.step``; the module update takes their
+   data over into the tasks.) The task of a step with an action shows the button
    *Execute Action*: it opens the action for the reference record (and
    completes the step for completion *by action*). *Check State* evaluates
    the conditions (also daily with the scheduled task ``task_rules``),
    *Reschedule* moves the open anchor tasks after a change of the anchor
    date (history), *Cancel* cancels the open and planned tasks. When all mandatory
    steps are done or skipped the process is done (progress "n / m
-   done"). *Reopen* sets a done process running again (also
-   automatically when one of its tasks is reopened); *Reactivate* sets a
+   done", conditional steps never opened do not count); conditional
+   steps still planned are then cancelled as *Not required (process
+   done)*. *Reopen* sets a done process running again (also
+   automatically when one of its tasks is reopened) and plans these
+   steps again; *Reactivate* sets a
    cancelled process running again and sets the tasks cancelled with the
    process back to planned (steps skipped before stay skipped). Both are noted
    in the history. The process of an inspection follows the inspection and
@@ -293,7 +292,7 @@ Handover reports
 ``real_estate.contract.handover``  (``handover.py``)
    **Handover report** (*Übergabeprotokoll*, menu *Contracts › Handover
    Reports*, tab *Handover Reports* on the contract) of a ``move_in``, ``pre_inspection`` or
-   ``move_out`` (``spezifikation-uebergabeprotokoll.md``): date and time,
+   ``move_out``: date and time,
    objects handed over, tenants present (or absent), landlord
    representative, other participants, check items (room, item,
    condition ok / normal wear / damage / missing, description, photos as

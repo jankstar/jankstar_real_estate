@@ -1605,6 +1605,12 @@ class RealEstateTestCase(ModuleTestCase):
                                         'due_base': 'start',
                                         'action': action_id,
                                         'completion': 'action'},
+                                    {'sequence': 70, 'name': 'Bedingt',
+                                        'task_type': step_type.id,
+                                        'due_base': 'start',
+                                        'create_condition': 'method',
+                                        'create_method':
+                                            'inspection_no_access'},
                                     ])],
                         }])
             start = datetime.date(2026, 10, 1)
@@ -1615,8 +1621,9 @@ class RealEstateTestCase(ModuleTestCase):
                 return {t.template_step.name: t
                     for t in Process(process.id).tasks}
             # every step is a task; W26: the previous_done step is planned
-            self.assertEqual(len(process.tasks), 6)
+            self.assertEqual(len(process.tasks), 7)
             self.assertEqual(steps()['Danach'].state, 'planned')
+            self.assertEqual(steps()['Bedingt'].state, 'planned')
             self.assertIsNone(steps()['Danach'].due_date)
             self.assertEqual(steps()['Start'].due_date,
                 datetime.date(2026, 10, 4))
@@ -1675,6 +1682,19 @@ class RealEstateTestCase(ModuleTestCase):
             self.assertEqual(steps()['Optional'].state, 'cancelled')
             self.assertEqual(process.state, 'done')
             self.assertEqual(process.progress, '5 / 5 done')
+            # A conditional step never created is cancelled as not required
+            # when the process is done, and planned again on reopen
+            bedingt = steps()['Bedingt']
+            self.assertEqual(bedingt.state, 'cancelled')
+            self.assertEqual(bedingt.result, 'Not required (process done).')
+            Process.reopen([process])
+            self.assertEqual(Process(process.id).state, 'running')
+            self.assertEqual(steps()['Bedingt'].state, 'planned')
+            self.assertEqual(steps()['Optional'].state, 'cancelled')
+            # Cancelling the last open steps cancels (not completes) it
+            Process.cancel([Process(process.id)])
+            self.assertEqual(Process(process.id).state, 'cancelled')
+            self.assertEqual(steps()['Bedingt'].state, 'cancelled')
 
     @with_transaction()
     def test_meter_reading_sheet(self):

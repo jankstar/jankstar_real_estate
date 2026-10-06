@@ -4,14 +4,13 @@
 Recurring Inspections
 *********************
 
-Specification: ``spezifikation-pruefungen.md`` (recurring inspections,
-processes and reports). Implemented so far: phase P1 - equipment kinds,
-inspection types, checklists and inspection plans with due date rules -
-phase P2 - inspections (protocols) with lines and results, validation,
-approval, report and the scheduled creation -, phase P3 - conditional
-process steps, next access attempt, tenant notice and letters to tenants
-without access -, phase P4 - defects with deadlines, follow-up tasks
-and escalation rules - and phase P5 - default data and demo data.
+Recurring inspections of properties, buildings, rental units and
+equipment: equipment kinds, inspection types, checklists and inspection
+plans with due date rules; inspections (protocols) with lines and
+results, validation, approval, archived report and the scheduled
+creation; conditional process steps, next access attempt, tenant notice
+and letters to tenants without access; defects with deadlines,
+follow-up tasks and escalation rules; default data and demo data.
 
 Concept
 =======
@@ -75,7 +74,7 @@ Models
    that is not after the execution date. Example (yearly, fixed): due
    15.04.2026, done 28.04.2026 → 15.04.2027 (from execution: 28.04.2027).
 
-``real_estate.inspection``  (``inspection.py``, phase P2)
+``real_estate.inspection``  (``inspection.py``)
    Inspection (protocol) of a plan (menu *Real Estate › Master Data ›
    Inspections › Inspections* with tabs *Open*, *To Approve*, *Overdue*, *Approved*,
    *All*; also on the plan, on property/building in tab *Inspections* and
@@ -156,7 +155,7 @@ Models
    cancelled inspections are skipped; the buttons are shown only while
    the inspection is scheduled or in progress.
 
-**Conditional steps, notice, letters** (phase P3)
+**Conditional steps, notice, letters**
    A step of the process template can be created only once a condition
    is fulfilled (``create_condition`` = *By Method*, ``create_method``):
    ``inspection_no_access`` (a line has no access or access refused) and
@@ -192,7 +191,7 @@ Models
    ``letter_date`` of the lines. *Next Attempt* (in progress) increases
    the attempt of the inspection and of the lines without access.
 
-``real_estate.inspection.defect``  (``inspection.py``, phase P4)
+``real_estate.inspection.defect``  (``inspection.py``)
    Defect (menu *Real Estate › Master Data ›
    Inspections › Defects* with tabs *Open*,
    *Overdue*, *To Verify*, *All*; tab *Defects* of the inspection; open
@@ -228,13 +227,13 @@ Models
    (role *Administrator*). Overviews: inspection plans (tabs *Due in 90
    Days*, *Overdue*) and defects (tabs *Open*, *Overdue*, *To Verify*).
 
-Default data (phase P5)
-=======================
+Default data
+============
 
 Delivered in ``inspection.xml`` (``noupdate``; changes in the database are
 kept by later updates):
 
-**Annual Walkthrough** (code ``walkthrough``, spec 7.1)
+**Annual Walkthrough** (code ``walkthrough``)
    Building, no lines, yearly fixed rhythm with preferred month April,
    lead time 30 days, role *Administrator*, approval by *Real Estate
    Administration*, legal basis § 823 BGB. Header checklist *Annual
@@ -247,7 +246,7 @@ kept by later updates):
    with the approval), commission repairs (+7, only with major/critical
    defects, optional).
 
-**Smoke Detector Check** (code ``smoke_detector``, spec 7.2)
+**Smoke Detector Check** (code ``smoke_detector``)
    Building, one line per residential unit with a smoke detector
    equipment, yearly, lead time 60 days, notice 14 days, role
    *Caretaker*, unit access with 2 attempts, approval by *Real Estate
@@ -261,7 +260,7 @@ kept by later updates):
    access), complete the report (+28), approve the report (+35).
 
 The intervals are common practice and have to be checked per federal
-state and contract. Further inspection types of spec 7.3 (elevator,
+state and contract. Further inspection types (elevator,
 electrical installation, drinking water, fire extinguishers, smoke and
 heat exhaust, playground, trees, backflow preventer, roof gutters,
 heating, winter service, vacancy check) are created as own types.
