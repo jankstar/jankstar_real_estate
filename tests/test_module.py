@@ -742,6 +742,498 @@ class RealEstateTestCase(ModuleTestCase):
             self.assertEqual(task.responsible_party, party)
             self.assertEqual(task.responsible_group.id, group)
 
+    def test_inspection_next_due_date(self):
+        "Inspection due dates: fixed rhythm, from execution, month (spec 5)"
+        from trytond.modules.real_estate.inspection import next_due_date
+        d = datetime.date
+        # Example of the spec: due 15.04.2026, done 28.04.2026, yearly
+        self.assertEqual(next_due_date(d(2026, 4, 15), d(2026, 4, 28), 1,
+                'year', 'fixed'), d(2027, 4, 15))
+        self.assertEqual(next_due_date(d(2026, 4, 15), d(2026, 4, 28), 1,
+                'year', 'done'), d(2027, 4, 28))
+        # Fixed rhythm repeated until after a late execution
+        self.assertEqual(next_due_date(d(2025, 1, 31), d(2025, 5, 2), 1,
+                'month', 'fixed'), d(2025, 5, 28))
+        # Preferred month April: first of April of the computed year
+        self.assertEqual(next_due_date(d(2026, 4, 15), d(2026, 4, 28), 1,
+                'year', 'fixed', '4'), d(2027, 4, 1))
+        # Preferred month not after the execution: following year
+        self.assertEqual(next_due_date(None, d(2026, 11, 20), 2, 'week',
+                'done', '11'), d(2027, 11, 1))
+        self.assertIsNone(next_due_date(None, d(2026, 1, 1), 0, 'year',
+                'done'))
+
+    @with_transaction()
+    def test_inspection_plan(self):
+        "Inspection plan: defaults from the type, building, uniqueness"
+        from trytond.modules.company.tests import create_company, set_company
+
+        pool = Pool()
+        BaseObject = pool.get('real_estate.base_object')
+        Type = pool.get('real_estate.inspection.type')
+        Plan = pool.get('real_estate.inspection.plan')
+
+        company = create_company()
+        with set_company(company):
+            prop, = BaseObject.create([{'name': 'P', 'type': 'property',
+                        'sequence': 1, 'company': company.id,
+                        'start_date': datetime.date(2025, 1, 1)}])
+            building, = BaseObject.create([{'name': 'B', 'type': 'building',
+                        'sequence': 1, 'company': company.id,
+                        'parent': prop.id,
+                        'start_date': datetime.date(2025, 1, 1)}])
+            type_, = Type.create([{'name': 'Walk', 'code': 'walk',
+                        'scope': 'building', 'preferred_month': '4'}])
+
+            plan = Plan(company=company, type=type_, property=prop)
+            plan.next_due_date = None
+            plan.on_change_type()
+            self.assertEqual((plan.interval, plan.interval_unit,
+                    plan.preferred_month), (1, 'year', '4'))
+            self.assertEqual(plan.next_due_date.month, 4)
+            self.assertEqual(plan.next_due_date.day, 1)
+            plan.building = building
+            plan.save()
+            self.assertEqual(plan.compute_next_due(
+                    datetime.date(plan.next_due_date.year, 4, 20)),
+                datetime.date(plan.next_due_date.year + 1, 4, 1))
+            self.assertEqual(
+                [p.id for p in building.building_inspection_plans],
+                [plan.id])
+            self.assertEqual(
+                [p.id for p in prop.property_inspection_plans], [plan.id])
+            # The property is taken over from the building
+            prop2, = BaseObject.create([{'name': 'P2', 'type': 'property',
+                        'sequence': 2, 'company': company.id,
+                        'start_date': datetime.date(2025, 1, 1)}])
+            Plan.write([plan], {'property': prop2.id,
+                    'building': building.id})
+            self.assertEqual(Plan(plan.id).property, prop)
+            new = Plan(building=building)
+            new.on_change_building()
+            self.assertEqual(new.property, prop)
+            # One active plan per type and object
+            with self.assertRaises(ValidationError):
+                Plan.copy([plan])
+            # Scope building: building required
+            with self.assertRaises(ValidationError):
+                Plan.create([{'company': company.id, 'type': type_.id,
+                            'property': prop.id, 'interval': 1,
+                            'interval_unit': 'year',
+                            'interval_basis': 'fixed',
+                            'next_due_date': datetime.date(2027, 4, 1)}])
+
+    @with_transaction()
+    def test_inspection_flow(self):
+        "Inspection: lines, results, validation, done, plan, approval"
+        from trytond.modules.company.tests import create_company, set_company
+        from trytond.model.exceptions import AccessError
+        from trytond.transaction import Transaction
+
+        pool = Pool()
+        BaseObject = pool.get('real_estate.base_object')
+        Kind = pool.get('real_estate.equipment.kind')
+        Measurement = pool.get('real_estate.measurement')
+        Checklist = pool.get('real_estate.inspection.checklist')
+        Type = pool.get('real_estate.inspection.type')
+        Plan = pool.get('real_estate.inspection.plan')
+        Inspection = pool.get('real_estate.inspection')
+        Line = pool.get('real_estate.inspection.line')
+        Result = pool.get('real_estate.inspection.result')
+        ModelData = pool.get('ir.model.data')
+        User = pool.get('res.user')
+        start = datetime.date(2025, 1, 1)
+
+        company = create_company()
+        with set_company(company):
+            counter = iter(range(1, 100))
+
+            def obj(name, type_, parent=None, **kw):
+                record, = BaseObject.create([dict({'name': name,
+                                'type': type_, 'sequence': next(counter),
+                                'company': company.id, 'start_date': start,
+                                'parent': parent.id if parent else None},
+                            **kw)])
+                return record
+            apartment = ModelData.get_id('real_estate', 'use_class_apartment')
+            prop = obj('P', 'property')
+            building = obj('B', 'building', prop)
+            unit1 = obj('U1', 'object', building,
+                type_of_use='residential', use_class=apartment)
+            unit2 = obj('U2', 'object', building,
+                type_of_use='residential', use_class=apartment)
+            obj('U3', 'object', building,
+                type_of_use='residential', use_class=apartment)
+            smoke, = Kind.search([('code', '=', 'smoke_detector')])
+            e_type = BaseObject.fields_get(['e_type'])['e_type'][
+                'selection'][0][0]
+            det1 = obj('RWM 1', 'equipment', unit1,
+                equipment_kind=smoke.id, e_type=e_type)
+            obj('RWM 2', 'equipment', unit2, equipment_kind=smoke.id,
+                e_type=e_type)
+            Measurement.create([{'base_object': det1.id, 'valid_from': start,
+                        'value': 3, 'm_type': ModelData.get_id('real_estate',
+                            'measurement_re_number_of_items_type')}])
+            header, line_list = Checklist.create([
+                    {'name': 'H', 'items': [('create', [{
+                                        'question': 'Fluchtwege frei',
+                                        'section': 'Treppenhaus'}])]},
+                    {'name': 'L', 'items': [('create', [{
+                                        'question': 'Funktion',
+                                        'create_defect_on_nok': True,
+                                        'default_severity': 'major'}])]},
+                    ])
+            group = sorted(User.get_groups())[0]
+            Template = pool.get('real_estate.process.template')
+            TaskType = pool.get('real_estate.task.type')
+            step_type, = TaskType.search([('code', '=', 'process_step')])
+            template, = Template.create([{'name': 'RWM-Prozess',
+                        'code': 'rwm', 'model': 'real_estate.inspection',
+                        'anchor_field': 'planned_date',
+                        'steps': [('create', [{'name': 'Aushang',
+                                        'sequence': 10,
+                                        'task_type': step_type.id,
+                                        'due_base': 'anchor',
+                                        'offset_days': -14,
+                                        'action': pool.get(
+                                            'ir.action.wizard')(
+                                            ModelData.get_id('real_estate',
+                                                'wizard_inspection_notice')
+                                            ).action.id,
+                                        'completion': 'action'}, {
+                                        'name': 'Prüfung',
+                                        'sequence': 20,
+                                        'task_type': step_type.id,
+                                        'due_base': 'anchor',
+                                        'offset_days': 0,
+                                        'completion': 'condition',
+                                        'done_method': 'inspection_done'}, {
+                                        'name': 'Anschreiben',
+                                        'sequence': 30,
+                                        'task_type': step_type.id,
+                                        'due_base': 'anchor',
+                                        'offset_days': 7,
+                                        'completion': 'manual',
+                                        'create_condition': 'method',
+                                        'create_method':
+                                            'inspection_no_access'}])]}])
+            type_, = Type.create([{'name': 'RWM', 'scope': 'building',
+                        'process_template': template.id,
+                        'line_granularity': 'unit',
+                        'equipment_kind': smoke.id,
+                        'requires_approval': True,
+                        'approval_group': group,
+                        'header_checklist': header.id,
+                        'line_checklist': line_list.id,
+                        'notice_days': 0}])
+            plan, = Plan.create([{'company': company.id, 'type': type_.id,
+                        'property': prop.id, 'building': building.id,
+                        'interval': 1, 'interval_unit': 'year',
+                        'interval_basis': 'fixed',
+                        'next_due_date': datetime.date(2026, 4, 15)}])
+
+            # Draft: one line per unit with a smoke detector, snapshot
+            inspection, = Inspection.create_from_plans([plan])
+            self.assertEqual(Inspection.create_from_plans([plan]), [])
+            self.assertTrue(inspection.number)
+            self.assertEqual(inspection.state, 'draft')
+            self.assertEqual(sorted(l.base_object.name
+                    for l in inspection.lines), ['U1', 'U2'])
+            line1, = [l for l in inspection.lines if l.base_object == unit1]
+            line2, = [l for l in inspection.lines if l.base_object == unit2]
+            self.assertEqual(line1.qty_expected, 3)
+            self.assertEqual(len(inspection.header_results), 1)
+            self.assertEqual(len(line1.results), 1)
+            self.assertEqual(line1.results[0].inspection, inspection)
+
+            # Rebuild the lines: a new smoke detector in unit 3
+            unit3, = BaseObject.search([('name', '=', 'U3')])
+            obj('RWM 3', 'equipment', unit3, equipment_kind=smoke.id,
+                e_type=e_type)
+            Inspection.rebuild_lines([inspection])
+            inspection = Inspection(inspection.id)
+            self.assertEqual(sorted(l.base_object.name
+                    for l in inspection.lines), ['U1', 'U2', 'U3'])
+            self.assertTrue(all(r.inspection == inspection
+                    for l in inspection.lines for r in l.results))
+            line1, = [l for l in inspection.lines if l.base_object == unit1]
+            line2, = [l for l in inspection.lines if l.base_object == unit2]
+            self.assertEqual(line1.qty_expected, 3)
+
+            # Schedule needs the planned date
+            with self.assertRaises(ValidationError):
+                Inspection.schedule([inspection])
+            Inspection.write([inspection],
+                {'planned_date': datetime.date(2026, 4, 15)})
+            # No entries in a draft (client write)
+            with self.assertRaises(AccessError):
+                Result.check_modification('write', list(line2.results),
+                    values={'value_ok': 'nok'}, external=True)
+            # an answer 'not OK' stored in the draft before (e.g. older
+            # data) gets its defect when scheduling
+            Defect = pool.get('real_estate.inspection.defect')
+            Result.write(list(line2.results), {'value_ok': 'nok'})
+            self.assertFalse(Defect.search([('line', '=', line2.id)]))
+            Inspection.schedule([inspection])
+            early, = Defect.search([('line', '=', line2.id)])
+            Result.write(list(Line(line2.id).results), {'value_ok': None})
+            self.assertEqual(Defect(early.id).state, 'cancelled')
+            process = Inspection(inspection.id).process
+            self.assertEqual(process.anchor_date, datetime.date(2026, 4, 15))
+            # the conditional step is planned (not due) yet
+            self.assertEqual(sorted(t.due_date for t in process.tasks
+                    if t.state == 'open'),
+                [datetime.date(2026, 4, 1), datetime.date(2026, 4, 15)])
+            planned, = [t for t in process.tasks if t.state == 'planned']
+            self.assertEqual(planned.template_step.name, 'Anschreiben')
+            self.assertEqual(process.property, prop)
+            # The workflow tab shows the running process and its steps
+            shown = Inspection(inspection.id)
+            self.assertEqual(shown.process_state, 'running')
+            self.assertEqual(shown.process_progress, process.progress)
+            self.assertEqual(len(shown.process_tasks), 3)
+            # The process of an inspection is only cancelled by it
+            Process = pool.get('real_estate.process')
+            with self.assertRaises(ValidationError):
+                Process.cancel([process])
+            # Tasks show and sort by the number of their process step
+            Task = pool.get('real_estate.task')
+            tasks = Task.search([('process', '=', process.id)],
+                order=[('step_number', 'DESC')])
+            self.assertEqual([t.step_number for t in tasks], [30, 20, 10])
+            self.assertEqual(tasks[1].template_step.name, 'Prüfung')
+            # A cancelled process can be reactivated: its tasks come back
+            with Transaction().set_context(_inspection_process_cancel=True):
+                Process.cancel([process])
+                self.assertFalse([t for t in Process(process.id).tasks
+                        if t.state == 'open'])
+                Process.reactivate([process])
+            process = Process(process.id)
+            self.assertEqual(process.state, 'running')
+            self.assertEqual(len([t for t in process.tasks
+                        if t.state == 'open']), 2)
+            # The first result starts the inspection
+            Result.write(list(inspection.header_results), {'value_ok': 'ok'})
+            inspection = Inspection(inspection.id)
+            self.assertEqual(inspection.state, 'in_progress')
+
+            # Open items of a line set to OK, quantities and date filled
+            Line.all_ok([Line(line1.id)])
+            line1 = Line(line1.id)
+            self.assertEqual([r.value_ok for r in line1.results], ['ok'])
+            self.assertEqual((line1.qty_checked, line1.qty_ok), (3, 3))
+            self.assertTrue(line1.visit_date)
+            # Mandatory answers missing
+            with self.assertRaises(ValidationError):
+                Inspection.done([inspection])
+            Result.write(list(line1.results), {'value_ok': 'nok'})
+            # A not OK answer creates a defect with deadline and task
+            defect, = Defect.search([('inspection', '=', inspection.id),
+                    ('line', '=', line1.id)])
+            self.assertEqual(defect.severity, 'major')
+            self.assertEqual(defect.base_object, unit1)
+            self.assertEqual(defect.deadline,
+                defect.detected_date + datetime.timedelta(days=14))
+            self.assertEqual(defect.follow_up_task.state, 'open')
+            self.assertEqual(defect.plan, plan)
+            # withdrawn and set again: cancelled, a new one
+            Result.write(list(line1.results), {'value_ok': 'ok'})
+            self.assertEqual(Defect(defect.id).state, 'cancelled')
+            self.assertEqual(Defect(defect.id).follow_up_task.state,
+                'cancelled')
+            Result.write(list(line1.results), {'value_ok': 'nok'})
+            defect, = Defect.search([('inspection', '=', inspection.id),
+                    ('line', '=', line1.id), ('state', '=', 'open')])
+            Line.write([line2], {'access_status': 'no_access'})
+            # Units without access: the conditional step is created
+            process = Inspection(inspection.id).process
+            self.assertIn(datetime.date(2026, 4, 22),
+                [t.due_date for t in process.tasks])
+            # Tenant notice and letters are archived as attachments
+            Attachment = pool.get('ir.attachment')
+            for wizard_name in ['real_estate.inspection.notice.create',
+                    'real_estate.inspection.access_letter.create']:
+                Wizard = pool.get(wizard_name, type='wizard')
+                session_id, _, _ = Wizard.create()
+                with Transaction().set_context(
+                        active_model='real_estate.inspection',
+                        active_id=inspection.id,
+                        active_ids=[inspection.id]):
+                    Wizard.execute(session_id, {}, 'archive')
+                Wizard.delete(session_id)
+            inspection = Inspection(inspection.id)
+            # the notice created on the inspection completes its step
+            aushang, = [t for t in inspection.process.tasks
+                if t.template_step.name == 'Aushang']
+            self.assertEqual(aushang.state, 'done')
+            self.assertTrue(inspection.notice_date)
+            self.assertTrue(inspection.notice)
+            self.assertTrue(Line(line2.id).letter_date)
+            self.assertEqual(len(Attachment.search(
+                        [('resource', '=', str(inspection))])), 2)
+            # Visit conditions of the attempts
+            process = Inspection(inspection.id).process
+            self.assertFalse(process._step_done_inspection_attempt1_done())
+            Line.write([Line(line2.id)],
+                {'visit_date': datetime.date(2026, 4, 15)})
+            line3, = [l for l in Inspection(inspection.id).lines
+                if l.base_object == unit3]
+            Line.write([line3], {'access_status': 'not_required'})
+            self.assertTrue(process._step_done_inspection_attempt1_done())
+            # Next attempt for the lines without access
+            Inspection.next_attempt([inspection])
+            self.assertFalse(process._step_done_inspection_attempt2_done())
+            Line.write([Line(line2.id)],
+                {'visit_date': datetime.date(2026, 5, 6)})
+            self.assertTrue(process._step_done_inspection_attempt2_done())
+            self.assertEqual(Line(line2.id).attempt, 2)
+            self.assertEqual(Inspection(inspection.id).attempt, 2)
+            # Not inspected without reason
+            with self.assertRaises(ValidationError):
+                Inspection.done([inspection])
+            Line.write([line2], {'remarks': 'Mieter nicht angetroffen'})
+            line3, = [l for l in Inspection(inspection.id).lines
+                if l.base_object == unit3]
+            Line.write([line3], {'access_status': 'not_required'})
+            self.assertEqual(Line(line1.id).result, 'defect')
+            self.assertEqual(Line(line2.id).result, 'not_inspected')
+            Inspection.done([inspection])
+            inspection = Inspection(inspection.id)
+            self.assertEqual(inspection.state, 'done')
+            # done: entries locked (reopen to change), buttons hidden
+            self.assertTrue(Line(line1.id).locked)
+            with self.assertRaises(AccessError):
+                Result.check_modification('write', list(line1.results),
+                    values={'value_ok': 'ok'}, external=True)
+            self.assertEqual(inspection.overall_result, 'ok_with_defects')
+            step_task, = [t for t in inspection.process.tasks
+                if t.template_step.name == 'Prüfung']
+            self.assertEqual(step_task.state, 'done')
+            plan = Plan(plan.id)
+            self.assertEqual(plan.last_done_date, inspection.done_date)
+            self.assertEqual(plan.next_due_date, plan.compute_next_due(
+                    inspection.done_date,
+                    due_date=datetime.date(2026, 4, 15)))
+
+            # Approval: report archived, records locked
+            Inspection.approve([inspection])
+            inspection = Inspection(inspection.id)
+            self.assertEqual(inspection.state, 'approved')
+            self.assertTrue(inspection.report)
+            self.assertEqual(inspection.approved_by.id, Transaction().user)
+            done_date = inspection.done_date
+            # Undo: take back the approval, reopen - plan and process back
+            report = inspection.report
+            Inspection.unapprove([inspection])
+            inspection = Inspection(inspection.id)
+            self.assertEqual(inspection.state, 'done')
+            self.assertIsNone(inspection.report)
+            self.assertIn('(withdrawn)', Attachment(report.id).name)
+            Inspection.reopen([inspection])
+            inspection = Inspection(inspection.id)
+            self.assertEqual(inspection.state, 'in_progress')
+            plan = Plan(plan.id)
+            self.assertEqual((plan.next_due_date, plan.last_done_date),
+                (datetime.date(2026, 4, 15), None))
+            self.assertEqual(inspection.process.state, 'running')
+            step_task, = [t for t in inspection.process.tasks
+                if t.template_step.name == 'Prüfung']
+            self.assertEqual(step_task.state, 'open')
+            # done and approved again
+            Inspection.done([inspection])
+            Inspection.approve([inspection])
+            inspection = Inspection(inspection.id)
+            self.assertEqual(inspection.state, 'approved')
+            self.assertEqual(Plan(plan.id).last_done_date, done_date)
+            with self.assertRaises(AccessError):
+                Line.check_modification('write', [Line(line1.id)],
+                    external=True)
+            with self.assertRaises(AccessError):
+                Inspection.check_modification('delete', [inspection])
+            # Defect of an approved inspection: only its state can change
+            with self.assertRaises(AccessError):
+                Defect.check_modification('write', [defect],
+                    values={'description': 'x'}, external=True)
+            Defect.check_modification('write', [defect],
+                values={'state': 'fixed'}, external=True)
+            # Next inspection possible again, shows the open defect
+            following, = Inspection.create_from_plans([plan])
+            self.assertEqual(list(following.previous_defects), [defect])
+            Defect.fix([defect])
+            self.assertEqual(Defect(defect.id).follow_up_task.state, 'done')
+            with Transaction().set_context(inspection=following.id):
+                Defect.verify([defect])
+            defect = Defect(defect.id)
+            self.assertEqual((defect.state, defect.verified_in),
+                ('verified', following))
+            self.assertEqual(list(Inspection(following.id).previous_defects),
+                [])
+
+    @with_transaction()
+    def test_sql_constraint_messages(self):
+        "SQL constraints raise readable messages (message ids)"
+        from trytond.modules.company.tests import create_company, set_company
+        from trytond.model.exceptions import SQLConstraintError
+
+        pool = Pool()
+        BaseObject = pool.get('real_estate.base_object')
+        Message = pool.get('ir.message')
+
+        for name in ['real_estate.base_object', 'real_estate.measurement',
+                'real_estate.object_party', 'real_estate.contract.type.tax',
+                'real_estate.contract.term.tax']:
+            for _, _, msg in pool.get(name)._sql_constraints:
+                module, id_ = msg.split('.')
+                self.assertIn(module, ['ir', 'real_estate'], msg)
+                self.assertNotEqual(Message.gettext(module, id_, 'en'),
+                    id_, msg)
+
+        company = create_company()
+        with set_company(company):
+            values = {'name': 'P', 'type': 'property', 'sequence': 1,
+                'company': company.id,
+                'start_date': datetime.date(2025, 1, 1)}
+            prop, = BaseObject.create([values])
+            building = dict(values, name='B1', type='building',
+                parent=prop.id)
+            BaseObject.create([building])
+            # The next free sequence below the parent is proposed
+            b1, = BaseObject.search([('name', '=', 'B1')])
+            new = BaseObject(parent=prop, type='building', sequence=None)
+            self.assertEqual(new.on_change_with_sequence(), 10)
+            BaseObject.write([b1], {'sequence': 17})
+            self.assertEqual(new.on_change_with_sequence(), 20)
+            new.type = 'land'
+            self.assertEqual(new.on_change_with_sequence(), 10)
+            BaseObject.write([b1], {'sequence': 1})
+            with self.assertRaises(SQLConstraintError) as cm:
+                BaseObject.create([dict(building, name='B2')])
+            self.assertIn('sequence', str(cm.exception).lower())
+
+    @with_transaction()
+    def test_inspection_default_data(self):
+        "Default inspection types 7.1 / 7.2 with checklists and processes"
+        pool = Pool()
+        Type = pool.get('real_estate.inspection.type')
+        walk, = Type.search([('code', '=', 'walkthrough')])
+        smoke, = Type.search([('code', '=', 'smoke_detector')])
+        self.assertEqual((walk.scope, walk.line_granularity,
+                walk.preferred_month), ('building', 'none', '4'))
+        self.assertEqual(len(walk.header_checklist.items), 21)
+        self.assertEqual(len(walk.process_template.steps), 4)
+        self.assertEqual(smoke.line_granularity, 'unit')
+        self.assertEqual(smoke.equipment_kind.code, 'smoke_detector')
+        self.assertEqual(len(smoke.line_checklist.items), 6)
+        steps = {s.sequence: s for s in smoke.process_template.steps}
+        self.assertEqual(len(steps), 7)
+        self.assertEqual(steps[20].action.get_action_value()['type'],
+            'ir.action.wizard')
+        self.assertEqual(steps[20].action.get_action_value()['wiz_name'],
+            'real_estate.inspection.notice.create')
+        self.assertEqual(steps[40].create_method, 'inspection_no_access')
+        self.assertEqual(steps[20].offset_days, -14)
+        self.assertEqual(smoke.process_template.anchor_field, 'planned_date')
+
     @with_transaction()
     def test_task_postpone(self):
         "W03: postpone - new due date, history, reminder reset"
@@ -1119,45 +1611,51 @@ class RealEstateTestCase(ModuleTestCase):
             process = Process.start(template, index, start)
             self.assertEqual(Process.start(template, index, start), process)
             self.assertEqual(process.anchor_date, datetime.date(2026, 8, 1))
-            steps = {s.name: s for s in process.steps}
-            # W26: the previous_done step is planned, no task yet
-            self.assertEqual(steps['Danach'].state, 'planned')
-            self.assertIsNone(steps['Danach'].task)
-            self.assertEqual(steps['Start'].task.due_date,
+            def steps():
+                return {t.template_step.name: t
+                    for t in Process(process.id).tasks}
+            # every step is a task; W26: the previous_done step is planned
+            self.assertEqual(len(process.tasks), 6)
+            self.assertEqual(steps()['Danach'].state, 'planned')
+            self.assertIsNone(steps()['Danach'].due_date)
+            self.assertEqual(steps()['Start'].due_date,
                 datetime.date(2026, 10, 4))
-            self.assertEqual(steps['Anker'].task.due_date,
+            self.assertEqual(steps()['Anker'].due_date,
                 datetime.date(2026, 9, 1))
-            self.assertEqual(steps['Start'].task.process, process)
+            self.assertEqual(steps()['Start'].step_number, 10)
+            self.assertEqual(steps()['Start'].process, process)
+            # planned tasks are no open tasks
+            self.assertNotIn(steps()['Danach'],
+                Task.search([('state', '=', 'open')]))
 
             # W25: result required
             with self.assertRaises(ValidationError):
-                Task.done([steps['Start'].task])
-            Task.write([steps['Start'].task], {'result': 'versendet'})
-            Task.done([steps['Start'].task])
+                Task.done([steps()['Start']])
+            Task.write([steps()['Start']], {'result': 'versendet'})
+            Task.done([steps()['Start']])
 
             # W11: anchor changed - open anchor tasks rescheduled
             Process.write([process], {
                     'anchor_date': datetime.date(2026, 9, 1)})
             Process.reschedule([process])
-            self.assertEqual(Task(steps['Anker'].task.id).due_date,
+            self.assertEqual(steps()['Anker'].due_date,
                 datetime.date(2026, 10, 1))
             self.assertIn('Anker', Process(process.id).history)
 
-            # W12: previous_done step created after the previous one
-            Task.done([steps['Anker'].task])
-            danach = Process(process.id).steps[2]
-            self.assertEqual(danach.name, 'Danach')
-            self.assertEqual(danach.state, 'open')
+            # W12: previous_done step opened after the previous one
+            Task.done([steps()['Anker']])
+            self.assertEqual(steps()['Danach'].state, 'open')
+            self.assertTrue(steps()['Danach'].due_date)
 
             # W24: condition met - done by 'check'
             Index.write([index], {'residential_allowed': True})
             Process.check([process])
-            self.assertEqual(Task(steps['Bedingung'].task.id).state, 'done')
+            self.assertEqual(steps()['Bedingung'].state, 'done')
 
             # W22: executing the action returns it for the reference
             # record and completes the step
             session_id, _, _ = Execute.create()
-            aktion = steps['Aktion'].task
+            aktion = steps()['Aktion']
             with Transaction().set_context(active_model='real_estate.task',
                     active_id=aktion.id, active_ids=[aktion.id]):
                 result = Execute.execute(session_id, {}, 'open_')
@@ -1168,16 +1666,164 @@ class RealEstateTestCase(ModuleTestCase):
             self.assertEqual(Task(aktion.id).state, 'done')
 
             # W27: optional step cancelled = skipped; W13: process done
-            optional = steps['Optional'].task
+            optional = steps()['Optional']
             Task.write([optional], {'result': 'nicht nötig'})
             Task.cancel([optional])
             self.assertEqual(Process(process.id).state, 'running')
-            Task.done([danach.task])
+            Task.done([steps()['Danach']])
             process = Process(process.id)
-            self.assertEqual({s.name: s.state for s in process.steps}[
-                    'Optional'], 'skipped')
+            self.assertEqual(steps()['Optional'].state, 'cancelled')
             self.assertEqual(process.state, 'done')
             self.assertEqual(process.progress, '5 / 5 done')
+
+    @with_transaction()
+    def test_meter_reading_sheet(self):
+        "Meter reading sheet: load, done creates readings, reset, follow-up"
+        from trytond.modules.company.tests import create_company, set_company
+        from trytond.exceptions import UserWarning
+        from trytond.model.exceptions import AccessError
+        from trytond.transaction import Transaction
+
+        pool = Pool()
+        BaseObject = pool.get('real_estate.base_object')
+        Reading = pool.get('real_estate.meter_reading')
+        Sheet = pool.get('real_estate.meter_reading.sheet')
+        Line = pool.get('real_estate.meter_reading.sheet.line')
+        ModelData = pool.get('ir.model.data')
+        start = datetime.date(2025, 1, 1)
+
+        company = create_company()
+        with set_company(company):
+            counter = iter(range(1, 100))
+
+            def obj(name, type_, parent=None, **kw):
+                record, = BaseObject.create([dict({'name': name,
+                                'type': type_, 'sequence': next(counter),
+                                'company': company.id, 'start_date': start,
+                                'parent': parent.id if parent else None},
+                            **kw)])
+                return record
+            apartment = ModelData.get_id('real_estate', 'use_class_apartment')
+            prop = obj('P', 'property')
+            building = obj('B', 'building', prop)
+            unit = obj('U1', 'object', building,
+                type_of_use='residential', use_class=apartment)
+            m3 = ModelData.get_id('product', 'uom_cubic_meter')
+            warm = obj('Warmwasser Zähler', 'equipment', unit,
+                e_type='meters', meter_is_counter=True, meter_unit=m3)
+            cold = obj('Kaltwasser Zähler', 'equipment', unit,
+                e_type='meters', meter_is_counter=True, meter_unit=m3)
+            Reading.create([{'company': company.id, 'base_object': m.id,
+                        'meter_id': f'Z-{m.id}', 'reading_date': start,
+                        'm_type': 'initial', 'value': Decimal(10)}
+                    for m in [warm, cold]])
+
+            # Filter by name: only the warm water meter, with its previous
+            # reading and the unit; the property is derived
+            sheet, = Sheet.create([{'base_object': building.id,
+                        'reading_date': datetime.date(2025, 12, 31),
+                        'name_filter': 'warm'}])
+            self.assertEqual(sheet.property, prop)
+            line, = sheet.lines
+            self.assertEqual((line.meter, line.unit), (warm, unit))
+            self.assertEqual(line.meter_id, f'Z-{warm.id}')
+            self.assertEqual(line.previous_value, Decimal(10))
+            self.assertEqual(line.previous_date, start)
+            self.assertEqual(sheet.progress, '0 / 1')
+
+            # Reload without filter adds the other meter, keeps the value
+            Line.write([line], {'value': Decimal(25)})
+            Sheet.write([sheet], {'name_filter': None})
+            Sheet.load_meters([sheet])
+            sheet = Sheet(sheet.id)
+            self.assertEqual(len(sheet.lines), 2)
+            self.assertEqual(Line(line.id).value, Decimal(25))
+            self.assertEqual(Line(line.id).consumption, Decimal(15))
+            self.assertEqual(sheet.progress, '1 / 2')
+
+            # Done: a reading for the line with value only, after the
+            # warning for the missing value
+            with self.assertRaises(UserWarning):
+                Sheet.done([sheet])
+            with Transaction().set_context(_skip_warnings=True):
+                Sheet.done([sheet])
+            reading = Line(line.id).reading
+            self.assertTrue(reading)
+            self.assertTrue(Line(line.id).reading_created)
+            self.assertEqual((reading.value, reading.m_type,
+                    reading.reading_date, reading.meter_id),
+                (Decimal(25), 'reading', datetime.date(2025, 12, 31),
+                    f'Z-{warm.id}'))
+
+            # Follow-up: one year later, previous value = this reading
+            action = Sheet.follow_up([sheet])
+            self.assertEqual(action['res_model'], Sheet.__name__)
+            following, = Sheet.search([('id', '!=', sheet.id)])
+            self.assertEqual(following.reading_date,
+                datetime.date(2026, 12, 31))
+            self.assertEqual(following.state, 'draft')
+            warm_line, = [l for l in following.lines if l.meter == warm]
+            self.assertEqual(warm_line.previous_value, Decimal(25))
+            self.assertIsNone(warm_line.value)
+
+            # Reset to draft deletes the created reading
+            Sheet.draft([sheet])
+            self.assertFalse(Reading.search([('id', '=', reading.id)]))
+            self.assertIsNone(Line(line.id).reading)
+
+            # An existing reading of the day is linked, not duplicated
+            Line.write([line], {'value': Decimal(26)})
+            existing, = Reading.create([{'company': company.id,
+                        'base_object': warm.id, 'meter_id': f'Z-{warm.id}',
+                        'reading_date': datetime.date(2025, 12, 31),
+                        'm_type': 'reading', 'value': Decimal(24)}])
+            with Transaction().set_context(_skip_warnings=True):
+                Sheet.done([sheet])
+            self.assertEqual(Line(line.id).reading, existing)
+            self.assertFalse(Line(line.id).reading_created)
+            Sheet.draft([sheet])
+            self.assertTrue(Reading.search([('id', '=', existing.id)]))
+
+            # A done sheet cannot be deleted
+            with Transaction().set_context(_skip_warnings=True):
+                Sheet.done([sheet])
+            with self.assertRaises(AccessError):
+                Sheet.delete([sheet])
+
+    def test_meter_reading_sheet_template(self):
+        "Meter reading sheet template renders the meter lines"
+        import io
+        import os
+        import re
+        import zipfile
+
+        from relatorio.templates.opendocument import Template
+
+        line = _StubRecord(unit=_StubRecord(rec_name='Wohnung 01'),
+            tenant=_StubRecord(rec_name='Mieter 1'),
+            meter=_StubRecord(rec_name='Wasser Zähler'),
+            meter_id='Z-2025-0001', previous_date=datetime.date(2025, 4, 30),
+            previous_value=Decimal('23.5'), value=None,
+            uom=_StubRecord(symbol='m³'), remarks=None)
+        record = _StubRecord(id=1, state='draft',
+            company=_StubRecord(party=_StubRecord(name='Immo GmbH')),
+            base_object=_StubRecord(rec_name='Haus 1'),
+            property=_StubRecord(rec_name='Musterstraße 1-4'),
+            reading_date=datetime.date(2025, 12, 31), reader=None,
+            equipment_kind=None, name_filter='Wasser', notes=None,
+            lines=[line])
+        path = os.path.join(os.path.dirname(__file__), '..', 'report',
+            'meter_reading_sheet_de.odt')
+        data = Template(source=None, filepath=path).generate(
+            records=[record], format_value=str).render().getvalue()
+        with zipfile.ZipFile(io.BytesIO(data)) as odt:
+            content = odt.read('content.xml').decode()
+        text = re.sub(r'\s+', ' ', re.sub(r'<[^>]+>', ' ', content))
+        for expected in ['ENTWURF', 'Zählerableseliste', 'Haus 1',
+                'Musterstraße 1-4', '2025-12-31', 'Wasser', 'Wohnung 01',
+                'Mieter 1', 'Wasser Zähler', 'Z-2025-0001', '23.5',
+                'm³', 'Unterschrift']:
+            self.assertIn(expected, text)
 
     def test_handover_report_template(self):
         "Handover report template renders check items, keys and meters"

@@ -857,5 +857,134 @@ Either run "Ready for Billing" for each billing unit first, or bill individual b
         <record model="ir.message" id="msg_handover_reopen">
             <field name="text">Only the real estate administration can reset a done handover report to draft.</field>
         </record>
+        <record model="ir.message" id="msg_equipment_kind_code_unique">
+            <field name="text">The code of the equipment kind must be unique.</field>
+        </record>
+        <record model="ir.message" id="msg_inspection_type_code_unique">
+            <field name="text">The code of the inspection type must be unique.</field>
+        </record>
+        <record model="ir.message" id="msg_inspection_line_filter">
+            <field name="text">The line filter of the inspection type "%(type)s" is not a valid PYSON domain.</field>
+        </record>
+        <record model="ir.message" id="msg_inspection_plan_building">
+            <field name="text">The inspection plan "%(plan)s" needs a building (scope of the inspection type: building).</field>
+        </record>
+        <record model="ir.message" id="msg_inspection_plan_unique">
+            <field name="text">There is already an active inspection plan "%(plan)s" for this inspection type and object.</field>
+        </record>
+        <record model="ir.message" id="msg_inspection_planned_date">
+            <field name="text">The inspection "%(inspection)s" needs a planned date to be scheduled.</field>
+        </record>
+        <record model="ir.message" id="msg_inspection_notice_days">
+            <field name="text">The inspection "%(inspection)s" is planned less than %(days)s days from today - the tenant notice period may not be kept.</field>
+        </record>
+        <record model="ir.message" id="msg_inspection_mandatory">
+            <field name="text">The inspection "%(inspection)s" cannot be done: mandatory check items are not answered (%(items)s).</field>
+        </record>
+        <record model="ir.message" id="msg_inspection_photo">
+            <field name="text">The inspection "%(inspection)s" cannot be done: check items answered "not OK" need a photo (attachment) (%(items)s).</field>
+        </record>
+        <record model="ir.message" id="msg_inspection_not_inspected_reason">
+            <field name="text">The inspection "%(inspection)s" cannot be done: lines not inspected need a reason in the remarks (%(lines)s).</field>
+        </record>
+        <record model="ir.message" id="msg_inspection_contractor">
+            <field name="text">The inspection "%(inspection)s" cannot be done: the inspection type requires the contractor and an external report number or an attachment.</field>
+        </record>
+        <record model="ir.message" id="msg_inspection_access_attempts">
+            <field name="text">The inspection "%(inspection)s" has %(count)s lines not inspected after fewer access attempts than required.</field>
+        </record>
+        <record model="ir.message" id="msg_inspection_approval_group">
+            <field name="text">Only members of the group "%(group)s" can approve the inspection "%(inspection)s".</field>
+        </record>
+        <record model="ir.message" id="msg_inspection_cancel_reason">
+            <field name="text">Please enter a cancel reason for the inspection "%(inspection)s" (tab "Summary").</field>
+        </record>
+        <record model="ir.message" id="msg_inspection_delete">
+            <field name="text">The inspection "%(inspection)s" can only be deleted in state draft or cancelled.</field>
+        </record>
+        <record model="ir.message" id="msg_inspection_locked">
+            <field name="text">The inspection "%(inspection)s" is approved and cannot be changed - create a new inspection that corrects it.</field>
+        </record>
+        <record model="ir.message" id="msg_inspection_plan_open">
+            <field name="text">The inspection plan "%(plan)s" already has an open inspection "%(inspection)s".</field>
+        </record>
+        <record model="ir.message" id="msg_base_object_sequence_unique">
+            <field name="text">The sequence must be unique for objects of the same type below the same parent object.</field>
+        </record>
+        <record model="ir.message" id="msg_base_object_sequence_positive">
+            <field name="text">The sequence must be greater than zero.</field>
+        </record>
+        <record model="ir.message" id="msg_measurement_unique">
+            <field name="text">The object already has a measurement of this type from the same date.</field>
+        </record>
+        <record model="ir.message" id="msg_object_party_unique">
+            <field name="text">The party is already assigned to the object with this role from the same date.</field>
+        </record>
+        <record model="ir.message" id="msg_contracterm_type_tax_unique">
+            <field name="text">The tax is already assigned to the contract type.</field>
+        </record>
+        <record model="ir.message" id="msg_contracterm_term_tax_unique">
+            <field name="text">The tax is already assigned to the contract term.</field>
+        </record>
+        <record model="ir.message" id="msg_inspection_no_lines_without_access">
+            <field name="text">The inspection "%(inspection)s" has no lines without access.</field>
+        </record>
+        <record model="ir.message" id="msg_inspection_notice_state">
+            <field name="text">A tenant notice can only be created for scheduled inspections or inspections in progress.</field>
+        </record>
+        <record model="ir.message" id="msg_task_code_inspection_defect">
+            <field name="text">Inspection defect</field>
+        </record>
+        <record model="ir.message" id="msg_task_code_inspection_overdue">
+            <field name="text">Inspection overdue</field>
+        </record>
+        <record model="ir.message" id="msg_task_code_inspection_defect_overdue">
+            <field name="text">Inspection defect overdue</field>
+        </record>
+        <record model="ir.message" id="msg_task_rule_method_inspection_overdue">
+            <field name="text">Inspection overdue (due date plus tolerance)</field>
+        </record>
+        <record model="ir.message" id="msg_task_rule_method_defect_overdue">
+            <field name="text">Defect deadline</field>
+        </record>
+        <record model="ir.message" id="msg_inspection_defect_cancelled">
+            <field name="text">The defect was cancelled.</field>
+        </record>
+        <record model="ir.message" id="msg_inspection_plan_property">
+            <field name="text">The inspection plan "%(plan)s" needs a property.</field>
+        </record>
+        <record model="ir.message" id="msg_inspection_rebuild_draft">
+            <field name="text">The lines of the inspection "%(inspection)s" can only be rebuilt in state draft.</field>
+        </record>
+        <record model="ir.message" id="msg_inspection_draft_entry">
+            <field name="text">The results of the inspection "%(inspection)s" are entered once it is scheduled (button "Schedule").</field>
+        </record>
+        <record model="ir.message" id="msg_inspection_done_entry">
+            <field name="text">The inspection "%(inspection)s" is done - to change results use "Reopen".</field>
+        </record>
+        <record model="ir.message" id="msg_process_reopened">
+            <field name="text">Process reopened.</field>
+        </record>
+        <record model="ir.message" id="msg_process_reactivated">
+            <field name="text">Process reactivated - the tasks cancelled with the process are created again.</field>
+        </record>
+        <record model="ir.message" id="msg_inspection_unapprove_group">
+            <field name="text">Only members of the approval group of the inspection type or of the real estate administration can take back the approval of "%(inspection)s".</field>
+        </record>
+        <record model="ir.message" id="msg_inspection_report_withdrawn">
+            <field name="text">(withdrawn)</field>
+        </record>
+        <record model="ir.message" id="msg_process_inspection_leads">
+            <field name="text">The process "%(process)s" belongs to the inspection "%(inspection)s" - cancel the inspection (or set it back to draft) resp. reactivate and schedule it again; the process follows.</field>
+        </record>
+        <record model="ir.message" id="msg_meter_reading_sheet_delete_done">
+            <field name="text">The meter reading sheet "%(sheet)s" is done and cannot be deleted - reset it to draft first.</field>
+        </record>
+        <record model="ir.message" id="msg_meter_reading_sheet_no_lines">
+            <field name="text">The meter reading sheet "%(sheet)s" has no meters - load the meters first.</field>
+        </record>
+        <record model="ir.message" id="msg_meter_reading_sheet_missing">
+            <field name="text">%(count)s meters of the sheet "%(sheet)s" have no value and get no meter reading: %(meters)s</field>
+        </record>
     </data>
 </tryton>

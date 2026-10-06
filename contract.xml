@@ -1161,20 +1161,22 @@
 
     <menuitem
         parent="menu_real_estate_contracts"
-        sequence="95"
-        name="Adjustment"
+        sequence="94"
+        name="Rent Adjustments"
         id="menu_real_estate_contracts_adjustment"/>
 
     <menuitem
         parent="menu_real_estate_contracts_adjustment"
-        sequence="10"
+        sequence="30"
+        name="Start Adjustment Run"
         action="wizard_contract_term_adjustment"
         id="menu_contract_term_adjustment"/>
 
     <menuitem
         parent="menu_real_estate_contracts_adjustment"
         action="act_contract_term_adjustment"
-        sequence="20"
+        name="Adjustments"
+        sequence="40"
         id="menu_contract_term_adjustment_list"/>
 
     <record model="ir.model.button" id="contract_term_adjustment_declare_button">
@@ -1227,7 +1229,7 @@
     <menuitem
         parent="menu_real_estate_contracts_adjustment"
         action="act_contract_term_adjustment_receipt"
-        sequence="25"
+        sequence="50"
         id="menu_contract_term_adjustment_receipt"/>
 
     <!-- Adjustment runs with their protocol -->
@@ -1258,7 +1260,7 @@
     <menuitem
         parent="menu_real_estate_contracts_adjustment"
         action="act_contract_term_adjustment_run"
-        sequence="30"
+        sequence="60"
         id="menu_contract_term_adjustment_run"/>
     <record model="ir.model.access" id="access_contract_term_adjustment_run_contract">
         <field name="model">real_estate.contract.term.adjustment.run</field>

@@ -34,6 +34,8 @@ from . import task
 from . import task_rule
 from . import process
 from . import handover
+from . import meter_reading_sheet
+from . import inspection
 
 __all__ = ['register']
 
@@ -147,9 +149,11 @@ def register():
         process.ProcessTemplate,
         process.ProcessTemplateStep,
         process.Process,
-        process.ProcessStep,
         process.Task,
         process.ProcessStartStart,
+        process.RentAdjustment,
+        process.BillingUnit,
+        process.BaseObject,
         process.ContractType,
         process.Contract,
         handover.HandoverChecklist,
@@ -162,6 +166,29 @@ def register():
         handover.HandoverMeter,
         handover.Contract,
         handover.Process,
+        inspection.EquipmentKind,
+        inspection.BaseObject,
+        inspection.InspectionChecklist,
+        inspection.InspectionChecklistItem,
+        inspection.InspectionType,
+        inspection.InspectionPlan,
+        inspection.Inspection,
+        inspection.InspectionParty,
+        inspection.InspectionLine,
+        inspection.InspectionResult,
+        inspection.InspectionPlanP2,
+        inspection.Contract,
+        inspection.Process,
+        inspection.BaseObjectP2,
+        inspection.InspectionDefect,
+        inspection.InspectionP4,
+        inspection.InspectionResultP4,
+        inspection.InspectionLineP4,
+        inspection.ProcessP4,
+        inspection.BaseObjectP4,
+        inspection.TaskRule,
+        meter_reading_sheet.MeterReadingSheet,
+        meter_reading_sheet.MeterReadingSheetLine,
         ir.Rule,
         option_rate.OptionRateContext,
         option_rate.OptionRate,
@@ -199,6 +226,8 @@ def register():
         task.TaskPostpone,
         task.TaskCreate,
         process.TaskExecuteAction,
+        inspection.InspectionNoticeCreate,
+        inspection.InspectionAccessLetterCreate,
         process.ProcessStart,
         process.TerminateContractWizard,
         process.ChangeContractPartnerWizard,
@@ -206,10 +235,14 @@ def register():
     Pool.register(
         base_object.BaseObjectReport,
         contract_report.ContractReport,
+        inspection.InspectionReport,
+        inspection.InspectionNoticeReport,
+        inspection.InspectionAccessLetterReport,
         contract_report.ContractAnnex4Report,
         contract_report.ContractTerminationConfirmationReport,
         contract_report.IndexAdjustmentLetterReport,
         contract_report.HandoverReport,
+        meter_reading_sheet.MeterReadingSheetReport,
         invoice.ContractMoveLinePayableReceivableReport,
         contract_core.ContractGeneralLedgerAccountContractReport,
         module='real_estate', type_='report')

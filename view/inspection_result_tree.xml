@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<tree editable="1" creatable="0" sequence="sequence">
+    <field name="section"/>
+    <field name="question" expand="1"/>
+    <field name="value_ok"/>
+    <field name="value_yes_no"/>
+    <field name="value_number"/>
+    <field name="unit" optional="1"/>
+    <field name="value_text"/>
+    <field name="value_date"/>
+    <field name="value_choice"/>
+    <field name="mandatory" optional="1"/>
+    <field name="is_nok" optional="0"/>
+    <field name="comment" optional="0"/>
+    <field name="answer_type" tree_invisible="1"/>
+    <field name="locked" tree_invisible="1"/>
+    <field name="selection_values" tree_invisible="1"/>
+</tree>

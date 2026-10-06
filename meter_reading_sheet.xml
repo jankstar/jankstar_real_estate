@@ -1,0 +1,210 @@
+<?xml version="1.0"?>
+<tryton>
+    <data>
+        <!-- Meter reading sheets (Zählerableselisten) -->
+        <record model="ir.ui.view" id="meter_reading_sheet_view_tree">
+            <field name="model">real_estate.meter_reading.sheet</field>
+            <field name="type">tree</field>
+            <field name="name">meter_reading_sheet_tree</field>
+        </record>
+        <record model="ir.ui.view" id="meter_reading_sheet_view_form">
+            <field name="model">real_estate.meter_reading.sheet</field>
+            <field name="type">form</field>
+            <field name="name">meter_reading_sheet_form</field>
+        </record>
+        <record model="ir.ui.view" id="meter_reading_sheet_line_view_tree">
+            <field name="model">real_estate.meter_reading.sheet.line</field>
+            <field name="type">tree</field>
+            <field name="name">meter_reading_sheet_line_tree</field>
+        </record>
+
+        <record model="ir.action.act_window" id="act_meter_reading_sheet">
+            <field name="name">Meter Reading Sheets</field>
+            <field name="res_model">real_estate.meter_reading.sheet</field>
+        </record>
+        <record model="ir.action.act_window.view" id="act_meter_reading_sheet_view1">
+            <field name="sequence" eval="10"/>
+            <field name="view" ref="meter_reading_sheet_view_tree"/>
+            <field name="act_window" ref="act_meter_reading_sheet"/>
+        </record>
+        <record model="ir.action.act_window.view" id="act_meter_reading_sheet_view2">
+            <field name="sequence" eval="20"/>
+            <field name="view" ref="meter_reading_sheet_view_form"/>
+            <field name="act_window" ref="act_meter_reading_sheet"/>
+        </record>
+        <record model="ir.action.act_window.domain" id="act_meter_reading_sheet_domain_draft">
+            <field name="name">Draft</field>
+            <field name="sequence" eval="10"/>
+            <field name="domain" eval="[('state', '=', 'draft')]" pyson="1"/>
+            <field name="act_window" ref="act_meter_reading_sheet"/>
+        </record>
+        <record model="ir.action.act_window.domain" id="act_meter_reading_sheet_domain_all">
+            <field name="name">All</field>
+            <field name="sequence" eval="9999"/>
+            <field name="domain"></field>
+            <field name="act_window" ref="act_meter_reading_sheet"/>
+        </record>
+        <menuitem
+            parent="menu_real_estate_masta_data"
+            action="act_meter_reading_sheet"
+            sequence="61"
+            id="menu_meter_reading_sheet"/>
+
+        <!-- Relate from the object: sheets of the object and below -->
+        <record model="ir.action.act_window" id="act_meter_reading_sheet_relate">
+            <field name="name">Meter Reading Sheets</field>
+            <field name="res_model">real_estate.meter_reading.sheet</field>
+            <field name="domain" eval="[('base_object', 'child_of', [Eval('active_id', -1)], 'parent')]" pyson="1"/>
+            <field name="context" eval="{'default_base_object': Eval('active_id')}" pyson="1"/>
+        </record>
+        <record model="ir.action.act_window.view" id="act_meter_reading_sheet_relate_view1">
+            <field name="sequence" eval="10"/>
+            <field name="view" ref="meter_reading_sheet_view_tree"/>
+            <field name="act_window" ref="act_meter_reading_sheet_relate"/>
+        </record>
+        <record model="ir.action.act_window.view" id="act_meter_reading_sheet_relate_view2">
+            <field name="sequence" eval="20"/>
+            <field name="view" ref="meter_reading_sheet_view_form"/>
+            <field name="act_window" ref="act_meter_reading_sheet_relate"/>
+        </record>
+        <record model="ir.action.keyword" id="act_meter_reading_sheet_relate_keyword">
+            <field name="keyword">form_relate</field>
+            <field name="model">real_estate.base_object,-1</field>
+            <field name="action" ref="act_meter_reading_sheet_relate"/>
+        </record>
+
+        <record model="ir.action.report" id="report_meter_reading_sheet_de">
+            <field name="name">Meter Reading Sheet (de)</field>
+            <field name="report_name">real_estate.meter_reading.sheet.report</field>
+            <field name="model">real_estate.meter_reading.sheet</field>
+            <field name="report">real_estate/report/meter_reading_sheet_de.odt</field>
+            <field name="template_extension">odt</field>
+        </record>
+        <record model="ir.action.keyword" id="report_meter_reading_sheet_keyword">
+            <field name="keyword">form_print</field>
+            <field name="model">real_estate.meter_reading.sheet,-1</field>
+            <field name="action" ref="report_meter_reading_sheet_de"/>
+        </record>
+
+        <record model="ir.model.button" id="meter_reading_sheet_load_meters_button">
+            <field name="model">real_estate.meter_reading.sheet</field>
+            <field name="name">load_meters</field>
+            <field name="string">Load Meters</field>
+            <field name="help">Add the meters not yet listed and refresh rental unit, tenant and previous reading - values entered are kept.</field>
+        </record>
+        <record model="ir.model.button" id="meter_reading_sheet_done_button">
+            <field name="model">real_estate.meter_reading.sheet</field>
+            <field name="name">done</field>
+            <field name="string">Complete</field>
+            <field name="help">Create the meter readings of the meters with a value.</field>
+        </record>
+        <record model="ir.model.button" id="meter_reading_sheet_cancel_button">
+            <field name="model">real_estate.meter_reading.sheet</field>
+            <field name="name">cancel</field>
+            <field name="string">Cancel</field>
+        </record>
+        <record model="ir.model.button" id="meter_reading_sheet_draft_button">
+            <field name="model">real_estate.meter_reading.sheet</field>
+            <field name="name">draft</field>
+            <field name="string">Reset to Draft</field>
+            <field name="confirm">The meter readings created by this sheet are deleted (and created again when it is completed). Continue?</field>
+        </record>
+        <record model="ir.model.button" id="meter_reading_sheet_follow_up_button">
+            <field name="model">real_estate.meter_reading.sheet</field>
+            <field name="name">follow_up</field>
+            <field name="string">Follow-up Sheet</field>
+            <field name="help">New sheet with the same object and filter, reading date one year later.</field>
+        </record>
+
+        <record model="ir.rule.group" id="rule_group_meter_reading_sheet_companies">
+            <field name="name">User in companies</field>
+            <field name="model">real_estate.meter_reading.sheet</field>
+            <field name="global_p" eval="True"/>
+        </record>
+        <record model="ir.rule" id="rule_meter_reading_sheet_companies">
+            <field name="domain" eval="[('company', 'in', Eval('companies', []))]" pyson="1"/>
+            <field name="rule_group" ref="rule_group_meter_reading_sheet_companies"/>
+        </record>
+
+        <!-- Access as for the meter readings: object group full, contract
+             and billing group read -->
+        <record model="ir.model.access" id="access_meter_reading_sheet_object">
+            <field name="model">real_estate.meter_reading.sheet</field>
+            <field name="group" ref="group_real_estate_object"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+        <record model="ir.model.access" id="access_meter_reading_sheet_admin">
+            <field name="model">real_estate.meter_reading.sheet</field>
+            <field name="group" ref="group_real_estate_admin"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+        <record model="ir.model.access" id="access_meter_reading_sheet_contract">
+            <field name="model">real_estate.meter_reading.sheet</field>
+            <field name="group" ref="group_real_estate_contract"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_meter_reading_sheet_billing">
+            <field name="model">real_estate.meter_reading.sheet</field>
+            <field name="group" ref="group_real_estate_billing"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_meter_reading_sheet_default">
+            <field name="model">real_estate.meter_reading.sheet</field>
+            <field name="perm_read" eval="False"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_meter_reading_sheet_line_object">
+            <field name="model">real_estate.meter_reading.sheet.line</field>
+            <field name="group" ref="group_real_estate_object"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+        <record model="ir.model.access" id="access_meter_reading_sheet_line_admin">
+            <field name="model">real_estate.meter_reading.sheet.line</field>
+            <field name="group" ref="group_real_estate_admin"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+        <record model="ir.model.access" id="access_meter_reading_sheet_line_contract">
+            <field name="model">real_estate.meter_reading.sheet.line</field>
+            <field name="group" ref="group_real_estate_contract"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_meter_reading_sheet_line_billing">
+            <field name="model">real_estate.meter_reading.sheet.line</field>
+            <field name="group" ref="group_real_estate_billing"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_meter_reading_sheet_line_default">
+            <field name="model">real_estate.meter_reading.sheet.line</field>
+            <field name="perm_read" eval="False"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+    </data>
+</tryton>

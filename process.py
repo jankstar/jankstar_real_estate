@@ -3,6 +3,7 @@ import datetime
 
 from dateutil.relativedelta import relativedelta
 
+from trytond import backend
 from trytond.i18n import gettext
 from trytond.model import (
     DeactivableMixin, ModelSQL, ModelView, Unique, Workflow, fields,
@@ -20,7 +21,12 @@ from trytond.wizard import (
 STEP_DATE_METHODS = ['billing_deadline_for_contract']
 STEP_DONE_METHODS = ['deposit_paid', 'meter_readings_complete',
     'billing_settled', 'handover_move_in_done',
-    'handover_pre_inspection_done', 'handover_move_out_done']
+    'handover_pre_inspection_done', 'handover_move_out_done',
+    'inspection_done', 'inspection_approved', 'inspection_attempt1_done',
+    'inspection_attempt2_done']
+# Creation conditions of steps (spec Prüfungen 3.4): name ->
+# Process._step_create_<name>()
+STEP_CREATE_METHODS = ['inspection_no_access', 'inspection_has_defects']
 # Offsets from a system setting (re_accounting): name -> field
 OFFSET_SETTINGS = {'deposit_task_months': 'deposit_task_months'}
 
@@ -143,6 +149,21 @@ class ProcessTemplateStep(sequence_ordered(), ModelSQL, ModelView):
         states={'invisible': Eval('completion') != 'condition'})
     result_required = fields.Boolean("Result Required",
         help="Done only with an entry in 'Result'.")
+    create_condition = fields.Selection([
+            ('always', "Always"),
+            ('method', "By Method"),
+            ], "Creation", required=True, sort=False,
+        help="Always: the task is created with the process. By Method: only "
+             "once the condition is fulfilled (e.g. units without access); "
+             "a step whose condition is never fulfilled does not block the "
+             "completion of the process.")
+    create_method = fields.Selection(
+        [(None, '')] + [(m, m) for m in STEP_CREATE_METHODS],
+        "Creation Method",
+        states={
+            'invisible': Eval('create_condition') != 'method',
+            'required': Eval('create_condition') == 'method',
+            })
 
     @staticmethod
     def default_due_base():
@@ -155,6 +176,10 @@ class ProcessTemplateStep(sequence_ordered(), ModelSQL, ModelView):
     @staticmethod
     def default_completion():
         return 'manual'
+
+    @staticmethod
+    def default_create_condition():
+        return 'always'
 
     @fields.depends('template', '_parent_template.model')
     def on_change_with_template_model(self, name=None):
@@ -193,10 +218,9 @@ class Process(Workflow, ModelSQL, ModelView):
         states={'readonly': Eval('state') != 'running'},
         help="After a change, button 'Reschedule' moves the open tasks "
              "scheduled from the anchor date.")
-    steps = fields.One2Many('real_estate.process.step', 'process', "Steps",
-        readonly=True)
-    tasks = fields.One2Many('real_estate.task', 'process', "Tasks",
-        readonly=True)
+    # one task per step of the template (planned until due)
+    tasks = fields.One2Many('real_estate.task', 'process', "Steps",
+        readonly=True, order=[('step_number', 'ASC'), ('id', 'ASC')])
     progress = fields.Function(fields.Char("Progress"), 'get_progress')
     state = fields.Selection([
             ('running', "Running"),
@@ -213,12 +237,22 @@ class Process(Workflow, ModelSQL, ModelView):
         cls._transitions |= {
             ('running', 'done'),
             ('running', 'cancelled'),
+            ('done', 'running'),
+            ('cancelled', 'running'),
             }
         running = Eval('state') == 'running'
         cls._buttons.update({
             'check': {'invisible': ~running, 'depends': ['state']},
             'reschedule': {'invisible': ~running, 'depends': ['state']},
             'cancel': {'invisible': ~running, 'depends': ['state']},
+            'reopen': {
+                'invisible': Eval('state') != 'done',
+                'depends': ['state'],
+                },
+            'reactivate': {
+                'invisible': Eval('state') != 'cancelled',
+                'depends': ['state'],
+                },
             })
 
     @classmethod
@@ -234,11 +268,19 @@ class Process(Workflow, ModelSQL, ModelView):
             if self.resource and self.resource.id >= 0 else '')
         return f'{self.template.name}: {resource}'
 
+    def _mandatory_tasks(self):
+        """Tasks of mandatory steps - a conditional step not opened does
+        not count"""
+        return [t for t in self.tasks if t.template_step
+            and t.template_step.mandatory
+            and not (t.state == 'planned'
+                and t.template_step.create_condition == 'method')]
+
     def get_progress(self, name):
-        steps = [s for s in self.steps if s.mandatory]
-        done = [s for s in steps if s.state in ('done', 'skipped')]
+        tasks = self._mandatory_tasks()
+        done = [t for t in tasks if t.state in ('done', 'cancelled')]
         return gettext('real_estate.msg_process_progress',
-            done=len(done), total=len(steps))
+            done=len(done), total=len(tasks))
 
     # ------------------------------------------------------------------
     # Start (spec 8.3)
@@ -271,17 +313,30 @@ class Process(Workflow, ModelSQL, ModelView):
                     'property': property_.id if property_ else None,
                     'start_date': start_date,
                     'anchor_date': anchor,
-                    'steps': [('create', [{
-                                    'template_step': step.id,
-                                    'sequence': step.sequence,
-                                    'name': step.name,
-                                    } for step in template.steps])],
                     }])
         process._create_due_tasks()
         return process
 
-    def _step_due_date(self, step, previous_done=None):
-        template = step.template_step
+    def _planned_task_values(self, step):
+        "Values of the planned task of a template step"
+        return {
+            'company': self.company.id,
+            'name': f'{step.name}: {self.resource.rec_name}',
+            'task_type': step.task_type.id,
+            'resource': str(self.resource),
+            'description': step.description,
+            'responsible_group': (step.responsible_group.id
+                if step.responsible_group else None),
+            'origin': str(self),
+            'origin_key': f'{self.id}:{step.id}',
+            'automatic': True,
+            'process': self.id,
+            'template_step': step.id,
+            'step_number': step.sequence,
+            'state': 'planned',
+            }
+
+    def _step_due_date(self, template, previous_done=None):
         base = None
         if template.due_base == 'start':
             base = self.start_date
@@ -307,64 +362,69 @@ class Process(Workflow, ModelSQL, ModelView):
         return value if value is not None else 6
 
     def _create_due_tasks(self):
-        """Create the tasks of the steps that can be scheduled now: start,
-        anchor and method steps, previous_done steps once the previous
-        step is done (or skipped)."""
+        """Every step of the template has a task (planned until due); open
+        the planned tasks that can be scheduled now: start, anchor and
+        method steps, 'previous done' steps once the previous step is done
+        (or skipped), conditional steps once their condition is
+        fulfilled."""
         pool = Pool()
         Task = pool.get('real_estate.task')
-        Step = pool.get('real_estate.process.step')
+        Date = pool.get('ir.date')
+        existing = {t.template_step.id for t in self.tasks if t.template_step}
+        missing = [s for s in self.template.steps if s.id not in existing]
+        if missing:
+            Task.create([self._planned_task_values(s) for s in missing])
         previous = None
-        for step in self.steps:
-            template = step.template_step
-            if not step.task:
+        for task in self.__class__(self.id).tasks:
+            template = task.template_step
+            if not template:
+                continue
+            if task.state == 'planned':
+                if not self._step_creatable(template):
+                    # conditional step not (yet) due: transparent for the
+                    # following 'previous done' steps
+                    continue
                 due = None
                 if template.due_base == 'previous_done':
-                    if previous is None or (previous.task
-                            and previous.task.state != 'open'):
-                        done_date = (previous.task.done_date
-                            if previous and previous.task
-                            and previous.task.done_date else Pool().get(
-                                'ir.date').today())
-                        due = self._step_due_date(step,
+                    if previous is None or previous.state in (
+                            'done', 'cancelled'):
+                        done_date = (previous.done_date
+                            if previous and previous.done_date
+                            else Date.today())
+                        due = self._step_due_date(template,
                             previous_done=done_date)
                 else:
-                    due = self._step_due_date(step)
+                    due = self._step_due_date(template)
                 if due is not None:
-                    values = {
-                        'company': self.company.id,
-                        'name': f'{step.name}: {self.resource.rec_name}',
-                        'task_type': template.task_type.id,
-                        'resource': str(self.resource),
-                        'due_date': due,
-                        'description': template.description,
-                        'responsible_group': (
-                            template.responsible_group.id
-                            if template.responsible_group else None),
-                        'origin': str(self),
-                        'origin_key': f'{self.id}:{step.id}',
-                        'automatic': True,
-                        'process': self.id,
-                        'process_step': step.id,
-                        }
-                    # Party role of the step, else of the task type
-                    role = (template.responsible_role
-                        or template.task_type.responsible_role)
-                    if role:
-                        party, user = Task._role_responsible(role,
-                            self.resource, due, self.company)
-                        values['responsible_party'] = (
-                            party.id if party else None)
-                        if user:
-                            values['responsible_user'] = user.id
-                            if not values['responsible_group']:
-                                type_group = (
-                                    template.task_type.responsible_group)
-                                values['responsible_group'] = (
-                                    type_group.id if type_group else None)
-                    task, = Task.create([values])
-                    Step.write([step], {'task': task.id})
-                    step = Step(step.id)
-            previous = step
+                    self._open_task(task, due)
+                    task = Task(task.id)
+            previous = task
+
+    def _open_task(self, task, due):
+        """Open a planned task: due date, reminder and the responsibility by
+        the party role on the due date"""
+        Task = Pool().get('real_estate.task')
+        template = task.template_step
+        values = {
+            'due_date': due,
+            'remind_date': due - datetime.timedelta(
+                days=template.task_type.remind_days or 0),
+            }
+        # Party role of the step, else of the task type
+        role = (template.responsible_role
+            or template.task_type.responsible_role)
+        if role:
+            party, user = Task._role_responsible(role, self.resource, due,
+                self.company)
+            values['responsible_party'] = party.id if party else None
+            if user:
+                values['responsible_user'] = user.id
+                if not task.responsible_group:
+                    type_group = template.task_type.responsible_group
+                    values['responsible_group'] = (
+                        type_group.id if type_group else None)
+        Task.write([task], values)
+        Task.activate([task])
 
     # ------------------------------------------------------------------
     # Progress, completion (spec 8.3, 8.5)
@@ -379,9 +439,10 @@ class Process(Workflow, ModelSQL, ModelView):
                 continue
             process._create_due_tasks()
             process = cls(process.id)
-            mandatory = [s for s in process.steps if s.mandatory]
-            if mandatory and all(s.state in ('done', 'skipped')
-                    for s in mandatory):
+            # conditional steps never opened do not block the completion
+            mandatory = process._mandatory_tasks()
+            if mandatory and all(t.state in ('done', 'cancelled')
+                    for t in mandatory):
                 to_done.append(process)
         if to_done:
             cls.done(to_done)
@@ -399,16 +460,22 @@ class Process(Workflow, ModelSQL, ModelView):
         for process in processes:
             if process.state != 'running':
                 continue
-            for step in process.steps:
-                template = step.template_step
-                if (template.completion != 'condition' or not step.task
-                        or step.task.state != 'open'):
+            for task in process.tasks:
+                template = task.template_step
+                if (not template or template.completion != 'condition'
+                        or task.state != 'open'):
                     continue
                 if process._step_condition_met(template):
-                    Task.write([step.task], {'result': gettext(
+                    Task.write([task], {'result': gettext(
                                 'real_estate.msg_process_step_auto_done')})
-                    Task.done([step.task])
+                    Task.done([task])
         cls.update_progress(cls.browse([p.id for p in processes]))
+
+    def _step_creatable(self, template):
+        "The creation condition of the step is fulfilled"
+        if template.create_condition != 'method' or not template.create_method:
+            return True
+        return bool(getattr(self, f'_step_create_{template.create_method}')())
 
     def _step_condition_met(self, template):
         resource = self.resource
@@ -432,12 +499,11 @@ class Process(Workflow, ModelSQL, ModelView):
         Date = pool.get('ir.date')
         for process in processes:
             lines = []
-            for step in process.steps:
-                task = step.task
-                if (not task or task.state != 'open'
-                        or step.template_step.due_base != 'anchor'):
+            for task in process.tasks:
+                if (task.state != 'open' or not task.template_step
+                        or task.template_step.due_base != 'anchor'):
                     continue
-                due = process._step_due_date(step)
+                due = process._step_due_date(task.template_step)
                 if due and due != task.due_date:
                     delta = due - task.due_date
                     Task.write([task], {
@@ -448,7 +514,7 @@ class Process(Workflow, ModelSQL, ModelView):
                             })
                     lines.append(gettext(
                             'real_estate.msg_process_rescheduled',
-                            step=step.name,
+                            step=task.template_step.name,
                             old=task.due_date.strftime('%d.%m.%Y'),
                             new=due.strftime('%d.%m.%Y')))
             if lines:
@@ -462,11 +528,54 @@ class Process(Workflow, ModelSQL, ModelView):
     def cancel(cls, processes):
         Task = Pool().get('real_estate.task')
         for process in processes:
-            open_ = [t for t in process.tasks if t.state == 'open']
+            open_ = [t for t in process.tasks
+                if t.state in ('open', 'planned')]
             if open_:
                 Task.write(open_, {'result': gettext(
                             'real_estate.msg_process_cancelled')})
                 Task.cancel(open_)
+
+    @classmethod
+    @ModelView.button
+    @Workflow.transition('running')
+    def reopen(cls, processes):
+        """Reopen a done process (also automatically when one of its tasks
+        is reopened) - it is done again once all mandatory steps are done"""
+        cls._add_history(processes, 'real_estate.msg_process_reopened')
+
+    @classmethod
+    @ModelView.button
+    def reactivate(cls, processes):
+        """Reactivate a cancelled process: the tasks cancelled with the
+        process are created again (steps skipped before stay skipped)"""
+        pool = Pool()
+        Task = pool.get('real_estate.task')
+        Lang = pool.get('ir.lang')
+        Message = pool.get('ir.message')
+        markers = {Message.gettext('real_estate', 'msg_process_cancelled',
+                lang.code) for lang in Lang.search([('translatable', '=', True)])}
+        markers.add(gettext('real_estate.msg_process_cancelled'))
+        cls._reactivate(processes)
+        for process in cls.browse([p.id for p in processes]):
+            tasks = [t for t in process.tasks if t.state == 'cancelled'
+                and (t.result or '') in markers]
+            if tasks:
+                Task.replan(tasks)
+        cls._add_history(processes, 'real_estate.msg_process_reactivated')
+        cls.update_progress(cls.browse([p.id for p in processes]))
+
+    @classmethod
+    @Workflow.transition('running')
+    def _reactivate(cls, processes):
+        pass
+
+    @classmethod
+    def _add_history(cls, processes, message):
+        Date = Pool().get('ir.date')
+        line = '%s %s' % (Date.today().strftime('%d.%m.%Y'), gettext(message))
+        for process in processes:
+            cls.write([process], {'history': '\n'.join(
+                        filter(None, [process.history, line]))})
 
     # ------------------------------------------------------------------
     # Named step methods
@@ -552,84 +661,42 @@ class Process(Workflow, ModelSQL, ModelView):
 
 
 #**********************************************************************
-class ProcessStep(sequence_ordered(), ModelSQL, ModelView):
-    "Process Step"
-    __name__ = 'real_estate.process.step'
-
-    process = fields.Many2One('real_estate.process', "Process",
-        required=True, ondelete='CASCADE')
-    template_step = fields.Many2One('real_estate.process.template.step',
-        "Template Step", required=True, ondelete='RESTRICT')
-    name = fields.Char("Step", required=True)
-    task = fields.Many2One('real_estate.task', "Task", ondelete='SET NULL')
-    mandatory = fields.Function(fields.Boolean("Mandatory"),
-        'get_template_info')
-    action = fields.Function(fields.Many2One('ir.action', "Action"),
-        'get_template_info')
-    due_date = fields.Function(fields.Date("Due Date"), 'get_task_info')
-    responsible = fields.Function(fields.Char("Responsible"),
-        'get_task_info')
-    state = fields.Function(fields.Selection([
-                ('planned', "Planned"),
-                ('open', "Open"),
-                ('overdue', "Overdue"),
-                ('done', "Done"),
-                ('skipped', "Skipped"),
-                ], "Step State"), 'get_task_info')
-
-    @classmethod
-    def __setup__(cls):
-        super().__setup__()
-        cls._order.insert(0, ('process', 'ASC'))
-
-    @classmethod
-    def view_attributes(cls):
-        return super().view_attributes() + [
-            ('/tree', 'visual', If(Eval('state') == 'overdue', 'danger',
-                    If(Eval('state') == 'open', 'warning',
-                        If(Eval('state').in_(['done', 'skipped']),
-                            'muted', ''))),
-                ['state']),
-            ]
-
-    def get_template_info(self, name):
-        template = self.template_step
-        if name == 'mandatory':
-            return template.mandatory
-        return template.action.id if template.action else None
-
-    def get_task_info(self, name):
-        Date = Pool().get('ir.date')
-        task = self.task
-        if name == 'due_date':
-            return task.due_date if task else None
-        if name == 'responsible':
-            if not task:
-                return None
-            return (task.responsible_user.rec_name if task.responsible_user
-                else task.responsible_group.rec_name
-                if task.responsible_group else None)
-        if not task:
-            return 'planned'
-        if task.state == 'done':
-            return 'done'
-        if task.state == 'cancelled':
-            return 'skipped'
-        if task.due_date and task.due_date < Date.today():
-            return 'overdue'
-        return 'open'
-
-
-#**********************************************************************
 class Task(metaclass=PoolMeta):
     __name__ = 'real_estate.task'
 
     process = fields.Many2One('real_estate.process', "Process",
-        readonly=True, ondelete='CASCADE')
-    process_step = fields.Many2One('real_estate.process.step',
-        "Process Step", readonly=True, ondelete='SET NULL')
+        readonly=True, ondelete='CASCADE',
+        states={'invisible': ~Eval('process')})
+    template_step = fields.Many2One('real_estate.process.template.step',
+        "Process Step", readonly=True, ondelete='SET NULL',
+        states={'invisible': ~Eval('process')})
+    step_number = fields.Integer("Step No.", readonly=True,
+        states={'invisible': ~Eval('process')},
+        help="Number (sequence) of the process step.")
     step_action = fields.Function(fields.Many2One('ir.action', "Action"),
         'get_step_action')
+
+    @classmethod
+    def __register__(cls, module_name):
+        pool = Pool()
+        transaction = Transaction()
+        cursor = transaction.connection.cursor()
+        table = cls.__table_handler__(module_name)
+        migrate = (table.column_exist('process_step')
+            and not table.column_exist('template_step'))
+        super().__register__(module_name)
+        # Migration: process steps (real_estate.process.step) became the
+        # tasks of the process - step data taken over into the task
+        if migrate and backend.TableHandler.table_exist(
+                'real_estate_process_step'):
+            cursor.execute('UPDATE real_estate_task SET '
+                'template_step = (SELECT s.template_step FROM '
+                'real_estate_process_step s '
+                'WHERE s.id = real_estate_task.process_step), '
+                'step_number = (SELECT s.sequence FROM '
+                'real_estate_process_step s '
+                'WHERE s.id = real_estate_task.process_step) '
+                'WHERE process_step IS NOT NULL')
 
     @classmethod
     def __setup__(cls):
@@ -643,10 +710,33 @@ class Task(metaclass=PoolMeta):
             })
 
     def get_step_action(self, name):
-        step = self.process_step
-        if step and step.template_step.action:
-            return step.template_step.action.id
+        step = self.template_step
+        if step and step.action:
+            return step.action.id
         return None
+
+    @classmethod
+    def complete_by_action(cls, records, action_value):
+        """Steps with completion 'by action' whose action was executed
+        directly on the reference record (not from the task) are done as
+        well - e.g. the tenant notice created on the inspection"""
+        def same(step_action):
+            value = step_action.get_action_value()
+            return all(value.get(k) == action_value.get(k)
+                for k in ('type', 'wiz_name', 'report_name', 'res_model')
+                if k in action_value)
+        tasks = cls.search([
+                ('resource', 'in', [str(r) for r in records]),
+                ('state', '=', 'open'),
+                ('template_step.completion', '=', 'action'),
+                ])
+        tasks = [t for t in tasks if t.template_step.action
+            and same(t.template_step.action)]
+        if tasks:
+            cls.write(tasks, {'result': gettext(
+                        'real_estate.msg_process_step_action_done',
+                        action=tasks[0].template_step.action.rec_name)})
+            cls.done(tasks)
 
     @classmethod
     @ModelView.button_action('real_estate.wizard_task_execute_action')
@@ -656,8 +746,8 @@ class Task(metaclass=PoolMeta):
     @classmethod
     def done(cls, tasks):
         for task in tasks:
-            step = task.process_step
-            if (step and step.template_step.result_required
+            step = task.template_step
+            if (step and step.result_required
                     and not task.result):
                 raise ValidationError(gettext(
                         'real_estate.msg_process_step_result',
@@ -669,6 +759,20 @@ class Task(metaclass=PoolMeta):
     def cancel(cls, tasks):
         super().cancel(tasks)
         cls._update_processes(tasks)
+
+    @classmethod
+    def reopen(cls, tasks):
+        super().reopen(tasks)
+        cls._reopen_processes(tasks)
+
+    @classmethod
+    def _reopen_processes(cls, tasks):
+        "A reopened step task reopens its done process"
+        Process = Pool().get('real_estate.process')
+        processes = {t.process.id for t in tasks
+            if t.process and t.process.state == 'done'}
+        if processes:
+            Process.reopen(Process.browse(list(processes)))
 
     @classmethod
     def _update_processes(cls, tasks):
@@ -705,8 +809,8 @@ class TaskExecuteAction(Wizard):
             action['pyson_domain'] = PYSONEncoder().encode(
                 [('id', '=', resource.id)])
         # Completion 'by action': executing the action completes the step
-        if (task.process_step
-                and task.process_step.template_step.completion == 'action'
+        if (task.template_step
+                and task.template_step.completion == 'action'
                 and task.state == 'open'):
             Task.write([task], {'result': gettext(
                         'real_estate.msg_process_step_action_done',
@@ -751,6 +855,66 @@ class ProcessStart(Wizard):
         for record in self.records:
             Process.start(self.start.template, record, self.start.start_date)
         return 'end'
+
+
+#**********************************************************************
+_PROCESS_OPEN = [('state', '=', 'running')]
+_PROCESS_HISTORY = [('state', 'in', ['done', 'cancelled'])]
+
+
+class RentAdjustment(metaclass=PoolMeta):
+    __name__ = 'real_estate.contract.rent_adjustment'
+
+    processes_open = fields.One2Many('real_estate.process', 'resource',
+        "Processes", filter=_PROCESS_OPEN, readonly=True)
+    processes_history = fields.One2Many('real_estate.process', 'resource',
+        "Processes", filter=_PROCESS_HISTORY, readonly=True)
+
+
+class BillingUnit(metaclass=PoolMeta):
+    __name__ = 'real_estate.billing_unit'
+
+    processes_open = fields.One2Many('real_estate.process', 'resource',
+        "Processes", filter=_PROCESS_OPEN, readonly=True)
+    processes_history = fields.One2Many('real_estate.process', 'resource',
+        "Processes", filter=_PROCESS_HISTORY, readonly=True)
+
+
+class BaseObject(metaclass=PoolMeta):
+    __name__ = 'real_estate.base_object'
+
+    # Processes of the object; a property shows all processes of the
+    # property (stored 'property'), a rental object also those of the
+    # contracts on it
+    processes_open = fields.Function(fields.One2Many(
+            'real_estate.process', None, "Processes", readonly=True),
+        'get_processes', setter='set_processes')
+    processes_history = fields.Function(fields.One2Many(
+            'real_estate.process', None, "Processes", readonly=True),
+        'get_processes', setter='set_processes')
+
+    @classmethod
+    def set_processes(cls, objects, name, value):
+        pass
+
+    @classmethod
+    def get_processes(cls, objects, names):
+        Process = Pool().get('real_estate.process')
+        result = {n: {o.id: [] for o in objects} for n in names}
+        for name in names:
+            state = (_PROCESS_OPEN if name == 'processes_open'
+                else _PROCESS_HISTORY)
+            for obj in objects:
+                if obj.type == 'property':
+                    domain = [('property', '=', obj.id)]
+                elif obj.type == 'object':
+                    domain = [['OR', ('resource', '=', str(obj)),
+                            ('contract.items.objects', '=', obj.id)]]
+                else:
+                    domain = [('resource', '=', str(obj))]
+                result[name][obj.id] = [p.id for p in Process.search(
+                        state + domain)]
+        return result
 
 
 #**********************************************************************

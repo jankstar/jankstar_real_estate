@@ -18,6 +18,11 @@ Property Management
    Key features:
 
    - Parent–child tree (``tree()`` mixin), e.g. Property → Building → Apartment
+   - ``sequence`` unique per type and parent (constraint
+     ``sequence_unique``); when parent and type are set and the sequence is
+     empty, the next free one below the parent is proposed (step 10,
+     ``on_change_with_sequence``). The object number is the parent's
+     object number plus ``/`` and the sequence.
    - One2Many relations to ``Address``, ``ObjectParty``, ``Measurement``,
      and ``BillingUnit``
    - History tracking via ``BaseObjectOccupancy`` (tenant occupancy periods)
@@ -196,6 +201,46 @@ Property Management
    Browseable via the *Meter Readings* menu entry under *Master Data*,
    filterable by company, property, parent object, equipment (meters only),
    and date range (``from_date`` / ``to_date``).
+
+``real_estate.meter_reading.sheet``  (``meter_reading_sheet.py``)
+   Meter reading sheet (*Zählerableseliste*) for the collective entry of
+   meter readings, menu *Master Data › Meter Reading Sheets* and relate
+   *Meter Reading Sheets* on an object (sheets of the object and below).
+
+   Header: ``base_object`` (property, building or rental unit; the
+   ``property`` is derived), ``reading_date``, optional selection of the
+   meters by ``equipment_kind`` and ``name_filter`` (``ilike``, e.g.
+   *Warmwasser*), ``reader`` (reading user of the readings created),
+   ``progress`` (*entered / meters*), state *Draft / Done / Cancelled*.
+
+   Lines (``real_estate.meter_reading.sheet.line``), one per meter, in an
+   editable list: rental unit and main tenant on the reading date (via the
+   occupancy), meter, meter ID, previous reading (date and value, last
+   reading before the reading date), **new value**, unit, consumption
+   (counters), remarks, link to the meter reading created.
+
+   Buttons:
+
+   - *Load Meters* (also on create, e.g. a new sheet, a copy or a
+     follow-up sheet): adds the meters below the object not yet listed
+     (not deactivated, filtered) and refreshes unit, tenant and previous
+     reading; values entered are kept.
+   - *Complete*: confirmable warning for meters without value; creates
+     one meter reading (``m_type='reading'``) per line with value - an
+     existing reading of the meter on the reading date is linked instead
+     (as in the handover report). The validation of the meter reading
+     applies (same meter ID, counter value not lower).
+   - *Reset to Draft*: deletes the meter readings created by the sheet
+     (``reading_created``), linked ones are kept; completing again creates
+     them anew.
+   - *Follow-up Sheet* (done): new sheet with the same object and filter,
+     reading date + 1 year, lines loaded with this reading as previous
+     value, opened at once.
+
+   A done sheet cannot be deleted. The sheet can be the reference of tasks
+   and processes. Reminder: task rule O01 *Record meter readings* (done as
+   soon as every meter has a reading, e.g. by completing the sheet).
+   Print: *Meter Reading Sheet* (see :doc:`reports`).
 
    **Consumption estimate** (``simulate_estimate`` / ``create_estimate``):
 

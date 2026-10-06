@@ -10,11 +10,8 @@
     <label name="progress"/><field name="progress"/>
     <label name="company"/><field name="company"/>
     <notebook colspan="4">
-        <page name="steps" col="1">
-            <field name="steps"/>
-        </page>
         <page name="tasks" col="1">
-            <field name="tasks" view_ids="real_estate.task_view_list_resource"/>
+            <field name="tasks" view_ids="real_estate.task_view_list_process"/>
         </page>
         <page name="history" col="1">
             <field name="history"/>
@@ -22,6 +19,8 @@
     </notebook>
     <group id="buttons" colspan="4" col="-1">
         <button name="cancel" icon="tryton-cancel"/>
+        <button name="reactivate" icon="tryton-undo"/>
+        <button name="reopen" icon="tryton-undo"/>
         <button name="reschedule" icon="tryton-date"/>
         <button name="check" icon="tryton-refresh"/>
     </group>

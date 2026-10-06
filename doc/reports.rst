@@ -65,6 +65,13 @@ via ``get_context()``.
    quantity) and meter readings, general condition, agreements and
    signature fields; ENTWURF until the report is done.
 
+``real_estate.meter_reading.sheet.report``  (``meter_reading_sheet.py``)
+   Meter reading sheet to take along, template
+   ``meter_reading_sheet_de.odt`` (landscape): object, reading date,
+   reader, selection and a table per meter with rental unit, tenant,
+   meter, meter ID, previous reading, new value (empty until entered),
+   unit and remarks, signature line; ENTWURF until the sheet is done.
+
 ``real_estate.base_object.report``  (``base_object.py``)
    Fact sheet for a property or object.
    Template: ``fact_sheet.odt``.

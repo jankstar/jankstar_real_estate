@@ -51,7 +51,7 @@ class ContractTypeTax(ModelSQL):
         t = cls.__table__()
         cls._sql_constraints += [
             ('contracterm_type_tax_unique', Unique(t, t.c_type, t.tax),
-                'real_estate_contract.msg_contracterm_type_tax_unique'),
+                'real_estate.msg_contracterm_type_tax_unique'),
             ]
 
     @classmethod

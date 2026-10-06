@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<form col="4">
+    <label name="section"/><field name="section"/>
+    <label name="mandatory"/><field name="mandatory"/>
+    <label name="question"/><field name="question" colspan="3"/>
+    <label name="answer_type"/><field name="answer_type"/>
+    <label name="is_nok"/><field name="is_nok"/>
+    <label name="value_ok"/><field name="value_ok"/>
+    <label name="value_yes_no"/><field name="value_yes_no"/>
+    <label name="value_number"/><field name="value_number"/>
+    <label name="unit"/><field name="unit"/>
+    <label name="value_text"/><field name="value_text"/>
+    <label name="value_date"/><field name="value_date"/>
+    <label name="value_choice"/><field name="value_choice"/>
+    <field name="locked" invisible="1"/>
+    <field name="selection_values" invisible="1"/>
+    <separator name="comment" colspan="4"/>
+    <field name="comment" colspan="4"/>
+</form>

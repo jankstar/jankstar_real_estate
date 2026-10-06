@@ -2,6 +2,12 @@
 <tryton>
     <data>
         <!-- Processes (spezifikation-wiedervorlage.md 8, phase D) -->
+        <record model="ir.ui.view" id="task_view_list_process">
+            <field name="model">real_estate.task</field>
+            <field name="type">tree</field>
+            <field name="priority" eval="30"/>
+            <field name="name">task_list_process</field>
+        </record>
         <record model="ir.ui.view" id="process_template_view_tree">
             <field name="model">real_estate.process.template</field>
             <field name="type">tree</field>
@@ -31,11 +37,6 @@
             <field name="model">real_estate.process</field>
             <field name="type">form</field>
             <field name="name">process_form</field>
-        </record>
-        <record model="ir.ui.view" id="process_step_view_tree">
-            <field name="model">real_estate.process.step</field>
-            <field name="type">tree</field>
-            <field name="name">process_step_tree</field>
         </record>
         <record model="ir.ui.view" id="process_start_start_view_form">
             <field name="model">real_estate.process.start.start</field>
@@ -152,6 +153,16 @@
             <field name="model">real_estate.process</field>
             <field name="name">cancel</field>
             <field name="string">Cancel</field>
+        </record>
+        <record model="ir.model.button" id="process_reopen_button">
+            <field name="model">real_estate.process</field>
+            <field name="name">reopen</field>
+            <field name="string">Reopen</field>
+        </record>
+        <record model="ir.model.button" id="process_reactivate_button">
+            <field name="model">real_estate.process</field>
+            <field name="name">reactivate</field>
+            <field name="string">Reactivate</field>
         </record>
         <record model="ir.model.button" id="task_execute_action_button">
             <field name="model">real_estate.task</field>
@@ -280,45 +291,6 @@
         </record>
         <record model="ir.model.access" id="access_process_default">
             <field name="model">real_estate.process</field>
-            <field name="perm_read" eval="False"/>
-            <field name="perm_write" eval="False"/>
-            <field name="perm_create" eval="False"/>
-            <field name="perm_delete" eval="False"/>
-        </record>
-        <record model="ir.model.access" id="access_process_step_object">
-            <field name="model">real_estate.process.step</field>
-            <field name="group" ref="group_real_estate_object"/>
-            <field name="perm_read" eval="True"/>
-            <field name="perm_write" eval="True"/>
-            <field name="perm_create" eval="True"/>
-            <field name="perm_delete" eval="True"/>
-        </record>
-        <record model="ir.model.access" id="access_process_step_contract">
-            <field name="model">real_estate.process.step</field>
-            <field name="group" ref="group_real_estate_contract"/>
-            <field name="perm_read" eval="True"/>
-            <field name="perm_write" eval="True"/>
-            <field name="perm_create" eval="True"/>
-            <field name="perm_delete" eval="True"/>
-        </record>
-        <record model="ir.model.access" id="access_process_step_billing">
-            <field name="model">real_estate.process.step</field>
-            <field name="group" ref="group_real_estate_billing"/>
-            <field name="perm_read" eval="True"/>
-            <field name="perm_write" eval="True"/>
-            <field name="perm_create" eval="True"/>
-            <field name="perm_delete" eval="True"/>
-        </record>
-        <record model="ir.model.access" id="access_process_step_admin">
-            <field name="model">real_estate.process.step</field>
-            <field name="group" ref="group_real_estate_admin"/>
-            <field name="perm_read" eval="True"/>
-            <field name="perm_write" eval="True"/>
-            <field name="perm_create" eval="True"/>
-            <field name="perm_delete" eval="True"/>
-        </record>
-        <record model="ir.model.access" id="access_process_step_default">
-            <field name="model">real_estate.process.step</field>
             <field name="perm_read" eval="False"/>
             <field name="perm_write" eval="False"/>
             <field name="perm_create" eval="False"/>
@@ -659,6 +631,90 @@
             <field name="action" ref="act_handover_move_in"/>
             <field name="done_method">handover_move_in_done</field>
             <field name="description">Arrange name plates for door bell, letter box and apartment door; record number and kind of the handed-over keys in the handover report (move-in). The task is done with the report.</field>
+        </record>
+        <!-- Vacancy / reletting of a rental object (base object) -->
+        <record model="real_estate.process.template" id="process_template_vacancy">
+            <field name="name">Vacancy / Reletting</field>
+            <field name="code">vacancy</field>
+            <field name="model">real_estate.base_object</field>
+        </record>
+        <record model="real_estate.process.template.step" id="process_template_vacancy_meters">
+            <field name="template" ref="process_template_vacancy"/>
+            <field name="sequence" eval="10"/>
+            <field name="name">Record meter readings and secure the unit</field>
+            <field name="task_type" ref="task_type_process_step"/>
+            <field name="responsible_group" ref="group_real_estate_object"/>
+            <field name="responsible_role" ref="object_party_caretaker_role"/>
+            <field name="due_base">start</field>
+            <field name="offset_months" eval="0"/>
+            <field name="offset_days" eval="0"/>
+            <field name="completion">manual</field>
+            <field name="action" ref="act_meter_reading_form"/>
+            <field name="description">At the start of the vacancy record a reading for every meter of the unit, check that windows and doors are closed and the unit is secured (heating on frost protection, water shut off if necessary). Note the readings and the state in the result.</field>
+        </record>
+        <record model="real_estate.process.template.step" id="process_template_vacancy_inspection">
+            <field name="template" ref="process_template_vacancy"/>
+            <field name="sequence" eval="20"/>
+            <field name="name">Inspect the unit and commission repairs</field>
+            <field name="task_type" ref="task_type_process_step"/>
+            <field name="responsible_group" ref="group_real_estate_object"/>
+            <field name="responsible_role" ref="object_party_caretaker_role"/>
+            <field name="due_base">start</field>
+            <field name="offset_months" eval="0"/>
+            <field name="offset_days" eval="3"/>
+            <field name="completion">manual</field>
+            <field name="description">Inspect the unit, document defects (photos) and commission the necessary repairs and decorative work. Note the commissioned work, costs and the expected completion in the result.</field>
+        </record>
+        <record model="real_estate.process.template.step" id="process_template_vacancy_rent">
+            <field name="template" ref="process_template_vacancy"/>
+            <field name="sequence" eval="30"/>
+            <field name="name">Determine the new rent</field>
+            <field name="task_type" ref="task_type_process_step"/>
+            <field name="responsible_group" ref="group_real_estate_contract"/>
+            <field name="due_base">start</field>
+            <field name="offset_months" eval="0"/>
+            <field name="offset_days" eval="7"/>
+            <field name="completion">manual</field>
+            <field name="result_required" eval="True"/>
+            <field name="description">Determine the new rent: local comparative rent (rent index), rent control in a tight housing market (§ 556d BGB: at most 10 % above the comparative rent, exceptions e.g. previous rent, modernisation), operating cost prepayments. Enter the rent and its justification in the result.</field>
+        </record>
+        <record model="real_estate.process.template.step" id="process_template_vacancy_advert">
+            <field name="template" ref="process_template_vacancy"/>
+            <field name="sequence" eval="40"/>
+            <field name="name">Advertise the unit</field>
+            <field name="task_type" ref="task_type_process_step"/>
+            <field name="responsible_group" ref="group_real_estate_contract"/>
+            <field name="due_base">previous_done</field>
+            <field name="offset_months" eval="0"/>
+            <field name="offset_days" eval="2"/>
+            <field name="completion">manual</field>
+            <field name="description">Publish the advertisement (portals, website, notice) with the energy performance certificate information required by § 87 GEG. Note where and when the unit was advertised in the result.</field>
+        </record>
+        <record model="real_estate.process.template.step" id="process_template_vacancy_viewings">
+            <field name="template" ref="process_template_vacancy"/>
+            <field name="sequence" eval="50"/>
+            <field name="name">Viewings and selection of the tenant</field>
+            <field name="task_type" ref="task_type_process_step"/>
+            <field name="responsible_group" ref="group_real_estate_contract"/>
+            <field name="due_base">start</field>
+            <field name="offset_months" eval="0"/>
+            <field name="offset_days" eval="30"/>
+            <field name="completion">manual</field>
+            <field name="description">Arrange viewings, obtain self-disclosures, proof of income and credit reports of the applicants and select the tenant. Document the decision in the result.</field>
+        </record>
+        <record model="real_estate.process.template.step" id="process_template_vacancy_contract">
+            <field name="template" ref="process_template_vacancy"/>
+            <field name="sequence" eval="60"/>
+            <field name="name">Create the new lease contract</field>
+            <field name="task_type" ref="task_type_process_step"/>
+            <field name="responsible_group" ref="group_real_estate_contract"/>
+            <field name="due_base">start</field>
+            <field name="offset_months" eval="0"/>
+            <field name="offset_days" eval="45"/>
+            <field name="completion">manual</field>
+            <field name="action" ref="act_contract_form"/>
+            <field name="result_required" eval="True"/>
+            <field name="description">Create the new lease contract with 'Execute Action' (items with this unit, terms, deposit, parties) and have it signed; the start of the contract ends the vacancy. Enter the contract number in the result.</field>
         </record>
     </data>
 </tryton>

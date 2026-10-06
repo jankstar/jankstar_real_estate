@@ -23,8 +23,13 @@ builds on the previous one's data):
    from 01.01.2025) - the basis of the task responsibility by party role
    (see `Tasks, Processes and Handover Reports <tasks.rst>`__). Linking the
    employees to users is left to the administrator; the script prints a
-   hint at the end. Looks up ``real_estate.use_class``, measurement types
-   and object party roles by ``sequence`` (language-independent)::
+   hint at the end. Each apartment gets a smoke detector equipment
+   (equipment kind *Smoke Detector*, measurement *Number of items* = number
+   of rooms) and each building the inspection plans *Annual Walkthrough*
+   (due 01.04.2026) and *Smoke Detector Check* (due 15.05.2026) if the
+   default inspection types exist. Looks up ``real_estate.use_class``,
+   measurement types and object party roles by ``sequence``, equipment
+   kind and inspection types by ``code`` (language-independent)::
 
       python tests/test_immo.py --database <db> [--config trytond.conf]
 

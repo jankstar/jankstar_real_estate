@@ -7751,12 +7751,12 @@ msgid "Payable/Receivable Lines"
 msgstr "Verbindlichkeiten/Forderungen"
 
 msgctxt "model:ir.ui.menu,name:menu_contract_term_adjustment"
-msgid "Adjustment of Contract Terms"
-msgstr "Anpassung Konditionen ausführen"
+msgid "Start Adjustment Run"
+msgstr "Anpassungslauf starten"
 
 msgctxt "model:ir.ui.menu,name:menu_contract_term_adjustment_list"
-msgid "Contract Term Adjustments"
-msgstr "Liste Anpassung Konditionen"
+msgid "Adjustments"
+msgstr "Anpassungen"
 
 msgctxt "model:ir.ui.menu,name:menu_contract_term_cash_flow"
 msgid "Cash Flow"
@@ -7851,8 +7851,8 @@ msgid "Contracts"
 msgstr "Verträge"
 
 msgctxt "model:ir.ui.menu,name:menu_real_estate_contracts_adjustment"
-msgid "Adjustment"
-msgstr "Anpassung Konditionen"
+msgid "Rent Adjustments"
+msgstr "Mietanpassungen"
 
 msgctxt "model:ir.ui.menu,name:menu_real_estate_form"
 msgid "Property"
@@ -11621,8 +11621,8 @@ msgid "Rent Adjustments"
 msgstr "Mietanpassungen"
 
 msgctxt "model:ir.ui.menu,name:menu_contract_rent_adjustment"
-msgid "Rent Adjustments"
-msgstr "Mietanpassungen"
+msgid "Agreements"
+msgstr "Vereinbarungen"
 
 msgctxt "model:ir.message,text:msg_rent_adjustment_delete_draft"
 msgid "Rent adjustment \"%(rent_adjustment)s\" can only be deleted in state draft."
@@ -14964,42 +14964,6 @@ msgctxt "field:real_estate.process.start.start,template:"
 msgid "Template"
 msgstr "Vorlage"
 
-msgctxt "field:real_estate.process.step,action:"
-msgid "Action"
-msgstr "Aktion"
-
-msgctxt "field:real_estate.process.step,due_date:"
-msgid "Due Date"
-msgstr "Fällig am"
-
-msgctxt "field:real_estate.process.step,mandatory:"
-msgid "Mandatory"
-msgstr "Pflicht"
-
-msgctxt "field:real_estate.process.step,name:"
-msgid "Step"
-msgstr "Schritt"
-
-msgctxt "field:real_estate.process.step,process:"
-msgid "Process"
-msgstr "Prozess"
-
-msgctxt "field:real_estate.process.step,responsible:"
-msgid "Responsible"
-msgstr "Zuständig"
-
-msgctxt "field:real_estate.process.step,state:"
-msgid "Step State"
-msgstr "Schrittstatus"
-
-msgctxt "field:real_estate.process.step,task:"
-msgid "Task"
-msgstr "Aufgabe"
-
-msgctxt "field:real_estate.process.step,template_step:"
-msgid "Template Step"
-msgstr "Vorlagenschritt"
-
 msgctxt "field:real_estate.process.template,anchor_field:"
 msgid "Anchor Date"
 msgstr "Ankerdatum"
@@ -15099,10 +15063,6 @@ msgstr "Monate bis Kautionsabrechnung"
 msgctxt "field:real_estate.task,process:"
 msgid "Process"
 msgstr "Prozess"
-
-msgctxt "field:real_estate.task,process_step:"
-msgid "Process Step"
-msgstr "Prozessschritt"
 
 msgctxt "field:real_estate.task,step_action:"
 msgid "Action"
@@ -15318,10 +15278,6 @@ msgctxt "model:real_estate.process.start.start,string:"
 msgid "Real Estate Process Start"
 msgstr "Prozess starten - Start"
 
-msgctxt "model:real_estate.process.step,string:"
-msgid "Real Estate Process Step"
-msgstr "Prozessschritt"
-
 msgctxt ""
 "model:real_estate.process.template,name:process_template_index_adjustment"
 msgid "Index Rent Adjustment"
@@ -15478,26 +15434,6 @@ msgstr "Erledigt"
 msgctxt "selection:real_estate.process,state:"
 msgid "Running"
 msgstr "Läuft"
-
-msgctxt "selection:real_estate.process.step,state:"
-msgid "Done"
-msgstr "Erledigt"
-
-msgctxt "selection:real_estate.process.step,state:"
-msgid "Open"
-msgstr "Offen"
-
-msgctxt "selection:real_estate.process.step,state:"
-msgid "Overdue"
-msgstr "Überfällig"
-
-msgctxt "selection:real_estate.process.step,state:"
-msgid "Planned"
-msgstr "Geplant"
-
-msgctxt "selection:real_estate.process.step,state:"
-msgid "Skipped"
-msgstr "Übersprungen"
 
 msgctxt "selection:real_estate.process.template.step,completion:"
 msgid "By Action"
@@ -17308,3 +17244,2993 @@ msgstr ""
 "Für eine manuell erfasste Aufgabe ohne verantwortlichen Benutzer aus der "
 "Partnerrolle: Der Erfasser wird verantwortlicher Benutzer - sonst bleibt der "
 "Benutzer leer (Gruppe der Aufgabenart, die Aufgabe kann übernommen werden)."
+
+msgctxt "model:real_estate.process.template,name:process_template_vacancy"
+msgid "Vacancy / Reletting"
+msgstr "Leerstand / Neuvermietung"
+
+msgctxt ""
+"model:real_estate.process.template.step,name:process_template_vacancy_meters"
+msgid "Record meter readings and secure the unit"
+msgstr "Zählerstände erfassen und Einheit sichern"
+
+msgctxt ""
+"model:real_estate.process.template.step,description:process_template_vacancy_meters"
+msgid ""
+"At the start of the vacancy record a reading for every meter of the unit, "
+"check that windows and doors are closed and the unit is secured (heating on "
+"frost protection, water shut off if necessary). Note the readings and the "
+"state in the result."
+msgstr ""
+"Zu Beginn des Leerstands für alle Zähler der Einheit eine Ablesung erfassen, "
+"Fenster und Türen prüfen und die Einheit sichern (Heizung auf Frostschutz, "
+"ggf. Wasser absperren). Zählerstände und Zustand im Ergebnis vermerken."
+
+msgctxt ""
+"model:real_estate.process.template.step,name:process_template_vacancy_inspection"
+msgid "Inspect the unit and commission repairs"
+msgstr "Einheit begehen und Instandsetzung beauftragen"
+
+msgctxt ""
+"model:real_estate.process.template.step,description:process_template_vacancy_inspection"
+msgid ""
+"Inspect the unit, document defects (photos) and commission the necessary "
+"repairs and decorative work. Note the commissioned work, costs and the "
+"expected completion in the result."
+msgstr ""
+"Die Einheit begehen, Mängel dokumentieren (Fotos) und die nötigen "
+"Instandsetzungs- und Renovierungsarbeiten beauftragen. Beauftragte Arbeiten, "
+"Kosten und voraussichtliche Fertigstellung im Ergebnis vermerken."
+
+msgctxt ""
+"model:real_estate.process.template.step,name:process_template_vacancy_rent"
+msgid "Determine the new rent"
+msgstr "Neue Miete festlegen"
+
+msgctxt ""
+"model:real_estate.process.template.step,description:process_template_vacancy_rent"
+msgid ""
+"Determine the new rent: local comparative rent (rent index), rent control in "
+"a tight housing market (§ 556d BGB: at most 10 % above the comparative rent, "
+"exceptions e.g. previous rent, modernisation), operating cost prepayments. "
+"Enter the rent and its justification in the result."
+msgstr ""
+"Die neue Miete festlegen: ortsübliche Vergleichsmiete (Mietspiegel), "
+"Mietpreisbremse bei angespanntem Wohnungsmarkt (§ 556d BGB: höchstens 10 % "
+"über der Vergleichsmiete, Ausnahmen z. B. Vormiete, Modernisierung), "
+"Betriebskostenvorauszahlungen. Miete und Begründung im Ergebnis eintragen."
+
+msgctxt ""
+"model:real_estate.process.template.step,name:process_template_vacancy_advert"
+msgid "Advertise the unit"
+msgstr "Einheit inserieren"
+
+msgctxt ""
+"model:real_estate.process.template.step,description:process_template_vacancy_advert"
+msgid ""
+"Publish the advertisement (portals, website, notice) with the energy "
+"performance certificate information required by § 87 GEG. Note where and when"
+" the unit was advertised in the result."
+msgstr ""
+"Das Inserat veröffentlichen (Portale, Website, Aushang) mit den nach § 87 GEG"
+" vorgeschriebenen Angaben aus dem Energieausweis. Im Ergebnis vermerken, wo "
+"und wann inseriert wurde."
+
+msgctxt ""
+"model:real_estate.process.template.step,name:process_template_vacancy_viewings"
+msgid "Viewings and selection of the tenant"
+msgstr "Besichtigungen und Mieterauswahl"
+
+msgctxt ""
+"model:real_estate.process.template.step,description:process_template_vacancy_viewings"
+msgid ""
+"Arrange viewings, obtain self-disclosures, proof of income and credit reports"
+" of the applicants and select the tenant. Document the decision in the "
+"result."
+msgstr ""
+"Besichtigungen durchführen, Selbstauskunft, Einkommensnachweise und "
+"Bonitätsauskünfte der Bewerber einholen und den Mieter auswählen. Die "
+"Entscheidung im Ergebnis dokumentieren."
+
+msgctxt ""
+"model:real_estate.process.template.step,name:process_template_vacancy_contract"
+msgid "Create the new lease contract"
+msgstr "Neuen Mietvertrag anlegen"
+
+msgctxt ""
+"model:real_estate.process.template.step,description:process_template_vacancy_contract"
+msgid ""
+"Create the new lease contract with 'Execute Action' (items with this unit, "
+"terms, deposit, parties) and have it signed; the start of the contract ends "
+"the vacancy. Enter the contract number in the result."
+msgstr ""
+"Über „Aktion ausführen“ den neuen Mietvertrag anlegen (Position mit dieser "
+"Einheit, Konditionen, Kaution, Vertragspartner) und unterschreiben lassen; "
+"der Vertragsbeginn beendet den Leerstand. Die Vertragsnummer im Ergebnis "
+"eintragen."
+
+msgctxt "field:real_estate.base_object,tasks_open:"
+msgid "Tasks"
+msgstr "Aufgaben"
+
+msgctxt "field:real_estate.base_object,tasks_history:"
+msgid "Tasks"
+msgstr "Aufgaben"
+
+msgctxt "field:real_estate.base_object,property_tasks_open:"
+msgid "Tasks of the Property"
+msgstr "Aufgaben der Wirtschaftseinheit"
+
+msgctxt "field:real_estate.base_object,property_tasks_history:"
+msgid "Tasks of the Property"
+msgstr "Aufgaben der Wirtschaftseinheit"
+
+msgctxt "field:real_estate.base_object,contract_tasks_open:"
+msgid "Tasks of the Contracts"
+msgstr "Aufgaben der Verträge"
+
+msgctxt "field:real_estate.base_object,contract_tasks_history:"
+msgid "Tasks of the Contracts"
+msgstr "Aufgaben der Verträge"
+
+msgctxt "field:real_estate.base_object,processes_open:"
+msgid "Processes"
+msgstr "Prozesse"
+
+msgctxt "field:real_estate.base_object,processes_history:"
+msgid "Processes"
+msgstr "Prozesse"
+
+msgctxt "view:real_estate.base_object:"
+msgid "Tasks and Processes"
+msgstr "Aufgaben und Prozesse"
+
+msgctxt "view:real_estate.base_object:"
+msgid "Open"
+msgstr "Offen"
+
+msgctxt "view:real_estate.base_object:"
+msgid "History"
+msgstr "Historie"
+
+msgctxt "field:real_estate.billing_unit,tasks_open:"
+msgid "Tasks"
+msgstr "Aufgaben"
+
+msgctxt "field:real_estate.billing_unit,tasks_history:"
+msgid "Tasks"
+msgstr "Aufgaben"
+
+msgctxt "field:real_estate.billing_unit,processes_open:"
+msgid "Processes"
+msgstr "Prozesse"
+
+msgctxt "field:real_estate.billing_unit,processes_history:"
+msgid "Processes"
+msgstr "Prozesse"
+
+msgctxt "view:real_estate.billing_unit:"
+msgid "Tasks and Processes"
+msgstr "Aufgaben und Prozesse"
+
+msgctxt "view:real_estate.billing_unit:"
+msgid "Open"
+msgstr "Offen"
+
+msgctxt "view:real_estate.billing_unit:"
+msgid "History"
+msgstr "Historie"
+
+msgctxt "field:real_estate.contract.rent_adjustment,tasks_open:"
+msgid "Tasks"
+msgstr "Aufgaben"
+
+msgctxt "field:real_estate.contract.rent_adjustment,tasks_history:"
+msgid "Tasks"
+msgstr "Aufgaben"
+
+msgctxt "field:real_estate.contract.rent_adjustment,processes_open:"
+msgid "Processes"
+msgstr "Prozesse"
+
+msgctxt "field:real_estate.contract.rent_adjustment,processes_history:"
+msgid "Processes"
+msgstr "Prozesse"
+
+msgctxt "view:real_estate.contract.rent_adjustment:"
+msgid "Tasks and Processes"
+msgstr "Aufgaben und Prozesse"
+
+msgctxt "view:real_estate.contract.rent_adjustment:"
+msgid "Open"
+msgstr "Offen"
+
+msgctxt "view:real_estate.contract.rent_adjustment:"
+msgid "History"
+msgstr "Historie"
+
+msgctxt "field:real_estate.base_object,building_inspection_plans:"
+msgid "Inspection Plans"
+msgstr "Prüfpläne"
+
+msgctxt "field:real_estate.base_object,equipment_kind:"
+msgid "Equipment Kind"
+msgstr "Anlagenart"
+
+msgctxt "field:real_estate.base_object,property_inspection_plans:"
+msgid "Inspection Plans"
+msgstr "Prüfpläne"
+
+msgctxt "field:real_estate.equipment.kind,code:"
+msgid "Code"
+msgstr "Code"
+
+msgctxt "field:real_estate.equipment.kind,name:"
+msgid "Name"
+msgstr "Name"
+
+msgctxt "field:real_estate.inspection.checklist,items:"
+msgid "Check Items"
+msgstr "Prüfpunkte"
+
+msgctxt "field:real_estate.inspection.checklist,name:"
+msgid "Name"
+msgstr "Name"
+
+msgctxt "field:real_estate.inspection.checklist.item,answer_type:"
+msgid "Answer Type"
+msgstr "Antworttyp"
+
+msgctxt "field:real_estate.inspection.checklist.item,checklist:"
+msgid "Checklist"
+msgstr "Checkliste"
+
+msgctxt "field:real_estate.inspection.checklist.item,create_defect_on_nok:"
+msgid "Defect if Not OK"
+msgstr "Mangel bei nicht i. O."
+
+msgctxt "field:real_estate.inspection.checklist.item,default_severity:"
+msgid "Default Severity"
+msgstr "Vorgabe Schwere"
+
+msgctxt "field:real_estate.inspection.checklist.item,mandatory:"
+msgid "Mandatory"
+msgstr "Pflicht"
+
+msgctxt "field:real_estate.inspection.checklist.item,max_value:"
+msgid "Maximum"
+msgstr "Maximum"
+
+msgctxt "field:real_estate.inspection.checklist.item,min_value:"
+msgid "Minimum"
+msgstr "Minimum"
+
+msgctxt "field:real_estate.inspection.checklist.item,photo_on_nok:"
+msgid "Photo if Not OK"
+msgstr "Foto bei nicht i. O."
+
+msgctxt "field:real_estate.inspection.checklist.item,question:"
+msgid "Question"
+msgstr "Prüfpunkt"
+
+msgctxt "field:real_estate.inspection.checklist.item,section:"
+msgid "Section"
+msgstr "Abschnitt"
+
+msgctxt "field:real_estate.inspection.checklist.item,selection_values:"
+msgid "Selection Values"
+msgstr "Auswahlwerte"
+
+msgctxt "field:real_estate.inspection.checklist.item,unit:"
+msgid "Unit"
+msgstr "Einheit"
+
+msgctxt "field:real_estate.inspection.plan,building:"
+msgid "Building"
+msgstr "Gebäude"
+
+msgctxt "field:real_estate.inspection.plan,company:"
+msgid "Company"
+msgstr "Unternehmen"
+
+msgctxt "field:real_estate.inspection.plan,contractor:"
+msgid "Contractor"
+msgstr "Dienstleister"
+
+msgctxt "field:real_estate.inspection.plan,interval:"
+msgid "Interval"
+msgstr "Intervall"
+
+msgctxt "field:real_estate.inspection.plan,interval_basis:"
+msgid "Interval Basis"
+msgstr "Intervallbasis"
+
+msgctxt "field:real_estate.inspection.plan,interval_unit:"
+msgid "Interval Unit"
+msgstr "Intervalleinheit"
+
+msgctxt "field:real_estate.inspection.plan,last_done_date:"
+msgid "Last Done"
+msgstr "Zuletzt durchgeführt"
+
+msgctxt "field:real_estate.inspection.plan,lead_time_days:"
+msgid "Lead Time (Days)"
+msgstr "Vorlauf (Tage)"
+
+msgctxt "field:real_estate.inspection.plan,next_due_date:"
+msgid "Next Due Date"
+msgstr "Nächste Fälligkeit"
+
+msgctxt "field:real_estate.inspection.plan,overdue:"
+msgid "Overdue"
+msgstr "Überfällig"
+
+msgctxt "field:real_estate.inspection.plan,owner_maintains:"
+msgid "Maintained by Owner"
+msgstr "Wartung durch Eigentümer"
+
+msgctxt "field:real_estate.inspection.plan,preferred_month:"
+msgid "Preferred Month"
+msgstr "Wunschmonat"
+
+msgctxt "field:real_estate.inspection.plan,property:"
+msgid "Property"
+msgstr "Wirtschaftseinheit"
+
+msgctxt "field:real_estate.inspection.plan,responsible_user:"
+msgid "Responsible User"
+msgstr "Verantwortlicher Benutzer"
+
+msgctxt "field:real_estate.inspection.plan,scope:"
+msgid "Scope"
+msgstr "Prüfobjekt"
+
+msgctxt "field:real_estate.inspection.plan,type:"
+msgid "Inspection Type"
+msgstr "Prüfart"
+
+msgctxt "field:real_estate.inspection.type,access_attempts:"
+msgid "Access Attempts"
+msgstr "Zugangsversuche"
+
+msgctxt "field:real_estate.inspection.type,approval_group:"
+msgid "Approval Group"
+msgstr "Freigabegruppe"
+
+msgctxt "field:real_estate.inspection.type,category:"
+msgid "Category"
+msgstr "Kategorie"
+
+msgctxt "field:real_estate.inspection.type,code:"
+msgid "Code"
+msgstr "Code"
+
+msgctxt "field:real_estate.inspection.type,contractor_required:"
+msgid "Contractor Required"
+msgstr "Dienstleister erforderlich"
+
+msgctxt "field:real_estate.inspection.type,defect_days_critical:"
+msgid "Deadline Critical (Days)"
+msgstr "Frist kritisch (Tage)"
+
+msgctxt "field:real_estate.inspection.type,defect_days_major:"
+msgid "Deadline Major (Days)"
+msgstr "Frist schwer (Tage)"
+
+msgctxt "field:real_estate.inspection.type,defect_days_minor:"
+msgid "Deadline Minor (Days)"
+msgstr "Frist leicht (Tage)"
+
+msgctxt "field:real_estate.inspection.type,equipment_kind:"
+msgid "Equipment Kind"
+msgstr "Anlagenart"
+
+msgctxt "field:real_estate.inspection.type,header_checklist:"
+msgid "Header Checklist"
+msgstr "Checkliste Kopf"
+
+msgctxt "field:real_estate.inspection.type,interval:"
+msgid "Interval"
+msgstr "Intervall"
+
+msgctxt "field:real_estate.inspection.type,interval_basis:"
+msgid "Interval Basis"
+msgstr "Intervallbasis"
+
+msgctxt "field:real_estate.inspection.type,interval_unit:"
+msgid "Interval Unit"
+msgstr "Intervalleinheit"
+
+msgctxt "field:real_estate.inspection.type,lead_time_days:"
+msgid "Lead Time (Days)"
+msgstr "Vorlauf (Tage)"
+
+msgctxt "field:real_estate.inspection.type,legal_basis:"
+msgid "Legal Basis"
+msgstr "Rechtsgrundlage"
+
+msgctxt "field:real_estate.inspection.type,line_checklist:"
+msgid "Line Checklist"
+msgstr "Checkliste Positionen"
+
+msgctxt "field:real_estate.inspection.type,line_filter:"
+msgid "Line Filter"
+msgstr "Positionsfilter"
+
+msgctxt "field:real_estate.inspection.type,line_granularity:"
+msgid "Lines"
+msgstr "Positionen"
+
+msgctxt "field:real_estate.inspection.type,name:"
+msgid "Name"
+msgstr "Name"
+
+msgctxt "field:real_estate.inspection.type,notice_days:"
+msgid "Notice Days"
+msgstr "Vorlauf Aushang (Tage)"
+
+msgctxt "field:real_estate.inspection.type,preferred_month:"
+msgid "Preferred Month"
+msgstr "Wunschmonat"
+
+msgctxt "field:real_estate.inspection.type,process_template:"
+msgid "Process Template"
+msgstr "Prozessvorlage"
+
+msgctxt "field:real_estate.inspection.type,requires_approval:"
+msgid "Requires Approval"
+msgstr "Freigabe erforderlich"
+
+msgctxt "field:real_estate.inspection.type,requires_unit_access:"
+msgid "Requires Unit Access"
+msgstr "Zugang zur Einheit erforderlich"
+
+msgctxt "field:real_estate.inspection.type,responsible_role:"
+msgid "Responsible Party Role"
+msgstr "Verantwortliche Partnerrolle"
+
+msgctxt "field:real_estate.inspection.type,scope:"
+msgid "Scope"
+msgstr "Prüfobjekt"
+
+msgctxt "field:real_estate.inspection.type,tolerance_days:"
+msgid "Tolerance (Days)"
+msgstr "Toleranz (Tage)"
+
+msgctxt "help:real_estate.base_object,equipment_kind:"
+msgid ""
+"Kind of the equipment (e.g. smoke detector, elevator) - selects the equipment"
+" of inspections."
+msgstr ""
+"Art der Anlage (z. B. Rauchwarnmelder, Aufzug) - bestimmt die Anlagen von "
+"Prüfungen."
+
+msgctxt "help:real_estate.inspection.checklist.item,create_defect_on_nok:"
+msgid "A not OK answer creates a defect."
+msgstr "Eine Antwort „nicht i. O.“ legt einen Mangel an."
+
+msgctxt "help:real_estate.inspection.checklist.item,photo_on_nok:"
+msgid "A not OK answer requires an attachment."
+msgstr "Eine Antwort „nicht i. O.“ erfordert einen Anhang (Foto)."
+
+msgctxt "help:real_estate.inspection.checklist.item,section:"
+msgid "Heading the item is grouped under."
+msgstr "Überschrift, unter der der Prüfpunkt gruppiert wird."
+
+msgctxt "help:real_estate.inspection.checklist.item,selection_values:"
+msgid "One value per line."
+msgstr "Ein Wert je Zeile."
+
+msgctxt "help:real_estate.inspection.plan,owner_maintains:"
+msgid ""
+"The owner (resp. the administration) has taken over the maintenance (e.g. "
+"smoke detectors)."
+msgstr ""
+"Der Eigentümer (bzw. die Verwaltung) hat die Wartung übernommen (z. B. "
+"Rauchwarnmelder)."
+
+msgctxt "help:real_estate.inspection.plan,responsible_user:"
+msgid "Overrides the responsibility by the party role."
+msgstr "Übersteuert die Zuständigkeit über die Partnerrolle."
+
+msgctxt "help:real_estate.inspection.type,contractor_required:"
+msgid "Done only with contractor and external report number or an attachment."
+msgstr ""
+"Abschluss nur mit Dienstleister und externer Berichtsnummer oder einem "
+"Anhang."
+
+msgctxt "help:real_estate.inspection.type,equipment_kind:"
+msgid ""
+"Equipment lines: only equipment of this kind. Rental unit lines: only units "
+"with equipment of this kind."
+msgstr ""
+"Positionen je Anlage: nur Anlagen dieser Art. Positionen je Mieteinheit: nur "
+"Einheiten mit einer Anlage dieser Art."
+
+msgctxt "help:real_estate.inspection.type,interval_basis:"
+msgid ""
+"Fixed rhythm: next due date from the previous due date. From execution: from "
+"the date the inspection was done."
+msgstr ""
+"Fester Rhythmus: nächste Fälligkeit ab der bisherigen Fälligkeit. Ab "
+"Durchführung: ab dem Tag der Durchführung."
+
+msgctxt "help:real_estate.inspection.type,lead_time_days:"
+msgid "The inspection is created this many days before it is due."
+msgstr "Der Prüfvorgang wird so viele Tage vor der Fälligkeit angelegt."
+
+msgctxt "help:real_estate.inspection.type,line_filter:"
+msgid ""
+"Additional PYSON domain on the objects of the lines, e.g. [[\"type_of_use\", "
+"\"=\", \"residential\"]]."
+msgstr ""
+"Zusätzliche PYSON-Domain auf die Objekte der Positionen, z. B. "
+"[[\"type_of_use\", \"=\", \"residential\"]]."
+
+msgctxt "help:real_estate.inspection.type,line_granularity:"
+msgid ""
+"Results only in the header, or one line per rental unit resp. equipment below"
+" the object of the inspection."
+msgstr ""
+"Ergebnisse nur im Kopf oder eine Position je Mieteinheit bzw. Anlage "
+"unterhalb des Prüfobjekts."
+
+msgctxt "help:real_estate.inspection.type,notice_days:"
+msgid ""
+"Minimum days between the tenant notice and the inspection - a warning when "
+"scheduling, not an error."
+msgstr ""
+"Mindesttage zwischen Mieteraushang und Prüfung - beim Terminieren eine "
+"Warnung, kein Fehler."
+
+msgctxt "help:real_estate.inspection.type,preferred_month:"
+msgid "The due date is moved to the first of this month."
+msgstr "Die Fälligkeit wird auf den Ersten dieses Monats verschoben."
+
+msgctxt "help:real_estate.inspection.type,process_template:"
+msgid "Steps of the inspection as tasks, scheduled from the planned date."
+msgstr "Schritte der Prüfung als Aufgaben, terminiert ab dem geplanten Datum."
+
+msgctxt "help:real_estate.inspection.type,scope:"
+msgid ""
+"Object of plan and inspection: one inspection = one notice, one report, one "
+"approval."
+msgstr ""
+"Objekt von Plan und Prüfvorgang: ein Vorgang = ein Aushang, ein Protokoll, "
+"eine Freigabe."
+
+msgctxt "help:real_estate.inspection.type,tolerance_days:"
+msgid "Overdue this many days after the due date."
+msgstr "Überfällig so viele Tage nach der Fälligkeit."
+
+msgctxt "model:ir.action,name:act_equipment_kind"
+msgid "Equipment Kinds"
+msgstr "Anlagenarten"
+
+msgctxt "model:ir.action,name:act_inspection_checklist"
+msgid "Inspection Checklists"
+msgstr "Prüf-Checklisten"
+
+msgctxt "model:ir.action,name:act_inspection_plan"
+msgid "Inspection Plans"
+msgstr "Prüfpläne"
+
+msgctxt "model:ir.action,name:act_inspection_type"
+msgid "Inspection Types"
+msgstr "Prüfarten"
+
+msgctxt "model:ir.action.act_window.domain,name:act_inspection_plan_domain_all"
+msgid "All"
+msgstr "Alle"
+
+msgctxt "model:ir.action.act_window.domain,name:act_inspection_plan_domain_due"
+msgid "Due in 90 Days"
+msgstr "Fällig in 90 Tagen"
+
+msgctxt ""
+"model:ir.action.act_window.domain,name:act_inspection_plan_domain_overdue"
+msgid "Overdue"
+msgstr "Überfällig"
+
+msgctxt "model:ir.message,text:msg_equipment_kind_code_unique"
+msgid "The code of the equipment kind must be unique."
+msgstr "Der Code der Anlagenart muss eindeutig sein."
+
+msgctxt "model:ir.message,text:msg_inspection_line_filter"
+msgid ""
+"The line filter of the inspection type \"%(type)s\" is not a valid PYSON "
+"domain."
+msgstr ""
+"Der Positionsfilter der Prüfart \"%(type)s\" ist keine gültige PYSON-Domain."
+
+msgctxt "model:ir.message,text:msg_inspection_plan_building"
+msgid ""
+"The inspection plan \"%(plan)s\" needs a building (scope of the inspection "
+"type: building)."
+msgstr ""
+"Der Prüfplan \"%(plan)s\" braucht ein Gebäude (Prüfobjekt der Prüfart: "
+"Gebäude)."
+
+msgctxt "model:ir.message,text:msg_inspection_plan_unique"
+msgid ""
+"There is already an active inspection plan \"%(plan)s\" for this inspection "
+"type and object."
+msgstr ""
+"Es gibt bereits einen aktiven Prüfplan \"%(plan)s\" für diese Prüfart und "
+"dieses Objekt."
+
+msgctxt "model:ir.message,text:msg_inspection_type_code_unique"
+msgid "The code of the inspection type must be unique."
+msgstr "Der Code der Prüfart muss eindeutig sein."
+
+msgctxt "model:ir.rule.group,name:rule_group_inspection_plan_companies"
+msgid "User in companies"
+msgstr "Benutzer im Unternehmen"
+
+msgctxt "model:ir.ui.menu,name:menu_equipment_kind"
+msgid "Equipment Kinds"
+msgstr "Anlagenarten"
+
+msgctxt "model:ir.ui.menu,name:menu_inspection_checklist"
+msgid "Inspection Checklists"
+msgstr "Prüf-Checklisten"
+
+msgctxt "model:ir.ui.menu,name:menu_inspection_configuration"
+msgid "Inspections"
+msgstr "Prüfungen"
+
+msgctxt "model:ir.ui.menu,name:menu_inspection_plan"
+msgid "Inspection Plans"
+msgstr "Prüfpläne"
+
+msgctxt "model:ir.ui.menu,name:menu_inspection_type"
+msgid "Inspection Types"
+msgstr "Prüfarten"
+
+msgctxt "model:ir.ui.menu,name:menu_inspections"
+msgid "Inspections"
+msgstr "Prüfungen"
+
+msgctxt ""
+"model:real_estate.equipment.kind,name:equipment_kind_backflow_preventer"
+msgid "Backflow Preventer"
+msgstr "Rückstausicherung"
+
+msgctxt "model:real_estate.equipment.kind,name:equipment_kind_elevator"
+msgid "Elevator"
+msgstr "Aufzug"
+
+msgctxt ""
+"model:real_estate.equipment.kind,name:equipment_kind_fire_extinguisher"
+msgid "Fire Extinguisher"
+msgstr "Feuerlöscher"
+
+msgctxt "model:real_estate.equipment.kind,name:equipment_kind_heating_system"
+msgid "Heating System"
+msgstr "Heizungsanlage"
+
+msgctxt "model:real_estate.equipment.kind,name:equipment_kind_playground"
+msgid "Playground"
+msgstr "Spielplatz"
+
+msgctxt "model:real_estate.equipment.kind,name:equipment_kind_smoke_detector"
+msgid "Smoke Detector"
+msgstr "Rauchwarnmelder"
+
+msgctxt ""
+"model:real_estate.equipment.kind,name:equipment_kind_smoke_heat_exhaust"
+msgid "Smoke and Heat Exhaust System"
+msgstr "Rauch- und Wärmeabzugsanlage (RWA)"
+
+msgctxt "model:real_estate.equipment.kind,string:"
+msgid "Real Estate Equipment Kind"
+msgstr "Anlagenart"
+
+msgctxt "model:real_estate.inspection.checklist,string:"
+msgid "Real Estate Inspection Checklist"
+msgstr "Prüf-Checkliste"
+
+msgctxt "model:real_estate.inspection.checklist.item,string:"
+msgid "Real Estate Inspection Checklist Item"
+msgstr "Prüfpunkt"
+
+msgctxt "model:real_estate.inspection.plan,string:"
+msgid "Real Estate Inspection Plan"
+msgstr "Prüfplan"
+
+msgctxt "model:real_estate.inspection.type,string:"
+msgid "Real Estate Inspection Type"
+msgstr "Prüfart"
+
+msgctxt "selection:real_estate.inspection.checklist.item,answer_type:"
+msgid "Date"
+msgstr "Datum"
+
+msgctxt "selection:real_estate.inspection.checklist.item,answer_type:"
+msgid "Number"
+msgstr "Zahl"
+
+msgctxt "selection:real_estate.inspection.checklist.item,answer_type:"
+msgid "OK / Not OK / N/A"
+msgstr "i. O. / nicht i. O. / entfällt"
+
+msgctxt "selection:real_estate.inspection.checklist.item,answer_type:"
+msgid "Selection"
+msgstr "Auswahl"
+
+msgctxt "selection:real_estate.inspection.checklist.item,answer_type:"
+msgid "Text"
+msgstr "Text"
+
+msgctxt "selection:real_estate.inspection.checklist.item,answer_type:"
+msgid "Yes / No"
+msgstr "Ja / Nein"
+
+msgctxt "selection:real_estate.inspection.checklist.item,default_severity:"
+msgid "Critical"
+msgstr "Kritisch"
+
+msgctxt "selection:real_estate.inspection.checklist.item,default_severity:"
+msgid "Major"
+msgstr "Schwer"
+
+msgctxt "selection:real_estate.inspection.checklist.item,default_severity:"
+msgid "Minor"
+msgstr "Leicht"
+
+msgctxt "selection:real_estate.inspection.checklist.item,default_severity:"
+msgid "Note"
+msgstr "Hinweis"
+
+msgctxt "selection:real_estate.inspection.plan,interval_basis:"
+msgid "Fixed Rhythm"
+msgstr "Fester Rhythmus"
+
+msgctxt "selection:real_estate.inspection.plan,interval_basis:"
+msgid "From Execution"
+msgstr "Ab Durchführung"
+
+msgctxt "selection:real_estate.inspection.plan,interval_unit:"
+msgid "Days"
+msgstr "Tage"
+
+msgctxt "selection:real_estate.inspection.plan,interval_unit:"
+msgid "Months"
+msgstr "Monate"
+
+msgctxt "selection:real_estate.inspection.plan,interval_unit:"
+msgid "Weeks"
+msgstr "Wochen"
+
+msgctxt "selection:real_estate.inspection.plan,interval_unit:"
+msgid "Years"
+msgstr "Jahre"
+
+msgctxt "selection:real_estate.inspection.plan,preferred_month:"
+msgid "April"
+msgstr "April"
+
+msgctxt "selection:real_estate.inspection.plan,preferred_month:"
+msgid "August"
+msgstr "August"
+
+msgctxt "selection:real_estate.inspection.plan,preferred_month:"
+msgid "December"
+msgstr "Dezember"
+
+msgctxt "selection:real_estate.inspection.plan,preferred_month:"
+msgid "February"
+msgstr "Februar"
+
+msgctxt "selection:real_estate.inspection.plan,preferred_month:"
+msgid "January"
+msgstr "Januar"
+
+msgctxt "selection:real_estate.inspection.plan,preferred_month:"
+msgid "July"
+msgstr "Juli"
+
+msgctxt "selection:real_estate.inspection.plan,preferred_month:"
+msgid "June"
+msgstr "Juni"
+
+msgctxt "selection:real_estate.inspection.plan,preferred_month:"
+msgid "March"
+msgstr "März"
+
+msgctxt "selection:real_estate.inspection.plan,preferred_month:"
+msgid "May"
+msgstr "Mai"
+
+msgctxt "selection:real_estate.inspection.plan,preferred_month:"
+msgid "November"
+msgstr "November"
+
+msgctxt "selection:real_estate.inspection.plan,preferred_month:"
+msgid "October"
+msgstr "Oktober"
+
+msgctxt "selection:real_estate.inspection.plan,preferred_month:"
+msgid "September"
+msgstr "September"
+
+msgctxt "selection:real_estate.inspection.plan,scope:"
+msgid "Building"
+msgstr "Gebäude"
+
+msgctxt "selection:real_estate.inspection.plan,scope:"
+msgid "Property"
+msgstr "Wirtschaftseinheit"
+
+msgctxt "selection:real_estate.inspection.type,category:"
+msgid "Legal"
+msgstr "Recht"
+
+msgctxt "selection:real_estate.inspection.type,category:"
+msgid "Safety"
+msgstr "Sicherheit"
+
+msgctxt "selection:real_estate.inspection.type,category:"
+msgid "Technical"
+msgstr "Technik"
+
+msgctxt "selection:real_estate.inspection.type,category:"
+msgid "Walkthrough"
+msgstr "Begehung"
+
+msgctxt "selection:real_estate.inspection.type,interval_basis:"
+msgid "Fixed Rhythm"
+msgstr "Fester Rhythmus"
+
+msgctxt "selection:real_estate.inspection.type,interval_basis:"
+msgid "From Execution"
+msgstr "Ab Durchführung"
+
+msgctxt "selection:real_estate.inspection.type,interval_unit:"
+msgid "Days"
+msgstr "Tage"
+
+msgctxt "selection:real_estate.inspection.type,interval_unit:"
+msgid "Months"
+msgstr "Monate"
+
+msgctxt "selection:real_estate.inspection.type,interval_unit:"
+msgid "Weeks"
+msgstr "Wochen"
+
+msgctxt "selection:real_estate.inspection.type,interval_unit:"
+msgid "Years"
+msgstr "Jahre"
+
+msgctxt "selection:real_estate.inspection.type,line_granularity:"
+msgid "Equipment"
+msgstr "Anlage"
+
+msgctxt "selection:real_estate.inspection.type,line_granularity:"
+msgid "None"
+msgstr "Keine"
+
+msgctxt "selection:real_estate.inspection.type,line_granularity:"
+msgid "Rental Unit"
+msgstr "Mieteinheit"
+
+msgctxt "selection:real_estate.inspection.type,preferred_month:"
+msgid "April"
+msgstr "April"
+
+msgctxt "selection:real_estate.inspection.type,preferred_month:"
+msgid "August"
+msgstr "August"
+
+msgctxt "selection:real_estate.inspection.type,preferred_month:"
+msgid "December"
+msgstr "Dezember"
+
+msgctxt "selection:real_estate.inspection.type,preferred_month:"
+msgid "February"
+msgstr "Februar"
+
+msgctxt "selection:real_estate.inspection.type,preferred_month:"
+msgid "January"
+msgstr "Januar"
+
+msgctxt "selection:real_estate.inspection.type,preferred_month:"
+msgid "July"
+msgstr "Juli"
+
+msgctxt "selection:real_estate.inspection.type,preferred_month:"
+msgid "June"
+msgstr "Juni"
+
+msgctxt "selection:real_estate.inspection.type,preferred_month:"
+msgid "March"
+msgstr "März"
+
+msgctxt "selection:real_estate.inspection.type,preferred_month:"
+msgid "May"
+msgstr "Mai"
+
+msgctxt "selection:real_estate.inspection.type,preferred_month:"
+msgid "November"
+msgstr "November"
+
+msgctxt "selection:real_estate.inspection.type,preferred_month:"
+msgid "October"
+msgstr "Oktober"
+
+msgctxt "selection:real_estate.inspection.type,preferred_month:"
+msgid "September"
+msgstr "September"
+
+msgctxt "selection:real_estate.inspection.type,scope:"
+msgid "Building"
+msgstr "Gebäude"
+
+msgctxt "selection:real_estate.inspection.type,scope:"
+msgid "Property"
+msgstr "Wirtschaftseinheit"
+
+msgctxt "view:real_estate.inspection.plan:"
+msgid "Due Dates"
+msgstr "Fälligkeit"
+
+msgctxt "view:real_estate.inspection.plan:"
+msgid "Execution"
+msgstr "Durchführung"
+
+msgctxt "view:real_estate.inspection.type:"
+msgid "Checklists and Defects"
+msgstr "Checklisten und Mängel"
+
+msgctxt "view:real_estate.inspection.type:"
+msgid "Defect Deadlines"
+msgstr "Mängelfristen"
+
+msgctxt "view:real_estate.inspection.type:"
+msgid "Due Dates"
+msgstr "Fälligkeit"
+
+msgctxt "view:real_estate.inspection.type:"
+msgid "Execution"
+msgstr "Durchführung"
+
+msgctxt "view:real_estate.inspection.type:"
+msgid "General"
+msgstr "Allgemein"
+
+msgctxt "view:real_estate.inspection.type:"
+msgid "Object and Lines"
+msgstr "Objekt und Positionen"
+
+msgctxt "view:real_estate.base_object:"
+msgid "Inspections"
+msgstr "Prüfungen"
+
+msgctxt "field:real_estate.base_object,building_inspections:"
+msgid "Inspections"
+msgstr "Prüfvorgänge"
+
+msgctxt "field:real_estate.base_object,inspection_lines:"
+msgid "Inspection Lines"
+msgstr "Prüfpositionen"
+
+msgctxt "field:real_estate.base_object,property_inspections:"
+msgid "Inspections"
+msgstr "Prüfvorgänge"
+
+msgctxt "field:real_estate.inspection,approved_by:"
+msgid "Approved by"
+msgstr "Freigegeben durch"
+
+msgctxt "field:real_estate.inspection,approved_date:"
+msgid "Approved on"
+msgstr "Freigegeben am"
+
+msgctxt "field:real_estate.inspection,attempt:"
+msgid "Attempt"
+msgstr "Versuch"
+
+msgctxt "field:real_estate.inspection,building:"
+msgid "Building"
+msgstr "Gebäude"
+
+msgctxt "field:real_estate.inspection,cancel_reason:"
+msgid "Cancel Reason"
+msgstr "Abbruchgrund"
+
+msgctxt "field:real_estate.inspection,company:"
+msgid "Company"
+msgstr "Unternehmen"
+
+msgctxt "field:real_estate.inspection,contractor:"
+msgid "Contractor"
+msgstr "Dienstleister"
+
+msgctxt "field:real_estate.inspection,done_date:"
+msgid "Done Date"
+msgstr "Durchgeführt am"
+
+msgctxt "field:real_estate.inspection,due_date:"
+msgid "Due Date"
+msgstr "Fällig am"
+
+msgctxt "field:real_estate.inspection,external_report_number:"
+msgid "External Report Number"
+msgstr "Externe Berichtsnummer"
+
+msgctxt "field:real_estate.inspection,header_results:"
+msgid "Header Results"
+msgstr "Prüfpunkte Kopf"
+
+msgctxt "field:real_estate.inspection,inspector:"
+msgid "Inspector"
+msgstr "Prüfer"
+
+msgctxt "field:real_estate.inspection,lines:"
+msgid "Lines"
+msgstr "Positionen"
+
+msgctxt "field:real_estate.inspection,number:"
+msgid "Number"
+msgstr "Nummer"
+
+msgctxt "field:real_estate.inspection,overall_result:"
+msgid "Overall Result"
+msgstr "Gesamtergebnis"
+
+msgctxt "field:real_estate.inspection,overdue:"
+msgid "Overdue"
+msgstr "Überfällig"
+
+msgctxt "field:real_estate.inspection,participants:"
+msgid "Participants"
+msgstr "Teilnehmer"
+
+msgctxt "field:real_estate.inspection,plan:"
+msgid "Inspection Plan"
+msgstr "Prüfplan"
+
+msgctxt "field:real_estate.inspection,planned_date:"
+msgid "Planned Date"
+msgstr "Geplant am"
+
+msgctxt "field:real_estate.inspection,planned_date_to:"
+msgid "Planned to"
+msgstr "Geplant bis"
+
+msgctxt "field:real_estate.inspection,previous:"
+msgid "Corrects"
+msgstr "Korrigiert"
+
+msgctxt "field:real_estate.inspection,process:"
+msgid "Process"
+msgstr "Prozess"
+
+msgctxt "field:real_estate.inspection,property:"
+msgid "Property"
+msgstr "Wirtschaftseinheit"
+
+msgctxt "field:real_estate.inspection,report:"
+msgid "Report (Document)"
+msgstr "Protokoll (Dokument)"
+
+msgctxt "field:real_estate.inspection,state:"
+msgid "State"
+msgstr "Status"
+
+msgctxt "field:real_estate.inspection,summary:"
+msgid "Summary"
+msgstr "Zusammenfassung"
+
+msgctxt "field:real_estate.inspection,type:"
+msgid "Inspection Type"
+msgstr "Prüfart"
+
+msgctxt "field:real_estate.inspection-party.party,inspection:"
+msgid "Inspection"
+msgstr "Prüfvorgang"
+
+msgctxt "field:real_estate.inspection-party.party,party:"
+msgid "Party"
+msgstr "Partei"
+
+msgctxt "field:real_estate.inspection.line,access_status:"
+msgid "Access"
+msgstr "Zugang"
+
+msgctxt "field:real_estate.inspection.line,attempt:"
+msgid "Attempt"
+msgstr "Versuch"
+
+msgctxt "field:real_estate.inspection.line,base_object:"
+msgid "Object"
+msgstr "Objekt"
+
+msgctxt "field:real_estate.inspection.line,inspection:"
+msgid "Inspection"
+msgstr "Prüfvorgang"
+
+msgctxt "field:real_estate.inspection.line,inspection_state:"
+msgid "Inspection State"
+msgstr "Status Prüfvorgang"
+
+msgctxt "field:real_estate.inspection.line,locked:"
+msgid "Locked"
+msgstr "Gesperrt"
+
+msgctxt "field:real_estate.inspection.line,qty_checked:"
+msgid "Checked"
+msgstr "Geprüft"
+
+msgctxt "field:real_estate.inspection.line,qty_expected:"
+msgid "Expected"
+msgstr "Soll"
+
+msgctxt "field:real_estate.inspection.line,qty_ok:"
+msgid "OK"
+msgstr "i. O."
+
+msgctxt "field:real_estate.inspection.line,qty_replaced:"
+msgid "Replaced"
+msgstr "Ersetzt"
+
+msgctxt "field:real_estate.inspection.line,remarks:"
+msgid "Remarks"
+msgstr "Bemerkungen"
+
+msgctxt "field:real_estate.inspection.line,result:"
+msgid "Result"
+msgstr "Ergebnis"
+
+msgctxt "field:real_estate.inspection.line,results:"
+msgid "Results"
+msgstr "Ergebnisse"
+
+msgctxt "field:real_estate.inspection.line,tenant:"
+msgid "Tenant"
+msgstr "Mieter"
+
+msgctxt "field:real_estate.inspection.line,unit:"
+msgid "Rental Unit"
+msgstr "Mieteinheit"
+
+msgctxt "field:real_estate.inspection.line,visit_date:"
+msgid "Visit Date"
+msgstr "Besuch am"
+
+msgctxt "field:real_estate.inspection.plan,inspections:"
+msgid "Inspections"
+msgstr "Prüfvorgänge"
+
+msgctxt "field:real_estate.inspection.result,answer_type:"
+msgid "Answer Type"
+msgstr "Antworttyp"
+
+msgctxt "field:real_estate.inspection.result,answered:"
+msgid "Answered"
+msgstr "Beantwortet"
+
+msgctxt "field:real_estate.inspection.result,comment:"
+msgid "Comment"
+msgstr "Bemerkung"
+
+msgctxt "field:real_estate.inspection.result,create_defect_on_nok:"
+msgid "Defect if Not OK"
+msgstr "Mangel bei nicht i. O."
+
+msgctxt "field:real_estate.inspection.result,default_severity:"
+msgid "Default Severity"
+msgstr "Vorgabe Schwere"
+
+msgctxt "field:real_estate.inspection.result,inspection:"
+msgid "Inspection"
+msgstr "Prüfvorgang"
+
+msgctxt "field:real_estate.inspection.result,is_nok:"
+msgid "Not OK"
+msgstr "Nicht i. O."
+
+msgctxt "field:real_estate.inspection.result,item:"
+msgid "Check Item"
+msgstr "Prüfpunkt"
+
+msgctxt "field:real_estate.inspection.result,line:"
+msgid "Line"
+msgstr "Position"
+
+msgctxt "field:real_estate.inspection.result,locked:"
+msgid "Locked"
+msgstr "Gesperrt"
+
+msgctxt "field:real_estate.inspection.result,mandatory:"
+msgid "Mandatory"
+msgstr "Pflicht"
+
+msgctxt "field:real_estate.inspection.result,max_value:"
+msgid "Maximum"
+msgstr "Maximum"
+
+msgctxt "field:real_estate.inspection.result,min_value:"
+msgid "Minimum"
+msgstr "Minimum"
+
+msgctxt "field:real_estate.inspection.result,photo_on_nok:"
+msgid "Photo if Not OK"
+msgstr "Foto bei nicht i. O."
+
+msgctxt "field:real_estate.inspection.result,question:"
+msgid "Question"
+msgstr "Prüfpunkt"
+
+msgctxt "field:real_estate.inspection.result,section:"
+msgid "Section"
+msgstr "Abschnitt"
+
+msgctxt "field:real_estate.inspection.result,selection_values:"
+msgid "Selection Values"
+msgstr "Auswahlwerte"
+
+msgctxt "field:real_estate.inspection.result,unit:"
+msgid "Unit"
+msgstr "Einheit"
+
+msgctxt "field:real_estate.inspection.result,value_choice:"
+msgid "Choice"
+msgstr "Auswahl"
+
+msgctxt "field:real_estate.inspection.result,value_date:"
+msgid "Date"
+msgstr "Datum"
+
+msgctxt "field:real_estate.inspection.result,value_number:"
+msgid "Number"
+msgstr "Nummer"
+
+msgctxt "field:real_estate.inspection.result,value_ok:"
+msgid "OK / Not OK"
+msgstr "i. O. / nicht i. O."
+
+msgctxt "field:real_estate.inspection.result,value_text:"
+msgid "Text"
+msgstr "Text"
+
+msgctxt "field:real_estate.inspection.result,value_yes_no:"
+msgid "Yes / No"
+msgstr "Ja / Nein"
+
+msgctxt "help:real_estate.inspection,planned_date:"
+msgid "Anchor of the process steps (e.g. notice 14 days before)."
+msgstr "Anker der Prozessschritte (z. B. Aushang 14 Tage vorher)."
+
+msgctxt "help:real_estate.inspection,planned_date_to:"
+msgid "End of the time window of the notice."
+msgstr "Ende des Zeitfensters im Aushang."
+
+msgctxt "help:real_estate.inspection,previous:"
+msgid "Approved inspection corrected by this one."
+msgstr "Freigegebener Prüfvorgang, den dieser korrigiert."
+
+msgctxt "help:real_estate.inspection.line,qty_expected:"
+msgid "Measurement 'Number of items' of the equipment on the due date."
+msgstr "Bemessung „Anzahl“ der Anlage zum Fälligkeitstag."
+
+msgctxt "model:ir.action,name:act_inspection_form"
+msgid "Inspections"
+msgstr "Prüfvorgänge"
+
+msgctxt "model:ir.action,name:report_inspection_de"
+msgid "Inspection Report (de)"
+msgstr "Prüfprotokoll (de)"
+
+msgctxt "model:ir.action.act_window.domain,name:act_inspection_form_domain_all"
+msgid "All"
+msgstr "Alle"
+
+msgctxt ""
+"model:ir.action.act_window.domain,name:act_inspection_form_domain_approved"
+msgid "Approved"
+msgstr "Freigegeben"
+
+msgctxt ""
+"model:ir.action.act_window.domain,name:act_inspection_form_domain_done"
+msgid "To Approve"
+msgstr "Zur Freigabe"
+
+msgctxt ""
+"model:ir.action.act_window.domain,name:act_inspection_form_domain_open"
+msgid "Open"
+msgstr "Offen"
+
+msgctxt ""
+"model:ir.action.act_window.domain,name:act_inspection_form_domain_overdue"
+msgid "Overdue"
+msgstr "Überfällig"
+
+msgctxt "model:ir.message,text:msg_inspection_access_attempts"
+msgid ""
+"The inspection \"%(inspection)s\" has %(count)s lines not inspected after "
+"fewer access attempts than required."
+msgstr ""
+"Der Prüfvorgang \"%(inspection)s\" hat %(count)s nicht geprüfte Positionen "
+"nach weniger Zugangsversuchen als vorgesehen."
+
+msgctxt "model:ir.message,text:msg_inspection_approval_group"
+msgid ""
+"Only members of the group \"%(group)s\" can approve the inspection "
+"\"%(inspection)s\"."
+msgstr ""
+"Nur Mitglieder der Gruppe \"%(group)s\" können den Prüfvorgang "
+"\"%(inspection)s\" freigeben."
+
+msgctxt "model:ir.message,text:msg_inspection_cancel_reason"
+msgid ""
+"Please enter a cancel reason for the inspection \"%(inspection)s\" (tab "
+"\"Summary\")."
+msgstr ""
+"Bitte für den Prüfvorgang \"%(inspection)s\" einen Abbruchgrund erfassen "
+"(Reiter \"Zusammenfassung\")."
+
+msgctxt "model:ir.message,text:msg_inspection_contractor"
+msgid ""
+"The inspection \"%(inspection)s\" cannot be done: the inspection type "
+"requires the contractor and an external report number or an attachment."
+msgstr ""
+"Der Prüfvorgang \"%(inspection)s\" kann nicht abgeschlossen werden: Die "
+"Prüfart verlangt den Dienstleister und eine externe Berichtsnummer oder einen"
+" Anhang."
+
+msgctxt "model:ir.message,text:msg_inspection_delete"
+msgid ""
+"The inspection \"%(inspection)s\" can only be deleted in state draft or "
+"cancelled."
+msgstr ""
+"Der Prüfvorgang \"%(inspection)s\" kann nur im Status Entwurf oder "
+"Abgebrochen gelöscht werden."
+
+msgctxt "model:ir.message,text:msg_inspection_locked"
+msgid ""
+"The inspection \"%(inspection)s\" is approved and cannot be changed - create "
+"a new inspection that corrects it."
+msgstr ""
+"Der Prüfvorgang \"%(inspection)s\" ist freigegeben und kann nicht geändert "
+"werden - bitte einen neuen Prüfvorgang anlegen, der ihn korrigiert."
+
+msgctxt "model:ir.message,text:msg_inspection_mandatory"
+msgid ""
+"The inspection \"%(inspection)s\" cannot be done: mandatory check items are "
+"not answered (%(items)s)."
+msgstr ""
+"Der Prüfvorgang \"%(inspection)s\" kann nicht abgeschlossen werden: Pflicht-"
+"Prüfpunkte sind nicht beantwortet (%(items)s)."
+
+msgctxt "model:ir.message,text:msg_inspection_not_inspected_reason"
+msgid ""
+"The inspection \"%(inspection)s\" cannot be done: lines not inspected need a "
+"reason in the remarks (%(lines)s)."
+msgstr ""
+"Der Prüfvorgang \"%(inspection)s\" kann nicht abgeschlossen werden: Nicht "
+"geprüfte Positionen brauchen einen Grund in den Bemerkungen (%(lines)s)."
+
+msgctxt "model:ir.message,text:msg_inspection_notice_days"
+msgid ""
+"The inspection \"%(inspection)s\" is planned less than %(days)s days from "
+"today - the tenant notice period may not be kept."
+msgstr ""
+"Der Prüfvorgang \"%(inspection)s\" ist in weniger als %(days)s Tagen geplant "
+"- die Ankündigungsfrist für die Mieter wird möglicherweise nicht eingehalten."
+
+msgctxt "model:ir.message,text:msg_inspection_photo"
+msgid ""
+"The inspection \"%(inspection)s\" cannot be done: check items answered \"not "
+"OK\" need a photo (attachment) (%(items)s)."
+msgstr ""
+"Der Prüfvorgang \"%(inspection)s\" kann nicht abgeschlossen werden: "
+"Prüfpunkte mit \"nicht i. O.\" brauchen ein Foto (Anhang) (%(items)s)."
+
+msgctxt "model:ir.message,text:msg_inspection_plan_open"
+msgid ""
+"The inspection plan \"%(plan)s\" already has an open inspection "
+"\"%(inspection)s\"."
+msgstr ""
+"Der Prüfplan \"%(plan)s\" hat bereits einen offenen Prüfvorgang "
+"\"%(inspection)s\"."
+
+msgctxt "model:ir.message,text:msg_inspection_planned_date"
+msgid "The inspection \"%(inspection)s\" needs a planned date to be scheduled."
+msgstr ""
+"Für das Terminieren braucht der Prüfvorgang \"%(inspection)s\" ein geplantes "
+"Datum."
+
+msgctxt "model:ir.model.button,string:inspection_approve_button"
+msgid "Approve"
+msgstr "Freigeben"
+
+msgctxt "model:ir.model.button,string:inspection_cancel_button"
+msgid "Cancel"
+msgstr "Abbrechen"
+
+msgctxt "model:ir.model.button,string:inspection_done_button"
+msgid "Done"
+msgstr "Abschließen"
+
+msgctxt "model:ir.model.button,string:inspection_plan_create_inspection_button"
+msgid "Create Inspection"
+msgstr "Prüfvorgang anlegen"
+
+msgctxt "model:ir.model.button,string:inspection_reopen_button"
+msgid "Reopen"
+msgstr "Wieder öffnen"
+
+msgctxt "model:ir.model.button,string:inspection_schedule_button"
+msgid "Schedule"
+msgstr "Terminieren"
+
+msgctxt "model:ir.model.button,string:inspection_start_button"
+msgid "Start"
+msgstr "Starten"
+
+msgctxt "model:ir.model.button,string:inspection_unschedule_button"
+msgid "Back to Draft"
+msgstr "Zurück zu Entwurf"
+
+msgctxt "model:ir.rule.group,name:rule_group_inspection_companies"
+msgid "User in companies"
+msgstr "Benutzer im Unternehmen"
+
+msgctxt "model:ir.sequence,name:sequence_inspection"
+msgid "Inspection"
+msgstr "Prüfvorgang"
+
+msgctxt "model:ir.sequence.type,name:sequence_type_inspection"
+msgid "Inspection"
+msgstr "Prüfvorgang"
+
+msgctxt "model:ir.ui.menu,name:menu_inspection"
+msgid "Inspections"
+msgstr "Prüfvorgänge"
+
+msgctxt "model:real_estate.inspection,string:"
+msgid "Real Estate Inspection"
+msgstr "Prüfvorgang"
+
+msgctxt "model:real_estate.inspection-party.party,string:"
+msgid "Real Estate Inspection - Party"
+msgstr "Prüfvorgang - Teilnehmer"
+
+msgctxt "model:real_estate.inspection.line,string:"
+msgid "Real Estate Inspection Line"
+msgstr "Prüfposition"
+
+msgctxt "model:real_estate.inspection.result,string:"
+msgid "Real Estate Inspection Result"
+msgstr "Prüfergebnis"
+
+msgctxt "selection:real_estate.inspection,overall_result:"
+msgid "Not OK"
+msgstr "Nicht i. O."
+
+msgctxt "selection:real_estate.inspection,overall_result:"
+msgid "OK"
+msgstr "i. O."
+
+msgctxt "selection:real_estate.inspection,overall_result:"
+msgid "OK with Defects"
+msgstr "i. O. mit Mängeln"
+
+msgctxt "selection:real_estate.inspection,state:"
+msgid "Approved"
+msgstr "Freigegeben"
+
+msgctxt "selection:real_estate.inspection,state:"
+msgid "Cancelled"
+msgstr "Abgebrochen"
+
+msgctxt "selection:real_estate.inspection,state:"
+msgid "Done"
+msgstr "Abgeschlossen"
+
+msgctxt "selection:real_estate.inspection,state:"
+msgid "Draft"
+msgstr "Entwurf"
+
+msgctxt "selection:real_estate.inspection,state:"
+msgid "In Progress"
+msgstr "In Arbeit"
+
+msgctxt "selection:real_estate.inspection,state:"
+msgid "Scheduled"
+msgstr "Terminiert"
+
+msgctxt "selection:real_estate.inspection.line,access_status:"
+msgid "Accessed"
+msgstr "Zugang erfolgt"
+
+msgctxt "selection:real_estate.inspection.line,access_status:"
+msgid "No Access"
+msgstr "Kein Zugang"
+
+msgctxt "selection:real_estate.inspection.line,access_status:"
+msgid "Not Required"
+msgstr "Nicht erforderlich"
+
+msgctxt "selection:real_estate.inspection.line,access_status:"
+msgid "Refused"
+msgstr "Verweigert"
+
+msgctxt "selection:real_estate.inspection.line,access_status:"
+msgid "Vacant"
+msgstr "Leer"
+
+msgctxt "selection:real_estate.inspection.line,inspection_state:"
+msgid "Approved"
+msgstr "Freigegeben"
+
+msgctxt "selection:real_estate.inspection.line,inspection_state:"
+msgid "Cancelled"
+msgstr "Abgebrochen"
+
+msgctxt "selection:real_estate.inspection.line,inspection_state:"
+msgid "Done"
+msgstr "Abgeschlossen"
+
+msgctxt "selection:real_estate.inspection.line,inspection_state:"
+msgid "Draft"
+msgstr "Entwurf"
+
+msgctxt "selection:real_estate.inspection.line,inspection_state:"
+msgid "In Progress"
+msgstr "In Arbeit"
+
+msgctxt "selection:real_estate.inspection.line,inspection_state:"
+msgid "Scheduled"
+msgstr "Terminiert"
+
+msgctxt "selection:real_estate.inspection.line,result:"
+msgid "Defect"
+msgstr "Mangel"
+
+msgctxt "selection:real_estate.inspection.line,result:"
+msgid "Not Inspected"
+msgstr "Nicht geprüft"
+
+msgctxt "selection:real_estate.inspection.line,result:"
+msgid "OK"
+msgstr "i. O."
+
+msgctxt "selection:real_estate.inspection.result,answer_type:"
+msgid "Date"
+msgstr "Datum"
+
+msgctxt "selection:real_estate.inspection.result,answer_type:"
+msgid "Number"
+msgstr "Nummer"
+
+msgctxt "selection:real_estate.inspection.result,answer_type:"
+msgid "OK / Not OK / N/A"
+msgstr "i. O. / nicht i. O. / entfällt"
+
+msgctxt "selection:real_estate.inspection.result,answer_type:"
+msgid "Selection"
+msgstr "Auswahl"
+
+msgctxt "selection:real_estate.inspection.result,answer_type:"
+msgid "Text"
+msgstr "Text"
+
+msgctxt "selection:real_estate.inspection.result,answer_type:"
+msgid "Yes / No"
+msgstr "Ja / Nein"
+
+msgctxt "selection:real_estate.inspection.result,default_severity:"
+msgid "Critical"
+msgstr "Kritisch"
+
+msgctxt "selection:real_estate.inspection.result,default_severity:"
+msgid "Major"
+msgstr "Schwer"
+
+msgctxt "selection:real_estate.inspection.result,default_severity:"
+msgid "Minor"
+msgstr "Leicht"
+
+msgctxt "selection:real_estate.inspection.result,default_severity:"
+msgid "Note"
+msgstr "Hinweis"
+
+msgctxt "selection:real_estate.inspection.result,value_ok:"
+msgid "N/A"
+msgstr "Entfällt"
+
+msgctxt "selection:real_estate.inspection.result,value_ok:"
+msgid "Not OK"
+msgstr "Nicht i. O."
+
+msgctxt "selection:real_estate.inspection.result,value_ok:"
+msgid "OK"
+msgstr "i. O."
+
+msgctxt "selection:real_estate.inspection.result,value_yes_no:"
+msgid "No"
+msgstr "Nein"
+
+msgctxt "selection:real_estate.inspection.result,value_yes_no:"
+msgid "Yes"
+msgstr "Ja"
+
+msgctxt "view:real_estate.inspection:"
+msgid "Header"
+msgstr "Kopf"
+
+msgctxt "view:real_estate.inspection:"
+msgid "Participants"
+msgstr "Teilnehmer"
+
+msgctxt "view:real_estate.inspection:"
+msgid "Summary"
+msgstr "Zusammenfassung"
+
+msgctxt "model:ir.message,text:msg_base_object_sequence_unique"
+msgid ""
+"The sequence must be unique for objects of the same type below the same "
+"parent object."
+msgstr ""
+"Die Reihenfolge muss für Objekte desselben Typs unter demselben "
+"übergeordneten Objekt eindeutig sein."
+
+msgctxt "model:ir.message,text:msg_base_object_sequence_positive"
+msgid "The sequence must be greater than zero."
+msgstr "Die Reihenfolge muss größer als null sein."
+
+msgctxt "model:ir.message,text:msg_measurement_unique"
+msgid "The object already has a measurement of this type from the same date."
+msgstr "Das Objekt hat bereits eine Bemessung dieses Typs ab demselben Datum."
+
+msgctxt "model:ir.message,text:msg_object_party_unique"
+msgid ""
+"The party is already assigned to the object with this role from the same "
+"date."
+msgstr ""
+"Der Partner ist dem Objekt bereits mit dieser Rolle ab demselben Datum "
+"(gültig ab) zugeordnet."
+
+msgctxt "model:ir.message,text:msg_contracterm_type_tax_unique"
+msgid "The tax is already assigned to the contract type."
+msgstr "Die Steuer ist der Vertragsart bereits zugeordnet."
+
+msgctxt "model:ir.message,text:msg_contracterm_term_tax_unique"
+msgid "The tax is already assigned to the contract term."
+msgstr "Die Steuer ist der Kondition bereits zugeordnet."
+
+msgctxt "field:real_estate.inspection,notice:"
+msgid "Notice (Document)"
+msgstr "Aushang (Dokument)"
+
+msgctxt "field:real_estate.inspection,notice_date:"
+msgid "Notice Date"
+msgstr "Aushang am"
+
+msgctxt "field:real_estate.inspection,time_slots:"
+msgid "Time Slots"
+msgstr "Zeitfenster und Kontakt"
+
+msgctxt "field:real_estate.inspection.line,letter_date:"
+msgid "Letter Date"
+msgstr "Anschreiben am"
+
+msgctxt "field:real_estate.process.template.step,create_condition:"
+msgid "Creation"
+msgstr "Anlage"
+
+msgctxt "field:real_estate.process.template.step,create_method:"
+msgid "Creation Method"
+msgstr "Anlagebedingung"
+
+msgctxt "help:real_estate.inspection,notice_date:"
+msgid "Date the tenant notice was created (proof)."
+msgstr "Datum, an dem der Mieteraushang erstellt wurde (Nachweis)."
+
+msgctxt "help:real_estate.inspection,time_slots:"
+msgid "Time slots and contact for the tenant notice."
+msgstr "Zeitfenster und Kontakt für den Mieteraushang."
+
+msgctxt "help:real_estate.inspection.line,letter_date:"
+msgid "Date the letter to the tenant (no access) was created."
+msgstr ""
+"Datum, an dem das Anschreiben an den Mieter (kein Zugang) erstellt wurde."
+
+msgctxt "help:real_estate.process.template.step,create_condition:"
+msgid ""
+"Always: the task is created with the process. By Method: only once the "
+"condition is fulfilled (e.g. units without access); a step whose condition is"
+" never fulfilled does not block the completion of the process."
+msgstr ""
+"Immer: Die Aufgabe wird mit dem Prozess angelegt. Durch Bedingung: erst, wenn"
+" die Bedingung erfüllt ist (z. B. Einheiten ohne Zugang); ein Schritt, dessen"
+" Bedingung nie eintritt, verhindert den Abschluss des Prozesses nicht."
+
+msgctxt "model:ir.action,name:report_inspection_access_letter_de"
+msgid "Letter No Access (de)"
+msgstr "Anschreiben kein Zugang (de)"
+
+msgctxt "model:ir.action,name:report_inspection_notice_de"
+msgid "Tenant Notice (de)"
+msgstr "Mieteraushang (de)"
+
+msgctxt "model:ir.action,name:wizard_inspection_access_letter"
+msgid "Create Letters No Access"
+msgstr "Anschreiben kein Zugang erstellen"
+
+msgctxt "model:ir.action,name:wizard_inspection_notice"
+msgid "Create Tenant Notice"
+msgstr "Mieteraushang erstellen"
+
+msgctxt "model:ir.message,text:msg_inspection_no_lines_without_access"
+msgid "The inspection \"%(inspection)s\" has no lines without access."
+msgstr "Der Prüfvorgang \"%(inspection)s\" hat keine Positionen ohne Zugang."
+
+msgctxt "model:ir.message,text:msg_inspection_notice_state"
+msgid ""
+"A tenant notice can only be created for scheduled inspections or inspections "
+"in progress."
+msgstr ""
+"Ein Mieteraushang kann nur für terminierte oder laufende Prüfvorgänge "
+"erstellt werden."
+
+msgctxt "model:ir.model.button,string:inspection_next_attempt_button"
+msgid "Next Attempt"
+msgstr "Nächster Versuch"
+
+msgctxt "selection:real_estate.process.template.step,create_condition:"
+msgid "Always"
+msgstr "Immer"
+
+msgctxt "selection:real_estate.process.template.step,create_condition:"
+msgid "By Method"
+msgstr "Durch Bedingung"
+
+msgctxt "selection:real_estate.process.template.step,create_method:"
+msgid "inspection_has_defects"
+msgstr "Prüfung: schwere/kritische Mängel"
+
+msgctxt "selection:real_estate.process.template.step,create_method:"
+msgid "inspection_no_access"
+msgstr "Prüfung: Einheiten ohne Zugang"
+
+msgctxt "selection:real_estate.process.template.step,done_method:"
+msgid "inspection_done"
+msgstr "Prüfung abgeschlossen"
+
+msgctxt "selection:real_estate.process.template.step,done_method:"
+msgid "inspection_approved"
+msgstr "Prüfung freigegeben"
+
+msgctxt "field:real_estate.base_object,building_defects:"
+msgid "Open Defects"
+msgstr "Offene Mängel"
+
+msgctxt "field:real_estate.base_object,object_defects:"
+msgid "Open Defects"
+msgstr "Offene Mängel"
+
+msgctxt "field:real_estate.base_object,property_defects:"
+msgid "Open Defects"
+msgstr "Offene Mängel"
+
+msgctxt "field:real_estate.inspection,defects:"
+msgid "Defects"
+msgstr "Mängel"
+
+msgctxt "field:real_estate.inspection,previous_defects:"
+msgid "Open Defects of Previous Inspections"
+msgstr "Offene Mängel aus vorherigen Prüfungen"
+
+msgctxt "field:real_estate.inspection.defect,base_object:"
+msgid "Object"
+msgstr "Objekt"
+
+msgctxt "field:real_estate.inspection.defect,building:"
+msgid "Building"
+msgstr "Gebäude"
+
+msgctxt "field:real_estate.inspection.defect,company:"
+msgid "Company"
+msgstr "Unternehmen"
+
+msgctxt "field:real_estate.inspection.defect,cost_category:"
+msgid "Cost Category"
+msgstr "Kostenzuordnung"
+
+msgctxt "field:real_estate.inspection.defect,deadline:"
+msgid "Deadline"
+msgstr "Frist"
+
+msgctxt "field:real_estate.inspection.defect,description:"
+msgid "Description"
+msgstr "Beschreibung"
+
+msgctxt "field:real_estate.inspection.defect,detected_date:"
+msgid "Detected on"
+msgstr "Festgestellt am"
+
+msgctxt "field:real_estate.inspection.defect,fixed_date:"
+msgid "Fixed on"
+msgstr "Behoben am"
+
+msgctxt "field:real_estate.inspection.defect,follow_up_task:"
+msgid "Follow-up Task"
+msgstr "Folgeaufgabe"
+
+msgctxt "field:real_estate.inspection.defect,inspection:"
+msgid "Inspection"
+msgstr "Prüfvorgang"
+
+msgctxt "field:real_estate.inspection.defect,line:"
+msgid "Line"
+msgstr "Position"
+
+msgctxt "field:real_estate.inspection.defect,overdue:"
+msgid "Overdue"
+msgstr "Überfällig"
+
+msgctxt "field:real_estate.inspection.defect,plan:"
+msgid "Inspection Plan"
+msgstr "Prüfplan"
+
+msgctxt "field:real_estate.inspection.defect,property:"
+msgid "Property"
+msgstr "Wirtschaftseinheit"
+
+msgctxt "field:real_estate.inspection.defect,responsible_party:"
+msgid "Responsible"
+msgstr "Verantwortlich"
+
+msgctxt "field:real_estate.inspection.defect,result:"
+msgid "Result"
+msgstr "Ergebnis"
+
+msgctxt "field:real_estate.inspection.defect,severity:"
+msgid "Severity"
+msgstr "Schwere"
+
+msgctxt "field:real_estate.inspection.defect,state:"
+msgid "State"
+msgstr "Status"
+
+msgctxt "field:real_estate.inspection.defect,verified_by:"
+msgid "Verified by"
+msgstr "Geprüft durch"
+
+msgctxt "field:real_estate.inspection.defect,verified_date:"
+msgid "Verified on"
+msgstr "Geprüft am"
+
+msgctxt "field:real_estate.inspection.defect,verified_in:"
+msgid "Verified in"
+msgstr "Geprüft in"
+
+msgctxt "field:real_estate.inspection.line,defects:"
+msgid "Defects"
+msgstr "Mängel"
+
+msgctxt "field:real_estate.inspection.result,defects:"
+msgid "Defects"
+msgstr "Mängel"
+
+msgctxt "help:real_estate.inspection.defect,base_object:"
+msgid "Building, rental unit or equipment concerned."
+msgstr "Betroffenes Gebäude, Mieteinheit oder Anlage."
+
+msgctxt "help:real_estate.inspection.defect,deadline:"
+msgid ""
+"Detection date plus the days of the severity of the inspection type; none for"
+" notes."
+msgstr ""
+"Feststellungsdatum plus die Tage der Schwere aus der Prüfart; keine Frist bei"
+" Hinweisen."
+
+msgctxt "help:real_estate.inspection.defect,responsible_party:"
+msgid "Contractor or person who fixes the defect."
+msgstr "Dienstleister oder Person, die den Mangel behebt."
+
+msgctxt "help:real_estate.inspection.defect,verified_in:"
+msgid "Inspection in which the fix was checked."
+msgstr "Prüfvorgang, in dem die Behebung geprüft wurde."
+
+msgctxt "model:ir.action,name:act_inspection_defect"
+msgid "Defects"
+msgstr "Mängel"
+
+msgctxt ""
+"model:ir.action.act_window.domain,name:act_inspection_defect_domain_all"
+msgid "All"
+msgstr "Alle"
+
+msgctxt ""
+"model:ir.action.act_window.domain,name:act_inspection_defect_domain_fixed"
+msgid "To Verify"
+msgstr "Zu prüfen"
+
+msgctxt ""
+"model:ir.action.act_window.domain,name:act_inspection_defect_domain_open"
+msgid "Open"
+msgstr "Offen"
+
+msgctxt ""
+"model:ir.action.act_window.domain,name:act_inspection_defect_domain_overdue"
+msgid "Overdue"
+msgstr "Überfällig"
+
+msgctxt "model:ir.message,text:msg_inspection_defect_cancelled"
+msgid "The defect was cancelled."
+msgstr "Der Mangel wurde storniert."
+
+msgctxt "model:ir.message,text:msg_task_code_inspection_defect"
+msgid "Inspection defect"
+msgstr "Prüfung: Mangel"
+
+msgctxt "model:ir.message,text:msg_task_code_inspection_defect_overdue"
+msgid "Inspection defect overdue"
+msgstr "Prüfung: Mangel überfällig"
+
+msgctxt "model:ir.message,text:msg_task_code_inspection_overdue"
+msgid "Inspection overdue"
+msgstr "Prüfung überfällig"
+
+msgctxt "model:ir.message,text:msg_task_rule_method_defect_overdue"
+msgid "Defect deadline"
+msgstr "Frist des Mangels"
+
+msgctxt "model:ir.message,text:msg_task_rule_method_inspection_overdue"
+msgid "Inspection overdue (due date plus tolerance)"
+msgstr "Prüfung überfällig (Fälligkeit plus Toleranz)"
+
+msgctxt "model:ir.model.button,string:inspection_defect_cancel_button"
+msgid "Cancel"
+msgstr "Stornieren"
+
+msgctxt "model:ir.model.button,string:inspection_defect_fix_button"
+msgid "Fixed"
+msgstr "Behoben"
+
+msgctxt "model:ir.model.button,string:inspection_defect_reject_button"
+msgid "Not Fixed"
+msgstr "Nicht behoben"
+
+msgctxt "model:ir.model.button,string:inspection_defect_reopen_button"
+msgid "Reopen"
+msgstr "Wieder öffnen"
+
+msgctxt "model:ir.model.button,string:inspection_defect_start_button"
+msgid "Start"
+msgstr "In Arbeit nehmen"
+
+msgctxt "model:ir.model.button,string:inspection_defect_verify_button"
+msgid "Verify"
+msgstr "Behebung bestätigen"
+
+msgctxt "model:ir.rule.group,name:rule_group_inspection_defect_companies"
+msgid "User in companies"
+msgstr "Benutzer im Unternehmen"
+
+msgctxt "model:ir.ui.menu,name:menu_inspection_defect"
+msgid "Defects"
+msgstr "Mängel"
+
+msgctxt "model:real_estate.inspection.defect,string:"
+msgid "Real Estate Inspection Defect"
+msgstr "Mangel"
+
+msgctxt "model:real_estate.task.rule,description:task_rule_p01"
+msgid ""
+"The inspection is overdue (due date plus tolerance of the inspection type). "
+"Schedule and carry out the inspection or record why it is delayed."
+msgstr ""
+"Der Prüfvorgang ist überfällig (Fälligkeit plus Toleranz der Prüfart). Die "
+"Prüfung terminieren und durchführen oder den Grund der Verzögerung vermerken."
+
+msgctxt "model:real_estate.task.rule,description:task_rule_p02"
+msgid ""
+"The deadline of the defect has passed. Clarify the state with the responsible"
+" contractor, have the defect fixed and record the fix."
+msgstr ""
+"Die Frist des Mangels ist abgelaufen. Den Stand mit dem verantwortlichen "
+"Dienstleister klären, den Mangel beheben lassen und die Behebung erfassen."
+
+msgctxt "model:real_estate.task.rule,name:task_rule_p01"
+msgid "Inspection overdue"
+msgstr "Prüfung überfällig"
+
+msgctxt "model:real_estate.task.rule,name:task_rule_p02"
+msgid "Inspection defect overdue"
+msgstr "Prüfung: Mangel überfällig"
+
+msgctxt "model:real_estate.task.type,name:task_type_inspection_defect"
+msgid "Fix inspection defect"
+msgstr "Mangel aus Prüfung beheben"
+
+msgctxt "model:real_estate.task.type,name:task_type_inspection_defect_overdue"
+msgid "Inspection defect overdue"
+msgstr "Prüfung: Mangel überfällig"
+
+msgctxt "model:real_estate.task.type,name:task_type_inspection_overdue"
+msgid "Inspection overdue"
+msgstr "Prüfung überfällig"
+
+msgctxt "selection:real_estate.inspection.defect,cost_category:"
+msgid "Maintenance"
+msgstr "Instandhaltung"
+
+msgctxt "selection:real_estate.inspection.defect,cost_category:"
+msgid "Operating Costs"
+msgstr "Betriebskosten"
+
+msgctxt "selection:real_estate.inspection.defect,cost_category:"
+msgid "Unknown"
+msgstr "Unbekannt"
+
+msgctxt "selection:real_estate.inspection.defect,severity:"
+msgid "Critical"
+msgstr "Kritisch"
+
+msgctxt "selection:real_estate.inspection.defect,severity:"
+msgid "Major"
+msgstr "Schwer"
+
+msgctxt "selection:real_estate.inspection.defect,severity:"
+msgid "Minor"
+msgstr "Leicht"
+
+msgctxt "selection:real_estate.inspection.defect,severity:"
+msgid "Note"
+msgstr "Hinweis"
+
+msgctxt "selection:real_estate.inspection.defect,state:"
+msgid "Cancelled"
+msgstr "Storniert"
+
+msgctxt "selection:real_estate.inspection.defect,state:"
+msgid "Fixed"
+msgstr "Behoben"
+
+msgctxt "selection:real_estate.inspection.defect,state:"
+msgid "In Progress"
+msgstr "In Arbeit"
+
+msgctxt "selection:real_estate.inspection.defect,state:"
+msgid "Open"
+msgstr "Offen"
+
+msgctxt "selection:real_estate.inspection.defect,state:"
+msgid "Verified"
+msgstr "Geprüft"
+
+msgctxt "view:real_estate.inspection:"
+msgid "Defects"
+msgstr "Mängel"
+
+msgctxt ""
+"model:real_estate.inspection.checklist,name:inspection_checklist_walkthrough"
+msgid "Annual Walkthrough - Building"
+msgstr "Jährliche Objektbegehung - Gebäude"
+
+msgctxt ""
+"model:real_estate.inspection.checklist.item,section:inspection_checklist_walkthrough_01"
+msgid "Exterior and Roof"
+msgstr "Außen und Dach"
+
+msgctxt ""
+"model:real_estate.inspection.checklist.item,question:inspection_checklist_walkthrough_01"
+msgid "Roof and gutters visually intact"
+msgstr "Dach und Dachrinnen optisch intakt"
+
+msgctxt ""
+"model:real_estate.inspection.checklist.item,section:inspection_checklist_walkthrough_02"
+msgid "Exterior and Roof"
+msgstr "Außen und Dach"
+
+msgctxt ""
+"model:real_estate.inspection.checklist.item,question:inspection_checklist_walkthrough_02"
+msgid "Facade without loose parts"
+msgstr "Fassade ohne lose Teile"
+
+msgctxt ""
+"model:real_estate.inspection.checklist.item,section:inspection_checklist_walkthrough_03"
+msgid "Exterior and Roof"
+msgstr "Außen und Dach"
+
+msgctxt ""
+"model:real_estate.inspection.checklist.item,question:inspection_checklist_walkthrough_03"
+msgid "Windows and doors of common areas close properly"
+msgstr "Fenster und Türen der Gemeinschaftsflächen schließen ordnungsgemäß"
+
+msgctxt ""
+"model:real_estate.inspection.checklist.item,section:inspection_checklist_walkthrough_04"
+msgid "Entrance"
+msgstr "Eingang"
+
+msgctxt ""
+"model:real_estate.inspection.checklist.item,question:inspection_checklist_walkthrough_04"
+msgid "Door closer and lock work"
+msgstr "Türschließer und Schloss funktionieren"
+
+msgctxt ""
+"model:real_estate.inspection.checklist.item,section:inspection_checklist_walkthrough_05"
+msgid "Entrance"
+msgstr "Eingang"
+
+msgctxt ""
+"model:real_estate.inspection.checklist.item,question:inspection_checklist_walkthrough_05"
+msgid "Bell and intercom work"
+msgstr "Klingel und Sprechanlage funktionieren"
+
+msgctxt ""
+"model:real_estate.inspection.checklist.item,section:inspection_checklist_walkthrough_06"
+msgid "Entrance"
+msgstr "Eingang"
+
+msgctxt ""
+"model:real_estate.inspection.checklist.item,question:inspection_checklist_walkthrough_06"
+msgid "Letter boxes intact"
+msgstr "Briefkästen intakt"
+
+msgctxt ""
+"model:real_estate.inspection.checklist.item,section:inspection_checklist_walkthrough_07"
+msgid "Entrance"
+msgstr "Eingang"
+
+msgctxt ""
+"model:real_estate.inspection.checklist.item,question:inspection_checklist_walkthrough_07"
+msgid "House number visible"
+msgstr "Hausnummer sichtbar"
+
+msgctxt ""
+"model:real_estate.inspection.checklist.item,section:inspection_checklist_walkthrough_08"
+msgid "Staircase"
+msgstr "Treppenhaus"
+
+msgctxt ""
+"model:real_estate.inspection.checklist.item,question:inspection_checklist_walkthrough_08"
+msgid "Lighting incl. timer works"
+msgstr "Beleuchtung inkl. Zeitschaltung funktioniert"
+
+msgctxt ""
+"model:real_estate.inspection.checklist.item,section:inspection_checklist_walkthrough_09"
+msgid "Staircase"
+msgstr "Treppenhaus"
+
+msgctxt ""
+"model:real_estate.inspection.checklist.item,question:inspection_checklist_walkthrough_09"
+msgid "Handrails firm"
+msgstr "Handläufe fest"
+
+msgctxt ""
+"model:real_estate.inspection.checklist.item,section:inspection_checklist_walkthrough_10"
+msgid "Staircase"
+msgstr "Treppenhaus"
+
+msgctxt ""
+"model:real_estate.inspection.checklist.item,question:inspection_checklist_walkthrough_10"
+msgid "Floor without tripping hazards"
+msgstr "Boden ohne Stolperstellen"
+
+msgctxt ""
+"model:real_estate.inspection.checklist.item,section:inspection_checklist_walkthrough_11"
+msgid "Staircase"
+msgstr "Treppenhaus"
+
+msgctxt ""
+"model:real_estate.inspection.checklist.item,question:inspection_checklist_walkthrough_11"
+msgid "Escape routes clear"
+msgstr "Fluchtwege frei"
+
+msgctxt ""
+"model:real_estate.inspection.checklist.item,section:inspection_checklist_walkthrough_12"
+msgid "Staircase"
+msgstr "Treppenhaus"
+
+msgctxt ""
+"model:real_estate.inspection.checklist.item,question:inspection_checklist_walkthrough_12"
+msgid "Fire doors close automatically"
+msgstr "Brandschutztüren schließen selbsttätig"
+
+msgctxt ""
+"model:real_estate.inspection.checklist.item,section:inspection_checklist_walkthrough_13"
+msgid "Basement and Technical Rooms"
+msgstr "Keller und Technikräume"
+
+msgctxt ""
+"model:real_estate.inspection.checklist.item,question:inspection_checklist_walkthrough_13"
+msgid "No moisture or mould"
+msgstr "Keine Feuchtigkeit oder Schimmel"
+
+msgctxt ""
+"model:real_estate.inspection.checklist.item,section:inspection_checklist_walkthrough_14"
+msgid "Basement and Technical Rooms"
+msgstr "Keller und Technikräume"
+
+msgctxt ""
+"model:real_estate.inspection.checklist.item,question:inspection_checklist_walkthrough_14"
+msgid "No combustible storage in escape routes"
+msgstr "Keine brennbaren Lagerungen in Fluchtwegen"
+
+msgctxt ""
+"model:real_estate.inspection.checklist.item,section:inspection_checklist_walkthrough_15"
+msgid "Basement and Technical Rooms"
+msgstr "Keller und Technikräume"
+
+msgctxt ""
+"model:real_estate.inspection.checklist.item,question:inspection_checklist_walkthrough_15"
+msgid "Heating and meter rooms accessible and locked"
+msgstr "Heizungs- und Zählerräume zugänglich und verschlossen"
+
+msgctxt ""
+"model:real_estate.inspection.checklist.item,section:inspection_checklist_walkthrough_16"
+msgid "Outdoor Areas"
+msgstr "Außenanlagen"
+
+msgctxt ""
+"model:real_estate.inspection.checklist.item,question:inspection_checklist_walkthrough_16"
+msgid "Paths without tripping hazards"
+msgstr "Wege ohne Stolperstellen"
+
+msgctxt ""
+"model:real_estate.inspection.checklist.item,section:inspection_checklist_walkthrough_17"
+msgid "Outdoor Areas"
+msgstr "Außenanlagen"
+
+msgctxt ""
+"model:real_estate.inspection.checklist.item,question:inspection_checklist_walkthrough_17"
+msgid "Outdoor lighting works"
+msgstr "Außenbeleuchtung funktioniert"
+
+msgctxt ""
+"model:real_estate.inspection.checklist.item,section:inspection_checklist_walkthrough_18"
+msgid "Outdoor Areas"
+msgstr "Außenanlagen"
+
+msgctxt ""
+"model:real_estate.inspection.checklist.item,question:inspection_checklist_walkthrough_18"
+msgid "Trees without visible damage (visual check)"
+msgstr "Bäume ohne sichtbare Schäden (Sichtkontrolle)"
+
+msgctxt ""
+"model:real_estate.inspection.checklist.item,section:inspection_checklist_walkthrough_19"
+msgid "Outdoor Areas"
+msgstr "Außenanlagen"
+
+msgctxt ""
+"model:real_estate.inspection.checklist.item,question:inspection_checklist_walkthrough_19"
+msgid "Waste container area clean"
+msgstr "Müllstandplatz sauber"
+
+msgctxt ""
+"model:real_estate.inspection.checklist.item,section:inspection_checklist_walkthrough_20"
+msgid "Notices"
+msgstr "Aushänge"
+
+msgctxt ""
+"model:real_estate.inspection.checklist.item,question:inspection_checklist_walkthrough_20"
+msgid "House rules, emergency numbers and caretaker contact posted"
+msgstr "Hausordnung, Notrufnummern und Hausmeisterkontakt aktuell ausgehängt"
+
+msgctxt ""
+"model:real_estate.inspection.checklist.item,section:inspection_checklist_walkthrough_21"
+msgid "Remarks"
+msgstr "Bemerkungen"
+
+msgctxt ""
+"model:real_estate.inspection.checklist.item,question:inspection_checklist_walkthrough_21"
+msgid "Remarks"
+msgstr "Bemerkungen"
+
+msgctxt ""
+"model:real_estate.inspection.checklist,name:inspection_checklist_smoke_detector"
+msgid "Smoke Detectors - per Apartment"
+msgstr "Rauchwarnmelder - je Wohnung"
+
+msgctxt ""
+"model:real_estate.inspection.checklist.item,question:inspection_checklist_smoke_detector_01"
+msgid ""
+"All required rooms equipped (bedrooms, children's rooms, corridors as escape "
+"routes)"
+msgstr ""
+"Alle Pflichträume ausgestattet (Schlafräume, Kinderzimmer, Flure als "
+"Rettungswege)"
+
+msgctxt ""
+"model:real_estate.inspection.checklist.item,question:inspection_checklist_smoke_detector_02"
+msgid "Detectors mounted correctly (ceiling, distance to walls and obstacles)"
+msgstr "Melder korrekt montiert (Decke, Abstand zu Wänden und Hindernissen)"
+
+msgctxt ""
+"model:real_estate.inspection.checklist.item,question:inspection_checklist_smoke_detector_03"
+msgid "Function test passed"
+msgstr "Funktionsprüfung bestanden"
+
+msgctxt ""
+"model:real_estate.inspection.checklist.item,question:inspection_checklist_smoke_detector_04"
+msgid "Smoke inlets free, not painted over or covered"
+msgstr "Raucheintrittsöffnungen frei, nicht überstrichen oder abgedeckt"
+
+msgctxt ""
+"model:real_estate.inspection.checklist.item,question:inspection_checklist_smoke_detector_05"
+msgid "Earliest replacement date of the installed detectors"
+msgstr "Frühestes Austauschdatum der installierten Melder"
+
+msgctxt ""
+"model:real_estate.inspection.checklist.item,question:inspection_checklist_smoke_detector_06"
+msgid "Remarks"
+msgstr "Bemerkungen"
+
+msgctxt ""
+"model:real_estate.process.template,name:process_template_inspection_walkthrough"
+msgid "Annual Walkthrough"
+msgstr "Jährliche Objektbegehung"
+
+msgctxt ""
+"model:real_estate.process.template.step,name:process_template_inspection_walkthrough_date"
+msgid "Arrange the date with the caretaker"
+msgstr "Termin mit Hausmeister abstimmen"
+
+msgctxt ""
+"model:real_estate.process.template.step,description:process_template_inspection_walkthrough_date"
+msgid ""
+"Arrange the date of the walkthrough with the caretaker, enter it as planned "
+"date of the inspection and note participants and access to technical rooms."
+msgstr ""
+"Den Termin der Begehung mit dem Hausmeister abstimmen, als geplantes Datum "
+"des Prüfvorgangs eintragen und Teilnehmer sowie den Zugang zu den "
+"Technikräumen klären."
+
+msgctxt ""
+"model:real_estate.process.template.step,name:process_template_inspection_walkthrough_walk"
+msgid "Walkthrough"
+msgstr "Begehung"
+
+msgctxt ""
+"model:real_estate.process.template.step,description:process_template_inspection_walkthrough_walk"
+msgid ""
+"Walk through the building along the checklist of the inspection, record every"
+" item, take photos of findings and complete the inspection (\"Done\"). The "
+"step is done with the inspection."
+msgstr ""
+"Das Gebäude anhand der Checkliste des Prüfvorgangs begehen, jeden Prüfpunkt "
+"erfassen, Befunde fotografieren und den Prüfvorgang abschließen "
+"(„Abschließen“). Der Schritt ist mit dem Abschluss erledigt."
+
+msgctxt ""
+"model:real_estate.process.template.step,name:process_template_inspection_walkthrough_approve"
+msgid "Approve the report"
+msgstr "Protokoll freigeben"
+
+msgctxt ""
+"model:real_estate.process.template.step,description:process_template_inspection_walkthrough_approve"
+msgid ""
+"Check the report and approve the inspection (\"Approve\"); the report is "
+"archived. The step is done with the approval."
+msgstr ""
+"Das Protokoll prüfen und den Prüfvorgang freigeben („Freigeben“); das "
+"Protokoll wird archiviert. Der Schritt ist mit der Freigabe erledigt."
+
+msgctxt ""
+"model:real_estate.process.template.step,name:process_template_inspection_walkthrough_repairs"
+msgid "Commission repairs"
+msgstr "Reparaturen beauftragen"
+
+msgctxt ""
+"model:real_estate.process.template.step,description:process_template_inspection_walkthrough_repairs"
+msgid ""
+"Commission the repair of the defects found (tab \"Defects\" of the "
+"inspection), enter the contractor as responsible and follow the deadlines."
+msgstr ""
+"Die Behebung der festgestellten Mängel beauftragen (Reiter „Mängel“ des "
+"Prüfvorgangs), den Dienstleister als Verantwortlichen eintragen und die "
+"Fristen überwachen."
+
+msgctxt ""
+"model:real_estate.process.template,name:process_template_inspection_smoke_detector"
+msgid "Smoke Detector Check"
+msgstr "Rauchwarnmelderprüfung"
+
+msgctxt ""
+"model:real_estate.process.template.step,name:process_template_inspection_smoke_detector_order"
+msgid "Commission the contractor / fix the date"
+msgstr "Dienstleister beauftragen / Termin festlegen"
+
+msgctxt ""
+"model:real_estate.process.template.step,description:process_template_inspection_smoke_detector_order"
+msgid ""
+"Commission the contractor (or the caretaker), fix the date and the time "
+"window and enter them in the inspection (planned date, time slots, "
+"contractor)."
+msgstr ""
+"Den Dienstleister (oder den Hausmeister) beauftragen, Termin und Zeitfenster "
+"festlegen und im Prüfvorgang eintragen (geplantes Datum, Zeitfenster, "
+"Dienstleister)."
+
+msgctxt ""
+"model:real_estate.process.template.step,name:process_template_inspection_smoke_detector_notice"
+msgid "Notice in the building"
+msgstr "Aushang im Gebäude"
+
+msgctxt ""
+"model:real_estate.process.template.step,description:process_template_inspection_smoke_detector_notice"
+msgid ""
+"Create the tenant notice with \"Execute Action\" and post it in the building "
+"at least 14 days before the date. The notice is archived as proof; the step "
+"is done with the action."
+msgstr ""
+"Über „Aktion ausführen“ den Mieteraushang erstellen und mindestens 14 Tage "
+"vor dem Termin im Gebäude aushängen. Der Aushang wird als Nachweis "
+"archiviert; der Schritt ist mit der Aktion erledigt."
+
+msgctxt ""
+"model:real_estate.process.template.step,name:process_template_inspection_smoke_detector_attempt1"
+msgid "Inspection date (attempt 1)"
+msgstr "Prüftermin (Versuch 1)"
+
+msgctxt ""
+"model:real_estate.process.template.step,description:process_template_inspection_smoke_detector_attempt1"
+msgid ""
+"Check the smoke detectors of every apartment, record access, quantities and "
+"the check items per line; for apartments without access note \"No Access\"."
+msgstr ""
+"Die Rauchwarnmelder jeder Wohnung prüfen, Zugang, Mengen und Prüfpunkte je "
+"Position erfassen; bei Wohnungen ohne Zugang „Kein Zugang“ vermerken."
+
+msgctxt ""
+"model:real_estate.process.template.step,name:process_template_inspection_smoke_detector_letter"
+msgid "Letter to tenants without access"
+msgstr "Mieter ohne Zugang anschreiben"
+
+msgctxt ""
+"model:real_estate.process.template.step,description:process_template_inspection_smoke_detector_letter"
+msgid ""
+"Create the letters to the tenants without access with \"Execute Action\" and "
+"send them; then set the next attempt (\"Next Attempt\")."
+msgstr ""
+"Über „Aktion ausführen“ die Anschreiben an die Mieter ohne Zugang erstellen "
+"und versenden; danach den nächsten Versuch setzen („Nächster Versuch“)."
+
+msgctxt ""
+"model:real_estate.process.template.step,name:process_template_inspection_smoke_detector_attempt2"
+msgid "Inspection date (attempt 2)"
+msgstr "Prüftermin (Versuch 2)"
+
+msgctxt ""
+"model:real_estate.process.template.step,description:process_template_inspection_smoke_detector_attempt2"
+msgid ""
+"Check the apartments without access at the first attempt and record the "
+"results; apartments still without access need a reason in the remarks."
+msgstr ""
+"Die beim ersten Versuch nicht zugänglichen Wohnungen prüfen und die "
+"Ergebnisse erfassen; weiterhin nicht zugängliche Wohnungen brauchen einen "
+"Grund in den Bemerkungen."
+
+msgctxt ""
+"model:real_estate.process.template.step,name:process_template_inspection_smoke_detector_report"
+msgid "Complete the report"
+msgstr "Protokoll fertigstellen"
+
+msgctxt ""
+"model:real_estate.process.template.step,description:process_template_inspection_smoke_detector_report"
+msgid ""
+"Complete the results, attach the report of the contractor if any and complete"
+" the inspection (\"Done\"). The step is done with the inspection."
+msgstr ""
+"Die Ergebnisse vervollständigen, ggf. den Bericht des Dienstleisters anhängen"
+" und den Prüfvorgang abschließen („Abschließen“). Der Schritt ist mit dem "
+"Abschluss erledigt."
+
+msgctxt ""
+"model:real_estate.process.template.step,name:process_template_inspection_smoke_detector_approve"
+msgid "Approve the report"
+msgstr "Protokoll freigeben"
+
+msgctxt ""
+"model:real_estate.process.template.step,description:process_template_inspection_smoke_detector_approve"
+msgid ""
+"Check the report and approve the inspection (\"Approve\"); the report is "
+"archived. The step is done with the approval."
+msgstr ""
+"Das Protokoll prüfen und den Prüfvorgang freigeben („Freigeben“); das "
+"Protokoll wird archiviert. Der Schritt ist mit der Freigabe erledigt."
+
+msgctxt "model:real_estate.inspection.type,name:inspection_type_walkthrough"
+msgid "Annual Walkthrough"
+msgstr "Jährliche Objektbegehung"
+
+msgctxt ""
+"model:real_estate.inspection.type,legal_basis:inspection_type_walkthrough"
+msgid "Duty to maintain traffic safety (§ 823 BGB)"
+msgstr "Verkehrssicherungspflicht (§ 823 BGB)"
+
+msgctxt "model:real_estate.inspection.type,name:inspection_type_smoke_detector"
+msgid "Smoke Detector Check"
+msgstr "Rauchwarnmelderprüfung"
+
+msgctxt ""
+"model:real_estate.inspection.type,legal_basis:inspection_type_smoke_detector"
+msgid "State building code (e.g. § 48 (4) BauO Bln), DIN 14676-1"
+msgstr "Landesbauordnung (z. B. § 48 Abs. 4 BauO Bln), DIN 14676-1"
+
+msgctxt "model:ir.message,text:msg_inspection_plan_property"
+msgid "The inspection plan \"%(plan)s\" needs a property."
+msgstr "Der Prüfplan \"%(plan)s\" braucht eine Wirtschaftseinheit."
+
+msgctxt "help:real_estate.inspection.plan,property:"
+msgid "Taken over from the building."
+msgstr "Wird aus dem Gebäude übernommen."
+
+msgctxt "model:ir.model.button,string:inspection_rebuild_lines_button"
+msgid "Rebuild Lines"
+msgstr "Positionen neu erzeugen"
+
+msgctxt "model:ir.model.button,confirm:inspection_rebuild_lines_button"
+msgid ""
+"The lines are created again from the current equipment and the line filter of"
+" the inspection type; entries in the lines are lost."
+msgstr ""
+"Die Positionen werden aus den aktuellen Anlagen und dem Positionsfilter der "
+"Prüfart neu erzeugt; Eingaben in den Positionen gehen verloren."
+
+msgctxt "model:ir.message,text:msg_inspection_rebuild_draft"
+msgid ""
+"The lines of the inspection \"%(inspection)s\" can only be rebuilt in state "
+"draft."
+msgstr ""
+"Die Positionen des Prüfvorgangs \"%(inspection)s\" können nur im Status "
+"Entwurf neu erzeugt werden."
+
+msgctxt "model:ir.model.button,string:inspection_all_ok_button"
+msgid "Open Items OK"
+msgstr "Offene auf i. O."
+
+msgctxt "model:ir.model.button,string:inspection_line_all_ok_button"
+msgid "Open Items OK"
+msgstr "Offene auf i. O."
+
+msgctxt "model:ir.model.button,help:inspection_all_ok_button"
+msgid ""
+"Sets all check items not yet answered of the header and of the lines with "
+"access to OK (resp. Yes); answered items are kept."
+msgstr ""
+"Setzt alle noch nicht beantworteten Prüfpunkte im Kopf und in den Positionen "
+"mit Zugang auf i. O. (bzw. Ja); beantwortete Prüfpunkte bleiben unverändert."
+
+msgctxt "model:ir.model.button,help:inspection_line_all_ok_button"
+msgid ""
+"Sets all check items not yet answered of the line to OK (resp. Yes) and fills"
+" empty quantities and the visit date; answered items are kept."
+msgstr ""
+"Setzt alle noch nicht beantworteten Prüfpunkte der Position auf i. O. (bzw. "
+"Ja) und füllt leere Mengen und das Besuchsdatum; beantwortete Prüfpunkte "
+"bleiben unverändert."
+
+msgctxt "model:ir.message,text:msg_inspection_draft_entry"
+msgid ""
+"The results of the inspection \"%(inspection)s\" are entered once it is "
+"scheduled (button \"Schedule\")."
+msgstr ""
+"Die Ergebnisse des Prüfvorgangs \"%(inspection)s\" werden erst nach dem "
+"Terminieren erfasst (Button \"Terminieren\")."
+
+msgctxt "model:ir.message,text:msg_inspection_done_entry"
+msgid "The inspection \"%(inspection)s\" is done - to change results use \"Reopen\"."
+msgstr ""
+"Der Prüfvorgang \"%(inspection)s\" ist abgeschlossen - zum Ändern der "
+"Ergebnisse \"Wieder öffnen\"."
+
+msgctxt "model:ir.model.button,string:process_reopen_button"
+msgid "Reopen"
+msgstr "Wieder öffnen"
+
+msgctxt "model:ir.model.button,string:process_reactivate_button"
+msgid "Reactivate"
+msgstr "Reaktivieren"
+
+msgctxt "model:ir.model.button,string:inspection_back_to_scheduled_button"
+msgid "Back to Scheduled"
+msgstr "Zurück zu Terminiert"
+
+msgctxt "model:ir.model.button,string:inspection_unapprove_button"
+msgid "Take Back Approval"
+msgstr "Freigabe zurücknehmen"
+
+msgctxt "model:ir.model.button,confirm:inspection_unapprove_button"
+msgid ""
+"The approval is taken back; the archived report is kept as attachment marked "
+"withdrawn."
+msgstr ""
+"Die Freigabe wird zurückgenommen; das archivierte Protokoll bleibt als Anhang"
+" mit dem Vermerk „zurückgenommen“ erhalten."
+
+msgctxt "model:ir.model.button,string:inspection_reactivate_button"
+msgid "Reactivate"
+msgstr "Reaktivieren"
+
+msgctxt "model:ir.message,text:msg_process_reopened"
+msgid "Process reopened."
+msgstr "Prozess wieder geöffnet."
+
+msgctxt "model:ir.message,text:msg_process_reactivated"
+msgid ""
+"Process reactivated - the tasks cancelled with the process are created again."
+msgstr ""
+"Prozess reaktiviert - die mit dem Prozess stornierten Aufgaben werden neu "
+"angelegt."
+
+msgctxt "model:ir.message,text:msg_inspection_unapprove_group"
+msgid ""
+"Only members of the approval group of the inspection type or of the real "
+"estate administration can take back the approval of \"%(inspection)s\"."
+msgstr ""
+"Nur Mitglieder der Freigabegruppe der Prüfart oder der Immobilien "
+"Administration können die Freigabe von \"%(inspection)s\" zurücknehmen."
+
+msgctxt "model:ir.message,text:msg_inspection_report_withdrawn"
+msgid "(withdrawn)"
+msgstr "(zurückgenommen)"
+
+msgctxt "model:ir.message,text:msg_process_inspection_leads"
+msgid ""
+"The process \"%(process)s\" belongs to the inspection \"%(inspection)s\" - "
+"cancel the inspection (or set it back to draft) resp. reactivate and schedule"
+" it again; the process follows."
+msgstr ""
+"Der Prozess \"%(process)s\" gehört zum Prüfvorgang \"%(inspection)s\" - bitte"
+" den Prüfvorgang abbrechen (oder zurück zu Entwurf setzen) bzw. reaktivieren "
+"und erneut terminieren; der Prozess folgt."
+
+msgctxt "field:real_estate.task,step_number:"
+msgid "Step No."
+msgstr "Schritt-Nr."
+
+msgctxt "help:real_estate.task,step_number:"
+msgid "Number (sequence) of the process step."
+msgstr "Nummer (Reihenfolge) des Prozessschritts."
+
+msgctxt "view:real_estate.process.template.step:"
+msgid "No."
+msgstr "Nr."
+
+msgctxt ""
+"model:real_estate.process.template.step,description:process_template_inspection_smoke_detector_attempt1"
+msgid ""
+"Check the smoke detectors of every apartment and record access, visit date, "
+"quantities and the check items per line; for apartments without access note "
+"\"No Access\" with the visit date. The step is done as soon as every line has"
+" a visit date."
+msgstr ""
+"Die Rauchwarnmelder jeder Wohnung prüfen und je Position Zugang, "
+"Besuchsdatum, Mengen und Prüfpunkte erfassen; bei Wohnungen ohne Zugang „Kein"
+" Zugang“ mit Besuchsdatum vermerken. Der Schritt ist erledigt, sobald jede "
+"Position ein Besuchsdatum hat."
+
+msgctxt ""
+"model:real_estate.process.template.step,description:process_template_inspection_smoke_detector_attempt2"
+msgid ""
+"Check the apartments without access at the first attempt (after \"Next "
+"Attempt\") and record the results with the visit date; apartments still "
+"without access need a reason in the remarks. The step is done as soon as "
+"these lines have a visit date again."
+msgstr ""
+"Die beim ersten Versuch nicht zugänglichen Wohnungen (nach „Nächster "
+"Versuch“) prüfen und die Ergebnisse mit Besuchsdatum erfassen; weiterhin "
+"nicht zugängliche Wohnungen brauchen einen Grund in den Bemerkungen. Der "
+"Schritt ist erledigt, sobald diese Positionen wieder ein Besuchsdatum haben."
+
+msgctxt "field:real_estate.inspection,process_tasks:"
+msgid "Workflow"
+msgstr "Ablauf"
+
+msgctxt "field:real_estate.process,tasks:"
+msgid "Steps"
+msgstr "Schritte"
+
+msgctxt "field:real_estate.task,template_step:"
+msgid "Process Step"
+msgstr "Prozessschritt"
+
+msgctxt "help:real_estate.inspection,process_tasks:"
+msgid ""
+"Steps of the process of the inspection with state, due date and responsible."
+msgstr ""
+"Schritte des Prozesses des Prüfvorgangs mit Status, Fälligkeit und "
+"Zuständigkeit."
+
+msgctxt "help:real_estate.task,state:"
+msgid ""
+"Planned: step of a process not due yet (no due date, no reminder) - opened by"
+" the process."
+msgstr ""
+"Geplant: Prozessschritt, der noch nicht fällig ist (ohne Fälligkeit und "
+"Erinnerung) - der Prozess öffnet ihn."
+
+msgctxt "selection:real_estate.process.template.step,done_method:"
+msgid "inspection_attempt1_done"
+msgstr "Prüfung: erster Termin erledigt (alle Besuchsdaten)"
+
+msgctxt "selection:real_estate.process.template.step,done_method:"
+msgid "inspection_attempt2_done"
+msgstr "Prüfung: nächster Versuch erledigt"
+
+msgctxt "selection:real_estate.task,state:"
+msgid "Planned"
+msgstr "Geplant"
+
+msgctxt "view:real_estate.inspection:"
+msgid "Workflow"
+msgstr "Ablauf"
+
+msgctxt "field:real_estate.inspection,process_state:"
+msgid "Process State"
+msgstr "Prozessstatus"
+
+msgctxt "field:real_estate.inspection,process_progress:"
+msgid "Progress"
+msgstr "Fortschritt"
+
+msgctxt "selection:real_estate.inspection,process_state:"
+msgid "Running"
+msgstr "Läuft"
+
+msgctxt "selection:real_estate.inspection,process_state:"
+msgid "Done"
+msgstr "Erledigt"
+
+msgctxt "selection:real_estate.inspection,process_state:"
+msgid "Cancelled"
+msgstr "Storniert"
+
+msgctxt "field:real_estate.meter_reading.sheet,base_object:"
+msgid "Object"
+msgstr "Objekt"
+
+msgctxt "field:real_estate.meter_reading.sheet,company:"
+msgid "Company"
+msgstr "Unternehmen"
+
+msgctxt "field:real_estate.meter_reading.sheet,done_by:"
+msgid "Done by"
+msgstr "Abgeschlossen von"
+
+msgctxt "field:real_estate.meter_reading.sheet,done_date:"
+msgid "Done on"
+msgstr "Abgeschlossen am"
+
+msgctxt "field:real_estate.meter_reading.sheet,equipment_kind:"
+msgid "Equipment Kind"
+msgstr "Anlagenart"
+
+msgctxt "field:real_estate.meter_reading.sheet,lines:"
+msgid "Meters"
+msgstr "Zähler"
+
+msgctxt "field:real_estate.meter_reading.sheet,name_filter:"
+msgid "Name Filter"
+msgstr "Namensfilter"
+
+msgctxt "field:real_estate.meter_reading.sheet,notes:"
+msgid "Notes"
+msgstr "Notizen"
+
+msgctxt "field:real_estate.meter_reading.sheet,progress:"
+msgid "Progress"
+msgstr "Erfasst"
+
+msgctxt "field:real_estate.meter_reading.sheet,property:"
+msgid "Property"
+msgstr "Wirtschaftseinheit"
+
+msgctxt "field:real_estate.meter_reading.sheet,reader:"
+msgid "Reader"
+msgstr "Ableser"
+
+msgctxt "field:real_estate.meter_reading.sheet,reading_date:"
+msgid "Reading Date"
+msgstr "Ablesedatum"
+
+msgctxt "field:real_estate.meter_reading.sheet,state:"
+msgid "State"
+msgstr "Status"
+
+msgctxt "field:real_estate.meter_reading.sheet.line,consumption:"
+msgid "Consumption"
+msgstr "Verbrauch"
+
+msgctxt "field:real_estate.meter_reading.sheet.line,meter:"
+msgid "Meter"
+msgstr "Zähler"
+
+msgctxt "field:real_estate.meter_reading.sheet.line,meter_id:"
+msgid "Meter ID"
+msgstr "Zählernummer"
+
+msgctxt "field:real_estate.meter_reading.sheet.line,previous_date:"
+msgid "Previous Date"
+msgstr "Letzte Ablesung"
+
+msgctxt "field:real_estate.meter_reading.sheet.line,previous_value:"
+msgid "Previous Value"
+msgstr "Letzter Stand"
+
+msgctxt "field:real_estate.meter_reading.sheet.line,reading:"
+msgid "Meter Reading"
+msgstr "Zählerablesung"
+
+msgctxt "field:real_estate.meter_reading.sheet.line,reading_created:"
+msgid "Reading Created"
+msgstr "Ablesung erzeugt"
+
+msgctxt "field:real_estate.meter_reading.sheet.line,remarks:"
+msgid "Remarks"
+msgstr "Bemerkung"
+
+msgctxt "field:real_estate.meter_reading.sheet.line,sheet:"
+msgid "Sheet"
+msgstr "Ableseliste"
+
+msgctxt "field:real_estate.meter_reading.sheet.line,tenant:"
+msgid "Tenant"
+msgstr "Mieter"
+
+msgctxt "field:real_estate.meter_reading.sheet.line,unit:"
+msgid "Rental Unit"
+msgstr "Mieteinheit"
+
+msgctxt "field:real_estate.meter_reading.sheet.line,uom:"
+msgid "Unit of Measure"
+msgstr "Einheit"
+
+msgctxt "field:real_estate.meter_reading.sheet.line,value:"
+msgid "Value"
+msgstr "Neuer Stand"
+
+msgctxt "help:real_estate.meter_reading.sheet,base_object:"
+msgid "Property, building or rental unit - the meters below it are listed."
+msgstr ""
+"Wirtschaftseinheit, Gebäude oder Mieteinheit – die Zähler darunter werden "
+"aufgelistet."
+
+msgctxt "help:real_estate.meter_reading.sheet,equipment_kind:"
+msgid "Only meters of this equipment kind."
+msgstr "Nur Zähler dieser Anlagenart."
+
+msgctxt "help:real_estate.meter_reading.sheet,name_filter:"
+msgid "Only meters whose name contains this text, e.g. 'Warmwasser'."
+msgstr "Nur Zähler, deren Name diesen Text enthält, z. B. „Warmwasser“."
+
+msgctxt "help:real_estate.meter_reading.sheet,reader:"
+msgid "Reading user of the meter readings created."
+msgstr "Ableser der erzeugten Zählerablesungen."
+
+msgctxt "help:real_estate.meter_reading.sheet.line,reading_created:"
+msgid ""
+"The meter reading was created by the sheet (deleted again when the sheet is "
+"reset to draft)."
+msgstr ""
+"Die Zählerablesung wurde von der Liste erzeugt (wird beim Zurücksetzen auf "
+"Entwurf wieder gelöscht)."
+
+msgctxt "model:ir.action,name:act_meter_reading_sheet"
+msgid "Meter Reading Sheets"
+msgstr "Zählerableselisten"
+
+msgctxt "model:ir.action,name:act_meter_reading_sheet_relate"
+msgid "Meter Reading Sheets"
+msgstr "Zählerableselisten"
+
+msgctxt "model:ir.action,name:report_meter_reading_sheet_de"
+msgid "Meter Reading Sheet (de)"
+msgstr "Ableseliste (de)"
+
+msgctxt ""
+"model:ir.action.act_window.domain,name:act_meter_reading_sheet_domain_all"
+msgid "All"
+msgstr "Alle"
+
+msgctxt ""
+"model:ir.action.act_window.domain,name:act_meter_reading_sheet_domain_draft"
+msgid "Draft"
+msgstr "Entwurf"
+
+msgctxt "model:ir.message,text:msg_meter_reading_sheet_delete_done"
+msgid ""
+"The meter reading sheet \"%(sheet)s\" is done and cannot be deleted - reset "
+"it to draft first."
+msgstr ""
+"Die Zählerableseliste „%(sheet)s“ ist abgeschlossen und kann nicht gelöscht "
+"werden – zuerst auf Entwurf zurücksetzen."
+
+msgctxt "model:ir.message,text:msg_meter_reading_sheet_missing"
+msgid ""
+"%(count)s meters of the sheet \"%(sheet)s\" have no value and get no meter "
+"reading: %(meters)s"
+msgstr ""
+"%(count)s Zähler der Liste „%(sheet)s“ haben keinen Stand und erhalten keine "
+"Zählerablesung: %(meters)s"
+
+msgctxt "model:ir.message,text:msg_meter_reading_sheet_no_lines"
+msgid ""
+"The meter reading sheet \"%(sheet)s\" has no meters - load the meters first."
+msgstr ""
+"Die Zählerableseliste „%(sheet)s“ enthält keine Zähler – zuerst die Zähler "
+"laden."
+
+msgctxt "model:ir.model.button,confirm:meter_reading_sheet_draft_button"
+msgid ""
+"The meter readings created by this sheet are deleted (and created again when "
+"it is completed). Continue?"
+msgstr ""
+"Die von dieser Liste erzeugten Zählerablesungen werden gelöscht (und beim "
+"Abschließen neu angelegt). Fortfahren?"
+
+msgctxt "model:ir.model.button,help:meter_reading_sheet_done_button"
+msgid "Create the meter readings of the meters with a value."
+msgstr "Erzeugt die Zählerablesungen der Zähler mit erfasstem Stand."
+
+msgctxt "model:ir.model.button,help:meter_reading_sheet_follow_up_button"
+msgid "New sheet with the same object and filter, reading date one year later."
+msgstr ""
+"Neue Liste mit gleichem Objekt und Filter, Ablesedatum ein Jahr später."
+
+msgctxt "model:ir.model.button,help:meter_reading_sheet_load_meters_button"
+msgid ""
+"Add the meters not yet listed and refresh rental unit, tenant and previous "
+"reading - values entered are kept."
+msgstr ""
+"Ergänzt noch nicht aufgeführte Zähler und aktualisiert Mieteinheit, Mieter "
+"und letzte Ablesung – erfasste Stände bleiben erhalten."
+
+msgctxt "model:ir.model.button,string:meter_reading_sheet_cancel_button"
+msgid "Cancel"
+msgstr "Stornieren"
+
+msgctxt "model:ir.model.button,string:meter_reading_sheet_done_button"
+msgid "Complete"
+msgstr "Abschließen"
+
+msgctxt "model:ir.model.button,string:meter_reading_sheet_draft_button"
+msgid "Reset to Draft"
+msgstr "Auf Entwurf zurücksetzen"
+
+msgctxt "model:ir.model.button,string:meter_reading_sheet_follow_up_button"
+msgid "Follow-up Sheet"
+msgstr "Folgeliste"
+
+msgctxt "model:ir.model.button,string:meter_reading_sheet_load_meters_button"
+msgid "Load Meters"
+msgstr "Zähler laden"
+
+msgctxt "model:ir.rule.group,name:rule_group_meter_reading_sheet_companies"
+msgid "User in companies"
+msgstr "Benutzer in Unternehmen"
+
+msgctxt "model:ir.ui.menu,name:menu_meter_reading_sheet"
+msgid "Meter Reading Sheets"
+msgstr "Zählerableselisten"
+
+msgctxt "model:real_estate.meter_reading.sheet,string:"
+msgid "Real Estate Meter Reading Sheet"
+msgstr "Zählerableseliste"
+
+msgctxt "model:real_estate.meter_reading.sheet.line,string:"
+msgid "Real Estate Meter Reading Sheet Line"
+msgstr "Zählerableseliste – Zähler"
+
+msgctxt "selection:real_estate.meter_reading.sheet,state:"
+msgid "Cancelled"
+msgstr "Storniert"
+
+msgctxt "selection:real_estate.meter_reading.sheet,state:"
+msgid "Done"
+msgstr "Abgeschlossen"
+
+msgctxt "selection:real_estate.meter_reading.sheet,state:"
+msgid "Draft"
+msgstr "Entwurf"
+
+msgctxt "view:real_estate.meter_reading.sheet:"
+msgid "Other Info"
+msgstr "Weitere Informationen"

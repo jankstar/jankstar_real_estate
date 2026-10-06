@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<form col="4">
+    <label name="inspection"/><field name="inspection"/>
+    <label name="state"/><field name="state"/>
+    <label name="base_object"/><field name="base_object"/>
+    <label name="line"/><field name="line"/>
+    <label name="severity"/><field name="severity"/>
+    <label name="cost_category"/><field name="cost_category"/>
+    <label name="detected_date"/><field name="detected_date"/>
+    <label name="deadline"/><field name="deadline"/>
+    <label name="responsible_party"/><field name="responsible_party"/>
+    <label name="follow_up_task"/><field name="follow_up_task"/>
+    <separator name="description" colspan="4"/>
+    <field name="description" colspan="4"/>
+    <label name="fixed_date"/><field name="fixed_date"/>
+    <label name="verified_in"/><field name="verified_in"/>
+    <label name="verified_date"/><field name="verified_date"/>
+    <label name="verified_by"/><field name="verified_by"/>
+    <label name="property"/><field name="property"/>
+    <label name="building"/><field name="building"/>
+    <label name="plan"/><field name="plan"/>
+    <label name="result"/><field name="result"/>
+    <group id="buttons" colspan="4" col="-1">
+        <button name="cancel" icon="tryton-cancel"/>
+        <button name="reopen" icon="tryton-back"/>
+        <button name="reject" icon="tryton-back"/>
+        <button name="start" icon="tryton-forward"/>
+        <button name="fix" icon="tryton-ok"/>
+        <button name="verify" icon="tryton-ok"/>
+    </group>
+</form>

@@ -73,9 +73,10 @@
         </record>
 
         <menuitem
-            parent="menu_real_estate_contracts"
+            parent="menu_real_estate_contracts_adjustment"
             action="act_contract_rent_adjustment"
-            sequence="94"
+            name="Agreements"
+            sequence="10"
             id="menu_contract_rent_adjustment"/>
 
         <!-- Follow-up of the active index rents: declaration deadline -->
@@ -115,9 +116,9 @@
             <field name="act_window" ref="act_index_rent_follow_up"/>
         </record>
         <menuitem
-            parent="menu_contract_rent_adjustment"
+            parent="menu_real_estate_contracts_adjustment"
             action="act_index_rent_follow_up"
-            sequence="10"
+            sequence="20"
             id="menu_index_rent_follow_up"/>
 
         <record model="ir.model.access" id="access_contract_rent_adjustment_contract_group">

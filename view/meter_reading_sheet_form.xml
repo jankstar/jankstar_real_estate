@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<form col="4">
+    <label name="base_object"/><field name="base_object"/>
+    <label name="reading_date"/><field name="reading_date"/>
+    <label name="equipment_kind"/><field name="equipment_kind"/>
+    <label name="name_filter"/><field name="name_filter"/>
+    <label name="reader"/><field name="reader"/>
+    <label name="progress"/><field name="progress"/>
+    <notebook colspan="4">
+        <page name="lines" col="1">
+            <field name="lines"
+                view_ids="real_estate.meter_reading_sheet_line_view_tree"/>
+        </page>
+        <page string="Other Info" id="page_info" col="4">
+            <label name="property"/><field name="property"/>
+            <label name="company"/><field name="company"/>
+            <label name="done_by"/><field name="done_by"/>
+            <label name="done_date"/><field name="done_date"/>
+            <separator name="notes" colspan="4"/>
+            <field name="notes" colspan="4"/>
+        </page>
+    </notebook>
+    <label name="state"/><field name="state"/>
+    <group id="buttons" colspan="2" col="-1">
+        <button name="load_meters" icon="tryton-refresh"/>
+        <button name="cancel" icon="tryton-cancel"/>
+        <button name="draft" icon="tryton-back"/>
+        <button name="follow_up" icon="tryton-copy"/>
+        <button name="done" icon="tryton-ok"/>
+    </group>
+</form>

@@ -1,0 +1,1404 @@
+<?xml version="1.0"?>
+<tryton>
+    <data>
+        <!-- Recurring inspections (spezifikation-pruefungen.md), phase P1 -->
+        <record model="ir.ui.view" id="equipment_kind_view_tree">
+            <field name="model">real_estate.equipment.kind</field>
+            <field name="type">tree</field>
+            <field name="name">equipment_kind_tree</field>
+        </record>
+        <record model="ir.ui.view" id="inspection_checklist_view_tree">
+            <field name="model">real_estate.inspection.checklist</field>
+            <field name="type">tree</field>
+            <field name="name">inspection_checklist_tree</field>
+        </record>
+        <record model="ir.ui.view" id="inspection_checklist_view_form">
+            <field name="model">real_estate.inspection.checklist</field>
+            <field name="type">form</field>
+            <field name="name">inspection_checklist_form</field>
+        </record>
+        <record model="ir.ui.view" id="inspection_checklist_item_view_tree">
+            <field name="model">real_estate.inspection.checklist.item</field>
+            <field name="type">tree</field>
+            <field name="name">inspection_checklist_item_tree</field>
+        </record>
+        <record model="ir.ui.view" id="inspection_checklist_item_view_form">
+            <field name="model">real_estate.inspection.checklist.item</field>
+            <field name="type">form</field>
+            <field name="name">inspection_checklist_item_form</field>
+        </record>
+        <record model="ir.ui.view" id="inspection_type_view_tree">
+            <field name="model">real_estate.inspection.type</field>
+            <field name="type">tree</field>
+            <field name="name">inspection_type_tree</field>
+        </record>
+        <record model="ir.ui.view" id="inspection_type_view_form">
+            <field name="model">real_estate.inspection.type</field>
+            <field name="type">form</field>
+            <field name="name">inspection_type_form</field>
+        </record>
+        <record model="ir.ui.view" id="inspection_plan_view_tree">
+            <field name="model">real_estate.inspection.plan</field>
+            <field name="type">tree</field>
+            <field name="name">inspection_plan_tree</field>
+        </record>
+        <record model="ir.ui.view" id="inspection_plan_view_form">
+            <field name="model">real_estate.inspection.plan</field>
+            <field name="type">form</field>
+            <field name="name">inspection_plan_form</field>
+        </record>
+        <record model="ir.action.act_window" id="act_equipment_kind">
+            <field name="name">Equipment Kinds</field>
+            <field name="res_model">real_estate.equipment.kind</field>
+        </record>
+        <record model="ir.action.act_window.view" id="act_equipment_kind_view1">
+            <field name="sequence" eval="10"/>
+            <field name="view" ref="equipment_kind_view_tree"/>
+            <field name="act_window" ref="act_equipment_kind"/>
+        </record>
+        <record model="ir.action.act_window" id="act_inspection_checklist">
+            <field name="name">Inspection Checklists</field>
+            <field name="res_model">real_estate.inspection.checklist</field>
+        </record>
+        <record model="ir.action.act_window.view" id="act_inspection_checklist_view1">
+            <field name="sequence" eval="10"/>
+            <field name="view" ref="inspection_checklist_view_tree"/>
+            <field name="act_window" ref="act_inspection_checklist"/>
+        </record>
+        <record model="ir.action.act_window.view" id="act_inspection_checklist_view2">
+            <field name="sequence" eval="20"/>
+            <field name="view" ref="inspection_checklist_view_form"/>
+            <field name="act_window" ref="act_inspection_checklist"/>
+        </record>
+        <record model="ir.action.act_window" id="act_inspection_type">
+            <field name="name">Inspection Types</field>
+            <field name="res_model">real_estate.inspection.type</field>
+        </record>
+        <record model="ir.action.act_window.view" id="act_inspection_type_view1">
+            <field name="sequence" eval="10"/>
+            <field name="view" ref="inspection_type_view_tree"/>
+            <field name="act_window" ref="act_inspection_type"/>
+        </record>
+        <record model="ir.action.act_window.view" id="act_inspection_type_view2">
+            <field name="sequence" eval="20"/>
+            <field name="view" ref="inspection_type_view_form"/>
+            <field name="act_window" ref="act_inspection_type"/>
+        </record>
+        <record model="ir.action.act_window" id="act_inspection_plan">
+            <field name="name">Inspection Plans</field>
+            <field name="res_model">real_estate.inspection.plan</field>
+        </record>
+        <record model="ir.action.act_window.view" id="act_inspection_plan_view1">
+            <field name="sequence" eval="10"/>
+            <field name="view" ref="inspection_plan_view_tree"/>
+            <field name="act_window" ref="act_inspection_plan"/>
+        </record>
+        <record model="ir.action.act_window.view" id="act_inspection_plan_view2">
+            <field name="sequence" eval="20"/>
+            <field name="view" ref="inspection_plan_view_form"/>
+            <field name="act_window" ref="act_inspection_plan"/>
+        </record>
+        <record model="ir.action.act_window.domain" id="act_inspection_plan_domain_due">
+            <field name="name">Due in 90 Days</field>
+            <field name="sequence" eval="10"/>
+            <field name="domain" eval="[('next_due_date', '&lt;=', Date(delta_days=90))]" pyson="1"/>
+            <field name="act_window" ref="act_inspection_plan"/>
+        </record>
+        <record model="ir.action.act_window.domain" id="act_inspection_plan_domain_overdue">
+            <field name="name">Overdue</field>
+            <field name="sequence" eval="20"/>
+            <field name="domain" eval="[('overdue', '=', True)]" pyson="1"/>
+            <field name="act_window" ref="act_inspection_plan"/>
+        </record>
+        <record model="ir.action.act_window.domain" id="act_inspection_plan_domain_all">
+            <field name="name">All</field>
+            <field name="sequence" eval="90"/>
+            <field name="domain"></field>
+            <field name="act_window" ref="act_inspection_plan"/>
+        </record>
+
+        <menuitem
+            parent="menu_real_estate_masta_data"
+            name="Inspections"
+            sequence="90"
+            id="menu_inspections"/>
+        <menuitem
+            parent="menu_inspections"
+            action="act_inspection_plan"
+            sequence="10"
+            id="menu_inspection_plan"/>
+        <menuitem
+            parent="menu_real_estate_configuration"
+            name="Inspections"
+            sequence="55"
+            id="menu_inspection_configuration"/>
+        <menuitem
+            parent="menu_inspection_configuration"
+            action="act_inspection_type"
+            sequence="10"
+            id="menu_inspection_type"/>
+        <menuitem
+            parent="menu_inspection_configuration"
+            action="act_inspection_checklist"
+            sequence="20"
+            id="menu_inspection_checklist"/>
+        <menuitem
+            parent="menu_inspection_configuration"
+            action="act_equipment_kind"
+            sequence="30"
+            id="menu_equipment_kind"/>
+
+        <record model="ir.rule.group" id="rule_group_inspection_plan_companies">
+            <field name="name">User in companies</field>
+            <field name="model">real_estate.inspection.plan</field>
+            <field name="global_p" eval="True"/>
+        </record>
+        <record model="ir.rule" id="rule_inspection_plan_companies">
+            <field name="domain" eval="[('company', 'in', Eval('companies', []))]" pyson="1"/>
+            <field name="rule_group" ref="rule_group_inspection_plan_companies"/>
+        </record>
+        <record model="ir.model.access" id="access_equipment_kind_admin">
+            <field name="model">real_estate.equipment.kind</field>
+            <field name="group" ref="group_real_estate_admin"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+        <record model="ir.model.access" id="access_equipment_kind_object">
+            <field name="model">real_estate.equipment.kind</field>
+            <field name="group" ref="group_real_estate_object"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_equipment_kind_contract">
+            <field name="model">real_estate.equipment.kind</field>
+            <field name="group" ref="group_real_estate_contract"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_equipment_kind_billing">
+            <field name="model">real_estate.equipment.kind</field>
+            <field name="group" ref="group_real_estate_billing"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_equipment_kind_default">
+            <field name="model">real_estate.equipment.kind</field>
+            <field name="perm_read" eval="False"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_inspection_type_admin">
+            <field name="model">real_estate.inspection.type</field>
+            <field name="group" ref="group_real_estate_admin"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+        <record model="ir.model.access" id="access_inspection_type_object">
+            <field name="model">real_estate.inspection.type</field>
+            <field name="group" ref="group_real_estate_object"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_inspection_type_contract">
+            <field name="model">real_estate.inspection.type</field>
+            <field name="group" ref="group_real_estate_contract"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_inspection_type_billing">
+            <field name="model">real_estate.inspection.type</field>
+            <field name="group" ref="group_real_estate_billing"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_inspection_type_default">
+            <field name="model">real_estate.inspection.type</field>
+            <field name="perm_read" eval="False"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_inspection_checklist_admin">
+            <field name="model">real_estate.inspection.checklist</field>
+            <field name="group" ref="group_real_estate_admin"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+        <record model="ir.model.access" id="access_inspection_checklist_object">
+            <field name="model">real_estate.inspection.checklist</field>
+            <field name="group" ref="group_real_estate_object"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_inspection_checklist_contract">
+            <field name="model">real_estate.inspection.checklist</field>
+            <field name="group" ref="group_real_estate_contract"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_inspection_checklist_billing">
+            <field name="model">real_estate.inspection.checklist</field>
+            <field name="group" ref="group_real_estate_billing"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_inspection_checklist_default">
+            <field name="model">real_estate.inspection.checklist</field>
+            <field name="perm_read" eval="False"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_inspection_checklist_item_admin">
+            <field name="model">real_estate.inspection.checklist.item</field>
+            <field name="group" ref="group_real_estate_admin"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+        <record model="ir.model.access" id="access_inspection_checklist_item_object">
+            <field name="model">real_estate.inspection.checklist.item</field>
+            <field name="group" ref="group_real_estate_object"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_inspection_checklist_item_contract">
+            <field name="model">real_estate.inspection.checklist.item</field>
+            <field name="group" ref="group_real_estate_contract"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_inspection_checklist_item_billing">
+            <field name="model">real_estate.inspection.checklist.item</field>
+            <field name="group" ref="group_real_estate_billing"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_inspection_checklist_item_default">
+            <field name="model">real_estate.inspection.checklist.item</field>
+            <field name="perm_read" eval="False"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_inspection_plan_admin">
+            <field name="model">real_estate.inspection.plan</field>
+            <field name="group" ref="group_real_estate_admin"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+        <record model="ir.model.access" id="access_inspection_plan_object">
+            <field name="model">real_estate.inspection.plan</field>
+            <field name="group" ref="group_real_estate_object"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+        <record model="ir.model.access" id="access_inspection_plan_contract">
+            <field name="model">real_estate.inspection.plan</field>
+            <field name="group" ref="group_real_estate_contract"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_inspection_plan_billing">
+            <field name="model">real_estate.inspection.plan</field>
+            <field name="group" ref="group_real_estate_billing"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_inspection_plan_default">
+            <field name="model">real_estate.inspection.plan</field>
+            <field name="perm_read" eval="False"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+
+        <!-- Phase P2: inspections -->
+        <record model="ir.ui.view" id="inspection_view_tree">
+            <field name="model">real_estate.inspection</field>
+            <field name="type">tree</field>
+            <field name="name">inspection_tree</field>
+        </record>
+        <record model="ir.ui.view" id="inspection_view_form">
+            <field name="model">real_estate.inspection</field>
+            <field name="type">form</field>
+            <field name="name">inspection_form</field>
+        </record>
+        <record model="ir.ui.view" id="inspection_line_view_tree">
+            <field name="model">real_estate.inspection.line</field>
+            <field name="type">tree</field>
+            <field name="name">inspection_line_tree</field>
+        </record>
+        <record model="ir.ui.view" id="inspection_line_view_form">
+            <field name="model">real_estate.inspection.line</field>
+            <field name="type">form</field>
+            <field name="name">inspection_line_form</field>
+        </record>
+        <record model="ir.ui.view" id="inspection_line_view_list_object">
+            <field name="model">real_estate.inspection.line</field>
+            <field name="type">tree</field>
+            <field name="name">inspection_line_list_object</field>
+            <field name="priority" eval="20"/>
+        </record>
+        <record model="ir.ui.view" id="inspection_result_view_tree">
+            <field name="model">real_estate.inspection.result</field>
+            <field name="type">tree</field>
+            <field name="name">inspection_result_tree</field>
+        </record>
+        <record model="ir.ui.view" id="inspection_result_view_form">
+            <field name="model">real_estate.inspection.result</field>
+            <field name="type">form</field>
+            <field name="name">inspection_result_form</field>
+        </record>
+        <record model="ir.action.act_window" id="act_inspection_form">
+            <field name="name">Inspections</field>
+            <field name="res_model">real_estate.inspection</field>
+        </record>
+        <record model="ir.action.act_window.view" id="act_inspection_form_view1">
+            <field name="sequence" eval="10"/>
+            <field name="view" ref="inspection_view_tree"/>
+            <field name="act_window" ref="act_inspection_form"/>
+        </record>
+        <record model="ir.action.act_window.view" id="act_inspection_form_view2">
+            <field name="sequence" eval="20"/>
+            <field name="view" ref="inspection_view_form"/>
+            <field name="act_window" ref="act_inspection_form"/>
+        </record>
+        <record model="ir.action.act_window.domain" id="act_inspection_form_domain_open">
+            <field name="name">Open</field>
+            <field name="sequence" eval="10"/>
+            <field name="domain" eval="[('state', 'in', ['draft', 'scheduled', 'in_progress'])]" pyson="1"/>
+            <field name="count" eval="True"/>
+            <field name="act_window" ref="act_inspection_form"/>
+        </record>
+        <record model="ir.action.act_window.domain" id="act_inspection_form_domain_done">
+            <field name="name">To Approve</field>
+            <field name="sequence" eval="20"/>
+            <field name="domain" eval="[('state', '=', 'done')]" pyson="1"/>
+            <field name="count" eval="True"/>
+            <field name="act_window" ref="act_inspection_form"/>
+        </record>
+        <record model="ir.action.act_window.domain" id="act_inspection_form_domain_overdue">
+            <field name="name">Overdue</field>
+            <field name="sequence" eval="30"/>
+            <field name="domain" eval="[('overdue', '=', True)]" pyson="1"/>
+            <field name="count" eval="True"/>
+            <field name="act_window" ref="act_inspection_form"/>
+        </record>
+        <record model="ir.action.act_window.domain" id="act_inspection_form_domain_approved">
+            <field name="name">Approved</field>
+            <field name="sequence" eval="40"/>
+            <field name="domain" eval="[('state', '=', 'approved')]" pyson="1"/>
+            <field name="count" eval="True"/>
+            <field name="act_window" ref="act_inspection_form"/>
+        </record>
+        <record model="ir.action.act_window.domain" id="act_inspection_form_domain_all">
+            <field name="name">All</field>
+            <field name="sequence" eval="90"/>
+            <field name="domain"></field>
+            <field name="count" eval="True"/>
+            <field name="act_window" ref="act_inspection_form"/>
+        </record>
+        <menuitem
+            parent="menu_inspections"
+            action="act_inspection_form"
+            sequence="20"
+            id="menu_inspection"/>
+
+        <record model="ir.action.report" id="report_inspection_de">
+            <field name="name">Inspection Report (de)</field>
+            <field name="report_name">real_estate.inspection.report</field>
+            <field name="model">real_estate.inspection</field>
+            <field name="report">real_estate/report/inspection_protocol_de.odt</field>
+            <field name="template_extension">odt</field>
+        </record>
+        <record model="ir.action.keyword" id="report_inspection_keyword">
+            <field name="keyword">form_print</field>
+            <field name="model">real_estate.inspection,-1</field>
+            <field name="action" ref="report_inspection_de"/>
+        </record>
+        <record model="ir.model.button" id="inspection_schedule_button">
+            <field name="model">real_estate.inspection</field>
+            <field name="name">schedule</field>
+            <field name="string">Schedule</field>
+        </record>
+        <record model="ir.model.button" id="inspection_unschedule_button">
+            <field name="model">real_estate.inspection</field>
+            <field name="name">unschedule</field>
+            <field name="string">Back to Draft</field>
+        </record>
+        <record model="ir.model.button" id="inspection_start_button">
+            <field name="model">real_estate.inspection</field>
+            <field name="name">start</field>
+            <field name="string">Start</field>
+        </record>
+        <record model="ir.model.button" id="inspection_done_button">
+            <field name="model">real_estate.inspection</field>
+            <field name="name">done</field>
+            <field name="string">Done</field>
+        </record>
+        <record model="ir.model.button" id="inspection_reopen_button">
+            <field name="model">real_estate.inspection</field>
+            <field name="name">reopen</field>
+            <field name="string">Reopen</field>
+        </record>
+        <record model="ir.model.button" id="inspection_approve_button">
+            <field name="model">real_estate.inspection</field>
+            <field name="name">approve</field>
+            <field name="string">Approve</field>
+        </record>
+        <record model="ir.model.button" id="inspection_cancel_button">
+            <field name="model">real_estate.inspection</field>
+            <field name="name">cancel</field>
+            <field name="string">Cancel</field>
+        </record>
+        <record model="ir.model.button" id="inspection_plan_create_inspection_button">
+            <field name="model">real_estate.inspection.plan</field>
+            <field name="name">create_inspection</field>
+            <field name="string">Create Inspection</field>
+        </record>
+
+        <record model="ir.rule.group" id="rule_group_inspection_companies">
+            <field name="name">User in companies</field>
+            <field name="model">real_estate.inspection</field>
+            <field name="global_p" eval="True"/>
+        </record>
+        <record model="ir.rule" id="rule_inspection_companies">
+            <field name="domain" eval="[('company', 'in', Eval('companies', []))]" pyson="1"/>
+            <field name="rule_group" ref="rule_group_inspection_companies"/>
+        </record>
+        <record model="ir.model.access" id="access_inspection_admin">
+            <field name="model">real_estate.inspection</field>
+            <field name="group" ref="group_real_estate_admin"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+        <record model="ir.model.access" id="access_inspection_object">
+            <field name="model">real_estate.inspection</field>
+            <field name="group" ref="group_real_estate_object"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+        <record model="ir.model.access" id="access_inspection_contract">
+            <field name="model">real_estate.inspection</field>
+            <field name="group" ref="group_real_estate_contract"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_inspection_billing">
+            <field name="model">real_estate.inspection</field>
+            <field name="group" ref="group_real_estate_billing"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_inspection_default">
+            <field name="model">real_estate.inspection</field>
+            <field name="perm_read" eval="False"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_inspection_line_admin">
+            <field name="model">real_estate.inspection.line</field>
+            <field name="group" ref="group_real_estate_admin"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+        <record model="ir.model.access" id="access_inspection_line_object">
+            <field name="model">real_estate.inspection.line</field>
+            <field name="group" ref="group_real_estate_object"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+        <record model="ir.model.access" id="access_inspection_line_contract">
+            <field name="model">real_estate.inspection.line</field>
+            <field name="group" ref="group_real_estate_contract"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_inspection_line_billing">
+            <field name="model">real_estate.inspection.line</field>
+            <field name="group" ref="group_real_estate_billing"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_inspection_line_default">
+            <field name="model">real_estate.inspection.line</field>
+            <field name="perm_read" eval="False"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_inspection_result_admin">
+            <field name="model">real_estate.inspection.result</field>
+            <field name="group" ref="group_real_estate_admin"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+        <record model="ir.model.access" id="access_inspection_result_object">
+            <field name="model">real_estate.inspection.result</field>
+            <field name="group" ref="group_real_estate_object"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+        <record model="ir.model.access" id="access_inspection_result_contract">
+            <field name="model">real_estate.inspection.result</field>
+            <field name="group" ref="group_real_estate_contract"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_inspection_result_billing">
+            <field name="model">real_estate.inspection.result</field>
+            <field name="group" ref="group_real_estate_billing"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_inspection_result_default">
+            <field name="model">real_estate.inspection.result</field>
+            <field name="perm_read" eval="False"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_inspection_party_party_admin">
+            <field name="model">real_estate.inspection-party.party</field>
+            <field name="group" ref="group_real_estate_admin"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+        <record model="ir.model.access" id="access_inspection_party_party_object">
+            <field name="model">real_estate.inspection-party.party</field>
+            <field name="group" ref="group_real_estate_object"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+        <record model="ir.model.access" id="access_inspection_party_party_contract">
+            <field name="model">real_estate.inspection-party.party</field>
+            <field name="group" ref="group_real_estate_contract"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_inspection_party_party_billing">
+            <field name="model">real_estate.inspection-party.party</field>
+            <field name="group" ref="group_real_estate_billing"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_inspection_party_party_default">
+            <field name="model">real_estate.inspection-party.party</field>
+            <field name="perm_read" eval="False"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+
+        <!-- Phase P3: tenant notice, letters, next attempt -->
+        <record model="ir.action.report" id="report_inspection_notice_de">
+            <field name="name">Tenant Notice (de)</field>
+            <field name="report_name">real_estate.inspection.notice</field>
+            <field name="model">real_estate.inspection</field>
+            <field name="report">real_estate/report/inspection_notice_de.odt</field>
+            <field name="template_extension">odt</field>
+        </record>
+        <record model="ir.action.report" id="report_inspection_access_letter_de">
+            <field name="name">Letter No Access (de)</field>
+            <field name="report_name">real_estate.inspection.access_letter</field>
+            <field name="model">real_estate.inspection</field>
+            <field name="report">real_estate/report/inspection_access_letter_de.odt</field>
+            <field name="template_extension">odt</field>
+        </record>
+        <record model="ir.action.wizard" id="wizard_inspection_notice">
+            <field name="name">Create Tenant Notice</field>
+            <field name="wiz_name">real_estate.inspection.notice.create</field>
+            <field name="model">real_estate.inspection</field>
+        </record>
+        <record model="ir.action.keyword" id="wizard_inspection_notice_keyword">
+            <field name="keyword">form_action</field>
+            <field name="model">real_estate.inspection,-1</field>
+            <field name="action" ref="wizard_inspection_notice"/>
+        </record>
+        <record model="ir.action.wizard" id="wizard_inspection_access_letter">
+            <field name="name">Create Letters No Access</field>
+            <field name="wiz_name">real_estate.inspection.access_letter.create</field>
+            <field name="model">real_estate.inspection</field>
+        </record>
+        <record model="ir.action.keyword" id="wizard_inspection_access_letter_keyword">
+            <field name="keyword">form_action</field>
+            <field name="model">real_estate.inspection,-1</field>
+            <field name="action" ref="wizard_inspection_access_letter"/>
+        </record>
+        <record model="ir.model.button" id="inspection_rebuild_lines_button">
+            <field name="model">real_estate.inspection</field>
+            <field name="name">rebuild_lines</field>
+            <field name="string">Rebuild Lines</field>
+            <field name="confirm">The lines are created again from the current equipment and the line filter of the inspection type; entries in the lines are lost.</field>
+        </record>
+        <record model="ir.model.button" id="inspection_all_ok_button">
+            <field name="model">real_estate.inspection</field>
+            <field name="name">all_ok</field>
+            <field name="string">Open Items OK</field>
+            <field name="help">Sets all check items not yet answered of the header and of the lines with access to OK (resp. Yes); answered items are kept.</field>
+        </record>
+        <record model="ir.model.button" id="inspection_line_all_ok_button">
+            <field name="model">real_estate.inspection.line</field>
+            <field name="name">all_ok</field>
+            <field name="string">Open Items OK</field>
+            <field name="help">Sets all check items not yet answered of the line to OK (resp. Yes) and fills empty quantities and the visit date; answered items are kept.</field>
+        </record>
+        <record model="ir.model.button" id="inspection_back_to_scheduled_button">
+            <field name="model">real_estate.inspection</field>
+            <field name="name">back_to_scheduled</field>
+            <field name="string">Back to Scheduled</field>
+        </record>
+        <record model="ir.model.button" id="inspection_unapprove_button">
+            <field name="model">real_estate.inspection</field>
+            <field name="name">unapprove</field>
+            <field name="string">Take Back Approval</field>
+            <field name="confirm">The approval is taken back; the archived report is kept as attachment marked withdrawn.</field>
+        </record>
+        <record model="ir.model.button" id="inspection_reactivate_button">
+            <field name="model">real_estate.inspection</field>
+            <field name="name">reactivate</field>
+            <field name="string">Reactivate</field>
+        </record>
+        <record model="ir.model.button" id="inspection_next_attempt_button">
+            <field name="model">real_estate.inspection</field>
+            <field name="name">next_attempt</field>
+            <field name="string">Next Attempt</field>
+        </record>
+
+        <!-- Phase P4: defects -->
+        <record model="ir.ui.view" id="inspection_defect_view_tree">
+            <field name="model">real_estate.inspection.defect</field>
+            <field name="type">tree</field>
+            <field name="name">inspection_defect_tree</field>
+        </record>
+        <record model="ir.ui.view" id="inspection_defect_view_form">
+            <field name="model">real_estate.inspection.defect</field>
+            <field name="type">form</field>
+            <field name="name">inspection_defect_form</field>
+        </record>
+        <record model="ir.action.act_window" id="act_inspection_defect">
+            <field name="name">Defects</field>
+            <field name="res_model">real_estate.inspection.defect</field>
+        </record>
+        <record model="ir.action.act_window.view" id="act_inspection_defect_view1">
+            <field name="sequence" eval="10"/>
+            <field name="view" ref="inspection_defect_view_tree"/>
+            <field name="act_window" ref="act_inspection_defect"/>
+        </record>
+        <record model="ir.action.act_window.view" id="act_inspection_defect_view2">
+            <field name="sequence" eval="20"/>
+            <field name="view" ref="inspection_defect_view_form"/>
+            <field name="act_window" ref="act_inspection_defect"/>
+        </record>
+        <record model="ir.action.act_window.domain" id="act_inspection_defect_domain_open">
+            <field name="name">Open</field>
+            <field name="sequence" eval="10"/>
+            <field name="domain" eval="[('state', 'in', ['open', 'in_progress'])]" pyson="1"/>
+            <field name="count" eval="True"/>
+            <field name="act_window" ref="act_inspection_defect"/>
+        </record>
+        <record model="ir.action.act_window.domain" id="act_inspection_defect_domain_overdue">
+            <field name="name">Overdue</field>
+            <field name="sequence" eval="20"/>
+            <field name="domain" eval="[('overdue', '=', True)]" pyson="1"/>
+            <field name="count" eval="True"/>
+            <field name="act_window" ref="act_inspection_defect"/>
+        </record>
+        <record model="ir.action.act_window.domain" id="act_inspection_defect_domain_fixed">
+            <field name="name">To Verify</field>
+            <field name="sequence" eval="30"/>
+            <field name="domain" eval="[('state', '=', 'fixed')]" pyson="1"/>
+            <field name="count" eval="True"/>
+            <field name="act_window" ref="act_inspection_defect"/>
+        </record>
+        <record model="ir.action.act_window.domain" id="act_inspection_defect_domain_all">
+            <field name="name">All</field>
+            <field name="sequence" eval="90"/>
+            <field name="domain"></field>
+            <field name="count" eval="True"/>
+            <field name="act_window" ref="act_inspection_defect"/>
+        </record>
+        <menuitem
+            parent="menu_inspections"
+            action="act_inspection_defect"
+            sequence="30"
+            id="menu_inspection_defect"/>
+        <record model="ir.model.button" id="inspection_defect_start_button">
+            <field name="model">real_estate.inspection.defect</field>
+            <field name="name">start</field>
+            <field name="string">Start</field>
+        </record>
+        <record model="ir.model.button" id="inspection_defect_fix_button">
+            <field name="model">real_estate.inspection.defect</field>
+            <field name="name">fix</field>
+            <field name="string">Fixed</field>
+        </record>
+        <record model="ir.model.button" id="inspection_defect_verify_button">
+            <field name="model">real_estate.inspection.defect</field>
+            <field name="name">verify</field>
+            <field name="string">Verify</field>
+        </record>
+        <record model="ir.model.button" id="inspection_defect_reject_button">
+            <field name="model">real_estate.inspection.defect</field>
+            <field name="name">reject</field>
+            <field name="string">Not Fixed</field>
+        </record>
+        <record model="ir.model.button" id="inspection_defect_cancel_button">
+            <field name="model">real_estate.inspection.defect</field>
+            <field name="name">cancel</field>
+            <field name="string">Cancel</field>
+        </record>
+        <record model="ir.model.button" id="inspection_defect_reopen_button">
+            <field name="model">real_estate.inspection.defect</field>
+            <field name="name">reopen</field>
+            <field name="string">Reopen</field>
+        </record>
+        <record model="ir.rule.group" id="rule_group_inspection_defect_companies">
+            <field name="name">User in companies</field>
+            <field name="model">real_estate.inspection.defect</field>
+            <field name="global_p" eval="True"/>
+        </record>
+        <record model="ir.rule" id="rule_inspection_defect_companies">
+            <field name="domain" eval="[('company', 'in', Eval('companies', []))]" pyson="1"/>
+            <field name="rule_group" ref="rule_group_inspection_defect_companies"/>
+        </record>
+        <record model="ir.model.access" id="access_inspection_defect_admin">
+            <field name="model">real_estate.inspection.defect</field>
+            <field name="group" ref="group_real_estate_admin"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+        <record model="ir.model.access" id="access_inspection_defect_object">
+            <field name="model">real_estate.inspection.defect</field>
+            <field name="group" ref="group_real_estate_object"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+        <record model="ir.model.access" id="access_inspection_defect_contract">
+            <field name="model">real_estate.inspection.defect</field>
+            <field name="group" ref="group_real_estate_contract"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_inspection_defect_billing">
+            <field name="model">real_estate.inspection.defect</field>
+            <field name="group" ref="group_real_estate_billing"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_inspection_defect_default">
+            <field name="model">real_estate.inspection.defect</field>
+            <field name="perm_read" eval="False"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+    </data>
+
+    <data noupdate="1">
+        <record model="real_estate.equipment.kind" id="equipment_kind_smoke_detector">
+            <field name="name">Smoke Detector</field>
+            <field name="code">smoke_detector</field>
+        </record>
+        <record model="real_estate.equipment.kind" id="equipment_kind_elevator">
+            <field name="name">Elevator</field>
+            <field name="code">elevator</field>
+        </record>
+        <record model="real_estate.equipment.kind" id="equipment_kind_playground">
+            <field name="name">Playground</field>
+            <field name="code">playground</field>
+        </record>
+        <record model="real_estate.equipment.kind" id="equipment_kind_fire_extinguisher">
+            <field name="name">Fire Extinguisher</field>
+            <field name="code">fire_extinguisher</field>
+        </record>
+        <record model="real_estate.equipment.kind" id="equipment_kind_backflow_preventer">
+            <field name="name">Backflow Preventer</field>
+            <field name="code">backflow_preventer</field>
+        </record>
+        <record model="real_estate.equipment.kind" id="equipment_kind_heating_system">
+            <field name="name">Heating System</field>
+            <field name="code">heating_system</field>
+        </record>
+        <record model="real_estate.equipment.kind" id="equipment_kind_smoke_heat_exhaust">
+            <field name="name">Smoke and Heat Exhaust System</field>
+            <field name="code">smoke_heat_exhaust</field>
+        </record>
+        <record model="ir.sequence.type" id="sequence_type_inspection">
+            <field name="name">Inspection</field>
+        </record>
+        <record model="ir.sequence.type-res.group" id="sequence_type_inspection_group_admin">
+            <field name="sequence_type" ref="sequence_type_inspection"/>
+            <field name="group" ref="res.group_admin"/>
+        </record>
+        <record model="ir.sequence.type-res.group" id="sequence_type_inspection_group_real_estate_admin">
+            <field name="sequence_type" ref="sequence_type_inspection"/>
+            <field name="group" ref="group_real_estate_admin"/>
+        </record>
+        <record model="ir.sequence" id="sequence_inspection">
+            <field name="name">Inspection</field>
+            <field name="sequence_type" ref="sequence_type_inspection"/>
+            <field name="prefix">PR-${year}-</field>
+            <field name="padding" eval="4"/>
+        </record>
+        <!-- Phase P5: default inspection types 7.1 / 7.2 -->
+        <record model="real_estate.inspection.checklist" id="inspection_checklist_walkthrough">
+            <field name="name">Annual Walkthrough - Building</field>
+        </record>
+        <record model="real_estate.inspection.checklist.item" id="inspection_checklist_walkthrough_01">
+            <field name="checklist" ref="inspection_checklist_walkthrough"/>
+            <field name="sequence" eval="10"/>
+            <field name="section">Exterior and Roof</field>
+            <field name="question">Roof and gutters visually intact</field>
+            <field name="answer_type">ok_nok_na</field>
+            <field name="mandatory" eval="True"/>
+            <field name="create_defect_on_nok" eval="True"/>
+            <field name="default_severity">major</field>
+        </record>
+        <record model="real_estate.inspection.checklist.item" id="inspection_checklist_walkthrough_02">
+            <field name="checklist" ref="inspection_checklist_walkthrough"/>
+            <field name="sequence" eval="20"/>
+            <field name="section">Exterior and Roof</field>
+            <field name="question">Facade without loose parts</field>
+            <field name="answer_type">ok_nok_na</field>
+            <field name="mandatory" eval="True"/>
+            <field name="create_defect_on_nok" eval="True"/>
+            <field name="default_severity">major</field>
+        </record>
+        <record model="real_estate.inspection.checklist.item" id="inspection_checklist_walkthrough_03">
+            <field name="checklist" ref="inspection_checklist_walkthrough"/>
+            <field name="sequence" eval="30"/>
+            <field name="section">Exterior and Roof</field>
+            <field name="question">Windows and doors of common areas close properly</field>
+            <field name="answer_type">ok_nok_na</field>
+            <field name="mandatory" eval="True"/>
+            <field name="create_defect_on_nok" eval="True"/>
+            <field name="default_severity">minor</field>
+        </record>
+        <record model="real_estate.inspection.checklist.item" id="inspection_checklist_walkthrough_04">
+            <field name="checklist" ref="inspection_checklist_walkthrough"/>
+            <field name="sequence" eval="40"/>
+            <field name="section">Entrance</field>
+            <field name="question">Door closer and lock work</field>
+            <field name="answer_type">ok_nok_na</field>
+            <field name="mandatory" eval="True"/>
+            <field name="create_defect_on_nok" eval="True"/>
+            <field name="default_severity">minor</field>
+        </record>
+        <record model="real_estate.inspection.checklist.item" id="inspection_checklist_walkthrough_05">
+            <field name="checklist" ref="inspection_checklist_walkthrough"/>
+            <field name="sequence" eval="50"/>
+            <field name="section">Entrance</field>
+            <field name="question">Bell and intercom work</field>
+            <field name="answer_type">ok_nok_na</field>
+            <field name="mandatory" eval="True"/>
+            <field name="create_defect_on_nok" eval="True"/>
+            <field name="default_severity">minor</field>
+        </record>
+        <record model="real_estate.inspection.checklist.item" id="inspection_checklist_walkthrough_06">
+            <field name="checklist" ref="inspection_checklist_walkthrough"/>
+            <field name="sequence" eval="60"/>
+            <field name="section">Entrance</field>
+            <field name="question">Letter boxes intact</field>
+            <field name="answer_type">ok_nok_na</field>
+            <field name="mandatory" eval="True"/>
+            <field name="create_defect_on_nok" eval="True"/>
+            <field name="default_severity">minor</field>
+        </record>
+        <record model="real_estate.inspection.checklist.item" id="inspection_checklist_walkthrough_07">
+            <field name="checklist" ref="inspection_checklist_walkthrough"/>
+            <field name="sequence" eval="70"/>
+            <field name="section">Entrance</field>
+            <field name="question">House number visible</field>
+            <field name="answer_type">ok_nok_na</field>
+            <field name="mandatory" eval="True"/>
+            <field name="create_defect_on_nok" eval="True"/>
+            <field name="default_severity">minor</field>
+        </record>
+        <record model="real_estate.inspection.checklist.item" id="inspection_checklist_walkthrough_08">
+            <field name="checklist" ref="inspection_checklist_walkthrough"/>
+            <field name="sequence" eval="80"/>
+            <field name="section">Staircase</field>
+            <field name="question">Lighting incl. timer works</field>
+            <field name="answer_type">ok_nok_na</field>
+            <field name="mandatory" eval="True"/>
+            <field name="create_defect_on_nok" eval="True"/>
+            <field name="default_severity">major</field>
+        </record>
+        <record model="real_estate.inspection.checklist.item" id="inspection_checklist_walkthrough_09">
+            <field name="checklist" ref="inspection_checklist_walkthrough"/>
+            <field name="sequence" eval="90"/>
+            <field name="section">Staircase</field>
+            <field name="question">Handrails firm</field>
+            <field name="answer_type">ok_nok_na</field>
+            <field name="mandatory" eval="True"/>
+            <field name="create_defect_on_nok" eval="True"/>
+            <field name="default_severity">major</field>
+        </record>
+        <record model="real_estate.inspection.checklist.item" id="inspection_checklist_walkthrough_10">
+            <field name="checklist" ref="inspection_checklist_walkthrough"/>
+            <field name="sequence" eval="100"/>
+            <field name="section">Staircase</field>
+            <field name="question">Floor without tripping hazards</field>
+            <field name="answer_type">ok_nok_na</field>
+            <field name="mandatory" eval="True"/>
+            <field name="create_defect_on_nok" eval="True"/>
+            <field name="default_severity">major</field>
+        </record>
+        <record model="real_estate.inspection.checklist.item" id="inspection_checklist_walkthrough_11">
+            <field name="checklist" ref="inspection_checklist_walkthrough"/>
+            <field name="sequence" eval="110"/>
+            <field name="section">Staircase</field>
+            <field name="question">Escape routes clear</field>
+            <field name="answer_type">ok_nok_na</field>
+            <field name="mandatory" eval="True"/>
+            <field name="create_defect_on_nok" eval="True"/>
+            <field name="default_severity">critical</field>
+        </record>
+        <record model="real_estate.inspection.checklist.item" id="inspection_checklist_walkthrough_12">
+            <field name="checklist" ref="inspection_checklist_walkthrough"/>
+            <field name="sequence" eval="120"/>
+            <field name="section">Staircase</field>
+            <field name="question">Fire doors close automatically</field>
+            <field name="answer_type">ok_nok_na</field>
+            <field name="mandatory" eval="True"/>
+            <field name="create_defect_on_nok" eval="True"/>
+            <field name="default_severity">critical</field>
+        </record>
+        <record model="real_estate.inspection.checklist.item" id="inspection_checklist_walkthrough_13">
+            <field name="checklist" ref="inspection_checklist_walkthrough"/>
+            <field name="sequence" eval="130"/>
+            <field name="section">Basement and Technical Rooms</field>
+            <field name="question">No moisture or mould</field>
+            <field name="answer_type">ok_nok_na</field>
+            <field name="mandatory" eval="True"/>
+            <field name="create_defect_on_nok" eval="True"/>
+            <field name="default_severity">major</field>
+        </record>
+        <record model="real_estate.inspection.checklist.item" id="inspection_checklist_walkthrough_14">
+            <field name="checklist" ref="inspection_checklist_walkthrough"/>
+            <field name="sequence" eval="140"/>
+            <field name="section">Basement and Technical Rooms</field>
+            <field name="question">No combustible storage in escape routes</field>
+            <field name="answer_type">ok_nok_na</field>
+            <field name="mandatory" eval="True"/>
+            <field name="create_defect_on_nok" eval="True"/>
+            <field name="default_severity">critical</field>
+        </record>
+        <record model="real_estate.inspection.checklist.item" id="inspection_checklist_walkthrough_15">
+            <field name="checklist" ref="inspection_checklist_walkthrough"/>
+            <field name="sequence" eval="150"/>
+            <field name="section">Basement and Technical Rooms</field>
+            <field name="question">Heating and meter rooms accessible and locked</field>
+            <field name="answer_type">ok_nok_na</field>
+            <field name="mandatory" eval="True"/>
+            <field name="create_defect_on_nok" eval="True"/>
+            <field name="default_severity">minor</field>
+        </record>
+        <record model="real_estate.inspection.checklist.item" id="inspection_checklist_walkthrough_16">
+            <field name="checklist" ref="inspection_checklist_walkthrough"/>
+            <field name="sequence" eval="160"/>
+            <field name="section">Outdoor Areas</field>
+            <field name="question">Paths without tripping hazards</field>
+            <field name="answer_type">ok_nok_na</field>
+            <field name="mandatory" eval="True"/>
+            <field name="create_defect_on_nok" eval="True"/>
+            <field name="default_severity">major</field>
+        </record>
+        <record model="real_estate.inspection.checklist.item" id="inspection_checklist_walkthrough_17">
+            <field name="checklist" ref="inspection_checklist_walkthrough"/>
+            <field name="sequence" eval="170"/>
+            <field name="section">Outdoor Areas</field>
+            <field name="question">Outdoor lighting works</field>
+            <field name="answer_type">ok_nok_na</field>
+            <field name="mandatory" eval="True"/>
+            <field name="create_defect_on_nok" eval="True"/>
+            <field name="default_severity">minor</field>
+        </record>
+        <record model="real_estate.inspection.checklist.item" id="inspection_checklist_walkthrough_18">
+            <field name="checklist" ref="inspection_checklist_walkthrough"/>
+            <field name="sequence" eval="180"/>
+            <field name="section">Outdoor Areas</field>
+            <field name="question">Trees without visible damage (visual check)</field>
+            <field name="answer_type">ok_nok_na</field>
+            <field name="mandatory" eval="True"/>
+            <field name="create_defect_on_nok" eval="True"/>
+            <field name="default_severity">major</field>
+        </record>
+        <record model="real_estate.inspection.checklist.item" id="inspection_checklist_walkthrough_19">
+            <field name="checklist" ref="inspection_checklist_walkthrough"/>
+            <field name="sequence" eval="190"/>
+            <field name="section">Outdoor Areas</field>
+            <field name="question">Waste container area clean</field>
+            <field name="answer_type">ok_nok_na</field>
+            <field name="mandatory" eval="True"/>
+            <field name="create_defect_on_nok" eval="True"/>
+            <field name="default_severity">minor</field>
+        </record>
+        <record model="real_estate.inspection.checklist.item" id="inspection_checklist_walkthrough_20">
+            <field name="checklist" ref="inspection_checklist_walkthrough"/>
+            <field name="sequence" eval="200"/>
+            <field name="section">Notices</field>
+            <field name="question">House rules, emergency numbers and caretaker contact posted</field>
+            <field name="answer_type">ok_nok_na</field>
+            <field name="mandatory" eval="True"/>
+            <field name="create_defect_on_nok" eval="True"/>
+            <field name="default_severity">minor</field>
+        </record>
+        <record model="real_estate.inspection.checklist.item" id="inspection_checklist_walkthrough_21">
+            <field name="checklist" ref="inspection_checklist_walkthrough"/>
+            <field name="sequence" eval="210"/>
+            <field name="section">Remarks</field>
+            <field name="question">Remarks</field>
+            <field name="answer_type">text</field>
+            <field name="mandatory" eval="False"/>
+        </record>
+        <record model="real_estate.inspection.checklist" id="inspection_checklist_smoke_detector">
+            <field name="name">Smoke Detectors - per Apartment</field>
+        </record>
+        <record model="real_estate.inspection.checklist.item" id="inspection_checklist_smoke_detector_01">
+            <field name="checklist" ref="inspection_checklist_smoke_detector"/>
+            <field name="sequence" eval="10"/>
+            <field name="question">All required rooms equipped (bedrooms, children's rooms, corridors as escape routes)</field>
+            <field name="answer_type">yes_no</field>
+            <field name="mandatory" eval="True"/>
+            <field name="create_defect_on_nok" eval="True"/>
+            <field name="default_severity">major</field>
+        </record>
+        <record model="real_estate.inspection.checklist.item" id="inspection_checklist_smoke_detector_02">
+            <field name="checklist" ref="inspection_checklist_smoke_detector"/>
+            <field name="sequence" eval="20"/>
+            <field name="question">Detectors mounted correctly (ceiling, distance to walls and obstacles)</field>
+            <field name="answer_type">ok_nok_na</field>
+            <field name="mandatory" eval="True"/>
+            <field name="create_defect_on_nok" eval="True"/>
+            <field name="default_severity">minor</field>
+        </record>
+        <record model="real_estate.inspection.checklist.item" id="inspection_checklist_smoke_detector_03">
+            <field name="checklist" ref="inspection_checklist_smoke_detector"/>
+            <field name="sequence" eval="30"/>
+            <field name="question">Function test passed</field>
+            <field name="answer_type">ok_nok_na</field>
+            <field name="mandatory" eval="True"/>
+            <field name="create_defect_on_nok" eval="True"/>
+            <field name="default_severity">major</field>
+        </record>
+        <record model="real_estate.inspection.checklist.item" id="inspection_checklist_smoke_detector_04">
+            <field name="checklist" ref="inspection_checklist_smoke_detector"/>
+            <field name="sequence" eval="40"/>
+            <field name="question">Smoke inlets free, not painted over or covered</field>
+            <field name="answer_type">ok_nok_na</field>
+            <field name="mandatory" eval="True"/>
+            <field name="create_defect_on_nok" eval="True"/>
+            <field name="default_severity">major</field>
+        </record>
+        <record model="real_estate.inspection.checklist.item" id="inspection_checklist_smoke_detector_05">
+            <field name="checklist" ref="inspection_checklist_smoke_detector"/>
+            <field name="sequence" eval="50"/>
+            <field name="question">Earliest replacement date of the installed detectors</field>
+            <field name="answer_type">date</field>
+            <field name="mandatory" eval="False"/>
+        </record>
+        <record model="real_estate.inspection.checklist.item" id="inspection_checklist_smoke_detector_06">
+            <field name="checklist" ref="inspection_checklist_smoke_detector"/>
+            <field name="sequence" eval="60"/>
+            <field name="question">Remarks</field>
+            <field name="answer_type">text</field>
+            <field name="mandatory" eval="False"/>
+        </record>
+        <record model="real_estate.process.template" id="process_template_inspection_walkthrough">
+            <field name="name">Annual Walkthrough</field>
+            <field name="code">inspection_walkthrough</field>
+            <field name="model">real_estate.inspection</field>
+            <field name="anchor_field">planned_date</field>
+        </record>
+        <record model="real_estate.process.template.step" id="process_template_inspection_walkthrough_date">
+            <field name="template" ref="process_template_inspection_walkthrough"/>
+            <field name="sequence" eval="10"/>
+            <field name="name">Arrange the date with the caretaker</field>
+            <field name="task_type" ref="task_type_process_step"/>
+            <field name="responsible_group" ref="group_real_estate_object"/>
+            <field name="responsible_role" ref="object_party_administrator_role"/>
+            <field name="due_base">anchor</field>
+            <field name="offset_months" eval="0"/>
+            <field name="offset_days" eval="-21"/>
+            <field name="completion">manual</field>
+            <field name="description">Arrange the date of the walkthrough with the caretaker, enter it as planned date of the inspection and note participants and access to technical rooms.</field>
+        </record>
+        <record model="real_estate.process.template.step" id="process_template_inspection_walkthrough_walk">
+            <field name="template" ref="process_template_inspection_walkthrough"/>
+            <field name="sequence" eval="20"/>
+            <field name="name">Walkthrough</field>
+            <field name="task_type" ref="task_type_process_step"/>
+            <field name="responsible_group" ref="group_real_estate_object"/>
+            <field name="responsible_role" ref="object_party_administrator_role"/>
+            <field name="due_base">anchor</field>
+            <field name="offset_months" eval="0"/>
+            <field name="offset_days" eval="0"/>
+            <field name="completion">condition</field>
+            <field name="done_method">inspection_done</field>
+            <field name="description">Walk through the building along the checklist of the inspection, record every item, take photos of findings and complete the inspection ("Done"). The step is done with the inspection.</field>
+        </record>
+        <record model="real_estate.process.template.step" id="process_template_inspection_walkthrough_approve">
+            <field name="template" ref="process_template_inspection_walkthrough"/>
+            <field name="sequence" eval="30"/>
+            <field name="name">Approve the report</field>
+            <field name="task_type" ref="task_type_process_step"/>
+            <field name="responsible_group" ref="group_real_estate_admin"/>
+            <field name="due_base">anchor</field>
+            <field name="offset_months" eval="0"/>
+            <field name="offset_days" eval="7"/>
+            <field name="completion">condition</field>
+            <field name="done_method">inspection_approved</field>
+            <field name="description">Check the report and approve the inspection ("Approve"); the report is archived. The step is done with the approval.</field>
+        </record>
+        <record model="real_estate.process.template.step" id="process_template_inspection_walkthrough_repairs">
+            <field name="template" ref="process_template_inspection_walkthrough"/>
+            <field name="sequence" eval="40"/>
+            <field name="name">Commission repairs</field>
+            <field name="task_type" ref="task_type_process_step"/>
+            <field name="responsible_group" ref="group_real_estate_object"/>
+            <field name="responsible_role" ref="object_party_administrator_role"/>
+            <field name="due_base">anchor</field>
+            <field name="offset_months" eval="0"/>
+            <field name="offset_days" eval="7"/>
+            <field name="completion">manual</field>
+            <field name="create_condition">method</field>
+            <field name="create_method">inspection_has_defects</field>
+            <field name="mandatory" eval="False"/>
+            <field name="description">Commission the repair of the defects found (tab "Defects" of the inspection), enter the contractor as responsible and follow the deadlines.</field>
+        </record>
+        <record model="real_estate.process.template" id="process_template_inspection_smoke_detector">
+            <field name="name">Smoke Detector Check</field>
+            <field name="code">inspection_smoke_detector</field>
+            <field name="model">real_estate.inspection</field>
+            <field name="anchor_field">planned_date</field>
+        </record>
+        <record model="real_estate.process.template.step" id="process_template_inspection_smoke_detector_order">
+            <field name="template" ref="process_template_inspection_smoke_detector"/>
+            <field name="sequence" eval="10"/>
+            <field name="name">Commission the contractor / fix the date</field>
+            <field name="task_type" ref="task_type_process_step"/>
+            <field name="responsible_group" ref="group_real_estate_object"/>
+            <field name="responsible_role" ref="object_party_administrator_role"/>
+            <field name="due_base">anchor</field>
+            <field name="offset_months" eval="0"/>
+            <field name="offset_days" eval="-42"/>
+            <field name="completion">manual</field>
+            <field name="description">Commission the contractor (or the caretaker), fix the date and the time window and enter them in the inspection (planned date, time slots, contractor).</field>
+        </record>
+        <record model="real_estate.process.template.step" id="process_template_inspection_smoke_detector_notice">
+            <field name="template" ref="process_template_inspection_smoke_detector"/>
+            <field name="sequence" eval="20"/>
+            <field name="name">Notice in the building</field>
+            <field name="task_type" ref="task_type_process_step"/>
+            <field name="responsible_group" ref="group_real_estate_object"/>
+            <field name="responsible_role" ref="object_party_caretaker_role"/>
+            <field name="due_base">anchor</field>
+            <field name="offset_months" eval="0"/>
+            <field name="offset_days" eval="-14"/>
+            <field name="completion">action</field>
+            <field name="action" ref="wizard_inspection_notice"/>
+            <field name="description">Create the tenant notice with "Execute Action" and post it in the building at least 14 days before the date. The notice is archived as proof; the step is done with the action.</field>
+        </record>
+        <record model="real_estate.process.template.step" id="process_template_inspection_smoke_detector_letter">
+            <field name="template" ref="process_template_inspection_smoke_detector"/>
+            <field name="sequence" eval="40"/>
+            <field name="name">Letter to tenants without access</field>
+            <field name="task_type" ref="task_type_process_step"/>
+            <field name="responsible_group" ref="group_real_estate_object"/>
+            <field name="responsible_role" ref="object_party_administrator_role"/>
+            <field name="due_base">anchor</field>
+            <field name="offset_months" eval="0"/>
+            <field name="offset_days" eval="7"/>
+            <field name="completion">action</field>
+            <field name="action" ref="wizard_inspection_access_letter"/>
+            <field name="create_condition">method</field>
+            <field name="create_method">inspection_no_access</field>
+            <field name="description">Create the letters to the tenants without access with "Execute Action" and send them; then set the next attempt ("Next Attempt").</field>
+        </record>
+        <record model="real_estate.process.template.step" id="process_template_inspection_smoke_detector_report">
+            <field name="template" ref="process_template_inspection_smoke_detector"/>
+            <field name="sequence" eval="60"/>
+            <field name="name">Complete the report</field>
+            <field name="task_type" ref="task_type_process_step"/>
+            <field name="responsible_group" ref="group_real_estate_object"/>
+            <field name="responsible_role" ref="object_party_caretaker_role"/>
+            <field name="due_base">anchor</field>
+            <field name="offset_months" eval="0"/>
+            <field name="offset_days" eval="28"/>
+            <field name="completion">condition</field>
+            <field name="done_method">inspection_done</field>
+            <field name="description">Complete the results, attach the report of the contractor if any and complete the inspection ("Done"). The step is done with the inspection.</field>
+        </record>
+        <record model="real_estate.process.template.step" id="process_template_inspection_smoke_detector_approve">
+            <field name="template" ref="process_template_inspection_smoke_detector"/>
+            <field name="sequence" eval="70"/>
+            <field name="name">Approve the report</field>
+            <field name="task_type" ref="task_type_process_step"/>
+            <field name="responsible_group" ref="group_real_estate_object"/>
+            <field name="responsible_role" ref="object_party_administrator_role"/>
+            <field name="due_base">anchor</field>
+            <field name="offset_months" eval="0"/>
+            <field name="offset_days" eval="35"/>
+            <field name="completion">condition</field>
+            <field name="done_method">inspection_approved</field>
+            <field name="description">Check the report and approve the inspection ("Approve"); the report is archived. The step is done with the approval.</field>
+        </record>
+        <record model="real_estate.inspection.type" id="inspection_type_walkthrough">
+            <field name="name">Annual Walkthrough</field>
+            <field name="code">walkthrough</field>
+            <field name="category">walkthrough</field>
+            <field name="legal_basis">Duty to maintain traffic safety (§ 823 BGB)</field>
+            <field name="scope">building</field>
+            <field name="line_granularity">none</field>
+            <field name="interval" eval="1"/>
+            <field name="interval_unit">year</field>
+            <field name="interval_basis">fixed</field>
+            <field name="preferred_month">4</field>
+            <field name="lead_time_days" eval="30"/>
+            <field name="tolerance_days" eval="30"/>
+            <field name="notice_days" eval="0"/>
+            <field name="responsible_role" ref="object_party_administrator_role"/>
+            <field name="requires_approval" eval="True"/>
+            <field name="approval_group" ref="group_real_estate_admin"/>
+            <field name="header_checklist" ref="inspection_checklist_walkthrough"/>
+            <field name="process_template" ref="process_template_inspection_walkthrough"/>
+        </record>
+        <record model="real_estate.inspection.type" id="inspection_type_smoke_detector">
+            <field name="name">Smoke Detector Check</field>
+            <field name="code">smoke_detector</field>
+            <field name="category">safety</field>
+            <field name="legal_basis">State building code (e.g. § 48 (4) BauO Bln), DIN 14676-1</field>
+            <field name="scope">building</field>
+            <field name="line_granularity">unit</field>
+            <field name="equipment_kind" ref="equipment_kind_smoke_detector"/>
+            <field name="line_filter">[["type_of_use", "=", "residential"]]</field>
+            <field name="interval" eval="1"/>
+            <field name="interval_unit">year</field>
+            <field name="interval_basis">fixed</field>
+            <field name="lead_time_days" eval="60"/>
+            <field name="tolerance_days" eval="30"/>
+            <field name="notice_days" eval="14"/>
+            <field name="responsible_role" ref="object_party_caretaker_role"/>
+            <field name="requires_unit_access" eval="True"/>
+            <field name="access_attempts" eval="2"/>
+            <field name="requires_approval" eval="True"/>
+            <field name="approval_group" ref="group_real_estate_object"/>
+            <field name="line_checklist" ref="inspection_checklist_smoke_detector"/>
+            <field name="process_template" ref="process_template_inspection_smoke_detector"/>
+        </record>
+        <record model="real_estate.process.template.step" id="process_template_inspection_smoke_detector_attempt1">
+            <field name="template" ref="process_template_inspection_smoke_detector"/>
+            <field name="sequence" eval="30"/>
+            <field name="name">Inspection date (attempt 1)</field>
+            <field name="task_type" ref="task_type_process_step"/>
+            <field name="responsible_group" ref="group_real_estate_object"/>
+            <field name="responsible_role" ref="object_party_caretaker_role"/>
+            <field name="due_base">anchor</field>
+            <field name="offset_months" eval="0"/>
+            <field name="offset_days" eval="0"/>
+            <field name="completion">condition</field>
+            <field name="done_method">inspection_attempt1_done</field>
+            <field name="description">Check the smoke detectors of every apartment and record access, visit date, quantities and the check items per line; for apartments without access note "No Access" with the visit date. The step is done as soon as every line has a visit date.</field>
+        </record>
+        <record model="real_estate.process.template.step" id="process_template_inspection_smoke_detector_attempt2">
+            <field name="template" ref="process_template_inspection_smoke_detector"/>
+            <field name="sequence" eval="50"/>
+            <field name="name">Inspection date (attempt 2)</field>
+            <field name="task_type" ref="task_type_process_step"/>
+            <field name="responsible_group" ref="group_real_estate_object"/>
+            <field name="responsible_role" ref="object_party_caretaker_role"/>
+            <field name="due_base">anchor</field>
+            <field name="offset_months" eval="0"/>
+            <field name="offset_days" eval="21"/>
+            <field name="completion">condition</field>
+            <field name="done_method">inspection_attempt2_done</field>
+            <field name="create_condition">method</field>
+            <field name="create_method">inspection_no_access</field>
+            <field name="description">Check the apartments without access at the first attempt (after "Next Attempt") and record the results with the visit date; apartments still without access need a reason in the remarks. The step is done as soon as these lines have a visit date again.</field>
+        </record>
+    </data>
+</tryton>

@@ -1,0 +1,73 @@
+<?xml version="1.0"?>
+<form col="4">
+    <label name="number"/><field name="number"/>
+    <label name="state"/><field name="state"/>
+    <label name="type"/><field name="type"/>
+    <label name="plan"/><field name="plan"/>
+    <label name="property"/><field name="property"/>
+    <label name="building"/><field name="building"/>
+    <label name="due_date"/><field name="due_date"/>
+    <label name="overdue"/><field name="overdue"/>
+    <label name="planned_date"/><field name="planned_date"/>
+    <label name="planned_date_to"/><field name="planned_date_to"/>
+    <label name="done_date"/><field name="done_date"/>
+    <label name="overall_result"/><field name="overall_result"/>
+    <notebook colspan="4">
+        <page string="Workflow" id="page_workflow" col="6">
+            <label name="process"/><field name="process"/>
+            <label name="process_state"/><field name="process_state"/>
+            <label name="process_progress"/><field name="process_progress"/>
+            <field name="process_tasks" colspan="6"
+                view_ids="real_estate.task_view_list_process"/>
+        </page>
+        <page string="Header" id="page_header" col="1">
+            <field name="header_results" create="0" delete="0"
+                view_ids="real_estate.inspection_result_view_tree"/>
+        </page>
+        <page name="lines" col="1">
+            <field name="lines" create="0"
+                view_ids="real_estate.inspection_line_view_tree,real_estate.inspection_line_view_form"/>
+        </page>
+        <page string="Defects" id="page_defects" col="1">
+            <field name="defects"/>
+            <field name="previous_defects"/>
+        </page>
+        <page string="Participants" id="page_participants" col="4">
+            <label name="inspector"/><field name="inspector"/>
+            <label name="contractor"/><field name="contractor"/>
+            <label name="external_report_number"/><field name="external_report_number"/>
+            <newline/>
+            <field name="participants" colspan="4"/>
+            <separator name="time_slots" colspan="4"/>
+            <field name="time_slots" colspan="4"/>
+        </page>
+        <page string="Summary" id="page_summary" col="4">
+            <separator name="summary" colspan="4"/>
+            <field name="summary" colspan="4"/>
+            <label name="previous"/><field name="previous"/>
+            <label name="approved_by"/><field name="approved_by"/>
+            <label name="approved_date"/><field name="approved_date"/>
+            <label name="report"/><field name="report"/>
+            <label name="attempt"/><field name="attempt"/>
+            <label name="notice_date"/><field name="notice_date"/>
+            <label name="notice"/><field name="notice"/>
+            <separator name="cancel_reason" colspan="4"/>
+            <field name="cancel_reason" colspan="4"/>
+        </page>
+    </notebook>
+    <group id="buttons" colspan="4" col="-1">
+        <button name="cancel" icon="tryton-cancel"/>
+        <button name="reactivate" icon="tryton-undo"/>
+        <button name="unapprove" icon="tryton-undo"/>
+        <button name="back_to_scheduled" icon="tryton-back"/>
+        <button name="unschedule" icon="tryton-back"/>
+        <button name="reopen" icon="tryton-back"/>
+        <button name="rebuild_lines" icon="tryton-refresh"/>
+        <button name="schedule" icon="tryton-forward"/>
+        <button name="start" icon="tryton-forward"/>
+        <button name="all_ok" icon="tryton-ok"/>
+        <button name="next_attempt" icon="tryton-refresh"/>
+        <button name="done" icon="tryton-ok"/>
+        <button name="approve" icon="tryton-ok"/>
+    </group>
+</form>

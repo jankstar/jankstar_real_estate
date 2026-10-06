@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<form col="4">
+    <label name="type"/><field name="type"/>
+    <label name="company"/><field name="company"/>
+    <label name="property"/><field name="property"/>
+    <label name="building"/><field name="building"/>
+    <field name="scope" invisible="1"/>
+
+    <separator string="Due Dates" id="sep_due" colspan="4"/>
+    <label name="next_due_date"/><field name="next_due_date"/>
+    <label name="last_done_date"/><field name="last_done_date"/>
+    <label name="interval"/><field name="interval"/>
+    <label name="interval_unit"/><field name="interval_unit"/>
+    <label name="interval_basis"/><field name="interval_basis"/>
+    <label name="preferred_month"/><field name="preferred_month"/>
+    <label name="lead_time_days"/><field name="lead_time_days"/>
+    <label name="overdue"/><field name="overdue"/>
+
+    <separator string="Execution" id="sep_execution" colspan="4"/>
+    <label name="responsible_user"/><field name="responsible_user"/>
+    <label name="contractor"/><field name="contractor"/>
+    <label name="owner_maintains"/><field name="owner_maintains"/>
+    <label name="active"/><field name="active"/>
+    <field name="inspections" colspan="4"/>
+    <group id="buttons" colspan="4" col="-1">
+        <button name="create_inspection" icon="tryton-add"/>
+    </group>
+</form>

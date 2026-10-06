@@ -121,8 +121,21 @@
                 view_ids="real_estate.co2_kostaufg_consumption_view_list"/>
         </page>
 
-            <page name="tasks" col="1">
-            <field name="tasks" view_ids="real_estate.task_view_list_resource"/>
+            <page string="Tasks and Processes" id="page_tasks_processes" col="1">
+            <notebook>
+                <page string="Open" id="page_tasks_processes_open" col="1">
+                    <separator name="tasks_open"/>
+                    <field name="tasks_open" view_ids="real_estate.task_view_list_resource"/>
+                    <separator name="processes_open"/>
+                    <field name="processes_open"/>
+                </page>
+                <page string="History" id="page_tasks_processes_history" col="1">
+                    <separator name="tasks_history"/>
+                    <field name="tasks_history" view_ids="real_estate.task_view_list_resource"/>
+                    <separator name="processes_history"/>
+                    <field name="processes_history"/>
+                </page>
+            </notebook>
         </page>
     </notebook>
 

@@ -12,4 +12,5 @@ The data model is split into the following areas:
 - `BVED External Billing Interface <bved.rst>`_
 - `Option Rate (Input VAT Deduction) <option_rate.rst>`_
 - `Tasks, Processes and Handover Reports <tasks.rst>`_
+- `Recurring Inspections, Duty to maintain safe premises <inspections.rst>`_
 - `Extensions to Core Modules <core_extensions.rst>`_

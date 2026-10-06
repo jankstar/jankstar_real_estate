@@ -135,7 +135,9 @@ class ObjectParty(ModelSQL, ModelView, metaclass=PoolMeta):
         super().__setup__()
         t = cls.__table__()
         cls._sql_constraints = [
-            ('party_unique', Unique(t, t.party, t.base_object, t.valid_from, t.role), "role, valid_from, type and base object must be unique!"),
+            ('party_unique',
+                Unique(t, t.party, t.base_object, t.valid_from, t.role),
+                'real_estate.msg_object_party_unique'),
         ]
 
     @classmethod

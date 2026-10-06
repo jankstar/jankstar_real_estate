@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<tree>
+    <field name="name" expand="1"/>
+    <field name="code" optional="1"/>
+    <field name="category"/>
+    <field name="scope"/>
+    <field name="line_granularity"/>
+    <field name="interval"/>
+    <field name="interval_unit"/>
+    <field name="interval_basis" optional="1"/>
+    <field name="responsible_role" optional="1"/>
+    <field name="active" optional="1"/>
+</tree>

@@ -32,6 +32,8 @@ DATE_METHODS = [
     'no_follow_up_contract',
     'state_since',
     'cron_overdue',
+    'inspection_overdue',
+    'defect_overdue',
     ]
 
 

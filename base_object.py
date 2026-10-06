@@ -544,8 +544,11 @@ class BaseObject(Workflow, DeactivableMixin, re_sequence_ordered(), tree(separat
         super().__setup__()
         table = cls.__table__()
         cls._sql_constraints = [
-            ('sequence_unique', Unique(table, table.sequence, table.type, table.parent), "sequence by type and parent must be unique!"),
-            ('sequence_check', Check(table, table.sequence > 0), "sequence must not be null!"),
+            ('sequence_unique',
+                Unique(table, table.sequence, table.type, table.parent),
+                'real_estate.msg_base_object_sequence_unique'),
+            ('sequence_check', Check(table, table.sequence > 0),
+                'real_estate.msg_base_object_sequence_positive'),
         ]
         cls._sql_indexes.add(
             Index(
@@ -1009,6 +1012,24 @@ class BaseObject(Workflow, DeactivableMixin, re_sequence_ordered(), tree(separat
         if self.use_class:
             return self.use_class.has_parking_nr
         return False
+
+    @fields.depends('sequence', 'parent', 'type', '_parent_parent.id')
+    def on_change_with_sequence(self, name=None):
+        """Propose the next free sequence among the objects of the same
+        type below the same parent (step 10) - the sequence must be unique
+        per type and parent (constraint sequence_unique)"""
+        if self.sequence or not self.parent or not self.type:
+            return self.sequence
+        if self.parent.id is None or self.parent.id < 0:
+            return 10
+        siblings = self.search([
+                ('parent', '=', self.parent.id),
+                ('type', '=', self.type),
+                ('id', '!=', self.id if self.id and self.id > 0 else -1),
+                ('active', 'in', [True, False]),
+                ], order=[('sequence', 'DESC')], limit=1)
+        last = siblings[0].sequence if siblings else 0
+        return (last // 10 + 1) * 10
 
     @fields.depends('sequence', 'parent', '_parent_parent.object_number')
     def on_change_with_object_number(self, name=None):

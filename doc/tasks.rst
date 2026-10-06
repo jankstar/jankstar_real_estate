@@ -31,10 +31,25 @@ Menus:
 - *Real Estate › Configuration › Tasks and Processes*: *Task Types*,
   *Task Rules*, *Process Templates*, *Handover Checklists*
 
-On the contract the tab *Tasks and Processes* has the sub tabs *Open*
-(open tasks - *+* creates a task - and running processes) and *History*
-(done/cancelled tasks and processes); the tab *Handover Reports* lists
-the handover reports.
+The contract, the objects (property, building, land, rental object,
+equipment), the billing unit and the rent adjustment have a tab *Tasks
+and Processes* with the sub tabs *Open* (open tasks - *+* creates a task
+- and running processes) and *History* (done/cancelled tasks and
+processes); the lists show the reference of each task and process.
+What is listed:
+
+- contract: all tasks of the contract (also of its rent adjustments and
+  parties, stored ``contract``) and its processes;
+- property: all tasks and processes of the property - its objects,
+  contracts and billing units (stored ``property``; *+* creates a task
+  for the property itself);
+- rental object: its own tasks and processes plus, read-only, those of
+  the contracts whose items contain it (function fields with one search
+  each, ``contract.items.objects``);
+- building, land, equipment, billing unit, rent adjustment: their own
+  tasks and processes (by ``resource``).
+
+The tab *Handover Reports* of the contract lists the handover reports.
 
 Tasks
 =====
@@ -187,7 +202,8 @@ Task rules
    ends, M06 termination waiver ends, M07 index values outdated, M08 tight
    market regulation ends, B01 billing deadline, B02 adjust prepayments,
    O01 meter readings, O03 meter calibration, O04 object ends, S02
-   scheduled task not run. Each default rule has a description
+   scheduled task not run, P01 inspection overdue, P02 inspection defect
+   overdue. Each default rule has a description
    (translatable, German in ``locale/de.po``) that is copied into the
    tasks it creates.
 
@@ -213,8 +229,12 @@ Processes
    instruction, an **action** (report, wizard or list) and the
    **completion** (manual, by executing the action, or by condition:
    PYSON domain on the reference record or a method ``deposit_paid``,
-   ``meter_readings_complete``, ``billing_settled``), optionally with a
-   required result.
+   ``meter_readings_complete``, ``billing_settled``, ``handover_*_done``,
+   ``inspection_done``, ``inspection_approved``), optionally with a
+   required result, and the **creation** (always, or by a method such as
+   ``inspection_no_access`` / ``inspection_has_defects``: the task is
+   created only once the condition is fulfilled; such a step never
+   created does not block the completion).
 
    A process (menu *Tasks and Follow-ups › Processes*, tab *Tasks and
    Processes*
@@ -222,18 +242,34 @@ Processes
    contract, rent adjustment, object or billing unit, or automatically
    by the templates set on the contract type: *Process at Contract Start*
    (contract set to running), *Process at Termination* (termination
-   wizard), *Process at Partner Change* (partner change wizard). It keeps
-   one step line per template step with a derived state (planned, open,
-   overdue, done, skipped) and creates the tasks (marked with process and
-   step); steps after *previous step done* are created once the previous
-   one is done. The task of a step with an action shows the button
+   wizard), *Process at Partner Change* (partner change wizard). **Every
+   step is a task**: at the start the process creates one task per
+   template step in the state **planned** (no due date, no reminder, not
+   in *My Tasks*; fields ``template_step`` and ``step_number``); a planned
+   task is opened (due date, reminder, responsibility by the party role
+   on the due date) as soon as it is due - start, anchor and method
+   steps at once, *previous step done* steps once the previous one is
+   done or skipped, conditional steps once their condition is fulfilled.
+   The process form lists its tasks by step number (tab *Steps*). A task
+   of a process shows below its reference the **process**, the
+   **process step** and the **step number**, both opening the record; the
+   task lists have the sortable column *Step No.*, the template step list
+   the column *No.*. (Until version 1.7 of the specification the steps
+   were separate records ``real_estate.process.step``; the update takes
+   their data over into the tasks.) The task of a step with an action shows the button
    *Execute Action*: it opens the action for the reference record (and
    completes the step for completion *by action*). *Check State* evaluates
    the conditions (also daily with the scheduled task ``task_rules``),
    *Reschedule* moves the open anchor tasks after a change of the anchor
-   date (history), *Cancel* cancels the open tasks. When all mandatory
+   date (history), *Cancel* cancels the open and planned tasks. When all mandatory
    steps are done or skipped the process is done (progress "n / m
-   done").
+   done"). *Reopen* sets a done process running again (also
+   automatically when one of its tasks is reopened); *Reactivate* sets a
+   cancelled process running again and sets the tasks cancelled with the
+   process back to planned (steps skipped before stay skipped). Both are noted
+   in the history. The process of an inspection follows the inspection and
+   cannot be cancelled or reactivated directly (see `Recurring Inspections
+   <inspections.rst>`__).
 
    Default templates (``process.xml``, ``noupdate``, not assigned to a
    contract type): *Move-out* (10 steps: confirmation with the report
@@ -242,7 +278,11 @@ Processes
    claims check optional, final operating cost billing), *Move-in* (5
    steps: deposit received - ``deposit_paid``, handover, meter readings,
    keys, direct debit mandate), *Change of Tenant in the Contract* (4
-   steps) and *Index Rent Adjustment* (run, declare, receipt, execute).
+   steps), *Index Rent Adjustment* (run, declare, receipt, execute) and
+   *Vacancy / Reletting* on an object (6 steps: meter readings and
+   securing, inspection and repairs - both with role *Caretaker* -, new
+   rent, advertisement, viewings and tenant selection, new lease contract;
+   started with *Start Process* on the rental object).
    Every default step has a work instruction (translatable, German in
    ``locale/de.po``); it is copied into the task in the language of the
    user creating it, so existing tasks keep their text.

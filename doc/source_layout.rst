@@ -38,6 +38,7 @@ Source Layout
    │                            #   list context + report
    ├── ir.py                    # extension to ir.cron (registers the cron_daily method)
    ├── measurement.py           # real_estate.measurement.type, measurement
+   ├── meter_reading_sheet.py   # real_estate.meter_reading.sheet(.line) and its report
    ├── object_party.py          # real_estate.object_party, object_party.role
    ├── option_rate.py           # real_estate.option_rate, option_rate.context
    ├── option_rate_wizard.py    # real_estate.option_rate_update.wizard

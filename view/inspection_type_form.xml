@@ -1,0 +1,48 @@
+<?xml version="1.0"?>
+<form col="4">
+    <label name="name"/><field name="name"/>
+    <label name="code"/><field name="code"/>
+    <label name="category"/><field name="category"/>
+    <label name="active"/><field name="active"/>
+    <notebook colspan="4">
+        <page string="General" id="general" col="4">
+            <separator string="Object and Lines" id="sep_object" colspan="4"/>
+            <label name="scope"/><field name="scope"/>
+            <label name="line_granularity"/><field name="line_granularity"/>
+            <label name="equipment_kind"/><field name="equipment_kind"/>
+            <newline/>
+            <label name="line_filter"/><field name="line_filter" colspan="3"/>
+
+            <separator string="Due Dates" id="sep_due" colspan="4"/>
+            <label name="interval"/><field name="interval"/>
+            <label name="interval_unit"/><field name="interval_unit"/>
+            <label name="interval_basis"/><field name="interval_basis"/>
+            <label name="preferred_month"/><field name="preferred_month"/>
+            <label name="lead_time_days"/><field name="lead_time_days"/>
+            <label name="tolerance_days"/><field name="tolerance_days"/>
+            <label name="notice_days"/><field name="notice_days"/>
+            <newline/>
+
+            <separator string="Execution" id="sep_execution" colspan="4"/>
+            <label name="responsible_role"/><field name="responsible_role"/>
+            <label name="process_template"/><field name="process_template"/>
+            <label name="contractor_required"/><field name="contractor_required"/>
+            <newline/>
+            <label name="requires_unit_access"/><field name="requires_unit_access"/>
+            <label name="access_attempts"/><field name="access_attempts"/>
+            <label name="requires_approval"/><field name="requires_approval"/>
+            <label name="approval_group"/><field name="approval_group"/>
+        </page>
+        <page string="Checklists and Defects" id="checklists" col="4">
+            <label name="header_checklist"/><field name="header_checklist"/>
+            <label name="line_checklist"/><field name="line_checklist"/>
+            <separator string="Defect Deadlines" id="sep_defects" colspan="4"/>
+            <label name="defect_days_critical"/><field name="defect_days_critical"/>
+            <label name="defect_days_major"/><field name="defect_days_major"/>
+            <label name="defect_days_minor"/><field name="defect_days_minor"/>
+        </page>
+        <page name="legal_basis" col="1">
+            <field name="legal_basis"/>
+        </page>
+    </notebook>
+</form>

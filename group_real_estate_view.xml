@@ -473,14 +473,6 @@
             <field name="perm_create" eval="False"/>
             <field name="perm_delete" eval="False"/>
         </record>
-        <record model="ir.model.access" id="access_process_step_view">
-            <field name="model">real_estate.process.step</field>
-            <field name="group" ref="group_real_estate_view"/>
-            <field name="perm_read" eval="True"/>
-            <field name="perm_write" eval="False"/>
-            <field name="perm_create" eval="False"/>
-            <field name="perm_delete" eval="False"/>
-        </record>
         <record model="ir.model.access" id="access_handover_view">
             <field name="model">real_estate.contract.handover</field>
             <field name="group" ref="group_real_estate_view"/>
@@ -513,6 +505,22 @@
             <field name="perm_create" eval="False"/>
             <field name="perm_delete" eval="False"/>
         </record>
+        <record model="ir.model.access" id="access_meter_reading_sheet_view">
+            <field name="model">real_estate.meter_reading.sheet</field>
+            <field name="group" ref="group_real_estate_view"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_meter_reading_sheet_line_view">
+            <field name="model">real_estate.meter_reading.sheet.line</field>
+            <field name="group" ref="group_real_estate_view"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
         <record model="ir.model.access" id="access_handover_object_view">
             <field name="model">real_estate.contract.handover-base_object</field>
             <field name="group" ref="group_real_estate_view"/>
@@ -539,6 +547,86 @@
         </record>
         <record model="ir.model.access" id="access_handover_checklist_line_view">
             <field name="model">real_estate.handover.checklist.line</field>
+            <field name="group" ref="group_real_estate_view"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_equipment_kind_view">
+            <field name="model">real_estate.equipment.kind</field>
+            <field name="group" ref="group_real_estate_view"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_inspection_type_view">
+            <field name="model">real_estate.inspection.type</field>
+            <field name="group" ref="group_real_estate_view"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_inspection_checklist_view">
+            <field name="model">real_estate.inspection.checklist</field>
+            <field name="group" ref="group_real_estate_view"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_inspection_checklist_item_view">
+            <field name="model">real_estate.inspection.checklist.item</field>
+            <field name="group" ref="group_real_estate_view"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_inspection_plan_view">
+            <field name="model">real_estate.inspection.plan</field>
+            <field name="group" ref="group_real_estate_view"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_inspection_view">
+            <field name="model">real_estate.inspection</field>
+            <field name="group" ref="group_real_estate_view"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_inspection_line_view">
+            <field name="model">real_estate.inspection.line</field>
+            <field name="group" ref="group_real_estate_view"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_inspection_result_view">
+            <field name="model">real_estate.inspection.result</field>
+            <field name="group" ref="group_real_estate_view"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_inspection_party_party_view">
+            <field name="model">real_estate.inspection-party.party</field>
+            <field name="group" ref="group_real_estate_view"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_inspection_defect_view">
+            <field name="model">real_estate.inspection.defect</field>
             <field name="group" ref="group_real_estate_view"/>
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="False"/>

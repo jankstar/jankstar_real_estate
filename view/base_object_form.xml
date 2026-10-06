@@ -59,6 +59,7 @@ this repository contains the full copyright notices and license terms. -->
 
         <page string="Equipment" id="page_equipment" col="6">
             <label name="e_type"/><field name="e_type"/>
+            <label name="equipment_kind"/><field name="equipment_kind"/>
             <label name="no_print"/><field name="no_print"/>
             <newline/>
             <label name="product"/><field name="product" />
@@ -162,9 +163,40 @@ this repository contains the full copyright notices and license terms. -->
             <field name="children"
                 view_ids="real_estate.base_object_view_list_children"/>
         </page>
-            <page name="tasks" col="1">
-            <field name="tasks" view_ids="real_estate.task_view_list_resource"/>
-            <field name="property_tasks" view_ids="real_estate.task_view_list_resource"/>
+        <page string="Inspections" id="page_inspections" col="1">
+            <field name="property_inspection_plans"/>
+            <field name="building_inspection_plans"/>
+            <field name="property_inspections"/>
+            <field name="building_inspections"/>
+            <field name="inspection_lines"
+                view_ids="real_estate.inspection_line_view_list_object"/>
+            <field name="property_defects"/>
+            <field name="building_defects"/>
+            <field name="object_defects"/>
+        </page>
+        <page string="Tasks and Processes" id="page_tasks_processes" col="1">
+            <notebook>
+                <page string="Open" id="page_tasks_processes_open" col="1">
+                    <separator name="tasks_open"/>
+                    <field name="tasks_open" view_ids="real_estate.task_view_list_resource"/>
+                    <separator name="property_tasks_open"/>
+                    <field name="property_tasks_open" view_ids="real_estate.task_view_list_resource"/>
+                    <separator name="contract_tasks_open"/>
+                    <field name="contract_tasks_open" view_ids="real_estate.task_view_list_resource"/>
+                    <separator name="processes_open"/>
+                    <field name="processes_open"/>
+                </page>
+                <page string="History" id="page_tasks_processes_history" col="1">
+                    <separator name="tasks_history"/>
+                    <field name="tasks_history" view_ids="real_estate.task_view_list_resource"/>
+                    <separator name="property_tasks_history"/>
+                    <field name="property_tasks_history" view_ids="real_estate.task_view_list_resource"/>
+                    <separator name="contract_tasks_history"/>
+                    <field name="contract_tasks_history" view_ids="real_estate.task_view_list_resource"/>
+                    <separator name="processes_history"/>
+                    <field name="processes_history"/>
+                </page>
+            </notebook>
         </page>
     </notebook>
 

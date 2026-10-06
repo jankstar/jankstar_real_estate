@@ -28,6 +28,9 @@ TASK_RESOURCES = [
     'real_estate.price_index',
     'real_estate.cron_task',
     'party.party',
+    'real_estate.inspection',
+    'real_estate.inspection.defect',
+    'real_estate.meter_reading.sheet',
     ]
 
 
@@ -70,6 +73,12 @@ TASK_CODES = {
     'cron_missing': ("Scheduled task not run", ['real_estate.cron_task'],
         False),
     'process_step': ("Process step", [], False),
+    'inspection_defect': ("Inspection defect",
+        ['real_estate.inspection.defect'], False),
+    'inspection_overdue': ("Inspection overdue",
+        ['real_estate.inspection'], False),
+    'inspection_defect_overdue': ("Inspection defect overdue",
+        ['real_estate.inspection.defect'], False),
     }
 
 
@@ -304,7 +313,11 @@ class Task(Workflow, ModelSQL, ModelView):
     property = fields.Many2One('real_estate.base_object', "Property",
         readonly=True, ondelete='CASCADE',
         help="Property of the reference (derived).")
-    due_date = fields.Date("Due Date", required=True, states=_states_open)
+    due_date = fields.Date("Due Date",
+        states={
+            'readonly': Eval('state') != 'open',
+            'required': Eval('state') == 'open',
+            })
     remind_date = fields.Date("Remind Date", states=_states_open,
         help="Date of the reminder - default: due date minus the remind "
              "days of the type.")
@@ -329,10 +342,13 @@ class Task(Workflow, ModelSQL, ModelView):
         states={'readonly': Eval('state') == 'cancelled'},
         help="Result / note on completion (required to cancel).")
     state = fields.Selection([
+            ('planned', "Planned"),
             ('open', "Open"),
             ('done', "Done"),
             ('cancelled', "Cancelled"),
-            ], "State", readonly=True, required=True, sort=False)
+            ], "State", readonly=True, required=True, sort=False,
+        help="Planned: step of a process not due yet (no due date, no "
+             "reminder) - opened by the process.")
     done_by = employee_field("Done by", states=['open', 'done', 'cancelled'])
     done_date = fields.Date("Done on", readonly=True)
     recurrence_months = fields.Integer("Recurrence (Months)",
@@ -366,6 +382,10 @@ class Task(Workflow, ModelSQL, ModelView):
             ('open', 'cancelled'),
             ('done', 'open'),
             ('cancelled', 'open'),
+            # planned steps of processes
+            ('planned', 'open'),
+            ('planned', 'cancelled'),
+            ('cancelled', 'planned'),
             }
         cls._buttons.update({
             'done': {
@@ -373,11 +393,11 @@ class Task(Workflow, ModelSQL, ModelView):
                 'depends': ['state'],
                 },
             'cancel': {
-                'invisible': Eval('state') != 'open',
+                'invisible': ~Eval('state').in_(['open', 'planned']),
                 'depends': ['state'],
                 },
             'reopen': {
-                'invisible': Eval('state') == 'open',
+                'invisible': Eval('state').in_(['open', 'planned']),
                 'depends': ['state'],
                 },
             'postpone': {
@@ -394,8 +414,10 @@ class Task(Workflow, ModelSQL, ModelView):
     def view_attributes(cls):
         return super().view_attributes() + [
             ('/tree', 'visual', If(Eval('overdue', False), 'danger',
-                    If(Eval('priority') == 'high', 'warning', '')),
-                ['overdue', 'priority']),
+                    If(Eval('state').in_(['planned', 'done', 'cancelled']),
+                        'muted',
+                        If(Eval('priority') == 'high', 'warning', ''))),
+                ['overdue', 'priority', 'state']),
             ]
 
     @classmethod
@@ -439,12 +461,15 @@ class Task(Workflow, ModelSQL, ModelView):
     def default_automatic():
         return False
 
-    @fields.depends('resource', 'contract', '_parent_contract.id')
+    @fields.depends('resource', 'contract', '_parent_contract.id',
+        'property', '_parent_property.id')
     def on_change_with_resource_model(self, name=None):
         if self.resource:
             return self.resource.__name__
         if self.contract:
             return 'real_estate.contract'
+        if self.property:
+            return 'real_estate.base_object'
         return None
 
     @staticmethod
@@ -457,7 +482,8 @@ class Task(Workflow, ModelSQL, ModelView):
 
     @fields.depends('task_type', 'responsible_user', 'responsible_group',
         'responsible_party', 'resource', 'contract', '_parent_contract.id',
-        'company', 'recurrence_months', 'due_date', 'remind_date', 'name')
+        'property', '_parent_property.id', 'company', 'recurrence_months',
+        'due_date', 'remind_date', 'name')
     def on_change_task_type(self):
         type_ = self.task_type
         if not type_:
@@ -465,8 +491,8 @@ class Task(Workflow, ModelSQL, ModelView):
         if not self.responsible_user and not self.responsible_group:
             (self.responsible_user, self.responsible_group,
                 self.responsible_party) = self._default_responsible(type_,
-                self.resource or self.contract, self.due_date, self.company,
-                manual=True)
+                self.resource or self.contract or self.property,
+                self.due_date, self.company, manual=True)
         if not self.recurrence_months:
             self.recurrence_months = type_.recurrence_months
         if not self.name:
@@ -552,6 +578,9 @@ class Task(Workflow, ModelSQL, ModelView):
             return None, node
         if name == 'real_estate.billing_unit':
             return None, getattr(resource, 'property', None)
+        if name in ('real_estate.inspection', 'real_estate.inspection.defect',
+                'real_estate.meter_reading.sheet'):
+            return None, getattr(resource, 'property', None)
         return None, None
 
     @staticmethod
@@ -580,6 +609,11 @@ class Task(Workflow, ModelSQL, ModelView):
                 level = [contract.property]
         elif resource.__name__ == 'real_estate.base_object':
             level = [resource]
+        elif resource.__name__ == 'real_estate.meter_reading.sheet':
+            level = [resource.base_object]
+        elif getattr(resource, 'building', None):
+            # inspection: building, then up to the property
+            level = [resource.building]
         elif property_:
             level = [property_]
         else:
@@ -683,6 +717,10 @@ class Task(Workflow, ModelSQL, ModelView):
             if not values.get('resource') and values.get('contract'):
                 values['resource'] = (
                     f"real_estate.contract,{values['contract']}")
+            # Created on the property's tab: the property is the reference
+            elif not values.get('resource') and values.get('property'):
+                values['resource'] = (
+                    f"real_estate.base_object,{values['property']}")
         vlist = [cls._complete_values(v) for v in vlist]
         for values in vlist:
             type_ = (Type(values['task_type'])
@@ -728,8 +766,10 @@ class Task(Workflow, ModelSQL, ModelView):
     @classmethod
     def validate_fields(cls, tasks, field_names):
         super().validate_fields(tasks, field_names)
-        if field_names & {'responsible_user', 'responsible_group'}:
+        if field_names & {'responsible_user', 'responsible_group', 'state'}:
             for task in tasks:
+                if task.state == 'planned':
+                    continue
                 if (not task.responsible_user
                         and not task.responsible_group):
                     raise ValidationError(gettext(
@@ -849,6 +889,20 @@ class Task(Workflow, ModelSQL, ModelView):
                             'real_estate.msg_task_reopen',
                             task=task.rec_name))
         cls.write(tasks, {'done_date': None, 'done_by': None})
+
+    @classmethod
+    @Workflow.transition('open')
+    def activate(cls, tasks):
+        "A planned task (process step) becomes due"
+        pass
+
+    @classmethod
+    @Workflow.transition('planned')
+    def replan(cls, tasks):
+        "A task cancelled with its process becomes planned again"
+        cls.write(tasks, {'result': None, 'due_date': None,
+                'remind_date': None, 'notified_date': None,
+                'escalated_date': None})
 
     @classmethod
     @ModelView.button_action('real_estate.wizard_task_postpone')
@@ -1212,12 +1266,23 @@ class Contract(metaclass=PoolMeta):
         order=[('due_date', 'DESC'), ('id', 'DESC')], readonly=True)
 
 
+_TASK_OPEN = [('state', '=', 'open')]
+_TASK_HISTORY = [('state', 'in', ['done', 'cancelled'])]
+_ORDER_OPEN = [('due_date', 'ASC'), ('id', 'ASC')]
+_ORDER_HISTORY = [('due_date', 'DESC'), ('id', 'DESC')]
+
+
 class RentAdjustment(metaclass=PoolMeta):
     __name__ = 'real_estate.contract.rent_adjustment'
 
     # Tasks referring to the rent adjustment - '+' sets the reference
     tasks = fields.One2Many('real_estate.task', 'resource',
         "Tasks", order=[('state', 'ASC'), ('due_date', 'ASC')])
+    # Tab "Tasks and Processes": open ('+') and history
+    tasks_open = fields.One2Many('real_estate.task', 'resource', "Tasks",
+        filter=_TASK_OPEN, order=_ORDER_OPEN)
+    tasks_history = fields.One2Many('real_estate.task', 'resource', "Tasks",
+        filter=_TASK_HISTORY, order=_ORDER_HISTORY, readonly=True)
 
 
 class BillingUnit(metaclass=PoolMeta):
@@ -1225,10 +1290,18 @@ class BillingUnit(metaclass=PoolMeta):
 
     tasks = fields.One2Many('real_estate.task', 'resource',
         "Tasks", order=[('state', 'ASC'), ('due_date', 'ASC')])
+    # Tab "Tasks and Processes": open ('+') and history
+    tasks_open = fields.One2Many('real_estate.task', 'resource', "Tasks",
+        filter=_TASK_OPEN, order=_ORDER_OPEN)
+    tasks_history = fields.One2Many('real_estate.task', 'resource', "Tasks",
+        filter=_TASK_HISTORY, order=_ORDER_HISTORY, readonly=True)
 
 
 class BaseObject(metaclass=PoolMeta):
     __name__ = 'real_estate.base_object'
+
+    _not_property = {'invisible': Eval('type') == 'property'}
+    _property = {'invisible': Eval('type') != 'property'}
 
     tasks = fields.One2Many('real_estate.task', 'resource',
         "Tasks", order=[('state', 'ASC'), ('due_date', 'ASC')])
@@ -1237,6 +1310,49 @@ class BaseObject(metaclass=PoolMeta):
         "Tasks of the Property", readonly=True,
         order=[('state', 'ASC'), ('due_date', 'ASC')],
         states={'invisible': Eval('type') != 'property'})
+    # Tab "Tasks and Processes": the tasks of the object itself ('+'),
+    # for a property all tasks of the property (objects, contracts,
+    # billing units - stored 'property'), for a rental object also the
+    # tasks of the contracts on it
+    tasks_open = fields.One2Many('real_estate.task', 'resource', "Tasks",
+        filter=_TASK_OPEN, order=_ORDER_OPEN, states=_not_property)
+    tasks_history = fields.One2Many('real_estate.task', 'resource', "Tasks",
+        filter=_TASK_HISTORY, order=_ORDER_HISTORY, readonly=True,
+        states=_not_property)
+    property_tasks_open = fields.One2Many('real_estate.task', 'property',
+        "Tasks of the Property", filter=_TASK_OPEN, order=_ORDER_OPEN,
+        states=_property)
+    property_tasks_history = fields.One2Many('real_estate.task', 'property',
+        "Tasks of the Property", filter=_TASK_HISTORY,
+        order=_ORDER_HISTORY, readonly=True, states=_property)
+    contract_tasks_open = fields.Function(fields.One2Many(
+            'real_estate.task', None, "Tasks of the Contracts",
+            readonly=True, states={'invisible': Eval('type') != 'object'}),
+        'get_contract_tasks', setter='set_contract_tasks')
+    contract_tasks_history = fields.Function(fields.One2Many(
+            'real_estate.task', None, "Tasks of the Contracts",
+            readonly=True, states={'invisible': Eval('type') != 'object'}),
+        'get_contract_tasks', setter='set_contract_tasks')
+
+    @classmethod
+    def set_contract_tasks(cls, objects, name, value):
+        pass
+
+    @classmethod
+    def get_contract_tasks(cls, objects, names):
+        "Tasks of the contracts whose items contain the rental object"
+        Task = Pool().get('real_estate.task')
+        result = {n: {o.id: [] for o in objects} for n in names}
+        for name in names:
+            open_ = name == 'contract_tasks_open'
+            for obj in objects:
+                if obj.type != 'object':
+                    continue
+                result[name][obj.id] = [t.id for t in Task.search([
+                            _TASK_OPEN[0] if open_ else _TASK_HISTORY[0],
+                            ('contract.items.objects', '=', obj.id),
+                            ], order=_ORDER_OPEN if open_ else _ORDER_HISTORY)]
+        return result
 
 
 class User(metaclass=PoolMeta):

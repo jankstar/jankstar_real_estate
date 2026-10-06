@@ -271,7 +271,9 @@ class Measurement(DeactivableMixin, ModelSQL, ModelView, metaclass=PoolMeta):
         super().__setup__()
         t = cls.__table__()
         cls._sql_constraints = [
-            ('m_type_unique', Unique(t, t.m_type, t.base_object, t.valid_from), "valid_from, type and base object must be unique!"),
+            ('m_type_unique',
+                Unique(t, t.m_type, t.base_object, t.valid_from),
+                'real_estate.msg_measurement_unique'),
         ]
 
     @classmethod

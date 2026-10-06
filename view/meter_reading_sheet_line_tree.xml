@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<tree editable="1">
+    <field name="unit"/>
+    <field name="tenant" expand="1"/>
+    <field name="meter" expand="1"/>
+    <field name="meter_id"/>
+    <field name="previous_date"/>
+    <field name="previous_value"/>
+    <field name="value"/>
+    <field name="uom" optional="0"/>
+    <field name="consumption"/>
+    <field name="remarks" optional="0"/>
+    <field name="reading" optional="1"/>
+    <field name="reading_created" optional="1"/>
+</tree>

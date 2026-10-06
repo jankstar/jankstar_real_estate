@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<form col="4">
+    <label name="checklist"/><field name="checklist"/>
+    <label name="sequence"/><field name="sequence"/>
+    <label name="section"/><field name="section" colspan="3"/>
+    <label name="question"/><field name="question" colspan="3"/>
+    <label name="answer_type"/><field name="answer_type"/>
+    <label name="mandatory"/><field name="mandatory"/>
+    <label name="unit"/><field name="unit"/>
+    <newline/>
+    <label name="min_value"/><field name="min_value"/>
+    <label name="max_value"/><field name="max_value"/>
+    <label name="selection_values"/><field name="selection_values" colspan="3"/>
+    <label name="photo_on_nok"/><field name="photo_on_nok"/>
+    <label name="create_defect_on_nok"/><field name="create_defect_on_nok"/>
+    <label name="default_severity"/><field name="default_severity"/>
+</form>

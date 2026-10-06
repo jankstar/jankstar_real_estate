@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<tree>
+    <field name="reading_date"/>
+    <field name="base_object" expand="1"/>
+    <field name="property" optional="1"/>
+    <field name="equipment_kind" optional="1"/>
+    <field name="name_filter" optional="1"/>
+    <field name="reader" optional="0"/>
+    <field name="progress"/>
+    <field name="state"/>
+</tree>

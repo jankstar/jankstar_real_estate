@@ -28,11 +28,10 @@ allow it (``adjustment_procedures``); at most one agreed procedure
 
 Menus:
 
-- *Real Estate › Contracts › Rent Adjustments* (all procedures) and
-  *Index Rents - Follow-up*
-- *Real Estate › Contracts › Adjustment*: *Adjustment of Contract Terms*
-  (adjustment run), *Contract Term Adjustments*, *Adjustment Runs*,
-  *Capture Receipt*
+- *Real Estate › Contracts › Rent Adjustments*, in the order of the
+  work: *Agreements* (the rent adjustments of all procedures), *Index
+  Rents - Follow-up*, *Start Adjustment Run* (wizard), *Adjustments*
+  (the contract term adjustments), *Capture Receipt*, *Adjustment Runs*
 - *Real Estate › Configuration*: *Price Indices*, *Import Index Values*,
   *Index Rent Cap Rules*
 
@@ -283,8 +282,8 @@ expected effective date) and archives the original as attachment
 (``letter``); the values are frozen from then on. Printing it again
 from the print menu marks it *Zweitschrift*, before the declaration
 *ENTWURF*. Receipt date and dispatch method are entered in the
-adjustment form or the editable list *Contracts › Adjustment › Capture
-Receipt* (declared adjustments). *Execute* (``declared → done``, for
+adjustment form or the editable list *Contracts › Rent Adjustments ›
+Capture Receipt* (declared adjustments). *Execute* (``declared → done``, for
 the statutory rule only with a receipt date) recalculates the
 effective date from the receipt, checks again (I04, I06, I09, I14, the
 current term must still be ``term_old``) and I11 (the declared rent
@@ -323,7 +322,7 @@ Term adjustments
    ``_old``) and ``term_new`` (suffix ``_new``), so a reviewer can compare
    the before/after amounts without opening either term individually.
 
-   List *Contracts › Adjustment › Contract Term Adjustments*.
+   List *Contracts › Rent Adjustments › Adjustments*.
 
    Created by the adjustment run of the index rent (see *Index rent*
    below); the operating cost and free adjustment procedures of the

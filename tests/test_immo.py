@@ -31,6 +31,15 @@ Das Skript legt folgende Objekte an:
   - 1 Grundstück (Land) direkt unter der Wirtschaftseinheit mit 4 Stellplätzen
       (Type of Use: residential, Use: parking), Stellplatznummern 01–04.
 
+  Prüfungen (Rauchwarnmelder, Prüfpläne):
+  - Je Wohnung 1 Anlage "Rauchwarnmelder WE XX" (Equipment, Anlagenart
+    Rauchwarnmelder) mit Bemessung "Anzahl" = Anzahl der Räume (2 bzw. 3)
+    ab 01.01.2025.
+  - Je Gebäude 2 Prüfpläne: "Jährliche Objektbegehung" (fällig 01.04.2026)
+    und "Rauchwarnmelderprüfung" (fällig 15.05.2026, Wartung durch
+    Eigentümer) - sofern die Standard-Prüfarten (Codes "walkthrough",
+    "smoke_detector") vorhanden sind.
+
   Vorab (vor den Wirtschaftseinheiten):
   - 2 Partner mit je einem Mitarbeiter der Company (ab 01.01.2025):
     "Verwalter 1" und "Hausmeister 1" (vorhandene gleichnamige Partner bzw.
@@ -46,6 +55,10 @@ Das Skript ist idempotent: es bricht ab, wenn eine Property mit dem Namen
 
 Nutzungsklassen (real_estate.use_class) werden per Sequenznummer gesucht
 (sprachunabhängig): Apartment=10, Retail=30, Parking=50.
+
+Anlagenart (real_estate.equipment.kind) und Prüfarten
+(real_estate.inspection.type) werden per Code gesucht, die Bemessung
+"Anzahl" (Number of items) per Sequenznummer 50.
 
 Partnerrollen (real_estate.object_party.role) werden per Sequenznummer
 gesucht (sprachunabhängig): Hausmeister=10, Verwalter=20.
@@ -261,6 +274,59 @@ def create_meter(parent, name: str, sequence: int, company, uom, admin_user) -> 
     print(f'    Zähler:    {name} (id={obj.id}, meter_id={meter_id}, Verbrauch={verbrauch} m³)')
 
 
+def create_smoke_detector(apt, nr: int, count: int, company, kind, t_items):
+    """Rauchwarnmelder der Wohnung als eine Anlage mit Bemessung "Anzahl"
+    (spezifikation-pruefungen.md 2)"""
+    BaseObject = Model.get('real_estate.base_object')
+    obj = BaseObject()
+    obj.name = f'Rauchwarnmelder WE {nr:02d}'
+    obj.type = 'equipment'
+    obj.e_type = 'technical_building_equipment,'
+    obj.equipment_kind = kind
+    obj.company = company
+    obj.start_date = START_DATE
+    obj.state = 'approved'
+    obj.sequence = 20
+    obj.parent = apt
+    obj.save()
+    create_measurement(obj, t_items, float(count))
+    print(f'    Anlage:    {obj.name} ({count} Melder)')
+
+
+def create_inspection_plans(prop, company) -> None:
+    """Prüfpläne je Gebäude für die Standard-Prüfarten (Begehung,
+    Rauchwarnmelder)"""
+    Type = Model.get('real_estate.inspection.type')
+    Plan = Model.get('real_estate.inspection.plan')
+    BaseObject = Model.get('real_estate.base_object')
+    plans = [
+        ('walkthrough', datetime.date(2026, 4, 1), False),
+        ('smoke_detector', datetime.date(2026, 5, 15), True),
+        ]
+    buildings = BaseObject.find([
+            ('parent', '=', prop.id), ('type', '=', 'building')])
+    for code, due, owner_maintains in plans:
+        types = Type.find([('code', '=', code)])
+        if not types:
+            print(f'WARNUNG: Prüfart "{code}" nicht gefunden - keine Pläne.')
+            continue
+        for building in buildings:
+            plan = Plan()
+            plan.company = company
+            plan.type = types[0]
+            plan.property = prop
+            plan.building = building
+            plan.interval = types[0].interval
+            plan.interval_unit = types[0].interval_unit
+            plan.interval_basis = types[0].interval_basis
+            plan.preferred_month = types[0].preferred_month
+            plan.lead_time_days = types[0].lead_time_days
+            plan.owner_maintains = owner_maintains
+            plan.next_due_date = due
+            plan.save()
+        print(f'  Prüfpläne: {types[0].name} für {len(buildings)} Gebäude')
+
+
 def get_role_by_sequence(sequence: int):
     """Partnerrolle sprachunabhängig per Sequenznummer suchen
     (Hausmeister=10, Verwalter=20, siehe object_party.xml)."""
@@ -336,7 +402,8 @@ def create_building(house_nr: int, building_seq: int, prop, company,
                     country, t_bgf, t_raume, t_wfl, t_gwfl, t_heiz, uom_m3, admin_user,
                     apt_start_nr: int, uc_apartment,
                     retail_start_nr: int, uc_retail,
-                    usable_space_type=None) -> tuple:
+                    usable_space_type=None, smoke_kind=None,
+                    t_items=None) -> tuple:
     """Create one building with 1 retail space (EG) and 4 apartments (1.OG/2.OG).
     Returns (next_apt_nr, next_retail_nr)."""
     address = create_re_address(house_nr, country)
@@ -396,6 +463,9 @@ def create_building(house_nr: int, building_seq: int, prop, company,
         create_measurement(apt, t_heiz, area - 3.0)
         create_meter(apt, f'Wasser Zähler {nr:02d}', sequence=10,
                      company=company, uom=uom_m3, admin_user=admin_user)
+        if smoke_kind and t_items:
+            create_smoke_detector(apt, nr, rooms, company, smoke_kind,
+                t_items)
 
     return apt_start_nr + 4, retail_start_nr + 1
 
@@ -442,6 +512,13 @@ def main():
     t_heiz = get_measurement_type_by_sequence(25)    # Heizfläche
     t_bgf = get_measurement_type_by_sequence(30)     # Bruttogeschossfläche [BHF]
     t_usable_space = get_measurement_type_by_sequence(5)   # Usable Space
+    t_items = get_measurement_type_by_sequence(50)   # Number of items (Anzahl)
+    Kind = Model.get('real_estate.equipment.kind')
+    smoke_kinds = Kind.find([('code', '=', 'smoke_detector')])
+    smoke_kind = smoke_kinds[0] if smoke_kinds else None
+    if not smoke_kind:
+        print('WARNUNG: Anlagenart "smoke_detector" nicht gefunden - '
+            'keine Rauchwarnmelder.')
 
     country_de = get_country('DE')
     if not country_de:
@@ -462,6 +539,7 @@ def main():
         uom_m3=uom_m3, admin_user=admin_user,
         uc_apartment=uc_apartment, uc_retail=uc_retail,
         usable_space_type=t_usable_space,
+        smoke_kind=smoke_kind, t_items=t_items,
     )
 
     # Wirtschaftseinheit 1: Musterstraße 1-4
@@ -485,6 +563,7 @@ def main():
     print('\n--- Grundstück Musterstraße 1-4 ---')
     create_land_with_parking('Musterstraße 1-4', prop1, company, sequence=50,
                              uc_parking=uc_parking, usable_space_type=t_usable_space)
+    create_inspection_plans(prop1, company)
 
     # Wirtschaftseinheit 2: Musterstraße 5-8
     print('\n=== Wirtschaftseinheit: Musterstraße 5-8 ===')
@@ -507,6 +586,7 @@ def main():
     print('\n--- Grundstück Musterstraße 5-8 ---')
     create_land_with_parking('Musterstraße 5-8', prop2, company, sequence=50,
                              uc_parking=uc_parking, usable_space_type=t_usable_space)
+    create_inspection_plans(prop2, company)
 
     print('\nFertig.')
     print(

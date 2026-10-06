@@ -142,6 +142,7 @@ class CronTask(ModelSQL, ModelView):
             ('price_index_import', 'Import Price Index Values'),
             ('task_notify', 'Task Reminders'),
             ('task_rules', 'Task Rules'),
+            ('inspection_plans', 'Inspection Plans'),
         ]
 
     @fields.depends('task')

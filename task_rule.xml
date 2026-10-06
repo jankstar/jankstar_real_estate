@@ -339,5 +339,33 @@
             <field name="active" eval="False"/>
             <field name="description">A scheduled task has not run as planned. Check the trytond-cron process and the log of the scheduled tasks, fix the cause and run the task manually if necessary.</field>
         </record>
+        <record model="real_estate.task.rule" id="task_rule_p01">
+            <field name="name">Inspection overdue</field>
+            <field name="model">real_estate.inspection</field>
+            <field name="domain" eval="[('state', 'in', ['draft', 'scheduled', 'in_progress'])]" pyson="1"/>
+            <field name="date_source">method</field>
+            <field name="date_method">inspection_overdue</field>
+            <field name="offset_months" eval="0"/>
+            <field name="offset_days" eval="0"/>
+            <field name="horizon_days" eval="0"/>
+            <field name="task_type" ref="task_type_inspection_overdue"/>
+            <field name="on_date_change">cancel</field>
+            <field name="active" eval="False"/>
+            <field name="description">The inspection is overdue (due date plus tolerance of the inspection type). Schedule and carry out the inspection or record why it is delayed.</field>
+        </record>
+        <record model="real_estate.task.rule" id="task_rule_p02">
+            <field name="name">Inspection defect overdue</field>
+            <field name="model">real_estate.inspection.defect</field>
+            <field name="domain" eval="[('state', 'in', ['open', 'in_progress'])]" pyson="1"/>
+            <field name="date_source">method</field>
+            <field name="date_method">defect_overdue</field>
+            <field name="offset_months" eval="0"/>
+            <field name="offset_days" eval="0"/>
+            <field name="horizon_days" eval="0"/>
+            <field name="task_type" ref="task_type_inspection_defect_overdue"/>
+            <field name="on_date_change">cancel</field>
+            <field name="active" eval="False"/>
+            <field name="description">The deadline of the defect has passed. Clarify the state with the responsible contractor, have the defect fixed and record the fix.</field>
+        </record>
     </data>
 </tryton>

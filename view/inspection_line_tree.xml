@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<tree editable="1">
+    <field name="base_object" expand="1"/>
+    <field name="tenant" optional="0"/>
+    <field name="access_status"/>
+    <field name="attempt" optional="1"/>
+    <field name="visit_date" optional="0"/>
+    <field name="qty_expected" optional="0"/>
+    <field name="qty_checked" optional="0"/>
+    <field name="qty_ok" optional="0"/>
+    <field name="qty_replaced" optional="1"/>
+    <field name="result"/>
+    <field name="remarks" optional="0"/>
+    <button name="all_ok"/>
+    <field name="letter_date" optional="1"/>
+</tree>

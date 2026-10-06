@@ -187,7 +187,6 @@
             parent="menu_real_estate_configuration"
             name="Tasks and Processes"
             sequence="50"
-            icon="tryton-notification"
             id="menu_task_configuration"/>
         <menuitem
             parent="menu_task_configuration"
@@ -568,6 +567,32 @@
             <field name="name">Scheduled task not run</field>
             <field name="responsible_group" ref="group_real_estate_admin"/>
             <field name="remind_days" eval="0"/>
+        </record>
+        <record model="real_estate.task.type" id="task_type_inspection_defect">
+            <field name="sequence" eval="220"/>
+            <field name="code">inspection_defect</field>
+            <field name="name">Fix inspection defect</field>
+            <field name="responsible_group" ref="group_real_estate_object"/>
+            <field name="remind_days" eval="3"/>
+            <field name="escalate_days" eval="7"/>
+            <field name="escalation_group" ref="group_real_estate_admin"/>
+            <field name="responsible_role" ref="object_party_caretaker_role"/>
+        </record>
+        <record model="real_estate.task.type" id="task_type_inspection_overdue">
+            <field name="sequence" eval="230"/>
+            <field name="code">inspection_overdue</field>
+            <field name="name">Inspection overdue</field>
+            <field name="responsible_group" ref="group_real_estate_object"/>
+            <field name="remind_days" eval="0"/>
+            <field name="responsible_role" ref="object_party_administrator_role"/>
+        </record>
+        <record model="real_estate.task.type" id="task_type_inspection_defect_overdue">
+            <field name="sequence" eval="240"/>
+            <field name="code">inspection_defect_overdue</field>
+            <field name="name">Inspection defect overdue</field>
+            <field name="responsible_group" ref="group_real_estate_object"/>
+            <field name="remind_days" eval="0"/>
+            <field name="responsible_role" ref="object_party_administrator_role"/>
         </record>
     </data>
 </tryton>

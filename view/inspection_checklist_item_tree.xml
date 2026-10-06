@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<tree sequence="sequence" editable="1">
+    <field name="section"/>
+    <field name="question" expand="1"/>
+    <field name="answer_type"/>
+    <field name="mandatory"/>
+    <field name="create_defect_on_nok"/>
+    <field name="default_severity"/>
+    <field name="photo_on_nok" optional="1"/>
+    <field name="unit" optional="1"/>
+    <field name="min_value" optional="1"/>
+    <field name="max_value" optional="1"/>
+</tree>

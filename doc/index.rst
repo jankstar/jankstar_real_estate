@@ -14,7 +14,9 @@ Structure
 - **Master data** — real-estate objects in a tree (property → building →
   apartment/commercial unit/parking, equipment such as meters), addresses,
   measurements (areas, rooms, meter readings), occupancy, and party roles
-  per object.
+  per object; meter reading sheets for the collective entry of the meter
+  readings of a property, building or unit (meters with unit, tenant and
+  previous reading, printable list, follow-up sheet).
 - **Contracts** — contract types, contract parties with roles and validity
   periods, items (rented objects) and terms (recurring charges such as rent
   and operating cost advances); terms generate a planned cash flow that is
@@ -32,15 +34,33 @@ Structure
   consumption, external billing, …), including CO2 cost allocation
   (CO2KostAufG) and the BVED interface to external metering providers.
 - **Tasks, processes and handover reports** — tasks (follow-ups) on
-  contracts, objects, billing units and other records, created manually,
-  by the module, by scheduled task rules or by process steps, with
-  reminders and escalation; responsibility by group, user or the party
-  role on the object (e.g. property administrator, caretaker - resolved
-  to the linked user via the employee); process templates (move-out,
-  move-in, change of tenant, index rent adjustment) with work instructions,
-  started by the contract type; handover
-  reports (move-in, pre-inspection, move-out) with checklists, keys and
-  meter readings that complete the matching process steps.
+  contracts, objects, billing units, rent adjustments, inspections and
+  other records (tab *Tasks and Processes* with *Open* / *History*),
+  created manually, by the module, by scheduled task rules or by process
+  steps, with reminders and escalation; responsibility by group, user or
+  the party role on the object (e.g. property administrator, caretaker -
+  resolved to the linked user via the employee). Processes from templates
+  with work instructions: each step is a task (planned until due, then
+  open), completed by hand, by a condition or by executing its action;
+  conditional steps; reopen and reactivate. Delivered templates: move-out,
+  move-in, change of tenant (started by the contract type), index rent
+  adjustment, vacancy / reletting on an object, and the inspection
+  processes annual walkthrough and smoke detector check. Handover reports
+  (move-in, pre-inspection, move-out) with checklists, keys and meter
+  readings (created as meter readings when done) that complete the
+  matching process steps.
+- **Recurring inspections** — inspection types with interval,
+  checklists and process template, inspection plans per property or
+  building with due date rules (fixed rhythm or from execution, preferred
+  month); inspections created ahead by a scheduled task, with lines per
+  rental unit or equipment, typed results, validation, approval and an
+  archived inspection report; tenant notice and letters; defects with
+  deadlines, follow-up tasks and carry-over to the next inspection;
+  access attempts with a second date for units without access; undo of
+  the workflow steps; the process of the inspection with its steps and
+  progress as first tab *Workflow*; default types annual walkthrough and
+  smoke detector check with checklists and process templates; equipment
+  kinds on equipment objects; menu *Master Data › Inspections*.
 - **Accounting** — German WoWi chart of accounts, company-specific
   real-estate accounting configuration, input VAT option rate, and
   real-estate fields on invoices and journal lines.
@@ -49,6 +69,12 @@ Setup: master data and per-company settings (real estate accounting,
 scheduled tasks, task and process configuration) are described in
 *Configuration*, the entries in ``trytond.conf`` (GENESIS-Online token,
 e-mail, bus) and the required cron process in *Installation*.
+
+Demo data: the scripts under ``tests/`` create properties with
+buildings, units, meters, property administrator and caretaker, smoke
+detectors and the inspection plans (annual walkthrough, smoke detector
+check), contracts with graduated and index rents, billing units,
+supplier invoices and payments - see *Demo data scripts*.
 
 Full documentation is split into per-topic pages under ``doc/`` — see
 *Contents* below and *Source Layout* for the file-to-model mapping.
@@ -82,6 +108,7 @@ Contents
   - `BVED External Billing Interface <https://github.com/jankstar/jankstar_real_estate/blob/main/doc/bved.rst>`_
   - `Option Rate (Input VAT Deduction) <https://github.com/jankstar/jankstar_real_estate/blob/main/doc/option_rate.rst>`_
   - `Tasks, Processes and Handover Reports <https://github.com/jankstar/jankstar_real_estate/blob/main/doc/tasks.rst>`_
+  - `Recurring Inspections <https://github.com/jankstar/jankstar_real_estate/blob/main/doc/inspections.rst>`_
   - `Extensions to Core Modules <https://github.com/jankstar/jankstar_real_estate/blob/main/doc/core_extensions.rst>`_
 
 - `Wizards <https://github.com/jankstar/jankstar_real_estate/blob/main/doc/wizards.rst>`_
@@ -112,6 +139,7 @@ Contents
    option_rate
    core_extensions
    tasks
+   inspections
    wizards
    reports
    accounting_wowi

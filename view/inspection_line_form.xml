@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<form col="4">
+    <label name="inspection"/><field name="inspection"/>
+    <label name="base_object"/><field name="base_object"/>
+    <label name="unit"/><field name="unit"/>
+    <label name="tenant"/><field name="tenant"/>
+    <label name="access_status"/><field name="access_status"/>
+    <label name="attempt"/><field name="attempt"/>
+    <label name="visit_date"/><field name="visit_date"/>
+    <label name="result"/><field name="result"/>
+    <label name="qty_expected"/><field name="qty_expected"/>
+    <label name="qty_checked"/><field name="qty_checked"/>
+    <label name="qty_ok"/><field name="qty_ok"/>
+    <label name="qty_replaced"/><field name="qty_replaced"/>
+    <label name="letter_date"/><field name="letter_date"/>
+    <group id="buttons" colspan="4" col="-1">
+        <button name="all_ok" icon="tryton-ok"/>
+    </group>
+    <field name="results" colspan="4" create="0" delete="0"
+        view_ids="real_estate.inspection_result_view_tree"/>
+    <field name="defects" colspan="4"/>
+    <separator name="remarks" colspan="4"/>
+    <field name="remarks" colspan="4"/>
+</form>

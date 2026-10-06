@@ -204,7 +204,7 @@ Wizards
    *Result* the summary, the protocol and the button *Open Adjustments*
    (domain ``run_id``). Every run is stored as
    ``real_estate.contract.term.adjustment.run`` (menu *Contracts ›
-   Adjustment › Adjustment Runs*) with its parameters, the summary, a
+   Rent Adjustments › Adjustment Runs*) with its parameters, the summary, a
    protocol line per agreement (result, effective date and the check
    findings, i.e. the cause of a skip) and its adjustments.
 

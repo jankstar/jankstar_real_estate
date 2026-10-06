@@ -4,6 +4,9 @@
     <label name="task_type"/><field name="task_type"/>
     <label name="state"/><field name="state"/>
     <label name="resource"/><field name="resource" colspan="3"/>
+    <label name="process"/><field name="process"/>
+    <label name="template_step"/><field name="template_step"/>
+    <label name="step_number"/><field name="step_number"/>
     <label name="contract"/><field name="contract"/>
     <label name="property"/><field name="property"/>
     <label name="due_date"/><field name="due_date"/>
@@ -28,8 +31,6 @@
             <label name="notified_date"/><field name="notified_date"/>
             <label name="escalated_date"/><field name="escalated_date"/>
             <label name="automatic"/><field name="automatic"/>
-            <label name="process"/><field name="process"/>
-            <label name="process_step"/><field name="process_step"/>
             <label name="origin"/><field name="origin"/>
             <label name="origin_key"/><field name="origin_key"/>
         </page>
