@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<form col="4">
+    <label name="code"/><field name="code"/>
+    <label name="name"/><field name="name"/>
+    <label name="direction"/><field name="direction"/>
+    <label name="effect"/><field name="effect"/>
+    <label name="value"/><field name="value"/>
+    <label name="level"/><field name="level"/>
+    <label name="auto_measurement_type"/>
+    <field name="auto_measurement_type"/>
+    <label name="sequence"/><field name="sequence"/>
+    <label name="auto_min"/><field name="auto_min"/>
+    <label name="auto_max"/><field name="auto_max"/>
+    <separator name="description" colspan="4"/>
+    <field name="description" colspan="4"/>
+    <field name="applies_to_classes" colspan="2"/>
+    <field name="exclusive_with" colspan="2"/>
+    <field name="version" invisible="1"/>
+</form>

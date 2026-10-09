@@ -18,9 +18,15 @@ one procedure (``contract_type.ADJUSTMENT_PROCEDURES``):
 - **Comparative rent, modernisation, operating cost billing/plan, free
   adjustment**: header records so far.
 
-A procedure is possible only if both the contract type and the term type
-allow it (``adjustment_procedures``); at most one agreed procedure
-(graduated or index rent) per term.
+A procedure is possible only if the contract type, the term type and the
+use class of at least one rental unit of the term's contract item allow
+it (``adjustment_procedures``; rental units without use class: all
+procedures except the comparative rent). By default the use class
+*Apartment* allows all procedures, *Office*, *Retail*, *Warehouse*,
+*Parking* and *Garage* all except the comparative rent and the
+modernisation - the comparative rent (§ 558 BGB) is only possible for
+apartments. At most one agreed procedure (graduated or index rent) per
+term.
 
 Menus:
 

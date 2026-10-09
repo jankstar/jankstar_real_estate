@@ -4,5 +4,6 @@
     <field name="name"/>
     <field name="has_basement_nr"/>
     <field name="has_parking_nr"/>
+    <field name="adjustment_procedures" optional="0"/>
     <field name="active"/>
 </tree>

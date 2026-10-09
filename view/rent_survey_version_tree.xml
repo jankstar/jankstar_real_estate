@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<tree>
+    <field name="survey"/>
+    <field name="name" expand="1"/>
+    <field name="valid_from"/>
+    <field name="valid_to"/>
+    <field name="kind"/>
+    <field name="method"/>
+    <field name="locked"/>
+</tree>

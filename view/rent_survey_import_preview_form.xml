@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<form col="1">
+    <separator name="problems"/>
+    <field name="problems"/>
+    <separator name="preview"/>
+    <field name="preview"/>
+</form>

@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<form col="4">
+    <label name="property"/><field name="property"/>
+    <label name="key_date"/><field name="key_date"/>
+    <label name="level"/><field name="level"/>
+</form>

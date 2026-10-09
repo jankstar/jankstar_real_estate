@@ -8,6 +8,9 @@
     <label name="has_basement_nr"/><field name="has_basement_nr"/>
     <newline/>
     <label name="has_parking_nr"/><field name="has_parking_nr"/>
+    <newline/>
+    <label name="adjustment_procedures"/>
+    <field name="adjustment_procedures" colspan="5"/>
 
     
 </form>

@@ -35,6 +35,7 @@ from . import task_rule
 from . import process
 from . import handover
 from . import meter_reading_sheet
+from . import rent_survey
 from . import inspection
 
 __all__ = ['register']
@@ -66,6 +67,7 @@ def register():
         contract_core.GeneralLedgerAccountContract,
         contract_core.ContractGeneralLedgerAccountContractContext,
         contract_core.Contract,
+        contract_type.UseClass,
         contract_type.ContractTypeTax,
         contract_type.ContractType,
         contract_type.ContractTermType,
@@ -189,6 +191,29 @@ def register():
         inspection.TaskRule,
         meter_reading_sheet.MeterReadingSheet,
         meter_reading_sheet.MeterReadingSheetLine,
+        rent_survey.RentSurvey,
+        rent_survey.RentSurveyVersion,
+        rent_survey.RentSurveyVersionMeasurementType,
+        rent_survey.RentSurveyDimension,
+        rent_survey.RentSurveyDimensionClass,
+        rent_survey.RentSurveyCell,
+        rent_survey.RentSurveyCellClass,
+        rent_survey.RentSurveyGroup,
+        rent_survey.RentSurveyFeature,
+        rent_survey.RentSurveyFeatureClass,
+        rent_survey.RentSurveyFeatureFeature,
+        rent_survey.RentSurveyImportStart,
+        rent_survey.RentSurveyImportPreview,
+        rent_survey.RentSurveyNewVersionStart,
+        rent_survey.BaseObjectRentSurveyValue,
+        rent_survey.BaseObject,
+        rent_survey.RentSurveyFeaturesStart,
+        rent_survey.RentSurveyCopyStart,
+        rent_survey.RentSurveyMatrixExportStart,
+        rent_survey.RentSurveyMatrixExportResult,
+        rent_survey.RentSurveyMatrixImportStart,
+        rent_survey.RentSurveyMatrixImportPreview,
+        rent_survey.RentSurveyCalculation,
         ir.Rule,
         option_rate.OptionRateContext,
         option_rate.OptionRate,
@@ -231,6 +256,12 @@ def register():
         process.ProcessStart,
         process.TerminateContractWizard,
         process.ChangeContractPartnerWizard,
+        rent_survey.RentSurveyImport,
+        rent_survey.RentSurveyNewVersion,
+        rent_survey.RentSurveyFeatures,
+        rent_survey.RentSurveyCopy,
+        rent_survey.RentSurveyMatrixExport,
+        rent_survey.RentSurveyMatrixImport,
         module='real_estate', type_='wizard')
     Pool.register(
         base_object.BaseObjectReport,

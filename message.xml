@@ -989,5 +989,134 @@ Either run "Ready for Billing" for each billing unit first, or bill individual b
         <record model="ir.message" id="msg_meter_reading_sheet_missing">
             <field name="text">%(count)s meters of the sheet "%(sheet)s" have no value and get no meter reading: %(meters)s</field>
         </record>
+        <record model="ir.message" id="msg_rent_survey_version_locked">
+            <field name="text">The rent survey version "%(version)s" is used by an accepted calculation - classes, table, features and rules can only be corrected by a new version.</field>
+        </record>
+        <record model="ir.message" id="msg_rent_survey_version_unique">
+            <field name="text">A rent survey can have only one version per "valid from" date.</field>
+        </record>
+        <record model="ir.message" id="msg_rent_survey_code_unique">
+            <field name="text">The code must be unique within the rent survey version.</field>
+        </record>
+        <record model="ir.message" id="msg_rent_survey_cell_classes">
+            <field name="text">Table cell "%(cell)s": exactly one class is required per classification feature.</field>
+        </record>
+        <record model="ir.message" id="msg_rent_survey_cell_values">
+            <field name="text">Table cell "%(cell)s": the values must satisfy lower &lt;= mean &lt;= upper (regression: mean required).</field>
+        </record>
+        <record model="ir.message" id="msg_rent_survey_cell_overlap">
+            <field name="text">The area ranges of the table cells "%(cell)s" and "%(other)s" overlap.</field>
+        </record>
+        <record model="ir.message" id="msg_rent_survey_check_ok">
+            <field name="text">Check without problems.</field>
+        </record>
+        <record model="ir.message" id="msg_rent_survey_check_problems">
+            <field name="text">%(count)s problems found:</field>
+        </record>
+        <record model="ir.message" id="msg_rent_survey_import_class">
+            <field name="text">Unknown class "%(dimension)s=%(class_)s".</field>
+        </record>
+        <record model="ir.message" id="msg_rent_survey_import_measurement">
+            <field name="text">Unknown measurement type "%(measurement)s".</field>
+        </record>
+        <record model="ir.message" id="msg_rent_survey_import_feature">
+            <field name="text">Unknown feature "%(feature)s" in the exclusions.</field>
+        </record>
+        <record model="ir.message" id="msg_rent_survey_import_count">
+            <field name="text">%(count)s records</field>
+        </record>
+        <record model="ir.message" id="msg_rent_survey_no_version">
+            <field name="text">No rent survey version is valid today for "%(object)s" (rent survey of the property).</field>
+        </record>
+        <record model="ir.message" id="msg_rent_survey_calculation_delete">
+            <field name="text">The calculation "%(calculation)s" is accepted and cannot be deleted - it is the evidence of the comparative rent.</field>
+        </record>
+        <record model="ir.message" id="msg_rent_survey_calculation_locked">
+            <field name="text">The calculation "%(calculation)s" is calculated resp. accepted and cannot be changed - use "Recalculate".</field>
+        </record>
+        <record model="ir.message" id="msg_rent_survey_reason_required">
+            <field name="text">The calculation "%(calculation)s" has warnings or a different accepted rent per m² - enter a reason.</field>
+        </record>
+        <record model="ir.message" id="msg_rent_survey_error">
+            <field name="text">Error</field>
+        </record>
+        <record model="ir.message" id="msg_rent_survey_warning">
+            <field name="text">Warning</field>
+        </record>
+        <record model="ir.message" id="msg_rent_survey_info">
+            <field name="text">Note</field>
+        </record>
+        <record model="ir.message" id="msg_rent_survey_b01">
+            <field name="text">B01: "%(object)s" is no apartment (use class allowing the comparative rent), or its property has no rent survey with a version valid on %(date)s.</field>
+        </record>
+        <record model="ir.message" id="msg_rent_survey_b02">
+            <field name="text">B02: no living space for "%(object)s".</field>
+        </record>
+        <record model="ir.message" id="msg_rent_survey_b03">
+            <field name="text">B03: no class for the classification feature "%(dimension)s".</field>
+        </record>
+        <record model="ir.message" id="msg_rent_survey_b04">
+            <field name="text">B04: %(count)s table cells found for the classes and the living space %(area)s m² - exactly one is required.</field>
+        </record>
+        <record model="ir.message" id="msg_rent_survey_b05">
+            <field name="text">B05: the table cell "%(cell)s" is outside the qualified scope - a note in the request is required.</field>
+        </record>
+        <record model="ir.message" id="msg_rent_survey_b06">
+            <field name="text">B06: the features "%(feature)s" and "%(other)s" exclude each other.</field>
+        </record>
+        <record model="ir.message" id="msg_rent_survey_b07">
+            <field name="text">B07: the code "%(code)s" (%(level)s) does not exist in the version.</field>
+        </record>
+        <record model="ir.message" id="msg_rent_survey_b08">
+            <field name="text">B08: no feature in the group "%(group)s" (group = 0).</field>
+        </record>
+        <record model="ir.message" id="msg_rent_survey_b09">
+            <field name="text">B09: no value of the measurement "%(measurement)s" for the automatic features.</field>
+        </record>
+        <record model="ir.message" id="msg_rent_survey_origin_manual">
+            <field name="text">manual</field>
+        </record>
+        <record model="ir.message" id="msg_rent_survey_origin_derived">
+            <field name="text">derived</field>
+        </record>
+        <record model="ir.message" id="msg_rent_survey_protocol_header">
+            <field name="text">%(version)s (valid from %(valid_from)s), key date %(date)s</field>
+        </record>
+        <record model="ir.message" id="msg_rent_survey_protocol_class">
+            <field name="text">%(dimension)s: %(name)s (%(level)s, %(origin)s)</field>
+        </record>
+        <record model="ir.message" id="msg_rent_survey_protocol_cell">
+            <field name="text">Living space %(area)s m² → cell %(cell)s: %(lower)s / %(mean)s / %(upper)s €/m²</field>
+        </record>
+        <record model="ir.message" id="msg_rent_survey_protocol_ignored">
+            <field name="text">Feature %(feature)s ignored (not valid for the classes).</field>
+        </record>
+        <record model="ir.message" id="msg_rent_survey_protocol_table">
+            <field name="text">Net groups %(votes)s, %(percent)s %% per group from the mean %(mean)s → %(rent)s €/m²</field>
+        </record>
+        <record model="ir.message" id="msg_rent_survey_protocol_regression">
+            <field name="text">Base value %(mean)s with surcharges and reductions → %(rent)s €/m² (range %(lower)s – %(upper)s)</field>
+        </record>
+        <record model="ir.message" id="msg_rent_survey_protocol_result">
+            <field name="text">Local comparative rent: %(rent)s €/m² × %(area)s m² = %(total)s €</field>
+        </record>
+        <record model="ir.message" id="msg_rent_adjustment_use_class">
+            <field name="text">The procedure "%(procedure)s" is not allowed for the rental units of the term "%(term)s" (%(objects)s) - see the allowed adjustment procedures of their use class.</field>
+        </record>
+        <record model="ir.message" id="msg_rent_survey_matrix_header">
+            <field name="text">The file is no rent survey matrix: the first line must start with the column "id".</field>
+        </record>
+        <record model="ir.message" id="msg_rent_survey_matrix_column">
+            <field name="text">Unknown column "%(code)s" - no classification feature resp. feature of this level in the version.</field>
+        </record>
+        <record model="ir.message" id="msg_rent_survey_matrix_object">
+            <field name="text">Line %(line)s: "%(object)s" is no building resp. apartment of the property.</field>
+        </record>
+        <record model="ir.message" id="msg_rent_survey_matrix_mark">
+            <field name="text">Line %(line)s, column %(code)s: "%(value)s" is no valid mark (x or empty).</field>
+        </record>
+        <record model="ir.message" id="msg_rent_survey_matrix_count">
+            <field name="text">%(count)s objects with changes</field>
+        </record>
     </data>
 </tryton>

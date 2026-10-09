@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<tree>
+    <field name="dimension" expand="1"/>
+    <field name="code"/>
+    <field name="name" expand="1"/>
+    <field name="value_min"/>
+    <field name="value_max"/>
+    <field name="manual_only"/>
+</tree>

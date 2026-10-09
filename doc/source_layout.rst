@@ -44,6 +44,9 @@ Source Layout
    ├── option_rate_wizard.py    # real_estate.option_rate_update.wizard
    ├── party.py                 # extension to party.party
    ├── re_accounting.py         # real_estate.re_accounting (company-scoped RE config)
+   ├── rent_survey.py           # real_estate.rent_survey(.version, .dimension(.class),
+   │                            #   .cell, .group, .feature, .calculation),
+   │                            #   base_object.rent_survey_value, import/features wizards
    ├── res.py                   # extension to res.user
    ├── settlement_result.py     # real_estate.settlement_result, cost_share
    ├── sequence.py              # extension to ir.sequence ("string timestamp" type)

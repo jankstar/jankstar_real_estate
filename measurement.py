@@ -213,11 +213,11 @@ class Measurement(DeactivableMixin, ModelSQL, ModelView, metaclass=PoolMeta):
             return self.m_type.unit.symbol
         return f" - "
 
-    @fields.depends('m_type', 'no_print')
-    def on_change_with_no_print(self, name=None):
+    @fields.depends('m_type')
+    def on_change_m_type(self):
+        "Default 'No Print' of the type - can be changed per measurement"
         if self.m_type:
-            return self.m_type.no_print
-        return getattr(self, 'no_print', False)
+            self.no_print = self.m_type.no_print
     
     @fields.depends('base_object', '_parent_base_object.type')
     def on_change_with_type(self, name=None):

@@ -274,6 +274,22 @@
             <field name="types" eval="['equipment']"/>
         </record>
 
+        <record model="product.uom" id="uom_re_kwh_sqm_year">
+            <field name="name">kWh/(m²a)</field>
+            <field name="symbol">kWh/(m²a)</field>
+            <field name="category" ref="product.uom_cat_unit"/>
+            <field name="rate" eval="1."/>
+            <field name="factor" eval="1."/>
+            <field name="rounding" eval="0.1"/>
+            <field name="digits" eval="1"/>
+        </record>
+        <record model="real_estate.measurement.type" id="measurement_energy_consumption_type">
+            <field name="name">Energy Consumption Value</field>
+            <field name="unit" ref="uom_re_kwh_sqm_year"/>
+            <field name="sequence">70</field>
+            <field name="types" eval="['building']"/>
+        </record>
+
         <record model="real_estate.measurement.type" id="measurement_property_value_type">
             <field name="name">Property value</field>
             <field name="unit" ref="uom_re_euro_unit" />

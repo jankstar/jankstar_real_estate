@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<form col="4">
+    <label name="base_object"/><field name="base_object"/>
+    <label name="key_date"/><field name="key_date"/>
+    <label name="source"/><field name="source" colspan="3"/>
+    <label name="with_classes"/><field name="with_classes"/>
+    <label name="replace"/><field name="replace"/>
+    <field name="property" invisible="1"/>
+    <field name="type" invisible="1"/>
+</form>

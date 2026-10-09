@@ -3,7 +3,7 @@ from trytond.model import (sequence_ordered,
     DeactivableMixin, ModelSQL, ModelView, fields, Unique)
 from trytond.model.exceptions import ValidationError
 from trytond.i18n import gettext
-from trytond.pool import Pool
+from trytond.pool import Pool, PoolMeta
 from trytond.pyson import Eval, If
 from trytond import backend
 from trytond.modules.product import price_digits
@@ -28,6 +28,9 @@ ADJUSTMENT_PROCEDURES = [
 # cost processing
 RENT_ADJUSTMENT_PROCEDURES = {
     'graduated_rent', 'index_rent', 'comparative_rent', 'modernisation'}
+# Procedures that require a rental unit whose use class allows them (no
+# use class: not allowed) - the comparative rent applies to apartments only
+USE_CLASS_BOUND_PROCEDURES = {'comparative_rent'}
 # Procedures adjusting operating cost advances/flat rates - only for terms
 # with operating cost processing
 OC_ADJUSTMENT_PROCEDURES = {'operation_costs_billing', 'operation_costs_plan'}
@@ -82,6 +85,29 @@ class ContractTermTypeCType(ModelSQL):
             ('term_type_c_type_unique', Unique(t, t.term_type, t.c_type),
                 'real_estate.msg_contract_term_type_c_type_unique'),
             ]
+
+
+#**********************************************************************
+class UseClass(metaclass=PoolMeta):
+    __name__ = 'real_estate.use_class'
+
+    adjustment_procedures = fields.MultiSelection(
+        ADJUSTMENT_PROCEDURES, "Allowed Adjustment Procedures", sort=False,
+        help="Rent adjustment procedures allowed for terms of contract items "
+             "with rental units of this use class (in addition to the "
+             "contract type and the term type) - e.g. the comparative rent "
+             "(rent survey) only for apartments.")
+
+    @classmethod
+    def allows(cls, objects, procedure):
+        """The procedure is allowed for the rental units: at least one of
+        their use classes allows it - without any use class only the
+        procedures not bound to apartments (comparative rent)"""
+        classes = {o.use_class for o in objects if o.use_class}
+        if not classes:
+            return procedure not in USE_CLASS_BOUND_PROCEDURES
+        return any(procedure in (c.adjustment_procedures or [])
+            for c in classes)
 
 
 #**********************************************************************

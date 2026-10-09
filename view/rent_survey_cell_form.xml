@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<form col="4">
+    <label name="code"/><field name="code"/>
+    <label name="qualified"/><field name="qualified"/>
+    <label name="area_min"/><field name="area_min"/>
+    <label name="area_max"/><field name="area_max"/>
+    <label name="lower"/><field name="lower"/>
+    <label name="mean"/><field name="mean"/>
+    <label name="upper"/><field name="upper"/>
+    <label name="note"/><field name="note"/>
+    <field name="classes" colspan="4"/>
+    <field name="version" invisible="1"/>
+</form>

@@ -113,36 +113,42 @@
             <field name="name">Apartment</field>
             <field name="has_basement_nr" eval="True"/>
             <field name="has_parking_nr" eval="False"/>
+            <field name="adjustment_procedures" eval="['graduated_rent', 'index_rent', 'comparative_rent', 'modernisation', 'operation_costs_billing', 'operation_costs_plan', 'free_adjustment']"/>
         </record>
         <record model="real_estate.use_class" id="use_class_office">
             <field name="sequence" eval="20"/>
             <field name="name">Office</field>
             <field name="has_basement_nr" eval="True"/>
             <field name="has_parking_nr" eval="False"/>
+            <field name="adjustment_procedures" eval="['graduated_rent', 'index_rent', 'operation_costs_billing', 'operation_costs_plan', 'free_adjustment']"/>
         </record>
         <record model="real_estate.use_class" id="use_class_retail">
             <field name="sequence" eval="30"/>
             <field name="name">Retail</field>
             <field name="has_basement_nr" eval="True"/>
             <field name="has_parking_nr" eval="False"/>
+            <field name="adjustment_procedures" eval="['graduated_rent', 'index_rent', 'operation_costs_billing', 'operation_costs_plan', 'free_adjustment']"/>
         </record>
         <record model="real_estate.use_class" id="use_class_warehouse">
             <field name="sequence" eval="40"/>
             <field name="name">Warehouse</field>
             <field name="has_basement_nr" eval="True"/>
             <field name="has_parking_nr" eval="False"/>
+            <field name="adjustment_procedures" eval="['graduated_rent', 'index_rent', 'operation_costs_billing', 'operation_costs_plan', 'free_adjustment']"/>
         </record>
         <record model="real_estate.use_class" id="use_class_parking">
             <field name="sequence" eval="50"/>
             <field name="name">Parking</field>
             <field name="has_basement_nr" eval="False"/>
             <field name="has_parking_nr" eval="True"/>
+            <field name="adjustment_procedures" eval="['graduated_rent', 'index_rent', 'operation_costs_billing', 'operation_costs_plan', 'free_adjustment']"/>
         </record>
         <record model="real_estate.use_class" id="use_class_garage">
             <field name="sequence" eval="60"/>
             <field name="name">Garage</field>
             <field name="has_basement_nr" eval="False"/>
             <field name="has_parking_nr" eval="True"/>
+            <field name="adjustment_procedures" eval="['graduated_rent', 'index_rent', 'operation_costs_billing', 'operation_costs_plan', 'free_adjustment']"/>
         </record>
 
         <record model="res.user-res.group" id="user_admin_group_real_estate_admin">
@@ -359,9 +365,9 @@
             <field name="res_model">real_estate.base_object</field>
             <field name="domain" eval="[('type', '=', 'building')]" pyson="1"/>
             <field name="context"></field>
-            <field name="context_model">real_estate.base_object.company.context</field>
+            <field name="context_model">real_estate.base_object.context</field>
             <field name="context_domain"
-                eval="[('company', '=', Eval('company', -1))]"
+                eval="[('company', '=', Eval('company', -1)), If(Eval('property', None), [('property', '=', Eval('property', None))], [])]"
                 pyson="1"/>
         </record>
         <record model="ir.action.act_window.view" id="act_building_form_view1">
@@ -419,9 +425,9 @@
             <field name="res_model">real_estate.base_object</field>
             <field name="domain" eval="[('type', '=', 'land')]" pyson="1"/>
             <field name="context"></field>
-            <field name="context_model">real_estate.base_object.company.context</field>
+            <field name="context_model">real_estate.base_object.context</field>
             <field name="context_domain"
-                eval="[('company', '=', Eval('company', -1))]"
+                eval="[('company', '=', Eval('company', -1)), If(Eval('property', None), [('property', '=', Eval('property', None))], [])]"
                 pyson="1"/>
         </record>
         <record model="ir.action.act_window.view" id="act_land_form_view1">

@@ -382,6 +382,10 @@ class MeterReadingSheet(Workflow, ModelSQL, ModelView):
         action['pyson_domain'] = PYSONEncoder().encode(
             [('id', 'in', [s.id for s in new])])
         action['views'] = list(reversed(action['views']))
+        # open the records themselves, not the first tab of the action
+        action['domains'] = []
+        # the client opens a form-first action without res_id as a new record
+        action['res_id'] = [s.id for s in new]
         return action
 
 

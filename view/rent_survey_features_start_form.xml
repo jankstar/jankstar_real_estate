@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<form col="4">
+    <label name="base_object"/><field name="base_object"/>
+    <label name="key_date"/><field name="key_date"/>
+    <label name="version"/><field name="version"/>
+    <field name="level" invisible="1"/>
+    <field name="features" colspan="4"/>
+</form>

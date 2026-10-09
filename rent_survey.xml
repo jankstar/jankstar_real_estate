@@ -1,0 +1,711 @@
+<?xml version="1.0"?>
+<tryton>
+    <data>
+        <!-- Rent survey (Mietspiegel) -->
+        <record model="ir.ui.view" id="rent_survey_view_tree">
+            <field name="model">real_estate.rent_survey</field>
+            <field name="type">tree</field>
+            <field name="name">rent_survey_tree</field>
+        </record>
+        <record model="ir.ui.view" id="rent_survey_view_form">
+            <field name="model">real_estate.rent_survey</field>
+            <field name="type">form</field>
+            <field name="name">rent_survey_form</field>
+        </record>
+        <record model="ir.ui.view" id="rent_survey_version_view_tree">
+            <field name="model">real_estate.rent_survey.version</field>
+            <field name="type">tree</field>
+            <field name="name">rent_survey_version_tree</field>
+        </record>
+        <record model="ir.ui.view" id="rent_survey_version_view_form">
+            <field name="model">real_estate.rent_survey.version</field>
+            <field name="type">form</field>
+            <field name="name">rent_survey_version_form</field>
+        </record>
+        <record model="ir.ui.view" id="rent_survey_dimension_view_tree">
+            <field name="model">real_estate.rent_survey.dimension</field>
+            <field name="type">tree</field>
+            <field name="name">rent_survey_dimension_tree</field>
+        </record>
+        <record model="ir.ui.view" id="rent_survey_dimension_view_form">
+            <field name="model">real_estate.rent_survey.dimension</field>
+            <field name="type">form</field>
+            <field name="name">rent_survey_dimension_form</field>
+        </record>
+        <record model="ir.ui.view" id="rent_survey_class_view_tree">
+            <field name="model">real_estate.rent_survey.dimension.class</field>
+            <field name="type">tree</field>
+            <field name="name">rent_survey_class_tree</field>
+        </record>
+        <record model="ir.ui.view" id="rent_survey_class_view_list">
+            <field name="model">real_estate.rent_survey.dimension.class</field>
+            <field name="type">tree</field>
+            <field name="priority" eval="20"/>
+            <field name="name">rent_survey_class_list</field>
+        </record>
+        <record model="ir.ui.view" id="rent_survey_cell_view_tree">
+            <field name="model">real_estate.rent_survey.cell</field>
+            <field name="type">tree</field>
+            <field name="name">rent_survey_cell_tree</field>
+        </record>
+        <record model="ir.ui.view" id="rent_survey_cell_view_form">
+            <field name="model">real_estate.rent_survey.cell</field>
+            <field name="type">form</field>
+            <field name="name">rent_survey_cell_form</field>
+        </record>
+        <record model="ir.ui.view" id="rent_survey_group_view_tree">
+            <field name="model">real_estate.rent_survey.group</field>
+            <field name="type">tree</field>
+            <field name="name">rent_survey_group_tree</field>
+        </record>
+        <record model="ir.ui.view" id="rent_survey_group_view_form">
+            <field name="model">real_estate.rent_survey.group</field>
+            <field name="type">form</field>
+            <field name="name">rent_survey_group_form</field>
+        </record>
+        <record model="ir.ui.view" id="rent_survey_feature_view_tree">
+            <field name="model">real_estate.rent_survey.feature</field>
+            <field name="type">tree</field>
+            <field name="name">rent_survey_feature_tree</field>
+        </record>
+        <record model="ir.ui.view" id="rent_survey_feature_view_form">
+            <field name="model">real_estate.rent_survey.feature</field>
+            <field name="type">form</field>
+            <field name="name">rent_survey_feature_form</field>
+        </record>
+        <record model="ir.ui.view" id="base_object_rent_survey_value_view_tree">
+            <field name="model">real_estate.base_object.rent_survey_value</field>
+            <field name="type">tree</field>
+            <field name="name">base_object_rent_survey_value_tree</field>
+        </record>
+        <record model="ir.ui.view" id="rent_survey_calculation_view_tree">
+            <field name="model">real_estate.rent_survey.calculation</field>
+            <field name="type">tree</field>
+            <field name="name">rent_survey_calculation_tree</field>
+        </record>
+        <record model="ir.ui.view" id="rent_survey_calculation_view_form">
+            <field name="model">real_estate.rent_survey.calculation</field>
+            <field name="type">form</field>
+            <field name="name">rent_survey_calculation_form</field>
+        </record>
+        <record model="ir.ui.view" id="rent_survey_import_start_view_form">
+            <field name="model">real_estate.rent_survey.import.start</field>
+            <field name="type">form</field>
+            <field name="name">rent_survey_import_start_form</field>
+        </record>
+        <record model="ir.ui.view" id="rent_survey_import_preview_view_form">
+            <field name="model">real_estate.rent_survey.import.preview</field>
+            <field name="type">form</field>
+            <field name="name">rent_survey_import_preview_form</field>
+        </record>
+        <record model="ir.ui.view" id="rent_survey_new_version_start_view_form">
+            <field name="model">real_estate.rent_survey.new_version.start</field>
+            <field name="type">form</field>
+            <field name="name">rent_survey_new_version_start_form</field>
+        </record>
+        <record model="ir.ui.view" id="rent_survey_copy_start_view_form">
+            <field name="model">real_estate.rent_survey.copy.start</field>
+            <field name="type">form</field>
+            <field name="name">rent_survey_copy_start_form</field>
+        </record>
+        <record model="ir.ui.view" id="rent_survey_matrix_export_start_view_form">
+            <field name="model">real_estate.rent_survey.matrix.export.start</field>
+            <field name="type">form</field>
+            <field name="name">rent_survey_matrix_export_start_form</field>
+        </record>
+        <record model="ir.ui.view" id="rent_survey_matrix_export_result_view_form">
+            <field name="model">real_estate.rent_survey.matrix.export.result</field>
+            <field name="type">form</field>
+            <field name="name">rent_survey_matrix_export_result_form</field>
+        </record>
+        <record model="ir.ui.view" id="rent_survey_matrix_import_start_view_form">
+            <field name="model">real_estate.rent_survey.matrix.import.start</field>
+            <field name="type">form</field>
+            <field name="name">rent_survey_matrix_import_start_form</field>
+        </record>
+        <record model="ir.ui.view" id="rent_survey_matrix_import_preview_view_form">
+            <field name="model">real_estate.rent_survey.matrix.import.preview</field>
+            <field name="type">form</field>
+            <field name="name">rent_survey_matrix_import_preview_form</field>
+        </record>
+        <record model="ir.ui.view" id="rent_survey_features_start_view_form">
+            <field name="model">real_estate.rent_survey.features.start</field>
+            <field name="type">form</field>
+            <field name="name">rent_survey_features_start_form</field>
+        </record>
+        <record model="ir.action.act_window" id="act_rent_survey">
+            <field name="name">Rent Surveys</field>
+            <field name="res_model">real_estate.rent_survey</field>
+        </record>
+        <record model="ir.action.act_window.view" id="act_rent_survey_view1">
+            <field name="sequence" eval="10"/>
+            <field name="view" ref="rent_survey_view_tree"/>
+            <field name="act_window" ref="act_rent_survey"/>
+        </record>
+        <record model="ir.action.act_window.view" id="act_rent_survey_view2">
+            <field name="sequence" eval="20"/>
+            <field name="view" ref="rent_survey_view_form"/>
+            <field name="act_window" ref="act_rent_survey"/>
+        </record>
+        <record model="ir.action.act_window" id="act_rent_survey_version">
+            <field name="name">Rent Survey Versions</field>
+            <field name="res_model">real_estate.rent_survey.version</field>
+        </record>
+        <record model="ir.action.act_window.view" id="act_rent_survey_version_view1">
+            <field name="sequence" eval="10"/>
+            <field name="view" ref="rent_survey_version_view_tree"/>
+            <field name="act_window" ref="act_rent_survey_version"/>
+        </record>
+        <record model="ir.action.act_window.view" id="act_rent_survey_version_view2">
+            <field name="sequence" eval="20"/>
+            <field name="view" ref="rent_survey_version_view_form"/>
+            <field name="act_window" ref="act_rent_survey_version"/>
+        </record>
+        <record model="ir.action.act_window" id="act_rent_survey_calculation">
+            <field name="name">Comparative Rent Calculations</field>
+            <field name="res_model">real_estate.rent_survey.calculation</field>
+            <field name="context_model">real_estate.base_object.context</field>
+            <field name="context_domain"
+                eval="[('company', '=', Eval('company', -1)), If(Eval('property', None), [('property', '=', Eval('property', None))], [])]"
+                pyson="1"/>
+        </record>
+        <record model="ir.action.act_window.view" id="act_rent_survey_calculation_view1">
+            <field name="sequence" eval="10"/>
+            <field name="view" ref="rent_survey_calculation_view_tree"/>
+            <field name="act_window" ref="act_rent_survey_calculation"/>
+        </record>
+        <record model="ir.action.act_window.view" id="act_rent_survey_calculation_view2">
+            <field name="sequence" eval="20"/>
+            <field name="view" ref="rent_survey_calculation_view_form"/>
+            <field name="act_window" ref="act_rent_survey_calculation"/>
+        </record>
+        <record model="ir.action.act_window.domain" id="act_rent_survey_calculation_domain_draft">
+            <field name="name">Draft</field>
+            <field name="sequence" eval="10"/>
+            <field name="domain" eval="[('state', '=', 'draft')]" pyson="1"/>
+            <field name="count" eval="True"/>
+            <field name="act_window" ref="act_rent_survey_calculation"/>
+        </record>
+        <record model="ir.action.act_window.domain" id="act_rent_survey_calculation_domain_calculated">
+            <field name="name">Calculated</field>
+            <field name="sequence" eval="20"/>
+            <field name="domain" eval="[('state', '=', 'calculated')]" pyson="1"/>
+            <field name="count" eval="True"/>
+            <field name="act_window" ref="act_rent_survey_calculation"/>
+        </record>
+        <record model="ir.action.act_window.domain" id="act_rent_survey_calculation_domain_accepted">
+            <field name="name">Accepted</field>
+            <field name="sequence" eval="30"/>
+            <field name="domain" eval="[('state', '=', 'accepted')]" pyson="1"/>
+            <field name="count" eval="False"/>
+            <field name="act_window" ref="act_rent_survey_calculation"/>
+        </record>
+        <record model="ir.action.act_window.domain" id="act_rent_survey_calculation_domain_all">
+            <field name="name">All</field>
+            <field name="sequence" eval="9999"/>
+            <field name="domain"></field>
+            <field name="count" eval="False"/>
+            <field name="act_window" ref="act_rent_survey_calculation"/>
+        </record>
+        <menuitem
+            parent="menu_real_estate_configuration"
+            name="Rent Surveys"
+            sequence="43"
+            id="menu_rent_survey_configuration"/>
+        <menuitem
+            parent="menu_rent_survey_configuration"
+            action="act_rent_survey"
+            sequence="10"
+            id="menu_rent_survey"/>
+        <menuitem
+            parent="menu_rent_survey_configuration"
+            action="act_rent_survey_version"
+            sequence="20"
+            id="menu_rent_survey_version"/>
+        <menuitem
+            parent="menu_real_estate_contracts_adjustment"
+            action="act_rent_survey_calculation"
+            sequence="70"
+            id="menu_rent_survey_calculation"/>
+
+        <record model="ir.action.wizard" id="wizard_rent_survey_import">
+            <field name="name">Import Rent Survey Data</field>
+            <field name="wiz_name">real_estate.rent_survey.import</field>
+            <field name="model">real_estate.rent_survey.version</field>
+        </record>
+        <record model="ir.action.wizard" id="wizard_rent_survey_new_version">
+            <field name="name">New Rent Survey Version</field>
+            <field name="wiz_name">real_estate.rent_survey.new_version</field>
+            <field name="model">real_estate.rent_survey.version</field>
+        </record>
+        <record model="ir.action.wizard" id="wizard_rent_survey_copy">
+            <field name="name">Copy from Rental Unit</field>
+            <field name="wiz_name">real_estate.rent_survey.copy</field>
+            <field name="model">real_estate.base_object</field>
+        </record>
+        <record model="ir.action.wizard" id="wizard_rent_survey_matrix_export">
+            <field name="name">Export Rent Survey Matrix</field>
+            <field name="wiz_name">real_estate.rent_survey.matrix.export</field>
+            <field name="model">real_estate.base_object</field>
+        </record>
+        <record model="ir.action.wizard" id="wizard_rent_survey_matrix_import">
+            <field name="name">Import Rent Survey Matrix</field>
+            <field name="wiz_name">real_estate.rent_survey.matrix.import</field>
+            <field name="model">real_estate.base_object</field>
+        </record>
+        <record model="ir.action.wizard" id="wizard_rent_survey_features">
+            <field name="name">Assign Rent Survey Features</field>
+            <field name="wiz_name">real_estate.rent_survey.features</field>
+            <field name="model">real_estate.base_object</field>
+        </record>
+        <record model="ir.model.button" id="rent_survey_version_check_button">
+            <field name="model">real_estate.rent_survey.version</field>
+            <field name="name">check</field>
+            <field name="string">Check</field>
+            <field name="help">Check the consistency of the version (classes per cell, values, overlapping area ranges).</field>
+        </record>
+        <record model="ir.model.button" id="rent_survey_version_import_data_button">
+            <field name="model">real_estate.rent_survey.version</field>
+            <field name="name">import_data</field>
+            <field name="string">Import</field>
+            <field name="help">Import table cells or features from a CSV file.</field>
+        </record>
+        <record model="ir.model.button" id="rent_survey_version_new_version_button">
+            <field name="model">real_estate.rent_survey.version</field>
+            <field name="name">new_version</field>
+            <field name="string">New Version</field>
+            <field name="help">Copy the version with all data (codes kept) for a new validity.</field>
+        </record>
+        <record model="ir.model.button" id="base_object_rent_survey_features_button">
+            <field name="model">real_estate.base_object</field>
+            <field name="name">rent_survey_features</field>
+            <field name="string">Assign Features</field>
+            <field name="help">Checklist of the rent survey features of this level.</field>
+        </record>
+        <record model="ir.model.button" id="base_object_rent_survey_copy_button">
+            <field name="model">real_estate.base_object</field>
+            <field name="name">rent_survey_copy</field>
+            <field name="string">Copy from Rental Unit</field>
+            <field name="help">Take over the classes and features of another rental unit of the property.</field>
+        </record>
+        <record model="ir.model.button" id="base_object_rent_survey_copy_building_button">
+            <field name="model">real_estate.base_object</field>
+            <field name="name">rent_survey_copy_building</field>
+            <field name="string">Copy from Building</field>
+            <field name="help">Take over the classes and features of another building of the property.</field>
+        </record>
+        <record model="ir.model.button" id="base_object_rent_survey_matrix_export_button">
+            <field name="model">real_estate.base_object</field>
+            <field name="name">rent_survey_matrix_export</field>
+            <field name="string">Export Matrix</field>
+            <field name="help">CSV file with one row per apartment resp. building and one column per classification feature and feature - to change the assignments externally.</field>
+        </record>
+        <record model="ir.model.button" id="base_object_rent_survey_matrix_import_button">
+            <field name="model">real_estate.base_object</field>
+            <field name="name">rent_survey_matrix_import</field>
+            <field name="string">Import Matrix</field>
+            <field name="help">Take over a changed matrix: missing assignments are created, removed ones deleted resp. ended - with preview.</field>
+        </record>
+        <record model="ir.model.button" id="base_object_rent_survey_calculate_button">
+            <field name="model">real_estate.base_object</field>
+            <field name="name">rent_survey_calculate</field>
+            <field name="string">Calculate Comparative Rent</field>
+            <field name="help">Calculate the local comparative rent of the rental unit as of today.</field>
+        </record>
+        <record model="ir.model.button" id="rent_survey_calculation_calculate_button">
+            <field name="model">real_estate.rent_survey.calculation</field>
+            <field name="name">calculate</field>
+            <field name="string">Calculate</field>
+        </record>
+        <record model="ir.model.button" id="rent_survey_calculation_accept_button">
+            <field name="model">real_estate.rent_survey.calculation</field>
+            <field name="name">accept</field>
+            <field name="string">Accept</field>
+            <field name="help">Accept the calculation (mandatory step) - a reason is required with warnings or a different rent per m².</field>
+        </record>
+        <record model="ir.model.button" id="rent_survey_calculation_reject_button">
+            <field name="model">real_estate.rent_survey.calculation</field>
+            <field name="name">reject</field>
+            <field name="string">Reject</field>
+        </record>
+        <record model="ir.model.button" id="rent_survey_calculation_recalculate_button">
+            <field name="model">real_estate.rent_survey.calculation</field>
+            <field name="name">recalculate</field>
+            <field name="string">Recalculate</field>
+            <field name="help">Calculate again with the current data - in place while not accepted or rejected, else as a new calculation.</field>
+        </record>
+        <record model="ir.rule.group" id="rule_group_rent_survey_companies">
+            <field name="name">User in companies</field>
+            <field name="model">real_estate.rent_survey</field>
+            <field name="global_p" eval="True"/>
+        </record>
+        <record model="ir.rule" id="rule_rent_survey_companies">
+            <field name="domain" eval="[('company', 'in', Eval('companies', []))]" pyson="1"/>
+            <field name="rule_group" ref="rule_group_rent_survey_companies"/>
+        </record>
+        <record model="ir.rule.group" id="rule_group_rent_survey_calculation_companies">
+            <field name="name">User in companies</field>
+            <field name="model">real_estate.rent_survey.calculation</field>
+            <field name="global_p" eval="True"/>
+        </record>
+        <record model="ir.rule" id="rule_rent_survey_calculation_companies">
+            <field name="domain" eval="[('company', 'in', Eval('companies', []))]" pyson="1"/>
+            <field name="rule_group" ref="rule_group_rent_survey_calculation_companies"/>
+        </record>
+        <!-- Customizing: administration; read for object, contract and billing -->
+        <record model="ir.model.access" id="access_rent_survey_admin">
+            <field name="model">real_estate.rent_survey</field>
+            <field name="group" ref="group_real_estate_admin"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+        <record model="ir.model.access" id="access_rent_survey_object">
+            <field name="model">real_estate.rent_survey</field>
+            <field name="group" ref="group_real_estate_object"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_rent_survey_contract">
+            <field name="model">real_estate.rent_survey</field>
+            <field name="group" ref="group_real_estate_contract"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_rent_survey_billing">
+            <field name="model">real_estate.rent_survey</field>
+            <field name="group" ref="group_real_estate_billing"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_rent_survey_default">
+            <field name="model">real_estate.rent_survey</field>
+            <field name="perm_read" eval="False"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_rent_survey_version_admin">
+            <field name="model">real_estate.rent_survey.version</field>
+            <field name="group" ref="group_real_estate_admin"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+        <record model="ir.model.access" id="access_rent_survey_version_object">
+            <field name="model">real_estate.rent_survey.version</field>
+            <field name="group" ref="group_real_estate_object"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_rent_survey_version_contract">
+            <field name="model">real_estate.rent_survey.version</field>
+            <field name="group" ref="group_real_estate_contract"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_rent_survey_version_billing">
+            <field name="model">real_estate.rent_survey.version</field>
+            <field name="group" ref="group_real_estate_billing"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_rent_survey_version_default">
+            <field name="model">real_estate.rent_survey.version</field>
+            <field name="perm_read" eval="False"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_rent_survey_dimension_admin">
+            <field name="model">real_estate.rent_survey.dimension</field>
+            <field name="group" ref="group_real_estate_admin"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+        <record model="ir.model.access" id="access_rent_survey_dimension_object">
+            <field name="model">real_estate.rent_survey.dimension</field>
+            <field name="group" ref="group_real_estate_object"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_rent_survey_dimension_contract">
+            <field name="model">real_estate.rent_survey.dimension</field>
+            <field name="group" ref="group_real_estate_contract"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_rent_survey_dimension_billing">
+            <field name="model">real_estate.rent_survey.dimension</field>
+            <field name="group" ref="group_real_estate_billing"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_rent_survey_dimension_default">
+            <field name="model">real_estate.rent_survey.dimension</field>
+            <field name="perm_read" eval="False"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_rent_survey_class_admin">
+            <field name="model">real_estate.rent_survey.dimension.class</field>
+            <field name="group" ref="group_real_estate_admin"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+        <record model="ir.model.access" id="access_rent_survey_class_object">
+            <field name="model">real_estate.rent_survey.dimension.class</field>
+            <field name="group" ref="group_real_estate_object"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_rent_survey_class_contract">
+            <field name="model">real_estate.rent_survey.dimension.class</field>
+            <field name="group" ref="group_real_estate_contract"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_rent_survey_class_billing">
+            <field name="model">real_estate.rent_survey.dimension.class</field>
+            <field name="group" ref="group_real_estate_billing"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_rent_survey_class_default">
+            <field name="model">real_estate.rent_survey.dimension.class</field>
+            <field name="perm_read" eval="False"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_rent_survey_cell_admin">
+            <field name="model">real_estate.rent_survey.cell</field>
+            <field name="group" ref="group_real_estate_admin"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+        <record model="ir.model.access" id="access_rent_survey_cell_object">
+            <field name="model">real_estate.rent_survey.cell</field>
+            <field name="group" ref="group_real_estate_object"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_rent_survey_cell_contract">
+            <field name="model">real_estate.rent_survey.cell</field>
+            <field name="group" ref="group_real_estate_contract"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_rent_survey_cell_billing">
+            <field name="model">real_estate.rent_survey.cell</field>
+            <field name="group" ref="group_real_estate_billing"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_rent_survey_cell_default">
+            <field name="model">real_estate.rent_survey.cell</field>
+            <field name="perm_read" eval="False"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_rent_survey_group_admin">
+            <field name="model">real_estate.rent_survey.group</field>
+            <field name="group" ref="group_real_estate_admin"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+        <record model="ir.model.access" id="access_rent_survey_group_object">
+            <field name="model">real_estate.rent_survey.group</field>
+            <field name="group" ref="group_real_estate_object"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_rent_survey_group_contract">
+            <field name="model">real_estate.rent_survey.group</field>
+            <field name="group" ref="group_real_estate_contract"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_rent_survey_group_billing">
+            <field name="model">real_estate.rent_survey.group</field>
+            <field name="group" ref="group_real_estate_billing"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_rent_survey_group_default">
+            <field name="model">real_estate.rent_survey.group</field>
+            <field name="perm_read" eval="False"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_rent_survey_feature_admin">
+            <field name="model">real_estate.rent_survey.feature</field>
+            <field name="group" ref="group_real_estate_admin"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+        <record model="ir.model.access" id="access_rent_survey_feature_object">
+            <field name="model">real_estate.rent_survey.feature</field>
+            <field name="group" ref="group_real_estate_object"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_rent_survey_feature_contract">
+            <field name="model">real_estate.rent_survey.feature</field>
+            <field name="group" ref="group_real_estate_contract"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_rent_survey_feature_billing">
+            <field name="model">real_estate.rent_survey.feature</field>
+            <field name="group" ref="group_real_estate_billing"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_rent_survey_feature_default">
+            <field name="model">real_estate.rent_survey.feature</field>
+            <field name="perm_read" eval="False"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <!-- Assignments on the objects: object group -->
+        <record model="ir.model.access" id="access_rent_survey_value_admin">
+            <field name="model">real_estate.base_object.rent_survey_value</field>
+            <field name="group" ref="group_real_estate_admin"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+        <record model="ir.model.access" id="access_rent_survey_value_object">
+            <field name="model">real_estate.base_object.rent_survey_value</field>
+            <field name="group" ref="group_real_estate_object"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+        <record model="ir.model.access" id="access_rent_survey_value_contract">
+            <field name="model">real_estate.base_object.rent_survey_value</field>
+            <field name="group" ref="group_real_estate_contract"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_rent_survey_value_billing">
+            <field name="model">real_estate.base_object.rent_survey_value</field>
+            <field name="group" ref="group_real_estate_billing"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_rent_survey_value_default">
+            <field name="model">real_estate.base_object.rent_survey_value</field>
+            <field name="perm_read" eval="False"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <!-- Calculations: contract group calculates and accepts; accepted ones
+             are never deleted (check in the model) -->
+        <record model="ir.model.access" id="access_rent_survey_calculation_admin">
+            <field name="model">real_estate.rent_survey.calculation</field>
+            <field name="group" ref="group_real_estate_admin"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+        <record model="ir.model.access" id="access_rent_survey_calculation_contract">
+            <field name="model">real_estate.rent_survey.calculation</field>
+            <field name="group" ref="group_real_estate_contract"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+        <record model="ir.model.access" id="access_rent_survey_calculation_object">
+            <field name="model">real_estate.rent_survey.calculation</field>
+            <field name="group" ref="group_real_estate_object"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_rent_survey_calculation_billing">
+            <field name="model">real_estate.rent_survey.calculation</field>
+            <field name="group" ref="group_real_estate_billing"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_rent_survey_calculation_default">
+            <field name="model">real_estate.rent_survey.calculation</field>
+            <field name="perm_read" eval="False"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+    </data>
+</tryton>

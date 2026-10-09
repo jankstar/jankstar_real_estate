@@ -50,8 +50,7 @@ class ProcessTemplate(DeactivableMixin, ModelSQL, ModelView):
     __name__ = 'real_estate.process.template'
 
     name = fields.Char("Name", required=True, translate=True)
-    code = fields.Char("Code",
-        help="Optional technical key, e.g. move_out.")
+    code = fields.Char("Code", help="Optional technical key, e.g. move_out. Used in the process plan to select the template.")
     model = fields.Selection('get_models', "Reference Object",
         required=True)
     anchor_field = fields.Selection('get_anchor_fields', "Anchor Date",

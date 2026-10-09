@@ -713,6 +713,7 @@ class ContractRentAdjustment(Workflow, ModelSQL, ModelView):
         type, the term must belong to the contract, and a term can have
         at most one agreed procedure (graduated or index rent) - § 557a
         and § 557b BGB exclude each other."""
+        UseClass = Pool().get('real_estate.use_class')
         labels = dict(cls.fields_get(['procedure'])['procedure']['selection'])
         for record in records:
             procedure = labels.get(record.procedure, record.procedure)
@@ -735,6 +736,15 @@ class ContractRentAdjustment(Workflow, ModelSQL, ModelView):
                     'real_estate.msg_rent_adjustment_term_type',
                     procedure=procedure,
                     term_type=term.term_type.rec_name.strip()))
+            # the rental units of the term's item: their use class must
+            # allow the procedure (comparative rent: apartments only)
+            objects = (list(term.reference_item.objects)
+                if term.reference_item else [])
+            if not UseClass.allows(objects, record.procedure):
+                raise ValidationError(gettext(
+                    'real_estate.msg_rent_adjustment_use_class',
+                    procedure=procedure, term=term.rec_name.strip(),
+                    objects=', '.join(o.rec_name for o in objects) or '-'))
             # A locked graduated rent term cannot get another adjustment
             # (§ 557a para. 2 BGB) - checked for new/draft adjustments
             if record.state == 'draft' and term.graduated_locked:

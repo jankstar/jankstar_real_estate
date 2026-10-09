@@ -1,0 +1,57 @@
+<?xml version="1.0"?>
+<form col="4">
+    <label name="base_object"/><field name="base_object"/>
+    <label name="key_date"/><field name="key_date"/>
+    <label name="version"/><field name="version"/>
+    <label name="state"/><field name="state"/>
+    <notebook colspan="4">
+        <page string="Result" id="page_result" col="4">
+            <label name="cell"/><field name="cell"/>
+            <label name="area"/><field name="area"/>
+            <label name="lower"/><field name="lower"/>
+            <label name="mean"/><field name="mean"/>
+            <label name="upper"/><field name="upper"/>
+            <label name="net_votes"/><field name="net_votes"/>
+            <label name="rent_per_sqm"/><field name="rent_per_sqm"/>
+            <label name="comparative_rent"/><field name="comparative_rent"/>
+            <label name="check_state"/><field name="check_state"/>
+            <newline/>
+            <separator name="check_message" colspan="4"/>
+            <field name="check_message" colspan="4"/>
+            <separator name="protocol" colspan="4"/>
+            <field name="protocol" colspan="4"/>
+        </page>
+        <page string="Acceptance" id="page_acceptance" col="4">
+            <label name="accepted_rent_per_sqm"/>
+            <field name="accepted_rent_per_sqm"/>
+            <newline/>
+            <label name="accepted_by"/><field name="accepted_by"/>
+            <label name="accepted_date"/><field name="accepted_date"/>
+            <separator name="deviation_reason" colspan="4"/>
+            <field name="deviation_reason" colspan="4"/>
+        </page>
+        <page string="Inputs" id="page_inputs" col="4">
+            <label name="calculated_at"/><field name="calculated_at"/>
+            <newline/>
+            <separator name="group_results" colspan="4"/>
+            <field name="group_results" colspan="4"/>
+            <separator name="inputs_json" colspan="4"/>
+            <field name="inputs_json" colspan="4"/>
+        </page>
+        <page string="References" id="page_references" col="4">
+            <label name="property"/><field name="property"/>
+            <label name="building"/><field name="building"/>
+            <label name="contract"/><field name="contract"/>
+            <label name="term"/><field name="term"/>
+            <label name="rent_adjustment"/><field name="rent_adjustment"/>
+            <label name="company"/><field name="company"/>
+        </page>
+    </notebook>
+    <group id="buttons" colspan="4" col="-1">
+        <button name="calculate" icon="tryton-refresh"/>
+        <button name="reject" icon="tryton-cancel"/>
+        <button name="recalculate" icon="tryton-copy"/>
+        <button name="accept" icon="tryton-ok"/>
+    </group>
+    <field name="currency" invisible="1"/>
+</form>

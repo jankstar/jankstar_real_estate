@@ -1,0 +1,46 @@
+<?xml version="1.0"?>
+<form col="4">
+    <label name="survey"/><field name="survey"/>
+    <label name="name"/><field name="name"/>
+    <label name="valid_from"/><field name="valid_from"/>
+    <label name="valid_to"/><field name="valid_to"/>
+    <notebook colspan="4">
+        <page string="General" id="page_general" col="4">
+            <label name="kind"/><field name="kind"/>
+            <label name="method"/><field name="method"/>
+            <label name="survey_date"/><field name="survey_date"/>
+            <label name="locked"/><field name="locked"/>
+            <label name="area_measurement_type"/>
+            <field name="area_measurement_type"/>
+            <label name="round_digits"/><field name="round_digits"/>
+            <label name="group_percent"/><field name="group_percent"/>
+            <label name="group_netting"/><field name="group_netting"/>
+            <label name="spread_lower_percent"/>
+            <field name="spread_lower_percent"/>
+            <label name="spread_upper_percent"/>
+            <field name="spread_upper_percent"/>
+            <field name="measurement_types" colspan="4"/>
+            <label name="source_document"/>
+            <field name="source_document" colspan="3"/>
+            <separator name="rent_definition" colspan="4"/>
+            <field name="rent_definition" colspan="4"/>
+        </page>
+        <page name="dimensions" col="1">
+            <field name="dimensions"/>
+        </page>
+        <page name="cells" col="1">
+            <field name="cells"/>
+        </page>
+        <page name="groups" col="1">
+            <field name="groups"/>
+        </page>
+        <page name="check_result" col="1">
+            <field name="check_result"/>
+        </page>
+    </notebook>
+    <group id="buttons" colspan="4" col="-1">
+        <button name="check" icon="tryton-ok"/>
+        <button name="import_data" icon="tryton-import"/>
+        <button name="new_version" icon="tryton-copy"/>
+    </group>
+</form>

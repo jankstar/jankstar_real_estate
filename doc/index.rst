@@ -29,6 +29,13 @@ Structure
   checks and cap rule, declaration letter, receipt and execution;
   comparative rent, modernisation and operating cost procedures as
   headers so far.
+- **Rent survey** — rent surveys (*Mietspiegel*, table or regression
+  method) with versions, classification features and classes, table
+  cells, feature groups and features, CSV import and consistency check;
+  classes and features on property, building and rental unit (derived
+  from the year of construction or measurements, automatic energy
+  features); direct calculation of the local comparative rent (§ 558
+  BGB) with protocol, checks and mandatory acceptance - no AI.
 - **Operating cost settlement** — billing units and settlement units
   allocate supplier invoice costs to contracts (by measurement,
   consumption, external billing, …), including CO2 cost allocation
@@ -74,7 +81,8 @@ Demo data: the scripts under ``tests/`` create properties with
 buildings, units, meters, property administrator and caretaker, smoke
 detectors and the inspection plans (annual walkthrough, smoke detector
 check), contracts with graduated and index rents, billing units,
-supplier invoices and payments - see *Demo data scripts*.
+supplier invoices and payments, the complete Berlin rent survey 2026
+with a comparative rent calculation - see *Demo data scripts*.
 
 Full documentation is split into per-topic pages under ``doc/`` — see
 *Contents* below and *Source Layout* for the file-to-model mapping.
@@ -103,6 +111,7 @@ Contents
   - `Property Management <https://github.com/jankstar/jankstar_real_estate/blob/main/doc/property_management.rst>`_
   - `Contract Management <https://github.com/jankstar/jankstar_real_estate/blob/main/doc/contract_management.rst>`_
   - `Rent Adjustments <https://github.com/jankstar/jankstar_real_estate/blob/main/doc/rent_adjustment.rst>`_
+  - `Rent Survey (Comparative Rent) <https://github.com/jankstar/jankstar_real_estate/blob/main/doc/rent_survey.rst>`_
   - `Operating Cost Settlement <https://github.com/jankstar/jankstar_real_estate/blob/main/doc/operating_cost_settlement.rst>`_
   - `CO2 Cost Allocation (CO2KostAufG) <https://github.com/jankstar/jankstar_real_estate/blob/main/doc/co2_kostaufg.rst>`_
   - `BVED External Billing Interface <https://github.com/jankstar/jankstar_real_estate/blob/main/doc/bved.rst>`_
@@ -133,6 +142,7 @@ Contents
    property_management
    contract_management
    rent_adjustment
+   rent_survey
    operating_cost_settlement
    co2_kostaufg
    bved

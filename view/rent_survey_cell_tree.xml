@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<tree>
+    <field name="code"/>
+    <field name="classes_text" expand="1"/>
+    <field name="area_min"/>
+    <field name="area_max"/>
+    <field name="lower"/>
+    <field name="mean"/>
+    <field name="upper"/>
+    <field name="qualified"/>
+    <field name="note" optional="1"/>
+</tree>

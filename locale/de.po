@@ -20238,3 +20238,1737 @@ msgstr "Weitere Informationen"
 msgctxt "model:ir.message,text:msg_process_step_not_required"
 msgid "Not required (process done)."
 msgstr "Nicht erforderlich (Prozess abgeschlossen)."
+
+msgctxt "field:real_estate.base_object,rent_survey:"
+msgid "Rent Survey"
+msgstr "Mietspiegel"
+
+msgctxt "field:real_estate.base_object,rent_survey_active:"
+msgid "Rent Survey Active"
+msgstr "Mietspiegel aktiv"
+
+msgctxt "field:real_estate.base_object,rent_survey_calculations:"
+msgid "Comparative Rent Calculations"
+msgstr "Mietspiegel-Berechnungen"
+
+msgctxt "field:real_estate.base_object,rent_survey_data:"
+msgid "Rent Survey Data"
+msgstr "Daten zum Mietspiegel"
+
+msgctxt "field:real_estate.base_object,rent_survey_values:"
+msgid "Rent Survey Classes and Features"
+msgstr "Klassen und Merkmale zum Mietspiegel"
+
+msgctxt "field:real_estate.base_object.rent_survey_value,base_object:"
+msgid "Object"
+msgstr "Objekt"
+
+msgctxt "field:real_estate.base_object.rent_survey_value,class_code:"
+msgid "Class Code"
+msgstr "Klassen-Code"
+
+msgctxt "field:real_estate.base_object.rent_survey_value,dimension_code:"
+msgid "Classification Feature Code"
+msgstr "Code Klassifizierungsmerkmal"
+
+msgctxt "field:real_estate.base_object.rent_survey_value,evidence:"
+msgid "Evidence"
+msgstr "Nachweis"
+
+msgctxt "field:real_estate.base_object.rent_survey_value,feature_code:"
+msgid "Feature Code"
+msgstr "Merkmal-Code"
+
+msgctxt "field:real_estate.base_object.rent_survey_value,kind:"
+msgid "Kind"
+msgstr "Art"
+
+msgctxt "field:real_estate.base_object.rent_survey_value,level:"
+msgid "Level"
+msgstr "Ebene"
+
+msgctxt "field:real_estate.base_object.rent_survey_value,name:"
+msgid "Name"
+msgstr "Name"
+
+msgctxt "field:real_estate.base_object.rent_survey_value,survey_class:"
+msgid "Class"
+msgstr "Klasse"
+
+msgctxt "field:real_estate.base_object.rent_survey_value,survey_feature:"
+msgid "Feature"
+msgstr "Merkmal"
+
+msgctxt "field:real_estate.base_object.rent_survey_value,valid_from:"
+msgid "Valid from"
+msgstr "Gültig ab"
+
+msgctxt "field:real_estate.base_object.rent_survey_value,valid_to:"
+msgid "Valid to"
+msgstr "Gültig bis"
+
+msgctxt "field:real_estate.base_object.rent_survey_value,version:"
+msgid "Version"
+msgstr "Version"
+
+msgctxt "field:real_estate.rent_survey,company:"
+msgid "Company"
+msgstr "Unternehmen"
+
+msgctxt "field:real_estate.rent_survey,current_version:"
+msgid "Current Version"
+msgstr "Aktuelle Version"
+
+msgctxt "field:real_estate.rent_survey,municipality:"
+msgid "Municipality"
+msgstr "Geltungsbereich"
+
+msgctxt "field:real_estate.rent_survey,name:"
+msgid "Name"
+msgstr "Name"
+
+msgctxt "field:real_estate.rent_survey,versions:"
+msgid "Versions"
+msgstr "Versionen"
+
+msgctxt "field:real_estate.rent_survey.calculation,accepted_by:"
+msgid "Accepted by"
+msgstr "Freigegeben von"
+
+msgctxt "field:real_estate.rent_survey.calculation,accepted_date:"
+msgid "Accepted on"
+msgstr "Freigegeben am"
+
+msgctxt "field:real_estate.rent_survey.calculation,accepted_rent_per_sqm:"
+msgid "Accepted Rent per m²"
+msgstr "Freigegebene Miete je m²"
+
+msgctxt "field:real_estate.rent_survey.calculation,area:"
+msgid "Living Space"
+msgstr "Wohnfläche"
+
+msgctxt "field:real_estate.rent_survey.calculation,base_object:"
+msgid "Rental Unit"
+msgstr "Mietobjekt"
+
+msgctxt "field:real_estate.rent_survey.calculation,building:"
+msgid "Building"
+msgstr "Gebäude"
+
+msgctxt "field:real_estate.rent_survey.calculation,calculated_at:"
+msgid "Calculated at"
+msgstr "Berechnet am"
+
+msgctxt "field:real_estate.rent_survey.calculation,cell:"
+msgid "Table Cell"
+msgstr "Tabellenfeld"
+
+msgctxt "field:real_estate.rent_survey.calculation,check_message:"
+msgid "Check Messages"
+msgstr "Prüfmeldungen"
+
+msgctxt "field:real_estate.rent_survey.calculation,check_state:"
+msgid "Check"
+msgstr "Prüfen"
+
+msgctxt "field:real_estate.rent_survey.calculation,company:"
+msgid "Company"
+msgstr "Unternehmen"
+
+msgctxt "field:real_estate.rent_survey.calculation,comparative_rent:"
+msgid "Comparative Rent"
+msgstr "Vergleichsmiete"
+
+msgctxt "field:real_estate.rent_survey.calculation,contract:"
+msgid "Contract"
+msgstr "Vertrag"
+
+msgctxt "field:real_estate.rent_survey.calculation,currency:"
+msgid "Currency"
+msgstr "Währung"
+
+msgctxt "field:real_estate.rent_survey.calculation,deviation_reason:"
+msgid "Reason"
+msgstr "Begründung"
+
+msgctxt "field:real_estate.rent_survey.calculation,group_results:"
+msgid "Group Results"
+msgstr "Gruppenergebnisse"
+
+msgctxt "field:real_estate.rent_survey.calculation,inputs_json:"
+msgid "Inputs"
+msgstr "Eingaben"
+
+msgctxt "field:real_estate.rent_survey.calculation,key_date:"
+msgid "Key Date"
+msgstr "Stichtag"
+
+msgctxt "field:real_estate.rent_survey.calculation,lower:"
+msgid "Lower Value"
+msgstr "Unterwert"
+
+msgctxt "field:real_estate.rent_survey.calculation,mean:"
+msgid "Mean Value"
+msgstr "Mittelwert"
+
+msgctxt "field:real_estate.rent_survey.calculation,net_votes:"
+msgid "Net Groups"
+msgstr "Saldo Gruppen"
+
+msgctxt "field:real_estate.rent_survey.calculation,property:"
+msgid "Property"
+msgstr "Wirtschaftseinheit"
+
+msgctxt "field:real_estate.rent_survey.calculation,protocol:"
+msgid "Protocol"
+msgstr "Protokoll"
+
+msgctxt "field:real_estate.rent_survey.calculation,rent_adjustment:"
+msgid "Rent Adjustment"
+msgstr "Mietanpassung"
+
+msgctxt "field:real_estate.rent_survey.calculation,rent_per_sqm:"
+msgid "Rent per m²"
+msgstr "Miete je m²"
+
+msgctxt "field:real_estate.rent_survey.calculation,state:"
+msgid "State"
+msgstr "Status"
+
+msgctxt "field:real_estate.rent_survey.calculation,term:"
+msgid "Term"
+msgstr "Kondition"
+
+msgctxt "field:real_estate.rent_survey.calculation,upper:"
+msgid "Upper Value"
+msgstr "Oberwert"
+
+msgctxt "field:real_estate.rent_survey.calculation,version:"
+msgid "Version"
+msgstr "Version"
+
+msgctxt "field:real_estate.rent_survey.cell,area_max:"
+msgid "Area to (excl.)"
+msgstr "Fläche bis unter"
+
+msgctxt "field:real_estate.rent_survey.cell,area_min:"
+msgid "Area from"
+msgstr "Fläche ab"
+
+msgctxt "field:real_estate.rent_survey.cell,classes:"
+msgid "Classes"
+msgstr "Klassen"
+
+msgctxt "field:real_estate.rent_survey.cell,classes_text:"
+msgid "Classes"
+msgstr "Klassen"
+
+msgctxt "field:real_estate.rent_survey.cell,code:"
+msgid "Code"
+msgstr "Code"
+
+msgctxt "field:real_estate.rent_survey.cell,lower:"
+msgid "Lower Value"
+msgstr "Unterwert"
+
+msgctxt "field:real_estate.rent_survey.cell,mean:"
+msgid "Mean Value"
+msgstr "Mittelwert"
+
+msgctxt "field:real_estate.rent_survey.cell,note:"
+msgid "Note"
+msgstr "Hinweis"
+
+msgctxt "field:real_estate.rent_survey.cell,qualified:"
+msgid "Qualified"
+msgstr "Qualifiziert"
+
+msgctxt "field:real_estate.rent_survey.cell,upper:"
+msgid "Upper Value"
+msgstr "Oberwert"
+
+msgctxt "field:real_estate.rent_survey.cell,version:"
+msgid "Version"
+msgstr "Version"
+
+msgctxt "field:real_estate.rent_survey.cell-class,cell:"
+msgid "Cell"
+msgstr "Tabellenfeld"
+
+msgctxt "field:real_estate.rent_survey.cell-class,class_:"
+msgid "Class"
+msgstr "Klasse"
+
+msgctxt "field:real_estate.rent_survey.dimension,classes:"
+msgid "Classes"
+msgstr "Klassen"
+
+msgctxt "field:real_estate.rent_survey.dimension,code:"
+msgid "Code"
+msgstr "Code"
+
+msgctxt "field:real_estate.rent_survey.dimension,level:"
+msgid "Level"
+msgstr "Ebene"
+
+msgctxt "field:real_estate.rent_survey.dimension,measurement_type:"
+msgid "Measurement Type"
+msgstr "Bemessungsart"
+
+msgctxt "field:real_estate.rent_survey.dimension,name:"
+msgid "Name"
+msgstr "Name"
+
+msgctxt "field:real_estate.rent_survey.dimension,source:"
+msgid "Source"
+msgstr "Herkunft"
+
+msgctxt "field:real_estate.rent_survey.dimension,version:"
+msgid "Version"
+msgstr "Version"
+
+msgctxt "field:real_estate.rent_survey.dimension.class,code:"
+msgid "Code"
+msgstr "Code"
+
+msgctxt "field:real_estate.rent_survey.dimension.class,dimension:"
+msgid "Classification Feature"
+msgstr "Klassifizierungsmerkmal"
+
+msgctxt "field:real_estate.rent_survey.dimension.class,manual_only:"
+msgid "Manual Only"
+msgstr "Nur manuell"
+
+msgctxt "field:real_estate.rent_survey.dimension.class,name:"
+msgid "Name"
+msgstr "Name"
+
+msgctxt "field:real_estate.rent_survey.dimension.class,value_max:"
+msgid "To Value (excl.)"
+msgstr "Bis-Wert (ausschl.)"
+
+msgctxt "field:real_estate.rent_survey.dimension.class,value_min:"
+msgid "From Value"
+msgstr "Von-Wert"
+
+msgctxt "field:real_estate.rent_survey.dimension.class,version:"
+msgid "Version"
+msgstr "Version"
+
+msgctxt "field:real_estate.rent_survey.feature,applies_to_classes:"
+msgid "Only for Classes"
+msgstr "Nur bei Klassen"
+
+msgctxt "field:real_estate.rent_survey.feature,auto_max:"
+msgid "Automatic to (excl.)"
+msgstr "Automatisch bis unter"
+
+msgctxt "field:real_estate.rent_survey.feature,auto_measurement_type:"
+msgid "Automatic by Measurement"
+msgstr "Automatisch nach Bemessung"
+
+msgctxt "field:real_estate.rent_survey.feature,auto_min:"
+msgid "Automatic from"
+msgstr "Automatisch ab"
+
+msgctxt "field:real_estate.rent_survey.feature,code:"
+msgid "Code"
+msgstr "Code"
+
+msgctxt "field:real_estate.rent_survey.feature,description:"
+msgid "Description"
+msgstr "Beschreibung"
+
+msgctxt "field:real_estate.rent_survey.feature,direction:"
+msgid "Direction"
+msgstr "Richtung"
+
+msgctxt "field:real_estate.rent_survey.feature,effect:"
+msgid "Effect"
+msgstr "Wirkung"
+
+msgctxt "field:real_estate.rent_survey.feature,exclusive_with:"
+msgid "Excludes"
+msgstr "Schließt aus"
+
+msgctxt "field:real_estate.rent_survey.feature,group:"
+msgid "Group"
+msgstr "Gruppe"
+
+msgctxt "field:real_estate.rent_survey.feature,level:"
+msgid "Level"
+msgstr "Ebene"
+
+msgctxt "field:real_estate.rent_survey.feature,name:"
+msgid "Name"
+msgstr "Name"
+
+msgctxt "field:real_estate.rent_survey.feature,value:"
+msgid "Value"
+msgstr "Wert"
+
+msgctxt "field:real_estate.rent_survey.feature,version:"
+msgid "Version"
+msgstr "Version"
+
+msgctxt "field:real_estate.rent_survey.feature-class,class_:"
+msgid "Class"
+msgstr "Klasse"
+
+msgctxt "field:real_estate.rent_survey.feature-class,feature:"
+msgid "Feature"
+msgstr "Merkmal"
+
+msgctxt "field:real_estate.rent_survey.feature-feature,feature:"
+msgid "Feature"
+msgstr "Merkmal"
+
+msgctxt "field:real_estate.rent_survey.feature-feature,other:"
+msgid "Excluded Feature"
+msgstr "Ausgeschlossenes Merkmal"
+
+msgctxt "field:real_estate.rent_survey.features.start,base_object:"
+msgid "Object"
+msgstr "Objekt"
+
+msgctxt "field:real_estate.rent_survey.features.start,features:"
+msgid "Features"
+msgstr "Merkmale"
+
+msgctxt "field:real_estate.rent_survey.features.start,key_date:"
+msgid "Key Date"
+msgstr "Stichtag"
+
+msgctxt "field:real_estate.rent_survey.features.start,level:"
+msgid "Level"
+msgstr "Ebene"
+
+msgctxt "field:real_estate.rent_survey.features.start,version:"
+msgid "Version"
+msgstr "Version"
+
+msgctxt "field:real_estate.rent_survey.group,code:"
+msgid "Code"
+msgstr "Code"
+
+msgctxt "field:real_estate.rent_survey.group,features:"
+msgid "Features"
+msgstr "Merkmale"
+
+msgctxt "field:real_estate.rent_survey.group,name:"
+msgid "Name"
+msgstr "Name"
+
+msgctxt "field:real_estate.rent_survey.group,rule:"
+msgid "Rule"
+msgstr "Regel"
+
+msgctxt "field:real_estate.rent_survey.group,version:"
+msgid "Version"
+msgstr "Version"
+
+msgctxt "field:real_estate.rent_survey.import.preview,preview:"
+msgid "Preview"
+msgstr "Vorschau"
+
+msgctxt "field:real_estate.rent_survey.import.preview,problems:"
+msgid "Problems"
+msgstr "Probleme"
+
+msgctxt "field:real_estate.rent_survey.import.start,file_:"
+msgid "CSV File"
+msgstr "CSV-Datei"
+
+msgctxt "field:real_estate.rent_survey.import.start,kind:"
+msgid "Data"
+msgstr "Daten"
+
+msgctxt "field:real_estate.rent_survey.import.start,replace:"
+msgid "Replace Existing"
+msgstr "Vorhandene ersetzen"
+
+msgctxt "field:real_estate.rent_survey.new_version.start,name:"
+msgid "Name"
+msgstr "Name"
+
+msgctxt "field:real_estate.rent_survey.new_version.start,survey_date:"
+msgid "Survey Date"
+msgstr "Erhebungsstichtag"
+
+msgctxt "field:real_estate.rent_survey.new_version.start,valid_from:"
+msgid "Valid from"
+msgstr "Gültig ab"
+
+msgctxt "field:real_estate.rent_survey.version,area_measurement_type:"
+msgid "Living Space Measurement"
+msgstr "Bemessung Wohnfläche"
+
+msgctxt "field:real_estate.rent_survey.version,cells:"
+msgid "Table Cells"
+msgstr "Tabellenfelder"
+
+msgctxt "field:real_estate.rent_survey.version,check_result:"
+msgid "Check Result"
+msgstr "Prüfergebnis"
+
+msgctxt "field:real_estate.rent_survey.version,dimensions:"
+msgid "Classification Features"
+msgstr "Klassifizierungsmerkmale"
+
+msgctxt "field:real_estate.rent_survey.version,group_netting:"
+msgid "Net Groups"
+msgstr "Gruppen saldieren"
+
+msgctxt "field:real_estate.rent_survey.version,group_percent:"
+msgid "Group Effect (%)"
+msgstr "Gruppenwirkung (%)"
+
+msgctxt "field:real_estate.rent_survey.version,groups:"
+msgid "Feature Groups"
+msgstr "Merkmalgruppen"
+
+msgctxt "field:real_estate.rent_survey.version,kind:"
+msgid "Kind"
+msgstr "Art"
+
+msgctxt "field:real_estate.rent_survey.version,locked:"
+msgid "Locked"
+msgstr "Gesperrt"
+
+msgctxt "field:real_estate.rent_survey.version,measurement_types:"
+msgid "Further Measurements"
+msgstr "Weitere Bemessungen"
+
+msgctxt "field:real_estate.rent_survey.version,method:"
+msgid "Method"
+msgstr "Methode"
+
+msgctxt "field:real_estate.rent_survey.version,name:"
+msgid "Name"
+msgstr "Name"
+
+msgctxt "field:real_estate.rent_survey.version,rent_definition:"
+msgid "Rent Definition"
+msgstr "Mietbegriff"
+
+msgctxt "field:real_estate.rent_survey.version,round_digits:"
+msgid "Rounding Digits"
+msgstr "Rundung (Stellen)"
+
+msgctxt "field:real_estate.rent_survey.version,source_document:"
+msgid "Source Document"
+msgstr "Amtliches Dokument"
+
+msgctxt "field:real_estate.rent_survey.version,spread_lower_percent:"
+msgid "Spread Lower (%)"
+msgstr "Streubreite unten (%)"
+
+msgctxt "field:real_estate.rent_survey.version,spread_upper_percent:"
+msgid "Spread Upper (%)"
+msgstr "Streubreite oben (%)"
+
+msgctxt "field:real_estate.rent_survey.version,survey:"
+msgid "Rent Survey"
+msgstr "Mietspiegel"
+
+msgctxt "field:real_estate.rent_survey.version,survey_date:"
+msgid "Survey Date"
+msgstr "Erhebungsstichtag"
+
+msgctxt "field:real_estate.rent_survey.version,valid_from:"
+msgid "Valid from"
+msgstr "Gültig ab"
+
+msgctxt "field:real_estate.rent_survey.version,valid_to:"
+msgid "Valid to"
+msgstr "Gültig bis"
+
+msgctxt ""
+"field:real_estate.rent_survey.version-measurement.type,measurement_type:"
+msgid "Measurement Type"
+msgstr "Bemessungsart"
+
+msgctxt "field:real_estate.rent_survey.version-measurement.type,version:"
+msgid "Version"
+msgstr "Version"
+
+msgctxt "help:real_estate.base_object,rent_survey:"
+msgid "Rent survey for the residential rental units of the property."
+msgstr "Mietspiegel für die Wohnungsmietverträge der Wirtschaftseinheit."
+
+msgctxt "help:real_estate.base_object,rent_survey_data:"
+msgid ""
+"Remarks and reasons (e.g. reference in the street directory) - shown in the "
+"protocol, not used for the calculation."
+msgstr ""
+"Bemerkungen und Begründungen (z. B. Fundstelle im Straßenverzeichnis) – "
+"werden im Protokoll gezeigt, fließen nicht in die Berechnung ein."
+
+msgctxt "help:real_estate.base_object.rent_survey_value,evidence:"
+msgid "Evidence or note, e.g. 'energy certificate 2021'."
+msgstr "Nachweis oder Notiz, z. B. „Energieausweis 2021“."
+
+msgctxt "help:real_estate.rent_survey,municipality:"
+msgid "Area of application of the rent survey."
+msgstr "Geltungsbereich des Mietspiegels."
+
+msgctxt "help:real_estate.rent_survey.calculation,deviation_reason:"
+msgid ""
+"Required for the acceptance with warnings or a different accepted rent per "
+"m²."
+msgstr ""
+"Pflicht bei Freigabe mit Warnungen oder abweichender freigegebener m²-Miete."
+
+msgctxt "help:real_estate.rent_survey.cell,area_min:"
+msgid "area_min <= living space < area_max (empty = open)."
+msgstr "Fläche ab ≤ Wohnfläche < Fläche bis (leer = offen)."
+
+msgctxt "help:real_estate.rent_survey.cell,classes:"
+msgid "Exactly one class per classification feature."
+msgstr "Genau eine Klasse je Klassifizierungsmerkmal."
+
+msgctxt "help:real_estate.rent_survey.cell,code:"
+msgid "Row resp. cell of the rent survey table."
+msgstr "Zeile bzw. Feld der Mietspiegeltabelle."
+
+msgctxt "help:real_estate.rent_survey.cell,mean:"
+msgid "Regression: base value."
+msgstr "Regression: Basiswert."
+
+msgctxt "help:real_estate.rent_survey.cell,qualified:"
+msgid "Cell within the qualified scope of the rent survey."
+msgstr "Feld im qualifizierten Anwendungsbereich des Mietspiegels."
+
+msgctxt "help:real_estate.rent_survey.dimension,level:"
+msgid ""
+"Level on which the class is normally assigned - a lower level overrides."
+msgstr ""
+"Ebene, auf der die Klasse normalerweise festgelegt wird – eine tiefere Ebene "
+"überschreibt."
+
+msgctxt "help:real_estate.rent_survey.dimension,source:"
+msgid ""
+"Manual selection, or derived from the year of construction of the building "
+"resp. a measurement (a manual assignment has priority)."
+msgstr ""
+"Manuelle Auswahl oder abgeleitet aus dem Baujahr des Gebäudes bzw. einer "
+"Bemessung (eine manuelle Zuordnung hat Vorrang)."
+
+msgctxt "help:real_estate.rent_survey.dimension.class,manual_only:"
+msgid "Assigned manually only, never derived (e.g. special classes)."
+msgstr "Nur manuell vergeben, nie abgeleitet (z. B. Sonderklassen)."
+
+msgctxt "help:real_estate.rent_survey.dimension.class,value_min:"
+msgid ""
+"Derived class: value_min <= value < value_max (empty = open), e.g. year of "
+"construction 1950 to 1965."
+msgstr ""
+"Abgeleitete Klasse: Von-Wert ≤ Wert < Bis-Wert (leer = offen), z. B. Baujahr "
+"1950 bis unter 1965."
+
+msgctxt "help:real_estate.rent_survey.feature,applies_to_classes:"
+msgid "The feature counts only with one of these classes (empty = always)."
+msgstr "Das Merkmal zählt nur bei einer dieser Klassen (leer = immer)."
+
+msgctxt "help:real_estate.rent_survey.feature,auto_measurement_type:"
+msgid ""
+"Set automatically when the measurement of the object of the level is within "
+"the range."
+msgstr ""
+"Wird automatisch gesetzt, wenn die Bemessung des Objekts der Ebene im Bereich"
+" liegt."
+
+msgctxt "help:real_estate.rent_survey.feature,code:"
+msgid "Unique per version and stable over the versions."
+msgstr "Eindeutig je Version und stabil über die Versionen."
+
+msgctxt "help:real_estate.rent_survey.feature,description:"
+msgid "Wording of the rent survey."
+msgstr "Wortlaut laut Mietspiegel."
+
+msgctxt "help:real_estate.rent_survey.feature,effect:"
+msgid ""
+"Vote: counts for the majority of the group. Percent / amount: surcharge or "
+"reduction (sign by the direction)."
+msgstr ""
+"Stimme: zählt für die Mehrheit der Gruppe. Prozent / Betrag: Zu- oder "
+"Abschlag (Vorzeichen über die Richtung)."
+
+msgctxt "help:real_estate.rent_survey.feature,level:"
+msgid "Level on which the feature is assigned."
+msgstr "Ebene, auf der das Merkmal angekreuzt wird."
+
+msgctxt "help:real_estate.rent_survey.features.start,key_date:"
+msgid ""
+"Features valid on this date are shown; removed features with a validity "
+"period end the day before."
+msgstr ""
+"Angezeigt werden die zu diesem Datum gültigen Merkmale; abgewählte Merkmale "
+"mit Zeitraum enden am Vortag."
+
+msgctxt "help:real_estate.rent_survey.group,rule:"
+msgid ""
+"Majority: the group counts +1 / 0 / -1 depending on whether positive or "
+"negative features prevail. Additive: every feature acts with its own value "
+"(regression, special surcharges and reductions)."
+msgstr ""
+"Mehrheit: Die Gruppe zählt +1 / 0 / -1, je nachdem ob wohnwerterhöhende oder "
+"-mindernde Merkmale überwiegen. Additiv: Jedes Merkmal wirkt mit seinem "
+"eigenen Wert (Regression, Sonderzu- und -abschläge)."
+
+msgctxt "help:real_estate.rent_survey.import.start,file_:"
+msgid ""
+"Separator ';', decimal comma or point, first line with 'code' resp. "
+"'group_code' is the header."
+msgstr ""
+"Trennzeichen „;“, Dezimalkomma oder -punkt; eine erste Zeile mit „code“ bzw. "
+"„group_code“ ist die Kopfzeile."
+
+msgctxt "help:real_estate.rent_survey.import.start,replace:"
+msgid ""
+"Delete the existing table cells resp. features of the version before the "
+"import."
+msgstr ""
+"Vorhandene Tabellenfelder bzw. Merkmale der Version vor dem Import löschen."
+
+msgctxt "help:real_estate.rent_survey.version,group_netting:"
+msgid "Positive and negative groups are netted against each other."
+msgstr "Plus- und Minus-Gruppen werden gegeneinander aufgerechnet."
+
+msgctxt "help:real_estate.rent_survey.version,group_percent:"
+msgid ""
+"Effect of one feature group in % of the distance from the mean to the upper "
+"resp. lower value."
+msgstr ""
+"Wirkung einer Merkmalgruppe in % des Abstands vom Mittelwert zum Ober- bzw. "
+"Unterwert."
+
+msgctxt "help:real_estate.rent_survey.version,kind:"
+msgid ""
+"Qualified rent survey: mandatory information in the rent increase request (§ "
+"558a para. 3 BGB)."
+msgstr ""
+"Qualifizierter Mietspiegel: Pflichtangaben im Mieterhöhungsverlangen (§ 558a "
+"Abs. 3 BGB)."
+
+msgctxt "help:real_estate.rent_survey.version,locked:"
+msgid ""
+"An accepted calculation uses this version: classes, table, features and rules"
+" are read-only (correction by a new version)."
+msgstr ""
+"Eine freigegebene Berechnung verwendet diese Version: Klassen, Tabelle, "
+"Merkmale und Regeln sind schreibgeschützt (Korrektur über eine neue Version)."
+
+msgctxt "help:real_estate.rent_survey.version,measurement_types:"
+msgid "Shown in the protocol (e.g. number of rooms)."
+msgstr "Werden im Protokoll gezeigt (z. B. Zimmerzahl)."
+
+msgctxt "help:real_estate.rent_survey.version,method:"
+msgid ""
+"Table: the table cell gives the range, feature groups move from the mean "
+"towards the upper or lower value. Regression: the cell gives the base value, "
+"features add percentages or amounts."
+msgstr ""
+"Tabelle: Das Tabellenfeld liefert die Spanne, Merkmalgruppen verschieben vom "
+"Mittelwert Richtung Ober- oder Unterwert. Regression: Das Feld liefert den "
+"Basiswert, Merkmale wirken mit Prozent oder Beträgen."
+
+msgctxt "help:real_estate.rent_survey.version,rent_definition:"
+msgid "Definition of the rent and scope of application."
+msgstr "Mietbegriff und Geltungsbereich."
+
+msgctxt "help:real_estate.rent_survey.version,source_document:"
+msgid ""
+"Reference or URL of the official document - the document itself is attached "
+"to the version."
+msgstr ""
+"Fundstelle oder URL des amtlichen Dokuments – das Dokument selbst wird als "
+"Anhang an der Version abgelegt."
+
+msgctxt "help:real_estate.rent_survey.version,spread_lower_percent:"
+msgid "E.g. -15: lower value = result - 15 %."
+msgstr "Z. B. -15: Unterwert = Ergebnis - 15 %."
+
+msgctxt "help:real_estate.rent_survey.version,spread_upper_percent:"
+msgid "E.g. 15: upper value = result + 15 %."
+msgstr "Z. B. 15: Oberwert = Ergebnis + 15 %."
+
+msgctxt "help:real_estate.rent_survey.version,survey_date:"
+msgid "Key date of the data collection (information)."
+msgstr "Erhebungsstichtag (Information)."
+
+msgctxt "model:ir.action,name:act_rent_survey"
+msgid "Rent Surveys"
+msgstr "Mietspiegel"
+
+msgctxt "model:ir.action,name:act_rent_survey_calculation"
+msgid "Comparative Rent Calculations"
+msgstr "Mietspiegel-Berechnungen"
+
+msgctxt "model:ir.action,name:act_rent_survey_version"
+msgid "Rent Survey Versions"
+msgstr "Mietspiegel-Versionen"
+
+msgctxt "model:ir.action,name:wizard_rent_survey_features"
+msgid "Assign Rent Survey Features"
+msgstr "Mietspiegel-Merkmale erfassen"
+
+msgctxt "model:ir.action,name:wizard_rent_survey_import"
+msgid "Import Rent Survey Data"
+msgstr "Mietspiegeldaten importieren"
+
+msgctxt "model:ir.action,name:wizard_rent_survey_new_version"
+msgid "New Rent Survey Version"
+msgstr "Neue Mietspiegel-Version"
+
+msgctxt ""
+"model:ir.action.act_window.domain,name:act_rent_survey_calculation_domain_accepted"
+msgid "Accepted"
+msgstr "Freigegeben"
+
+msgctxt ""
+"model:ir.action.act_window.domain,name:act_rent_survey_calculation_domain_all"
+msgid "All"
+msgstr "Alle"
+
+msgctxt ""
+"model:ir.action.act_window.domain,name:act_rent_survey_calculation_domain_calculated"
+msgid "Calculated"
+msgstr "Berechnet"
+
+msgctxt ""
+"model:ir.action.act_window.domain,name:act_rent_survey_calculation_domain_draft"
+msgid "Draft"
+msgstr "Entwurf"
+
+msgctxt "model:ir.message,text:msg_rent_survey_b01"
+msgid ""
+"B01: \"%(object)s\" is no apartment (use class allowing the comparative "
+"rent), or its property has no rent survey with a version valid on %(date)s."
+msgstr ""
+"B01: „%(object)s“ ist keine Wohnung (Nutzungsklasse mit Verfahren "
+"Vergleichsmiete), oder die Wirtschaftseinheit hat keinen Mietspiegel mit "
+"einer zum %(date)s gültigen Version."
+
+msgctxt "model:ir.message,text:msg_rent_survey_b02"
+msgid "B02: no living space for \"%(object)s\"."
+msgstr "B02: keine Wohnfläche für „%(object)s“."
+
+msgctxt "model:ir.message,text:msg_rent_survey_b03"
+msgid "B03: no class for the classification feature \"%(dimension)s\"."
+msgstr "B03: keine Klasse für das Klassifizierungsmerkmal „%(dimension)s“."
+
+msgctxt "model:ir.message,text:msg_rent_survey_b04"
+msgid ""
+"B04: %(count)s table cells found for the classes and the living space "
+"%(area)s m² - exactly one is required."
+msgstr ""
+"B04: %(count)s Tabellenfelder zu den Klassen und der Wohnfläche %(area)s m² "
+"gefunden – genau eines ist erforderlich."
+
+msgctxt "model:ir.message,text:msg_rent_survey_b05"
+msgid ""
+"B05: the table cell \"%(cell)s\" is outside the qualified scope - a note in "
+"the request is required."
+msgstr ""
+"B05: Das Tabellenfeld „%(cell)s“ liegt außerhalb des qualifizierten Bereichs "
+"– Hinweis im Mieterhöhungsverlangen nötig."
+
+msgctxt "model:ir.message,text:msg_rent_survey_b06"
+msgid "B06: the features \"%(feature)s\" and \"%(other)s\" exclude each other."
+msgstr "B06: Die Merkmale „%(feature)s“ und „%(other)s“ schließen sich aus."
+
+msgctxt "model:ir.message,text:msg_rent_survey_b07"
+msgid "B07: the code \"%(code)s\" (%(level)s) does not exist in the version."
+msgstr ""
+"B07: Der Code „%(code)s“ (%(level)s) ist in der Version nicht vorhanden."
+
+msgctxt "model:ir.message,text:msg_rent_survey_b08"
+msgid "B08: no feature in the group \"%(group)s\" (group = 0)."
+msgstr "B08: kein Merkmal in der Gruppe „%(group)s“ (Gruppe = 0)."
+
+msgctxt "model:ir.message,text:msg_rent_survey_b09"
+msgid ""
+"B09: no value of the measurement \"%(measurement)s\" for the automatic "
+"features."
+msgstr ""
+"B09: kein Wert der Bemessung „%(measurement)s“ für die automatischen "
+"Merkmale."
+
+msgctxt "model:ir.message,text:msg_rent_survey_calculation_delete"
+msgid ""
+"The calculation \"%(calculation)s\" is accepted and cannot be deleted - it is "
+"the evidence of the comparative rent."
+msgstr ""
+"Die Berechnung „%(calculation)s“ ist freigegeben und kann nicht gelöscht "
+"werden – sie ist der Nachweis der Vergleichsmiete."
+
+msgctxt "model:ir.message,text:msg_rent_survey_calculation_locked"
+msgid ""
+"The calculation \"%(calculation)s\" is calculated resp. accepted and cannot "
+"be changed - use \"Recalculate\"."
+msgstr ""
+"Die Berechnung „%(calculation)s“ ist berechnet bzw. freigegeben und kann "
+"nicht geändert werden – „Neu berechnen“ verwenden."
+
+msgctxt "model:ir.message,text:msg_rent_survey_cell_classes"
+msgid ""
+"Table cell \"%(cell)s\": exactly one class is required per classification "
+"feature."
+msgstr ""
+"Tabellenfeld „%(cell)s“: Je Klassifizierungsmerkmal ist genau eine Klasse "
+"erforderlich."
+
+msgctxt "model:ir.message,text:msg_rent_survey_cell_overlap"
+msgid "The area ranges of the table cells \"%(cell)s\" and \"%(other)s\" overlap."
+msgstr ""
+"Die Flächenbereiche der Tabellenfelder „%(cell)s“ und „%(other)s“ "
+"überschneiden sich."
+
+msgctxt "model:ir.message,text:msg_rent_survey_cell_values"
+msgid ""
+"Table cell \"%(cell)s\": the values must satisfy lower <= mean <= upper "
+"(regression: mean required)."
+msgstr ""
+"Tabellenfeld „%(cell)s“: Es muss Unterwert ≤ Mittelwert ≤ Oberwert gelten "
+"(Regression: Mittelwert Pflicht)."
+
+msgctxt "model:ir.message,text:msg_rent_survey_check_ok"
+msgid "Check without problems."
+msgstr "Prüfung ohne Befund."
+
+msgctxt "model:ir.message,text:msg_rent_survey_check_problems"
+msgid "%(count)s problems found:"
+msgstr "%(count)s Probleme gefunden:"
+
+msgctxt "model:ir.message,text:msg_rent_survey_code_unique"
+msgid "The code must be unique within the rent survey version."
+msgstr "Der Code muss innerhalb der Mietspiegel-Version eindeutig sein."
+
+msgctxt "model:ir.message,text:msg_rent_survey_error"
+msgid "Error"
+msgstr "Fehler"
+
+msgctxt "model:ir.message,text:msg_rent_survey_import_class"
+msgid "Unknown class \"%(dimension)s=%(class_)s\"."
+msgstr "Unbekannte Klasse „%(dimension)s=%(class_)s“."
+
+msgctxt "model:ir.message,text:msg_rent_survey_import_count"
+msgid "%(count)s records"
+msgstr "%(count)s Datensätze"
+
+msgctxt "model:ir.message,text:msg_rent_survey_import_feature"
+msgid "Unknown feature \"%(feature)s\" in the exclusions."
+msgstr "Unbekanntes Merkmal „%(feature)s“ bei den Ausschlüssen."
+
+msgctxt "model:ir.message,text:msg_rent_survey_import_measurement"
+msgid "Unknown measurement type \"%(measurement)s\"."
+msgstr "Unbekannte Bemessungsart „%(measurement)s“."
+
+msgctxt "model:ir.message,text:msg_rent_survey_info"
+msgid "Note"
+msgstr "Hinweis"
+
+msgctxt "model:ir.message,text:msg_rent_survey_no_version"
+msgid ""
+"No rent survey version is valid today for \"%(object)s\" (rent survey of the "
+"property)."
+msgstr ""
+"Für „%(object)s“ ist heute keine Mietspiegel-Version gültig (Mietspiegel der "
+"Wirtschaftseinheit)."
+
+msgctxt "model:ir.message,text:msg_rent_survey_origin_derived"
+msgid "derived"
+msgstr "abgeleitet"
+
+msgctxt "model:ir.message,text:msg_rent_survey_origin_manual"
+msgid "manual"
+msgstr "manuell"
+
+msgctxt "model:ir.message,text:msg_rent_survey_protocol_cell"
+msgid ""
+"Living space %(area)s m² → cell %(cell)s: %(lower)s / %(mean)s / %(upper)s "
+"€/m²"
+msgstr ""
+"Wohnfläche %(area)s m² → Feld %(cell)s: %(lower)s / %(mean)s / %(upper)s €/m²"
+
+msgctxt "model:ir.message,text:msg_rent_survey_protocol_class"
+msgid "%(dimension)s: %(name)s (%(level)s, %(origin)s)"
+msgstr "%(dimension)s: %(name)s (%(level)s, %(origin)s)"
+
+msgctxt "model:ir.message,text:msg_rent_survey_protocol_header"
+msgid "%(version)s (valid from %(valid_from)s), key date %(date)s"
+msgstr "%(version)s (gültig ab %(valid_from)s), Stichtag %(date)s"
+
+msgctxt "model:ir.message,text:msg_rent_survey_protocol_ignored"
+msgid "Feature %(feature)s ignored (not valid for the classes)."
+msgstr "Merkmal %(feature)s nicht berücksichtigt (gilt nicht für die Klassen)."
+
+msgctxt "model:ir.message,text:msg_rent_survey_protocol_regression"
+msgid ""
+"Base value %(mean)s with surcharges and reductions → %(rent)s €/m² (range "
+"%(lower)s – %(upper)s)"
+msgstr ""
+"Basiswert %(mean)s mit Zu- und Abschlägen → %(rent)s €/m² (Spanne %(lower)s –"
+" %(upper)s)"
+
+msgctxt "model:ir.message,text:msg_rent_survey_protocol_result"
+msgid "Local comparative rent: %(rent)s €/m² × %(area)s m² = %(total)s €"
+msgstr "Ortsübliche Vergleichsmiete: %(rent)s €/m² × %(area)s m² = %(total)s €"
+
+msgctxt "model:ir.message,text:msg_rent_survey_protocol_table"
+msgid ""
+"Net groups %(votes)s, %(percent)s %% per group from the mean %(mean)s → "
+"%(rent)s €/m²"
+msgstr ""
+"Saldo %(votes)s, %(percent)s %% je Gruppe vom Mittelwert %(mean)s → %(rent)s "
+"€/m²"
+
+msgctxt "model:ir.message,text:msg_rent_survey_reason_required"
+msgid ""
+"The calculation \"%(calculation)s\" has warnings or a different accepted rent"
+" per m² - enter a reason."
+msgstr ""
+"Die Berechnung „%(calculation)s“ hat Warnungen oder eine abweichende "
+"freigegebene m²-Miete – bitte eine Begründung eingeben."
+
+msgctxt "model:ir.message,text:msg_rent_survey_version_locked"
+msgid ""
+"The rent survey version \"%(version)s\" is used by an accepted calculation - "
+"classes, table, features and rules can only be corrected by a new version."
+msgstr ""
+"Die Mietspiegel-Version „%(version)s“ wird von einer freigegebenen Berechnung"
+" verwendet – Klassen, Tabelle, Merkmale und Regeln können nur über eine neue "
+"Version korrigiert werden."
+
+msgctxt "model:ir.message,text:msg_rent_survey_version_unique"
+msgid "A rent survey can have only one version per \"valid from\" date."
+msgstr "Ein Mietspiegel kann je Datum „gültig ab“ nur eine Version haben."
+
+msgctxt "model:ir.message,text:msg_rent_survey_warning"
+msgid "Warning"
+msgstr "Warnung"
+
+msgctxt "model:ir.model.button,help:base_object_rent_survey_calculate_button"
+msgid "Calculate the local comparative rent of the rental unit as of today."
+msgstr ""
+"Ortsübliche Vergleichsmiete des Mietobjekts zum heutigen Tag berechnen."
+
+msgctxt "model:ir.model.button,help:base_object_rent_survey_features_button"
+msgid "Checklist of the rent survey features of this level."
+msgstr "Checkliste der Mietspiegel-Merkmale dieser Ebene."
+
+msgctxt "model:ir.model.button,help:rent_survey_calculation_accept_button"
+msgid ""
+"Accept the calculation (mandatory step) - a reason is required with warnings "
+"or a different rent per m²."
+msgstr ""
+"Berechnung freigeben (Pflichtschritt) – bei Warnungen oder abweichender m²-"
+"Miete ist eine Begründung nötig."
+
+msgctxt "model:ir.model.button,help:rent_survey_calculation_recalculate_button"
+msgid ""
+"Calculate again with the current data - in place while not accepted or "
+"rejected, else as a new calculation."
+msgstr ""
+"Mit den aktuellen Daten neu berechnen – solange nicht freigegeben oder "
+"abgelehnt in derselben Berechnung, sonst als neue Berechnung."
+
+msgctxt "model:ir.model.button,help:rent_survey_version_check_button"
+msgid ""
+"Check the consistency of the version (classes per cell, values, overlapping "
+"area ranges)."
+msgstr ""
+"Konsistenz der Version prüfen (Klassen je Feld, Werte, überschneidende "
+"Flächenbereiche)."
+
+msgctxt "model:ir.model.button,help:rent_survey_version_import_data_button"
+msgid "Import table cells or features from a CSV file."
+msgstr "Tabellenfelder oder Merkmale aus einer CSV-Datei importieren."
+
+msgctxt "model:ir.model.button,help:rent_survey_version_new_version_button"
+msgid "Copy the version with all data (codes kept) for a new validity."
+msgstr ""
+"Version mit allen Daten (Codes bleiben erhalten) für eine neue Gültigkeit "
+"kopieren."
+
+msgctxt "model:ir.model.button,string:base_object_rent_survey_calculate_button"
+msgid "Calculate Comparative Rent"
+msgstr "Vergleichsmiete berechnen"
+
+msgctxt "model:ir.model.button,string:base_object_rent_survey_features_button"
+msgid "Assign Features"
+msgstr "Merkmale erfassen"
+
+msgctxt "model:ir.model.button,string:rent_survey_calculation_accept_button"
+msgid "Accept"
+msgstr "Freigeben"
+
+msgctxt "model:ir.model.button,string:rent_survey_calculation_calculate_button"
+msgid "Calculate"
+msgstr "Berechnen"
+
+msgctxt ""
+"model:ir.model.button,string:rent_survey_calculation_recalculate_button"
+msgid "Recalculate"
+msgstr "Neu berechnen"
+
+msgctxt "model:ir.model.button,string:rent_survey_calculation_reject_button"
+msgid "Reject"
+msgstr "Ablehnen"
+
+msgctxt "model:ir.model.button,string:rent_survey_version_check_button"
+msgid "Check"
+msgstr "Prüfen"
+
+msgctxt "model:ir.model.button,string:rent_survey_version_import_data_button"
+msgid "Import"
+msgstr "Importieren"
+
+msgctxt "model:ir.model.button,string:rent_survey_version_new_version_button"
+msgid "New Version"
+msgstr "Neue Version"
+
+msgctxt "model:ir.rule.group,name:rule_group_rent_survey_calculation_companies"
+msgid "User in companies"
+msgstr "Benutzer in Unternehmen"
+
+msgctxt "model:ir.rule.group,name:rule_group_rent_survey_companies"
+msgid "User in companies"
+msgstr "Benutzer in Unternehmen"
+
+msgctxt "model:ir.ui.menu,name:menu_rent_survey"
+msgid "Rent Surveys"
+msgstr "Mietspiegel"
+
+msgctxt "model:ir.ui.menu,name:menu_rent_survey_calculation"
+msgid "Comparative Rent Calculations"
+msgstr "Mietspiegel-Berechnungen"
+
+msgctxt "model:ir.ui.menu,name:menu_rent_survey_configuration"
+msgid "Rent Surveys"
+msgstr "Mietspiegel"
+
+msgctxt "model:ir.ui.menu,name:menu_rent_survey_version"
+msgid "Rent Survey Versions"
+msgstr "Mietspiegel-Versionen"
+
+msgctxt "model:product.uom,name:uom_re_kwh_sqm_year"
+msgid "kWh/(m²a)"
+msgstr "kWh/(m²a)"
+
+msgctxt "model:product.uom,symbol:uom_re_kwh_sqm_year"
+msgid "kWh/(m²a)"
+msgstr "kWh/(m²a)"
+
+msgctxt "model:real_estate.base_object.rent_survey_value,string:"
+msgid "Real Estate Base Object Rent Survey Value"
+msgstr "Mietspiegel-Angabe am Objekt"
+
+msgctxt ""
+"model:real_estate.measurement.type,name:measurement_energy_consumption_type"
+msgid "Energy Consumption Value"
+msgstr "Energieverbrauchskennwert"
+
+msgctxt "model:real_estate.rent_survey,string:"
+msgid "Real Estate Rent Survey"
+msgstr "Mietspiegel"
+
+msgctxt "model:real_estate.rent_survey.calculation,string:"
+msgid "Real Estate Rent Survey Calculation"
+msgstr "Mietspiegel-Berechnung"
+
+msgctxt "model:real_estate.rent_survey.cell,string:"
+msgid "Real Estate Rent Survey Cell"
+msgstr "Mietspiegel-Tabellenfeld"
+
+msgctxt "model:real_estate.rent_survey.cell-class,string:"
+msgid "Real Estate Rent Survey Cell - Class"
+msgstr "Mietspiegel-Tabellenfeld – Klasse"
+
+msgctxt "model:real_estate.rent_survey.dimension,string:"
+msgid "Real Estate Rent Survey Dimension"
+msgstr "Mietspiegel-Klassifizierungsmerkmal"
+
+msgctxt "model:real_estate.rent_survey.dimension.class,string:"
+msgid "Real Estate Rent Survey Dimension Class"
+msgstr "Mietspiegel-Klasse"
+
+msgctxt "model:real_estate.rent_survey.feature,string:"
+msgid "Real Estate Rent Survey Feature"
+msgstr "Mietspiegel-Merkmal"
+
+msgctxt "model:real_estate.rent_survey.feature-class,string:"
+msgid "Real Estate Rent Survey Feature - Class"
+msgstr "Mietspiegel-Merkmal – Klasse"
+
+msgctxt "model:real_estate.rent_survey.feature-feature,string:"
+msgid "Real Estate Rent Survey Feature - Feature"
+msgstr "Mietspiegel-Merkmal – Ausschluss"
+
+msgctxt "model:real_estate.rent_survey.features.start,string:"
+msgid "Real Estate Rent Survey Features Start"
+msgstr "Mietspiegel-Merkmale erfassen"
+
+msgctxt "model:real_estate.rent_survey.group,string:"
+msgid "Real Estate Rent Survey Group"
+msgstr "Mietspiegel-Merkmalgruppe"
+
+msgctxt "model:real_estate.rent_survey.import.preview,string:"
+msgid "Real Estate Rent Survey Import Preview"
+msgstr "Mietspiegel-Import Vorschau"
+
+msgctxt "model:real_estate.rent_survey.import.start,string:"
+msgid "Real Estate Rent Survey Import Start"
+msgstr "Mietspiegel-Import"
+
+msgctxt "model:real_estate.rent_survey.new_version.start,string:"
+msgid "Real Estate Rent Survey New Version Start"
+msgstr "Neue Mietspiegel-Version"
+
+msgctxt "model:real_estate.rent_survey.version,string:"
+msgid "Real Estate Rent Survey Version"
+msgstr "Mietspiegel-Version"
+
+msgctxt "model:real_estate.rent_survey.version-measurement.type,string:"
+msgid "Real Estate Rent Survey Version - Measurement Type"
+msgstr "Mietspiegel-Version – Bemessungsart"
+
+msgctxt "selection:real_estate.base_object.rent_survey_value,kind:"
+msgid "Class"
+msgstr "Klasse"
+
+msgctxt "selection:real_estate.base_object.rent_survey_value,kind:"
+msgid "Feature"
+msgstr "Merkmal"
+
+msgctxt "selection:real_estate.rent_survey.calculation,check_state:"
+msgid "Error"
+msgstr "Fehler"
+
+msgctxt "selection:real_estate.rent_survey.calculation,check_state:"
+msgid "OK"
+msgstr "OK"
+
+msgctxt "selection:real_estate.rent_survey.calculation,check_state:"
+msgid "Warning"
+msgstr "Warnung"
+
+msgctxt "selection:real_estate.rent_survey.calculation,state:"
+msgid "Accepted"
+msgstr "Freigegeben"
+
+msgctxt "selection:real_estate.rent_survey.calculation,state:"
+msgid "Calculated"
+msgstr "Berechnet"
+
+msgctxt "selection:real_estate.rent_survey.calculation,state:"
+msgid "Draft"
+msgstr "Entwurf"
+
+msgctxt "selection:real_estate.rent_survey.calculation,state:"
+msgid "Rejected"
+msgstr "Abgelehnt"
+
+msgctxt "selection:real_estate.rent_survey.dimension,level:"
+msgid "Building"
+msgstr "Gebäude"
+
+msgctxt "selection:real_estate.rent_survey.dimension,level:"
+msgid "Property"
+msgstr "Wirtschaftseinheit"
+
+msgctxt "selection:real_estate.rent_survey.dimension,level:"
+msgid "Rental Unit"
+msgstr "Mietobjekt"
+
+msgctxt "selection:real_estate.rent_survey.dimension,source:"
+msgid "Manual"
+msgstr "Manuell"
+
+msgctxt "selection:real_estate.rent_survey.dimension,source:"
+msgid "Measurement"
+msgstr "Bemessung"
+
+msgctxt "selection:real_estate.rent_survey.dimension,source:"
+msgid "Year of Construction"
+msgstr "Baujahr"
+
+msgctxt "selection:real_estate.rent_survey.feature,direction:"
+msgid "Increasing (+)"
+msgstr "Wohnwerterhöhend (+)"
+
+msgctxt "selection:real_estate.rent_survey.feature,direction:"
+msgid "Reducing (-)"
+msgstr "Wohnwertmindernd (−)"
+
+msgctxt "selection:real_estate.rent_survey.feature,effect:"
+msgid "Amount per m²"
+msgstr "Betrag je m²"
+
+msgctxt "selection:real_estate.rent_survey.feature,effect:"
+msgid "Percent"
+msgstr "Prozent"
+
+msgctxt "selection:real_estate.rent_survey.feature,effect:"
+msgid "Vote"
+msgstr "Stimme"
+
+msgctxt "selection:real_estate.rent_survey.feature,level:"
+msgid "Building"
+msgstr "Gebäude"
+
+msgctxt "selection:real_estate.rent_survey.feature,level:"
+msgid "Property"
+msgstr "Wirtschaftseinheit"
+
+msgctxt "selection:real_estate.rent_survey.feature,level:"
+msgid "Rental Unit"
+msgstr "Mietobjekt"
+
+msgctxt "selection:real_estate.rent_survey.group,rule:"
+msgid "Additive"
+msgstr "Additiv"
+
+msgctxt "selection:real_estate.rent_survey.group,rule:"
+msgid "Majority"
+msgstr "Mehrheit"
+
+msgctxt "selection:real_estate.rent_survey.import.start,kind:"
+msgid "Features"
+msgstr "Merkmale"
+
+msgctxt "selection:real_estate.rent_survey.import.start,kind:"
+msgid "Table Cells"
+msgstr "Tabellenfelder"
+
+msgctxt "selection:real_estate.rent_survey.version,kind:"
+msgid "Qualified"
+msgstr "Qualifiziert"
+
+msgctxt "selection:real_estate.rent_survey.version,kind:"
+msgid "Simple"
+msgstr "Einfach"
+
+msgctxt "selection:real_estate.rent_survey.version,method:"
+msgid "Regression"
+msgstr "Regression"
+
+msgctxt "selection:real_estate.rent_survey.version,method:"
+msgid "Table"
+msgstr "Tabelle"
+
+msgctxt "view:real_estate.rent_survey.calculation:"
+msgid "Acceptance"
+msgstr "Freigabe"
+
+msgctxt "view:real_estate.rent_survey.calculation:"
+msgid "Inputs"
+msgstr "Eingaben"
+
+msgctxt "view:real_estate.rent_survey.calculation:"
+msgid "References"
+msgstr "Bezüge"
+
+msgctxt "view:real_estate.rent_survey.calculation:"
+msgid "Result"
+msgstr "Ergebnis"
+
+msgctxt "view:real_estate.rent_survey.version:"
+msgid "General"
+msgstr "Allgemein"
+
+msgctxt "wizard_button:real_estate.rent_survey.features,start,end:"
+msgid "Cancel"
+msgstr "Abbrechen"
+
+msgctxt "wizard_button:real_estate.rent_survey.features,start,save:"
+msgid "Save"
+msgstr "Speichern"
+
+msgctxt "wizard_button:real_estate.rent_survey.import,preview,import_:"
+msgid "Import"
+msgstr "Importieren"
+
+msgctxt "wizard_button:real_estate.rent_survey.import,preview,start:"
+msgid "Back"
+msgstr "Zurück"
+
+msgctxt "wizard_button:real_estate.rent_survey.import,start,end:"
+msgid "Cancel"
+msgstr "Abbrechen"
+
+msgctxt "wizard_button:real_estate.rent_survey.import,start,preview:"
+msgid "Preview"
+msgstr "Vorschau"
+
+msgctxt "wizard_button:real_estate.rent_survey.new_version,start,create_:"
+msgid "Create"
+msgstr "Anlegen"
+
+msgctxt "wizard_button:real_estate.rent_survey.new_version,start,end:"
+msgid "Cancel"
+msgstr "Abbrechen"
+
+msgctxt "field:real_estate.base_object,rent_survey_version:"
+msgid "Rent Survey Version"
+msgstr "Mietspiegel-Version"
+
+msgctxt "help:real_estate.base_object,rent_survey_version:"
+msgid "Version of the rent survey of the property valid today."
+msgstr "Heute gültige Version des Mietspiegels der Wirtschaftseinheit."
+
+msgctxt "view:real_estate.base_object:"
+msgid "Calculation"
+msgstr "Berechnung"
+
+msgctxt "view:real_estate.base_object:"
+msgid "Classes and Features"
+msgstr "Klassen und Merkmale"
+
+msgctxt "view:real_estate.base_object:"
+msgid "Rent Survey"
+msgstr "Mietspiegel"
+
+msgctxt "field:real_estate.rent_survey.copy.start,base_object:"
+msgid "Object"
+msgstr "Objekt"
+
+msgctxt "field:real_estate.rent_survey.copy.start,key_date:"
+msgid "Key Date"
+msgstr "Stichtag"
+
+msgctxt "field:real_estate.rent_survey.copy.start,property:"
+msgid "Property"
+msgstr "Wirtschaftseinheit"
+
+msgctxt "field:real_estate.rent_survey.copy.start,replace:"
+msgid "Replace Existing"
+msgstr "Vorhandene ersetzen"
+
+msgctxt "field:real_estate.rent_survey.copy.start,source:"
+msgid "Copy from"
+msgstr "Kopieren von"
+
+msgctxt "field:real_estate.rent_survey.copy.start,type:"
+msgid "Type"
+msgstr "Typ"
+
+msgctxt "field:real_estate.rent_survey.copy.start,with_classes:"
+msgid "Including Classes"
+msgstr "Einschließlich Klassen"
+
+msgctxt "help:real_estate.rent_survey.copy.start,key_date:"
+msgid "The assignments of the source valid on this date are copied."
+msgstr "Kopiert werden die zu diesem Datum gültigen Zuordnungen der Quelle."
+
+msgctxt "help:real_estate.rent_survey.copy.start,replace:"
+msgid ""
+"Remove the assignments of this object valid on the key date first (with a "
+"validity period: ended the day before), else only missing ones are added."
+msgstr ""
+"Zuerst die zum Stichtag gültigen Zuordnungen dieses Objekts entfernen (mit "
+"Gültigkeitszeitraum: am Vortag beendet), sonst werden nur fehlende ergänzt."
+
+msgctxt "help:real_estate.rent_survey.copy.start,source:"
+msgid ""
+"Object of the same kind in the same property (apartment resp. building) "
+"whose classes and features are taken over."
+msgstr ""
+"Objekt gleicher Art in derselben Wirtschaftseinheit (Wohnung bzw. Gebäude), "
+"dessen Klassen und Merkmale übernommen werden."
+
+msgctxt "help:real_estate.rent_survey.copy.start,with_classes:"
+msgid ""
+"Also copy the classes assigned on the source (e.g. a different location)."
+msgstr ""
+"Auch die an der Quelle zugeordneten Klassen kopieren (z. B. eine abweichende "
+"Wohnlage)."
+
+msgctxt "model:ir.action,name:wizard_rent_survey_copy"
+msgid "Copy from Rental Unit"
+msgstr "Kopieren von Mietobjekt"
+
+msgctxt "model:ir.model.button,help:base_object_rent_survey_copy_button"
+msgid ""
+"Take over the classes and features of another rental unit of the property."
+msgstr ""
+"Klassen und Merkmale eines anderen Mietobjekts der Wirtschaftseinheit "
+"übernehmen."
+
+msgctxt "model:ir.model.button,string:base_object_rent_survey_copy_button"
+msgid "Copy from Rental Unit"
+msgstr "Kopieren von Mietobjekt"
+
+msgctxt "model:real_estate.rent_survey.copy.start,string:"
+msgid "Real Estate Rent Survey Copy Start"
+msgstr "Mietspiegel-Angaben kopieren"
+
+msgctxt "wizard_button:real_estate.rent_survey.copy,start,copy_:"
+msgid "Copy"
+msgstr "Kopieren"
+
+msgctxt "wizard_button:real_estate.rent_survey.copy,start,end:"
+msgid "Cancel"
+msgstr "Abbrechen"
+
+msgctxt "field:real_estate.use_class,adjustment_procedures:"
+msgid "Allowed Adjustment Procedures"
+msgstr "Zulässige Anpassungsverfahren"
+
+msgctxt "help:real_estate.use_class,adjustment_procedures:"
+msgid ""
+"Rent adjustment procedures allowed for terms of contract items with rental "
+"units of this use class (in addition to the contract type and the term type) "
+"- e.g. the comparative rent (rent survey) only for apartments."
+msgstr ""
+"Für Konditionen von Vertragspositionen mit Mietobjekten dieser Nutzungsklasse"
+" zulässige Anpassungsverfahren (zusätzlich zu Vertragsart und Konditionsart) "
+"– z. B. die Vergleichsmiete (Mietspiegel) nur für Wohnungen."
+
+msgctxt "model:ir.message,text:msg_rent_adjustment_use_class"
+msgid ""
+"The procedure \"%(procedure)s\" is not allowed for the rental units of the "
+"term \"%(term)s\" (%(objects)s) - see the allowed adjustment procedures of "
+"their use class."
+msgstr ""
+"Das Verfahren „%(procedure)s“ ist für die Mietobjekte der Kondition "
+"„%(term)s“ (%(objects)s) nicht zulässig – siehe zulässige Anpassungsverfahren"
+" ihrer Nutzungsklasse."
+
+msgctxt "selection:real_estate.use_class,adjustment_procedures:"
+msgid "Comparative Rent"
+msgstr "Vergleichsmiete"
+
+msgctxt "selection:real_estate.use_class,adjustment_procedures:"
+msgid "Free Adjustment"
+msgstr "Freie Anpassung"
+
+msgctxt "selection:real_estate.use_class,adjustment_procedures:"
+msgid "Graduated Rent"
+msgstr "Staffelmiete"
+
+msgctxt "selection:real_estate.use_class,adjustment_procedures:"
+msgid "Index Rent"
+msgstr "Indexmiete"
+
+msgctxt "selection:real_estate.use_class,adjustment_procedures:"
+msgid "Modernisation"
+msgstr "Modernisierung"
+
+msgctxt "selection:real_estate.use_class,adjustment_procedures:"
+msgid "Operation Costs Billing"
+msgstr "Betriebskostenabrechnung"
+
+msgctxt "selection:real_estate.use_class,adjustment_procedures:"
+msgid "Operation Costs Plan"
+msgstr "Betriebskostenplan"
+
+msgctxt ""
+"model:ir.model.button,help:base_object_rent_survey_copy_building_button"
+msgid "Take over the classes and features of another building of the property."
+msgstr ""
+"Klassen und Merkmale eines anderen Gebäudes der Wirtschaftseinheit "
+"übernehmen."
+
+msgctxt ""
+"model:ir.model.button,string:base_object_rent_survey_copy_building_button"
+msgid "Copy from Building"
+msgstr "Kopieren von Gebäude"
+
+msgctxt "field:real_estate.rent_survey.matrix.export.result,file_:"
+msgid "File"
+msgstr "Datei"
+
+msgctxt "field:real_estate.rent_survey.matrix.export.result,file_name:"
+msgid "File Name"
+msgstr "Dateiname"
+
+msgctxt "field:real_estate.rent_survey.matrix.export.start,key_date:"
+msgid "Key Date"
+msgstr "Stichtag"
+
+msgctxt "field:real_estate.rent_survey.matrix.export.start,level:"
+msgid "Rows"
+msgstr "Zeilen"
+
+msgctxt "field:real_estate.rent_survey.matrix.export.start,property:"
+msgid "Property"
+msgstr "Wirtschaftseinheit"
+
+msgctxt "field:real_estate.rent_survey.matrix.import.preview,preview:"
+msgid "Changes"
+msgstr "Änderungen"
+
+msgctxt "field:real_estate.rent_survey.matrix.import.preview,problems:"
+msgid "Problems"
+msgstr "Probleme"
+
+msgctxt "field:real_estate.rent_survey.matrix.import.start,file_:"
+msgid "CSV File"
+msgstr "CSV-Datei"
+
+msgctxt "field:real_estate.rent_survey.matrix.import.start,key_date:"
+msgid "Key Date"
+msgstr "Stichtag"
+
+msgctxt "field:real_estate.rent_survey.matrix.import.start,level:"
+msgid "Rows"
+msgstr "Zeilen"
+
+msgctxt "field:real_estate.rent_survey.matrix.import.start,property:"
+msgid "Property"
+msgstr "Wirtschaftseinheit"
+
+msgctxt "help:real_estate.rent_survey.matrix.export.start,key_date:"
+msgid ""
+"Assignments valid on this date, columns of the version valid on this date."
+msgstr ""
+"Zu diesem Datum gültige Zuordnungen, Spalten der zu diesem Datum gültigen "
+"Version."
+
+msgctxt "help:real_estate.rent_survey.matrix.import.start,file_:"
+msgid ""
+"Matrix exported for the same property and level, changed externally (mark 'x'"
+" = applies, class code in the class columns)."
+msgstr ""
+"Für dieselbe Wirtschaftseinheit und Ebene exportierte, extern geänderte "
+"Matrix (Markierung „x“ = trifft zu, Klassencode in den Klassenspalten)."
+
+msgctxt "help:real_estate.rent_survey.matrix.import.start,key_date:"
+msgid ""
+"Assignments valid on this date are compared; removed ones with a validity "
+"period end the day before."
+msgstr ""
+"Verglichen werden die zu diesem Datum gültigen Zuordnungen; entfernte mit "
+"Gültigkeitszeitraum enden am Vortag."
+
+msgctxt "model:ir.action,name:wizard_rent_survey_matrix_export"
+msgid "Export Rent Survey Matrix"
+msgstr "Mietspiegel-Matrix exportieren"
+
+msgctxt "model:ir.action,name:wizard_rent_survey_matrix_import"
+msgid "Import Rent Survey Matrix"
+msgstr "Mietspiegel-Matrix importieren"
+
+msgctxt "model:ir.message,text:msg_rent_survey_matrix_column"
+msgid ""
+"Unknown column \"%(code)s\" - no classification feature resp. feature of this"
+" level in the version."
+msgstr ""
+"Unbekannte Spalte „%(code)s“ – kein Klassifizierungsmerkmal bzw. Merkmal "
+"dieser Ebene in der Version."
+
+msgctxt "model:ir.message,text:msg_rent_survey_matrix_count"
+msgid "%(count)s objects with changes"
+msgstr "%(count)s Objekte mit Änderungen"
+
+msgctxt "model:ir.message,text:msg_rent_survey_matrix_header"
+msgid ""
+"The file is no rent survey matrix: the first line must start with the column "
+"\"id\"."
+msgstr ""
+"Die Datei ist keine Mietspiegel-Matrix: Die erste Zeile muss mit der Spalte "
+"„id“ beginnen."
+
+msgctxt "model:ir.message,text:msg_rent_survey_matrix_mark"
+msgid ""
+"Line %(line)s, column %(code)s: \"%(value)s\" is no valid mark (x or empty)."
+msgstr ""
+"Zeile %(line)s, Spalte %(code)s: „%(value)s“ ist keine gültige Markierung (x "
+"oder leer)."
+
+msgctxt "model:ir.message,text:msg_rent_survey_matrix_object"
+msgid ""
+"Line %(line)s: \"%(object)s\" is no building resp. apartment of the property."
+msgstr ""
+"Zeile %(line)s: „%(object)s“ ist kein Gebäude bzw. keine Wohnung der "
+"Wirtschaftseinheit."
+
+msgctxt ""
+"model:ir.model.button,help:base_object_rent_survey_matrix_export_button"
+msgid ""
+"CSV file with one row per apartment resp. building and one column per "
+"classification feature and feature - to change the assignments externally."
+msgstr ""
+"CSV-Datei mit einer Zeile je Wohnung bzw. Gebäude und einer Spalte je "
+"Klassifizierungsmerkmal und Merkmal – zum externen Ändern der Zuordnungen."
+
+msgctxt ""
+"model:ir.model.button,help:base_object_rent_survey_matrix_import_button"
+msgid ""
+"Take over a changed matrix: missing assignments are created, removed ones "
+"deleted resp. ended - with preview."
+msgstr ""
+"Geänderte Matrix übernehmen: fehlende Zuordnungen werden angelegt, entfernte "
+"gelöscht bzw. beendet – mit Vorschau."
+
+msgctxt ""
+"model:ir.model.button,string:base_object_rent_survey_matrix_export_button"
+msgid "Export Matrix"
+msgstr "Matrix exportieren"
+
+msgctxt ""
+"model:ir.model.button,string:base_object_rent_survey_matrix_import_button"
+msgid "Import Matrix"
+msgstr "Matrix importieren"
+
+msgctxt "model:real_estate.rent_survey.matrix.export.result,string:"
+msgid "Real Estate Rent Survey Matrix Export Result"
+msgstr "Mietspiegel-Matrix exportieren"
+
+msgctxt "model:real_estate.rent_survey.matrix.export.start,string:"
+msgid "Real Estate Rent Survey Matrix Export Start"
+msgstr "Mietspiegel-Matrix exportieren"
+
+msgctxt "model:real_estate.rent_survey.matrix.import.preview,string:"
+msgid "Real Estate Rent Survey Matrix Import Preview"
+msgstr "Mietspiegel-Matrix Vorschau"
+
+msgctxt "model:real_estate.rent_survey.matrix.import.start,string:"
+msgid "Real Estate Rent Survey Matrix Import Start"
+msgstr "Mietspiegel-Matrix importieren"
+
+msgctxt "selection:real_estate.rent_survey.matrix.export.start,level:"
+msgid "Apartments"
+msgstr "Wohnungen"
+
+msgctxt "selection:real_estate.rent_survey.matrix.export.start,level:"
+msgid "Buildings"
+msgstr "Gebäude"
+
+msgctxt "selection:real_estate.rent_survey.matrix.import.start,level:"
+msgid "Apartments"
+msgstr "Wohnungen"
+
+msgctxt "selection:real_estate.rent_survey.matrix.import.start,level:"
+msgid "Buildings"
+msgstr "Gebäude"
+
+msgctxt "wizard_button:real_estate.rent_survey.matrix.export,result,end:"
+msgid "Close"
+msgstr "Schließen"
+
+msgctxt "wizard_button:real_estate.rent_survey.matrix.export,start,end:"
+msgid "Cancel"
+msgstr "Abbrechen"
+
+msgctxt "wizard_button:real_estate.rent_survey.matrix.export,start,result:"
+msgid "Export"
+msgstr "Exportieren"
+
+msgctxt "wizard_button:real_estate.rent_survey.matrix.import,preview,apply:"
+msgid "Apply"
+msgstr "Übernehmen"
+
+msgctxt "wizard_button:real_estate.rent_survey.matrix.import,preview,start:"
+msgid "Back"
+msgstr "Zurück"
+
+msgctxt "wizard_button:real_estate.rent_survey.matrix.import,start,end:"
+msgid "Cancel"
+msgstr "Abbrechen"
+
+msgctxt "wizard_button:real_estate.rent_survey.matrix.import,start,preview:"
+msgid "Preview"
+msgstr "Vorschau"

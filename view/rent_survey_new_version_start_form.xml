@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<form col="2">
+    <label name="name"/><field name="name"/>
+    <label name="valid_from"/><field name="valid_from"/>
+    <label name="survey_date"/><field name="survey_date"/>
+</form>

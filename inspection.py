@@ -206,7 +206,7 @@ class InspectionType(DeactivableMixin, ModelSQL, ModelView):
     __name__ = 'real_estate.inspection.type'
 
     name = fields.Char("Name", required=True, translate=True)
-    code = fields.Char("Code")
+    code = fields.Char("Code", help="Short code for the inspection type, e.g. 'annual inspection'. Used in the inspection plan to select the type of inspection.")
     category = fields.Selection([
             ('safety', "Safety"),
             ('technical', "Technical"),

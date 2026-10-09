@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<form col="4">
+    <label name="code"/><field name="code"/>
+    <label name="name"/><field name="name"/>
+    <label name="level"/><field name="level"/>
+    <label name="sequence"/><field name="sequence"/>
+    <label name="source"/><field name="source"/>
+    <label name="measurement_type"/><field name="measurement_type"/>
+    <field name="classes" colspan="4"/>
+</form>

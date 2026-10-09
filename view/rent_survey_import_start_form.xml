@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<form col="2">
+    <label name="kind"/><field name="kind"/>
+    <label name="file_"/><field name="file_"/>
+    <label name="replace"/><field name="replace"/>
+</form>
