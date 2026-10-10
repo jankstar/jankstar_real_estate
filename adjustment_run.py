@@ -4,6 +4,8 @@ from decimal import ROUND_HALF_UP, Decimal
 
 from dateutil.relativedelta import relativedelta
 
+from trytond.exceptions import UserError
+from trytond.exceptions import UserWarning as TrytonUserWarning
 from trytond.i18n import gettext
 from trytond.model import ModelSQL, ModelView, Workflow, fields
 from trytond.model.exceptions import ValidationError
@@ -13,7 +15,7 @@ from trytond.pool import Pool, PoolMeta
 from trytond.pyson import Bool, Eval, PYSONEncoder
 from trytond.transaction import Transaction, without_check_access
 
-from .contract_type import ADJUSTMENT_PROCEDURES, RUN_AGREEMENT_PROCEDURES
+from .contract_type import RUN_AGREEMENT_PROCEDURES
 
 STATES = [
     ('draft', "Draft"),
@@ -30,6 +32,14 @@ OPEN = ('draft', 'approved', 'declared')
 CLOSED = ('done', 'cancelled', 'refused')
 # decided consent of the tenant (comparative rent)
 CONSENT_DECIDED = ('consented', 'partially_consented', 'refused')
+
+
+class AdjustmentDateWarning(TrytonUserWarning):
+    pass
+
+
+def _date(value):
+    return value.strftime('%d.%m.%Y') if value else '-'
 
 
 #**********************************************************************
@@ -197,6 +207,8 @@ class ContractTermAdjustmentRun(Workflow, ModelSQL, ModelView):
         states={'readonly': ~Eval('state').in_(['declared', 'ready'])})
     summary = fields.Text("Summary", readonly=True)
     protocol = fields.Text("Protocol", readonly=True)
+    property_names = fields.Function(fields.Char("Properties"),
+        'get_property_names')
     progress = fields.Function(fields.Char("Progress"), 'get_progress')
     run_date = fields.Function(fields.Date("Run Date"), 'get_run_date')
     process = fields.Function(fields.Many2One('real_estate.process',
@@ -262,6 +274,10 @@ class ContractTermAdjustmentRun(Workflow, ModelSQL, ModelView):
                 'invisible': ~Eval('state').in_(['selected', 'calculated']),
                 'depends': ['state'],
                 },
+            'print_letters': {
+                'invisible': ~Eval('state').in_(['declared', 'ready']),
+                'depends': ['state'],
+                },
             'open_calculations': {
                 'invisible': ((Eval('procedure') != 'comparative_rent')
                     | (Eval('state') == 'draft')),
@@ -318,8 +334,12 @@ class ContractTermAdjustmentRun(Workflow, ModelSQL, ModelView):
 
     @classmethod
     def get_procedures(cls):
-        labels = dict(ADJUSTMENT_PROCEDURES)
-        return [(k, labels[k]) for k in PROCEDURES]
+        # translated labels of the procedure selection of the rent
+        # adjustment (a selection method is not translated by itself)
+        RentAdjustment = Pool().get('real_estate.contract.rent_adjustment')
+        labels = dict(RentAdjustment.fields_get(['procedure'])['procedure']
+            ['selection'])
+        return [(k, labels.get(k, k)) for k in PROCEDURES]
 
     @property
     def procedure_class(self):
@@ -337,6 +357,9 @@ class ContractTermAdjustmentRun(Workflow, ModelSQL, ModelView):
 
     def get_run_date(self, name):
         return self.create_date.date() if self.create_date else None
+
+    def get_property_names(self, name):
+        return ', '.join(p.rec_name for p in self.properties)
 
     def get_progress(self, name):
         states = [a.state for a in self.adjustments]
@@ -545,11 +568,14 @@ class ContractTermAdjustmentRun(Workflow, ModelSQL, ModelView):
             if refused:
                 Adjustment.refuse(refused)
             todo = [a for a in todo if a not in refused]
-            if todo:
-                Adjustment.execute(todo)
-            todo += refused
             cls.write([run], {'protocol': run._log(
-                        'msg_adjustment_run_executed', count=len(todo))})
+                        'msg_adjustment_run_execute_queued',
+                        count=len(todo), refused=len(refused))})
+            if todo:
+                # one background job per adjustment (term split and cash
+                # flow): an error only concerns this contract
+                with Transaction().set_context(queue_batch=1):
+                    Adjustment.__queue__.execute_in_run(todo)
         cls.update_state(cls.browse([r.id for r in runs]))
         cls._check_processes(cls.browse([r.id for r in runs]))
 
@@ -591,6 +617,12 @@ class ContractTermAdjustmentRun(Workflow, ModelSQL, ModelView):
         pass
 
     @classmethod
+    @ModelView.button_action('real_estate.report_adjustment_run_letters')
+    def print_letters(cls, runs):
+        "All letters still to send in one document"
+        pass
+
+    @classmethod
     @ModelView.button
     def open_calculations(cls, runs):
         """The comparative rent calculations of the run's adjustments - to
@@ -623,19 +655,29 @@ class ContractTermAdjustmentRun(Workflow, ModelSQL, ModelView):
     def update_state(cls, runs):
         """Follow-up states: 'ready' once every announced adjustment has
         its receipt (if needed), 'done' once no adjustment is open"""
+        changed = []
         for run in runs:
             if run.state not in ('declared', 'ready'):
                 continue
             procedure = run.procedure_class
             if all(a.state in CLOSED for a in run.adjustments):
-                cls._set_state([run], 'done')
+                state = 'done'
+            else:
+                ready = all(procedure.ready(a)
+                    for a in run.adjustments if a.state == 'declared')
+                state = ('ready' if ready
+                    else 'declared' if run.state == 'ready' else run.state)
+            if state == run.state:
                 continue
-            ready = all(procedure.ready(a)
-                for a in run.adjustments if a.state == 'declared')
-            if run.state == 'declared' and ready:
-                cls._set_state([run], 'ready')
-            elif run.state == 'ready' and not ready:
-                cls._set_state([run], 'declared')
+            # automatic follow-up state: protocol line and process check
+            # as for the buttons
+            cls.write([run], {
+                    'state': state,
+                    'protocol': run._log(f'msg_adjustment_run_state_{state}'),
+                    })
+            changed.append(run.id)
+        if changed:
+            cls._check_processes(cls.browse(changed))
 
 
 class ContractTermAdjustmentRunProperty(ModelSQL):
@@ -820,8 +862,79 @@ class ContractTermAdjustment(metaclass=PoolMeta):
         return values
 
     @classmethod
+    def execute_in_run(cls, adjustments):
+        """Execute announced adjustments of a run in the background: an
+        error is rolled back and written to the protocol of the run, the
+        adjustment stays announced (to be executed again)"""
+        pool = Pool()
+        Run = pool.get('real_estate.contract.term.adjustment.run')
+        User = pool.get('res.user')
+        transaction = Transaction()
+        user = User(transaction.user)
+        language = user.language.code if user.language else None
+        with transaction.set_context(language=language):
+            for adjustment_id in [a.id for a in adjustments]:
+                adjustment = cls(adjustment_id)
+                if adjustment.state != 'declared' or not adjustment.run:
+                    continue
+                run_id, name = adjustment.run.id, adjustment.rec_name
+                try:
+                    cls.execute([adjustment])
+                except (UserError, TrytonUserWarning) as exception:
+                    transaction.rollback()
+                    run = Run(run_id)
+                    Run.lock([run])
+                    Run.write([run], {'protocol': run._log(
+                                'msg_adjustment_run_execute_error',
+                                adjustment=name,
+                                error=exception.message)})
+                    continue
+                run = Run(run_id)
+                Run.lock([run])
+                Run.update_state([run])
+
+    @classmethod
+    def _check_dates(cls, args):
+        """Warnings (confirmable) for implausible dates: receipt before
+        the declaration or in the future, consent before the receipt"""
+        pool = Pool()
+        Warning = pool.get('res.user.warning')
+        Date = pool.get('ir.date')
+        today = Date.today()
+        actions = iter(args)
+        for records, values in zip(actions, actions):
+            if not {'receipt_date', 'consent_date', 'declaration_date'} \
+                    & set(values):
+                continue
+            for record in records:
+                receipt = values.get('receipt_date', record.receipt_date)
+                consent = values.get('consent_date', record.consent_date)
+                declaration = values.get('declaration_date',
+                    record.declaration_date)
+                checks = [
+                    ('receipt_before_declaration', bool(receipt
+                            and declaration and receipt < declaration)),
+                    ('receipt_future', bool(receipt and receipt > today)),
+                    ('consent_before_receipt', bool(consent and receipt
+                            and consent < receipt)),
+                    ]
+                for code, failed in checks:
+                    if not failed:
+                        continue
+                    key = Warning.format(f'adjustment_{code}_'
+                        f'{receipt}_{consent}', [record])
+                    if Warning.check(key):
+                        raise AdjustmentDateWarning(key, gettext(
+                                f'real_estate.msg_adjustment_{code}',
+                                adjustment=record.rec_name,
+                                receipt=_date(receipt),
+                                consent=_date(consent),
+                                declaration=_date(declaration)))
+
+    @classmethod
     def write(cls, *args):
         Task = Pool().get('real_estate.task')
+        cls._check_dates(args)
         actions = iter(args)
         args = list(args)
         receipts, decided, recompute = [], [], []

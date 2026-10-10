@@ -1594,24 +1594,29 @@ class InspectionLine(ModelSQL, ModelView):
     @classmethod
     def get_tenant(cls, lines, name):
         "Main tenant of the contract of the unit on the inspection date"
-        Occupancy = Pool().get('real_estate.base_object.occupancy')
         result = {l.id: None for l in lines}
         for line in lines:
-            unit = line.unit
-            date = (line.visit_date or line.inspection.planned_date
-                or line.inspection.due_date)
-            if not unit or not date:
-                continue
-            for occ in Occupancy.search([
-                        ('base_object', '=', unit.id),
-                        ('start_date', '<=', date),
-                        ['OR', ('end_date', '=', None),
-                            ('end_date', '>=', date)],
-                        ('contract', '!=', None),
-                        ], limit=1):
-                partner = occ.contract.contractual_partner
-                result[line.id] = partner.id if partner else None
+            contract = line.occupancy_contract()
+            partner = contract.contractual_partner if contract else None
+            result[line.id] = partner.id if partner else None
         return result
+
+    def occupancy_contract(self):
+        "Contract of the unit on the visit, planned or due date"
+        Occupancy = Pool().get('real_estate.base_object.occupancy')
+        date = (self.visit_date or self.inspection.planned_date
+            or self.inspection.due_date)
+        if not self.unit or not date:
+            return None
+        for occ in Occupancy.search([
+                    ('base_object', '=', self.unit.id),
+                    ('start_date', '<=', date),
+                    ['OR', ('end_date', '=', None),
+                        ('end_date', '>=', date)],
+                    ('contract', '!=', None),
+                    ], limit=1):
+            return occ.contract
+        return None
 
     def get_result(self, name):
         "Derived result (spec 4.2)"
@@ -2101,6 +2106,21 @@ class InspectionAccessLetterCreate(Wizard):
                     'real_estate.msg_inspection_no_lines_without_access',
                     inspection=', '.join(r.rec_name for r in self.records)))
         _archive(Report, self.records)
+        # one letter per line is also attached to the tenant's contract
+        Attachment = pool.get('ir.attachment')
+        for line in lines:
+            contract = line.occupancy_contract()
+            if not contract:
+                continue
+            ext, content, _, name = Report.execute([line.inspection.id], {
+                    'model': 'real_estate.inspection',
+                    'line_ids': [line.id],
+                    })
+            Attachment.create([{
+                        'name': f'{name}-{line.rec_name}.{ext}',
+                        'resource': str(contract),
+                        'data': content,
+                        }])
         Line.write(lines, {'letter_date': Date.today()})
         _complete_steps(self.records,
             'real_estate.inspection.access_letter.create')
@@ -2149,10 +2169,13 @@ class InspectionAccessLetterReport(Report):
             type='report')
         context = super().get_context(records, header, data)
         context['format_value'] = ContractReport.format_value
+        # data 'line_ids': only these lines (letter for one contract)
+        line_ids = set((data or {}).get('line_ids') or [])
         context['letters'] = [(i, l, l.tenant,
                 l.tenant.address_get(type='invoice') if l.tenant else None)
             for i in records for l in i.lines
-            if l.access_status in ['no_access', 'refused']]
+            if l.access_status in ['no_access', 'refused']
+            and (not line_ids or l.id in line_ids)]
         return context
 
 

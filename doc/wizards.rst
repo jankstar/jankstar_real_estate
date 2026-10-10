@@ -186,3 +186,10 @@ adjustment run (see `Rent Adjustments <rent_adjustment.rst>`__,
    run): the selected terms are processed by the procedure's selection
    with all its checks; added and excluded terms are logged in the
    protocol of the run.
+
+``real_estate.contract.new_letting_check``  (``contract_comparative_rent.py``)
+   *Check Comparative Rent (New Letting)* on a draft residential contract
+   with a rent survey: compares the rent terms with the comparative rent
+   on the contract start (+10 % in a tight housing market, else +20 %) and
+   sets them to the limit if wanted - see `Comparative Rent (Rent Survey)
+   <rent_adjustment_comparative.rst>`__, *New letting check*.

@@ -220,6 +220,9 @@ def register():
         contract_comparative_rent.ContractRentAdjustment,
         contract_comparative_rent.ContractTermAdjustment,
         contract_comparative_rent.AdjustmentRunAddStart,
+        contract_comparative_rent.Contract,
+        contract_comparative_rent.NewLettingCheckStart,
+        contract_comparative_rent.NewLettingCheckLine,
         ir.Rule,
         option_rate.OptionRateContext,
         option_rate.OptionRate,
@@ -268,6 +271,7 @@ def register():
         rent_survey.RentSurveyMatrixExport,
         rent_survey.RentSurveyMatrixImport,
         contract_comparative_rent.AdjustmentRunAdd,
+        contract_comparative_rent.NewLettingCheck,
         module='real_estate', type_='wizard')
     Pool.register(
         base_object.BaseObjectReport,
@@ -279,6 +283,7 @@ def register():
         contract_report.ContractTerminationConfirmationReport,
         contract_report.IndexAdjustmentLetterReport,
         contract_report.ComparativeRentLetterReport,
+        contract_report.AdjustmentRunLettersReport,
         contract_report.HandoverReport,
         meter_reading_sheet.MeterReadingSheetReport,
         invoice.ContractMoveLinePayableReceivableReport,

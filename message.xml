@@ -1124,9 +1124,6 @@ Either run "Ready for Billing" for each billing unit first, or bill individual b
         <record model="ir.message" id="msg_adjustment_run_declared">
             <field name="text">Announced: %(count)s letters created.</field>
         </record>
-        <record model="ir.message" id="msg_adjustment_run_executed">
-            <field name="text">Executed: %(count)s adjustments.</field>
-        </record>
         <record model="ir.message" id="msg_adjustment_run_reset">
             <field name="text">Reset to draft.</field>
         </record>
@@ -1168,7 +1165,13 @@ Either run "Ready for Billing" for each billing unit first, or bill individual b
             <field name="text">No term allows the comparative rent (contract type, term type, use class, monthly rhythm).</field>
         </record>
         <record model="ir.message" id="msg_comparative_line_agreed">
-            <field name="text">%(term)s: excluded - graduated or index rent "%(agreement)s" (V01).</field>
+            <field name="text">%(term)s: excluded - active index rent or locked graduated rent step "%(agreement)s" (V01).</field>
+        </record>
+        <record model="ir.message" id="msg_comparative_line_future">
+            <field name="text">%(term)s: excluded - the term starts on %(start)s after the effective date (graduated rent running, V01).</field>
+        </record>
+        <record model="ir.message" id="msg_comparative_future">
+            <field name="text">The term starts on %(start)s or is locked by a graduated rent - no comparative rent before its start (effective date %(valid_from)s, § 557a para. 2 BGB).</field>
         </record>
         <record model="ir.message" id="msg_comparative_line_open">
             <field name="text">%(term)s: excluded - open adjustment "%(adjustment)s" (V02).</field>
@@ -1206,6 +1209,9 @@ Either run "Ready for Billing" for each billing unit first, or bill individual b
         <record model="ir.message" id="msg_comparative_calculation">
             <field name="text">No accepted calculation of the rent survey for "%(apartment)s" (key date at most one year before the declaration date %(date)s) - accept the calculation and calculate again.</field>
         </record>
+        <record model="ir.message" id="msg_comparative_calculation_run">
+            <field name="text">The calculation of the rent survey for "%(apartment)s" on the key date %(date)s of the run is not accepted yet - accept it (button "Calculations") and calculate again.</field>
+        </record>
         <record model="ir.message" id="msg_comparative_calculation_warning">
             <field name="text">The calculation "%(calculation)s" was accepted with warnings or uses a table cell outside the qualified rent survey - state this in the request.</field>
         </record>
@@ -1230,6 +1236,57 @@ New rent (lower of comparative rent and cap): %(new)s</field>
         </record>
         <record model="ir.message" id="msg_comparative_log_refused">
             <field name="text">Request for consent "%(adjustment)s" (%(amount)s) refused by the tenant.</field>
+        </record>
+        <record model="ir.message" id="msg_adjustment_run_no_letters">
+            <field name="text">The run "%(run)s" has no letters to send (announced adjustments without captured receipt).</field>
+        </record>
+        <record model="ir.message" id="msg_adjustment_run_letters_procedures">
+            <field name="text">The letters of runs with different procedures cannot be printed together.</field>
+        </record>
+        <record model="ir.message" id="msg_adjustment_run_state_ready">
+            <field name="text">Ready: all receipts and consents are captured.</field>
+        </record>
+        <record model="ir.message" id="msg_adjustment_run_state_declared">
+            <field name="text">Announced again: a receipt or consent is missing.</field>
+        </record>
+        <record model="ir.message" id="msg_adjustment_run_state_done">
+            <field name="text">Done: no adjustment is open.</field>
+        </record>
+        <record model="ir.message" id="msg_adjustment_run_execute_queued">
+            <field name="text">Execution started in the background: %(count)s adjustments (refused and closed: %(refused)s) - reload the run to see the result; errors are listed here.</field>
+        </record>
+        <record model="ir.message" id="msg_adjustment_run_execute_error">
+            <field name="text">Not executed: %(adjustment)s - %(error)s</field>
+        </record>
+        <record model="ir.message" id="msg_adjustment_receipt_before_declaration">
+            <field name="text">The receipt date %(receipt)s of "%(adjustment)s" lies before the declaration date %(declaration)s - the effective date is calculated from the receipt.</field>
+        </record>
+        <record model="ir.message" id="msg_adjustment_receipt_future">
+            <field name="text">The receipt date %(receipt)s of "%(adjustment)s" lies in the future.</field>
+        </record>
+        <record model="ir.message" id="msg_adjustment_consent_before_receipt">
+            <field name="text">The consent date %(consent)s of "%(adjustment)s" lies before the receipt date %(receipt)s.</field>
+        </record>
+        <record model="ir.message" id="msg_new_letting_basis_tight">
+            <field name="text">Tight housing market on %(date)s: the rent may exceed the comparative rent by at most %(percent)s %% (rent brake, § 556d BGB; exceptions §§ 556e, 556f BGB - previous rent, modernisation, new building).</field>
+        </record>
+        <record model="ir.message" id="msg_new_letting_basis">
+            <field name="text">No tight housing market on %(date)s: orientation %(percent)s %% above the comparative rent (rent overcharge, § 5 WiStG).</field>
+        </record>
+        <record model="ir.message" id="msg_new_letting_above">
+            <field name="text">Above the limit %(limit)s</field>
+        </record>
+        <record model="ir.message" id="msg_new_letting_below">
+            <field name="text">Within the limit %(limit)s</field>
+        </record>
+        <record model="ir.message" id="msg_new_letting_no_calculation">
+            <field name="text">Comparative rent not calculable</field>
+        </record>
+        <record model="ir.message" id="msg_new_letting_no_terms">
+            <field name="text">No monthly rent term of exactly one apartment that allows the comparative rent.</field>
+        </record>
+        <record model="ir.message" id="msg_new_letting_log">
+            <field name="text">New letting check: term "%(term)s" %(old)s -&gt; %(new)s (comparative rent %(comparative)s + %(percent)s %%).</field>
         </record>
     </data>
 </tryton>

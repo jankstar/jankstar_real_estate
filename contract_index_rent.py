@@ -648,6 +648,11 @@ class ContractTermAdjustment(metaclass=PoolMeta):
                         'resource': str(record),
                         'data': content,
                         }])
+            # the correspondence is also shown on the contract (copy
+            # shares the stored file)
+            if record.contract:
+                Attachment.copy([attachment],
+                    default={'resource': str(record.contract)})
             cls.write([record], {'letter': attachment.id})
 
     @classmethod

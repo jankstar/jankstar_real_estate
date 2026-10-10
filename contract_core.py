@@ -1328,6 +1328,11 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
         """Rebuild cash flows for all terms of the given contracts (once per contract)."""
         with Transaction().set_context(_skip_re_calc=True):
             for contract in contracts:
+                # Fresh instance per contract: function fields are read for
+                # all records loaded together - with the terms of many
+                # contracts in one group every term rebuild would compute
+                # them for all of them (quadratic run time)
+                contract = cls(contract.id)
                 if contract.state not in ('running', 'terminated'):
                     continue
                 for term in contract.terms:

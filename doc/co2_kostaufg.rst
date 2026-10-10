@@ -2,6 +2,8 @@
 CO2 Cost Allocation (CO2KostAufG)
 *********************************
 
+Part of `Operating Cost Settlement <operating_cost_settlement.rst>`__.
+
 Implements the German *CO2-Kostenaufteilungsgesetz* (CO2KostAufG), which
 splits the CO2 cost of heating fuel between tenant and landlord depending on
 the building's emission intensity (kg CO2/m²/year). Applies via an optional

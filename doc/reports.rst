@@ -10,6 +10,14 @@ control flow (``py:if``/``py:for``/``py:choose``) is written as attributes on
 the surrounding ODF elements. Older ``.html`` versions of these templates
 remain in ``report/`` for reference only and are not registered.
 
+Several records in one document (letters, protocols, meter reading
+sheets): every record starts on a new page and the page numbering
+restarts at 1 - the first paragraph of a record uses the paragraph style
+``PBreak`` (break before page, master page *Standard*, page number 1),
+chosen with two paragraphs and ``py:if="index"`` / ``py:if="not
+(index)"``; expressions inside ODF attributes (``text:style-name="${...}"``)
+are not evaluated. The master page has a footer *Seite N*.
+
 Templates are maintained as ODF XML (``content.xml``/``styles.xml``), not by
 re-saving the ``.odt`` in an office suite (which drops the ``py:``
 attributes). Context helpers exposed to templates must not start with an
@@ -54,8 +62,8 @@ via ``get_context()``.
    adjustment (page break), addressed jointly to all main tenants
    (``contract.main_tenant_party_ids``, invoice address). The button
    *Declare* renders it with ``data['original']`` and archives the
-   original as attachment; printed from the print menu it is marked
-   *Zweitschrift* (declared/done) or *ENTWURF* (before the declaration).
+   original as attachment of the adjustment and of the contract (copy
+   sharing the stored file). Mark: *ENTWURF* before the announcement, none while announced and the receipt is not captured (dispatch), *Zweitschrift* afterwards.
    Index values are formatted with one decimal (``format_index``).
 
 ``real_estate.contract.comparative_rent.letter``  (``contract_report.py``)
@@ -68,6 +76,12 @@ via ``get_context()``.
    protocol, deviating accepted rent with reason), cap with its basis,
    period for consideration (``consent_until``) and a consent form.
    *Announce* of the adjustment run archives the original.
+
+``real_estate.contract.term.adjustment.run.letters``  (``contract_report.py``)
+   *Letters to Send* on the adjustment run (button *Print Letters*,
+   state announced/ready): all announced adjustments without captured
+   receipt in one document, rendered by the letter report of the
+   procedure without mark; error if none is left.
 
 ``real_estate.contract.handover.report``  (``contract_report.py``)
    Handover report on ``real_estate.contract.handover``, template

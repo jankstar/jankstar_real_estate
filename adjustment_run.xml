@@ -87,6 +87,48 @@
             <field name="string">Calculations</field>
         </record>
 
+        <record model="ir.model.button" id="adjustment_run_print_letters_button">
+            <field name="model">real_estate.contract.term.adjustment.run</field>
+            <field name="name">print_letters</field>
+            <field name="string">Print Letters</field>
+            <field name="help">All letters of the run still to send (receipt not captured) in one document.</field>
+        </record>
+        <!-- All letters of a run to send in one document -->
+        <record model="ir.action.report" id="report_adjustment_run_letters">
+            <field name="name">Letters to Send</field>
+            <field name="report_name">real_estate.contract.term.adjustment.run.letters</field>
+            <field name="model">real_estate.contract.term.adjustment.run</field>
+            <field name="template_extension">odt</field>
+        </record>
+        <record model="ir.action.keyword" id="report_adjustment_run_letters_keyword">
+            <field name="keyword">form_print</field>
+            <field name="model">real_estate.contract.term.adjustment.run,-1</field>
+            <field name="action" ref="report_adjustment_run_letters"/>
+        </record>
+
+        <!-- Check of a new letting against the comparative rent -->
+        <record model="ir.ui.view" id="new_letting_check_start_view_form">
+            <field name="model">real_estate.contract.new_letting_check.start</field>
+            <field name="type">form</field>
+            <field name="name">new_letting_check_start_form</field>
+        </record>
+        <record model="ir.ui.view" id="new_letting_check_line_view_list">
+            <field name="model">real_estate.contract.new_letting_check.line</field>
+            <field name="type">tree</field>
+            <field name="name">new_letting_check_line_list</field>
+        </record>
+        <record model="ir.action.wizard" id="wizard_new_letting_check">
+            <field name="name">Check Comparative Rent (New Letting)</field>
+            <field name="wiz_name">real_estate.contract.new_letting_check</field>
+            <field name="model">real_estate.contract</field>
+        </record>
+        <record model="ir.model.button" id="contract_check_new_letting_button">
+            <field name="model">real_estate.contract</field>
+            <field name="name">check_new_letting</field>
+            <field name="string">Check Comparative Rent (New Letting)</field>
+            <field name="help">Compare the rent of the draft contract with the comparative rent of the rent survey (+10 % in a tight housing market, else +20 %) and set the terms to the limit if wanted.</field>
+        </record>
+
         <!-- Add terms to a run (spec 4.3) -->
         <record model="ir.ui.view" id="adjustment_run_add_start_view_form">
             <field name="model">real_estate.contract.term.adjustment.run.add.start</field>

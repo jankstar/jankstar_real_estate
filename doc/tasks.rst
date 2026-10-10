@@ -307,7 +307,8 @@ Handover reports
    keys (type, description, quantity; for a move-out the quantity of the
    move-in report is shown and deviations are marked), meter readings,
    general condition, swept clean, agreements and the scan of the signed
-   report (``signed_document``).
+   report (``signed_document``, copied once as attachment to the contract -
+   same stored file).
 
    Proposals (on creation, when choosing contract/kind, button *Apply
    Proposals*): the objects of the contract items, the main tenants, the

@@ -1,6 +1,6 @@
 'Comparative rent (§§ 558-558b BGB) - procedure of the adjustment run (spezifikation-anpassungslauf.md 10)'
 import datetime
-from decimal import ROUND_HALF_UP, Decimal
+from decimal import ROUND_DOWN, ROUND_HALF_UP, Decimal
 
 from dateutil.relativedelta import relativedelta
 
@@ -223,13 +223,24 @@ class ComparativeRentProcedure(AdjustmentProcedure):
                     ('term', 'in', chain_ids),
                     ('state', '!=', 'closed'),
                     ])
-            # V01: no graduated or index rent, not locked
-            agreed = [a for a in agreements
-                if a.procedure in ('graduated_rent', 'index_rent')]
+            valid_from = effective_date(declaration_date
+                + datetime.timedelta(days=cls._receipt_days(term)))
+            # V01: no active index rent (§ 557b para. 2 BGB), no running
+            # graduated rent (§ 557a para. 2 BGB): locked step or a step
+            # still to start - after the last step the waiting period
+            # (V03) counts from its start
+            agreed = [a for a in agreements if a.procedure == 'index_rent']
             if agreed or term.graduated_locked:
                 counts['excluded'] += 1
                 protocol(term, 'msg_comparative_line_agreed',
-                    agreement=agreed[0].rec_name if agreed else '-')
+                    agreement=agreed[0].rec_name if agreed else (
+                        term.rent_adjustment.rec_name
+                        if term.rent_adjustment else '-'))
+                continue
+            if term.valid_from > valid_from:
+                counts['excluded'] += 1
+                protocol(term, 'msg_comparative_line_future',
+                    start=term.valid_from.strftime('%d.%m.%Y'))
                 continue
             agreement = next((a for a in agreements
                     if a.procedure == 'comparative_rent'
@@ -254,8 +265,6 @@ class ComparativeRentProcedure(AdjustmentProcedure):
                     count=len(objects))
                 continue
             apartment, = apartments
-            valid_from = effective_date(declaration_date
-                + datetime.timedelta(days=cls._receipt_days(term)))
             # V06: contract not ended before the effective date
             end = term.contract.get_effective_end_date()
             if end and end < valid_from:
@@ -394,29 +403,37 @@ class ContractTermAdjustment(metaclass=PoolMeta):
         return apartments[0].id if len(apartments) == 1 else None
 
     def _accepted_calculation(self, declaration_date):
-        """Accepted calculation of the apartment (V07): key date not after
-        the declaration date and not older than one year - the linked
-        one, else the latest"""
+        """Calculation of the apartment for the adjustment (V07). Run with
+        'Create Calculations': always the latest calculation on the key
+        date of the run (calculated again by the run), it has to be
+        accepted. Else the latest accepted calculation with a key date
+        not after the declaration date and not older than one year.
+        Returns (accepted calculation or None, calculation to link)."""
         Calculation = Pool().get('real_estate.rent_survey.calculation')
         apartment = self.calculation_object
         if not apartment or not declaration_date:
-            return None
+            return None, None
+        run = self.run
+        if run and run.create_calculations:
+            calculations = Calculation.search([
+                    ('base_object', '=', apartment.id),
+                    ('key_date', '=', run.key_date),
+                    ('state', '!=', 'rejected'),
+                    ], order=[('id', 'DESC')], limit=1)
+            current = calculations[0] if calculations else None
+            if current and current.state == 'accepted':
+                return current, current
+            return None, current
         earliest = declaration_date - relativedelta(
             months=CALCULATION_MONTHS)
-
-        def usable(calculation):
-            return (calculation.state == 'accepted'
-                and calculation.base_object == apartment
-                and earliest < calculation.key_date <= declaration_date)
-        if self.calculation and usable(self.calculation):
-            return self.calculation
         calculations = Calculation.search([
                 ('base_object', '=', apartment.id),
                 ('state', '=', 'accepted'),
                 ('key_date', '<=', declaration_date),
                 ('key_date', '>', earliest),
                 ], order=[('key_date', 'DESC'), ('id', 'DESC')], limit=1)
-        return calculations[0] if calculations else None
+        calculation = calculations[0] if calculations else None
+        return calculation, calculation
 
     def _comparative_compute(self):
         """Comparative rent with cap (spec 10.4) and checks V03, V04, V06,
@@ -484,6 +501,12 @@ class ContractTermAdjustment(metaclass=PoolMeta):
                     months=LOCK_MONTHS):
                 add('V04', 'error', 'msg_comparative_lock',
                     last_request=date(last_request))
+        # V01: no running graduated rent - the term starts after the
+        # effective date or is locked
+        if term.graduated_locked or (valid_from
+                and term.valid_from > valid_from):
+            add('V01', 'error', 'msg_comparative_future',
+                start=date(term.valid_from), valid_from=date(valid_from))
         # V11: net rent only
         if term.term_type.oc_processing != 'none':
             add('V11', 'error', 'msg_comparative_operating_costs',
@@ -494,12 +517,17 @@ class ContractTermAdjustment(metaclass=PoolMeta):
             add('V12', 'warning', 'msg_comparative_booked',
                 booked_to=date(booked_to), valid_from=date(valid_from))
         # V07: accepted calculation
-        calculation = self._accepted_calculation(declaration_date)
+        calculation, current = self._accepted_calculation(declaration_date)
+        values['calculation'] = current.id if current else None
         if not calculation:
-            add('V07', 'error', 'msg_comparative_calculation',
-                apartment=(self.calculation_object.rec_name
-                    if self.calculation_object else '-'),
-                date=date(declaration_date))
+            apartment = (self.calculation_object.rec_name
+                if self.calculation_object else '-')
+            if run and run.create_calculations:
+                add('V07', 'error', 'msg_comparative_calculation_run',
+                    apartment=apartment, date=date(run.key_date))
+            else:
+                add('V07', 'error', 'msg_comparative_calculation',
+                    apartment=apartment, date=date(declaration_date))
             return self._finish_compute(values, findings,
                 self.manual_amount, amount_old)
         values['calculation'] = calculation.id
@@ -656,4 +684,214 @@ class AdjustmentRunAdd(Wizard):
                 })
         with Transaction().set_context(_skip_warnings=True):
             Run._check_processes([Run(run.id)])
+        return 'end'
+
+
+#**********************************************************************
+# Check of the rent of a new letting against the comparative rent
+# (§ 556d BGB rent brake in a tight housing market, else § 5 WiStG)
+
+NEW_LETTING_TIGHT_PERCENT = Decimal(10)     # § 556d para. 1 BGB
+NEW_LETTING_PERCENT = Decimal(20)           # § 5 WiStG (orientation)
+
+
+class Contract(metaclass=PoolMeta):
+    __name__ = 'real_estate.contract'
+
+    has_rent_survey = fields.Function(fields.Boolean("Rent Survey"),
+        'on_change_with_has_rent_survey')
+
+    @classmethod
+    def __setup__(cls):
+        super().__setup__()
+        cls._buttons.update({
+                'check_new_letting': {
+                    'invisible': ((Eval('state') != 'draft')
+                        | ~Eval('has_rent_survey', False)),
+                    'depends': ['state', 'has_rent_survey'],
+                    },
+                })
+
+    @fields.depends('type_of_use', 'property')
+    def on_change_with_has_rent_survey(self, name=None):
+        return bool(self.type_of_use == 'residential' and self.property
+            and self.property.rent_survey)
+
+    @classmethod
+    @ModelView.button_action('real_estate.wizard_new_letting_check')
+    def check_new_letting(cls, contracts):
+        pass
+
+
+class NewLettingCheckStart(ModelView):
+    "New Letting - Check Comparative Rent"
+    __name__ = 'real_estate.contract.new_letting_check.start'
+
+    contract = fields.Many2One('real_estate.contract', "Contract",
+        readonly=True)
+    key_date = fields.Date("Key Date", readonly=True,
+        help="Start of the contract - the comparative rent and the tight "
+             "housing market are taken on this date.")
+    tight_market = fields.Boolean("Tight Housing Market", readonly=True)
+    percent = fields.Numeric("Limit (%)", digits=(16, 0), readonly=True,
+        help="10 % above the comparative rent in a tight housing market "
+             "(rent brake, § 556d BGB), else 20 % as orientation (rent "
+             "overcharge, § 5 WiStG).")
+    information = fields.Text("Information", readonly=True)
+    lines = fields.One2Many('real_estate.contract.new_letting_check.line',
+        None, "Terms")
+
+
+class NewLettingCheckLine(ModelView):
+    "New Letting - Check Comparative Rent Line"
+    __name__ = 'real_estate.contract.new_letting_check.line'
+
+    term = fields.Many2One('real_estate.contract.term', "Term",
+        readonly=True)
+    apartment = fields.Many2One('real_estate.base_object', "Apartment",
+        readonly=True)
+    currency = fields.Many2One('currency.currency', "Currency",
+        readonly=True)
+    area = fields.Numeric("Living Space", digits=(16, 2), readonly=True)
+    rent_per_sqm = fields.Numeric("Comparative Rent per m²", digits=(16, 2),
+        readonly=True)
+    comparative_amount = Monetary("Comparative Rent", currency='currency',
+        digits='currency', readonly=True)
+    limit_amount = Monetary("Limit", currency='currency', digits='currency',
+        readonly=True)
+    current_amount = Monetary("Current Rent", currency='currency',
+        digits='currency', readonly=True)
+    deviation_percent = fields.Numeric("Above Comparative Rent (%)",
+        digits=(16, 2), readonly=True)
+    result = fields.Char("Result", readonly=True)
+    apply = fields.Boolean("Set to Limit",
+        states={'readonly': ~Eval('limit_amount')},
+        help="Set the rent of the term to the limit (comparative rent + "
+             "percentage).")
+
+
+class NewLettingCheck(Wizard):
+    "New Letting - Check Comparative Rent"
+    __name__ = 'real_estate.contract.new_letting_check'
+
+    start = StateView('real_estate.contract.new_letting_check.start',
+        'real_estate.new_letting_check_start_view_form', [
+            Button("Close", 'end', 'tryton-cancel'),
+            Button("Adjust Terms", 'apply', 'tryton-ok', default=True),
+            ])
+    apply = StateTransition()
+
+    @classmethod
+    def _terms(cls, contract, date):
+        "Monthly rent terms of one apartment valid on the date"
+        result = []
+        for term in contract.terms:
+            if ('comparative_rent' not in (
+                        term.term_type.adjustment_procedures or [])
+                    or term.rhythm_type != 'monthly'
+                    or term.valid_from > date
+                    or (term.valid_to and term.valid_to < date)):
+                continue
+            objects, apartments = _apartments(term)
+            if len(objects) == 1 and len(apartments) == 1:
+                result.append((term, apartments[0]))
+        return result
+
+    def default_start(self, fields):
+        pool = Pool()
+        Calculation = pool.get('real_estate.rent_survey.calculation')
+        Lang = pool.get('ir.lang')
+        lang = Lang.get()
+        contract = self.record
+        date = contract.start_date
+        tight = bool(contract.property
+            and contract.property.is_tight_market(date))
+        percent = NEW_LETTING_TIGHT_PERCENT if tight else NEW_LETTING_PERCENT
+        lines, messages = [], []
+        for term, apartment in self._terms(contract, date):
+            # calculated without storing a calculation
+            calculation = Calculation(company=contract.company,
+                base_object=apartment, key_date=date,
+                accepted_rent_per_sqm=None)
+            values = calculation._calculate()
+            current = _amount(term)
+            line = {
+                'term': term.id,
+                'apartment': apartment.id,
+                'currency': contract.currency.id if contract.currency
+                else None,
+                'current_amount': current,
+                'apply': False,
+                }
+            rent = values.get('rent_per_sqm')
+            area = values.get('area')
+            if values.get('check_state') == 'error' or not rent or not area:
+                line['result'] = gettext(
+                    'real_estate.msg_new_letting_no_calculation')
+                messages.append(f"{apartment.rec_name}: "
+                    f"{values.get('check_message') or ''}")
+                lines.append(line)
+                continue
+            comparative = _cent(rent * area)
+            limit = (comparative * (1 + percent / 100)).quantize(
+                Decimal('0.01'), rounding=ROUND_DOWN)
+            deviation = ((current / comparative - 1) * 100).quantize(
+                Decimal('0.01'), rounding=ROUND_HALF_UP)
+            line.update({
+                    'area': area,
+                    'rent_per_sqm': rent,
+                    'comparative_amount': comparative,
+                    'limit_amount': limit,
+                    'deviation_percent': deviation,
+                    'result': gettext(
+                        'real_estate.msg_new_letting_above'
+                        if current > limit
+                        else 'real_estate.msg_new_letting_below',
+                        limit=lang.format_number(limit, 2)),
+                    })
+            lines.append(line)
+        if not lines:
+            messages.append(gettext('real_estate.msg_new_letting_no_terms'))
+        information = '\n'.join([gettext(
+                    'real_estate.msg_new_letting_basis_tight' if tight
+                    else 'real_estate.msg_new_letting_basis',
+                    date=lang.strftime(date) if date else '-',
+                    percent=percent)] + messages)
+        return {
+            'contract': contract.id,
+            'key_date': date,
+            'tight_market': tight,
+            'percent': percent,
+            'information': information,
+            'lines': lines,
+            }
+
+    def transition_apply(self):
+        pool = Pool()
+        Term = pool.get('real_estate.contract.term')
+        Lang = pool.get('ir.lang')
+        lang = Lang.get()
+        contract = self.record
+        if contract.state != 'draft':
+            return 'end'
+        for line in self.start.lines:
+            if not line.apply or not line.limit_amount:
+                continue
+            term = Term(line.term.id)
+            quantity = Decimal(str(term.quantity or 0))
+            if quantity and quantity != 1:
+                unit_price = (line.limit_amount / quantity).quantize(
+                    Decimal(10) ** -price_digits[1], rounding=ROUND_DOWN)
+            else:
+                unit_price = line.limit_amount
+            old = _amount(term)
+            Term.write([term], {'unit_price': unit_price})
+            contract.add_log('new_letting_check', gettext(
+                    'real_estate.msg_new_letting_log',
+                    term=term.rec_name.strip(),
+                    old=lang.format_number(old, 2),
+                    new=lang.format_number(_amount(Term(term.id)), 2),
+                    comparative=lang.format_number(
+                        line.comparative_amount, 2),
+                    percent=self.start.percent))
         return 'end'

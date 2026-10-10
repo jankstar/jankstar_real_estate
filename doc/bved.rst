@@ -2,6 +2,8 @@
 BVED External Billing Interface
 *******************************
 
+Part of `Operating Cost Settlement <operating_cost_settlement.rst>`__.
+
 Implements the BVED / ARGE-FHW "Standard-Datenaustausch" Version 3.10 —
 the German fixed-width record format used to exchange operating-cost data
 with an external Messdienstleister (heating-cost/consumption billing
@@ -381,7 +383,7 @@ immediately before *Betriebskostenabrechnung*), bundling all models below.
         over every entry of the billing unit's own ``cash_flow_lines``
         (already filtered there by ``term_types_of_use``/invoice state,
         see `Operating Cost Settlement <operating_cost_settlement.rst>`__) whose own ``contract``
-        matches `contract` and ``base_object`` matches this mapping's
+        matches ``contract`` and ``base_object`` matches this mapping's
         own object, restricted to ``document_date`` within
         ``[start_date, end_date]``. ``(None, None)`` if nothing matches
         (a genuine Kann-Feld, not a zero).

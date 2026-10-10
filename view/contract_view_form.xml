@@ -129,6 +129,7 @@
         </page>
     </notebook>
     <newline/>
+    <button name="check_new_letting" icon="tryton-search"/>
     <button name="running" string="Running" icon="tryton-forward"/>
     <button name="revert_termination" string="Revert Termination" icon="tryton-back"/>
     <button name="terminate" string="Terminate" icon="tryton-forward"/>

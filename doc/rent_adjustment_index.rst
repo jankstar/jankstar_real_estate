@@ -130,9 +130,8 @@ addressed jointly to all main tenants, with index series and base
 year, reference and new index month/value, change in percent and
 points, cap rule if applied, old and new net rent and the difference,
 expected effective date) and archives the original as attachment
-(``letter``); the values are frozen from then on. Printing it again
-from the print menu marks it *Zweitschrift*, before the declaration
-*ENTWURF*. *Declare* and *Execute* are buttons of the adjustment run only.
+(``letter``), a copy of the attachment also on the contract (same
+stored file); the values are frozen from then on. Mark: *ENTWURF* before the announcement, none while announced and the receipt is not captured (dispatch), *Zweitschrift* afterwards. *Declare* and *Execute* are buttons of the adjustment run only.
 Receipt date and dispatch method are entered in the
 adjustment form or the editable list of the tab *Receipts* of the
 adjustment run (declared adjustments). *Execute* (``declared → done``, for

@@ -116,7 +116,7 @@ Property Management
    type are included in the calculation.
 
    ``get_effective_ids(m_type)``
-      Classmethod resolving `m_type` to the flat list of leaf type ids to
+      Classmethod resolving ``m_type`` to the flat list of leaf type ids to
       search: itself if not a group, else all descendant leaf ids
       (recursively, for nested groups).
 
@@ -125,21 +125,21 @@ Property Management
    for a given validity period.
 
    ``get_total_value(base_object_id, m_type, as_of_date=None)``
-      The single, hierarchy-aware entry point for "the value of `m_type`
-      on `base_object_id` as of `as_of_date`" — every computation in the
+      The single, hierarchy-aware entry point for "the value of ``m_type``
+      on ``base_object_id`` as of ``as_of_date``" — every computation in the
       module that needs a measurement value (as opposed to just listing
       raw rows for display) goes through this classmethod rather than
-      querying ``real_estate.measurement`` directly. Resolves `m_type` via
+      querying ``real_estate.measurement`` directly. Resolves ``m_type`` via
       ``MeasurementType.get_effective_ids()`` and, for **each** effective
       leaf id independently, looks up the object's own latest row with
       ``valid_from <= as_of_date`` (or the single latest row ever, if
-      `as_of_date` is ``None``) — then **sums** whatever was found. This
+      ``as_of_date`` is ``None``) — then **sums** whatever was found. This
       matters for a "Summenbemessung" (group type) where a single object
       carries values under **several sibling leaf types** at once (e.g. a
       mixed-use object with both a residential and a commercial area
       entry): the object contributes all of them, not just whichever
       happens to be the most recently dated row. Returns ``None`` if
-      `m_type` is falsy, resolves to no effective ids, or none of them has
+      ``m_type`` is falsy, resolves to no effective ids, or none of them has
       any matching row at all (true "not recorded", as opposed to a
       recorded value of zero) — callers use this to distinguish "no data"
       from a real zero. Used by ``real_estate.bved.provider_assignment``

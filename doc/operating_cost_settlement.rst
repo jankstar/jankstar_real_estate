@@ -2,6 +2,13 @@
 Operating Cost Settlement
 *************************
 
+Sub-topics on separate pages:
+
+- `CO2 Cost Allocation (CO2KostAufG) <co2_kostaufg.rst>`__ - split of the
+  CO2 cost of heating fuel between tenant and landlord
+- `BVED External Billing Interface <bved.rst>`__ - data exchange with
+  external metering service providers
+
 ``real_estate.cost_category_group``  (``billing_unit.py``)
    Groups cost types for reporting, e.g. *Heating*, *Water*, *Janitorial*.
 

@@ -4,6 +4,7 @@
     <field name="name" expand="1"/>
     <field name="procedure"/>
     <field name="key_date"/>
+    <field name="property_names" optional="0"/>
     <field name="price_index" optional="1"/>
     <field name="index_month" optional="1"/>
     <field name="declaration_date" optional="0"/>

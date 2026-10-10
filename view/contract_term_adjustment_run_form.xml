@@ -6,7 +6,8 @@
     <label name="key_date"/><field name="key_date"/>
     <label name="company"/><field name="company"/>
     <label name="declaration_date"/><field name="declaration_date"/>
-    <label name="progress"/><field name="progress" colspan="3"/>
+    <label name="progress"/><field name="progress"/>
+    <label name="state"/><field name="state"/>
     <notebook colspan="4">
         <page string="Workflow" id="page_workflow" col="4">
             <label name="process"/><field name="process"/>
@@ -39,9 +40,8 @@
             <field name="protocol"/>
         </page>
     </notebook>
-    <label name="state"/><field name="state"/>
     <field name="currency" invisible="1"/>
-    <group id="buttons" colspan="2" col="-1">
+    <group id="buttons" colspan="4" col="-1">
         <button name="cancel" icon="tryton-cancel"/>
         <button name="reset" icon="tryton-back"/>
         <button name="select" icon="tryton-search"/>
@@ -50,6 +50,7 @@
         <button name="calculate" icon="tryton-refresh"/>
         <button name="approve" icon="tryton-ok"/>
         <button name="declare" icon="tryton-print"/>
+        <button name="print_letters" icon="tryton-print"/>
         <button name="execute" icon="tryton-launch"/>
     </group>
 </form>

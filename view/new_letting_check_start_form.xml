@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<form col="6">
+    <label name="contract"/><field name="contract" colspan="5"/>
+    <label name="key_date"/><field name="key_date"/>
+    <label name="tight_market"/><field name="tight_market"/>
+    <label name="percent"/><field name="percent"/>
+    <field name="information" colspan="6" height="60"/>
+    <field name="lines" colspan="6"
+        view_ids="real_estate.new_letting_check_line_view_list"/>
+</form>

@@ -341,6 +341,31 @@ class Handover(Workflow, ModelSQL, ModelView):
                     if contract.property else None)
             args.extend((records, values))
         super().write(*args)
+        # the signed report is also shown on the contract
+        actions = iter(args)
+        signed = []
+        for records, values in zip(actions, actions):
+            if values.get('signed_document'):
+                signed.extend(records)
+        cls._attach_to_contract(cls.browse(signed))
+
+    @classmethod
+    def _attach_to_contract(cls, handovers):
+        """Copy the signed report to the contract (the copy shares the
+        stored file) - once per document"""
+        Attachment = Pool().get('ir.attachment')
+        for handover in handovers:
+            document = handover.signed_document
+            if not document or not handover.contract:
+                continue
+            resource = str(handover.contract)
+            if Attachment.search([
+                        ('resource', '=', resource),
+                        ('file_id', '=', document.file_id),
+                        ('name', '=', document.name),
+                        ], limit=1):
+                continue
+            Attachment.copy([document], default={'resource': resource})
 
     @classmethod
     def delete(cls, handovers):

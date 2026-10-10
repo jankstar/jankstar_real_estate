@@ -37,7 +37,11 @@ Menus:
   work: *Agreements* (the rent adjustments of all procedures), *Index
   Rents - Follow-up*, *Adjustment Runs* (the central entry, see
   *Adjustment run*), *Adjustments* (the contract term adjustments),
-  *Comparative Rent Calculations*
+  *Comparative Rent Calculations* - all lists with the selection
+  *Company* (required) and *Property* (optional) above the list; the
+  adjustment runs show a run without properties (= all) for every
+  property; columns *Property* (agreements, adjustments) and *Properties*
+  (runs)
 - *Real Estate › Configuration*: *Price Indices*, *Import Index Values*,
   *Index Rent Cap Rules*
 
@@ -89,8 +93,9 @@ pages:
   § 557a BGB) - steps generated in advance as terms
 - `Index Rent <rent_adjustment_index.rst>`__ (*Indexmiete*, § 557b BGB) -
   price indices, cap rules, agreement, adjustments, declaration
-- `Comparative Rent <rent_adjustment_comparative.rst>`__ (*Vergleichsmiete*,
-  §§ 558-558b BGB) - selection, cap, request for consent, consent
+- `Comparative Rent (Rent Survey) <rent_adjustment_comparative.rst>`__
+  (*Vergleichsmiete*, §§ 558-558b BGB) - rent survey and calculation of
+  the comparative rent, selection, cap, request for consent, consent
 
 Modernisation, operating cost billing/plan and free adjustment are header
 records so far.
@@ -111,8 +116,16 @@ Adjustment run
    the run), *Parameters*, *Adjustments* (editable list: approval reason,
    manual amount with reason), *Receipts / Consents* (editable list of
    the announced adjustments: receipt date, dispatch method, consent),
-   *Protocol* (dated block per step). *Add Terms* (wizard, selected or
+   *Protocol* (dated block per step). *Print Letters* (announced/ready)
+   prints all letters still to send in one document; the archived
+   originals hang on the adjustment and on the contract. *Add Terms*
+   (wizard, selected or
    calculated run) adds single terms with the checks of the selection.
+
+   Plausibility warnings (confirmable) when capturing receipt and
+   consent: receipt before the declaration date or in the future,
+   consent before the receipt - the effective date always follows the
+   receipt.
 
    Manual amount (both procedures): ``manual_amount`` with
    ``override_reason`` replaces the computed amount (``computed_amount``)
@@ -128,7 +141,12 @@ Adjustment run
    *Approval Reason*; errors and warnings without reason are cancelled
    and listed) → *Announce* (letters of the approved adjustments,
    archived) → the run becomes *Ready* as soon as every needed receipt is
-   (and every consent decided) → *Execute* (term split, refused
+   (and every consent decided; this automatic state - also back to
+   *Announced* or on to *Done* - writes a protocol line and completes the
+   process step) → *Execute* (in the background: refused adjustments
+   are closed at once, every consented one is executed by its own
+   background job - an error is rolled back and written to the protocol,
+   the adjustment stays announced; reload the run to see the result) (term split, refused
    adjustments are closed; the run is *Done* when no adjustment is
    open). *Reset to Draft* deletes the drafts, *Cancel* cancels the
    open adjustments and the process. All steps also work for several

@@ -188,7 +188,8 @@ Models
    proof) and prints it. *Create Letters No Access* archives and prints
    one letter per line without access to the tenant (*Letter No Access
    (de)*, ``report/inspection_access_letter_de.odt``) and sets
-   ``letter_date`` of the lines. *Next Attempt* (in progress) increases
+   ``letter_date`` of the lines; each letter is also archived on its own
+   at the tenant's contract (occupancy on the inspection date). *Next Attempt* (in progress) increases
    the attempt of the inspection and of the lines without access.
 
 ``real_estate.inspection.defect``  (``inspection.py``)

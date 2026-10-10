@@ -116,12 +116,13 @@ Contents
 
     - `Graduated Rent <https://github.com/jankstar/jankstar_real_estate/blob/main/doc/rent_adjustment_graduated.rst>`_
     - `Index Rent <https://github.com/jankstar/jankstar_real_estate/blob/main/doc/rent_adjustment_index.rst>`_
-    - `Comparative Rent <https://github.com/jankstar/jankstar_real_estate/blob/main/doc/rent_adjustment_comparative.rst>`_
+    - `Comparative Rent (Rent Survey) <https://github.com/jankstar/jankstar_real_estate/blob/main/doc/rent_adjustment_comparative.rst>`_
 
-  - `Rent Survey (Comparative Rent) <https://github.com/jankstar/jankstar_real_estate/blob/main/doc/rent_survey.rst>`_
   - `Operating Cost Settlement <https://github.com/jankstar/jankstar_real_estate/blob/main/doc/operating_cost_settlement.rst>`_
-  - `CO2 Cost Allocation (CO2KostAufG) <https://github.com/jankstar/jankstar_real_estate/blob/main/doc/co2_kostaufg.rst>`_
-  - `BVED External Billing Interface <https://github.com/jankstar/jankstar_real_estate/blob/main/doc/bved.rst>`_
+
+    - `CO2 Cost Allocation (CO2KostAufG) <https://github.com/jankstar/jankstar_real_estate/blob/main/doc/co2_kostaufg.rst>`_
+    - `BVED External Billing Interface <https://github.com/jankstar/jankstar_real_estate/blob/main/doc/bved.rst>`_
+
   - `Option Rate (Input VAT Deduction) <https://github.com/jankstar/jankstar_real_estate/blob/main/doc/option_rate.rst>`_
   - `Tasks, Processes and Handover Reports <https://github.com/jankstar/jankstar_real_estate/blob/main/doc/tasks.rst>`_
   - `Recurring Inspections <https://github.com/jankstar/jankstar_real_estate/blob/main/doc/inspections.rst>`_
@@ -152,7 +153,6 @@ Contents
    rent_adjustment_graduated
    rent_adjustment_index
    rent_adjustment_comparative
-   rent_survey
    operating_cost_settlement
    co2_kostaufg
    bved

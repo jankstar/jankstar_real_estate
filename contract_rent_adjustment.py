@@ -1,4 +1,5 @@
 'Rent Adjustment (Mietanpassung)'
+import builtins
 import datetime
 import hashlib
 import operator
@@ -58,6 +59,11 @@ class ContractRentAdjustment(Workflow, ModelSQL, ModelView):
 
     contract = fields.Many2One('real_estate.contract', "Contract",
         required=True, ondelete='CASCADE', states=_states_draft)
+    company = fields.Function(fields.Many2One('company.company', "Company"),
+        'on_change_with_company', searcher='search_contract_field')
+    property = fields.Function(fields.Many2One('real_estate.base_object',
+            "Property"),
+        'on_change_with_property', searcher='search_contract_field')
     procedure = fields.Selection(ADJUSTMENT_PROCEDURES, "Procedure",
         required=True, sort=False, states=_states_draft)
     term = fields.Many2One('real_estate.contract.term', "Term",
@@ -451,6 +457,18 @@ class ContractRentAdjustment(Workflow, ModelSQL, ModelView):
     @fields.depends('contract', '_parent_contract.currency')
     def on_change_with_currency(self, name=None):
         return self.contract.currency if self.contract else None
+
+    @fields.depends('contract', '_parent_contract.company')
+    def on_change_with_company(self, name=None):
+        return self.contract.company if self.contract else None
+
+    @fields.depends('contract', '_parent_contract.property')
+    def on_change_with_property(self, name=None):
+        return self.contract.property if self.contract else None
+
+    @classmethod
+    def search_contract_field(cls, name, clause):
+        return [('contract.' + clause[0],) + tuple(clause[1:])]
 
     @fields.depends('generated_area', 'term')
     def on_change_with_area(self, name=None):
@@ -1350,7 +1368,8 @@ class ContractRentAdjustment(Workflow, ModelSQL, ModelView):
                 ids.append(record.id)
         return [('id', 'in', ids)]
 
-    @property
+    # builtins: the field "property" shadows the decorator in the class body
+    @builtins.property
     def _residential(self):
         return bool(self.contract
             and self.contract.type_of_use == 'residential')

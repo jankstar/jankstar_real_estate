@@ -60,6 +60,10 @@
         <record model="ir.action.act_window" id="act_contract_rent_adjustment">
             <field name="name">Rent Adjustments</field>
             <field name="res_model">real_estate.contract.rent_adjustment</field>
+            <field name="context_model">real_estate.base_object.context</field>
+            <field name="context_domain"
+                eval="[('contract.company', '=', Eval('company', -1)), If(Eval('property', None), [('contract.property', '=', Eval('property', None))], [])]"
+                pyson="1"/>
         </record>
         <record model="ir.action.act_window.view" id="act_contract_rent_adjustment_view1">
             <field name="sequence" eval="10"/>
@@ -84,6 +88,10 @@
             <field name="name">Index Rents - Follow-up</field>
             <field name="res_model">real_estate.contract.rent_adjustment</field>
             <field name="domain" eval="[('procedure', '=', 'index_rent'), ('state', '=', 'active')]" pyson="1"/>
+            <field name="context_model">real_estate.base_object.context</field>
+            <field name="context_domain"
+                eval="[('contract.company', '=', Eval('company', -1)), If(Eval('property', None), [('contract.property', '=', Eval('property', None))], [])]"
+                pyson="1"/>
         </record>
         <record model="ir.action.act_window.view" id="act_index_rent_follow_up_view1">
             <field name="sequence" eval="10"/>

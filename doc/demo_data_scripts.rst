@@ -118,3 +118,17 @@ builds on the previous one's data):
    and reconciles the open items::
 
       python tests/test_payment.py --database <db> [--config trytond.conf]
+
+``tests/migrate_run_rents.py``
+   Test migration for the comparative rent: sets the rent terms of the
+   contracts of an adjustment run (default ``AL-2026-0001``; a run without
+   adjustments takes the candidates of its filters, without active index
+   rents) to about 6.00 EUR/m² (``--rent``, ± ``--spread`` 0.20 fixed per
+   contract number, idempotent) from the contract start - area terms get
+   the price per m², absolute terms price × living space. Only the open
+   rent term is changed; posted invoices stay unchanged (test data), the
+   booked-values warnings are confirmed. ``--recalculate`` calculates the
+   run again, ``--dry-run`` only lists the new rents::
+
+      python tests/migrate_run_rents.py --database <db> [--config trytond.conf] [--run AL-2026-0001] [--rent 6.00] [--spread 0.20] [--recalculate] [--dry-run]
+

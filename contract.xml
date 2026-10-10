@@ -1069,6 +1069,10 @@
     <record model="ir.action.act_window" id="act_contract_term_adjustment">
         <field name="name">Contract Term Adjustments</field>
         <field name="res_model">real_estate.contract.term.adjustment</field>
+        <field name="context_model">real_estate.base_object.context</field>
+        <field name="context_domain"
+            eval="[('term_old.contract.company', '=', Eval('company', -1)), If(Eval('property', None), [('term_old.contract.property', '=', Eval('property', None))], [])]"
+            pyson="1"/>
     </record>
     <record model="ir.action.act_window.view" id="act_contract_term_adjustment_view1">
         <field name="sequence" eval="10"/>
@@ -1187,6 +1191,11 @@
     <record model="ir.action.act_window" id="act_contract_term_adjustment_run">
         <field name="name">Adjustment Runs</field>
         <field name="res_model">real_estate.contract.term.adjustment.run</field>
+        <field name="context_model">real_estate.base_object.context</field>
+        <!-- a run without properties covers all properties -->
+        <field name="context_domain"
+            eval="[('company', '=', Eval('company', -1)), If(Eval('property', None), ['OR', ('properties', '=', None), ('properties', '=', Eval('property', None))], [])]"
+            pyson="1"/>
     </record>
     <record model="ir.action.act_window.view" id="act_contract_term_adjustment_run_view1">
         <field name="sequence" eval="10"/>

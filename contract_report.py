@@ -8,6 +8,8 @@ from trytond.model.exceptions import ValidationError
 from trytond.pool import Pool
 from trytond.report import Report
 
+from .contract_index_rent import LETTERS
+
 
 #**********************************************************************
 class ContractReport(Report):
@@ -267,9 +269,12 @@ class IndexAdjustmentLetterReport(Report):
         original = bool(data and data.get('original'))
         marks, tenants = {}, {}
         for record in records:
-            if original:
+            # no mark for the original and while it is sent (announced,
+            # receipt not captured yet), 'Zweitschrift' afterwards
+            if original or (record.state == 'declared'
+                    and not record.receipt_date):
                 marks[record.id] = ''
-            elif record.state in ('declared', 'done'):
+            elif record.state in ('declared', 'done', 'refused'):
                 marks[record.id] = 'Zweitschrift'
             else:
                 marks[record.id] = 'ENTWURF'
@@ -307,6 +312,42 @@ class ComparativeRentLetterReport(IndexAdjustmentLetterReport):
                 if record.planned_valid_from else None)
         context['consent_until'] = deadlines
         return context
+
+
+#**********************************************************************
+class AdjustmentRunLettersReport(Report):
+    """All letters of an adjustment run to send in one document: the
+    announced adjustments whose receipt is not captured yet, rendered by
+    the letter report of the procedure (without mark)."""
+    __name__ = 'real_estate.contract.term.adjustment.run.letters'
+
+    @classmethod
+    def execute(cls, ids, data):
+        pool = Pool()
+        Run = pool.get('real_estate.contract.term.adjustment.run')
+        adjustments = [a for r in Run.browse(ids) for a in r.adjustments
+            if a.state == 'declared' and not a.receipt_date
+            and a.procedure in LETTERS]
+        if not adjustments:
+            raise ValidationError(gettext(
+                    'real_estate.msg_adjustment_run_no_letters',
+                    run=', '.join(r.rec_name for r in Run.browse(ids))))
+        procedures = {a.procedure for a in adjustments}
+        if len(procedures) > 1:
+            raise ValidationError(gettext(
+                    'real_estate.msg_adjustment_run_letters_procedures'))
+        Letter = pool.get(LETTERS[procedures.pop()], type='report')
+        ext, content, direct_print, _ = Letter.execute(
+            [a.id for a in adjustments], {
+                'model': 'real_estate.contract.term.adjustment',
+                })
+        ActionReport = pool.get('ir.action.report')
+        actions = ActionReport.search([
+                ('report_name', '=', cls.__name__),
+                ], limit=1)
+        title = actions[0].name if actions else cls.__name__
+        name = '-'.join([title] + [r.run_id for r in Run.browse(ids)])
+        return ext, content, direct_print, name
 
 
 #**********************************************************************
