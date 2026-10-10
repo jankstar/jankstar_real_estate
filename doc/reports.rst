@@ -58,6 +58,17 @@ via ``get_context()``.
    *Zweitschrift* (declared/done) or *ENTWURF* (before the declaration).
    Index values are formatted with one decimal (``format_index``).
 
+``real_estate.contract.comparative_rent.letter``  (``contract_report.py``)
+   Request for consent to a rent increase up to the local comparative
+   rent (§§ 558, 558a BGB) on ``real_estate.contract.term.adjustment``.
+   Template: ``comparative_rent_letter_de.odt`` - one letter per
+   adjustment to all main tenants (as the index declaration) with current
+   and new net rent, increase, effective date, reasons (rent survey,
+   version and kind, table cell, classification from the calculation
+   protocol, deviating accepted rent with reason), cap with its basis,
+   period for consideration (``consent_until``) and a consent form.
+   *Announce* of the adjustment run archives the original.
+
 ``real_estate.contract.handover.report``  (``contract_report.py``)
    Handover report on ``real_estate.contract.handover``, template
    ``contract_handover_de.odt``: header with landlord, tenants, rented

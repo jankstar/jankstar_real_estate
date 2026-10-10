@@ -432,36 +432,6 @@
             <field name="escalation_group" ref="group_real_estate_admin"/>
             <field name="responsible_role" ref="object_party_administrator_role"/>
         </record>
-        <record model="real_estate.task.type" id="task_type_index_declare">
-            <field name="sequence" eval="70"/>
-            <field name="code">index_declare</field>
-            <field name="name">Declare index rent adjustment</field>
-            <field name="responsible_group" ref="group_real_estate_contract"/>
-            <field name="remind_days" eval="0"/>
-            <field name="escalate_days" eval="7"/>
-            <field name="escalation_group" ref="group_real_estate_admin"/>
-            <field name="responsible_role" ref="object_party_administrator_role"/>
-        </record>
-        <record model="real_estate.task.type" id="task_type_index_receipt">
-            <field name="sequence" eval="80"/>
-            <field name="code">index_receipt</field>
-            <field name="name">Capture receipt of index declaration</field>
-            <field name="responsible_group" ref="group_real_estate_contract"/>
-            <field name="remind_days" eval="0"/>
-            <field name="escalate_days" eval="7"/>
-            <field name="escalation_group" ref="group_real_estate_admin"/>
-            <field name="responsible_role" ref="object_party_administrator_role"/>
-        </record>
-        <record model="real_estate.task.type" id="task_type_index_execute">
-            <field name="sequence" eval="90"/>
-            <field name="code">index_execute</field>
-            <field name="name">Execute index rent adjustment</field>
-            <field name="responsible_group" ref="group_real_estate_contract"/>
-            <field name="remind_days" eval="0"/>
-            <field name="escalate_days" eval="7"/>
-            <field name="escalation_group" ref="group_real_estate_admin"/>
-            <field name="responsible_role" ref="object_party_administrator_role"/>
-        </record>
         <record model="real_estate.task.type" id="task_type_index_values">
             <field name="sequence" eval="100"/>
             <field name="code">index_values</field>

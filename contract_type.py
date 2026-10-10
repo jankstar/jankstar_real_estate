@@ -34,6 +34,13 @@ USE_CLASS_BOUND_PROCEDURES = {'comparative_rent'}
 # Procedures adjusting operating cost advances/flat rates - only for terms
 # with operating cost processing
 OC_ADJUSTMENT_PROCEDURES = {'operation_costs_billing', 'operation_costs_plan'}
+# Procedures processed by the adjustment run with an agreement (rent
+# adjustment) per term: declaration, receipt and execution of adjustments
+RUN_AGREEMENT_PROCEDURES = ['index_rent', 'comparative_rent']
+# Increases not counted for the waiting period and the cap of the
+# comparative rent (§ 558 para. 1 sentence 3, para. 3 BGB)
+CAP_EXCLUDED_PROCEDURES = {'modernisation', 'operation_costs_billing',
+    'operation_costs_plan'}
 
 
 

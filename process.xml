@@ -504,64 +504,6 @@
             <field name="action" ref="report_contract_letter_de"/>
             <field name="description">Create the letter on the change of tenant with 'Execute Action' and send it to the leaving and the new tenant (confirmation of the contract transfer, bank details or mandate if applicable). The task is done by executing the action.</field>
         </record>
-        <record model="real_estate.process.template" id="process_template_index_adjustment">
-            <field name="name">Index Rent Adjustment</field>
-            <field name="code">index_adjustment</field>
-            <field name="model">real_estate.contract.rent_adjustment</field>
-            <field name="anchor_field">declaration_deadline</field>
-        </record>
-        <record model="real_estate.process.template.step" id="process_template_index_adjustment_prepare">
-            <field name="template" ref="process_template_index_adjustment"/>
-            <field name="sequence" eval="10"/>
-            <field name="name">Prepare: run the index adjustment</field>
-            <field name="task_type" ref="task_type_process_step"/>
-            <field name="responsible_group" ref="group_real_estate_contract"/>
-            <field name="due_base">anchor</field>
-            <field name="offset_months" eval="0"/>
-            <field name="offset_days" eval="-14"/>
-            <field name="completion">manual</field>
-            <field name="action" ref="wizard_contract_term_adjustment"/>
-            <field name="description">Start the adjustment run for the index rent with 'Execute Action': check that the current index value is available (import index values if necessary), observe the waiting period of 12 months since the last adjustment (§ 557b (2) BGB) and the cap rules. Check the proposal of the run.</field>
-        </record>
-        <record model="real_estate.process.template.step" id="process_template_index_adjustment_declare">
-            <field name="template" ref="process_template_index_adjustment"/>
-            <field name="sequence" eval="20"/>
-            <field name="name">Approve and declare the adjustment</field>
-            <field name="task_type" ref="task_type_process_step"/>
-            <field name="responsible_group" ref="group_real_estate_contract"/>
-            <field name="due_base">previous_done</field>
-            <field name="offset_months" eval="0"/>
-            <field name="offset_days" eval="3"/>
-            <field name="completion">manual</field>
-            <field name="action" ref="act_contract_term_adjustment"/>
-            <field name="description">Check and approve the calculated adjustment, then create the declaration in text form and send it to the tenant. It must state the change of the index and the new rent or the increase as an amount (§ 557b (3) BGB).</field>
-        </record>
-        <record model="real_estate.process.template.step" id="process_template_index_adjustment_receipt">
-            <field name="template" ref="process_template_index_adjustment"/>
-            <field name="sequence" eval="30"/>
-            <field name="name">Capture the receipt of the declaration</field>
-            <field name="task_type" ref="task_type_process_step"/>
-            <field name="responsible_group" ref="group_real_estate_contract"/>
-            <field name="due_base">previous_done</field>
-            <field name="offset_months" eval="0"/>
-            <field name="offset_days" eval="7"/>
-            <field name="completion">manual</field>
-            <field name="action" ref="act_contract_term_adjustment_receipt"/>
-            <field name="description">Capture the date the declaration was received by the tenant. It determines the effective date: the changed rent is payable from the beginning of the second month after receipt.</field>
-        </record>
-        <record model="real_estate.process.template.step" id="process_template_index_adjustment_execute">
-            <field name="template" ref="process_template_index_adjustment"/>
-            <field name="sequence" eval="40"/>
-            <field name="name">Execute the adjustment</field>
-            <field name="task_type" ref="task_type_process_step"/>
-            <field name="responsible_group" ref="group_real_estate_contract"/>
-            <field name="due_base">previous_done</field>
-            <field name="offset_months" eval="0"/>
-            <field name="offset_days" eval="3"/>
-            <field name="completion">manual</field>
-            <field name="action" ref="act_contract_term_adjustment"/>
-            <field name="description">Execute the approved and received adjustment: the new rent is created as a new contract term from the effective date. Then check the cash flow of the contract.</field>
-        </record>
         <record model="real_estate.process.template.step" id="process_template_move_out_pre_inspection">
             <field name="template" ref="process_template_move_out"/>
             <field name="sequence" eval="30"/>

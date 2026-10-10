@@ -31,6 +31,7 @@ TASK_RESOURCES = [
     'real_estate.inspection',
     'real_estate.inspection.defect',
     'real_estate.meter_reading.sheet',
+    'real_estate.contract.term.adjustment.run',
     ]
 
 
@@ -54,11 +55,11 @@ TASK_CODES = {
     'index_prepare': ("Prepare index rent adjustment", [_RA], True),
     'graduated_end': ("Graduated rent ends", [_RA], True),
     'waiver_end': ("Termination waiver ends", [_RA], True),
-    'index_declare': ("Declare index rent adjustment", [_TA], False),
-    'index_receipt': ("Capture receipt of index declaration", [_TA], False),
-    'index_execute': ("Execute index rent adjustment", [_TA], False),
     'index_values': ("Index values outdated", ['real_estate.price_index'],
         False),
+    'comparative_consent': ("Consent period of the rent increase ends",
+        [_TA], False),
+    'comparative_lawsuit': ("Check the action for consent", [_TA], False),
     'tight_market_end': ("Tight market regulation / cap rule ends", [_BO],
         True),
     'billing_deadline': ("Operating cost billing deadline", [_BU], True),

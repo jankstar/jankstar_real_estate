@@ -1580,8 +1580,13 @@ class ContractTerm(sequence_ordered(), ModelSQL, ModelView, TaxableMixin):
         payment_term = (self.contract.get_move_payment_term(self)
             if self.contract else None)
         if payment_term and calc_document_date and self.unit_price:
+            # Only the due date is used: the unit price (4 digits) is
+            # rounded to the currency, else a sub-cent remainder makes the
+            # payment term computation fail
+            currency = self.contract.currency
             term_lines = payment_term.compute(
-                self.unit_price, self.contract.currency, calc_document_date)
+                currency.round(self.unit_price), currency,
+                calc_document_date)
             return term_lines[-1][0] if term_lines else calc_document_date
         else:
             return calc_document_date

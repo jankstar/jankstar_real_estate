@@ -2334,6 +2334,10 @@ class RentSurveyCalculation(Workflow, ModelSQL, ModelView):
         values['area'] = _round(area, 2)
         # B03 / classes
         classes = self._classify(version, levels, inputs, messages)
+        # translated labels of the levels (the protocol goes to the tenant)
+        Dimension = pool.get('real_estate.rent_survey.dimension')
+        level_labels = dict(Dimension.fields_get(['level'])['level']
+            ['selection'])
         if classes:
             protocol.append(' · '.join(
                     gettext('real_estate.msg_rent_survey_protocol_class',
@@ -2341,7 +2345,7 @@ class RentSurveyCalculation(Workflow, ModelSQL, ModelView):
                         origin=' '.join(filter(None, [gettext(
                                     'real_estate.msg_rent_survey_origin_'
                                     + c['source']), c['value']])),
-                        level=dict(LEVELS)[c['level']])
+                        level=level_labels[c['level']])
                     for c in inputs['classes']))
         if any(m[0] == 'error' for m in messages):
             return finish(protocol)

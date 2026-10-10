@@ -243,6 +243,10 @@ Access: customizing *Real Estate Administration*; assignments on the
 objects *Real Estate Object*; calculating and accepting *Real Estate
 Contract*; reading *Real Estate View*.
 
-The procedure *Comparative Rent* of the rent adjustments (cap, periods,
-consent, request letter) builds on the accepted calculation and follows
-later.
+The procedure *Comparative Rent* of the adjustment run (cap, periods,
+consent, request letter) builds on the accepted calculation: the run
+creates the calculations of the selected apartments on its key date, the
+button *Calculations* of the run opens them for the acceptance - see
+`Comparative Rent <rent_adjustment_comparative.rst>`__. The
+calculation protocol (with translated levels) is part of the request
+letter.

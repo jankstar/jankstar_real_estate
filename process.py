@@ -23,7 +23,8 @@ STEP_DONE_METHODS = ['deposit_paid', 'meter_readings_complete',
     'billing_settled', 'handover_move_in_done',
     'handover_pre_inspection_done', 'handover_move_out_done',
     'inspection_done', 'inspection_approved', 'inspection_attempt1_done',
-    'inspection_attempt2_done']
+    'inspection_attempt2_done', 'run_selected', 'run_calculated',
+    'run_approved', 'run_declared', 'run_ready', 'run_done']
 # Creation conditions of steps (spec Prüfungen 3.4): name ->
 # Process._step_create_<name>()
 STEP_CREATE_METHODS = ['inspection_no_access', 'inspection_has_defects']

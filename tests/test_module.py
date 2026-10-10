@@ -2,6 +2,8 @@ import datetime
 import json
 from decimal import Decimal
 
+from dateutil.relativedelta import relativedelta
+
 from trytond.model.exceptions import ValidationError
 from trytond.pool import Pool
 from trytond.tests.test_tryton import ModuleTestCase, with_transaction
@@ -1344,18 +1346,18 @@ class RealEstateTestCase(ModuleTestCase):
         contract = codes('real_estate.contract')
         self.assertTrue({'manual', 'contract_unsigned', 'contract_end',
                 'Anrufen'} <= contract)
-        self.assertFalse({'meter_reading', 'index_receipt', 'Rauchmelder'}
+        self.assertFalse({'meter_reading', 'index_values', 'Rauchmelder'}
             & contract)
         billing = codes('real_estate.billing_unit')
         self.assertTrue({'manual', 'billing_deadline', 'Rauchmelder',
                 'Anrufen'} <= billing)
         # automatic-only codes are never offered for manual follow-ups
-        self.assertNotIn('index_receipt',
-            codes('real_estate.contract.term.adjustment'))
-        receipt, = Type.search([('code', '=', 'index_receipt')])
-        self.assertEqual(receipt.resource_models,
-            ('real_estate.contract.term.adjustment',))
-        self.assertFalse(receipt.manual)
+        self.assertNotIn('index_values',
+            codes('real_estate.price_index'))
+        values, = Type.search([('code', '=', 'index_values')])
+        self.assertEqual(values.resource_models,
+            ('real_estate.price_index',))
+        self.assertFalse(values.manual)
 
         company = create_company()
         with set_company(company):
@@ -2546,6 +2548,218 @@ class RealEstateTestCase(ModuleTestCase):
             self.assertNotIn('g_energy_lt80', features)
             assign(building, ['g_insulation'])
             self.assertIn('B06', calculate(record).check_message)
+
+    @with_transaction()
+    def test_adjustment_run(self):
+        "Adjustment run: workflow, protocol, process, reset, cancel"
+        from trytond.modules.company.tests import create_company, set_company
+
+        pool = Pool()
+        Run = pool.get('real_estate.contract.term.adjustment.run')
+        PriceIndex = pool.get('real_estate.price_index')
+        Process = pool.get('real_estate.process')
+
+        company = create_company()
+        with set_company(company):
+            index, = PriceIndex.search([('code', '=', 'VPI-DE')], limit=1) \
+                or PriceIndex.create([{'code': 'VPI-DE', 'name': 'VPI',
+                            'base_year': 2020}])
+            run, = Run.create([{'procedure': 'index_rent',
+                        'price_index': index.id,
+                        'index_month': datetime.date(2026, 8, 1),
+                        'key_date': datetime.date(2026, 10, 1)}])
+            self.assertTrue(run.run_id.startswith('AL-'))
+            self.assertEqual(run.state, 'draft')
+            # Select: no agreements - protocol, process of the run
+            Run.select([run])
+            run = Run(run.id)
+            self.assertEqual(run.state, 'selected')
+            self.assertIn('0', run.summary)
+            process = run.process
+            self.assertTrue(process)
+            self.assertEqual(process.template.code,
+                'adjustment_run_index_rent')
+            steps = {t.template_step.done_method: t for t in process.tasks}
+            self.assertEqual(steps['run_selected'].state, 'done')
+            self.assertEqual(len(run.process_tasks), 6)
+            # Calculate: next step done
+            Run.calculate([run])
+            run = Run(run.id)
+            self.assertEqual(run.state, 'calculated')
+            self.assertEqual(Process(process.id).tasks and {
+                    t.template_step.done_method: t.state
+                    for t in Process(process.id).tasks}['run_calculated'],
+                'done')
+            # Reset to draft and select again
+            Run.reset([run])
+            self.assertEqual(Run(run.id).state, 'draft')
+            Run.select([Run(run.id)])
+            Run.calculate([Run(run.id)])
+            self.assertEqual(len(Process.search([
+                        ('resource', '=', str(run))])), 1)
+            # Cancel: run and process cancelled, deletable
+            Run.cancel([Run(run.id)])
+            run = Run(run.id)
+            self.assertEqual(run.state, 'cancelled')
+            self.assertEqual(run.process.state, 'cancelled')
+            self.assertIn('\n', run.protocol)
+            Run.delete([run])
+            # Approve without adjustments is refused
+            run2, = Run.create([{'procedure': 'index_rent',
+                        'price_index': index.id,
+                        'index_month': datetime.date(2026, 8, 1),
+                        'key_date': datetime.date(2026, 10, 1)}])
+            Run.select([run2])
+            Run.calculate([Run(run2.id)])
+            with self.assertRaises(ValidationError):
+                Run.approve([Run(run2.id)])
+
+    @with_transaction()
+    def test_comparative_rent_rules(self):
+        "Comparative rent: cap, chain history, dates (V-T01 to V-T04, V-T06)"
+        from trytond.modules.real_estate.contract_comparative_rent import (
+            chain_history, comparative_cap, earliest_first, effective_date)
+
+        # V-T01: 8.82 €/m² × 64.20 m² = 566.24, rent 480 unchanged, cap 15 %
+        comparative = Decimal('566.24')
+        self.assertEqual(comparative_cap(comparative, Decimal('480.00'),
+                Decimal(0), Decimal(15)),
+            (Decimal('552.00'), Decimal('552.00'), 'cap'))
+        # V-T02: cap 20 % - the comparative rent is decisive
+        self.assertEqual(comparative_cap(comparative, Decimal('480.00'),
+                Decimal(0), Decimal(20)),
+            (Decimal('576.00'), Decimal('566.24'), 'comparative'))
+        valid_from = datetime.date(2026, 12, 1)
+        # unchanged chain: last change = start, base = initial rent
+        chain = [(datetime.date(2020, 1, 1), Decimal('480.00'), False)]
+        self.assertEqual(chain_history(chain, valid_from),
+            (datetime.date(2020, 1, 1), Decimal('480.00'), Decimal(0)))
+        # V-T03: increase 10 months before - waiting period not reached
+        chain = [(datetime.date(2020, 1, 1), Decimal('450.00'), False),
+            (datetime.date(2026, 2, 1), Decimal('480.00'), False)]
+        last_change, base, excluded = chain_history(chain, valid_from)
+        self.assertEqual(last_change, datetime.date(2026, 2, 1))
+        self.assertEqual(base, Decimal('450.00'))
+        self.assertEqual(earliest_first(last_change
+                + relativedelta(months=15)), datetime.date(2027, 5, 1))
+        # V-T04: modernisation 6 months before - no new waiting period,
+        # the increase is added to the cap and not counted
+        chain = [(datetime.date(2020, 1, 1), Decimal('480.00'), False),
+            (datetime.date(2026, 6, 1), Decimal('530.00'), True)]
+        last_change, base, excluded = chain_history(chain, valid_from)
+        self.assertEqual(last_change, datetime.date(2020, 1, 1))
+        self.assertEqual(base, Decimal('480.00'))
+        self.assertEqual(excluded, Decimal('50.00'))
+        self.assertEqual(comparative_cap(Decimal('700.00'), base, excluded,
+                Decimal(15))[0], Decimal('602.00'))
+        # V-T06: receipt 15.03. - consent until 31.05., effective 01.06.
+        self.assertEqual(effective_date(datetime.date(2027, 3, 15)),
+            datetime.date(2027, 6, 1))
+        self.assertEqual(earliest_first(datetime.date(2027, 5, 2)),
+            datetime.date(2027, 6, 1))
+
+    @with_transaction()
+    def test_comparative_rent_deadlines(self):
+        "Comparative rent: consent and lawsuit deadline (V-T06), cap"
+        pool = Pool()
+        Adjustment = pool.get('real_estate.contract.term.adjustment')
+        BaseObject = pool.get('real_estate.base_object')
+        RentAdjustment = pool.get('real_estate.contract.rent_adjustment')
+        adjustment = Adjustment()
+        adjustment.rent_adjustment = RentAdjustment(
+            procedure='comparative_rent')
+        adjustment.receipt_date = datetime.date(2027, 3, 15)
+        self.assertEqual(adjustment.get_deadlines('consent_deadline'),
+            datetime.date(2027, 5, 31))
+        self.assertEqual(adjustment.get_deadlines('lawsuit_deadline'),
+            datetime.date(2027, 8, 31))
+        # D4: reduced cap with validity on the property
+        prop = BaseObject(type='property', parent=None, reduced_cap=True,
+            reduced_cap_valid_from=datetime.date(2025, 1, 1),
+            reduced_cap_valid_to=datetime.date(2027, 12, 31))
+        self.assertEqual(prop.cap_percent(datetime.date(2026, 6, 1)),
+            Decimal(15))
+        self.assertEqual(prop.cap_percent(datetime.date(2028, 1, 1)),
+            Decimal(20))
+        unit = BaseObject(type='object', parent=prop)
+        self.assertEqual(unit.cap_percent(datetime.date(2026, 6, 1)),
+            Decimal(15))
+
+    @with_transaction()
+    def test_comparative_rent_letter_template(self):
+        "Request for consent renders the mandatory contents (spec 10.5)"
+        import io
+        import os
+        import re
+        import zipfile
+
+        from relatorio.templates.opendocument import Template
+
+        address = _StubRecord(street_single_line='Musterstraße 1',
+            postal_code='14163', city='Berlin')
+        contract = _StubRecord(contract_number='1-20-191',
+            company=_StubRecord(party=_StubRecord(name='Immo GmbH',
+                    addresses=[address])),
+            property=_StubRecord(address=address))
+        version = _StubRecord(name='Berliner Mietspiegel 2026',
+            kind='qualified',
+            survey=_StubRecord(name='Berliner Mietspiegel'))
+        cell = _StubRecord(code='F85', lower=Decimal('6.50'),
+            mean=Decimal('8.13'), upper=Decimal('9.94'), qualified=True)
+        calculation = _StubRecord(version=version, cell=cell,
+            area=Decimal('64.20'), accepted_rent_per_sqm=Decimal('8.82'),
+            rent_per_sqm=Decimal('8.82'), deviation_reason=None,
+            protocol='Gruppe 1: + Einbauküche → +1')
+        record = _StubRecord(id=1, contract=contract, state='declared',
+            term_old=_StubRecord(reference_item=None),
+            calculation=calculation, amount_old=Decimal('480.00'),
+            planned_amount=Decimal('552.00'),
+            difference_amount=Decimal('72.00'),
+            comparative_amount=Decimal('566.24'),
+            cap_percent=Decimal('15'), cap_base_amount=Decimal('480.00'),
+            cap_excluded_amount=Decimal(0), cap_amount=Decimal('552.00'),
+            limited_by='cap',
+            planned_valid_from=datetime.date(2027, 2, 1),
+            declaration_date=datetime.date(2026, 10, 30))
+        tenant = _StubRecord(full_name='Rudi Völler', name='Rudi Völler')
+        path = os.path.join(os.path.dirname(__file__), '..', 'report',
+            'comparative_rent_letter_de.odt')
+        data = Template(source=None, filepath=path).generate(
+            records=[record], record=record, datetime=datetime,
+            format_value=str, format_percent=str,
+            marks={1: ''}, tenants={1: [(tenant, address)]},
+            consent_until={1: datetime.date(2027, 1, 31)},
+            ).render().getvalue()
+        with zipfile.ZipFile(io.BytesIO(data)) as odt:
+            content = odt.read('content.xml').decode()
+        text = re.sub(r'\s+', ' ', re.sub(r'<[^>]+>', ' ', content))
+        for expected in ['Rudi Völler', 'Mieterhöhungsverlangen', '480.00',
+                '552.00', '72.00', '566.24', 'F85', '8.82', '64.20',
+                'Einbauküche', 'qualifizierter Mietspiegel',
+                'Kappungsgrenze', '2027-01-31', '2027-02-01']:
+            self.assertIn(expected, text)
+
+    @with_transaction()
+    def test_comparative_rent_run(self):
+        "Comparative rent run: no candidates, process template"
+        from trytond.modules.company.tests import create_company, set_company
+
+        pool = Pool()
+        Run = pool.get('real_estate.contract.term.adjustment.run')
+        company = create_company()
+        with set_company(company):
+            run, = Run.create([{'procedure': 'comparative_rent',
+                        'key_date': datetime.date(2026, 10, 1)}])
+            self.assertTrue(run.create_calculations)
+            Run.select([run])
+            run = Run(run.id)
+            self.assertEqual(run.state, 'selected')
+            self.assertEqual(run.process.template.code,
+                'adjustment_run_comparative_rent')
+            self.assertTrue(run.protocol)
+            Run.calculate([run])
+            with self.assertRaises(ValidationError):
+                Run.approve([Run(run.id)])
 
     def test_handover_report_template(self):
         "Handover report template renders check items, keys and meters"

@@ -30,7 +30,7 @@ The following master data must be set up before the module can be used:
 
 ``real_estate.price_index`` / ``real_estate.index_cap_rule``
    Price index series and values (incl. GENESIS-Online import) and cap
-   rules for index rents - see `Rent Adjustments <rent_adjustment.rst>`__.
+   rules for index rents - see `Index Rent <rent_adjustment_index.rst>`__.
 
 ``real_estate.use_class``
    Dynamic use-class catalogue replacing the former static selection field.

@@ -1,0 +1,347 @@
+<?xml version="1.0"?>
+<tryton>
+    <data>
+        <!-- Adjustment run (spezifikation-anpassungslauf.md) -->
+        <record model="ir.action.act_window.domain" id="act_contract_term_adjustment_run_domain_open">
+            <field name="name">In Progress</field>
+            <field name="sequence" eval="10"/>
+            <field name="domain" eval="[('state', 'in', ['draft', 'selected', 'calculated', 'approved'])]" pyson="1"/>
+            <field name="count" eval="True"/>
+            <field name="act_window" ref="act_contract_term_adjustment_run"/>
+        </record>
+        <record model="ir.action.act_window.domain" id="act_contract_term_adjustment_run_domain_declared">
+            <field name="name">Announced</field>
+            <field name="sequence" eval="20"/>
+            <field name="domain" eval="[('state', 'in', ['declared', 'ready'])]" pyson="1"/>
+            <field name="count" eval="True"/>
+            <field name="act_window" ref="act_contract_term_adjustment_run"/>
+        </record>
+        <record model="ir.action.act_window.domain" id="act_contract_term_adjustment_run_domain_done">
+            <field name="name">Done</field>
+            <field name="sequence" eval="30"/>
+            <field name="domain" eval="[('state', '=', 'done')]" pyson="1"/>
+            <field name="act_window" ref="act_contract_term_adjustment_run"/>
+        </record>
+        <record model="ir.action.act_window.domain" id="act_contract_term_adjustment_run_domain_all">
+            <field name="name">All</field>
+            <field name="sequence" eval="9999"/>
+            <field name="domain"></field>
+            <field name="act_window" ref="act_contract_term_adjustment_run"/>
+        </record>
+        <record model="ir.ui.view" id="contract_term_adjustment_run_adjustment_view_tree">
+            <field name="model">real_estate.contract.term.adjustment</field>
+            <field name="type">tree</field>
+            <field name="priority" eval="30"/>
+            <field name="name">contract_term_adjustment_run_list</field>
+        </record>
+        <record model="ir.model.button" id="adjustment_run_select_button">
+            <field name="model">real_estate.contract.term.adjustment.run</field>
+            <field name="name">select</field>
+            <field name="string">Select</field>
+            <field name="help">Select the candidates of the procedure as draft adjustments - existing adjustments of the run stay.</field>
+        </record>
+        <record model="ir.model.button" id="adjustment_run_calculate_button">
+            <field name="model">real_estate.contract.term.adjustment.run</field>
+            <field name="name">calculate</field>
+            <field name="string">Calculate</field>
+            <field name="help">Recompute values and checks of the draft adjustments.</field>
+        </record>
+        <record model="ir.model.button" id="adjustment_run_approve_button">
+            <field name="model">real_estate.contract.term.adjustment.run</field>
+            <field name="name">approve</field>
+            <field name="string">Approve</field>
+            <field name="help">Approve the adjustments without errors (with a warning: reason required); the others are cancelled.</field>
+        </record>
+        <record model="ir.model.button" id="adjustment_run_declare_button">
+            <field name="model">real_estate.contract.term.adjustment.run</field>
+            <field name="name">declare</field>
+            <field name="string">Announce</field>
+            <field name="help">Create and archive the letters of the approved adjustments.</field>
+        </record>
+        <record model="ir.model.button" id="adjustment_run_execute_button">
+            <field name="model">real_estate.contract.term.adjustment.run</field>
+            <field name="name">execute</field>
+            <field name="string">Execute</field>
+            <field name="help">Execute the adjustments whose receipt is captured (split of the terms).</field>
+        </record>
+        <record model="ir.model.button" id="adjustment_run_reset_button">
+            <field name="model">real_estate.contract.term.adjustment.run</field>
+            <field name="name">reset</field>
+            <field name="string">Reset to Draft</field>
+            <field name="confirm">The draft and cancelled adjustments of the run are deleted. Continue?</field>
+        </record>
+        <record model="ir.model.button" id="adjustment_run_cancel_button">
+            <field name="model">real_estate.contract.term.adjustment.run</field>
+            <field name="name">cancel</field>
+            <field name="string">Cancel</field>
+            <field name="confirm">The open adjustments of the run are cancelled. Continue?</field>
+        </record>
+        <record model="ir.model.button" id="adjustment_run_add_terms_button">
+            <field name="model">real_estate.contract.term.adjustment.run</field>
+            <field name="name">add_terms</field>
+            <field name="string">Add Terms</field>
+        </record>
+        <record model="ir.model.button" id="adjustment_run_open_calculations_button">
+            <field name="model">real_estate.contract.term.adjustment.run</field>
+            <field name="name">open_calculations</field>
+            <field name="string">Calculations</field>
+        </record>
+
+        <!-- Add terms to a run (spec 4.3) -->
+        <record model="ir.ui.view" id="adjustment_run_add_start_view_form">
+            <field name="model">real_estate.contract.term.adjustment.run.add.start</field>
+            <field name="type">form</field>
+            <field name="name">adjustment_run_add_start_form</field>
+        </record>
+        <record model="ir.action.wizard" id="wizard_adjustment_run_add">
+            <field name="name">Add Terms</field>
+            <field name="wiz_name">real_estate.contract.term.adjustment.run.add</field>
+            <field name="model">real_estate.contract.term.adjustment.run</field>
+        </record>
+
+        <!-- Request for consent to a comparative rent increase (ODT) -->
+        <record model="ir.action.report" id="report_comparative_rent_letter_de">
+            <field name="name">Rent Increase Request (de)</field>
+            <field name="report_name">real_estate.contract.comparative_rent.letter</field>
+            <field name="model">real_estate.contract.term.adjustment</field>
+            <field name="report">real_estate/report/comparative_rent_letter_de.odt</field>
+            <field name="template_extension">odt</field>
+        </record>
+        <record model="ir.action.keyword" id="report_comparative_rent_letter_keyword">
+            <field name="keyword">form_print</field>
+            <field name="model">real_estate.contract.term.adjustment,-1</field>
+            <field name="action" ref="report_comparative_rent_letter_de"/>
+        </record>
+
+        <record model="ir.rule.group" id="rule_group_adjustment_run_companies">
+            <field name="name">User in companies</field>
+            <field name="model">real_estate.contract.term.adjustment.run</field>
+            <field name="global_p" eval="True"/>
+        </record>
+        <record model="ir.rule" id="rule_adjustment_run_companies">
+            <field name="domain" eval="[('company', 'in', Eval('companies', []))]" pyson="1"/>
+            <field name="rule_group" ref="rule_group_adjustment_run_companies"/>
+        </record>
+    </data>
+    <data noupdate="1">
+        <record model="ir.sequence.type" id="sequence_type_adjustment_run">
+            <field name="name">Adjustment Run</field>
+        </record>
+        <record model="ir.sequence.type-res.group" id="sequence_type_adjustment_run_group_admin">
+            <field name="sequence_type" ref="sequence_type_adjustment_run"/>
+            <field name="group" ref="res.group_admin"/>
+        </record>
+        <record model="ir.sequence.type-res.group" id="sequence_type_adjustment_run_group_real_estate_admin">
+            <field name="sequence_type" ref="sequence_type_adjustment_run"/>
+            <field name="group" ref="group_real_estate_admin"/>
+        </record>
+        <record model="ir.sequence" id="sequence_adjustment_run">
+            <field name="name">Adjustment Run</field>
+            <field name="sequence_type" ref="sequence_type_adjustment_run"/>
+            <field name="prefix">AL-${year}-</field>
+            <field name="padding" eval="4"/>
+        </record>
+        <!-- Process of an index rent adjustment run (spec 7) -->
+        <record model="real_estate.process.template" id="process_template_adjustment_run_index">
+            <field name="name">Index Rent Adjustment Run</field>
+            <field name="code">adjustment_run_index_rent</field>
+            <field name="model">real_estate.contract.term.adjustment.run</field>
+        </record>
+        <record model="real_estate.process.template.step" id="process_template_adjustment_run_index_select">
+            <field name="template" ref="process_template_adjustment_run_index"/>
+            <field name="sequence" eval="10"/>
+            <field name="name">Check the parameters and select</field>
+            <field name="task_type" ref="task_type_process_step"/>
+            <field name="responsible_group" ref="group_real_estate_contract"/>
+            <field name="due_base">start</field>
+            <field name="offset_months" eval="0"/>
+            <field name="offset_days" eval="0"/>
+            <field name="completion">condition</field>
+            <field name="done_method">run_selected</field>
+            <field name="description">Check the parameters of the run (procedure, properties, contracts, key date, procedure parameters) and press 'Select'. The proposals are created as draft adjustments; excluded candidates are listed with the reason in the protocol.</field>
+        </record>
+        <record model="real_estate.process.template.step" id="process_template_adjustment_run_index_calculate">
+            <field name="template" ref="process_template_adjustment_run_index"/>
+            <field name="sequence" eval="20"/>
+            <field name="name">Check, edit and calculate the proposals</field>
+            <field name="task_type" ref="task_type_process_step"/>
+            <field name="responsible_group" ref="group_real_estate_contract"/>
+            <field name="due_base">start</field>
+            <field name="offset_months" eval="0"/>
+            <field name="offset_days" eval="3"/>
+            <field name="completion">condition</field>
+            <field name="done_method">run_calculated</field>
+            <field name="description">Check the proposed adjustments in the tab 'Adjustments': cancel adjustments that should not be part of the run, enter a reason for adjustments with warnings, then press 'Calculate'.</field>
+        </record>
+        <record model="real_estate.process.template.step" id="process_template_adjustment_run_index_approve">
+            <field name="template" ref="process_template_adjustment_run_index"/>
+            <field name="sequence" eval="30"/>
+            <field name="name">Approve</field>
+            <field name="task_type" ref="task_type_process_step"/>
+            <field name="responsible_group" ref="group_real_estate_contract"/>
+            <field name="due_base">start</field>
+            <field name="offset_months" eval="0"/>
+            <field name="offset_days" eval="5"/>
+            <field name="completion">condition</field>
+            <field name="done_method">run_approved</field>
+            <field name="description">Approve the calculated adjustments with 'Approve'. Adjustments with errors or with a warning without reason are cancelled and listed in the protocol.</field>
+        </record>
+        <record model="real_estate.process.template.step" id="process_template_adjustment_run_index_declare">
+            <field name="template" ref="process_template_adjustment_run_index"/>
+            <field name="sequence" eval="40"/>
+            <field name="name">Announce (letters)</field>
+            <field name="task_type" ref="task_type_process_step"/>
+            <field name="responsible_group" ref="group_real_estate_contract"/>
+            <field name="due_base">start</field>
+            <field name="offset_months" eval="0"/>
+            <field name="offset_days" eval="7"/>
+            <field name="completion">condition</field>
+            <field name="done_method">run_declared</field>
+            <field name="description">Create the letters to the tenants with 'Announce'; they are archived at the adjustments. Send the letters (registered letter or messenger recommended).</field>
+        </record>
+        <record model="real_estate.process.template.step" id="process_template_adjustment_run_index_receipts">
+            <field name="template" ref="process_template_adjustment_run_index"/>
+            <field name="sequence" eval="50"/>
+            <field name="name">Capture the receipts</field>
+            <field name="task_type" ref="task_type_process_step"/>
+            <field name="responsible_group" ref="group_real_estate_contract"/>
+            <field name="due_base">start</field>
+            <field name="offset_months" eval="0"/>
+            <field name="offset_days" eval="21"/>
+            <field name="completion">condition</field>
+            <field name="done_method">run_ready</field>
+            <field name="description">Enter the receipt date and the dispatch method of every letter in the tab 'Receipts'. The run is ready for the execution as soon as all needed receipts are captured.</field>
+        </record>
+        <record model="real_estate.process.template.step" id="process_template_adjustment_run_index_execute">
+            <field name="template" ref="process_template_adjustment_run_index"/>
+            <field name="sequence" eval="60"/>
+            <field name="name">Execute</field>
+            <field name="task_type" ref="task_type_process_step"/>
+            <field name="responsible_group" ref="group_real_estate_contract"/>
+            <field name="due_base">start</field>
+            <field name="offset_months" eval="0"/>
+            <field name="offset_days" eval="30"/>
+            <field name="completion">condition</field>
+            <field name="done_method">run_done</field>
+            <field name="description">Execute the adjustments with 'Execute': the terms are split at the effective date. The run is done when no adjustment is open.</field>
+        </record>
+        <!-- Process of a comparative rent adjustment run (spec 7, 10) -->
+        <record model="real_estate.process.template" id="process_template_adjustment_run_comparative">
+            <field name="name">Comparative Rent Adjustment Run</field>
+            <field name="code">adjustment_run_comparative_rent</field>
+            <field name="model">real_estate.contract.term.adjustment.run</field>
+        </record>
+        <record model="real_estate.process.template.step" id="process_template_adjustment_run_comparative_select">
+            <field name="template" ref="process_template_adjustment_run_comparative"/>
+            <field name="sequence" eval="10"/>
+            <field name="name">Check the parameters and select</field>
+            <field name="task_type" ref="task_type_process_step"/>
+            <field name="responsible_group" ref="group_real_estate_contract"/>
+            <field name="due_base">start</field>
+            <field name="offset_months" eval="0"/>
+            <field name="offset_days" eval="0"/>
+            <field name="completion">condition</field>
+            <field name="done_method">run_selected</field>
+            <field name="description">Check the parameters of the run (properties, contracts, key date, minimum increase) and press 'Select'. For every selected apartment the calculation of the rent survey is created on the key date; excluded terms are listed with the reason (waiting period, lock of one year, open adjustment, graduated or index rent) in the protocol.</field>
+        </record>
+        <record model="real_estate.process.template.step" id="process_template_adjustment_run_comparative_calculate">
+            <field name="template" ref="process_template_adjustment_run_comparative"/>
+            <field name="sequence" eval="20"/>
+            <field name="name">Accept the calculations and calculate</field>
+            <field name="task_type" ref="task_type_process_step"/>
+            <field name="responsible_group" ref="group_real_estate_contract"/>
+            <field name="due_base">start</field>
+            <field name="offset_months" eval="0"/>
+            <field name="offset_days" eval="7"/>
+            <field name="completion">condition</field>
+            <field name="done_method">run_calculated</field>
+            <field name="description">Open the calculations of the run with 'Calculations', check and accept them (with a reason for warnings). Then press 'Calculate': the new rent is the lower of comparative rent and cap. Cancel adjustments that should not be part of the run, enter a reason for warnings or a manual amount.</field>
+        </record>
+        <record model="real_estate.process.template.step" id="process_template_adjustment_run_comparative_approve">
+            <field name="template" ref="process_template_adjustment_run_comparative"/>
+            <field name="sequence" eval="30"/>
+            <field name="name">Approve</field>
+            <field name="task_type" ref="task_type_process_step"/>
+            <field name="responsible_group" ref="group_real_estate_contract"/>
+            <field name="due_base">start</field>
+            <field name="offset_months" eval="0"/>
+            <field name="offset_days" eval="10"/>
+            <field name="completion">condition</field>
+            <field name="done_method">run_approved</field>
+            <field name="description">Approve the calculated adjustments with 'Approve'. Adjustments with errors (no accepted calculation, no increase) or with a warning without reason are cancelled and listed in the protocol.</field>
+        </record>
+        <record model="real_estate.process.template.step" id="process_template_adjustment_run_comparative_declare">
+            <field name="template" ref="process_template_adjustment_run_comparative"/>
+            <field name="sequence" eval="40"/>
+            <field name="name">Request the consent (letters)</field>
+            <field name="task_type" ref="task_type_process_step"/>
+            <field name="responsible_group" ref="group_real_estate_contract"/>
+            <field name="due_base">start</field>
+            <field name="offset_months" eval="0"/>
+            <field name="offset_days" eval="14"/>
+            <field name="completion">condition</field>
+            <field name="done_method">run_declared</field>
+            <field name="description">Create the requests for consent with 'Announce'; they are archived at the adjustments. Send them (registered letter or messenger recommended).</field>
+        </record>
+        <record model="real_estate.process.template.step" id="process_template_adjustment_run_comparative_consents">
+            <field name="template" ref="process_template_adjustment_run_comparative"/>
+            <field name="sequence" eval="50"/>
+            <field name="name">Capture the receipts and consents</field>
+            <field name="task_type" ref="task_type_process_step"/>
+            <field name="responsible_group" ref="group_real_estate_contract"/>
+            <field name="due_base">start</field>
+            <field name="offset_months" eval="0"/>
+            <field name="offset_days" eval="90"/>
+            <field name="completion">condition</field>
+            <field name="done_method">run_ready</field>
+            <field name="description">Enter the receipt date of every request in the tab 'Receipts / Consents', then the decision of the tenant (consent, partial consent with amount, refusal) until the end of the period for consideration (end of the second month after the receipt). The run is ready when all decisions are captured.</field>
+        </record>
+        <record model="real_estate.process.template.step" id="process_template_adjustment_run_comparative_execute">
+            <field name="template" ref="process_template_adjustment_run_comparative"/>
+            <field name="sequence" eval="60"/>
+            <field name="name">Execute</field>
+            <field name="task_type" ref="task_type_process_step"/>
+            <field name="responsible_group" ref="group_real_estate_contract"/>
+            <field name="due_base">start</field>
+            <field name="offset_months" eval="0"/>
+            <field name="offset_days" eval="95"/>
+            <field name="completion">condition</field>
+            <field name="done_method">run_done</field>
+            <field name="description">Execute the run: consented adjustments split the term at the start of the third month after the receipt, refused ones are closed (check the action for consent). The run is done when no adjustment is open.</field>
+        </record>
+        <!-- Deadline tasks of a comparative rent adjustment (spec 7, 10.6) -->
+        <record model="real_estate.task.type" id="task_type_comparative_consent">
+            <field name="sequence" eval="95"/>
+            <field name="code">comparative_consent</field>
+            <field name="name">Consent period of the rent increase ends</field>
+            <field name="responsible_group" ref="group_real_estate_contract"/>
+            <field name="remind_days" eval="7"/>
+            <field name="escalate_days" eval="7"/>
+            <field name="escalation_group" ref="group_real_estate_admin"/>
+            <field name="responsible_role" ref="object_party_administrator_role"/>
+        </record>
+        <record model="real_estate.task.type" id="task_type_comparative_lawsuit">
+            <field name="sequence" eval="96"/>
+            <field name="code">comparative_lawsuit</field>
+            <field name="name">Check the action for consent</field>
+            <field name="responsible_group" ref="group_real_estate_contract"/>
+            <field name="remind_days" eval="7"/>
+            <field name="escalate_days" eval="7"/>
+            <field name="escalation_group" ref="group_real_estate_admin"/>
+            <field name="responsible_role" ref="object_party_administrator_role"/>
+        </record>
+        <record model="real_estate.task.rule" id="task_rule_m09">
+            <field name="name">Consent period expired</field>
+            <field name="model">real_estate.contract.term.adjustment</field>
+            <field name="domain" eval="[('state', '=', 'declared'), ('consent_state', '=', 'pending')]" pyson="1"/>
+            <field name="date_source">field</field>
+            <field name="date_field">consent_deadline</field>
+            <field name="offset_months" eval="0"/>
+            <field name="offset_days" eval="1"/>
+            <field name="horizon_days" eval="0"/>
+            <field name="task_type" ref="task_type_comparative_lawsuit"/>
+            <field name="on_date_change">cancel</field>
+            <field name="description">The tenant did not decide on the request for consent within the period for consideration. Check the action for consent - it has to be filed within three months after the end of the period (§ 558b para. 2 BGB).</field>
+        </record>
+    </data>
+</tryton>

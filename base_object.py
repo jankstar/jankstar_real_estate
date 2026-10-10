@@ -26,6 +26,11 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+# Cap of rent increases up to the comparative rent in three years
+# (§ 558 para. 3 sentence 1 and 2 BGB), in percent
+CAP_PERCENT = Decimal(20)
+REDUCED_CAP_PERCENT = Decimal(15)
+
 def re_sequence_ordered(
         field_name='sequence',
         field_label=lazy_gettext('ir.msg_sequence'),
@@ -446,6 +451,30 @@ class BaseObject(Workflow, DeactivableMixin, re_sequence_ordered(), tree(separat
                 | ~Eval('tight_market', False),
             },
         help="End of validity of the regulation - empty = no limit.")
+    # Cap of the comparative rent (§ 558 para. 3 BGB, spezifikation-
+    # anpassungslauf.md 10.4, D4) - property only
+    reduced_cap = fields.Boolean("Reduced Cap 15 % (Regulation)",
+        states={'invisible': Eval('type') != 'property'},
+        help="The property lies in an area where the state regulation "
+             "lowers the cap of rent increases up to the comparative rent "
+             "from 20 % to 15 % in three years (§ 558 para. 3 BGB).")
+    reduced_cap_valid_from = fields.Date("Reduced Cap from",
+        states={
+            'invisible': (Eval('type') != 'property')
+                | ~Eval('reduced_cap', False),
+            },
+        help="Start of validity of the regulation - empty = no limit.")
+    reduced_cap_valid_to = fields.Date("Reduced Cap to",
+        domain=[If(Bool(Eval('reduced_cap_valid_to'))
+                & Bool(Eval('reduced_cap_valid_from')),
+                ('reduced_cap_valid_to', '>=',
+                    Eval('reduced_cap_valid_from', None)),
+                ())],
+        states={
+            'invisible': (Eval('type') != 'property')
+                | ~Eval('reduced_cap', False),
+            },
+        help="End of validity of the regulation - empty = no limit.")
 
     option_rate_method = fields.Selection([
             ('fix_0', 'Fix: Option Rate 0.0 %'),
@@ -523,6 +552,21 @@ class BaseObject(Workflow, DeactivableMixin, re_sequence_ordered(), tree(separat
         if self.tight_market_valid_to and date > self.tight_market_valid_to:
             return False
         return True
+
+    def cap_percent(self, date):
+        """Cap of the comparative rent in percent on 'date' (§ 558 para. 3
+        BGB): 15 with a valid state regulation, else 20 - of the property
+        of the object."""
+        prop = self
+        while prop and prop.type != 'property':
+            prop = prop.parent
+        if (prop and prop.reduced_cap and date
+                and not (prop.reduced_cap_valid_from
+                    and date < prop.reduced_cap_valid_from)
+                and not (prop.reduced_cap_valid_to
+                    and date > prop.reduced_cap_valid_to)):
+            return REDUCED_CAP_PERCENT
+        return CAP_PERCENT
 
     @classmethod
     def view_attributes(cls):

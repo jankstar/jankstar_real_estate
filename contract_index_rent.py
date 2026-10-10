@@ -14,7 +14,7 @@ from trytond.pool import Pool, PoolMeta
 from trytond.pyson import Eval, If
 from trytond.transaction import Transaction
 
-from .contract_type import ADJUSTMENT_PROCEDURES
+from .contract_type import ADJUSTMENT_PROCEDURES, RUN_AGREEMENT_PROCEDURES
 
 # Severity of the check protocol, ordered
 CHECK_LEVELS = ['ok', 'warning', 'error']
@@ -22,6 +22,13 @@ CHECK_LEVELS = ['ok', 'warning', 'error']
 
 class IndexAdjustmentWarning(UserWarning):
     pass
+
+
+# Declaration (letter) of the procedures of the adjustment run
+LETTERS = {
+    'index_rent': 'real_estate.contract.index_adjustment.letter',
+    'comparative_rent': 'real_estate.contract.comparative_rent.letter',
+    }
 
 
 def _first_of_month(date):
@@ -220,42 +227,30 @@ class ContractRentAdjustment(metaclass=PoolMeta):
         return values, findings, flags
 
     @classmethod
-    def index_run(cls, company, price_index, index_month, declaration_date,
-            properties=None, contracts=None, include_decreases=False,
-            auto_approve=False):
-        """Adjustment run for index rents (spec 8): one draft adjustment
-        per active agreement whose new index value, lock period and
-        threshold allow an adjustment. Every agreement gets a protocol
-        line with the result and the findings. Returns the run record
-        (real_estate.contract.term.adjustment.run)."""
-        pool = Pool()
-        Adjustment = pool.get('real_estate.contract.term.adjustment')
-        Run = pool.get('real_estate.contract.term.adjustment.run')
-        now = datetime.datetime.now()
-        run_id = (f'{now:%Y%m%d-%H%M%S}-U{Transaction().user}')
-        domain = [
-            ('procedure', '=', 'index_rent'),
-            ('state', '=', 'active'),
-            ('price_index', '=', price_index.id),
-            ('contract.company', '=', company.id),
-            ]
-        if properties:
-            domain.append(('contract.property', 'in',
-                    [p.id for p in properties]))
-        if contracts:
-            domain.append(('contract', 'in', [c.id for c in contracts]))
-        counts = dict.fromkeys(['agreements', 'created', 'approved', 'open',
-                'lock_period', 'threshold', 'decrease', 'no_value', 'error'],
-            0)
-        lines = []
+    def index_select(cls, agreements, index_month, declaration_date,
+            include_decreases=False, values=None, skip=()):
+        """Draft index adjustments for the agreements (spec 8, Anpassungslauf
+        9): no open adjustment (I07), lock period (I04), new value (I05),
+        threshold, decreases. 'values' are added to every new adjustment
+        (run), agreements in 'skip' are not considered (excluded in the
+        run). Returns (adjustments, counts, protocol lines)."""
+        Adjustment = Pool().get('real_estate.contract.term.adjustment')
+        counts = dict.fromkeys(['agreements', 'created', 'open',
+                'lock_period', 'threshold', 'decrease', 'no_value', 'error',
+                'excluded'], 0)
+        lines, created = [], []
 
         def protocol(agreement, message_id, findings=(), **kwargs):
             lines.append(gettext('real_estate.' + message_id,
                     rent_adjustment=agreement.rec_name, **kwargs))
             lines.extend(f'    {code}: {text}' for code, _, text in findings)
 
-        for agreement in cls.search(domain):
+        for agreement in agreements:
             counts['agreements'] += 1
+            if agreement.id in skip:
+                counts['excluded'] += 1
+                protocol(agreement, 'msg_adjustment_run_line_excluded')
+                continue
             open_ = [a for a in agreement.adjustments
                 if a.state in ('draft', 'approved', 'declared')]
             if open_:
@@ -263,11 +258,11 @@ class ContractRentAdjustment(metaclass=PoolMeta):
                 protocol(agreement, 'msg_index_run_line_open',
                     adjustment=open_[0].rec_name)
                 continue
-            values, findings, flags = agreement.compute_index_adjustment(
+            new_values, findings, flags = agreement.compute_index_adjustment(
                 index_month, declaration_date)
             codes = {code for code, _, _ in findings}
-            change = values.get('applied_change_percent')
-            valid_from = values['planned_valid_from']
+            change = new_values.get('applied_change_percent')
+            valid_from = new_values['planned_valid_from']
             valid_from_text = (valid_from.strftime('%d.%m.%Y')
                 if valid_from else '-')
             if 'I05' in codes:
@@ -291,41 +286,39 @@ class ContractRentAdjustment(metaclass=PoolMeta):
                 protocol(agreement, 'msg_index_run_line_decrease',
                     findings, change=change)
                 continue
-            values.update(Adjustment._check_values(findings))
-            values.update({
-                    'run_id': run_id,
-                    'declaration_date': declaration_date,
-                    })
-            adjustment, = Adjustment.create([values])
+            new_values = Adjustment._finish_compute(new_values, findings)
+            new_values.update(dict(values or {},
+                    declaration_date=declaration_date))
+            adjustment, = Adjustment.create([new_values])
+            created.append(adjustment)
             counts['created'] += 1
             message_id = 'msg_index_run_line_created'
             if adjustment.check_state == 'error':
                 counts['error'] += 1
                 message_id = 'msg_index_run_line_created_error'
-            elif auto_approve and adjustment.check_state == 'ok':
-                Adjustment.approve([adjustment])
-                counts['approved'] += 1
-                message_id = 'msg_index_run_line_approved'
             protocol(agreement, message_id, findings, change=change,
-                amount=values.get('planned_amount'),
+                amount=new_values.get('planned_amount'),
                 valid_from=valid_from_text)
         if not counts['agreements']:
             lines.append(gettext('real_estate.msg_index_run_line_none'))
+        return created, counts, lines
 
-        run, = Run.create([{
-                    'run_id': run_id,
-                    'procedure': 'index_rent',
-                    'company': company.id,
-                    'price_index': price_index.id,
-                    'index_month': index_month,
-                    'declaration_date': declaration_date,
-                    'include_decreases': include_decreases,
-                    'auto_approve': auto_approve,
-                    'summary': gettext('real_estate.msg_index_run_result',
-                        run_id=run_id, **counts),
-                    'protocol': '\n'.join(lines),
-                    }])
-        return run
+    @classmethod
+    def index_agreements(cls, company, price_index, properties=None,
+            contracts=None):
+        "Active index agreements of the series (filters of the run)"
+        domain = [
+            ('procedure', '=', 'index_rent'),
+            ('state', '=', 'active'),
+            ('price_index', '=', price_index.id),
+            ('contract.company', '=', company.id),
+            ]
+        if properties:
+            domain.append(('contract.property', 'in',
+                    [p.id for p in properties]))
+        if contracts:
+            domain.append(('contract', 'in', [c.id for c in contracts]))
+        return cls.search(domain)
 
 
 #**********************************************************************
@@ -334,15 +327,18 @@ class ContractTermAdjustment(metaclass=PoolMeta):
 
     _index = Eval('procedure') == 'index_rent'
     _states_index = {'invisible': ~_index, 'readonly': True}
+    # fields of every procedure of the adjustment run with an agreement
+    _run = Eval('procedure').in_(RUN_AGREEMENT_PROCEDURES)
+    _states_run = {'invisible': ~_run, 'readonly': True}
 
     rent_adjustment = fields.Many2One(
         'real_estate.contract.rent_adjustment', "Rent Adjustment",
         ondelete='CASCADE', readonly=True,
-        help="Agreement of the adjustment - required for index rents.")
+        help="Agreement of the adjustment - required for index and "
+             "comparative rents.")
     procedure = fields.Function(fields.Selection(
             [(None, '')] + ADJUSTMENT_PROCEDURES, "Procedure"),
         'on_change_with_procedure', searcher='search_procedure')
-    run_id = fields.Char("Run ID", readonly=True)
     effective_rule = fields.Function(fields.Char("Effective Date Rule"),
         'on_change_with_effective_rule')
     index_month_old = fields.Date("Index Month (Reference)",
@@ -364,21 +360,21 @@ class ContractTermAdjustment(metaclass=PoolMeta):
             (None, ''),
             ('increase', "Increase"),
             ('decrease', "Decrease"),
-            ], "Direction", states=_states_index)
+            ], "Direction", states=_states_run)
     planned_quantity = fields.Numeric("Quantity", digits=(16, 4),
-        states=_states_index)
+        states=_states_run)
     planned_amount = Monetary("New Amount", currency='currency',
-        digits='currency', states=_states_index,
+        digits='currency', states=_states_run,
         help="New rent per period - the decisive amount.")
     planned_unit_price = Monetary("New Unit Price", currency='currency',
-        digits=price_digits, states=_states_index)
+        digits=price_digits, states=_states_run)
     difference_amount = fields.Function(Monetary("Difference",
             currency='currency', digits='currency',
-            states={'invisible': ~_index}),
+            states={'invisible': ~_run}),
         'get_difference_amount')
     declaration_date = fields.Date("Declaration Date",
         states={
-            'invisible': ~_index,
+            'invisible': ~_run,
             'readonly': ~Eval('state').in_(['draft', 'approved']),
             },
         help="Date of the declaration to the tenant - before the receipt "
@@ -392,20 +388,20 @@ class ContractTermAdjustment(metaclass=PoolMeta):
             ('other', "Other"),
             ], "Dispatch Method",
         states={
-            'invisible': ~_index,
+            'invisible': ~_run,
             'readonly': ~Eval('state').in_(['draft', 'approved', 'declared']),
             },
         help="How the declaration was sent (proof of receipt) - a "
              "registered letter or a messenger is recommended.")
     receipt_date = fields.Date("Receipt Date",
         states={
-            'invisible': ~_index,
+            'invisible': ~_run,
             'readonly': Eval('state') != 'declared',
             },
         help="Receipt of the declaration by the tenant (with several "
              "tenants: receipt by the last one) - always to be confirmed "
              "manually.")
-    planned_valid_from = fields.Date("Effective from", states=_states_index,
+    planned_valid_from = fields.Date("Effective from", states=_states_run,
         help="Effective date of the new rent - calculated from the receipt "
              "date, before that a preview from the declaration date.")
     check_state = fields.Selection([
@@ -417,12 +413,12 @@ class ContractTermAdjustment(metaclass=PoolMeta):
     check_message = fields.Text("Check Protocol", readonly=True)
     letter = fields.Many2One('ir.attachment', "Declaration (Document)",
         readonly=True, ondelete='SET NULL',
-        states={'invisible': ~_index},
+        states={'invisible': ~_run},
         help="Archived original of the declaration, created by 'Declare'.")
     executed_by = fields.Many2One('company.employee', "Executed by",
-        readonly=True, states={'invisible': ~_index})
+        readonly=True, states={'invisible': ~_run})
     executed_date = fields.Date("Executed on", readonly=True,
-        states={'invisible': ~_index})
+        states={'invisible': ~_run})
 
     @classmethod
     def __setup__(cls):
@@ -440,15 +436,15 @@ class ContractTermAdjustment(metaclass=PoolMeta):
             ('approved', 'declared'),
             ('declared', 'done'),
             }
-        index = Eval('procedure') == 'index_rent'
+        run = Eval('procedure').in_(RUN_AGREEMENT_PROCEDURES)
         # Fields of the operating cost / free adjustment procedures are
-        # hidden for an index adjustment, the new term until it exists,
-        # the agreement fields without an agreement
+        # hidden for an adjustment of the run with an agreement, the new
+        # term until it exists, the agreement fields without an agreement
         for name in ('adjustment_mode', 'settlement_result'):
             field = getattr(cls, name)
             field.states = dict(field.states or {})
             field.states['invisible'] = (
-                index | field.states.get('invisible', False))
+                run | field.states.get('invisible', False))
         for name in ('term_new', 'valid_from_new', 'valid_to_new',
                 'amount_new', 'tax_amount_new', 'total_amount_new'):
             field = getattr(cls, name)
@@ -460,7 +456,7 @@ class ContractTermAdjustment(metaclass=PoolMeta):
             field.states['invisible'] = ~Eval('rent_adjustment')
         cls._buttons.update({
             'recompute': {
-                'invisible': ~index | (Eval('state') != 'draft'),
+                'invisible': ~run | (Eval('state') != 'draft'),
                 'depends': ['procedure', 'state'],
                 },
             'approve': {
@@ -471,17 +467,6 @@ class ContractTermAdjustment(metaclass=PoolMeta):
                 'invisible': ~Eval('state').in_(
                     ['draft', 'approved', 'declared']),
                 'depends': ['state'],
-                },
-            'declare': {
-                'invisible': ~index | (Eval('state') != 'approved'),
-                'depends': ['procedure', 'state'],
-                },
-            'execute': {
-                'invisible': ~index | (Eval('state') != 'declared'),
-                'readonly': ((Eval('effective_rule') == 'statutory')
-                    & ~Eval('receipt_date')),
-                'depends': ['procedure', 'state', 'effective_rule',
-                    'receipt_date'],
                 },
             'draft': {
                 'invisible': Eval('state') != 'cancelled',
@@ -495,7 +480,7 @@ class ContractTermAdjustment(metaclass=PoolMeta):
             ('//page[@id="page_index"]', 'states',
                 {'invisible': ~cls._index}, ['procedure']),
             ('//page[@id="page_declaration"]', 'states',
-                {'invisible': ~cls._index}, ['procedure']),
+                {'invisible': ~cls._run}, ['procedure']),
             ('//separator[@name="term_new"]', 'states',
                 {'invisible': ~Eval('term_new')}, ['term_new']),
             ('/tree', 'visual', If(Eval('check_state') == 'error', 'danger',
@@ -543,37 +528,28 @@ class ContractTermAdjustment(metaclass=PoolMeta):
         values, findings, _ = agreement.compute_index_adjustment(
             self.index_month_new, self.declaration_date, self.receipt_date)
         values.pop('rent_adjustment')
-        values.update(self._check_values(findings))
-        return values
+        return self._finish_compute(values, findings, self.manual_amount)
 
     @classmethod
     def write(cls, *args):
-        Task = Pool().get('real_estate.task')
         super().write(*args)
         # The effective date follows declaration/receipt date until done
         actions = iter(args)
-        to_update, received = [], []
+        to_update = []
         for records, values in zip(actions, actions):
             if {'declaration_date', 'receipt_date'} & set(values):
                 to_update.extend(r for r in records
-                    if r.procedure == 'index_rent'
+                    if r.procedure in RUN_AGREEMENT_PROCEDURES
                     and r.state in ('draft', 'approved', 'declared'))
-            if values.get('receipt_date'):
-                received.extend(records)
-        for record in received:
-            # Task "capture receipt" is done with the receipt date
-            Task.close_for(record, 'index_receipt')
         for record in to_update:
-            valid_from = record.rent_adjustment.planned_valid_from(
-                record.index_month_new, record.declaration_date,
-                record.receipt_date)
+            valid_from = record._effective_date()
             if valid_from != record.planned_valid_from:
                 super().write([record], {'planned_valid_from': valid_from})
 
     @classmethod
     def delete(cls, records):
         for record in records:
-            if (record.procedure == 'index_rent'
+            if (record.rent_adjustment
                     and record.state not in ('draft', 'cancelled')):
                 raise ValidationError(gettext(
                         'real_estate.msg_index_adjustment_delete',
@@ -592,8 +568,8 @@ class ContractTermAdjustment(metaclass=PoolMeta):
     @ModelView.button
     def recompute(cls, records):
         for record in records:
-            if record.procedure == 'index_rent' and record.state == 'draft':
-                cls.write([record], record._index_compute())
+            if record.rent_adjustment and record.state == 'draft':
+                cls.write([record], record._compute())
 
     @classmethod
     @ModelView.button
@@ -601,7 +577,7 @@ class ContractTermAdjustment(metaclass=PoolMeta):
     def approve(cls, records):
         Warning = Pool().get('res.user.warning')
         for record in records:
-            if record.procedure != 'index_rent':
+            if record.procedure not in RUN_AGREEMENT_PROCEDURES:
                 continue
             if record.check_state == 'error':
                 raise ValidationError(gettext(
@@ -634,9 +610,9 @@ class ContractTermAdjustment(metaclass=PoolMeta):
     @Workflow.transition('draft')
     def draft(cls, records):
         for record in records:
-            if record.procedure != 'index_rent':
+            if not record.rent_adjustment:
                 continue
-            # I07: at most one open adjustment per agreement
+            # I07 / V02: at most one open adjustment per agreement
             others = [a for a in record.rent_adjustment.adjustments
                 if a.id != record.id
                 and a.state in ('draft', 'approved', 'declared')]
@@ -645,11 +621,9 @@ class ContractTermAdjustment(metaclass=PoolMeta):
                         'real_estate.msg_index_adjustment_open',
                         rent_adjustment=record.rent_adjustment.rec_name,
                         adjustment=others[0].rec_name))
-            cls.write([record], record._index_compute())
-
+            cls.write([record], record._compute())
 
     @classmethod
-    @ModelView.button
     @Workflow.transition('declared')
     def declare(cls, records):
         """Create the declaration to the tenants (spec 6.1) and archive the
@@ -658,13 +632,11 @@ class ContractTermAdjustment(metaclass=PoolMeta):
         pool = Pool()
         Attachment = pool.get('ir.attachment')
         Date = pool.get('ir.date')
-        Letter = pool.get('real_estate.contract.index_adjustment.letter',
-            type='report')
-        Task = pool.get('real_estate.task')
         today = Date.today()
         for record in records:
-            if record.procedure != 'index_rent':
+            if record.procedure not in LETTERS:
                 continue
+            Letter = pool.get(LETTERS[record.procedure], type='report')
             if not record.declaration_date:
                 cls.write([record], {'declaration_date': today})
             ext, content, _, name = Letter.execute([record.id], {
@@ -677,14 +649,8 @@ class ContractTermAdjustment(metaclass=PoolMeta):
                         'data': content,
                         }])
             cls.write([record], {'letter': attachment.id})
-            # Task: capture the receipt of the declaration
-            record = cls(record.id)
-            Task.create_for(record, 'index_receipt',
-                record.declaration_date + datetime.timedelta(days=7),
-                company=record.contract.company if record.contract else None)
 
     @classmethod
-    @ModelView.button
     @Workflow.transition('done')
     def execute(cls, records):
         """Execute the declared index adjustment (spec 6.5): checks with
@@ -699,6 +665,9 @@ class ContractTermAdjustment(metaclass=PoolMeta):
         cls.lock(records)
         employee = User(Transaction().user).employee
         for record in records:
+            if record.procedure == 'comparative_rent':
+                record._execute_comparative(employee)
+                continue
             if record.procedure != 'index_rent':
                 continue
             agreement = record.rent_adjustment
@@ -760,58 +729,5 @@ class ContractTermAdjustment(metaclass=PoolMeta):
                     receipt=(record.receipt_date.strftime('%d.%m.%Y')
                         if record.receipt_date else '-'),
                     dispatch=record.dispatch_method or '-'))
-            # Tasks of this adjustment and of the agreement are done
-            for code in ('index_receipt', 'index_execute', 'index_declare'):
-                Task.close_for(record, code)
+            # The preparation task of the agreement is done
             Task.close_for(agreement, 'index_prepare')
-
-#**********************************************************************
-class ContractTermAdjustmentRun(ModelSQL, ModelView):
-    "Contract Term Adjustment Run"
-    # Protocol of an adjustment run: parameters, counts and one line per
-    # agreement with the result and the findings (cause of skipping)
-    __name__ = 'real_estate.contract.term.adjustment.run'
-
-    run_id = fields.Char("Run ID", required=True, readonly=True)
-    procedure = fields.Selection(
-        [(None, '')] + ADJUSTMENT_PROCEDURES, "Procedure", readonly=True)
-    company = fields.Many2One('company.company', "Company", readonly=True)
-    price_index = fields.Many2One('real_estate.price_index', "Price Index",
-        readonly=True)
-    index_month = fields.Date("Index Month", readonly=True)
-    declaration_date = fields.Date("Declaration Date", readonly=True)
-    include_decreases = fields.Boolean("Include Decreases", readonly=True)
-    auto_approve = fields.Boolean("Approve without Findings", readonly=True)
-    summary = fields.Text("Summary", readonly=True)
-    protocol = fields.Text("Protocol", readonly=True)
-    run_date = fields.Function(fields.Date("Run Date"), 'get_run_date')
-    adjustments = fields.Function(fields.One2Many(
-            'real_estate.contract.term.adjustment', None, "Adjustments",
-            readonly=True),
-        'get_adjustments', setter='set_adjustments')
-
-    @classmethod
-    def __setup__(cls):
-        super().__setup__()
-        cls._order = [('create_date', 'DESC'), ('id', 'DESC')]
-
-    def get_rec_name(self, name):
-        return self.run_id
-
-    def get_run_date(self, name):
-        return self.create_date.date() if self.create_date else None
-
-    @classmethod
-    def get_adjustments(cls, runs, name):
-        Adjustment = Pool().get('real_estate.contract.term.adjustment')
-        result = {r.id: [] for r in runs}
-        by_run_id = {r.run_id: r.id for r in runs}
-        for adjustment in Adjustment.search([
-                    ('run_id', 'in', list(by_run_id))]):
-            result[by_run_id[adjustment.run_id]].append(adjustment.id)
-        return result
-
-    @classmethod
-    def set_adjustments(cls, runs, name, value):
-        # Read-only list (linked by run_id) - Tryton requires a setter
-        pass

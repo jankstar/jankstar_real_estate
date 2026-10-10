@@ -5,7 +5,7 @@
     <newline/>
     <label name="rent_adjustment"/><field name="rent_adjustment" colspan="3"/>
     <label name="procedure"/><field name="procedure"/>
-    <label name="run_id"/><field name="run_id"/>
+    <label name="run"/><field name="run"/>
     <newline/>
     <label name="company"/><field name="company" readonly="1"/>
     <label name="property"/><field name="property" readonly="1"/>
@@ -39,7 +39,7 @@
     <notebook colspan="4">
         <page string="Index" id="page_index" col="4">
             <label name="index_base_year"/><field name="index_base_year"/>
-            <label name="direction"/><field name="direction"/>
+            <newline/>
             <label name="index_month_old"/><field name="index_month_old"/>
             <label name="index_value_old"/><field name="index_value_old"/>
             <label name="index_month_new"/><field name="index_month_new"/>
@@ -47,7 +47,28 @@
             <label name="index_change_percent"/><field name="index_change_percent"/>
             <label name="applied_change_percent"/><field name="applied_change_percent"/>
             <label name="cap_rule"/><field name="cap_rule" colspan="3"/>
+        </page>
+        <page string="Comparative Rent" id="page_comparative" col="4">
+            <label name="calculation"/><field name="calculation" colspan="3"/>
+            <label name="calculation_object"/><field name="calculation_object" colspan="3"/>
+            <label name="comparative_amount"/><field name="comparative_amount"/>
+            <label name="limited_by"/><field name="limited_by"/>
+            <label name="cap_base_amount"/><field name="cap_base_amount"/>
+            <label name="cap_percent"/><field name="cap_percent"/>
+            <label name="cap_excluded_amount"/><field name="cap_excluded_amount"/>
+            <label name="cap_amount"/><field name="cap_amount"/>
+            <separator name="calculation_text" colspan="4"/>
+            <field name="calculation_text" colspan="4" height="100"/>
+        </page>
+        <page string="Amount" id="page_amount" col="4">
+            <label name="direction"/><field name="direction"/>
+            <newline/>
             <label name="planned_quantity"/><field name="planned_quantity"/>
+            <label name="computed_amount"/><field name="computed_amount"/>
+            <label name="manual_amount"/><field name="manual_amount"/>
+            <newline/>
+            <separator name="override_reason" colspan="4"/>
+            <field name="override_reason" colspan="4" height="40"/>
             <label name="planned_unit_price"/><field name="planned_unit_price"/>
             <label name="planned_amount"/><field name="planned_amount"/>
             <label name="difference_amount"/><field name="difference_amount"/>
@@ -57,11 +78,17 @@
             <label name="dispatch_method"/><field name="dispatch_method"/>
             <label name="receipt_date"/><field name="receipt_date"/>
             <label name="planned_valid_from"/><field name="planned_valid_from"/>
+            <label name="consent_state"/><field name="consent_state"/>
+            <label name="consent_date"/><field name="consent_date"/>
+            <label name="consented_amount"/><field name="consented_amount"/>
+            <label name="consent_deadline"/><field name="consent_deadline"/>
+            <label name="lawsuit_deadline"/><field name="lawsuit_deadline"/>
+            <newline/>
             <label name="letter"/><field name="letter" colspan="3"/>
             <label name="executed_by"/><field name="executed_by"/>
             <label name="executed_date"/><field name="executed_date"/>
             <label id="receipt_hint" colspan="4"
-                string="The receipt of the declaration must be proven - a registered letter (Einwurf-Einschreiben) or a messenger is recommended. The new rent applies from the start of the month after next following the receipt."/>
+                string="The receipt of the declaration must be proven - a registered letter (Einwurf-Einschreiben) or a messenger is recommended. Index rent: the new rent applies from the start of the month after next following the receipt. Comparative rent: the tenant decides until the end of the second month after the receipt, the new rent applies from the start of the third month."/>
         </page>
         <page string="Check" id="page_check" col="4">
             <label name="check_state"/><field name="check_state"/>
@@ -69,13 +96,13 @@
             <field name="check_message" colspan="4"/>
         </page>
     </notebook>
+    <separator name="approval_reason" colspan="4"/>
+    <field name="approval_reason" colspan="4" height="40"/>
     <group id="buttons" colspan="4" col="-1">
         <button name="draft" icon="tryton-back"/>
         <button name="cancel" icon="tryton-cancel"/>
         <button name="recompute" icon="tryton-refresh"/>
         <button name="approve" icon="tryton-ok"/>
-        <button name="declare" icon="tryton-print"/>
-        <button name="execute" icon="tryton-launch"/>
         <field name="effective_rule" invisible="1"/>
     </group>
     <field name="currency" invisible="1"/>

@@ -46,12 +46,14 @@
             <label name="effective_rule"/><field name="effective_rule"/>
             <label name="effective_offset_months"/><field name="effective_offset_months"/>
             <separator string="Current State" id="sep_index_current" colspan="4"/>
-            <label name="current_term"/><field name="current_term" colspan="3"/>
             <label name="current_index_month"/><field name="current_index_month"/>
             <label name="current_index_value"/><field name="current_index_value"/>
             <label name="last_change_date"/><field name="last_change_date"/>
             <label name="next_possible_date"/><field name="next_possible_date"/>
             <label name="declaration_deadline"/><field name="declaration_deadline"/>
+        </page>
+        <page string="Adjustments" id="page_adjustments" col="4">
+            <label name="current_term"/><field name="current_term" colspan="3"/>
             <field name="adjustments" colspan="4"/>
         </page>
         <page string="Steps" id="page_steps" col="6">

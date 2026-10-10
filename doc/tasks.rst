@@ -67,7 +67,8 @@ Tasks
    ``recurrence_months``, ``email``, ``icon``, ``note_on_done``. Default
    types (``task.xml``, ``noupdate``) for the uses of the module, e.g.
    ``manual``, ``contract_unsigned``, ``index_prepare``,
-   ``index_receipt``, ``billing_deadline``, ``meter_calibration``,
+   ``index_values``, ``comparative_consent``, ``comparative_lawsuit``,
+   ``billing_deadline``, ``meter_calibration``,
    ``cron_error``.
 
 ``real_estate.task``  (``task.py``)
@@ -133,11 +134,13 @@ Tasks
 
    Programming interface: ``Task.create_for(record, type_code,
    due_date, ...)`` (idempotent), ``close_for(record, type_code)``,
-   ``cancel_for(record, type_code)``. Hooks: index rent *Declare* creates
-   ``index_receipt`` (declaration date + 7 days), entering the receipt
-   date closes it, *Execute* closes ``index_receipt`` /
-   ``index_execute`` / ``index_declare`` and ``index_prepare`` of the
-   agreement.
+   ``cancel_for(record, type_code)``. Hook: executing an index
+   adjustment closes ``index_prepare`` of the agreement; the further
+   steps of an index adjustment are the process steps of the adjustment
+   run. Comparative rent: the receipt date creates
+   ``comparative_consent`` (due at the consent deadline), the decision
+   closes it, a refusal creates ``comparative_lawsuit`` (14 days before
+   the lawsuit deadline).
 
 **Reminders and escalation** (phase B, ``Task.notify``)
    Scheduled task ``task_notify`` (*Real Estate Accounting › Scheduled
@@ -193,13 +196,14 @@ Task rules
 
    Default rules (``task_rule.xml``, ``noupdate``, all **inactive**): V02
    contract not signed, V03 fixed-term contract ends, V07 contract party
-   ends, V08 no follow-up contract, M01 prepare index rent adjustment, M02
-   index adjustment not declared, M04 not executed, M05 graduated rent
-   ends, M06 termination waiver ends, M07 index values outdated, M08 tight
+   ends, V08 no follow-up contract, M01 prepare index rent adjustment,
+   M05 graduated rent ends, M06 termination waiver ends, M07 index values outdated, M08 tight
    market regulation ends, B01 billing deadline, B02 adjust prepayments,
    O01 meter readings, O03 meter calibration, O04 object ends, S02
    scheduled task not run, P01 inspection overdue, P02 inspection defect
-   overdue. Each default rule has a description
+   overdue. Active by default: M09 *Consent period expired* (comparative
+   rent: no decision of the tenant within the period for consideration →
+   task *Check the action for consent*). Each default rule has a description
    (translatable, German in ``locale/de.po``) that is copied into the
    tasks it creates.
 
@@ -277,7 +281,9 @@ Processes
    claims check optional, final operating cost billing), *Move-in* (5
    steps: deposit received - ``deposit_paid``, handover, meter readings,
    keys, direct debit mandate), *Change of Tenant in the Contract* (4
-   steps), *Index Rent Adjustment* (run, declare, receipt, execute) and
+   steps), *Index Rent Adjustment Run* and *Comparative Rent Adjustment
+   Run* on the adjustment run (6 steps each, completed by the state of
+   the run, see `Rent Adjustments <rent_adjustment.rst>`__) and
    *Vacancy / Reletting* on an object (6 steps: meter readings and
    securing, inspection and repairs - both with role *Caretaker* -, new
    rent, advertisement, viewings and tenant selection, new lease contract;

@@ -36,6 +36,8 @@ from . import process
 from . import handover
 from . import meter_reading_sheet
 from . import rent_survey
+from . import adjustment_run
+from . import contract_comparative_rent
 from . import inspection
 
 __all__ = ['register']
@@ -96,9 +98,6 @@ def register():
         billing_unit_wizard.CancelBillingStart,
         billing_unit_wizard.ReconcileAdvancePaymentsStart,
         billing_unit_wizard.ReconcileAdvancePaymentsResult,
-        contract_wizard.ContractTermAdjustmentStart,
-        contract_wizard.ContractTermAdjustmentConfirm,
-        contract_wizard.ContractTermAdjustmentResult,
         #sequence.Sequence,
         res.User,
         ir.Cron,
@@ -135,7 +134,6 @@ def register():
         price_index.IndexCapRule,
         contract_index_rent.ContractRentAdjustment,
         contract_index_rent.ContractTermAdjustment,
-        contract_index_rent.ContractTermAdjustmentRun,
         price_index.Contract,
         task.TaskType,
         task.Task,
@@ -214,6 +212,14 @@ def register():
         rent_survey.RentSurveyMatrixImportStart,
         rent_survey.RentSurveyMatrixImportPreview,
         rent_survey.RentSurveyCalculation,
+        adjustment_run.ContractTermAdjustmentRun,
+        adjustment_run.ContractTermAdjustmentRunProperty,
+        adjustment_run.ContractTermAdjustmentRunContract,
+        adjustment_run.ContractTermAdjustment,
+        adjustment_run.Process,
+        contract_comparative_rent.ContractRentAdjustment,
+        contract_comparative_rent.ContractTermAdjustment,
+        contract_comparative_rent.AdjustmentRunAddStart,
         ir.Rule,
         option_rate.OptionRateContext,
         option_rate.OptionRate,
@@ -244,7 +250,6 @@ def register():
         billing_unit_wizard.BillingUnitWizard,
         billing_unit_wizard.CancelBillingWizard,
         billing_unit_wizard.ReconcileAdvancePaymentsWizard,
-        contract_wizard.ContractTermAdjustmentWizard,
         contract_wizard.OpenContractSettlementUnits,
         option_rate_wizard.OptionRateUpdateWizard,
         price_index.PriceIndexImport,
@@ -262,6 +267,7 @@ def register():
         rent_survey.RentSurveyCopy,
         rent_survey.RentSurveyMatrixExport,
         rent_survey.RentSurveyMatrixImport,
+        contract_comparative_rent.AdjustmentRunAdd,
         module='real_estate', type_='wizard')
     Pool.register(
         base_object.BaseObjectReport,
@@ -272,6 +278,7 @@ def register():
         contract_report.ContractAnnex4Report,
         contract_report.ContractTerminationConfirmationReport,
         contract_report.IndexAdjustmentLetterReport,
+        contract_report.ComparativeRentLetterReport,
         contract_report.HandoverReport,
         meter_reading_sheet.MeterReadingSheetReport,
         invoice.ContractMoveLinePayableReceivableReport,

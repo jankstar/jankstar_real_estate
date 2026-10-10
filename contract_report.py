@@ -288,6 +288,28 @@ class IndexAdjustmentLetterReport(Report):
 
 
 #**********************************************************************
+class ComparativeRentLetterReport(IndexAdjustmentLetterReport):
+    """Request for consent to a rent increase up to the local comparative
+    rent (§§ 558, 558a BGB, spezifikation-anpassungslauf.md 10.5) - one
+    letter per adjustment to all main tenants, with the reasons from the
+    accepted calculation of the rent survey."""
+    __name__ = 'real_estate.contract.comparative_rent.letter'
+
+    @classmethod
+    def get_context(cls, records, header, data):
+        context = super().get_context(records, header, data)
+        deadlines = {}
+        for record in records:
+            # End of the period for consideration (§ 558b BGB): the day
+            # before the effective date (preview before the receipt)
+            deadlines[record.id] = (record.planned_valid_from
+                - datetime.timedelta(days=1)
+                if record.planned_valid_from else None)
+        context['consent_until'] = deadlines
+        return context
+
+
+#**********************************************************************
 class HandoverReport(Report):
     """Handover report (Übergabeprotokoll) of move-in, pre-inspection or
     move-out with check items, keys, meter readings and signature fields

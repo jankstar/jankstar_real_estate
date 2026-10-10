@@ -7,8 +7,12 @@
     <field name="dispatch_method"/>
     <field name="receipt_date"/>
     <field name="planned_valid_from"/>
+    <field name="consent_deadline" optional="0"/>
+    <field name="consent_state" optional="0"/>
+    <field name="consent_date" optional="0"/>
+    <field name="consented_amount" optional="0"/>
     <field name="letter"/>
     <field name="procedure" tree_invisible="1"/>
     <field name="state" tree_invisible="1"/>
-    <button name="execute"/>
+    <field name="currency" tree_invisible="1"/>
 </tree>

@@ -1,22 +1,55 @@
 <?xml version="1.0"?>
 <form col="4">
     <label name="run_id"/><field name="run_id"/>
-    <label name="run_date"/><field name="run_date"/>
+    <label name="name"/><field name="name"/>
     <label name="procedure"/><field name="procedure"/>
+    <label name="key_date"/><field name="key_date"/>
     <label name="company"/><field name="company"/>
-    <label name="price_index"/><field name="price_index"/>
-    <label name="index_month"/><field name="index_month"/>
     <label name="declaration_date"/><field name="declaration_date"/>
-    <newline/>
-    <label name="include_decreases"/><field name="include_decreases"/>
-    <label name="auto_approve"/><field name="auto_approve"/>
+    <label name="progress"/><field name="progress" colspan="3"/>
     <notebook colspan="4">
-        <page name="protocol">
-            <field name="summary" colspan="4" height="60"/>
-            <field name="protocol" colspan="4"/>
+        <page string="Workflow" id="page_workflow" col="4">
+            <label name="process"/><field name="process"/>
+            <newline/>
+            <field name="process_tasks" colspan="4"
+                view_ids="real_estate.task_view_list_process"/>
         </page>
-        <page name="adjustments">
-            <field name="adjustments" colspan="4"/>
+        <page string="Parameters" id="page_parameters" col="4">
+            <label name="price_index"/><field name="price_index"/>
+            <label name="index_month"/><field name="index_month"/>
+            <label name="include_decreases"/><field name="include_decreases"/>
+            <newline/>
+            <label name="min_increase_amount"/><field name="min_increase_amount"/>
+            <label name="min_increase_percent"/><field name="min_increase_percent"/>
+            <label name="create_calculations"/><field name="create_calculations"/>
+            <newline/>
+            <field name="properties" colspan="2"/>
+            <field name="contracts" colspan="2"/>
+        </page>
+        <page name="adjustments" col="1">
+            <field name="adjustments"
+                view_ids="real_estate.contract_term_adjustment_run_adjustment_view_tree"/>
+        </page>
+        <page string="Receipts / Consents" id="page_receipts" col="1">
+            <field name="receipts"
+                view_ids="real_estate.contract_term_adjustment_receipt_view_tree"/>
+        </page>
+        <page name="protocol" col="1">
+            <field name="summary" height="60"/>
+            <field name="protocol"/>
         </page>
     </notebook>
+    <label name="state"/><field name="state"/>
+    <field name="currency" invisible="1"/>
+    <group id="buttons" colspan="2" col="-1">
+        <button name="cancel" icon="tryton-cancel"/>
+        <button name="reset" icon="tryton-back"/>
+        <button name="select" icon="tryton-search"/>
+        <button name="add_terms" icon="tryton-add"/>
+        <button name="open_calculations" icon="tryton-open"/>
+        <button name="calculate" icon="tryton-refresh"/>
+        <button name="approve" icon="tryton-ok"/>
+        <button name="declare" icon="tryton-print"/>
+        <button name="execute" icon="tryton-launch"/>
+    </group>
 </form>

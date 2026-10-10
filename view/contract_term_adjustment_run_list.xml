@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<tree editable="1">
+    <field name="state" width="80"/>
+    <field name="check_state"/>
+    <field name="contract" expand="1"/>
+    <field name="term_old" expand="1"/>
+    <field name="index_month_new" optional="0"/>
+    <field name="applied_change_percent" optional="0"/>
+    <field name="calculation" optional="0"/>
+    <field name="comparative_amount" optional="0"/>
+    <field name="cap_amount" optional="0"/>
+    <field name="limited_by" optional="1"/>
+    <field name="amount_old"/>
+    <field name="computed_amount" optional="1"/>
+    <field name="manual_amount" optional="0"/>
+    <field name="override_reason" optional="0" expand="1"/>
+    <field name="planned_amount"/>
+    <field name="difference_amount" optional="0"/>
+    <field name="planned_valid_from"/>
+    <field name="approval_reason" expand="1"/>
+    <field name="check_message" optional="1"/>
+    <field name="procedure" tree_invisible="1"/>
+    <field name="currency" tree_invisible="1"/>
+    <button name="recompute" tree_invisible="1"/>
+    <button name="cancel" tree_invisible="1"/>
+    <button name="draft" tree_invisible="1"/>
+</tree>

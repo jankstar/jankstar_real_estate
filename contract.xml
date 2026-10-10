@@ -1054,28 +1054,6 @@
         action="wizard_cancel_period_booking"
         id="menu_cancel_period_booking"/>
 
-    <!-- Contract Term Adjustment Wizard -->
-    <record model="ir.ui.view" id="contract_term_adjustment_start_view_form">
-        <field name="model">real_estate.contract_term_adjustment.start</field>
-        <field name="type">form</field>
-        <field name="name">contract_term_adjustment_start_form</field>
-    </record>
-    <record model="ir.ui.view" id="contract_term_adjustment_confirm_view_form">
-        <field name="model">real_estate.contract_term_adjustment.confirm</field>
-        <field name="type">form</field>
-        <field name="name">contract_term_adjustment_confirm_form</field>
-    </record>
-    <record model="ir.ui.view" id="contract_term_adjustment_result_view_form">
-        <field name="model">real_estate.contract_term_adjustment.result</field>
-        <field name="type">form</field>
-        <field name="name">contract_term_adjustment_result_form</field>
-    </record>
-
-    <record model="ir.action.wizard" id="wizard_contract_term_adjustment">
-        <field name="name">Adjustment of Contract Terms</field>
-        <field name="wiz_name">real_estate.contract_term_adjustment.wizard</field>
-    </record>
-
     <!-- ContractTermAdjustment standalone menu -->
     <record model="ir.ui.view" id="contract_term_adjustment_view_tree">
         <field name="model">real_estate.contract.term.adjustment</field>
@@ -1167,28 +1145,11 @@
 
     <menuitem
         parent="menu_real_estate_contracts_adjustment"
-        sequence="30"
-        name="Start Adjustment Run"
-        action="wizard_contract_term_adjustment"
-        id="menu_contract_term_adjustment"/>
-
-    <menuitem
-        parent="menu_real_estate_contracts_adjustment"
         action="act_contract_term_adjustment"
         name="Adjustments"
         sequence="40"
         id="menu_contract_term_adjustment_list"/>
 
-    <record model="ir.model.button" id="contract_term_adjustment_declare_button">
-        <field name="model">real_estate.contract.term.adjustment</field>
-        <field name="name">declare</field>
-        <field name="string">Declare</field>
-    </record>
-    <record model="ir.model.button" id="contract_term_adjustment_execute_button">
-        <field name="model">real_estate.contract.term.adjustment</field>
-        <field name="name">execute</field>
-        <field name="string">Execute</field>
-    </record>
 
     <!-- Declaration of an index rent adjustment (ODT) -->
     <record model="ir.action.report" id="report_index_adjustment_letter_de">
@@ -1204,33 +1165,13 @@
         <field name="action" ref="report_index_adjustment_letter_de"/>
     </record>
 
-    <!-- Declared index adjustments: capture receipt and dispatch method -->
+    <!-- Declared adjustments of a run: capture receipt and dispatch method -->
     <record model="ir.ui.view" id="contract_term_adjustment_receipt_view_tree">
         <field name="model">real_estate.contract.term.adjustment</field>
         <field name="type">tree</field>
         <field name="priority" eval="20"/>
         <field name="name">contract_term_adjustment_receipt_tree</field>
     </record>
-    <record model="ir.action.act_window" id="act_contract_term_adjustment_receipt">
-        <field name="name">Capture Receipt</field>
-        <field name="res_model">real_estate.contract.term.adjustment</field>
-        <field name="domain" eval="[('state', '=', 'declared')]" pyson="1"/>
-    </record>
-    <record model="ir.action.act_window.view" id="act_contract_term_adjustment_receipt_view1">
-        <field name="sequence" eval="10"/>
-        <field name="view" ref="contract_term_adjustment_receipt_view_tree"/>
-        <field name="act_window" ref="act_contract_term_adjustment_receipt"/>
-    </record>
-    <record model="ir.action.act_window.view" id="act_contract_term_adjustment_receipt_view2">
-        <field name="sequence" eval="20"/>
-        <field name="view" ref="contract_term_adjustment_view_form"/>
-        <field name="act_window" ref="act_contract_term_adjustment_receipt"/>
-    </record>
-    <menuitem
-        parent="menu_real_estate_contracts_adjustment"
-        action="act_contract_term_adjustment_receipt"
-        sequence="50"
-        id="menu_contract_term_adjustment_receipt"/>
 
     <!-- Adjustment runs with their protocol -->
     <record model="ir.ui.view" id="contract_term_adjustment_run_view_tree">
@@ -1260,7 +1201,7 @@
     <menuitem
         parent="menu_real_estate_contracts_adjustment"
         action="act_contract_term_adjustment_run"
-        sequence="60"
+        sequence="30"
         id="menu_contract_term_adjustment_run"/>
     <record model="ir.model.access" id="access_contract_term_adjustment_run_contract">
         <field name="model">real_estate.contract.term.adjustment.run</field>

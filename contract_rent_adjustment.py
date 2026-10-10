@@ -17,7 +17,7 @@ from trytond.pool import Pool, PoolMeta
 from trytond.pyson import Eval, If
 
 from .contract_term import ContractGraduatedRentChangeWarning
-from .contract_type import ADJUSTMENT_PROCEDURES
+from .contract_type import ADJUSTMENT_PROCEDURES, RUN_AGREEMENT_PROCEDURES
 
 # Procedures agreed in the contract (with agreement date / written form)
 AGREED_PROCEDURES = {'graduated_rent', 'index_rent'}
@@ -243,7 +243,8 @@ class ContractRentAdjustment(Workflow, ModelSQL, ModelView):
              "and a tight housing market apply. Never: e.g. commercial.")
     current_term = fields.Function(fields.Many2One(
             'real_estate.contract.term', "Current Term",
-            states={'invisible': ~_index},
+            states={'invisible': ~Eval('procedure').in_(
+                    RUN_AGREEMENT_PROCEDURES)},
             help="Currently valid term of the chain (same term type and "
                  "item from the agreed term on)."),
         'get_index_info')
@@ -276,7 +277,8 @@ class ContractRentAdjustment(Workflow, ModelSQL, ModelView):
 
     adjustments = fields.One2Many('real_estate.contract.term.adjustment',
         'rent_adjustment', "Adjustments", readonly=True,
-        states={'invisible': ~_index})
+        states={'invisible': ~Eval('procedure').in_(
+                RUN_AGREEMENT_PROCEDURES)})
 
     terms = fields.One2Many('real_estate.contract.term', 'rent_adjustment',
         "Steps", readonly=True, order=[('graduated_step', 'ASC')])
@@ -321,18 +323,18 @@ class ContractRentAdjustment(Workflow, ModelSQL, ModelView):
             ('active', 'closed'),
             }
         graduated = Eval('procedure') == 'graduated_rent'
-        index = Eval('procedure') == 'index_rent'
+        run = Eval('procedure').in_(RUN_AGREEMENT_PROCEDURES)
         cls._buttons.update({
             'activate': {
-                'invisible': ~index | (Eval('state') != 'draft'),
+                'invisible': ~run | (Eval('state') != 'draft'),
                 'depends': ['procedure', 'state'],
                 },
             'draft': {
-                'invisible': ~index | (Eval('state') != 'active'),
+                'invisible': ~run | (Eval('state') != 'active'),
                 'depends': ['procedure', 'state'],
                 },
             'close': {
-                'invisible': ~index | (Eval('state') != 'active'),
+                'invisible': ~run | (Eval('state') != 'active'),
                 'depends': ['procedure', 'state'],
                 },
             'generate': {
@@ -364,6 +366,9 @@ class ContractRentAdjustment(Workflow, ModelSQL, ModelView):
                 {'invisible': ~cls._graduated}, ['procedure']),
             ('//page[@id="page_index"]', 'states',
                 {'invisible': ~cls._index}, ['procedure']),
+            ('//page[@id="page_adjustments"]', 'states',
+                {'invisible': ~Eval('procedure').in_(
+                        RUN_AGREEMENT_PROCEDURES)}, ['procedure']),
             ]
 
     @staticmethod
@@ -1282,7 +1287,8 @@ class ContractRentAdjustment(Workflow, ModelSQL, ModelView):
         result = {name: {} for name in names}
         for record in records:
             index_rent = record.procedure == 'index_rent'
-            chain = record._chain_terms() if index_rent else []
+            chain = (record._chain_terms()
+                if record.procedure in RUN_AGREEMENT_PROCEDURES else [])
             base_value = None
             if (index_rent and record.price_index
                     and record.index_base_month):

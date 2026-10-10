@@ -25,10 +25,12 @@ Structure
   *Separate Move*, e.g. the rent deposit, get an invoice of their own).
 - **Rent adjustments** — per contract term: graduated rent (§ 557a BGB)
   generated in advance as terms; index rent (§ 557b BGB) with price index
-  series and import (CSV or GENESIS-Online API), adjustment run with
-  checks and cap rule, declaration letter, receipt and execution;
-  comparative rent, modernisation and operating cost procedures as
-  headers so far.
+  series and import (CSV or GENESIS-Online API); comparative rent
+  (§§ 558-558b BGB) from the rent survey with cap (20 %/15 %), request
+  for consent, consent/partial consent/refusal and deadline tasks - both
+  processed by the adjustment run (workflow with process, protocol,
+  letters, receipts, execution); modernisation and operating cost
+  procedures as headers so far.
 - **Rent survey** — rent surveys (*Mietspiegel*, table or regression
   method) with versions, classification features and classes, table
   cells, feature groups and features, CSV import and consistency check;
@@ -111,6 +113,11 @@ Contents
   - `Property Management <https://github.com/jankstar/jankstar_real_estate/blob/main/doc/property_management.rst>`_
   - `Contract Management <https://github.com/jankstar/jankstar_real_estate/blob/main/doc/contract_management.rst>`_
   - `Rent Adjustments <https://github.com/jankstar/jankstar_real_estate/blob/main/doc/rent_adjustment.rst>`_
+
+    - `Graduated Rent <https://github.com/jankstar/jankstar_real_estate/blob/main/doc/rent_adjustment_graduated.rst>`_
+    - `Index Rent <https://github.com/jankstar/jankstar_real_estate/blob/main/doc/rent_adjustment_index.rst>`_
+    - `Comparative Rent <https://github.com/jankstar/jankstar_real_estate/blob/main/doc/rent_adjustment_comparative.rst>`_
+
   - `Rent Survey (Comparative Rent) <https://github.com/jankstar/jankstar_real_estate/blob/main/doc/rent_survey.rst>`_
   - `Operating Cost Settlement <https://github.com/jankstar/jankstar_real_estate/blob/main/doc/operating_cost_settlement.rst>`_
   - `CO2 Cost Allocation (CO2KostAufG) <https://github.com/jankstar/jankstar_real_estate/blob/main/doc/co2_kostaufg.rst>`_
@@ -142,6 +149,9 @@ Contents
    property_management
    contract_management
    rent_adjustment
+   rent_adjustment_graduated
+   rent_adjustment_index
+   rent_adjustment_comparative
    rent_survey
    operating_cost_settlement
    co2_kostaufg

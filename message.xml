@@ -598,16 +598,10 @@ Either run "Ready for Billing" for each billing unit first, or bill individual b
             <field name="text">The adjustment "%(adjustment)s" can only be deleted in state draft or cancelled.</field>
         </record>
         <record model="ir.message" id="msg_index_rent_draft_adjustments">
-            <field name="text">Index rent "%(rent_adjustment)s" cannot be reset to draft: the adjustment "%(adjustment)s" is already approved, declared or done.</field>
+            <field name="text">Rent adjustment "%(rent_adjustment)s" cannot be reset to draft: the adjustment "%(adjustment)s" is already approved, declared or done.</field>
         </record>
         <record model="ir.message" id="msg_index_rent_close_open">
-            <field name="text">Index rent "%(rent_adjustment)s" cannot be closed: the adjustment "%(adjustment)s" is still open.</field>
-        </record>
-        <record model="ir.message" id="msg_index_run_decrease_listed">
-            <field name="text">%(rent_adjustment)s: decrease %(change)s %% - not created.</field>
-        </record>
-        <record model="ir.message" id="msg_index_run_result">
-            <field name="text">Run %(run_id)s: %(created)s adjustments created (%(approved)s approved, %(error)s with errors); skipped: %(open)s with an open adjustment, %(lock_period)s in the lock period, %(threshold)s threshold not reached, %(decrease)s decreases, %(no_value)s without index values.</field>
+            <field name="text">Rent adjustment "%(rent_adjustment)s" cannot be closed: the adjustment "%(adjustment)s" is still open.</field>
         </record>
         <record model="ir.message" id="msg_price_index_value_used">
             <field name="text">The index value "%(value)s" is used by the declared or executed adjustment "%(adjustment)s" and cannot be changed.</field>
@@ -633,9 +627,6 @@ Either run "Ready for Billing" for each billing unit first, or bill individual b
         <record model="ir.message" id="msg_index_run_line_created_error">
             <field name="text">%(rent_adjustment)s: adjustment created with errors - %(change)s %%, new amount %(amount)s, effective from %(valid_from)s:</field>
         </record>
-        <record model="ir.message" id="msg_index_run_line_approved">
-            <field name="text">%(rent_adjustment)s: adjustment created and approved - %(change)s %%, new amount %(amount)s, effective from %(valid_from)s.</field>
-        </record>
         <record model="ir.message" id="msg_index_run_line_none">
             <field name="text">No active index rent agreement matches the selection (index series, company, property, contracts).</field>
         </record>
@@ -643,7 +634,7 @@ Either run "Ready for Billing" for each billing unit first, or bill individual b
             <field name="text">The adjustment "%(adjustment)s" cannot be executed: enter the receipt date of the declaration first (statutory effective date).</field>
         </record>
         <record model="ir.message" id="msg_index_adjustment_term_changed">
-            <field name="text">The adjustment "%(adjustment)s" cannot be executed: the term "%(term)s" is no longer the current term of the index rent - create a new adjustment.</field>
+            <field name="text">The adjustment "%(adjustment)s" cannot be executed: the term "%(term)s" is no longer the current term of the rent adjustment - create a new adjustment.</field>
         </record>
         <record model="ir.message" id="msg_index_adjustment_execute_errors">
             <field name="text">The adjustment "%(adjustment)s" cannot be executed:
@@ -728,17 +719,14 @@ Either run "Ready for Billing" for each billing unit first, or bill individual b
         <record model="ir.message" id="msg_task_code_waiver_end">
             <field name="text">Termination waiver ends</field>
         </record>
-        <record model="ir.message" id="msg_task_code_index_declare">
-            <field name="text">Declare index rent adjustment</field>
-        </record>
-        <record model="ir.message" id="msg_task_code_index_receipt">
-            <field name="text">Capture receipt of index declaration</field>
-        </record>
-        <record model="ir.message" id="msg_task_code_index_execute">
-            <field name="text">Execute index rent adjustment</field>
-        </record>
         <record model="ir.message" id="msg_task_code_index_values">
             <field name="text">Index values outdated</field>
+        </record>
+        <record model="ir.message" id="msg_task_code_comparative_consent">
+            <field name="text">Consent period of the rent increase ends</field>
+        </record>
+        <record model="ir.message" id="msg_task_code_comparative_lawsuit">
+            <field name="text">Check the action for consent</field>
         </record>
         <record model="ir.message" id="msg_task_code_tight_market_end">
             <field name="text">Tight market regulation / cap rule ends</field>
@@ -1117,6 +1105,131 @@ Either run "Ready for Billing" for each billing unit first, or bill individual b
         </record>
         <record model="ir.message" id="msg_rent_survey_matrix_count">
             <field name="text">%(count)s objects with changes</field>
+        </record>
+        <record model="ir.message" id="msg_adjustment_run_parameters">
+            <field name="text">The parameters of the run "%(run)s" are incomplete (procedure parameters).</field>
+        </record>
+        <record model="ir.message" id="msg_adjustment_run_delete">
+            <field name="text">The adjustment run "%(run)s" can only be deleted as draft or cancelled.</field>
+        </record>
+        <record model="ir.message" id="msg_adjustment_run_selected">
+            <field name="text">Selected: %(agreements)s candidates, %(created)s new adjustments, %(excluded)s excluded.</field>
+        </record>
+        <record model="ir.message" id="msg_adjustment_run_calculated">
+            <field name="text">Calculated: %(ok)s without findings, %(warning)s with warnings, %(error)s with errors.</field>
+        </record>
+        <record model="ir.message" id="msg_adjustment_run_approved">
+            <field name="text">Approved: %(approved)s adjustments, %(rejected)s cancelled.</field>
+        </record>
+        <record model="ir.message" id="msg_adjustment_run_declared">
+            <field name="text">Announced: %(count)s letters created.</field>
+        </record>
+        <record model="ir.message" id="msg_adjustment_run_executed">
+            <field name="text">Executed: %(count)s adjustments.</field>
+        </record>
+        <record model="ir.message" id="msg_adjustment_run_reset">
+            <field name="text">Reset to draft.</field>
+        </record>
+        <record model="ir.message" id="msg_adjustment_run_line_excluded">
+            <field name="text">%(rent_adjustment)s: excluded in this run.</field>
+        </record>
+        <record model="ir.message" id="msg_adjustment_run_line_error">
+            <field name="text">%(adjustment)s: cancelled (check with errors).</field>
+        </record>
+        <record model="ir.message" id="msg_adjustment_run_line_reason">
+            <field name="text">%(adjustment)s: cancelled (warning without approval reason).</field>
+        </record>
+        <record model="ir.message" id="msg_adjustment_run_nothing_approved">
+            <field name="text">No adjustment of the run "%(run)s" can be approved:
+%(protocol)s</field>
+        </record>
+        <record model="ir.message" id="msg_adjustment_run_nothing_to_execute">
+            <field name="text">No adjustment of the run "%(run)s" can be executed - capture the receipts (and the consents) first.</field>
+        </record>
+        <record model="ir.message" id="msg_adjustment_run_added">
+            <field name="text">Terms added: %(created)s new adjustments, %(excluded)s excluded.</field>
+        </record>
+        <record model="ir.message" id="msg_adjustment_run_line_excluded_term">
+            <field name="text">%(term)s: excluded in this run (adjustment cancelled).</field>
+        </record>
+        <record model="ir.message" id="msg_adjustment_manual_reason">
+            <field name="text">The adjustment "%(adjustment)s" has a manual amount - enter the reason.</field>
+        </record>
+        <record model="ir.message" id="msg_adjustment_manual">
+            <field name="text">Manual amount %(amount)s instead of the computed %(computed)s.</field>
+        </record>
+        <record model="ir.message" id="msg_adjustment_manual_range">
+            <field name="text">The manual amount %(amount)s must be between %(low)s and %(high)s (current and computed amount).</field>
+        </record>
+        <record model="ir.message" id="msg_adjustment_consented_amount">
+            <field name="text">The consented amount of "%(adjustment)s" must be above the current rent %(old)s and below the requested rent %(new)s - else capture the full consent or the refusal.</field>
+        </record>
+        <record model="ir.message" id="msg_comparative_line_none">
+            <field name="text">No term allows the comparative rent (contract type, term type, use class, monthly rhythm).</field>
+        </record>
+        <record model="ir.message" id="msg_comparative_line_agreed">
+            <field name="text">%(term)s: excluded - graduated or index rent "%(agreement)s" (V01).</field>
+        </record>
+        <record model="ir.message" id="msg_comparative_line_open">
+            <field name="text">%(term)s: excluded - open adjustment "%(adjustment)s" (V02).</field>
+        </record>
+        <record model="ir.message" id="msg_comparative_line_apartments">
+            <field name="text">%(term)s: excluded - the item has %(count)s rental units, exactly one apartment is needed (V05).</field>
+        </record>
+        <record model="ir.message" id="msg_comparative_line_end">
+            <field name="text">%(term)s: excluded - the contract ends on %(end)s before the effective date (V06).</field>
+        </record>
+        <record model="ir.message" id="msg_comparative_line_waiting">
+            <field name="text">%(term)s: excluded - last change on %(last_change)s, an increase is possible from %(earliest)s (V03).</field>
+        </record>
+        <record model="ir.message" id="msg_comparative_line_lock">
+            <field name="text">%(term)s: excluded - last request on %(last_request)s, a new one is possible one year later (V04).</field>
+        </record>
+        <record model="ir.message" id="msg_comparative_line_created">
+            <field name="text">%(term)s: adjustment created (%(state)s), new rent %(amount)s.</field>
+        </record>
+        <record model="ir.message" id="msg_comparative_contract">
+            <field name="text">The contract "%(contract)s" is not running or ends (%(end)s) before the effective date (V06).</field>
+        </record>
+        <record model="ir.message" id="msg_comparative_waiting">
+            <field name="text">Rent changed on %(last_change)s: the new rent may apply from %(earliest)s at the earliest, planned %(valid_from)s (§ 558 para. 1 BGB).</field>
+        </record>
+        <record model="ir.message" id="msg_comparative_lock">
+            <field name="text">Last request on %(last_request)s: a new request is possible one year later (§ 558 para. 1 BGB).</field>
+        </record>
+        <record model="ir.message" id="msg_comparative_operating_costs">
+            <field name="text">The term type "%(term_type)s" contains operating costs - only a net rent can be increased up to the comparative rent.</field>
+        </record>
+        <record model="ir.message" id="msg_comparative_booked">
+            <field name="text">The term is booked up to %(booked_to)s, after the effective date %(valid_from)s - cancel the bookings before the execution.</field>
+        </record>
+        <record model="ir.message" id="msg_comparative_calculation">
+            <field name="text">No accepted calculation of the rent survey for "%(apartment)s" (key date at most one year before the declaration date %(date)s) - accept the calculation and calculate again.</field>
+        </record>
+        <record model="ir.message" id="msg_comparative_calculation_warning">
+            <field name="text">The calculation "%(calculation)s" was accepted with warnings or uses a table cell outside the qualified rent survey - state this in the request.</field>
+        </record>
+        <record model="ir.message" id="msg_comparative_cap">
+            <field name="text">The cap applies: %(cap)s instead of the comparative rent %(comparative)s.</field>
+        </record>
+        <record model="ir.message" id="msg_comparative_no_increase">
+            <field name="text">No increase: new rent %(new)s, current rent %(old)s, minimum increase %(minimum)s.</field>
+        </record>
+        <record model="ir.message" id="msg_comparative_calculation_text">
+            <field name="text">Comparative rent: %(calculation)s - %(rent_per_sqm)s per m² × %(area)s m² = %(comparative)s
+Effective from %(valid_from)s, rent on %(cap_date)s: %(base)s
+Cap: %(base)s × (1 + %(percent)s %%) + increases not counted %(excluded)s = %(cap)s
+Current rent %(old)s, last change %(last_change)s
+New rent (lower of comparative rent and cap): %(new)s</field>
+        </record>
+        <record model="ir.message" id="msg_comparative_consent_missing">
+            <field name="text">The adjustment "%(adjustment)s" cannot be executed: capture the receipt and the consent of the tenant first.</field>
+        </record>
+        <record model="ir.message" id="msg_comparative_log">
+            <field name="text">Rent increase up to the comparative rent (§ 558 BGB): %(amount_old)s -&gt; %(amount_new)s from %(valid_from)s (comparative rent %(comparative)s, cap %(cap)s, receipt %(receipt)s, %(consent)s).</field>
+        </record>
+        <record model="ir.message" id="msg_comparative_log_refused">
+            <field name="text">Request for consent "%(adjustment)s" (%(amount)s) refused by the tenant.</field>
         </record>
     </data>
 </tryton>
