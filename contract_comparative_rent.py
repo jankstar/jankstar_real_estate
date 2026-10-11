@@ -10,7 +10,7 @@ from trytond.model.exceptions import ValidationError
 from trytond.modules.currency.fields import Monetary
 from trytond.modules.product import price_digits
 from trytond.pool import Pool, PoolMeta
-from trytond.pyson import Eval
+from trytond.pyson import Eval, If
 from trytond.transaction import Transaction
 from trytond.wizard import Button, StateTransition, StateView, Wizard
 
@@ -764,10 +764,20 @@ class NewLettingCheckLine(ModelView):
     deviation_percent = fields.Numeric("Above Comparative Rent (%)",
         digits=(16, 2), readonly=True)
     result = fields.Char("Result", readonly=True)
-    apply = fields.Boolean("Set to Limit",
+    above = fields.Boolean("Above the Limit", readonly=True)
+    apply = fields.Boolean("Adjust",
         states={'readonly': ~Eval('limit_amount')},
         help="Set the rent of the term to the limit (comparative rent + "
              "percentage).")
+
+
+    @classmethod
+    def view_attributes(cls):
+        # rows above the limit in red
+        return super().view_attributes() + [
+            ('/tree', 'visual', If(Eval('above', False), 'danger', ''),
+                ['above']),
+            ]
 
 
 class NewLettingCheck(Wizard):
@@ -843,6 +853,7 @@ class NewLettingCheck(Wizard):
                     'comparative_amount': comparative,
                     'limit_amount': limit,
                     'deviation_percent': deviation,
+                    'above': current > limit,
                     'result': gettext(
                         'real_estate.msg_new_letting_above'
                         if current > limit
@@ -874,16 +885,24 @@ class NewLettingCheck(Wizard):
         contract = self.record
         if contract.state != 'draft':
             return 'end'
-        for line in self.start.lines:
-            if not line.apply or not line.limit_amount:
-                continue
-            term = Term(line.term.id)
+        # The client sends back only the editable 'apply' of the lines (no
+        # read-only values): the lines are computed again in the same order
+        start = self.default_start(None)
+        computed = start['lines']
+        selected = [values for values, line in zip(computed, self.start.lines)
+            if line.apply and values.get('limit_amount')]
+        if not selected:
+            raise ValidationError(gettext(
+                    'real_estate.msg_new_letting_nothing_selected'))
+        for values in selected:
+            term = Term(values['term'])
             quantity = Decimal(str(term.quantity or 0))
+            limit = values['limit_amount']
             if quantity and quantity != 1:
-                unit_price = (line.limit_amount / quantity).quantize(
+                unit_price = (limit / quantity).quantize(
                     Decimal(10) ** -price_digits[1], rounding=ROUND_DOWN)
             else:
-                unit_price = line.limit_amount
+                unit_price = limit
             old = _amount(term)
             Term.write([term], {'unit_price': unit_price})
             contract.add_log('new_letting_check', gettext(
@@ -892,6 +911,6 @@ class NewLettingCheck(Wizard):
                     old=lang.format_number(old, 2),
                     new=lang.format_number(_amount(Term(term.id)), 2),
                     comparative=lang.format_number(
-                        line.comparative_amount, 2),
-                    percent=self.start.percent))
+                        values['comparative_amount'], 2),
+                    percent=start['percent']))
         return 'end'

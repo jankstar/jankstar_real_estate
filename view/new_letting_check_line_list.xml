@@ -1,5 +1,6 @@
 <?xml version="1.0"?>
 <tree editable="1">
+    <field name="apply" width="90"/>
     <field name="term" expand="1"/>
     <field name="apartment" expand="1"/>
     <field name="area"/>
@@ -9,6 +10,6 @@
     <field name="current_amount"/>
     <field name="deviation_percent"/>
     <field name="result" expand="1"/>
-    <field name="apply"/>
+    <field name="above" tree_invisible="1"/>
     <field name="currency" tree_invisible="1"/>
 </tree>

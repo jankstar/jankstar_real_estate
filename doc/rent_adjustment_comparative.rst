@@ -263,7 +263,7 @@ translated levels) is part of the request letter.
 New letting check
 =================
 
-Button *Check Comparative Rent (New Letting)* on a draft residential
+Button *Check Comparative Rent (New Letting)* (tab *Terms*) on a draft residential
 contract whose property has a rent survey (wizard
 ``real_estate.contract.new_letting_check``): for every monthly rent term
 of exactly one apartment (term type allowing the comparative rent, valid
@@ -273,7 +273,8 @@ calculated without storing a calculation. Limit = comparative rent +
 (rent brake, § 556d BGB), else + 20 % as orientation (rent overcharge,
 § 5 WiStG), rounded down to the cent. The wizard lists living space,
 rent per m², comparative rent, limit, current rent, deviation and result;
-*Set to Limit* per line sets the term to the limit (up or down; for an
+*Adjust* (first column) per line sets the term to the limit (rows
+above the limit are shown in red; up or down; for an
 area quantity the unit price is limit / quantity) and logs it in the
 contract log. The exceptions of §§ 556e, 556f BGB (previous rent,
 modernisation, new building) are only mentioned in the information

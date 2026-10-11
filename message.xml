@@ -1288,5 +1288,8 @@ New rent (lower of comparative rent and cap): %(new)s</field>
         <record model="ir.message" id="msg_new_letting_log">
             <field name="text">New letting check: term "%(term)s" %(old)s -&gt; %(new)s (comparative rent %(comparative)s + %(percent)s %%).</field>
         </record>
+        <record model="ir.message" id="msg_new_letting_nothing_selected">
+            <field name="text">No term is marked with "Adjust".</field>
+        </record>
     </data>
 </tryton>

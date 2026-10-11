@@ -22355,8 +22355,8 @@ msgid "Apartment"
 msgstr "Wohnung"
 
 msgctxt "field:real_estate.contract.new_letting_check.line,apply:"
-msgid "Set to Limit"
-msgstr "Auf Grenze anpassen"
+msgid "Adjust"
+msgstr "Anpassen"
 
 msgctxt "field:real_estate.contract.new_letting_check.line,area:"
 msgid "Living Space"
@@ -22520,3 +22520,11 @@ msgstr "Konditionen anpassen"
 msgctxt "wizard_button:real_estate.contract.new_letting_check,start,end:"
 msgid "Close"
 msgstr "Schließen"
+
+msgctxt "model:ir.message,text:msg_new_letting_nothing_selected"
+msgid "No term is marked with \"Adjust\"."
+msgstr "Keine Kondition ist mit \"Anpassen\" markiert."
+
+msgctxt "field:real_estate.contract.new_letting_check.line,above:"
+msgid "Above the Limit"
+msgstr "Über der Grenze"
