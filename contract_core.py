@@ -683,6 +683,10 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
     comment = fields.Text("Comment")
 
     date_of_signature = fields.Date('Date of Signature')
+    offer_date = fields.Date("Offered on",
+        states={'readonly': Eval('state') != 'draft'},
+        help="Date the draft contract was offered (e.g. new letting) - "
+             "information only.")
 
     main_tenant_party_ids = fields.Function(
         fields.Many2Many('party.party', None, None, 'Main Tenant Party Ids'),

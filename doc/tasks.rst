@@ -242,7 +242,10 @@ Processes
    contract, rent adjustment, object or billing unit, or automatically
    by the templates set on the contract type: *Process at Contract Start*
    (contract set to running), *Process at Termination* (termination
-   wizard), *Process at Partner Change* (partner change wizard). **Every
+   wizard), *Process at Partner Change* (partner change wizard). While
+   such a process is running, the contract shows it in the first tab
+   *Workflow* (process, progress and its steps; hidden otherwise - the
+   latest running one if there are several). **Every
    step is a task**: at the start the process creates one task per
    template step in the state **planned** (no due date, no reminder, not
    in *My Tasks*; fields ``template_step`` and ``step_number``); a planned

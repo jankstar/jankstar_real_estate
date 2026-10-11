@@ -978,6 +978,59 @@ class Contract(metaclass=PoolMeta):
     processes_history = fields.One2Many('real_estate.process', 'contract',
         "Processes", filter=[('state', 'in', ['done', 'cancelled'])],
         readonly=True)
+    # Tab "Workflow": the running process of the contract type (move-in,
+    # move-out, partner change) with its steps
+    workflow_process = fields.Function(fields.Many2One('real_estate.process',
+            "Process"), 'get_workflow_process')
+    workflow_progress = fields.Function(fields.Char("Progress"),
+        'get_workflow_info')
+    workflow_tasks = fields.Function(fields.One2Many('real_estate.task',
+            None, "Workflow", readonly=True,
+            help="Steps of the running process of the contract type with "
+                 "state, due date and responsible."),
+        'get_workflow_info', setter='set_workflow_tasks')
+
+    @classmethod
+    def view_attributes(cls):
+        return super().view_attributes() + [
+            ('//page[@id="page_workflow"]', 'states', {
+                    'invisible': ~Eval('workflow_process'),
+                    }, ['workflow_process']),
+            ]
+
+    @classmethod
+    def get_workflow_process(cls, contracts, name):
+        """The latest running process of a template of the contract type
+        (start, termination, partner change)"""
+        Process = Pool().get('real_estate.process')
+        result = {c.id: None for c in contracts}
+        templates = {}
+        for contract in contracts:
+            c_type = contract.c_type
+            templates[contract.id] = {t.id for t in [
+                    c_type.start_process_template,
+                    c_type.termination_process_template,
+                    c_type.partner_change_process_template,
+                    ] if t} if c_type else set()
+        for process in Process.search([
+                    ('contract', 'in', [c.id for c in contracts]),
+                    ('state', '=', 'running'),
+                    ], order=[('start_date', 'ASC'), ('id', 'ASC')]):
+            contract_id = process.contract.id
+            if process.template and process.template.id in templates.get(
+                    contract_id, set()):
+                result[contract_id] = process.id
+        return result
+
+    def get_workflow_info(self, name):
+        process = self.workflow_process
+        if name == 'workflow_progress':
+            return process.progress if process else None
+        return [t.id for t in process.tasks] if process else []
+
+    @classmethod
+    def set_workflow_tasks(cls, contracts, name, value):
+        pass
 
     @classmethod
     def running(cls, contracts):

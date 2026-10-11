@@ -22528,3 +22528,38 @@ msgstr "Keine Kondition ist mit \"Anpassen\" markiert."
 msgctxt "field:real_estate.contract.new_letting_check.line,above:"
 msgid "Above the Limit"
 msgstr "Über der Grenze"
+
+msgctxt "field:real_estate.contract,workflow_process:"
+msgid "Process"
+msgstr "Prozess"
+
+msgctxt "field:real_estate.contract,workflow_progress:"
+msgid "Progress"
+msgstr "Fortschritt"
+
+msgctxt "field:real_estate.contract,workflow_tasks:"
+msgid "Workflow"
+msgstr "Ablauf"
+
+msgctxt "help:real_estate.contract,workflow_tasks:"
+msgid ""
+"Steps of the running process of the contract type with state, due date and "
+"responsible."
+msgstr ""
+"Schritte des laufenden Prozesses der Vertragsart mit Status, Fälligkeit und "
+"Zuständigkeit."
+
+msgctxt "view:real_estate.contract:"
+msgid "Workflow"
+msgstr "Ablauf"
+
+msgctxt "field:real_estate.contract,offer_date:"
+msgid "Offered on"
+msgstr "Angeboten am"
+
+msgctxt "help:real_estate.contract,offer_date:"
+msgid ""
+"Date the draft contract was offered (e.g. new letting) - information only."
+msgstr ""
+"Datum, an dem der Vertragsentwurf angeboten wurde (z. B. Neuvermietung) - nur"
+" zur Information."

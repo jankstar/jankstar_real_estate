@@ -37,7 +37,10 @@ Structure
   classes and features on property, building and rental unit (derived
   from the year of construction or measurements, automatic energy
   features); direct calculation of the local comparative rent (§ 558
-  BGB) with protocol, checks and mandatory acceptance - no AI.
+  BGB) with protocol, checks and mandatory acceptance; check of
+  the rent of a new letting on the draft contract against the comparative
+  rent (+10 % in a tight housing market, § 556d BGB, else +20 %) with
+  optional adjustment of the terms.
 - **Operating cost settlement** — billing units and settlement units
   allocate supplier invoice costs to contracts (by measurement,
   consumption, external billing, …), including CO2 cost allocation

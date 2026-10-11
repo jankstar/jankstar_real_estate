@@ -28,6 +28,12 @@
     <newline/>   
 
     <notebook colspan="8">
+        <page string="Workflow" id="page_workflow" col="6">
+            <label name="workflow_process"/><field name="workflow_process" colspan="3"/>
+            <label name="workflow_progress"/><field name="workflow_progress"/>
+            <field name="workflow_tasks" colspan="6"
+                view_ids="real_estate.task_view_list_process"/>
+        </page>
         <page string="General" id="page_general" col="6">
             <newline/>
             
@@ -36,6 +42,7 @@
             <label name="invoice_address"/><field name="invoice_address" readonly="1"/>
             <label name="phone_partner"/><field name="phone_partner" readonly="1"/>
             <newline/>   
+            <label name="offer_date"/><field name="offer_date"/>
             <label name="date_of_signature"/><field name="date_of_signature"/>
             <newline/>   
             <label name="start_booking_date"/><field name="start_booking_date"/>

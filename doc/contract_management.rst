@@ -70,6 +70,10 @@ Contract Management
    - ``_refresh_occupancy_for_contracts`` updates occupancy records when
      a contract starts or is terminated; cancelled contracts are excluded
      from occupancy calculations automatically
+   - ``offer_date`` (*Offered on*, editable in draft) and
+     ``date_of_signature`` (*Date of Signature*) on the tab *General* - a
+     draft with an offer date is an offer (e.g. new letting); information
+     only, the activation checks are unchanged
    - ``add_log`` appends timestamped ``ContractLog`` entries
    - ``next_item_sequence`` / ``next_term_sequence`` auto-increment helpers
    - ``sequence`` is only editable in ``draft``; readonly once
