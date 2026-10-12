@@ -193,3 +193,10 @@ adjustment run (see `Rent Adjustments <rent_adjustment.rst>`__,
    on the contract start (+10 % in a tight housing market, else +20 %) and
    sets them to the limit if wanted - see `Comparative Rent (Rent Survey)
    <rent_adjustment_comparative.rst>`__, *New letting check*.
+
+``real_estate.contract.copy_terms``  (``contract_wizard.py``)
+   *Copy Terms* on a draft contract: choose the source contract (default:
+   the previous contract of the rental units), then mark the proposed
+   terms and adjust the unit price - see `Contract Management
+   <contract_management.rst>`__.
+

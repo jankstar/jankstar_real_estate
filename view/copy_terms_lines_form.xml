@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<form col="4">
+    <label name="source"/><field name="source"/>
+    <label name="reference_date"/><field name="reference_date"/>
+    <field name="lines" colspan="4"
+        view_ids="real_estate.copy_terms_line_view_list"/>
+</form>

@@ -901,6 +901,10 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
             'open_party_ledger': {
                 'invisible': Eval('state').in_(['draft'])
                 },
+            'copy_terms': {
+                'invisible': Eval('state') != 'draft',
+                'depends': ['state'],
+                },
             })
 
     @classmethod
@@ -1116,6 +1120,11 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
     @classmethod
     @ModelView.button_action('real_estate.wizard_change_contract_partner')
     def change_partner(cls, contracts):
+        pass
+
+    @classmethod
+    @ModelView.button_action('real_estate.wizard_copy_terms')
+    def copy_terms(cls, contracts):
         pass
 
     @classmethod

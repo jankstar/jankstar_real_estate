@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<tree editable="1">
+    <field name="apply" width="80"/>
+    <field name="term_type" expand="1"/>
+    <field name="item" expand="1"/>
+    <field name="rhythm"/>
+    <field name="quantity"/>
+    <field name="unit_price_old"/>
+    <field name="amount_old"/>
+    <field name="unit_price"/>
+    <field name="note" expand="1"/>
+    <field name="allowed" tree_invisible="1"/>
+    <field name="source_term" tree_invisible="1"/>
+    <field name="currency" tree_invisible="1"/>
+</tree>

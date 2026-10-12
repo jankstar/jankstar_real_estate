@@ -11,8 +11,12 @@ from trytond.transaction import check_access, without_check_access
 
 from dateutil.relativedelta import relativedelta
 
+from trytond.modules.currency.fields import Monetary
+from trytond.modules.product import price_digits
+
 import datetime
 import calendar
+from decimal import Decimal
 
 
 #**********************************************************************
@@ -574,3 +578,265 @@ class OpenContractSettlementUnits(Wizard):
                 if su.id not in ids)
         action['pyson_domain'] = PYSONEncoder().encode([('id', 'in', ids)])
         return action, {}
+
+
+#**********************************************************************
+# Copy the terms of another contract (predecessor, offer) into a draft
+# contract - only for the existing items
+
+class CopyTermsStart(ModelView):
+    'Copy Terms - Source'
+    __name__ = 'real_estate.contract.copy_terms.start'
+
+    contract = fields.Many2One('real_estate.contract', "Contract",
+        readonly=True)
+    company = fields.Many2One('company.company', "Company", readonly=True)
+    source = fields.Many2One('real_estate.contract', "Source Contract",
+        required=True,
+        domain=[
+            ('company', '=', Eval('company', -1)),
+            ('id', '!=', Eval('contract', -1)),
+            ],
+        help="Contract whose terms are proposed - default: the previous "
+             "contract of the rental units of the items (also an offer "
+             "in draft).")
+
+
+class CopyTermsLines(ModelView):
+    'Copy Terms - Proposal'
+    __name__ = 'real_estate.contract.copy_terms.lines'
+
+    source = fields.Many2One('real_estate.contract', "Source Contract",
+        readonly=True)
+    reference_date = fields.Date("Reference Date", readonly=True,
+        help="The terms of the source contract valid on this date are "
+             "proposed (its end, else today; for a draft its start).")
+    lines = fields.One2Many('real_estate.contract.copy_terms.line', None,
+        "Terms")
+
+
+class CopyTermsLine(ModelView):
+    'Copy Terms - Line'
+    __name__ = 'real_estate.contract.copy_terms.line'
+
+    apply = fields.Boolean("Copy",
+        states={'readonly': ~Eval('allowed', False)},
+        depends=['allowed'])
+    allowed = fields.Boolean("Allowed", readonly=True)
+    source_term = fields.Many2One('real_estate.contract.term', "Term",
+        readonly=True)
+    term_type = fields.Many2One('real_estate.contract.term.type',
+        "Term Type", readonly=True)
+    item = fields.Many2One('real_estate.contract.item', "Item",
+        readonly=True)
+    rhythm = fields.Char("Rhythm", readonly=True)
+    quantity = fields.Float("Quantity", readonly=True)
+    currency = fields.Many2One('currency.currency', "Currency",
+        readonly=True)
+    unit_price_old = Monetary("Unit Price (previous)", currency='currency',
+        digits=price_digits, readonly=True)
+    amount_old = Monetary("Amount (previous)", currency='currency',
+        digits='currency', readonly=True)
+    unit_price = Monetary("New Unit Price", currency='currency',
+        digits=price_digits,
+        states={'readonly': ~Eval('allowed', False)},
+        depends=['allowed'])
+    note = fields.Char("Note", readonly=True)
+
+    @classmethod
+    def view_attributes(cls):
+        # not copyable rows in grey
+        return super().view_attributes() + [
+            ('/tree', 'visual', If(~Eval('allowed', False), 'muted', ''),
+                ['allowed']),
+            ]
+
+
+class CopyTerms(Wizard):
+    'Copy Terms'
+    __name__ = 'real_estate.contract.copy_terms'
+
+    start = StateView('real_estate.contract.copy_terms.start',
+        'real_estate.copy_terms_start_view_form', [
+            Button("Cancel", 'end', 'tryton-cancel'),
+            Button("Next", 'lines', 'tryton-forward', default=True),
+            ])
+    lines = StateView('real_estate.contract.copy_terms.lines',
+        'real_estate.copy_terms_lines_view_form', [
+            Button("Cancel", 'end', 'tryton-cancel'),
+            Button("Back", 'start', 'tryton-back'),
+            Button("Copy Terms", 'create_terms', 'tryton-ok', default=True),
+            ])
+    create_terms = StateTransition()
+
+    def default_start(self, fields):
+        contract = self.record
+        if contract.state != 'draft':
+            raise ValidationError(gettext(
+                    'real_estate.msg_copy_terms_draft',
+                    contract=contract.rec_name))
+        predecessor = self._predecessor(contract)
+        return {
+            'contract': contract.id,
+            'company': contract.company.id if contract.company else None,
+            'source': predecessor.id if predecessor else None,
+            }
+
+    @staticmethod
+    def _objects(contract):
+        return {o.id for item in contract.items for o in item.objects}
+
+    @classmethod
+    def _predecessor(cls, contract):
+        """Latest other contract of the rental units of the items: first
+        the running/terminated ones starting before, then drafts
+        (offers)"""
+        Contract = Pool().get('real_estate.contract')
+        objects = cls._objects(contract)
+        if not objects:
+            return None
+        candidates = Contract.search([
+                ('id', '!=', contract.id),
+                ('company', '=', contract.company.id),
+                ('items.objects', 'in', list(objects)),
+                ('state', '!=', 'cancelled'),
+                ], order=[('start_date', 'DESC'), ('id', 'DESC')])
+        start = contract.start_date
+        for draft in (False, True):
+            for candidate in candidates:
+                if (candidate.state == 'draft') == draft and (
+                        draft or not start
+                        or candidate.start_date <= start):
+                    return candidate
+        return None
+
+    @staticmethod
+    def _reference_date(source):
+        Date = Pool().get('ir.date')
+        today = Date.today()
+        if source.state == 'draft':
+            return source.start_date or today
+        end = source.get_effective_end_date()
+        return end if end and end < today else today
+
+    def _proposal(self, contract, source):
+        "Lines of the source terms valid on the reference date"
+        pool = Pool()
+        TermType = pool.get('real_estate.contract.term.type')
+        date = self._reference_date(source)
+        rhythms = dict(pool.get('real_estate.contract.term')
+            .get_rhythm_type())
+        existing = {(t.term_type.id, t.reference_item.id
+                if t.reference_item else None) for t in contract.terms}
+        lines = []
+        for term in sorted(source.terms,
+                key=lambda t: (t.sequence or 0, t.id)):
+            one_time = term.rhythm_type == 'one_time'
+            if not one_time and (term.valid_from > date
+                    or (term.valid_to and term.valid_to < date)):
+                continue
+            # item of the new contract with the same rental units
+            objects = ({o.id for o in term.reference_item.objects}
+                if term.reference_item else set())
+            item = next((i for i in contract.items
+                    if objects & {o.id for o in i.objects}), None)
+            notes, allowed = [], True
+            if term.reference_item and not item:
+                allowed = False
+                notes.append(gettext('real_estate.msg_copy_terms_no_item'))
+            domain = [
+                ('id', '=', term.term_type.id),
+                ('types_of_use', 'in', [contract.type_of_use]),
+                ('re_accounting', '=', contract.company_re_accounting.id
+                    if contract.company_re_accounting else -1),
+                ['OR',
+                    ('c_type', '=', None),
+                    ('c_type', '=', contract.c_type.id
+                        if contract.c_type else -1),
+                    ],
+                ]
+            if allowed and not TermType.search(domain, limit=1):
+                allowed = False
+                notes.append(gettext(
+                        'real_estate.msg_copy_terms_type_not_allowed'))
+            if allowed and (term.term_type.id,
+                    item.id if item else None) in existing:
+                allowed = False
+                notes.append(gettext('real_estate.msg_copy_terms_exists'))
+            if term.term_type.m_type:
+                notes.append(gettext('real_estate.msg_copy_terms_measured'))
+            if term.rent_adjustment or term.graduated_locked:
+                notes.append(gettext('real_estate.msg_copy_terms_agreement'))
+            if one_time:
+                notes.append(gettext('real_estate.msg_copy_terms_one_time'))
+            quantity = Decimal(str(term.quantity or 0))
+            lines.append({
+                    'apply': allowed,
+                    'allowed': allowed,
+                    'source_term': term.id,
+                    'term_type': term.term_type.id,
+                    'item': item.id if item else None,
+                    'rhythm': ' '.join(filter(None, [
+                                str(term.rhythm or ''),
+                                rhythms.get(term.rhythm_type, '')])),
+                    'quantity': float(term.quantity or 0),
+                    'currency': (contract.currency.id
+                        if contract.currency else None),
+                    'unit_price_old': term.unit_price,
+                    'amount_old': (quantity * (term.unit_price
+                            or Decimal(0))).quantize(Decimal('0.01')),
+                    'unit_price': term.unit_price,
+                    'note': '; '.join(notes) or None,
+                    })
+        return date, lines
+
+    def default_lines(self, fields):
+        contract = self.record
+        source = self.start.source
+        date, lines = self._proposal(contract, source)
+        return {
+            'source': source.id,
+            'reference_date': date,
+            'lines': lines,
+            }
+
+    def transition_create_terms(self):
+        pool = Pool()
+        Term = pool.get('real_estate.contract.term')
+        contract = self.record
+        if contract.state != 'draft':
+            return 'end'
+        # The client sends back only the editable values of the lines
+        # (copy flag, new unit price): the lines are built again in the
+        # same order
+        _, proposal = self._proposal(contract, self.start.source)
+        selected = [(values, line) for values, line
+            in zip(proposal, self.lines.lines)
+            if values['allowed'] and line.apply]
+        if not selected:
+            raise ValidationError(gettext(
+                    'real_estate.msg_copy_terms_nothing_selected'))
+        step = (contract.c_type.step_term
+            if contract.c_type and contract.c_type.step_term else 1)
+        sequence = max([t.sequence or 0 for t in contract.terms] or [0])
+        names = []
+        for values, line in selected:
+            sequence += step
+            source_term = Term(values['source_term'])
+            unit_price = (line.unit_price if line.unit_price is not None
+                else values['unit_price'])
+            new, = Term.copy([source_term], default={
+                    'contract': contract.id,
+                    'reference_item': values['item'],
+                    'valid_from': contract.start_date,
+                    'valid_to': None,
+                    'unit_price': unit_price,
+                    'sequence': sequence,
+                    'cash_flow': [],
+                    })
+            names.append(new.rec_name.strip())
+        contract.add_log('copy_terms', gettext(
+                'real_estate.msg_copy_terms_log',
+                source=self.start.source.rec_name,
+                terms=', '.join(names)))
+        return 'end'

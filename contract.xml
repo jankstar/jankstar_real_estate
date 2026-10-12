@@ -1054,6 +1054,34 @@
         action="wizard_cancel_period_booking"
         id="menu_cancel_period_booking"/>
 
+    <!-- Copy the terms of another contract into a draft contract -->
+    <record model="ir.ui.view" id="copy_terms_start_view_form">
+        <field name="model">real_estate.contract.copy_terms.start</field>
+        <field name="type">form</field>
+        <field name="name">copy_terms_start_form</field>
+    </record>
+    <record model="ir.ui.view" id="copy_terms_lines_view_form">
+        <field name="model">real_estate.contract.copy_terms.lines</field>
+        <field name="type">form</field>
+        <field name="name">copy_terms_lines_form</field>
+    </record>
+    <record model="ir.ui.view" id="copy_terms_line_view_list">
+        <field name="model">real_estate.contract.copy_terms.line</field>
+        <field name="type">tree</field>
+        <field name="name">copy_terms_line_list</field>
+    </record>
+    <record model="ir.action.wizard" id="wizard_copy_terms">
+        <field name="name">Copy Terms</field>
+        <field name="wiz_name">real_estate.contract.copy_terms</field>
+        <field name="model">real_estate.contract</field>
+    </record>
+    <record model="ir.model.button" id="contract_copy_terms_button">
+        <field name="model">real_estate.contract</field>
+        <field name="name">copy_terms</field>
+        <field name="string">Copy Terms</field>
+        <field name="help">Propose the terms of the previous contract of the rental units (or of another contract, e.g. an offer) and copy the marked ones into this draft - only for the existing items.</field>
+    </record>
+
     <!-- ContractTermAdjustment standalone menu -->
     <record model="ir.ui.view" id="contract_term_adjustment_view_tree">
         <field name="model">real_estate.contract.term.adjustment</field>

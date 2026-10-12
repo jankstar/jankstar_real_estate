@@ -1291,5 +1291,32 @@ New rent (lower of comparative rent and cap): %(new)s</field>
         <record model="ir.message" id="msg_new_letting_nothing_selected">
             <field name="text">No term is marked with "Adjust".</field>
         </record>
+        <record model="ir.message" id="msg_copy_terms_draft">
+            <field name="text">Terms can only be copied into a draft contract ("%(contract)s").</field>
+        </record>
+        <record model="ir.message" id="msg_copy_terms_no_item">
+            <field name="text">no item with these rental units</field>
+        </record>
+        <record model="ir.message" id="msg_copy_terms_type_not_allowed">
+            <field name="text">term type not allowed for this contract</field>
+        </record>
+        <record model="ir.message" id="msg_copy_terms_exists">
+            <field name="text">already in the contract</field>
+        </record>
+        <record model="ir.message" id="msg_copy_terms_measured">
+            <field name="text">quantity from the measurement</field>
+        </record>
+        <record model="ir.message" id="msg_copy_terms_agreement">
+            <field name="text">graduated or index rent: only the current amount</field>
+        </record>
+        <record model="ir.message" id="msg_copy_terms_one_time">
+            <field name="text">one-time term</field>
+        </record>
+        <record model="ir.message" id="msg_copy_terms_nothing_selected">
+            <field name="text">No term is marked with "Copy".</field>
+        </record>
+        <record model="ir.message" id="msg_copy_terms_log">
+            <field name="text">Terms copied from contract "%(source)s": %(terms)s</field>
+        </record>
     </data>
 </tryton>

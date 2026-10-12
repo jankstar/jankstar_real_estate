@@ -95,6 +95,7 @@
                 </page>
             </notebook>
             <newline/>
+            <button name="copy_terms" icon="tryton-copy" colspan="2"/>
             <button name="check_new_letting" icon="tryton-search" colspan="2"/>
         </page>
 

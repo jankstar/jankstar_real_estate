@@ -74,6 +74,20 @@ Contract Management
      ``date_of_signature`` (*Date of Signature*) on the tab *General* - a
      draft with an offer date is an offer (e.g. new letting); information
      only, the activation checks are unchanged
+   - *Copy Terms* (button on the tab *Terms*, draft only, wizard
+     ``real_estate.contract.copy_terms``): proposes the terms of the
+     previous contract of the rental units of the items (latest other
+     contract on the same units starting before, else an offer in
+     draft; any other contract can be chosen), valid on its end (else
+     today; for a draft its start) plus one-time terms. Only terms for
+     an existing item with the same rental units, a term type allowed
+     for this contract and not yet in the contract can be copied; notes
+     for measured quantities, graduated/index rent (current amount only)
+     and one-time terms. Marked lines are copied with the new unit price
+     (editable, default the previous one) from the contract start, open
+     end, new sequence and without cash flow; contract log
+     ``copy_terms``. The lines are built again on the server (the client
+     sends only the copy flag and the new unit price)
    - ``add_log`` appends timestamped ``ContractLog`` entries
    - ``next_item_sequence`` / ``next_term_sequence`` auto-increment helpers
    - ``sequence`` is only editable in ``draft``; readonly once

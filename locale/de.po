@@ -22563,3 +22563,179 @@ msgid ""
 msgstr ""
 "Datum, an dem der Vertragsentwurf angeboten wurde (z. B. Neuvermietung) - nur"
 " zur Information."
+
+msgctxt "field:real_estate.contract.copy_terms.line,allowed:"
+msgid "Allowed"
+msgstr "Zulässig"
+
+msgctxt "field:real_estate.contract.copy_terms.line,amount_old:"
+msgid "Amount (previous)"
+msgstr "Betrag (bisher)"
+
+msgctxt "field:real_estate.contract.copy_terms.line,apply:"
+msgid "Copy"
+msgstr "Übernehmen"
+
+msgctxt "field:real_estate.contract.copy_terms.line,currency:"
+msgid "Currency"
+msgstr "Währung"
+
+msgctxt "field:real_estate.contract.copy_terms.line,item:"
+msgid "Item"
+msgstr "Vertragsposition"
+
+msgctxt "field:real_estate.contract.copy_terms.line,note:"
+msgid "Note"
+msgstr "Hinweis"
+
+msgctxt "field:real_estate.contract.copy_terms.line,quantity:"
+msgid "Quantity"
+msgstr "Menge"
+
+msgctxt "field:real_estate.contract.copy_terms.line,rhythm:"
+msgid "Rhythm"
+msgstr "Rhythmus"
+
+msgctxt "field:real_estate.contract.copy_terms.line,source_term:"
+msgid "Term"
+msgstr "Kondition"
+
+msgctxt "field:real_estate.contract.copy_terms.line,term_type:"
+msgid "Term Type"
+msgstr "Konditionsart"
+
+msgctxt "field:real_estate.contract.copy_terms.line,unit_price:"
+msgid "New Unit Price"
+msgstr "Neuer Einzelpreis"
+
+msgctxt "field:real_estate.contract.copy_terms.line,unit_price_old:"
+msgid "Unit Price (previous)"
+msgstr "Einzelpreis (bisher)"
+
+msgctxt "field:real_estate.contract.copy_terms.lines,lines:"
+msgid "Terms"
+msgstr "Konditionen"
+
+msgctxt "field:real_estate.contract.copy_terms.lines,reference_date:"
+msgid "Reference Date"
+msgstr "Stichtag"
+
+msgctxt "field:real_estate.contract.copy_terms.lines,source:"
+msgid "Source Contract"
+msgstr "Quellvertrag"
+
+msgctxt "field:real_estate.contract.copy_terms.start,company:"
+msgid "Company"
+msgstr "Unternehmen"
+
+msgctxt "field:real_estate.contract.copy_terms.start,contract:"
+msgid "Contract"
+msgstr "Vertrag"
+
+msgctxt "field:real_estate.contract.copy_terms.start,source:"
+msgid "Source Contract"
+msgstr "Quellvertrag"
+
+msgctxt "help:real_estate.contract.copy_terms.lines,reference_date:"
+msgid ""
+"The terms of the source contract valid on this date are proposed (its end, "
+"else today; for a draft its start)."
+msgstr ""
+"Vorgeschlagen werden die Konditionen des Quellvertrags, die zu diesem Datum "
+"gelten (dessen Ende, sonst heute; bei einem Entwurf dessen Beginn)."
+
+msgctxt "help:real_estate.contract.copy_terms.start,source:"
+msgid ""
+"Contract whose terms are proposed - default: the previous contract of the "
+"rental units of the items (also an offer in draft)."
+msgstr ""
+"Vertrag, dessen Konditionen vorgeschlagen werden - vorbelegt: der Vorvertrag "
+"der Mietobjekte der Vertragspositionen (auch ein Angebot im Entwurf)."
+
+msgctxt "model:ir.action,name:wizard_copy_terms"
+msgid "Copy Terms"
+msgstr "Konditionen übernehmen"
+
+msgctxt "model:ir.message,text:msg_copy_terms_agreement"
+msgid "graduated or index rent: only the current amount"
+msgstr "Staffel- oder Indexmiete: nur der aktuelle Betrag"
+
+msgctxt "model:ir.message,text:msg_copy_terms_draft"
+msgid "Terms can only be copied into a draft contract (\"%(contract)s\")."
+msgstr ""
+"Konditionen können nur in einen Vertragsentwurf übernommen werden "
+"(\"%(contract)s\")."
+
+msgctxt "model:ir.message,text:msg_copy_terms_exists"
+msgid "already in the contract"
+msgstr "bereits im Vertrag"
+
+msgctxt "model:ir.message,text:msg_copy_terms_log"
+msgid "Terms copied from contract \"%(source)s\": %(terms)s"
+msgstr "Konditionen aus Vertrag \"%(source)s\" übernommen: %(terms)s"
+
+msgctxt "model:ir.message,text:msg_copy_terms_measured"
+msgid "quantity from the measurement"
+msgstr "Menge aus der Bemessung"
+
+msgctxt "model:ir.message,text:msg_copy_terms_no_item"
+msgid "no item with these rental units"
+msgstr "keine Vertragsposition mit diesen Mietobjekten"
+
+msgctxt "model:ir.message,text:msg_copy_terms_nothing_selected"
+msgid "No term is marked with \"Copy\"."
+msgstr "Keine Kondition ist mit \"Übernehmen\" markiert."
+
+msgctxt "model:ir.message,text:msg_copy_terms_one_time"
+msgid "one-time term"
+msgstr "einmalige Kondition"
+
+msgctxt "model:ir.message,text:msg_copy_terms_type_not_allowed"
+msgid "term type not allowed for this contract"
+msgstr "Konditionsart für diesen Vertrag nicht zulässig"
+
+msgctxt "model:ir.model.button,help:contract_copy_terms_button"
+msgid ""
+"Propose the terms of the previous contract of the rental units (or of another"
+" contract, e.g. an offer) and copy the marked ones into this draft - only for"
+" the existing items."
+msgstr ""
+"Konditionen des Vorvertrags der Mietobjekte (oder eines anderen Vertrags, z. "
+"B. eines Angebots) vorschlagen und die markierten in diesen Entwurf "
+"übernehmen - nur zu vorhandenen Vertragspositionen."
+
+msgctxt "model:ir.model.button,string:contract_copy_terms_button"
+msgid "Copy Terms"
+msgstr "Konditionen übernehmen"
+
+msgctxt "model:real_estate.contract.copy_terms.line,string:"
+msgid "Real Estate Contract Copy Terms Line"
+msgstr "Konditionen übernehmen - Zeile"
+
+msgctxt "model:real_estate.contract.copy_terms.lines,string:"
+msgid "Real Estate Contract Copy Terms Lines"
+msgstr "Konditionen übernehmen - Vorschlag"
+
+msgctxt "model:real_estate.contract.copy_terms.start,string:"
+msgid "Real Estate Contract Copy Terms Start"
+msgstr "Konditionen übernehmen - Quelle"
+
+msgctxt "wizard_button:real_estate.contract.copy_terms,lines,create_terms:"
+msgid "Copy Terms"
+msgstr "Konditionen übernehmen"
+
+msgctxt "wizard_button:real_estate.contract.copy_terms,lines,end:"
+msgid "Cancel"
+msgstr "Abbrechen"
+
+msgctxt "wizard_button:real_estate.contract.copy_terms,lines,start:"
+msgid "Back"
+msgstr "Zurück"
+
+msgctxt "wizard_button:real_estate.contract.copy_terms,start,end:"
+msgid "Cancel"
+msgstr "Abbrechen"
+
+msgctxt "wizard_button:real_estate.contract.copy_terms,start,lines:"
+msgid "Next"
+msgstr "Weiter"
