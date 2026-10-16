@@ -315,6 +315,48 @@ class ComparativeRentLetterReport(IndexAdjustmentLetterReport):
 
 
 #**********************************************************************
+class AdjustmentRunSampleLetterReport(Report):
+    """Sample letter of an adjustment run before the announcement: the
+    letter of the first adjustment without error (else the first one not
+    cancelled) of each run, rendered by the letter report of the
+    procedure with the mark 'ENTWURF' - nothing is archived."""
+    __name__ = 'real_estate.contract.term.adjustment.run.sample_letter'
+
+    @classmethod
+    def execute(cls, ids, data):
+        pool = Pool()
+        Run = pool.get('real_estate.contract.term.adjustment.run')
+        samples = []
+        for run in Run.browse(ids):
+            candidates = [a for a in run.adjustments
+                if a.state in ('draft', 'approved')
+                and a.procedure in LETTERS]
+            candidates.sort(key=lambda a: (a.check_state == 'error', a.id))
+            if candidates:
+                samples.append(candidates[0])
+        if not samples:
+            raise ValidationError(gettext(
+                    'real_estate.msg_adjustment_run_no_sample',
+                    run=', '.join(r.rec_name for r in Run.browse(ids))))
+        procedures = {a.procedure for a in samples}
+        if len(procedures) > 1:
+            raise ValidationError(gettext(
+                    'real_estate.msg_adjustment_run_letters_procedures'))
+        Letter = pool.get(LETTERS[procedures.pop()], type='report')
+        ext, content, direct_print, _ = Letter.execute(
+            [a.id for a in samples], {
+                'model': 'real_estate.contract.term.adjustment',
+                })
+        ActionReport = pool.get('ir.action.report')
+        actions = ActionReport.search([
+                ('report_name', '=', cls.__name__),
+                ], limit=1)
+        title = actions[0].name if actions else cls.__name__
+        name = '-'.join([title] + [r.run_id for r in Run.browse(ids)])
+        return ext, content, direct_print, name
+
+
+#**********************************************************************
 class AdjustmentRunLettersReport(Report):
     """All letters of an adjustment run to send in one document: the
     announced adjustments whose receipt is not captured yet, rendered by

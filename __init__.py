@@ -39,6 +39,8 @@ from . import rent_survey
 from . import adjustment_run
 from . import contract_comparative_rent
 from . import inspection
+from . import modernisation
+from . import contract_modernisation
 
 __all__ = ['register']
 
@@ -245,6 +247,22 @@ def register():
         bved.BvedExport,
         bved.BvedImport,
         bved.BvedImportLine,
+        modernisation.ModernisationRule,
+        modernisation.Modernisation,
+        modernisation.ModernisationBuilding,
+        modernisation.ModernisationCost,
+        modernisation.ModernisationFund,
+        modernisation.ModernisationUnit,
+        modernisation.ModernisationPlannedValue,
+        modernisation.ModernisationCalculation,
+        modernisation.ModernisationReceiptStart,
+        adjustment_run.AdjustmentRunReceiptStart,
+        modernisation.InvoiceLine,
+        modernisation.Process,
+        contract_modernisation.ContractTermAdjustmentRun,
+        contract_modernisation.ContractTermAdjustmentRunModernisation,
+        contract_modernisation.ContractTermAdjustment,
+        contract_modernisation.ModernisationUnit,
         module='real_estate', type_='model')
     Pool.register(
         contract_wizard.CreateContractMovesWizard,
@@ -276,6 +294,9 @@ def register():
         rent_survey.RentSurveyMatrixImport,
         contract_comparative_rent.AdjustmentRunAdd,
         contract_comparative_rent.NewLettingCheck,
+        modernisation.ModernisationPlanVacancy,
+        modernisation.ModernisationReceipt,
+        adjustment_run.AdjustmentRunReceipt,
         module='real_estate', type_='wizard')
     Pool.register(
         base_object.BaseObjectReport,
@@ -288,7 +309,11 @@ def register():
         contract_report.IndexAdjustmentLetterReport,
         contract_report.ComparativeRentLetterReport,
         contract_report.AdjustmentRunLettersReport,
+        contract_report.AdjustmentRunSampleLetterReport,
         contract_report.HandoverReport,
+        modernisation.ModernisationAnnouncementLetter,
+        modernisation.ModernisationSampleLetter,
+        contract_modernisation.ModernisationIncreaseLetter,
         meter_reading_sheet.MeterReadingSheetReport,
         invoice.ContractMoveLinePayableReceivableReport,
         contract_core.ContractGeneralLedgerAccountContractReport,

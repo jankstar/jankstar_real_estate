@@ -24,10 +24,16 @@ STEP_DONE_METHODS = ['deposit_paid', 'meter_readings_complete',
     'handover_pre_inspection_done', 'handover_move_out_done',
     'inspection_done', 'inspection_approved', 'inspection_attempt1_done',
     'inspection_attempt2_done', 'run_selected', 'run_calculated',
-    'run_approved', 'run_declared', 'run_ready', 'run_done']
+    'run_approved', 'run_declared', 'run_ready', 'run_done',
+    'modernisation_planned', 'modernisation_units',
+    'modernisation_announced', 'modernisation_receipts',
+    'modernisation_objections', 'modernisation_started',
+    'modernisation_completed', 'modernisation_settled']
 # Creation conditions of steps (spec Prüfungen 3.4): name ->
 # Process._step_create_<name>()
-STEP_CREATE_METHODS = ['inspection_no_access', 'inspection_has_defects']
+STEP_CREATE_METHODS = ['inspection_no_access', 'inspection_has_defects',
+    'modernisation_announcement', 'modernisation_run',
+    'modernisation_rent_survey']
 # Offsets from a system setting (re_accounting): name -> field
 OFFSET_SETTINGS = {'deposit_task_months': 'deposit_task_months'}
 

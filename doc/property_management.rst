@@ -160,14 +160,22 @@ Property Management
       ``id`` does (so filtering by a given property also finds that
       property's own direct measurements, not just its descendants').
 
+   ``valid_to`` ("To", Function field, searchable)
+      Day before the next measurement of the same object and type, at
+      most the ``end_date`` of the object; empty while the row is the
+      current value. Computed without date arithmetic in SQL (the
+      searcher compares with "no later row of the same object/type from
+      on or before D, and the object does not end before D"), so it works
+      on PostgreSQL and SQLite alike. Shown in the *Measurements* list,
+      the form and the measurement list of an object.
+
    *Measurements* list (``act_measurement_tree`` in ``measurement.xml``)
       Menu *Master Data*, between *Rental Object* and *Equipment*. A
       plain, filterable browse list over ``real_estate.measurement``
-      (columns: Company, Property, Object, From, Measurement Type, Value
-      — summed — , Symbol), **not** a wizard and **not** hierarchy-aware
-      the way ``get_total_value()`` is — it lists raw rows matching a
-      simple filter, with no de-duplication to "the one currently
-      effective row per (object, type)". The filter panel
+      (columns: Company, Property, Object, From, To, Measurement Type,
+      Value — summed — , Symbol), **not** a wizard and **not**
+      hierarchy-aware the way ``get_total_value()`` is (groups are not
+      resolved) - it lists the rows valid on the reference date. The filter panel
       (``real_estate.measurement.context``, via the action's
       ``context_model``/``context_domain`` — same mechanism as
       ``real_estate.meter_reading.context`` above) offers:
@@ -181,12 +189,13 @@ Property Management
         (``('base_object', 'child_of', [base_object], 'parent')`` —
         inclusive of the object itself).
       - ``m_type`` — exact match, if set.
-      - ``date`` ("Stichtag", required, default today) — a plain
-        ``valid_from <= date`` filter; deliberately **not** the
-        latest-row-per-group logic of ``get_total_value()`` — every row
-        satisfying the date cutoff is shown (and contributes to the
-        summed Value column), including any historical rows later
-        superseded by a newer ``valid_from`` on the same object/type.
+      - ``date`` ("Stichtag", required, default today) — only rows valid
+        on that date: ``valid_from <= date`` and (``valid_to`` empty or
+        ``valid_to >= date``). Rows superseded by a newer ``valid_from``
+        of the same object/type and rows of objects ended before the
+        date are not shown, so the summed Value column is the value on
+        that date (per object and type the same row
+        ``get_total_value()`` takes, unless the object has ended).
 
 ``real_estate.meter_reading``  (``base_object.py``)
    Meter reading record linked to an equipment object of type ``meters``.

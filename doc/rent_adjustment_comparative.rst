@@ -276,7 +276,10 @@ rent per m², comparative rent, limit, current rent, deviation and result;
 *Adjust* (first column) per line sets the term to the limit (rows
 above the limit are shown in red; up or down; for an
 area quantity the unit price is limit / quantity) and logs it in the
-contract log. The exceptions of §§ 556e, 556f BGB (previous rent,
+contract log. In a tight housing market the limit is raised by the
+modernisation amount of the apartment (column *Modernisation*, § 556e
+para. 2 BGB, see `Modernisation <rent_adjustment_modernisation.rst>`__);
+the other exceptions of §§ 556e, 556f BGB (previous rent, comprehensive
 modernisation, new building) are only mentioned in the information
 text.
 

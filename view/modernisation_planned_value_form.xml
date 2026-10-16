@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<form col="4">
+    <label name="object"/><field name="object" colspan="3"/>
+    <label name="kind"/><field name="kind"/>
+    <label name="action"/><field name="action"/>
+    <label name="survey_class"/><field name="survey_class" colspan="3"/>
+    <label name="survey_feature"/><field name="survey_feature" colspan="3"/>
+    <label name="measurement_type"/><field name="measurement_type"/>
+    <label name="value"/><field name="value"/>
+    <field name="object_type" invisible="1"/>
+</form>

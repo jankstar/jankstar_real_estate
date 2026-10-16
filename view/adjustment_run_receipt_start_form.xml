@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<form col="4">
+    <label name="receipt_date"/><field name="receipt_date"/>
+    <label name="dispatch_method"/><field name="dispatch_method"/>
+    <label name="overwrite"/><field name="overwrite"/>
+    <label name="count"/><field name="count"/>
+    <label id="receipt_info" colspan="4"
+        string="The receipt date is captured for all announced adjustments of the run (without receipt, or all with 'Overwrite Existing'). Correct deviations afterwards per adjustment in the tab 'Receipts / Consents'."/>
+</form>

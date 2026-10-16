@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<form col="4">
+    <label name="valid_from"/><field name="valid_from"/>
+    <newline/>
+    <label name="rate_standard"/><field name="rate_standard"/>
+    <label name="rate_heating"/><field name="rate_heating"/>
+    <label name="simplified_limit"/><field name="simplified_limit"/>
+    <label name="simplified_lock_years"/><field name="simplified_lock_years"/>
+    <label name="simplified_maintenance_percent"/><field name="simplified_maintenance_percent"/>
+    <label name="heating_maintenance_percent"/><field name="heating_maintenance_percent"/>
+    <separator string="Cap" id="sep_cap" colspan="4"/>
+    <label name="cap_years"/><field name="cap_years"/>
+    <label name="cap_threshold"/><field name="cap_threshold"/>
+    <label name="cap_high"/><field name="cap_high"/>
+    <label name="cap_low"/><field name="cap_low"/>
+    <label name="cap_heating"/><field name="cap_heating"/>
+    <label name="cap_m_type"/><field name="cap_m_type"/>
+    <separator string="Deadlines" id="sep_deadlines" colspan="4"/>
+    <label name="announcement_months"/><field name="announcement_months"/>
+    <label name="extension_months"/><field name="extension_months"/>
+    <label name="extension_tolerance_percent"/><field name="extension_tolerance_percent"/>
+    <field name="currency" invisible="1"/>
+</form>

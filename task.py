@@ -32,6 +32,7 @@ TASK_RESOURCES = [
     'real_estate.inspection.defect',
     'real_estate.meter_reading.sheet',
     'real_estate.contract.term.adjustment.run',
+    'real_estate.modernisation',
     ]
 
 
@@ -40,6 +41,7 @@ _RA = 'real_estate.contract.rent_adjustment'
 _TA = 'real_estate.contract.term.adjustment'
 _BO = 'real_estate.base_object'
 _BU = 'real_estate.billing_unit'
+_MOD = 'real_estate.modernisation'
 
 # Fixed catalog of the task codes used by the module code (hooks,
 # rules, processes): code -> (label, reference models - empty = all,
@@ -80,6 +82,14 @@ TASK_CODES = {
         ['real_estate.inspection'], False),
     'inspection_defect_overdue': ("Inspection defect overdue",
         ['real_estate.inspection.defect'], False),
+    'modernisation_objection': ("Hardship objection / special termination "
+        "period ends (modernisation)", [_MOD], False),
+    'modernisation_start': ("Earliest start of the modernisation work",
+        [_MOD], False),
+    'modernisation_declaration': ("Prepare the modernisation increase "
+        "declaration", [_MOD], False),
+    'modernisation_termination': ("Special termination period after the "
+        "modernisation increase ends", [_TA], False),
     }
 
 
@@ -580,7 +590,7 @@ class Task(Workflow, ModelSQL, ModelView):
         if name == 'real_estate.billing_unit':
             return None, getattr(resource, 'property', None)
         if name in ('real_estate.inspection', 'real_estate.inspection.defect',
-                'real_estate.meter_reading.sheet'):
+                'real_estate.meter_reading.sheet', 'real_estate.modernisation'):
             return None, getattr(resource, 'property', None)
         return None, None
 

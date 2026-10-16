@@ -120,6 +120,7 @@ Contents
     - `Graduated Rent <https://github.com/jankstar/jankstar_real_estate/blob/main/doc/rent_adjustment_graduated.rst>`_
     - `Index Rent <https://github.com/jankstar/jankstar_real_estate/blob/main/doc/rent_adjustment_index.rst>`_
     - `Comparative Rent (Rent Survey) <https://github.com/jankstar/jankstar_real_estate/blob/main/doc/rent_adjustment_comparative.rst>`_
+    - `Modernisation <https://github.com/jankstar/jankstar_real_estate/blob/main/doc/rent_adjustment_modernisation.rst>`_
 
   - `Operating Cost Settlement <https://github.com/jankstar/jankstar_real_estate/blob/main/doc/operating_cost_settlement.rst>`_
 
@@ -156,6 +157,7 @@ Contents
    rent_adjustment_graduated
    rent_adjustment_index
    rent_adjustment_comparative
+   rent_adjustment_modernisation
    operating_cost_settlement
    co2_kostaufg
    bved

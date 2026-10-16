@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<form col="4">
+    <label name="receipt_date"/><field name="receipt_date"/>
+    <label name="count"/><field name="count"/>
+    <label name="overwrite"/><field name="overwrite"/>
+    <newline/>
+    <label id="receipt_info" colspan="4"
+        string="The receipt of the announcement is captured for all rental units with a contract and an increase (without receipt, or all with 'Overwrite Existing'). Correct deviations afterwards per rental unit."/>
+</form>

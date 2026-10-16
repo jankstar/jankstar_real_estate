@@ -24,6 +24,8 @@ Source Layout
    │                            #   cap, consent, wizard Add Terms
    ├── contract_core.py         # real_estate.contract, contract.log, account views,
    │                            #   cron_daily dispatcher + cron task handlers
+   ├── contract_modernisation.py  # modernisation procedure of the adjustment
+   │                            #   run (§§ 559-559e BGB), increase declaration
    ├── contract_index_rent.py   # index rent agreement and adjustments (§ 557b BGB)
    ├── contract_item.py         # real_estate.contract.item, contract.item.object
    ├── contract_party.py        # real_estate.contract.party, contract.party.role
@@ -51,6 +53,9 @@ Source Layout
    │                            #   list context + report
    ├── ir.py                    # extension to ir.cron (registers the cron_daily method)
    ├── measurement.py           # real_estate.measurement.type, measurement
+   ├── modernisation.py         # real_estate.modernisation(.cost, .fund, .unit,
+   │                            #   .rule), allocation functions, announcement
+   │                            #   letter, invoice line link
    ├── meter_reading_sheet.py   # real_estate.meter_reading.sheet(.line) and its report
    ├── object_party.py          # real_estate.object_party, object_party.role
    ├── option_rate.py           # real_estate.option_rate, option_rate.context
@@ -60,6 +65,8 @@ Source Layout
    ├── process.py               # real_estate.process.template(.step), process,
    │                            #   wizards Start Process / Execute Action, process
    │                            #   start hooks (termination, partner change)
+   ├── queue_tools.py           # queued_ids(): records waiting in ir.queue (no double
+   │                            #   start of background jobs)
    ├── re_accounting.py         # real_estate.re_accounting (company-scoped RE config)
    ├── rent_survey.py           # real_estate.rent_survey(.version, .dimension(.class),
    │                            #   .cell, .group, .feature, .calculation),

@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+<form col="4">
+    <label name="object"/><field name="object"/>
+    <label name="contract"/><field name="contract"/>
+    <label name="term"/><field name="term"/>
+    <notebook colspan="4">
+        <page string="Allocation" id="page_allocation" col="4">
+            <label name="in_allocation"/><field name="in_allocation"/>
+            <label name="vat_deductible"/><field name="vat_deductible"/>
+            <field name="allocation_exclusion_reason" colspan="4" height="40"/>
+            <label name="allocation_quantity"/><field name="allocation_quantity"/>
+            <label name="share"/><field name="share"/>
+            <label name="allocated_costs"/><field name="allocated_costs"/>
+            <label name="rent"/><field name="rent"/>
+            <label name="expected_increase"/><field name="expected_increase"/>
+            <label name="limited"/><field name="limited"/>
+            <label name="announced_increase"/><field name="announced_increase"/>
+            <label name="excluded"/><field name="excluded"/>
+            <label name="exclusion_reason"/><field name="exclusion_reason"/>
+            <field name="exclusion_note" colspan="4" height="40"/>
+        </page>
+        <page string="Announcement" id="page_announcement" col="4">
+            <label name="letter"/><field name="letter"/>
+            <label name="announcement_receipt_date"/><field name="announcement_receipt_date"/>
+            <label name="announcement_defective"/><field name="announcement_defective"/>
+            <label name="hardship_notice_missing"/><field name="hardship_notice_missing"/>
+            <field name="announcement_defect_note" colspan="4" height="40"/>
+            <label name="hardship_deadline"/><field name="hardship_deadline"/>
+            <label name="special_termination_deadline"/><field name="special_termination_deadline"/>
+            <label name="terminated"/><field name="terminated"/>
+            <label name="adjustment"/><field name="adjustment"/>
+            <label name="adjustment_state"/><field name="adjustment_state"/>
+        </page>
+        <page string="Hardship" id="page_hardship" col="4">
+            <label name="hardship_received"/><field name="hardship_received"/>
+            <label name="hardship_date"/><field name="hardship_date"/>
+            <label name="hardship_decision"/><field name="hardship_decision"/>
+            <newline/>
+            <field name="hardship_note" colspan="4" height="60"/>
+        </page>
+    </notebook>
+    <field name="currency" invisible="1"/>
+</form>

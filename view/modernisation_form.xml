@@ -1,0 +1,89 @@
+<?xml version="1.0"?>
+<form col="4">
+    <label name="number"/><field name="number"/>
+    <label name="name"/><field name="name"/>
+    <label name="company"/><field name="company"/>
+    <label name="property"/><field name="property"/>
+    <label name="variant"/><field name="variant"/>
+    <label name="state"/><field name="state"/>
+    <label name="adjustment_run"/><field name="adjustment_run" colspan="3"/>
+    <notebook colspan="4">
+        <page string="Workflow" id="page_workflow" col="4">
+            <label name="process"/><field name="process"/>
+            <newline/>
+            <field name="process_tasks" colspan="4"
+                view_ids="real_estate.task_view_list_process"/>
+        </page>
+        <page string="Measure" id="page_measure" col="4">
+            <field name="measure_types" colspan="2" yexpand="0"/>
+            <field name="buildings" colspan="2"/>
+            <separator name="description" colspan="4"/>
+            <field name="description" colspan="4" height="100"/>
+            <separator name="energy_saving_note" colspan="4"/>
+            <field name="energy_saving_note" colspan="4" height="60"/>
+            <label name="trivial"/><field name="trivial"/>
+            <label name="vacancy"/><field name="vacancy"/>
+            <field name="trivial_reason" colspan="4" height="40"/>
+            <label name="comprehensive"/><field name="comprehensive"/>
+            <label name="not_responsible"/><field name="not_responsible"/>
+            <field name="comprehensive_note" colspan="4" height="40"/>
+            <label name="heat_pump_jaz_proven"/><field name="heat_pump_jaz_proven"/>
+        </page>
+        <page string="Schedule" id="page_schedule" col="4">
+            <label name="planned_start"/><field name="planned_start"/>
+            <label name="planned_duration"/><field name="planned_duration"/>
+            <label name="announcement_date"/><field name="announcement_date"/>
+            <newline/>
+            <label name="actual_start"/><field name="actual_start"/>
+            <label name="actual_end"/><field name="actual_end"/>
+        </page>
+        <page name="cost_lines" col="4">
+            <field name="cost_lines" colspan="4"/>
+            <label name="total_costs"/><field name="total_costs"/>
+            <label name="total_tax"/><field name="total_tax"/>
+            <label name="grant_total"/><field name="grant_total"/>
+            <label name="allocable_costs"/><field name="allocable_costs"/>
+            <label name="expected_costs"/><field name="expected_costs"/>
+            <newline/>
+            <separator name="expected_operating_costs" colspan="4"/>
+            <field name="expected_operating_costs" colspan="4" height="60"/>
+        </page>
+        <page name="funds" col="1">
+            <field name="funds"/>
+        </page>
+        <page name="units" col="4">
+            <label name="allocation_key"/><field name="allocation_key"/>
+            <label name="allocation_m_type"/><field name="allocation_m_type"/>
+            <field name="units" colspan="4"/>
+            <separator name="allocation_note" colspan="4"/>
+            <field name="allocation_note" colspan="4" height="40"/>
+        </page>
+        <page string="Calculation" id="page_calculation" col="4">
+            <field name="planned_values" colspan="4"/>
+            <group id="calculation_buttons" colspan="4" col="-1">
+                <button name="calculate" icon="tryton-refresh"/>
+                <button name="apply_planned_values" icon="tryton-ok"/>
+            </group>
+            <label name="planned_values_applied"/><field name="planned_values_applied"/>
+            <newline/>
+            <field name="calculations" colspan="4"/>
+        </page>
+        <page name="check_message" col="1">
+            <field name="check_message"/>
+        </page>
+    </notebook>
+    <field name="currency" invisible="1"/>
+    <field name="planning_objects" invisible="1"/>
+    <field name="rent_survey_version" invisible="1"/>
+    <group id="buttons" colspan="4" col="-1">
+        <button name="cancel" icon="tryton-cancel"/>
+        <button name="compute_units" icon="tryton-refresh"/>
+        <button name="sample_letter" icon="tryton-print"/>
+        <button name="take_over" icon="tryton-forward"/>
+        <button name="announce" icon="tryton-print"/>
+        <button name="set_receipts" icon="tryton-ok"/>
+        <button name="start" icon="tryton-forward"/>
+        <button name="complete" icon="tryton-ok"/>
+        <button name="create_run" icon="tryton-launch"/>
+    </group>
+</form>

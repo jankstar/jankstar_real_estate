@@ -69,12 +69,14 @@ Tasks
    ``manual``, ``contract_unsigned``, ``index_prepare``,
    ``index_values``, ``comparative_consent``, ``comparative_lawsuit``,
    ``billing_deadline``, ``meter_calibration``,
-   ``cron_error``.
+   ``cron_error``, ``modernisation_objection``, ``modernisation_start``,
+   ``modernisation_declaration``, ``modernisation_termination``
+   (``modernisation.xml``).
 
 ``real_estate.task``  (``task.py``)
    Task of a record (``resource``: contract, contract party, rent
    adjustment, term adjustment, object, billing unit, price index,
-   scheduled task, party). ``contract`` and ``property`` are stored and
+   scheduled task, party, adjustment run, modernisation). ``contract`` and ``property`` are stored and
    derived from the reference. Fields: subject, type, ``due_date``,
    ``remind_date`` (default due date - remind days), responsible user
    and/or group (default from the type, else the creator), priority,
@@ -140,7 +142,17 @@ Tasks
    run. Comparative rent: the receipt date creates
    ``comparative_consent`` (due at the consent deadline), the decision
    closes it, a refusal creates ``comparative_lawsuit`` (14 days before
-   the lawsuit deadline).
+   the lawsuit deadline). Modernisation (resource: the measure, resp. the
+   adjustment): the receipt of the announcement at a rental unit creates
+   ``modernisation_objection`` per unit (end of the month after the
+   receipt) and ``modernisation_start`` (latest receipt + 3 months, closed
+   by the start of the work); the completion creates
+   ``modernisation_declaration`` (completion + 1 month, not for a vacancy,
+   closed by the settlement); the receipt of the increase declaration
+   creates ``modernisation_termination`` (§ 561 BGB, end of the second
+   month after the receipt; stays open after the execution, cancelled
+   with the adjustment). A cancelled measure cancels its tasks and its
+   process.
 
 **Reminders and escalation** (phase B, ``Task.notify``)
    Scheduled task ``task_notify`` (*Real Estate Accounting › Scheduled
@@ -284,13 +296,17 @@ Processes
    claims check optional, final operating cost billing), *Move-in* (5
    steps: deposit received - ``deposit_paid``, handover, meter readings,
    keys, direct debit mandate), *Change of Tenant in the Contract* (4
-   steps), *Index Rent Adjustment Run* and *Comparative Rent Adjustment
-   Run* on the adjustment run (6 steps each, completed by the state of
-   the run, see `Rent Adjustments <rent_adjustment.rst>`__) and
+   steps), *Index Rent Adjustment Run*, *Comparative Rent Adjustment
+   Run* and *Modernisation Adjustment Run* on the adjustment run (6 steps
+   each, completed by the state of the run, see `Rent Adjustments
+   <rent_adjustment.rst>`__), *Modernisation* on the measure (9 steps,
+   started automatically with a new measure, see `Modernisation
+   <rent_adjustment_modernisation.rst>`__) and
    *Vacancy / Reletting* on an object (6 steps: meter readings and
    securing, inspection and repairs - both with role *Caretaker* -, new
    rent, advertisement, viewings and tenant selection, new lease contract;
-   started with *Start Process* on the rental object).
+   started with *Start Process* on the rental object; plus the optional
+   step *Plan a modernisation* (``modernisation.xml``)).
    Every default step has a work instruction (translatable, German in
    ``locale/de.po``); it is copied into the task in the language of the
    user creating it, so existing tasks keep their text.

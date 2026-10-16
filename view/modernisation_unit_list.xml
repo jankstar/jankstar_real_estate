@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<tree>
+    <field name="object" expand="1"/>
+    <field name="contract"/>
+    <field name="in_allocation"/>
+    <field name="vat_deductible"/>
+    <field name="allocation_quantity" sum="1"/>
+    <field name="share" sum="1"/>
+    <field name="allocated_costs" sum="1"/>
+    <field name="rent"/>
+    <field name="expected_increase" sum="1"/>
+    <field name="limited"/>
+    <field name="announced_increase" sum="1"/>
+    <field name="announcement_receipt_date"/>
+    <field name="hardship_deadline"/>
+    <field name="excluded"/>
+    <field name="adjustment"/>
+    <field name="adjustment_state"/>
+    <field name="currency" tree_invisible="1"/>
+</tree>

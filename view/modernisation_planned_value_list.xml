@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<tree editable="1">
+    <field name="object" expand="1"/>
+    <field name="kind"/>
+    <field name="action"/>
+    <field name="survey_class" expand="1"/>
+    <field name="survey_feature" expand="1"/>
+    <field name="measurement_type"/>
+    <field name="value"/>
+    <field name="object_type" tree_invisible="1"/>
+</tree>

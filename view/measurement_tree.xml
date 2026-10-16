@@ -4,6 +4,7 @@
     <field name="property"/>
     <field name="base_object"/>
     <field name="valid_from"/>
+    <field name="valid_to"/>
     <field name="m_type"/>
     <field name="value" sum="1"/>
     <field name="symbol"/>

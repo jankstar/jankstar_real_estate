@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<tree editable="1">
+    <field name="kind"/>
+    <field name="source" expand="1"/>
+    <field name="amount" sum="1"/>
+    <field name="annual_benefit" sum="1"/>
+    <field name="unit"/>
+    <field name="currency" tree_invisible="1"/>
+</tree>

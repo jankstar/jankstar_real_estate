@@ -1,0 +1,873 @@
+<?xml version="1.0"?>
+<tryton>
+    <data>
+        <!-- Modernisation (spezifikation-modernisierung.md) -->
+        <record model="ir.ui.view" id="modernisation_view_list">
+            <field name="model">real_estate.modernisation</field>
+            <field name="type">tree</field>
+            <field name="name">modernisation_list</field>
+        </record>
+        <record model="ir.ui.view" id="modernisation_view_list_run">
+            <field name="model">real_estate.modernisation</field>
+            <field name="type">tree</field>
+            <field name="priority" eval="30"/>
+            <field name="name">modernisation_run_list</field>
+        </record>
+        <record model="ir.ui.view" id="modernisation_view_form">
+            <field name="model">real_estate.modernisation</field>
+            <field name="type">form</field>
+            <field name="name">modernisation_form</field>
+        </record>
+        <record model="ir.ui.view" id="modernisation_cost_view_list">
+            <field name="model">real_estate.modernisation.cost</field>
+            <field name="type">tree</field>
+            <field name="name">modernisation_cost_list</field>
+        </record>
+        <record model="ir.ui.view" id="modernisation_cost_view_form">
+            <field name="model">real_estate.modernisation.cost</field>
+            <field name="type">form</field>
+            <field name="name">modernisation_cost_form</field>
+        </record>
+        <record model="ir.ui.view" id="modernisation_fund_view_list">
+            <field name="model">real_estate.modernisation.fund</field>
+            <field name="type">tree</field>
+            <field name="name">modernisation_fund_list</field>
+        </record>
+        <record model="ir.ui.view" id="modernisation_fund_view_form">
+            <field name="model">real_estate.modernisation.fund</field>
+            <field name="type">form</field>
+            <field name="name">modernisation_fund_form</field>
+        </record>
+        <record model="ir.ui.view" id="modernisation_unit_view_list">
+            <field name="model">real_estate.modernisation.unit</field>
+            <field name="type">tree</field>
+            <field name="name">modernisation_unit_list</field>
+        </record>
+        <record model="ir.ui.view" id="modernisation_unit_view_form">
+            <field name="model">real_estate.modernisation.unit</field>
+            <field name="type">form</field>
+            <field name="name">modernisation_unit_form</field>
+        </record>
+        <record model="ir.ui.view" id="modernisation_rule_view_list">
+            <field name="model">real_estate.modernisation.rule</field>
+            <field name="type">tree</field>
+            <field name="name">modernisation_rule_list</field>
+        </record>
+        <record model="ir.ui.view" id="modernisation_rule_view_form">
+            <field name="model">real_estate.modernisation.rule</field>
+            <field name="type">form</field>
+            <field name="name">modernisation_rule_form</field>
+        </record>
+        <record model="ir.action.act_window" id="act_modernisation">
+            <field name="name">Modernisations</field>
+            <field name="res_model">real_estate.modernisation</field>
+            <field name="context_model">real_estate.base_object.context</field>
+            <field name="context_domain"
+                eval="[('company', '=', Eval('company', -1)), If(Eval('property', None), [('property', '=', Eval('property', None))], [])]"
+                pyson="1"/>
+        </record>
+        <record model="ir.action.act_window.view" id="act_modernisation_view1">
+            <field name="sequence" eval="10"/>
+            <field name="view" ref="modernisation_view_list"/>
+            <field name="act_window" ref="act_modernisation"/>
+        </record>
+        <record model="ir.action.act_window.view" id="act_modernisation_view2">
+            <field name="sequence" eval="20"/>
+            <field name="view" ref="modernisation_view_form"/>
+            <field name="act_window" ref="act_modernisation"/>
+        </record>
+        <record model="ir.action.act_window.domain" id="act_modernisation_domain_planning">
+            <field name="name">Planning</field>
+            <field name="sequence" eval="10"/>
+            <field name="domain" eval="[('state', 'in', ['planning', 'draft'])]" pyson="1"/>
+            <field name="count" eval="True"/>
+            <field name="act_window" ref="act_modernisation"/>
+        </record>
+        <record model="ir.action.act_window.domain" id="act_modernisation_domain_in_progress">
+            <field name="name">In Progress</field>
+            <field name="sequence" eval="20"/>
+            <field name="domain" eval="[('state', 'in', ['announced', 'in_progress'])]" pyson="1"/>
+            <field name="count" eval="True"/>
+            <field name="act_window" ref="act_modernisation"/>
+        </record>
+        <record model="ir.action.act_window.domain" id="act_modernisation_domain_completed">
+            <field name="name">Completed</field>
+            <field name="sequence" eval="30"/>
+            <field name="domain" eval="[('state', 'in', ['completed'])]" pyson="1"/>
+            <field name="count" eval="True"/>
+            <field name="act_window" ref="act_modernisation"/>
+        </record>
+        <record model="ir.action.act_window.domain" id="act_modernisation_domain_settled">
+            <field name="name">Settled</field>
+            <field name="sequence" eval="40"/>
+            <field name="domain" eval="[('state', 'in', ['settled'])]" pyson="1"/>
+            <field name="act_window" ref="act_modernisation"/>
+        </record>
+        <record model="ir.action.act_window.domain" id="act_modernisation_domain_all">
+            <field name="name">All</field>
+            <field name="sequence" eval="9999"/>
+            <field name="domain"></field>
+            <field name="act_window" ref="act_modernisation"/>
+        </record>
+        <menuitem
+            parent="menu_real_estate_contracts_adjustment"
+            action="act_modernisation"
+            sequence="50"
+            id="menu_modernisation"/>
+
+        <record model="ir.action.act_window" id="act_modernisation_rule">
+            <field name="name">Modernisation Rules</field>
+            <field name="res_model">real_estate.modernisation.rule</field>
+        </record>
+        <record model="ir.action.act_window.view" id="act_modernisation_rule_view1">
+            <field name="sequence" eval="10"/>
+            <field name="view" ref="modernisation_rule_view_list"/>
+            <field name="act_window" ref="act_modernisation_rule"/>
+        </record>
+        <record model="ir.action.act_window.view" id="act_modernisation_rule_view2">
+            <field name="sequence" eval="20"/>
+            <field name="view" ref="modernisation_rule_view_form"/>
+            <field name="act_window" ref="act_modernisation_rule"/>
+        </record>
+        <menuitem
+            parent="menu_real_estate_configuration"
+            sequence="42"
+            action="act_modernisation_rule"
+            id="menu_modernisation_rule"/>
+
+        <record model="ir.ui.view" id="modernisation_planned_value_view_list">
+            <field name="model">real_estate.modernisation.planned_value</field>
+            <field name="type">tree</field>
+            <field name="name">modernisation_planned_value_list</field>
+        </record>
+        <record model="ir.ui.view" id="modernisation_planned_value_view_form">
+            <field name="model">real_estate.modernisation.planned_value</field>
+            <field name="type">form</field>
+            <field name="name">modernisation_planned_value_form</field>
+        </record>
+        <record model="ir.ui.view" id="modernisation_calculation_view_list">
+            <field name="model">real_estate.modernisation.calculation</field>
+            <field name="type">tree</field>
+            <field name="name">modernisation_calculation_list</field>
+        </record>
+        <record model="ir.ui.view" id="modernisation_calculation_view_form">
+            <field name="model">real_estate.modernisation.calculation</field>
+            <field name="type">form</field>
+            <field name="name">modernisation_calculation_form</field>
+        </record>
+        <record model="ir.model.button" id="modernisation_calculate_button">
+            <field name="model">real_estate.modernisation</field>
+            <field name="name">calculate</field>
+            <field name="string">Calculate</field>
+            <field name="help">Calculation per rental unit: increase after § 559, comparative rent before and after the modernisation with the planned features (what if), rent after § 558, new letting limit and yield.</field>
+        </record>
+        <record model="ir.model.button" id="modernisation_apply_planned_values_button">
+            <field name="model">real_estate.modernisation</field>
+            <field name="name">apply_planned_values</field>
+            <field name="string">Apply Planned Features</field>
+            <field name="help">Store the planned classes, features and measurements at the objects valid from the completion of the work.</field>
+            <field name="confirm">The planned features are stored at the objects valid from the completion. Continue?</field>
+        </record>
+        <record model="ir.ui.view" id="modernisation_receipt_start_view_form">
+            <field name="model">real_estate.modernisation.receipt.start</field>
+            <field name="type">form</field>
+            <field name="name">modernisation_receipt_start_form</field>
+        </record>
+        <record model="ir.action.wizard" id="wizard_modernisation_receipt">
+            <field name="name">Capture Receipts</field>
+            <field name="wiz_name">real_estate.modernisation.receipt</field>
+            <field name="model">real_estate.modernisation</field>
+        </record>
+        <record model="ir.model.button" id="modernisation_set_receipts_button">
+            <field name="model">real_estate.modernisation</field>
+            <field name="name">set_receipts</field>
+            <field name="string">Capture Receipts</field>
+            <field name="help">Capture the receipt date of the announcement for all rental units with a contract and an increase at once.</field>
+        </record>
+        <record model="ir.model.button" id="modernisation_create_run_button">
+            <field name="model">real_estate.modernisation</field>
+            <field name="name">create_run</field>
+            <field name="string">Create Adjustment Run</field>
+            <field name="help">Create the adjustment run of the procedure Modernisation for the measure (key and declaration date today, at the earliest the completion) and open it for the selection.</field>
+        </record>
+        <record model="ir.model.button" id="modernisation_sample_letter_button">
+            <field name="model">real_estate.modernisation</field>
+            <field name="name">sample_letter</field>
+            <field name="string">Sample Letter</field>
+            <field name="help">Announcement of one rental unit as a draft before the announcement - nothing is archived.</field>
+        </record>
+        <record model="ir.action.report" id="report_modernisation_sample_letter">
+            <field name="name">Sample Announcement</field>
+            <field name="report_name">real_estate.modernisation.sample_letter</field>
+            <field name="model">real_estate.modernisation</field>
+            <field name="template_extension">odt</field>
+        </record>
+        <record model="ir.model.button" id="modernisation_compute_units_button">
+            <field name="model">real_estate.modernisation</field>
+            <field name="name">compute_units</field>
+            <field name="string">Determine Rental Units</field>
+            <field name="help">Determine the rental units of the buildings with area, contract and rent term - manual settings are kept.</field>
+        </record>
+        <record model="ir.model.button" id="modernisation_take_over_button">
+            <field name="model">real_estate.modernisation</field>
+            <field name="name">take_over</field>
+            <field name="string">Take Over Planning</field>
+            <field name="help">Planning finished: the measure is prepared for the announcement.</field>
+        </record>
+        <record model="ir.model.button" id="modernisation_announce_button">
+            <field name="model">real_estate.modernisation</field>
+            <field name="name">announce</field>
+            <field name="string">Announce</field>
+            <field name="help">Check the measure (M01-M05), freeze the expected increase per unit and create the announcement letters.</field>
+            <field name="confirm">The announcement letters are created and archived at the rental units and contracts. Continue?</field>
+        </record>
+        <record model="ir.model.button" id="modernisation_start_button">
+            <field name="model">real_estate.modernisation</field>
+            <field name="name">start</field>
+            <field name="string">Start Work</field>
+            <field name="help">Start of the work (actual start date, today if empty).</field>
+        </record>
+        <record model="ir.model.button" id="modernisation_complete_button">
+            <field name="model">real_estate.modernisation</field>
+            <field name="name">complete</field>
+            <field name="string">Complete</field>
+            <field name="help">Completion: the costs must be complete; a vacancy measure is settled at once.</field>
+        </record>
+        <record model="ir.model.button" id="modernisation_cancel_button">
+            <field name="model">real_estate.modernisation</field>
+            <field name="name">cancel</field>
+            <field name="string">Cancel</field>
+            <field name="confirm">The measure is cancelled. Continue?</field>
+        </record>
+
+        <!-- Announcement of the modernisation per rental unit (ODT) -->
+        <record model="ir.action.report" id="report_modernisation_announcement_de">
+            <field name="name">Modernisation Announcement (de)</field>
+            <field name="report_name">real_estate.modernisation.announcement_letter</field>
+            <field name="model">real_estate.modernisation.unit</field>
+            <field name="report">real_estate/report/modernisation_announcement_de.odt</field>
+            <field name="template_extension">odt</field>
+        </record>
+        <record model="ir.action.keyword" id="report_modernisation_announcement_keyword">
+            <field name="keyword">form_print</field>
+            <field name="model">real_estate.modernisation.unit,-1</field>
+            <field name="action" ref="report_modernisation_announcement_de"/>
+        </record>
+
+        <record model="ir.action.wizard" id="wizard_modernisation_plan_vacancy">
+            <field name="name">Plan Modernisation (Vacancy)</field>
+            <field name="wiz_name">real_estate.modernisation.plan_vacancy</field>
+            <field name="model">real_estate.base_object</field>
+        </record>
+
+        <!-- Declaration of the modernisation increase per adjustment (ODT) -->
+        <record model="ir.action.report" id="report_modernisation_increase_de">
+            <field name="name">Modernisation Increase Declaration (de)</field>
+            <field name="report_name">real_estate.modernisation.increase_letter</field>
+            <field name="model">real_estate.contract.term.adjustment</field>
+            <field name="report">real_estate/report/modernisation_increase_de.odt</field>
+            <field name="template_extension">odt</field>
+        </record>
+        <record model="ir.action.keyword" id="report_modernisation_increase_keyword">
+            <field name="keyword">form_print</field>
+            <field name="model">real_estate.contract.term.adjustment,-1</field>
+            <field name="action" ref="report_modernisation_increase_de"/>
+        </record>
+
+        <record model="ir.model.access" id="access_modernisation_planned_value_admin">
+            <field name="model">real_estate.modernisation.planned_value</field>
+            <field name="group" ref="group_real_estate_admin"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+        <record model="ir.model.access" id="access_modernisation_planned_value_contract">
+            <field name="model">real_estate.modernisation.planned_value</field>
+            <field name="group" ref="group_real_estate_contract"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+        <record model="ir.model.access" id="access_modernisation_planned_value_object">
+            <field name="model">real_estate.modernisation.planned_value</field>
+            <field name="group" ref="group_real_estate_object"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_modernisation_planned_value_billing">
+            <field name="model">real_estate.modernisation.planned_value</field>
+            <field name="group" ref="group_real_estate_billing"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_modernisation_planned_value_default">
+            <field name="model">real_estate.modernisation.planned_value</field>
+            <field name="perm_read" eval="False"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_modernisation_calculation_admin">
+            <field name="model">real_estate.modernisation.calculation</field>
+            <field name="group" ref="group_real_estate_admin"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+        <record model="ir.model.access" id="access_modernisation_calculation_contract">
+            <field name="model">real_estate.modernisation.calculation</field>
+            <field name="group" ref="group_real_estate_contract"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+        <record model="ir.model.access" id="access_modernisation_calculation_object">
+            <field name="model">real_estate.modernisation.calculation</field>
+            <field name="group" ref="group_real_estate_object"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_modernisation_calculation_billing">
+            <field name="model">real_estate.modernisation.calculation</field>
+            <field name="group" ref="group_real_estate_billing"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_modernisation_calculation_default">
+            <field name="model">real_estate.modernisation.calculation</field>
+            <field name="perm_read" eval="False"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.rule.group" id="rule_group_modernisation_companies">
+            <field name="name">User in companies</field>
+            <field name="model">real_estate.modernisation</field>
+            <field name="global_p" eval="True"/>
+        </record>
+        <record model="ir.rule" id="rule_modernisation_companies">
+            <field name="domain" eval="[('company', 'in', Eval('companies', []))]" pyson="1"/>
+            <field name="rule_group" ref="rule_group_modernisation_companies"/>
+        </record>
+        <record model="ir.model.access" id="access_modernisation_admin">
+            <field name="model">real_estate.modernisation</field>
+            <field name="group" ref="group_real_estate_admin"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+        <record model="ir.model.access" id="access_modernisation_contract">
+            <field name="model">real_estate.modernisation</field>
+            <field name="group" ref="group_real_estate_contract"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+        <record model="ir.model.access" id="access_modernisation_object">
+            <field name="model">real_estate.modernisation</field>
+            <field name="group" ref="group_real_estate_object"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_modernisation_billing">
+            <field name="model">real_estate.modernisation</field>
+            <field name="group" ref="group_real_estate_billing"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_modernisation_default">
+            <field name="model">real_estate.modernisation</field>
+            <field name="perm_read" eval="False"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_modernisation_cost_admin">
+            <field name="model">real_estate.modernisation.cost</field>
+            <field name="group" ref="group_real_estate_admin"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+        <record model="ir.model.access" id="access_modernisation_cost_contract">
+            <field name="model">real_estate.modernisation.cost</field>
+            <field name="group" ref="group_real_estate_contract"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+        <record model="ir.model.access" id="access_modernisation_cost_object">
+            <field name="model">real_estate.modernisation.cost</field>
+            <field name="group" ref="group_real_estate_object"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_modernisation_cost_billing">
+            <field name="model">real_estate.modernisation.cost</field>
+            <field name="group" ref="group_real_estate_billing"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_modernisation_cost_default">
+            <field name="model">real_estate.modernisation.cost</field>
+            <field name="perm_read" eval="False"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_modernisation_fund_admin">
+            <field name="model">real_estate.modernisation.fund</field>
+            <field name="group" ref="group_real_estate_admin"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+        <record model="ir.model.access" id="access_modernisation_fund_contract">
+            <field name="model">real_estate.modernisation.fund</field>
+            <field name="group" ref="group_real_estate_contract"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+        <record model="ir.model.access" id="access_modernisation_fund_object">
+            <field name="model">real_estate.modernisation.fund</field>
+            <field name="group" ref="group_real_estate_object"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_modernisation_fund_billing">
+            <field name="model">real_estate.modernisation.fund</field>
+            <field name="group" ref="group_real_estate_billing"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_modernisation_fund_default">
+            <field name="model">real_estate.modernisation.fund</field>
+            <field name="perm_read" eval="False"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_modernisation_unit_admin">
+            <field name="model">real_estate.modernisation.unit</field>
+            <field name="group" ref="group_real_estate_admin"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+        <record model="ir.model.access" id="access_modernisation_unit_contract">
+            <field name="model">real_estate.modernisation.unit</field>
+            <field name="group" ref="group_real_estate_contract"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+        <record model="ir.model.access" id="access_modernisation_unit_object">
+            <field name="model">real_estate.modernisation.unit</field>
+            <field name="group" ref="group_real_estate_object"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_modernisation_unit_billing">
+            <field name="model">real_estate.modernisation.unit</field>
+            <field name="group" ref="group_real_estate_billing"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_modernisation_unit_default">
+            <field name="model">real_estate.modernisation.unit</field>
+            <field name="perm_read" eval="False"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_modernisation_rule_admin">
+            <field name="model">real_estate.modernisation.rule</field>
+            <field name="group" ref="group_real_estate_admin"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+        <record model="ir.model.access" id="access_modernisation_rule_contract">
+            <field name="model">real_estate.modernisation.rule</field>
+            <field name="group" ref="group_real_estate_contract"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_modernisation_rule_object">
+            <field name="model">real_estate.modernisation.rule</field>
+            <field name="group" ref="group_real_estate_object"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_modernisation_rule_billing">
+            <field name="model">real_estate.modernisation.rule</field>
+            <field name="group" ref="group_real_estate_billing"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_modernisation_rule_default">
+            <field name="model">real_estate.modernisation.rule</field>
+            <field name="perm_read" eval="False"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+    </data>
+    <data noupdate="1">
+        <record model="ir.sequence.type" id="sequence_type_modernisation">
+            <field name="name">Modernisation</field>
+        </record>
+        <record model="ir.sequence.type-res.group" id="sequence_type_modernisation_group_admin">
+            <field name="sequence_type" ref="sequence_type_modernisation"/>
+            <field name="group" ref="res.group_admin"/>
+        </record>
+        <record model="ir.sequence.type-res.group" id="sequence_type_modernisation_group_real_estate_admin">
+            <field name="sequence_type" ref="sequence_type_modernisation"/>
+            <field name="group" ref="group_real_estate_admin"/>
+        </record>
+        <record model="ir.sequence" id="sequence_modernisation">
+            <field name="name">Modernisation</field>
+            <field name="sequence_type" ref="sequence_type_modernisation"/>
+            <field name="prefix">MOD-${year}-</field>
+            <field name="padding" eval="4"/>
+        </record>
+        <!-- Deadline tasks of a modernisation (spec 9) -->
+        <record model="real_estate.task.type" id="task_type_modernisation_objection">
+            <field name="sequence" eval="97"/>
+            <field name="code">modernisation_objection</field>
+            <field name="name">Hardship objection / special termination period ends (modernisation)</field>
+            <field name="responsible_group" ref="group_real_estate_contract"/>
+            <field name="remind_days" eval="7"/>
+            <field name="escalate_days" eval="7"/>
+            <field name="escalation_group" ref="group_real_estate_admin"/>
+            <field name="responsible_role" ref="object_party_administrator_role"/>
+        </record>
+        <record model="real_estate.task.type" id="task_type_modernisation_start">
+            <field name="sequence" eval="98"/>
+            <field name="code">modernisation_start</field>
+            <field name="name">Earliest start of the modernisation work</field>
+            <field name="responsible_group" ref="group_real_estate_contract"/>
+            <field name="remind_days" eval="7"/>
+            <field name="escalate_days" eval="7"/>
+            <field name="escalation_group" ref="group_real_estate_admin"/>
+            <field name="responsible_role" ref="object_party_administrator_role"/>
+        </record>
+        <record model="real_estate.task.type" id="task_type_modernisation_declaration">
+            <field name="sequence" eval="99"/>
+            <field name="code">modernisation_declaration</field>
+            <field name="name">Prepare the modernisation increase declaration</field>
+            <field name="responsible_group" ref="group_real_estate_contract"/>
+            <field name="remind_days" eval="7"/>
+            <field name="escalate_days" eval="7"/>
+            <field name="escalation_group" ref="group_real_estate_admin"/>
+            <field name="responsible_role" ref="object_party_administrator_role"/>
+        </record>
+        <record model="real_estate.task.type" id="task_type_modernisation_termination">
+            <field name="sequence" eval="100"/>
+            <field name="code">modernisation_termination</field>
+            <field name="name">Special termination period after the modernisation increase ends</field>
+            <field name="responsible_group" ref="group_real_estate_contract"/>
+            <field name="remind_days" eval="7"/>
+            <field name="escalate_days" eval="7"/>
+            <field name="escalation_group" ref="group_real_estate_admin"/>
+            <field name="responsible_role" ref="object_party_administrator_role"/>
+        </record>
+        <!-- Process of a modernisation measure (spec 9) -->
+        <record model="real_estate.process.template" id="process_template_modernisation">
+            <field name="name">Modernisation</field>
+            <field name="code">modernisation</field>
+            <field name="model">real_estate.modernisation</field>
+        </record>
+        <record model="real_estate.process.template.step" id="process_template_modernisation_plan">
+            <field name="template" ref="process_template_modernisation"/>
+            <field name="sequence" eval="10"/>
+            <field name="name">Plan and calculate</field>
+            <field name="task_type" ref="task_type_process_step"/>
+            <field name="responsible_group" ref="group_real_estate_contract"/>
+            <field name="due_base">start</field>
+            <field name="offset_months" eval="0"/>
+            <field name="offset_days" eval="0"/>
+            <field name="completion">condition</field>
+            <field name="done_method">modernisation_planned</field>
+            <field name="mandatory" eval="False"/>
+            <field name="description">Capture the measure (kind, variant, buildings, description), the planned costs per trade and the funds. When the planning is decided press 'Take Over Planning' - the step is done with the state draft.</field>
+        </record>
+        <record model="real_estate.process.template.step" id="process_template_modernisation_units">
+            <field name="template" ref="process_template_modernisation"/>
+            <field name="sequence" eval="20"/>
+            <field name="name">Determine the rental units</field>
+            <field name="task_type" ref="task_type_process_step"/>
+            <field name="responsible_group" ref="group_real_estate_contract"/>
+            <field name="due_base">start</field>
+            <field name="offset_months" eval="0"/>
+            <field name="offset_days" eval="3"/>
+            <field name="completion">condition</field>
+            <field name="done_method">modernisation_units</field>
+            <field name="description">Press 'Determine Rental Units' and check the units: allocation key and quantities, participation in the allocation (exclusion only with a reason), input tax deduction, no increase (vacancy, commercial, graduated or index rent).</field>
+        </record>
+        <record model="real_estate.process.template.step" id="process_template_modernisation_announce">
+            <field name="template" ref="process_template_modernisation"/>
+            <field name="sequence" eval="30"/>
+            <field name="name">Announce the measure</field>
+            <field name="task_type" ref="task_type_process_step"/>
+            <field name="responsible_group" ref="group_real_estate_contract"/>
+            <field name="due_base">previous_done</field>
+            <field name="offset_months" eval="0"/>
+            <field name="offset_days" eval="7"/>
+            <field name="completion">condition</field>
+            <field name="done_method">modernisation_announced</field>
+            <field name="create_condition">method</field>
+            <field name="create_method">modernisation_announcement</field>
+            <field name="description">Check the mandatory contents (description, start, duration, expected costs and operating costs; start at least 3 months after the announcement) and press 'Announce': the letters are archived at the units and contracts. Send them (registered letter or messenger recommended). Not for a vacancy or a trivial measure.</field>
+        </record>
+        <record model="real_estate.process.template.step" id="process_template_modernisation_receipts">
+            <field name="template" ref="process_template_modernisation"/>
+            <field name="sequence" eval="40"/>
+            <field name="name">Capture the receipts of the announcement</field>
+            <field name="task_type" ref="task_type_process_step"/>
+            <field name="responsible_group" ref="group_real_estate_contract"/>
+            <field name="due_base">previous_done</field>
+            <field name="offset_months" eval="0"/>
+            <field name="offset_days" eval="7"/>
+            <field name="completion">condition</field>
+            <field name="done_method">modernisation_receipts</field>
+            <field name="create_condition">method</field>
+            <field name="create_method">modernisation_announcement</field>
+            <field name="description">Enter the receipt date of the announcement for every rental unit with an increase - it starts the hardship objection and special termination periods (end of the month after the receipt) and determines the earliest start of the work.</field>
+        </record>
+        <record model="real_estate.process.template.step" id="process_template_modernisation_objections">
+            <field name="template" ref="process_template_modernisation"/>
+            <field name="sequence" eval="50"/>
+            <field name="name">Handle hardship objections and special terminations</field>
+            <field name="task_type" ref="task_type_process_step"/>
+            <field name="responsible_group" ref="group_real_estate_contract"/>
+            <field name="due_base">previous_done</field>
+            <field name="offset_months" eval="0"/>
+            <field name="offset_days" eval="45"/>
+            <field name="completion">condition</field>
+            <field name="done_method">modernisation_objections</field>
+            <field name="create_condition">method</field>
+            <field name="create_method">modernisation_announcement</field>
+            <field name="description">Capture hardship objections (date, note) and decide them; capture terminations by the tenants (§ 555e BGB) and terminate the contracts with the termination wizard. The step is done when the periods of all units have ended and no objection is undecided.</field>
+        </record>
+        <record model="real_estate.process.template.step" id="process_template_modernisation_start">
+            <field name="template" ref="process_template_modernisation"/>
+            <field name="sequence" eval="60"/>
+            <field name="name">Start the work</field>
+            <field name="task_type" ref="task_type_process_step"/>
+            <field name="responsible_group" ref="group_real_estate_contract"/>
+            <field name="due_base">previous_done</field>
+            <field name="offset_months" eval="0"/>
+            <field name="offset_days" eval="0"/>
+            <field name="completion">condition</field>
+            <field name="done_method">modernisation_started</field>
+            <field name="description">Enter the actual start and press 'Start Work' - not before 3 months after the receipt of the announcement (warning).</field>
+        </record>
+        <record model="real_estate.process.template.step" id="process_template_modernisation_complete">
+            <field name="template" ref="process_template_modernisation"/>
+            <field name="sequence" eval="70"/>
+            <field name="name">Complete the work and determine the costs</field>
+            <field name="task_type" ref="task_type_process_step"/>
+            <field name="responsible_group" ref="group_real_estate_contract"/>
+            <field name="due_base">previous_done</field>
+            <field name="offset_months" eval="0"/>
+            <field name="offset_days" eval="60"/>
+            <field name="completion">condition</field>
+            <field name="done_method">modernisation_completed</field>
+            <field name="description">Capture the actual costs per trade (supplier invoice lines as proof, net amount and tax), the maintenance share of every cost line and the funds, enter the completion date and press 'Complete'. A vacancy measure is settled at once.</field>
+        </record>
+        <record model="real_estate.process.template.step" id="process_template_modernisation_run">
+            <field name="template" ref="process_template_modernisation"/>
+            <field name="sequence" eval="80"/>
+            <field name="name">Start the adjustment run</field>
+            <field name="task_type" ref="task_type_process_step"/>
+            <field name="responsible_group" ref="group_real_estate_contract"/>
+            <field name="due_base">previous_done</field>
+            <field name="offset_months" eval="0"/>
+            <field name="offset_days" eval="30"/>
+            <field name="completion">condition</field>
+            <field name="done_method">modernisation_settled</field>
+            <field name="create_condition">method</field>
+            <field name="create_method">modernisation_run</field>
+            <field name="action" ref="act_contract_term_adjustment_run"/>
+            <field name="description">Create an adjustment run with the procedure Modernisation and this measure (parameter 'Modernisations'), select, calculate, approve and announce the increase declarations, capture the receipts and execute the run. The step is done when the measure is settled. Not for a vacancy measure.</field>
+        </record>
+        <record model="real_estate.process.template.step" id="process_template_modernisation_rent_survey">
+            <field name="template" ref="process_template_modernisation"/>
+            <field name="sequence" eval="90"/>
+            <field name="name">Update the rent survey features</field>
+            <field name="task_type" ref="task_type_process_step"/>
+            <field name="responsible_group" ref="group_real_estate_contract"/>
+            <field name="due_base">previous_done</field>
+            <field name="offset_months" eval="0"/>
+            <field name="offset_days" eval="14"/>
+            <field name="completion">manual</field>
+            <field name="create_condition">method</field>
+            <field name="create_method">modernisation_rent_survey</field>
+            <field name="result_required" eval="True"/>
+            <field name="description">Update the classes and features of the rent survey for the modernised buildings and rental units (e.g. modern heating, thermal insulation, new windows) with 'Assign Rent Survey Features' at the objects or the matrix import of the rent survey, valid from the completion of the measure. The next comparative rent is then calculated in the modernised state. Note the changed features in the result.</field>
+        </record>
+        <!-- Process of a modernisation adjustment run -->
+        <record model="real_estate.process.template" id="process_template_adjustment_run_modernisation">
+            <field name="name">Modernisation Adjustment Run</field>
+            <field name="code">adjustment_run_modernisation</field>
+            <field name="model">real_estate.contract.term.adjustment.run</field>
+        </record>
+        <record model="real_estate.process.template.step" id="process_template_adjustment_run_modernisation_select">
+            <field name="template" ref="process_template_adjustment_run_modernisation"/>
+            <field name="sequence" eval="10"/>
+            <field name="name">Check the parameters and select</field>
+            <field name="task_type" ref="task_type_process_step"/>
+            <field name="responsible_group" ref="group_real_estate_contract"/>
+            <field name="due_base">start</field>
+            <field name="offset_months" eval="0"/>
+            <field name="offset_days" eval="0"/>
+            <field name="completion">condition</field>
+            <field name="done_method">run_selected</field>
+            <field name="description">Check the parameters of the run (completed modernisations, properties, contracts, key and declaration date) and press 'Select'. Units without increase, without an allowed rent term or with an adjustment already are listed with the reason in the protocol.</field>
+        </record>
+        <record model="real_estate.process.template.step" id="process_template_adjustment_run_modernisation_calculate">
+            <field name="template" ref="process_template_adjustment_run_modernisation"/>
+            <field name="sequence" eval="20"/>
+            <field name="name">Calculate and check</field>
+            <field name="task_type" ref="task_type_process_step"/>
+            <field name="responsible_group" ref="group_real_estate_contract"/>
+            <field name="due_base">start</field>
+            <field name="offset_months" eval="0"/>
+            <field name="offset_days" eval="7"/>
+            <field name="completion">condition</field>
+            <field name="done_method">run_calculated</field>
+            <field name="description">Press 'Calculate' and check the adjustments: increase after the cap, effective date (6 months later if the announcement was missing or defective or the increase exceeds the announced one by more than 10 %), checks E01-E14. Cancel adjustments that should not be part of the run, enter a reason for warnings or a manual amount.</field>
+        </record>
+        <record model="real_estate.process.template.step" id="process_template_adjustment_run_modernisation_approve">
+            <field name="template" ref="process_template_adjustment_run_modernisation"/>
+            <field name="sequence" eval="30"/>
+            <field name="name">Approve</field>
+            <field name="task_type" ref="task_type_process_step"/>
+            <field name="responsible_group" ref="group_real_estate_contract"/>
+            <field name="due_base">start</field>
+            <field name="offset_months" eval="0"/>
+            <field name="offset_days" eval="10"/>
+            <field name="completion">condition</field>
+            <field name="done_method">run_approved</field>
+            <field name="description">Approve the calculated adjustments with 'Approve'. Adjustments with errors or with a warning without reason are cancelled and listed in the protocol.</field>
+        </record>
+        <record model="real_estate.process.template.step" id="process_template_adjustment_run_modernisation_declare">
+            <field name="template" ref="process_template_adjustment_run_modernisation"/>
+            <field name="sequence" eval="40"/>
+            <field name="name">Send the increase declarations</field>
+            <field name="task_type" ref="task_type_process_step"/>
+            <field name="responsible_group" ref="group_real_estate_contract"/>
+            <field name="due_base">start</field>
+            <field name="offset_months" eval="0"/>
+            <field name="offset_days" eval="14"/>
+            <field name="completion">condition</field>
+            <field name="done_method">run_declared</field>
+            <field name="description">Create the increase declarations with 'Announce'; they are archived at the adjustments and contracts. Send them (registered letter or messenger recommended).</field>
+        </record>
+        <record model="real_estate.process.template.step" id="process_template_adjustment_run_modernisation_receipts">
+            <field name="template" ref="process_template_adjustment_run_modernisation"/>
+            <field name="sequence" eval="50"/>
+            <field name="name">Capture the receipts</field>
+            <field name="task_type" ref="task_type_process_step"/>
+            <field name="responsible_group" ref="group_real_estate_contract"/>
+            <field name="due_base">start</field>
+            <field name="offset_months" eval="0"/>
+            <field name="offset_days" eval="30"/>
+            <field name="completion">condition</field>
+            <field name="done_method">run_ready</field>
+            <field name="description">Enter the receipt date of every declaration in the tab 'Receipts / Consents'. It determines the effective date (start of the third month after the receipt) and the special termination period (end of the second month after the receipt, § 561 BGB); mark terminated tenancies.</field>
+        </record>
+        <record model="real_estate.process.template.step" id="process_template_adjustment_run_modernisation_execute">
+            <field name="template" ref="process_template_adjustment_run_modernisation"/>
+            <field name="sequence" eval="60"/>
+            <field name="name">Execute</field>
+            <field name="task_type" ref="task_type_process_step"/>
+            <field name="responsible_group" ref="group_real_estate_contract"/>
+            <field name="due_base">start</field>
+            <field name="offset_months" eval="0"/>
+            <field name="offset_days" eval="35"/>
+            <field name="completion">condition</field>
+            <field name="done_method">run_done</field>
+            <field name="description">Execute the run: the rent terms are split at the effective date with the increased rent; adjustments of terminated tenancies have to be cancelled. When the run is done the modernisations are settled.</field>
+        </record>
+        <!-- Optional step of the vacancy process (spec 9) -->
+        <record model="real_estate.process.template.step" id="process_template_vacancy_modernisation">
+            <field name="template" ref="process_template_vacancy"/>
+            <field name="sequence" eval="25"/>
+            <field name="name">Plan a modernisation</field>
+            <field name="task_type" ref="task_type_process_step"/>
+            <field name="responsible_group" ref="group_real_estate_contract"/>
+            <field name="due_base">start</field>
+            <field name="offset_months" eval="0"/>
+            <field name="offset_days" eval="5"/>
+            <field name="completion">action</field>
+            <field name="mandatory" eval="False"/>
+            <field name="action" ref="wizard_modernisation_plan_vacancy"/>
+            <field name="description">Optional: if the unit is to be modernised during the vacancy, create a modernisation 'vacancy' with 'Execute Action' (no announcement, no adjustment run). Its increase per month after § 559 BGB raises the limit of the new letting in a tight housing market (§ 556e para. 2 BGB); a comprehensive modernisation exempts the first letting from the rent brake (§ 556f BGB). Cancel the step if no modernisation is planned.</field>
+        </record>
+        <!-- Legal values as of 01.01.2024 (§§ 555c, 559, 559b, 559c, 559e BGB) -->
+        <record model="real_estate.modernisation.rule" id="modernisation_rule_2024">
+            <field name="valid_from" eval="datetime.date(2024, 1, 1)"/>
+            <field name="rate_standard" eval="Decimal('8')"/>
+            <field name="rate_heating" eval="Decimal('10')"/>
+            <field name="simplified_limit" eval="Decimal('10000')"/>
+            <field name="simplified_maintenance_percent" eval="Decimal('30')"/>
+            <field name="heating_maintenance_percent" eval="Decimal('15')"/>
+            <field name="cap_years" eval="6"/>
+            <field name="cap_high" eval="Decimal('3.00')"/>
+            <field name="cap_low" eval="Decimal('2.00')"/>
+            <field name="cap_threshold" eval="Decimal('7.00')"/>
+            <field name="cap_heating" eval="Decimal('0.50')"/>
+            <field name="cap_m_type" ref="measurement_living_space_type"/>
+            <field name="announcement_months" eval="3"/>
+            <field name="extension_months" eval="6"/>
+            <field name="extension_tolerance_percent" eval="Decimal('10')"/>
+            <field name="simplified_lock_years" eval="5"/>
+        </record>
+    </data>
+</tryton>

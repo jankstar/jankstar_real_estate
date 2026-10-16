@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<tree>
+    <field name="number"/>
+    <field name="name" expand="1"/>
+    <field name="property" expand="1"/>
+    <field name="variant"/>
+    <field name="planned_start"/>
+    <field name="announcement_date"/>
+    <field name="total_costs"/>
+    <field name="allocable_costs"/>
+    <field name="state"/>
+    <field name="currency" tree_invisible="1"/>
+</tree>

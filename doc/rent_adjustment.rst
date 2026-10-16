@@ -18,8 +18,12 @@ one procedure (``contract_type.ADJUSTMENT_PROCEDURES``):
 - `Comparative rent <rent_adjustment_comparative.rst>`__ (*Vergleichsmiete*, §§ 558-558b BGB): the
   adjustment run selects the terms, uses the accepted calculations of the
   rent survey, applies the cap and requests the consent of the tenant.
-- **Modernisation, operating cost billing/plan, free adjustment**: header
-  records so far.
+- `Modernisation <rent_adjustment_modernisation.rst>`__ (*Modernisierung*, §§ 555b-559e BGB):
+  the measure with costs, third-party funds and rental units, allocation
+  preview, announcement letter and deadlines (*Modernisations*); the
+  adjustment run computes the increase with cap and effective date,
+  creates the increase declaration and splits the rent term.
+- **Operating cost billing/plan, free adjustment**: header records so far.
 
 A procedure is possible only if the contract type, the term type and the
 use class of at least one rental unit of the term's contract item allow
@@ -37,13 +41,13 @@ Menus:
   work: *Agreements* (the rent adjustments of all procedures), *Index
   Rents - Follow-up*, *Adjustment Runs* (the central entry, see
   *Adjustment run*), *Adjustments* (the contract term adjustments),
-  *Comparative Rent Calculations* - all lists with the selection
+  *Comparative Rent Calculations*, *Modernisations* - all lists with the selection
   *Company* (required) and *Property* (optional) above the list; the
   adjustment runs show a run without properties (= all) for every
   property; columns *Property* (agreements, adjustments) and *Properties*
   (runs)
 - *Real Estate › Configuration*: *Price Indices*, *Import Index Values*,
-  *Index Rent Cap Rules*
+  *Index Rent Cap Rules*, *Modernisation Rules*
 
 On the contract: tab *Rent Adjustments*. Settings: ``receipt_days`` in the
 real estate accounting, scheduled task ``price_index_import``, GENESIS
@@ -66,9 +70,9 @@ Rent adjustment
    (§ 557a BGB), ``index_rent`` (§ 557b), ``comparative_rent`` (§§ 558 ff.),
    ``modernisation`` (§§ 559 ff.), ``operation_costs_billing`` /
    ``operation_costs_plan`` (§ 560), ``free_adjustment``. Graduated
-   rent, index rent and comparative rent have full processing (see
-   *Procedures*); modernisation, operating cost and free adjustment are header
-   records so far.
+   rent, index rent, comparative rent and modernisation have full
+   processing (see *Procedures*); operating cost and free adjustment are
+   header records so far.
 
    Header fields (all procedures): ``contract``, ``procedure``, ``term``
    (exactly one term - offered are terms of the contract whose contract
@@ -96,9 +100,12 @@ pages:
 - `Comparative Rent (Rent Survey) <rent_adjustment_comparative.rst>`__
   (*Vergleichsmiete*, §§ 558-558b BGB) - rent survey and calculation of
   the comparative rent, selection, cap, request for consent, consent
+- `Modernisation <rent_adjustment_modernisation.rst>`__ (*Modernisierung*,
+  §§ 555b-559e BGB) - measure, costs, allocation, announcement, increase
+  in the adjustment run
 
-Modernisation, operating cost billing/plan and free adjustment are header
-records so far.
+Operating cost billing/plan and free adjustment are header records so
+far.
 
 
 Adjustment run
@@ -116,8 +123,18 @@ Adjustment run
    the run), *Parameters*, *Adjustments* (editable list: approval reason,
    manual amount with reason), *Receipts / Consents* (editable list of
    the announced adjustments: receipt date, dispatch method, consent),
-   *Protocol* (dated block per step). *Print Letters* (announced/ready)
-   prints all letters still to send in one document; the archived
+   *Protocol* (dated block per step). *Execute* asks before starting
+   the background execution (reload the run and watch the protocol);
+   adjustments already waiting in the queue are not queued again
+   ("already running"), and the background job locks the adjustment, so
+   it is executed once. *Capture Receipts* (announced /
+   ready) sets the receipt date - and optionally the dispatch method -
+   of all announced adjustments without receipt at once (*Overwrite
+   Existing*: all), e.g. after the caretaker delivered the letters;
+   deviations are corrected per adjustment. *Sample Letter* (selected,
+   calculated, approved - before the announcement) shows the letter of
+   one adjustment marked *ENTWURF* without archiving it. *Print Letters*
+   (announced/ready) prints all letters still to send in one document; the archived
    originals hang on the adjustment and on the contract. *Add Terms*
    (wizard, selected or
    calculated run) adds single terms with the checks of the selection.
@@ -182,7 +199,7 @@ Term adjustments
    List *Contracts › Rent Adjustments › Adjustments*.
 
    Created by the adjustment run (see *Adjustment run*); so far for the
-   index rent and the comparative rent - the operating cost, free
-   adjustment and modernisation procedures will follow as procedures of
-   the run. States ``draft`` · ``approved`` · ``declared`` · ``done`` ·
+   index rent, the comparative rent and the modernisation - the operating
+   cost and free adjustment procedures will follow as procedures of the
+   run. States ``draft`` · ``approved`` · ``declared`` · ``done`` ·
    ``refused`` (comparative rent: consent refused) · ``cancelled``.

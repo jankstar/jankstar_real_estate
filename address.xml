@@ -4,7 +4,7 @@
 
       <menuitem
          parent="menu_real_estate_masta_data"
-         name="Adresses"
+         name="Addresses"
          sequence="100"
          id="menu_real_estate_adresses"/>
 

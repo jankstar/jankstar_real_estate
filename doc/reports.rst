@@ -77,11 +77,48 @@ via ``get_context()``.
    period for consideration (``consent_until``) and a consent form.
    *Announce* of the adjustment run archives the original.
 
+``real_estate.modernisation.announcement_letter``  (``modernisation.py``)
+   Announcement of a modernisation (§ 555c BGB) on
+   ``real_estate.modernisation.unit``. Template:
+   ``modernisation_announcement_de.odt`` - one letter per rental unit
+   (page break, page numbering per letter) to all main tenants with kind
+   and scope of the measure, energy saving, start and duration, expected
+   increase per month and per m², future operating costs, hardship
+   objection (§ 555d BGB) and special termination right (§ 555e BGB).
+   *Announce* on the measure archives the original at the unit and the
+   contract. Mark *ENTWURF* only for a print before the announcement.
+
+``real_estate.modernisation.increase_letter``  (``contract_modernisation.py``)
+   Declaration of a modernisation increase (§ 559b BGB) on
+   ``real_estate.contract.term.adjustment``. Template:
+   ``modernisation_increase_de.odt`` - one letter per adjustment to all
+   main tenants (as the index declaration, same marks) with the
+   reference to the announcement, the measure, costs per trade on the
+   basis of the unit with maintenance share, third-party funds,
+   allocation key, calculation, cap, rent before/increase/new rent,
+   effective date and the special termination right (§ 561 BGB).
+   *Announce* of the adjustment run archives the original.
+
 ``real_estate.contract.term.adjustment.run.letters``  (``contract_report.py``)
    *Letters to Send* on the adjustment run (button *Print Letters*,
    state announced/ready): all announced adjustments without captured
    receipt in one document, rendered by the letter report of the
    procedure without mark; error if none is left.
+
+``real_estate.contract.term.adjustment.run.sample_letter``  (``contract_report.py``)
+   *Sample Letter* on the adjustment run (button *Sample Letter*, state
+   selected/calculated/approved - before the announcement): the letter of
+   the first adjustment without error (else the first one not cancelled)
+   of the run, rendered by the letter report of the procedure with the
+   mark *ENTWURF*; nothing is archived. Error if the run has no
+   adjustment with a letter.
+
+``real_estate.modernisation.sample_letter``  (``modernisation.py``)
+   *Sample Announcement* on the modernisation (button *Sample Letter*,
+   state planning/draft, not for a vacancy or trivial measure): the
+   announcement of the first rental unit with a contract and an increase
+   with the mark *ENTWURF*; nothing is archived. Error if no such unit
+   exists (determine the rental units first).
 
 ``real_estate.contract.handover.report``  (``contract_report.py``)
    Handover report on ``real_estate.contract.handover``, template

@@ -218,29 +218,41 @@ class BillingUnitWizard(Wizard):
             bu_id_filter = self._get_billing_unit_ids()
             prop_ids, count = self._resolve_property_ids(bu_id_filter)
 
+            skipped = 0
             if prop_ids:
-                BaseObject.call_billing(
+                skipped = BaseObject.call_billing(
                     prop_ids,
                     list(bu_id_filter) if bu_id_filter is not None else None,
                     self.start.execute_in_queue,
                     self.start.invoice_state or 'draft',
                     self.start.invoice_date,
-                    self.start.payment_term.id if self.start.payment_term else None)
+                    self.start.payment_term.id if self.start.payment_term else None) or 0
 
             self.result.billing_units_count = count
+            date = (self.start.date.strftime('%d.%m.%Y')
+                if self.start.date else '-')
             if count == 0:
-                self.result.mode = 'No matching billing units found'
-                self.result.message = (
-                    'No billing units in state "Ready for Billing" matched '
-                    f'the selected filters (up to {self.start.date}).')
+                self.result.mode = gettext('real_estate.msg_queue_mode_none')
+                self.result.message = gettext(
+                    'real_estate.msg_billing_run_none', date=date)
             elif self.start.execute_in_queue:
-                self.result.mode = 'Queued'
-                self.result.message = (
-                    f'{count} billing unit(s) queued for background processing.')
+                self.result.mode = gettext('real_estate.msg_queue_mode_queued')
+                lines = []
+                if len(prop_ids) - skipped:
+                    lines.append(gettext(
+                            'real_estate.msg_billing_run_queued', count=count,
+                            properties=len(prop_ids) - skipped))
+                if skipped:
+                    lines.append(gettext(
+                            'real_estate.msg_billing_run_skipped',
+                            count=skipped))
+                lines.append(gettext('real_estate.msg_billing_run_hint'))
+                self.result.message = '\n'.join(lines)
             else:
-                self.result.mode = 'Completed'
-                self.result.message = (
-                    f'{count} billing unit(s) processed.')
+                self.result.mode = gettext(
+                    'real_estate.msg_queue_mode_completed')
+                self.result.message = gettext(
+                    'real_estate.msg_billing_run_done', count=count)
         return 'result'
 
     def default_result(self, fields):

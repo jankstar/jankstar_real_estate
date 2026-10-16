@@ -63,6 +63,7 @@
             <field name="name">execute</field>
             <field name="string">Execute</field>
             <field name="help">Execute the adjustments whose receipt is captured (split of the terms).</field>
+            <field name="confirm">The adjustments are executed in the background. Afterwards reload the run and watch the tab 'Protocol' (results and errors) - do not press the button again. Continue?</field>
         </record>
         <record model="ir.model.button" id="adjustment_run_reset_button">
             <field name="model">real_estate.contract.term.adjustment.run</field>
@@ -92,6 +93,18 @@
             <field name="name">print_letters</field>
             <field name="string">Print Letters</field>
             <field name="help">All letters of the run still to send (receipt not captured) in one document.</field>
+        </record>
+        <record model="ir.model.button" id="adjustment_run_sample_letter_button">
+            <field name="model">real_estate.contract.term.adjustment.run</field>
+            <field name="name">sample_letter</field>
+            <field name="string">Sample Letter</field>
+            <field name="help">Letter of one adjustment of the run as a draft before the announcement - nothing is archived.</field>
+        </record>
+        <record model="ir.action.report" id="report_adjustment_run_sample_letter">
+            <field name="name">Sample Letter</field>
+            <field name="report_name">real_estate.contract.term.adjustment.run.sample_letter</field>
+            <field name="model">real_estate.contract.term.adjustment.run</field>
+            <field name="template_extension">odt</field>
         </record>
         <!-- All letters of a run to send in one document -->
         <record model="ir.action.report" id="report_adjustment_run_letters">
@@ -127,6 +140,24 @@
             <field name="name">check_new_letting</field>
             <field name="string">Check Comparative Rent (New Letting)</field>
             <field name="help">Compare the rent of the draft contract with the comparative rent of the rent survey (+10 % in a tight housing market, else +20 %) and set the terms to the limit if wanted.</field>
+        </record>
+
+        <!-- Receipt date of all announced adjustments at once -->
+        <record model="ir.ui.view" id="adjustment_run_receipt_start_view_form">
+            <field name="model">real_estate.contract.term.adjustment.run.receipt.start</field>
+            <field name="type">form</field>
+            <field name="name">adjustment_run_receipt_start_form</field>
+        </record>
+        <record model="ir.action.wizard" id="wizard_adjustment_run_receipt">
+            <field name="name">Capture Receipts</field>
+            <field name="wiz_name">real_estate.contract.term.adjustment.run.receipt</field>
+            <field name="model">real_estate.contract.term.adjustment.run</field>
+        </record>
+        <record model="ir.model.button" id="adjustment_run_set_receipts_button">
+            <field name="model">real_estate.contract.term.adjustment.run</field>
+            <field name="name">set_receipts</field>
+            <field name="string">Capture Receipts</field>
+            <field name="help">Capture the receipt date (and dispatch method) of all announced adjustments at once.</field>
         </record>
 
         <!-- Add terms to a run (spec 4.3) -->

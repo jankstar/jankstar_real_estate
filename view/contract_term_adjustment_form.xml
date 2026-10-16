@@ -60,6 +60,20 @@
             <separator name="calculation_text" colspan="4"/>
             <field name="calculation_text" colspan="4" height="100"/>
         </page>
+        <page string="Modernisation" id="page_modernisation" col="4">
+            <label name="modernisation"/><field name="modernisation" colspan="3"/>
+            <label name="modernisation_unit"/><field name="modernisation_unit" colspan="3"/>
+            <label name="modernisation_costs"/><field name="modernisation_costs"/>
+            <label name="modernisation_allocable"/><field name="modernisation_allocable"/>
+            <label name="modernisation_annual"/><field name="modernisation_annual"/>
+            <label name="modernisation_monthly"/><field name="modernisation_monthly"/>
+            <label name="modernisation_area"/><field name="modernisation_area"/>
+            <label name="modernisation_previous"/><field name="modernisation_previous"/>
+            <label name="modernisation_cap"/><field name="modernisation_cap"/>
+            <label name="modernisation_extension"/><field name="modernisation_extension"/>
+            <separator name="modernisation_text" colspan="4"/>
+            <field name="modernisation_text" colspan="4" height="120"/>
+        </page>
         <page string="Amount" id="page_amount" col="4">
             <label name="direction"/><field name="direction"/>
             <newline/>
@@ -83,12 +97,14 @@
             <label name="consented_amount"/><field name="consented_amount"/>
             <label name="consent_deadline"/><field name="consent_deadline"/>
             <label name="lawsuit_deadline"/><field name="lawsuit_deadline"/>
+            <label name="termination_deadline"/><field name="termination_deadline"/>
+            <label name="terminated_561"/><field name="terminated_561"/>
             <newline/>
             <label name="letter"/><field name="letter" colspan="3"/>
             <label name="executed_by"/><field name="executed_by"/>
             <label name="executed_date"/><field name="executed_date"/>
             <label id="receipt_hint" colspan="4"
-                string="The receipt of the declaration must be proven - a registered letter (Einwurf-Einschreiben) or a messenger is recommended. Index rent: the new rent applies from the start of the month after next following the receipt. Comparative rent: the tenant decides until the end of the second month after the receipt, the new rent applies from the start of the third month."/>
+                string="The receipt of the declaration must be proven - a registered letter (Einwurf-Einschreiben) or a messenger is recommended. Index rent: the new rent applies from the start of the month after next following the receipt. Comparative rent: the tenant decides until the end of the second month after the receipt, the new rent applies from the start of the third month. Modernisation: the new rent applies from the start of the third month after the receipt (6 months later if the announcement was missing or defective or the increase exceeds the announced one by more than 10 %); special termination until the end of the second month after the receipt (§ 561 BGB)."/>
         </page>
         <page string="Check" id="page_check" col="4">
             <label name="check_state"/><field name="check_state"/>

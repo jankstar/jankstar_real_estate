@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<tree>
+    <field name="record_link" expand="1"/>
+    <field name="property" expand="1"/>
+    <field name="variant"/>
+    <field name="actual_end"/>
+    <field name="state"/>
+</tree>

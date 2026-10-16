@@ -2686,6 +2686,349 @@ class RealEstateTestCase(ModuleTestCase):
             Decimal(15))
 
     @with_transaction()
+    def _modernisation_rule(self):
+        return {
+            'rate_standard': Decimal('8'), 'rate_heating': Decimal('10'),
+            'simplified_limit': Decimal('10000'),
+            'simplified_maintenance_percent': Decimal('30'),
+            'heating_maintenance_percent': Decimal('15'),
+            'cap_years': 6, 'cap_high': Decimal('3.00'),
+            'cap_low': Decimal('2.00'), 'cap_threshold': Decimal('7.00'),
+            'cap_heating': Decimal('0.50'),
+            }
+
+    def _modernisation_units(self, rent_per_sqm=Decimal('8.82')):
+        "Six apartments, 420 m², apartment 1 with 64.20 m²"
+        areas = [Decimal('64.20'), Decimal('71.80'), Decimal('64.20'),
+            Decimal('71.80'), Decimal('74.00'), Decimal('74.00')]
+        return [{'key': i + 1, 'area': a, 'in_allocation': True,
+                'quantity': a, 'vat_deductible': False,
+                'rent': a * rent_per_sqm, 'previous': 0,
+                'previous_heating': 0} for i, a in enumerate(areas)]
+
+    def test_modernisation_examples(self):
+        "Calculation examples A-D of the modernisation (spec 6.7)"
+        from trytond.modules.real_estate.modernisation import (
+            compute_allocation)
+        rule = self._modernisation_rule()
+        units = self._modernisation_units()
+        # A - standard: 180,000 €, maintenance 25 %, grant 15,000 €
+        result = compute_allocation(
+            [{'net': Decimal('180000'), 'tax': 0,
+                    'maintenance_mode': 'percent',
+                    'maintenance_value': Decimal('25'), 'unit': None}],
+            [{'kind': 'grant', 'amount': Decimal('15000'), 'unit': None}],
+            units, 'standard_559', 'measurement', rule)
+        self.assertEqual(result[1]['allocable'], Decimal('18342.86'))
+        self.assertEqual(result[1]['annual'], Decimal('1467.43'))
+        self.assertEqual(result[1]['increase'], Decimal('122.29'))
+        self.assertFalse(result[1]['limited'])
+        # rounded per unit - the total differs by at most a few cents
+        self.assertLessEqual(abs(sum(r['allocable']
+                    for r in result.values()) - Decimal('120000')),
+            Decimal('0.05'))
+        # B - simplified: 9,000 € per apartment, flat rate 30 %
+        single = [dict(units[0], key='b')]
+        result = compute_allocation(
+            [{'net': Decimal('9000'), 'tax': 0, 'unit': None}], [],
+            single, 'simplified_559c', 'measurement', rule)
+        self.assertEqual(result['b']['increase'], Decimal('42.00'))
+        # C - heating: 60,000 €, flat rate 15 %, grant 18,000 €
+        result = compute_allocation(
+            [{'net': Decimal('60000'), 'tax': 0, 'unit': None}],
+            [{'kind': 'grant', 'amount': Decimal('18000'), 'unit': None}],
+            units, 'heating_559e', 'measurement', rule)
+        self.assertEqual(result[1]['monthly'], Decimal('42.04'))
+        self.assertEqual(result[1]['increase'], Decimal('32.10'))
+        self.assertTrue(result[1]['limited'])
+        # D - cap 2 €/m²: 6.50 €/m², 50 m², 130.00 € computed, 20.00 €
+        # previous increase
+        unit = {'key': 'd', 'area': Decimal('50'), 'quantity': Decimal('50'),
+            'in_allocation': True,
+            'vat_deductible': False, 'rent': Decimal('325.00'),
+            'previous': Decimal('20.00')}
+        result = compute_allocation(
+            [{'net': Decimal('19500'), 'tax': 0,
+                    'maintenance_mode': 'none', 'unit': None}], [],
+            [unit], 'standard_559', 'measurement', rule)
+        self.assertEqual(result['d']['monthly'], Decimal('130.00'))
+        self.assertEqual(result['d']['cap'], Decimal('80.00'))
+        self.assertEqual(result['d']['increase'], Decimal('80.00'))
+        # without an area of the cap measurement: no cap
+        result = compute_allocation(
+            [{'net': Decimal('19500'), 'tax': 0,
+                    'maintenance_mode': 'none', 'unit': None}], [],
+            [dict(unit, area=None)], 'standard_559', 'measurement', rule)
+        self.assertIsNone(result['d']['cap'])
+        self.assertEqual(result['d']['increase'], Decimal('130.00'))
+        self.assertFalse(result['d']['limited'])
+
+    def test_modernisation_allocation(self):
+        "Single assignment, exclusion and net/gross basis (X13, X24, X25)"
+        from trytond.modules.real_estate.modernisation import (
+            allocation_shares, compute_allocation)
+        rule = self._modernisation_rule()
+        units = self._modernisation_units()
+        # X13: balcony only for apartment 3, the rest by the key
+        result = compute_allocation([
+                {'net': Decimal('42000'), 'tax': 0,
+                    'maintenance_mode': 'none', 'unit': None},
+                {'net': Decimal('8000'), 'tax': 0,
+                    'maintenance_mode': 'none', 'unit': 3},
+                ], [], units, 'standard_559', 'measurement', rule)
+        self.assertEqual(result[3]['costs'], Decimal('14420.00'))
+        self.assertEqual(result[1]['costs'], Decimal('6420.00'))
+        # X24: unit 6 excluded - the others bear its share
+        units[5]['in_allocation'] = False
+        shares = allocation_shares(units, 'measurement')
+        self.assertEqual(shares[6], 0)
+        self.assertAlmostEqual(sum(shares.values()), Decimal(1))
+        self.assertEqual(shares[1], Decimal('64.20') / Decimal('346.00'))
+        units[5]['in_allocation'] = True
+        # X25: apartments gross, commercial unit with option net
+        units[5]['vat_deductible'] = True
+        result = compute_allocation(
+            [{'net': Decimal('100000'), 'tax': Decimal('19000'),
+                    'maintenance_mode': 'amount',
+                    'maintenance_value': Decimal('10000'), 'unit': None}],
+            [], units, 'standard_559', 'measurement', rule)
+        self.assertEqual(result[1]['costs'], Decimal('18190.00'))
+        self.assertEqual(result[1]['maintenance'], Decimal('1819.00'))
+        self.assertEqual(result[6]['costs'], Decimal('17619.05'))
+        self.assertEqual(result[6]['maintenance'], Decimal('1761.90'))
+        # equal key
+        self.assertEqual(allocation_shares(units, 'equal')[2],
+            Decimal(1) / 6)
+        # measurement / manual: windows 4, 5, 4, 5, 6, 6 = 30
+        for unit, windows in zip(units, [4, 5, 4, 5, 6, 6]):
+            unit['quantity'] = Decimal(windows)
+        for key in ['measurement', 'manual']:
+            shares = allocation_shares(units, key)
+            self.assertEqual(shares[1], Decimal(4) / 30)
+            self.assertEqual(shares[5], Decimal(6) / 30)
+        result = compute_allocation(
+            [{'net': Decimal('30000'), 'tax': 0,
+                    'maintenance_mode': 'none', 'unit': None}],
+            [], [dict(u, vat_deductible=False) for u in units],
+            'standard_559', 'manual', rule)
+        self.assertEqual(result[1]['costs'], Decimal('4000.00'))
+        self.assertEqual(result[5]['costs'], Decimal('6000.00'))
+        # excluded unit: the others share its quantity
+        units[5]['in_allocation'] = False
+        self.assertEqual(allocation_shares(units, 'manual')[5],
+            Decimal(6) / 24)
+
+    def test_modernisation_deadlines(self):
+        "Hardship objection / special termination: end of next month"
+        from trytond.modules.real_estate.modernisation import (
+            _end_of_next_month)
+        self.assertEqual(_end_of_next_month(datetime.date(2026, 10, 15)),
+            datetime.date(2026, 11, 30))
+        self.assertEqual(_end_of_next_month(datetime.date(2026, 12, 31)),
+            datetime.date(2027, 1, 31))
+        self.assertEqual(_end_of_next_month(datetime.date(2027, 1, 1)),
+            datetime.date(2027, 2, 28))
+        self.assertIsNone(_end_of_next_month(None))
+
+    def test_modernisation_letter_template(self):
+        "Announcement renders the mandatory contents (§ 555c BGB)"
+        import io
+        import os
+        import re
+        import zipfile
+
+        from relatorio.templates.opendocument import Template
+
+        address = _StubRecord(street_single_line='Musterstraße 1',
+            postal_code='14163', city='Berlin')
+        company = _StubRecord(party=_StubRecord(name='Immo GmbH',
+                addresses=[address]))
+        measure = _StubRecord(company=company,
+            property=_StubRecord(address=address),
+            rec_name='MOD-2026-0001 Fassade',
+            announcement_date=datetime.date(2026, 10, 30),
+            description='Wärmedämmung der Fassade',
+            energy_saving_note='Pauschalwerte U-Wert',
+            planned_start=datetime.date(2027, 3, 1),
+            planned_duration='3 Monate',
+            expected_operating_costs='keine Änderung')
+        records = [_StubRecord(id=i, modernisation=measure,
+                contract=_StubRecord(contract_number='1-20-191'),
+                object=_StubRecord(name='Wohnung 01', address=address),
+                announced_increase=Decimal('122.29'),
+                expected_increase=None,
+                hardship_deadline=datetime.date(2026, 11, 30),
+                special_termination_deadline=datetime.date(2026, 11, 30))
+            for i in (1, 2)]
+        tenant = _StubRecord(full_name='Rudi Völler', name='Rudi Völler')
+        path = os.path.join(os.path.dirname(__file__), '..', 'report',
+            'modernisation_announcement_de.odt')
+        data = Template(source=None, filepath=path).generate(
+            records=records, datetime=datetime, format_value=str,
+            marks={1: '', 2: ''},
+            tenants={1: [(tenant, address)], 2: [(tenant, address)]},
+            measure_labels={1: ['Nr. 1'], 2: ['Nr. 1']},
+            areas={1: Decimal('64.20'), 2: None},
+            ).render().getvalue()
+        with zipfile.ZipFile(io.BytesIO(data)) as odt:
+            content = odt.read('content.xml').decode()
+        self.assertIn('text:style-name="PBreak"', content)
+        text = re.sub(r'\s+', ' ', re.sub(r'<[^>]+>', ' ', content))
+        for expected in ['Rudi Völler', 'Ankündigung einer Modernisierung',
+                'Wärmedämmung der Fassade', '2027-03-01', '3 Monate',
+                '122.29', '1.90', '64.20', 'keine Änderung', '2026-11-30', '§ 555e',
+                'Pauschalwerte']:
+            self.assertIn(expected, text)
+
+    def test_modernisation_effective_date(self):
+        "Effective date, extension and deadlines of the increase (6.5, 6.6)"
+        from trytond.modules.real_estate.contract_modernisation import (
+            extension_reason, modernisation_valid_from, previous_increases,
+            termination_deadline)
+        # receipt 15.03. -> start of the third month 01.06.
+        self.assertEqual(modernisation_valid_from(
+                datetime.date(2027, 3, 15)), datetime.date(2027, 6, 1))
+        self.assertEqual(modernisation_valid_from(
+                datetime.date(2027, 3, 15), True),
+            datetime.date(2027, 12, 1))
+        self.assertIsNone(modernisation_valid_from(None))
+        receipt = datetime.date(2026, 11, 2)
+        ten = Decimal(10)
+        # announced correctly, increase within 110 %
+        self.assertIsNone(extension_reason(False, True, receipt, False,
+                Decimal('130.00'), Decimal('122.29'), ten))
+        self.assertEqual(extension_reason(False, True, receipt, False,
+                Decimal('140.00'), Decimal('122.29'), ten), 'exceeded')
+        self.assertEqual(extension_reason(False, False, None, False,
+                Decimal('10'), None, ten), 'missing')
+        self.assertEqual(extension_reason(False, True, None, False,
+                Decimal('10'), Decimal('10'), ten), 'missing')
+        self.assertEqual(extension_reason(False, True, receipt, True,
+                Decimal('10'), Decimal('10'), ten), 'defective')
+        # trivial measure without announcement is in order
+        self.assertIsNone(extension_reason(True, False, None, False,
+                Decimal('10'), None, ten))
+        # previous increases within 6 years before the effective date
+        history = [
+            (datetime.date(2020, 1, 1), Decimal('30'), False),
+            (datetime.date(2022, 6, 1), Decimal('20'), False),
+            (datetime.date(2024, 1, 1), Decimal('15'), True),
+            ]
+        self.assertEqual(previous_increases(history,
+                datetime.date(2027, 1, 1), 6),
+            (Decimal('35'), Decimal('15')))
+        # special termination § 561: end of the second month after receipt
+        self.assertEqual(termination_deadline(datetime.date(2027, 3, 15)),
+            datetime.date(2027, 5, 31))
+
+    def test_modernisation_increase_letter_template(self):
+        "Increase declaration renders the mandatory contents (spec 8.2)"
+        import io
+        import os
+        import re
+        import zipfile
+
+        from relatorio.templates.opendocument import Template
+
+        address = _StubRecord(street_single_line='Musterstraße 1',
+            postal_code='14163', city='Berlin')
+        contract = _StubRecord(contract_number='1-20-191',
+            company=_StubRecord(party=_StubRecord(name='Immo GmbH',
+                    addresses=[address])),
+            property=_StubRecord(address=address))
+        measure = _StubRecord(rec_name='MOD-2026-0001 Fassade',
+            announcement_date=datetime.date(2026, 10, 30),
+            actual_end=datetime.date(2027, 5, 31),
+            description='Wärmedämmung der Fassade',
+            energy_saving_note=None, variant='standard_559',
+            allocation_key='measurement', allocation_note='nach Wohnfläche',
+            allocation_m_type=_StubRecord(rec_name='Wohnfläche'),
+            funds=[_StubRecord(kind='grant', source='BEG EM',
+                    amount=Decimal('15000'))])
+        cost = _StubRecord(description='Fassade', amount=Decimal('180000'),
+            tax_amount=Decimal('0'), maintenance_mode='percent',
+            maintenance_value=Decimal('25'))
+        unit = _StubRecord(object=_StubRecord(name='Wohnung 01',
+                address=address))
+        records = [_StubRecord(id=i, contract=contract,
+                declaration_date=datetime.date(2027, 6, 15),
+                amount_old=Decimal('566.24'),
+                planned_amount=Decimal('688.53'),
+                planned_valid_from=datetime.date(2027, 9, 1),
+                modernisation_costs=Decimal('27514.29'),
+                modernisation_allocable=Decimal('18342.86'),
+                modernisation_annual=Decimal('1467.43'),
+                modernisation_monthly=Decimal('122.29'),
+                modernisation_cap=Decimal('192.60'),
+                modernisation_area=Decimal('64.20'),
+                modernisation_previous=Decimal('0'),
+                modernisation_extension=None)
+            for i in (1, 2)]
+        info = {'measure': measure, 'unit': unit, 'types': ['Nr. 1'],
+            'key': 'Bemessung', 'variant': 'Standard (§ 559, 8 %)',
+            'costs': [cost], 'gross': True, 'rate': Decimal('8'),
+            'cap_rate': Decimal('3.00')}
+        tenant = _StubRecord(full_name='Rudi Völler', name='Rudi Völler')
+        path = os.path.join(os.path.dirname(__file__), '..', 'report',
+            'modernisation_increase_de.odt')
+        data = Template(source=None, filepath=path).generate(
+            records=records, datetime=datetime, format_value=str,
+            format_percent=str, marks={1: '', 2: ''},
+            tenants={1: [(tenant, address)], 2: [(tenant, address)]},
+            measures={1: info, 2: info},
+            termination_until={1: datetime.date(2027, 8, 31), 2: None},
+            ).render().getvalue()
+        with zipfile.ZipFile(io.BytesIO(data)) as odt:
+            content = odt.read('content.xml').decode()
+        self.assertIn('text:style-name="PBreak"', content)
+        text = re.sub(r'\s+', ' ', re.sub(r'<[^>]+>', ' ', content))
+        for expected in ['Rudi Völler', 'Mieterhöhung nach Modernisierung',
+                '2026-10-30', 'Wärmedämmung der Fassade', 'Fassade',
+                '180000', '25 %', 'BEG EM', 'nach Wohnfläche',
+                '18342.86', '1467.43', '122.29', '566.24', '688.53',
+                '2027-09-01', '§ 561', '2027-08-31', 'brutto']:
+            self.assertIn(expected, text)
+
+    def test_modernisation_planned_values(self):
+        "What-if: planned classes and features replace the assignments"
+        from types import SimpleNamespace
+
+        from trytond.modules.real_estate.rent_survey import apply_planned
+
+        def value(kind, dimension=None, class_=None, feature=None):
+            return SimpleNamespace(kind=kind, dimension_code=dimension,
+                class_code=class_, feature_code=feature, evidence=None)
+        values = [
+            value('class', 'energy', 'high'),
+            value('class', 'location', 'medium'),
+            value('feature', feature='bath_old'),
+            value('feature', feature='balcony'),
+            ]
+        planned = [
+            {'kind': 'class', 'action': 'add', 'dimension_code': 'energy',
+                'class_code': 'low', 'feature_code': None},
+            {'kind': 'feature', 'action': 'remove', 'dimension_code': None,
+                'class_code': None, 'feature_code': 'bath_old'},
+            {'kind': 'feature', 'action': 'add', 'dimension_code': None,
+                'class_code': None, 'feature_code': 'heating_modern'},
+            {'kind': 'feature', 'action': 'add', 'dimension_code': None,
+                'class_code': None, 'feature_code': 'balcony'},
+            ]
+        result = apply_planned(values, planned)
+        classes = [(v.dimension_code, v.class_code) for v in result
+            if v.kind == 'class']
+        features = [v.feature_code for v in result if v.kind == 'feature']
+        # the planned class replaces the class of its dimension and comes
+        # first; other dimensions stay
+        self.assertEqual(classes, [('energy', 'low'),
+                ('location', 'medium')])
+        self.assertNotIn('bath_old', features)
+        self.assertIn('heating_modern', features)
+        # an existing feature planned again is kept once
+        self.assertEqual(features.count('balcony'), 1)
+        # without planned values nothing changes
+        self.assertEqual(apply_planned(values, []), values)
+
     def test_comparative_rent_letter_template(self):
         "Request for consent renders the mandatory contents (spec 10.5)"
         import io

@@ -315,11 +315,12 @@ class CreateContractMovesWizard(Wizard):
             contract_ids = Contract.search(search_domain)
             count = len(contract_ids)
 
+            skipped = 0
             if contract_ids:
-                Contract.call_create_moves(
+                skipped = Contract.call_create_moves(
                     contract_ids, self.start.date, self.start.action,
                     self.start.execute_in_queue, self.start.invoice_state or 'draft',
-                    self.start.invoice_date)
+                    self.start.invoice_date) or 0
 
             action_labels = {
                 'create': 'Create moves',
@@ -328,21 +329,30 @@ class CreateContractMovesWizard(Wizard):
             }
             self.result.contracts_count = count
             self.result.action = action_labels.get(self.start.action, self.start.action)
+            date = self.start.date.strftime('%d.%m.%Y')
             if count == 0:
-                self.result.mode = 'No matching contracts found'
-                self.result.message = (
-                    'No contracts matched the selected filters '
-                    f'(up to {self.start.date}).')
+                self.result.mode = gettext('real_estate.msg_queue_mode_none')
+                self.result.message = gettext(
+                    'real_estate.msg_create_moves_none', date=date)
             elif self.start.execute_in_queue:
-                self.result.mode = 'Queued'
-                self.result.message = (
-                    f'{count} contract(s) queued for background processing '
-                    f'up to {self.start.date}.')
+                self.result.mode = gettext('real_estate.msg_queue_mode_queued')
+                lines = []
+                if count - skipped:
+                    lines.append(gettext(
+                            'real_estate.msg_create_moves_queued',
+                            count=count - skipped, date=date))
+                if skipped:
+                    lines.append(gettext(
+                            'real_estate.msg_create_moves_skipped',
+                            count=skipped))
+                lines.append(gettext('real_estate.msg_create_moves_hint'))
+                self.result.message = '\n'.join(lines)
             else:
-                self.result.mode = 'Completed'
-                self.result.message = (
-                    f'{count} contract(s) processed '
-                    f'up to {self.start.date}.')
+                self.result.mode = gettext(
+                    'real_estate.msg_queue_mode_completed')
+                self.result.message = gettext(
+                    'real_estate.msg_create_moves_done', count=count,
+                    date=date)
         return 'result'
 
     def default_result(self, fields):

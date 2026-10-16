@@ -110,6 +110,26 @@ builds on the previous one's data):
 
       python tests/test_rent_survey.py --database <db> [--config trytond.conf] [--only-survey] [--company <name>]
 
+``tests/test_modernisation.py``
+   Requires ``test_immo.py`` and ``test_contracts.py``. Allows the
+   procedure *Modernisation* for the term type 1000 and the contract types
+   of the selected tenancies and sets the cap measurement of the
+   modernisation rule to *Wohnfläche* if empty. On *Musterstraße 1-4* it
+   creates the measure *Fassadendämmung Haus 2* (second building,
+   standard § 559, allocation by living space, cost lines facade / windows
+   / scaffolding with maintenance shares and 19 % input tax, grant
+   10,000 EUR), announces it today, captures the receipts, starts the work
+   after the announcement period and completes it two months later (the
+   costs become actual costs); then an adjustment run *Modernisation*
+   selected and calculated (``--execute``: also approved and announced -
+   receipts and execution stay manual). If an apartment of the property is
+   vacant, a comprehensive vacancy measure *Bad und Küche <unit>* is
+   created and completed (basis of §§ 556e para. 2, 556f BGB in the new
+   letting check). Dates relative to today, warnings confirmed
+   automatically. Aborts if the measure exists::
+
+      python tests/test_modernisation.py --database <db> [--config trytond.conf] [--execute]
+
 ``tests/test_payment.py``
    Requires ``test_contracts.py`` and at least one run of the
    ``CreateContractMoves`` wizard so posted tenant invoices exist. Books one

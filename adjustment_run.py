@@ -14,8 +14,10 @@ from trytond.modules.product import price_digits
 from trytond.pool import Pool, PoolMeta
 from trytond.pyson import Bool, Eval, PYSONEncoder
 from trytond.transaction import Transaction, without_check_access
+from trytond.wizard import Button, StateTransition, StateView, Wizard
 
 from .contract_type import RUN_AGREEMENT_PROCEDURES
+from .queue_tools import queued_ids
 
 STATES = [
     ('draft', "Draft"),
@@ -274,8 +276,17 @@ class ContractTermAdjustmentRun(Workflow, ModelSQL, ModelView):
                 'invisible': ~Eval('state').in_(['selected', 'calculated']),
                 'depends': ['state'],
                 },
+            'set_receipts': {
+                'invisible': ~Eval('state').in_(['declared', 'ready']),
+                'depends': ['state'],
+                },
             'print_letters': {
                 'invisible': ~Eval('state').in_(['declared', 'ready']),
+                'depends': ['state'],
+                },
+            'sample_letter': {
+                'invisible': ~Eval('state').in_(
+                    ['selected', 'calculated', 'approved']),
                 'depends': ['state'],
                 },
             'open_calculations': {
@@ -568,6 +579,14 @@ class ContractTermAdjustmentRun(Workflow, ModelSQL, ModelView):
             if refused:
                 Adjustment.refuse(refused)
             todo = [a for a in todo if a not in refused]
+            # adjustments already waiting in the queue are not queued again
+            # (the button pressed again before the background job ended)
+            queued = cls._queued_adjustments()
+            if todo and all(a.id in queued for a in todo):
+                raise ValidationError(gettext(
+                        'real_estate.msg_adjustment_run_execute_running',
+                        run=run.rec_name))
+            todo = [a for a in todo if a.id not in queued]
             cls.write([run], {'protocol': run._log(
                         'msg_adjustment_run_execute_queued',
                         count=len(todo), refused=len(refused))})
@@ -578,6 +597,12 @@ class ContractTermAdjustmentRun(Workflow, ModelSQL, ModelView):
                     Adjustment.__queue__.execute_in_run(todo)
         cls.update_state(cls.browse([r.id for r in runs]))
         cls._check_processes(cls.browse([r.id for r in runs]))
+
+    @staticmethod
+    def _queued_adjustments():
+        "Ids of adjustments waiting in the queue for their execution"
+        return queued_ids('real_estate.contract.term.adjustment',
+            'execute_in_run')
 
     @classmethod
     @ModelView.button
@@ -617,9 +642,21 @@ class ContractTermAdjustmentRun(Workflow, ModelSQL, ModelView):
         pass
 
     @classmethod
+    @ModelView.button_action('real_estate.wizard_adjustment_run_receipt')
+    def set_receipts(cls, runs):
+        "Receipt date for all announced adjustments at once"
+        pass
+
+    @classmethod
     @ModelView.button_action('real_estate.report_adjustment_run_letters')
     def print_letters(cls, runs):
         "All letters still to send in one document"
+        pass
+
+    @classmethod
+    @ModelView.button_action('real_estate.report_adjustment_run_sample_letter')
+    def sample_letter(cls, runs):
+        "Sample letter before the announcement (marked as draft)"
         pass
 
     @classmethod
@@ -874,6 +911,9 @@ class ContractTermAdjustment(metaclass=PoolMeta):
         language = user.language.code if user.language else None
         with transaction.set_context(language=language):
             for adjustment_id in [a.id for a in adjustments]:
+                # locked and read again: executed once even with several
+                # workers or a job queued twice
+                cls.lock([cls(adjustment_id)])
                 adjustment = cls(adjustment_id)
                 if adjustment.state != 'declared' or not adjustment.run:
                     continue
@@ -991,6 +1031,72 @@ class ContractTermAdjustment(metaclass=PoolMeta):
                         'real_estate.msg_comparative_log_refused',
                         adjustment=record.rec_name,
                         amount=record.planned_amount))
+
+
+#**********************************************************************
+class AdjustmentRunReceiptStart(ModelView):
+    "Adjustment Run - Capture Receipts"
+    __name__ = 'real_estate.contract.term.adjustment.run.receipt.start'
+
+    receipt_date = fields.Date("Receipt Date", required=True,
+        help="Receipt of the declarations by the tenants (e.g. the day the "
+             "caretaker put them into the letter boxes).")
+    dispatch_method = fields.Selection('get_dispatch_methods',
+        "Dispatch Method", sort=False,
+        help="Empty = the dispatch method of the adjustments is kept.")
+    overwrite = fields.Boolean("Overwrite Existing",
+        help="Also adjustments with a receipt date already captured - else "
+             "only those without.")
+    count = fields.Integer("Adjustments", readonly=True)
+
+    @classmethod
+    def get_dispatch_methods(cls):
+        Adjustment = Pool().get('real_estate.contract.term.adjustment')
+        return Adjustment.fields_get(['dispatch_method'])[
+            'dispatch_method']['selection']
+
+
+class AdjustmentRunReceipt(Wizard):
+    """Capture the receipt date of all announced adjustments of the run at
+    once - deviations are corrected afterwards per adjustment"""
+    __name__ = 'real_estate.contract.term.adjustment.run.receipt'
+
+    start = StateView('real_estate.contract.term.adjustment.run.receipt.start',
+        'real_estate.adjustment_run_receipt_start_view_form', [
+            Button("Cancel", 'end', 'tryton-cancel'),
+            Button("Capture", 'capture', 'tryton-ok', default=True),
+            ])
+    capture = StateTransition()
+
+    def _adjustments(self, overwrite):
+        return [a for a in self.record.adjustments if a.state == 'declared'
+            and (overwrite or not a.receipt_date)]
+
+    def default_start(self, fields):
+        return {
+            'receipt_date': Pool().get('ir.date').today(),
+            'overwrite': False,
+            'count': len(self._adjustments(False)),
+            }
+
+    def transition_capture(self):
+        Adjustment = Pool().get('real_estate.contract.term.adjustment')
+        adjustments = self._adjustments(self.start.overwrite)
+        if not adjustments:
+            raise ValidationError(gettext(
+                    'real_estate.msg_adjustment_run_no_receipts',
+                    run=self.record.rec_name))
+        values = {'receipt_date': self.start.receipt_date}
+        if self.start.dispatch_method:
+            values['dispatch_method'] = self.start.dispatch_method
+        Adjustment.write(adjustments, values)
+        Run = Pool().get('real_estate.contract.term.adjustment.run')
+        run = Run(self.record.id)
+        Run.write([run], {'protocol': run._log(
+                    'msg_adjustment_run_receipts_captured',
+                    count=len(adjustments),
+                    date=self.start.receipt_date.strftime('%d.%m.%Y'))})
+        return 'end'
 
 
 #**********************************************************************

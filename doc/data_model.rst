@@ -11,6 +11,7 @@ The data model is split into the following areas:
   - `Graduated Rent <rent_adjustment_graduated.rst>`_
   - `Index Rent <rent_adjustment_index.rst>`_
   - `Comparative Rent (Rent Survey) <rent_adjustment_comparative.rst>`_
+  - `Modernisation <rent_adjustment_modernisation.rst>`_
 
 - `Operating Cost Settlement <operating_cost_settlement.rst>`_
 

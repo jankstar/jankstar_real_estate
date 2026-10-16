@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<form col="4">
+    <label name="description"/><field name="description"/>
+    <label name="state"/><field name="state"/>
+    <label name="measure_type"/><field name="measure_type"/>
+    <label name="unit"/><field name="unit"/>
+    <label name="invoice_line"/><field name="invoice_line" colspan="3"/>
+    <label name="amount"/><field name="amount"/>
+    <label name="tax"/><field name="tax"/>
+    <label name="tax_amount"/><field name="tax_amount"/>
+    <label name="gross_amount"/><field name="gross_amount"/>
+    <label name="maintenance_mode"/><field name="maintenance_mode"/>
+    <label name="maintenance_value"/><field name="maintenance_value"/>
+    <label name="sequence"/><field name="sequence"/>
+    <field name="currency" invisible="1"/>
+    <field name="company" invisible="1"/>
+</form>

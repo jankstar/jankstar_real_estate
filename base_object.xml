@@ -64,7 +64,7 @@
       
       <menuitem
         parent="menu_real_estate"
-        name="Masta Date"
+        name="Master Data"
         sequence="12"
         id="menu_real_estate_masta_data"/>
 

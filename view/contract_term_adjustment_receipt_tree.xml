@@ -11,6 +11,8 @@
     <field name="consent_state" optional="0"/>
     <field name="consent_date" optional="0"/>
     <field name="consented_amount" optional="0"/>
+    <field name="termination_deadline" optional="0"/>
+    <field name="terminated_561" optional="0"/>
     <field name="letter"/>
     <field name="procedure" tree_invisible="1"/>
     <field name="state" tree_invisible="1"/>

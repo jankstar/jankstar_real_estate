@@ -21,6 +21,7 @@ from decimal import Decimal
 import datetime
 
 from dateutil.relativedelta import relativedelta
+from .queue_tools import queued_ids
 import logging
 
 
@@ -746,7 +747,15 @@ class BaseObject(Workflow, DeactivableMixin, re_sequence_ordered(), tree(separat
     def call_billing(cls, property_ids, billing_unit_ids=None,
             execute_in_queue=True, invoice_state='draft', invoice_date=None,
             payment_term=None):
-        """Call do_billing in queue or directly based on execute_in_queue flag."""
+        """Call do_billing in queue or directly based on execute_in_queue
+        flag - properties already waiting in the queue are not queued again;
+        returns their number."""
+        skipped = 0
+        if execute_in_queue and property_ids:
+            queued = queued_ids(cls.__name__, 'do_billing')
+            ids = [int(p) for p in property_ids]
+            property_ids = [p for p in ids if p not in queued]
+            skipped = len(ids) - len(property_ids)
         _chunk_size = 1
         chunks = [property_ids[i:i + _chunk_size]
             for i in range(0, len(property_ids), _chunk_size)]
@@ -763,6 +772,7 @@ class BaseObject(Workflow, DeactivableMixin, re_sequence_ordered(), tree(separat
                 cls.do_billing(
                     chunk, billing_unit_ids, invoice_state, invoice_date,
                     payment_term)
+        return skipped
 
     @classmethod
     def do_billing(cls, property_ids, billing_unit_ids=None,
@@ -782,6 +792,9 @@ class BaseObject(Workflow, DeactivableMixin, re_sequence_ordered(), tree(separat
         bu_filter = set(billing_unit_ids) if billing_unit_ids else None
 
         for obj in cls.browse(property_ids):
+            # locked: a property is billed once even if the job runs twice
+            cls.lock([obj])
+            obj = cls(obj.id)
             if obj.type != 'property' or obj.state != 'approved':
                 continue
             next_date = obj.next_billing_start_date

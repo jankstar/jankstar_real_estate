@@ -757,6 +757,11 @@ class NewLettingCheckLine(ModelView):
         readonly=True)
     comparative_amount = Monetary("Comparative Rent", currency='currency',
         digits='currency', readonly=True)
+    modernisation_amount = Monetary("Modernisation", currency='currency',
+        digits='currency', readonly=True,
+        help="Increase after § 559 BGB of modernisations completed within "
+             "the 3 years before the start - raises the limit in a tight "
+             "housing market (§ 556e para. 2 BGB).")
     limit_amount = Monetary("Limit", currency='currency', digits='currency',
         readonly=True)
     current_amount = Monetary("Current Rent", currency='currency',
@@ -810,6 +815,7 @@ class NewLettingCheck(Wizard):
     def default_start(self, fields):
         pool = Pool()
         Calculation = pool.get('real_estate.rent_survey.calculation')
+        Modernisation = pool.get('real_estate.modernisation')
         Lang = pool.get('ir.lang')
         lang = Lang.get()
         contract = self.record
@@ -843,8 +849,43 @@ class NewLettingCheck(Wizard):
                 lines.append(line)
                 continue
             comparative = _cent(rent * area)
+            # § 556f sentence 2 BGB: first letting after a comprehensive
+            # modernisation - no limit of the rent brake
+            comprehensive = (Modernisation.comprehensive_first_letting(
+                    apartment, date, contract) if tight else None)
+            if comprehensive:
+                line.update({
+                        'area': area,
+                        'rent_per_sqm': rent,
+                        'comparative_amount': comparative,
+                        'deviation_percent': ((current / comparative - 1)
+                            * 100).quantize(Decimal('0.01'),
+                            rounding=ROUND_HALF_UP),
+                        'above': False,
+                        'result': gettext(
+                            'real_estate.msg_new_letting_comprehensive'),
+                        })
+                messages.append(gettext(
+                        'real_estate.msg_new_letting_comprehensive_info',
+                        apartment=apartment.rec_name,
+                        modernisation=comprehensive.rec_name))
+                lines.append(line)
+                continue
             limit = (comparative * (1 + percent / 100)).quantize(
                 Decimal('0.01'), rounding=ROUND_DOWN)
+            # § 556e para. 2 BGB: modernisation within the last 3 years
+            if tight:
+                modernisation, measures = Modernisation.new_letting_amount(
+                    apartment, date)
+                if modernisation:
+                    limit += modernisation
+                    line['modernisation_amount'] = modernisation
+                    messages.append(gettext(
+                            'real_estate.msg_new_letting_modernisation',
+                            apartment=apartment.rec_name,
+                            amount=lang.format_number(modernisation, 2),
+                            measures=', '.join(m.rec_name
+                                for m in measures)))
             deviation = ((current / comparative - 1) * 100).quantize(
                 Decimal('0.01'), rounding=ROUND_HALF_UP)
             line.update({

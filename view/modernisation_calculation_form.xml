@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<form col="4">
+    <label name="object"/><field name="object" colspan="3"/>
+    <label name="area"/><field name="area"/>
+    <label name="costs"/><field name="costs"/>
+    <label name="allocable"/><field name="allocable"/>
+    <newline/>
+    <separator string="§ 559" id="sep_559" colspan="4"/>
+    <label name="current_rent"/><field name="current_rent"/>
+    <label name="increase"/><field name="increase"/>
+    <label name="rent_after"/><field name="rent_after"/>
+    <label name="annual_559"/><field name="annual_559"/>
+    <label name="yield_559"/><field name="yield_559"/>
+    <newline/>
+    <separator string="§ 558 / New Letting" id="sep_558" colspan="4"/>
+    <label name="rent_per_sqm_before"/><field name="rent_per_sqm_before"/>
+    <label name="comparative_before"/><field name="comparative_before"/>
+    <label name="rent_per_sqm_after"/><field name="rent_per_sqm_after"/>
+    <label name="comparative_after"/><field name="comparative_after"/>
+    <label name="new_rent_558"/><field name="new_rent_558"/>
+    <label name="earliest_558"/><field name="earliest_558"/>
+    <label name="annual_558"/><field name="annual_558"/>
+    <label name="yield_558"/><field name="yield_558"/>
+    <label name="letting_limit"/><field name="letting_limit"/>
+    <separator name="message" colspan="4"/>
+    <field name="message" colspan="4" height="60"/>
+    <field name="currency" invisible="1"/>
+</form>

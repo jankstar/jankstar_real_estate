@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<tree>
+    <field name="object" expand="1"/>
+    <field name="area" optional="0"/>
+    <field name="current_rent"/>
+    <field name="increase" sum="1"/>
+    <field name="rent_after"/>
+    <field name="comparative_before" optional="0"/>
+    <field name="comparative_after"/>
+    <field name="new_rent_558"/>
+    <field name="earliest_558" optional="0"/>
+    <field name="letting_limit"/>
+    <field name="annual_559" sum="1"/>
+    <field name="annual_558" sum="1"/>
+    <field name="yield_559" optional="0"/>
+    <field name="yield_558" optional="0"/>
+    <field name="message" optional="1"/>
+    <field name="currency" tree_invisible="1"/>
+</tree>

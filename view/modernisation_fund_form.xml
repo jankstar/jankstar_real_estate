@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<form col="4">
+    <label name="kind"/><field name="kind"/>
+    <label name="source"/><field name="source"/>
+    <label name="amount"/><field name="amount"/>
+    <label name="annual_benefit"/><field name="annual_benefit"/>
+    <label name="unit"/><field name="unit"/>
+    <field name="currency" invisible="1"/>
+</form>

@@ -7,7 +7,11 @@ from trytond.cache import Cache
 from trytond.pool import Pool, PoolMeta
 from trytond.transaction import Transaction
 from trytond.pyson import Bool, Eval, If, Not, PYSONEncoder
-from sql import Column
+import datetime
+
+from sql import Column, Literal, Null
+from sql.aggregate import Min
+from sql.operators import Exists
 
 from .base_object import BaseObject
 
@@ -175,6 +179,11 @@ class Measurement(DeactivableMixin, ModelSQL, ModelView, metaclass=PoolMeta):
     base_object = fields.Many2One('real_estate.base_object', 
         "Base Object", required=True, path='path', ondelete='CASCADE',)
     valid_from = fields.Date('From', required=True)
+    valid_to = fields.Function(fields.Date("To",
+            help="Day before the next measurement of the same object and "
+                 "type, at most the end of the object - empty while it is "
+                 "the current value."),
+        'get_valid_to', searcher='search_valid_to')
     m_type = fields.Many2One(
         'real_estate.measurement.type', "Measurement Type", required=True,
         domain=[
@@ -200,6 +209,90 @@ class Measurement(DeactivableMixin, ModelSQL, ModelView, metaclass=PoolMeta):
         'on_change_with_property', searcher='search_property')
 
     no_print = fields.Boolean("No Print")
+
+    @classmethod
+    def get_valid_to(cls, measurements, name):
+        """Day before the next measurement of the same object and type,
+        at most the end date of the object (None = open)"""
+        table = cls.__table__()
+        later = cls.__table__()
+        cursor = Transaction().connection.cursor()
+        ids = [m.id for m in measurements]
+        next_from = {}
+        for sub_ids in [ids[i:i + 500] for i in range(0, len(ids), 500)]:
+            cursor.execute(*table.join(later, condition=(
+                        (later.base_object == table.base_object)
+                        & (later.m_type == table.m_type)
+                        & (later.valid_from > table.valid_from))
+                    ).select(table.id, Min(later.valid_from),
+                    where=table.id.in_(sub_ids),
+                    group_by=[table.id]))
+            for id_, value in cursor:
+                if isinstance(value, str):
+                    value = datetime.date.fromisoformat(value)
+                next_from[id_] = value
+        result = {}
+        for measurement in measurements:
+            ends = []
+            if next_from.get(measurement.id):
+                ends.append(next_from[measurement.id]
+                    - datetime.timedelta(days=1))
+            if measurement.base_object.end_date:
+                ends.append(measurement.base_object.end_date)
+            result[measurement.id] = min(ends) if ends else None
+        return result
+
+    @classmethod
+    def search_valid_to(cls, name, clause):
+        """'To' compared with a date without date arithmetic in SQL:
+        To >= D  <=>  no later measurement of the same object and type
+        from on or before D, and the object does not end before D"""
+        pool = Pool()
+        BaseObject = pool.get('real_estate.base_object')
+        _, operator, value = clause[:3]
+        table = cls.__table__()
+        later = cls.__table__()
+        obj = BaseObject.__table__()
+
+        def open_from(date):
+            "ids with To >= date (None: To is empty)"
+            later_where = ((later.base_object == table.base_object)
+                & (later.m_type == table.m_type)
+                & (later.valid_from > table.valid_from))
+            end_where = (obj.end_date == Null)
+            if date is not None:
+                later_where &= (later.valid_from <= date)
+                end_where |= (obj.end_date >= date)
+            return table.join(obj,
+                condition=obj.id == table.base_object).select(table.id,
+                where=~Exists(later.select(Literal(1),
+                        where=later_where)) & end_where)
+
+        if value is None:
+            if operator == '=':
+                return [('id', 'in', open_from(None))]
+            if operator == '!=':
+                return [('id', 'not in', open_from(None))]
+            return [('id', '=', -1)]
+        if isinstance(value, str):
+            value = datetime.date.fromisoformat(value)
+        if operator == '>=':
+            return [('id', 'in', open_from(value))]
+        if operator == '>':
+            return [('id', 'in', open_from(value + datetime.timedelta(1)))]
+        if operator == '<':
+            return [('id', 'not in', open_from(value))]
+        if operator == '<=':
+            return [('id', 'not in',
+                    open_from(value + datetime.timedelta(1)))]
+        if operator == '=':
+            return [('id', 'in', open_from(value)),
+                ('id', 'not in', open_from(value + datetime.timedelta(1)))]
+        if operator == '!=':
+            return ['OR',
+                ('id', 'not in', open_from(value)),
+                ('id', 'in', open_from(value + datetime.timedelta(1)))]
+        return [('id', '=', -1)]
 
     @fields.depends('m_type')
     def on_change_with_name(self, name=None):
@@ -375,8 +468,10 @@ class MeasurementContext(ModelView):
     m_type = fields.Many2One('real_estate.measurement.type', "Measurement Type",
         domain=[('is_group', '=', False)])
     date = fields.Date("Reference Date", required=True,
-        help="Only measurements valid on or before this date (own "
-             "'From' date) are shown.")
+        help="Only measurements valid on this date are shown: 'From' on or "
+             "before and 'To' (day before the next measurement of the same "
+             "object and type, at most the end of the object) empty or on "
+             "or after the date.")
 
     @classmethod
     def default_company(cls):

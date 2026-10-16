@@ -21,6 +21,7 @@ from sql.conditionals import Coalesce
 from collections import defaultdict
 from itertools import groupby
 
+from .queue_tools import queued_ids
 from . import base_object
 import logging
 import re
@@ -2527,7 +2528,15 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
 
     @classmethod
     def call_create_moves(cls, contract_ids, date, action='re_calc', execute_in_queue=True, invoice_state='draft', invoice_date=None):
-        """call create_moves in queue or directly based on execute_in_queue flag"""
+        """call create_moves in queue or directly based on execute_in_queue
+        flag - contracts already waiting in the queue are not queued again;
+        returns their number"""
+        skipped = 0
+        if execute_in_queue and contract_ids:
+            queued = queued_ids(cls.__name__, 'create_moves')
+            ids = [int(c) for c in contract_ids]
+            contract_ids = [c for c in ids if c not in queued]
+            skipped = len(ids) - len(contract_ids)
         if len(contract_ids) > 0:
             # One run ID per property, generated once for this whole wizard
             # invocation (before chunking/queueing), so that all contracts
@@ -2555,12 +2564,16 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
                     cls.create_moves(
                         chunk, date, action, invoice_state, invoice_date,
                         property_run_ids)
+        return skipped
 
     @classmethod
     def create_moves(cls, contract_ids, date, action='re_calc', invoice_state='draft', invoice_date=None, property_run_ids=None):
         """Calculate and Create all account move on contract before a date."""
         property_run_ids = property_run_ids or {}
         for contract_id in contract_ids:
+            # locked: a contract is booked once even if the job runs twice
+            # (several workers)
+            cls.lock([cls(contract_id)])
             contract = cls(contract_id)
             contract.add_log('process', f'start "create_moves" with date {date} and action {action}')
             if contract.state != 'running' and contract.state != 'terminated':

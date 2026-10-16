@@ -1318,5 +1318,268 @@ New rent (lower of comparative rent and cap): %(new)s</field>
         <record model="ir.message" id="msg_copy_terms_log">
             <field name="text">Terms copied from contract "%(source)s": %(terms)s</field>
         </record>
+        <record model="ir.message" id="msg_modernisation_delete">
+            <field name="text">The modernisation "%(modernisation)s" can only be deleted in the states planning, draft or cancelled.</field>
+        </record>
+        <record model="ir.message" id="msg_modernisation_m01">
+            <field name="text">M01: At least one measure type allowing a rent increase (§ 555b nos. 1, 1a, 3-6 BGB) is required - nos. 2 and 7 alone do not allow an increase.</field>
+        </record>
+        <record model="ir.message" id="msg_modernisation_m02">
+            <field name="text">M02: The announcement requires: %(fields)s.</field>
+        </record>
+        <record model="ir.message" id="msg_modernisation_field_description">
+            <field name="text">description of the measure</field>
+        </record>
+        <record model="ir.message" id="msg_modernisation_field_start">
+            <field name="text">planned start</field>
+        </record>
+        <record model="ir.message" id="msg_modernisation_field_duration">
+            <field name="text">planned duration</field>
+        </record>
+        <record model="ir.message" id="msg_modernisation_field_costs">
+            <field name="text">expected costs</field>
+        </record>
+        <record model="ir.message" id="msg_modernisation_field_operating">
+            <field name="text">expected operating costs</field>
+        </record>
+        <record model="ir.message" id="msg_modernisation_m03">
+            <field name="text">M03: The planned start %(start)s is less than 3 months after the announcement (earliest %(earliest)s, § 555c para. 1 BGB).</field>
+        </record>
+        <record model="ir.message" id="msg_modernisation_m04">
+            <field name="text">M04: The variant heating system (§ 559e BGB) requires the measure type no. 1a (heating system according to GEG).</field>
+        </record>
+        <record model="ir.message" id="msg_modernisation_m05">
+            <field name="text">M05: The costs of %(unit)s (%(costs)s) exceed the limit of the simplified procedure (%(limit)s, § 559c BGB).</field>
+        </record>
+        <record model="ir.message" id="msg_modernisation_announce_first">
+            <field name="text">The modernisation "%(modernisation)s" must be announced first - only a vacancy or a trivial measure starts without an announcement.</field>
+        </record>
+        <record model="ir.message" id="msg_modernisation_m06">
+            <field name="text">M06: The work starts on %(start)s, less than 3 months after the receipt of the announcement for: %(units)s. The tenants need not tolerate the measure before (§ 555c BGB).</field>
+        </record>
+        <record model="ir.message" id="msg_modernisation_m07_costs">
+            <field name="text">M07: The modernisation "%(modernisation)s" has no costs - capture the costs before the completion.</field>
+        </record>
+        <record model="ir.message" id="msg_modernisation_m07_maintenance">
+            <field name="text">M07: The maintenance share is missing for the costs: %(costs)s (§ 559 para. 2 BGB) - select "None" if there is none.</field>
+        </record>
+        <record model="ir.message" id="msg_modernisation_m08">
+            <field name="text">M08 (hint): Input tax of the units with deduction %(deductible)s, expected with the option rate %(rate)s %%: %(expected)s - please check the VAT deductibility of the units (consult a tax advisor, § 15a UStG).</field>
+        </record>
+        <record model="ir.message" id="msg_modernisation_m09">
+            <field name="text">M09: The rental unit %(unit)s is excluded from the allocation - a reason is required.</field>
+        </record>
+        <record model="ir.message" id="msg_modernisation_rule_cap_m_type">
+            <field name="text">M02: The modernisation rule valid from %(rule)s has no cap measurement - set it in Configuration › Modernisation Rules (needed for the cap per m²).</field>
+        </record>
+        <record model="ir.message" id="msg_modernisation_m10">
+            <field name="text">M10: The allocation by quantity requires a quantity for every rental unit in the allocation - missing for: %(units)s.</field>
+        </record>
+        <record model="ir.message" id="msg_modernisation_m09_vacancy">
+            <field name="text">M09: The vacant rental unit %(unit)s always takes part in the allocation (the landlord bears its share).</field>
+        </record>
+        <record model="ir.message" id="msg_modernisation_run_measures">
+            <field name="text">The adjustment run "%(run)s" has no modernisation - select the completed modernisations in the parameters.</field>
+        </record>
+        <record model="ir.message" id="msg_modernisation_line_state">
+            <field name="text">%(modernisation)s: not completed - skipped.</field>
+        </record>
+        <record model="ir.message" id="msg_modernisation_line_excluded">
+            <field name="text">%(unit)s: no increase (%(reason)s).</field>
+        </record>
+        <record model="ir.message" id="msg_modernisation_line_no_term">
+            <field name="text">%(unit)s: no contract or no rent term allowing the procedure.</field>
+        </record>
+        <record model="ir.message" id="msg_modernisation_line_not_allowed">
+            <field name="text">%(unit)s: the procedure is not allowed for the term %(term)s (contract type, term type or use class).</field>
+        </record>
+        <record model="ir.message" id="msg_modernisation_line_exists">
+            <field name="text">%(unit)s: adjustment %(adjustment)s already exists.</field>
+        </record>
+        <record model="ir.message" id="msg_modernisation_line_created">
+            <field name="text">%(unit)s: adjustment created (%(state)s), increase %(amount)s.</field>
+        </record>
+        <record model="ir.message" id="msg_modernisation_line_none">
+            <field name="text">No rental units of the modernisations found.</field>
+        </record>
+        <record model="ir.message" id="msg_modernisation_rule_missing">
+            <field name="text">No modernisation rule for %(modernisation)s.</field>
+        </record>
+        <record model="ir.message" id="msg_modernisation_no_declaration">
+            <field name="text">%(adjustment)s: no declaration date - the increase cannot be computed.</field>
+        </record>
+        <record model="ir.message" id="msg_modernisation_e01">
+            <field name="text">The contract %(contract)s is not a running residential contract on the effective date (end %(end)s).</field>
+        </record>
+        <record model="ir.message" id="msg_modernisation_e02">
+            <field name="text">Running graduated rent on the term %(term)s - no increase after § 559 BGB (§ 557a para. 2 BGB).</field>
+        </record>
+        <record model="ir.message" id="msg_modernisation_e03">
+            <field name="text">Index rent %(index_rent)s: an increase after § 559 BGB is only possible for circumstances not attributable to the landlord, never after § 559e BGB (§ 557b para. 2 BGB).</field>
+        </record>
+        <record model="ir.message" id="msg_modernisation_e04_open">
+            <field name="text">Hardship objection of %(unit)s not decided.</field>
+        </record>
+        <record model="ir.message" id="msg_modernisation_e04_accepted">
+            <field name="text">Hardship of %(unit)s accepted - no increase.</field>
+        </record>
+        <record model="ir.message" id="msg_modernisation_e05">
+            <field name="text">Cap applied: computed %(computed)s, allowed %(cap)s.</field>
+        </record>
+        <record model="ir.message" id="msg_modernisation_e06">
+            <field name="text">Simplified procedure: costs of the unit %(costs)s plus costs claimed within 5 years %(claimed)s exceed the limit %(limit)s (§ 559c BGB).</field>
+        </record>
+        <record model="ir.message" id="msg_modernisation_e07">
+            <field name="text">Effective date postponed by 6 months (%(reason)s): %(valid_from)s.</field>
+        </record>
+        <record model="ir.message" id="msg_modernisation_e08_grant">
+            <field name="text">Heating system (§ 559e BGB): no grant captured - the subsidy has to be claimed.</field>
+        </record>
+        <record model="ir.message" id="msg_modernisation_e08_jaz">
+            <field name="text">Heating system: for a heat pump in a building before 1996 without proven seasonal performance factor only 50 % of the costs are allocable - please check.</field>
+        </record>
+        <record model="ir.message" id="msg_modernisation_e09">
+            <field name="text">Lock by the simplified procedure (increase effective %(date)s): no further increase after § 559 BGB within 5 years (§ 559c para. 4 BGB).</field>
+        </record>
+        <record model="ir.message" id="msg_modernisation_e10">
+            <field name="text">No area of the cap measurement for %(unit)s.</field>
+        </record>
+        <record model="ir.message" id="msg_modernisation_e11">
+            <field name="text">The tenant of %(unit)s terminated after the announcement (§ 555e BGB).</field>
+        </record>
+        <record model="ir.message" id="msg_modernisation_e12">
+            <field name="text">The declaration is possible only after the completion of %(modernisation)s (completed on %(end)s).</field>
+        </record>
+        <record model="ir.message" id="msg_modernisation_e13">
+            <field name="text">No increase.</field>
+        </record>
+        <record model="ir.message" id="msg_modernisation_e14">
+            <field name="text">Periods booked until %(booked_to)s from the effective date %(valid_from)s on - corrections needed.</field>
+        </record>
+        <record model="ir.message" id="msg_modernisation_calculation_text">
+            <field name="text">Modernisation %(modernisation)s, %(variant)s
+Share of the unit: %(share)s %%
+Costs %(costs)s - maintenance %(maintenance)s - grants %(grants)s = allocable %(allocable)s
+Annual amount %(allocable)s × %(rate)s %% (less interest advantage) = %(annual)s, monthly %(monthly)s
+Cap: area %(area)s m², previous increases %(previous)s, allowed %(cap)s
+Increase %(increase)s: rent %(old)s → %(new)s from %(valid_from)s</field>
+        </record>
+        <record model="ir.message" id="msg_modernisation_receipt_missing">
+            <field name="text">%(adjustment)s: the receipt of the declaration is not captured.</field>
+        </record>
+        <record model="ir.message" id="msg_modernisation_terminated">
+            <field name="text">%(adjustment)s: the tenant terminated - the increase does not take effect, cancel the adjustment.</field>
+        </record>
+        <record model="ir.message" id="msg_modernisation_log">
+            <field name="text">Modernisation %(modernisation)s: rent %(amount_old)s → %(amount_new)s (+%(increase)s) from %(valid_from)s, receipt %(receipt)s.</field>
+        </record>
+        <record model="ir.message" id="msg_new_letting_modernisation">
+            <field name="text">%(apartment)s: limit raised by the modernisation amount %(amount)s (§ 556e para. 2 BGB, %(measures)s).</field>
+        </record>
+        <record model="ir.message" id="msg_task_code_modernisation_objection">
+            <field name="text">Hardship objection / special termination period ends (modernisation)</field>
+        </record>
+        <record model="ir.message" id="msg_task_code_modernisation_start">
+            <field name="text">Earliest start of the modernisation work</field>
+        </record>
+        <record model="ir.message" id="msg_task_code_modernisation_declaration">
+            <field name="text">Prepare the modernisation increase declaration</field>
+        </record>
+        <record model="ir.message" id="msg_task_code_modernisation_termination">
+            <field name="text">Special termination period after the modernisation increase ends</field>
+        </record>
+        <record model="ir.message" id="msg_modernisation_task_objection">
+            <field name="text">Hardship objection / special termination period ends: %(unit)s (%(modernisation)s)</field>
+        </record>
+        <record model="ir.message" id="msg_new_letting_comprehensive">
+            <field name="text">No limit - first letting after a comprehensive modernisation (§ 556f BGB)</field>
+        </record>
+        <record model="ir.message" id="msg_new_letting_comprehensive_info">
+            <field name="text">%(apartment)s: first letting after the comprehensive modernisation %(modernisation)s - the rent brake does not apply (§ 556f sentence 2 BGB); the rent overcharge (§ 5 WiStG) still has to be observed.</field>
+        </record>
+        <record model="ir.message" id="msg_modernisation_plan_object">
+            <field name="text">A modernisation can be planned only for a rental unit of a property.</field>
+        </record>
+        <record model="ir.message" id="msg_modernisation_plan_name">
+            <field name="text">Modernisation vacancy %(object)s</field>
+        </record>
+        <record model="ir.message" id="msg_adjustment_run_no_sample">
+            <field name="text">The run "%(run)s" has no adjustment with a letter for a sample (draft or approved).</field>
+        </record>
+        <record model="ir.message" id="msg_modernisation_no_sample">
+            <field name="text">"%(modernisation)s" has no rental unit with a contract and an increase - determine the rental units first.</field>
+        </record>
+        <record model="ir.message" id="msg_modernisation_check_none">
+            <field name="text">No messages.</field>
+        </record>
+        <record model="ir.message" id="msg_modernisation_check_pending">
+            <field name="text">The input tax check (M08) is done from the completion of the work on.</field>
+        </record>
+        <record model="ir.message" id="msg_modernisation_planned_evidence">
+            <field name="text">Planned feature of the modernisation %(modernisation)s</field>
+        </record>
+        <record model="ir.message" id="msg_modernisation_calc_556f">
+            <field name="text">No new letting limit: comprehensive modernisation (§ 556f BGB).</field>
+        </record>
+        <record model="ir.message" id="msg_modernisation_calc_no_survey">
+            <field name="text">No comparative rent: the rental unit is no apartment or the property has no valid rent survey.</field>
+        </record>
+        <record model="ir.message" id="msg_modernisation_planned_level">
+            <field name="text">"%(value)s" does not belong to the level of "%(object)s" in the rent survey - choose a building feature for a building, a rental unit feature for a rental unit.</field>
+        </record>
+        <record model="ir.message" id="msg_modernisation_calc_quantity">
+            <field name="text">The allocation quantity is missing - the unit gets no share of the costs (enter the quantity at the rental unit).</field>
+        </record>
+        <record model="ir.message" id="msg_adjustment_run_no_receipts">
+            <field name="text">The run "%(run)s" has no announced adjustment without receipt - use "Overwrite Existing" to change captured receipts.</field>
+        </record>
+        <record model="ir.message" id="msg_adjustment_run_receipts_captured">
+            <field name="text">Receipt captured for %(count)s adjustments: %(date)s.</field>
+        </record>
+        <record model="ir.message" id="msg_modernisation_no_receipts">
+            <field name="text">"%(modernisation)s" has no rental unit with a contract and an increase without receipt - use "Overwrite Existing" to change captured receipts.</field>
+        </record>
+        <record model="ir.message" id="msg_adjustment_run_execute_running">
+            <field name="text">The execution of the run "%(run)s" is already running in the background - reload the run and watch the tab "Protocol". If nothing changes for a long time, check that the worker of the server is running.</field>
+        </record>
+        <record model="ir.message" id="msg_queue_mode_none">
+            <field name="text">Nothing to do</field>
+        </record>
+        <record model="ir.message" id="msg_queue_mode_queued">
+            <field name="text">Started in the background</field>
+        </record>
+        <record model="ir.message" id="msg_queue_mode_completed">
+            <field name="text">Completed</field>
+        </record>
+        <record model="ir.message" id="msg_create_moves_none">
+            <field name="text">No contracts matched the selected filters (up to %(date)s).</field>
+        </record>
+        <record model="ir.message" id="msg_create_moves_queued">
+            <field name="text">%(count)s contract(s) queued for the background processing up to %(date)s.</field>
+        </record>
+        <record model="ir.message" id="msg_create_moves_skipped">
+            <field name="text">%(count)s contract(s) are already waiting in the background and were not queued again.</field>
+        </record>
+        <record model="ir.message" id="msg_create_moves_hint">
+            <field name="text">The bookings run in the background - do not start the run again. Check the result after a while in the contract log (tab Log of the contracts) and in the invoices.</field>
+        </record>
+        <record model="ir.message" id="msg_create_moves_done">
+            <field name="text">%(count)s contract(s) processed up to %(date)s.</field>
+        </record>
+        <record model="ir.message" id="msg_billing_run_none">
+            <field name="text">No billing units in state "Ready for Billing" matched the selected filters (up to %(date)s).</field>
+        </record>
+        <record model="ir.message" id="msg_billing_run_queued">
+            <field name="text">%(count)s billing unit(s) of %(properties)s propert(y/ies) queued for the background processing.</field>
+        </record>
+        <record model="ir.message" id="msg_billing_run_skipped">
+            <field name="text">%(count)s propert(y/ies) are already waiting in the background and were not queued again.</field>
+        </record>
+        <record model="ir.message" id="msg_billing_run_hint">
+            <field name="text">The billing runs in the background - do not start it again. Check the result after a while at the billing units (state, log).</field>
+        </record>
+        <record model="ir.message" id="msg_billing_run_done">
+            <field name="text">%(count)s billing unit(s) processed.</field>
+        </record>
     </data>
 </tryton>

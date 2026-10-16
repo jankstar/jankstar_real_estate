@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<tree>
+    <field name="valid_from"/>
+    <field name="rate_standard"/>
+    <field name="rate_heating"/>
+    <field name="simplified_limit"/>
+    <field name="cap_high"/>
+    <field name="cap_low"/>
+    <field name="cap_heating"/>
+    <field name="currency" tree_invisible="1"/>
+</tree>

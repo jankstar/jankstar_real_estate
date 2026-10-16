@@ -1,9 +1,12 @@
 'Rent survey (Mietspiegel) - classification and calculation of the local comparative rent (§ 558 BGB) - spezifikation-mietspiegel.md'
 import csv
+import contextlib
 import datetime
 import io
 import json
+from contextvars import ContextVar
 from decimal import ROUND_HALF_UP, Decimal
+from types import SimpleNamespace
 
 from trytond.i18n import gettext
 from trytond.model import (
@@ -55,6 +58,61 @@ def valid_on(record, date):
     "The validity period of the record contains the date (empty = open)"
     return ((not record.valid_from or record.valid_from <= date)
         and (not record.valid_to or record.valid_to >= date))
+
+
+# Planned values of a "what if" calculation (modernisation planning,
+# spezifikation-modernisierung.md 6.8): {'values': {object id: [planned]},
+# 'measurements': {(object id, measurement type id): value}} - set only
+# for the duration of a calculation, nothing is stored
+PLANNED = ContextVar('rent_survey_planned', default=None)
+
+
+@contextlib.contextmanager
+def planned_values(planned):
+    "Calculate with the planned classes, features and measurements"
+    token = PLANNED.set(planned)
+    try:
+        yield
+    finally:
+        PLANNED.reset(token)
+
+
+def apply_planned(values, planned):
+    """Assignments of one object with the planned changes: a removed class
+    or feature is dropped, a planned class replaces the class of its
+    classification feature, a planned feature is added (once). 'values'
+    are assignments valid on the key date (attributes kind,
+    dimension_code, class_code, feature_code, evidence), 'planned' dicts
+    with kind, action ('add' / 'remove') and the codes. The planned
+    additions come first (they win on their level)."""
+    removed_features = {p['feature_code'] for p in planned
+        if p['kind'] == 'feature' and p['action'] == 'remove'}
+    removed_classes = {(p['dimension_code'], p['class_code'])
+        for p in planned if p['kind'] == 'class' and p['action'] == 'remove'}
+    added = [p for p in planned if p['action'] == 'add'
+        and p['kind'] in ('class', 'feature')]
+    replaced_dimensions = {p['dimension_code'] for p in added
+        if p['kind'] == 'class'}
+    added_features = {p['feature_code'] for p in added
+        if p['kind'] == 'feature'}
+    kept = []
+    for value in values:
+        if value.kind == 'feature' and (
+                value.feature_code in removed_features
+                or value.feature_code in added_features):
+            continue
+        if value.kind == 'class' and (
+                (value.dimension_code, value.class_code) in removed_classes
+                or value.dimension_code in replaced_dimensions):
+            continue
+        kept.append(value)
+    new = [SimpleNamespace(kind=p['kind'],
+            dimension_code=p.get('dimension_code'),
+            class_code=p.get('class_code'),
+            feature_code=p.get('feature_code'),
+            evidence=p.get('evidence'), valid_from=None, valid_to=None)
+        for p in added]
+    return new + kept
 
 
 def compute_rent(method, lower, mean, upper, groups, group_percent=20,
@@ -2126,6 +2184,9 @@ class RentSurveyCalculation(Workflow, ModelSQL, ModelView):
         Measurement = Pool().get('real_estate.measurement')
         if not obj or not m_type:
             return None
+        planned = (PLANNED.get() or {}).get('measurements', {})
+        if (obj.id, m_type.id) in planned:
+            return _dec(planned[(obj.id, m_type.id)])
         value = Measurement.get_total_value(obj.id, m_type, self.key_date)
         return _dec(value) if value is not None else None
 
@@ -2138,12 +2199,16 @@ class RentSurveyCalculation(Workflow, ModelSQL, ModelView):
 
     def _assignments(self, levels, kind):
         "(level, assignment) valid on the key date, lowest level first"
+        planned = (PLANNED.get() or {}).get('values', {})
         result = []
         for level in LEVEL_ORDER:
             obj = levels[level]
             if obj:
-                result.extend((level, v) for v in obj.rent_survey_values
-                    if v.kind == kind and valid_on(v, self.key_date))
+                values = [v for v in obj.rent_survey_values
+                    if valid_on(v, self.key_date)]
+                if planned.get(obj.id):
+                    values = apply_planned(values, planned[obj.id])
+                result.extend((level, v) for v in values if v.kind == kind)
         return result
 
     def _classify(self, version, levels, inputs, messages):

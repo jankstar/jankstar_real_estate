@@ -19,7 +19,13 @@ Wizards
       Combine both steps.
 
    Can be filtered by property and/or contract list.
-   Optional queue execution via ``execute_in_queue``.
+   Optional queue execution via ``execute_in_queue``. Protection against
+   a second start: contracts already waiting in the queue
+   (``create_moves``, not finished - ``queue_tools.queued_ids()``) are not
+   queued again, and ``Contract.create_moves`` locks every contract before
+   booking it, so it is booked once even with several workers. The result
+   page (translated) shows the queued and the skipped contracts and the
+   hint not to start the run again but to check the contract log.
 
 ``real_estate.billing_unit.wizard``  (``billing_unit_wizard.py``, class ``BillingUnitWizard``)
    Batch billing wizard, opened via the ``billing_wizard`` button on the
@@ -47,7 +53,15 @@ Wizards
    same start date must be included, otherwise a ``ValidationError`` is
    raised.
 
-   *Result* — reports how many billing units were queued or processed.
+   *Result* — reports how many billing units were queued or processed;
+   properties already waiting in the queue (``do_billing``) are not
+   queued again (shown as skipped), ``BaseObject.do_billing`` locks the
+   property before billing it, and the result page reminds not to start
+   the billing again but to check the billing units.
+
+   *Cancel Period Booking*, *Cancel Billing* and *Reconcile Advance
+   Payments* run directly (the wizard waits for the end) - a double start
+   is not possible there.
 
 ``real_estate.terminate_contract.wizard``  (``contract_wizard.py``)
    Sets a contract to *Terminated*, records ``terminated_by``,
