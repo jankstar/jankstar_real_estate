@@ -295,9 +295,11 @@ rent - after the last step the waiting period counts from its start.
 Agreement: the adjustment run creates one active rent adjustment
 ``comparative_rent`` per term chain (term = first term of the chain,
 ``valid_from`` = its start) when a term is selected the first time; it
-keeps the history of the adjustments (lock of one year). *Close* ends it
-(e.g. at the end of the contract), *Draft*/*Activate* as for the index
-rent. Tab *Adjustments* of the agreement: current term and adjustments.
+keeps the history of the adjustments (lock of one year). The agreement is
+only a technical bracket of the requests (no contractual agreement: the
+landlord requests, the tenant consents) - it has no buttons *Draft* or
+*Close*. An index rent can be agreed later on the same term as long as
+no request is open (check I10 of the index rent). Tab *Adjustments* of the agreement: current term and adjustments.
 
 Cap (§ 558 para. 3 BGB): 20 % in three years, 15 % for a property with
 ``reduced_cap`` (*Reduced Cap 15 % (Regulation)* with validity

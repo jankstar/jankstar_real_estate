@@ -541,8 +541,11 @@ Either run "Ready for Billing" for each billing unit first, or bill individual b
         <record model="ir.message" id="msg_index_rent_comparative">
             <field name="text">The term "%(term)s" has an active index rent "%(index_rent)s" - a rent increase up to the comparative rent (§ 558 BGB) is excluded (§ 557b para. 2 BGB).</field>
         </record>
+        <record model="ir.message" id="msg_index_rent_comparative_open">
+            <field name="text">Index rent "%(index_rent)s" cannot be activated: the rent increase up to the comparative rent "%(adjustment)s" on the term is still open - finish or cancel it first (§ 557b para. 2 BGB).</field>
+        </record>
         <record model="ir.message" id="msg_index_rent_modernisation">
-            <field name="text">Index rent "%(rent_adjustment)s": the term also has a modernisation adjustment. During an index rent an increase for modernisation is only allowed for measures the landlord is not responsible for (§ 557b para. 2 BGB).</field>
+            <field name="text">Index rent "%(rent_adjustment)s": the term also has an open modernisation adjustment. During an index rent an increase for modernisation is only allowed for measures the landlord is not responsible for (§ 557b para. 2 BGB).</field>
         </record>
         <record model="ir.message" id="msg_index_rent_price_clause">
             <field name="text">Index rent "%(rent_adjustment)s": commercial index clauses are only allowed under the Preisklauselgesetz for long-term contracts (e.g. at least 10 years term or a corresponding waiver of termination by the landlord) - please check the clause.</field>

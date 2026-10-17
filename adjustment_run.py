@@ -1092,13 +1092,15 @@ class AdjustmentRunReceipt(Wizard):
         values = {'receipt_date': self.start.receipt_date}
         if self.start.dispatch_method:
             values['dispatch_method'] = self.start.dispatch_method
-        Adjustment.write(adjustments, values)
         Run = Pool().get('real_estate.contract.term.adjustment.run')
         run = Run(self.record.id)
+        # protocol line first - writing the receipts may set the follow-up
+        # state of the run, which is protocolled after it
         Run.write([run], {'protocol': run._log(
                     'msg_adjustment_run_receipts_captured',
                     count=len(adjustments),
                     date=self.start.receipt_date.strftime('%d.%m.%Y'))})
+        Adjustment.write(adjustments, values)
         return 'end'
 
 

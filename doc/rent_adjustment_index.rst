@@ -91,8 +91,9 @@ Months* / *All*.
 (I01; residential error, commercial confirmable warning), statutory
 effective rule for residential, index allowed for residential (I02),
 final value of the base month in the current base year (I03), no
-comparative rent on the term chain and a confirmable warning for a
-modernisation adjustment (I10, residential), hint on the
+open comparative rent request on the term chain and a confirmable
+warning for an open modernisation increase - former increases do not
+prevent the agreement (I10, residential), hint on the
 Preisklauselgesetz for commercial contracts not fixed for at least 10
 years (I12). *Draft* (``active → draft``) and *Close Index Rent*
 (``active → closed``) change the state; in ``active`` index series,

@@ -335,12 +335,20 @@ class ContractRentAdjustment(Workflow, ModelSQL, ModelView):
                 'invisible': ~run | (Eval('state') != 'draft'),
                 'depends': ['procedure', 'state'],
                 },
+            # only the index rent has own master data to correct - the
+            # agreements of the comparative rent and the modernisation are
+            # created by the adjustment run
             'draft': {
-                'invisible': ~run | (Eval('state') != 'active'),
+                'invisible': (Eval('procedure') != 'index_rent')
+                | (Eval('state') != 'active'),
                 'depends': ['procedure', 'state'],
                 },
+            # only an index rent is an agreement that can be ended (by an
+            # amendment or the end of the contract) - comparative rent and
+            # modernisation are unilateral requests/declarations
             'close': {
-                'invisible': ~run | (Eval('state') != 'active'),
+                'invisible': (Eval('procedure') != 'index_rent')
+                | (Eval('state') != 'active'),
                 'depends': ['procedure', 'state'],
                 },
             'generate': {
@@ -1408,7 +1416,9 @@ class ContractRentAdjustment(Workflow, ModelSQL, ModelView):
                 rent_adjustment=name, index=self.price_index.rec_name,
                 month=self.index_base_month.strftime('%m.%Y'),
                 base_year=self.price_index.base_year))
-        # I10: no comparative rent, modernisation only confirmed
+        # I10: no open comparative rent request, an open modernisation
+        # increase only confirmed - former increases do not prevent an
+        # index rent agreement (§ 557b para. 2 BGB applies from now on)
         if self._residential:
             chain = [t.id for t in self._chain_terms()]
             others = self.search([
@@ -1417,13 +1427,14 @@ class ContractRentAdjustment(Workflow, ModelSQL, ModelView):
                     ('state', '!=', 'closed'),
                     ('id', '!=', self.id),
                     ])
-            for other in others:
+            open_ = [(o, a) for o in others for a in o.adjustments
+                if a.state in ('draft', 'approved', 'declared')]
+            for other, adjustment in open_:
                 if other.procedure == 'comparative_rent':
                     raise ValidationError(gettext(
-                        'real_estate.msg_index_rent_comparative',
-                        term=other.term.rec_name.strip(),
-                        index_rent=name))
-            if any(o.procedure == 'modernisation' for o in others):
+                        'real_estate.msg_index_rent_comparative_open',
+                        index_rent=name, adjustment=adjustment.rec_name))
+            if any(o.procedure == 'modernisation' for o, _ in open_):
                 self._index_warning('modernisation', gettext(
                     'real_estate.msg_index_rent_modernisation',
                     rent_adjustment=name))
