@@ -122,7 +122,9 @@ Adjustment run
    amount and percent, create calculations). Tabs *Workflow* (process of
    the run), *Parameters*, *Adjustments* (editable list: approval reason,
    manual amount with reason), *Receipts / Consents* (editable list of
-   the announced adjustments: receipt date, dispatch method, consent),
+   the announced adjustments: receipt date, dispatch method, consent;
+   after the execution still shown read-only with the done or refused
+   adjustments),
    *Protocol* (dated block per step). *Execute* asks before starting
    the background execution (reload the run and watch the protocol);
    adjustments already waiting in the queue are not queued again

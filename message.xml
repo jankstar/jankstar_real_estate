@@ -1581,5 +1581,32 @@ Increase %(increase)s: rent %(old)s → %(new)s from %(valid_from)s</field>
         <record model="ir.message" id="msg_billing_run_done">
             <field name="text">%(count)s billing unit(s) processed.</field>
         </record>
+        <record model="ir.message" id="msg_option_rate_kind_base_object">
+            <field name="text">Object</field>
+        </record>
+        <record model="ir.message" id="msg_option_rate_kind_billing_unit">
+            <field name="text">Billing Unit</field>
+        </record>
+        <record model="ir.message" id="msg_option_rate_kind_settlement_unit">
+            <field name="text">Settlement Unit</field>
+        </record>
+        <record model="ir.message" id="msg_option_rate_status_created">
+            <field name="text">created</field>
+        </record>
+        <record model="ir.message" id="msg_option_rate_status_updated">
+            <field name="text">updated</field>
+        </record>
+        <record model="ir.message" id="msg_option_rate_status_unchanged">
+            <field name="text">unchanged</field>
+        </record>
+        <record model="ir.message" id="msg_option_rate_status_skipped">
+            <field name="text">skipped (no rate computable)</field>
+        </record>
+        <record model="ir.message" id="msg_option_rate_detail">
+            <field name="text">%(record)s (%(kind)s): %(status)s</field>
+        </record>
+        <record model="ir.message" id="msg_option_rate_detail_rate">
+            <field name="text">%(record)s (%(kind)s): %(status)s → %(rate)s %%</field>
+        </record>
     </data>
 </tryton>

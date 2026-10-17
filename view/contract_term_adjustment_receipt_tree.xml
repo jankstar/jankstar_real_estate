@@ -15,6 +15,6 @@
     <field name="terminated_561" optional="0"/>
     <field name="letter"/>
     <field name="procedure" tree_invisible="1"/>
-    <field name="state" tree_invisible="1"/>
+    <field name="state"/>
     <field name="currency" tree_invisible="1"/>
 </tree>

@@ -278,13 +278,25 @@ class OptionRate(ModelSQL, ModelView):
             base_objects, billing_units, settlement_units)
         counts = {'created': 0, 'updated': 0, 'unchanged': 0, 'skipped': 0}
         log = []
+        lang = Pool().get('ir.lang').get()
         for kind, record in expanded:
             new_rate = cls._compute_new_rate(kind, record, cutoff_date)
             status = cls._update_rate(
                 kind, record, cutoff_date, effective_date, new_rate)
             counts[status] += 1
-            detail = f'{record.rec_name} ({kind}): {status}'
+            # translated detail line, e.g. "Wohnung 01 (Objekt): unverändert
+            # → 33,33 %"
+            values = {
+                'record': record.rec_name,
+                'kind': gettext(f'real_estate.msg_option_rate_kind_{kind}'),
+                'status': gettext(
+                    f'real_estate.msg_option_rate_status_{status}'),
+                }
             if new_rate is not None:
-                detail += f' -> {new_rate} %'
-            log.append(detail)
+                log.append(gettext('real_estate.msg_option_rate_detail_rate',
+                        rate=lang.format_number(new_rate, grouping=False),
+                        **values))
+            else:
+                log.append(gettext('real_estate.msg_option_rate_detail',
+                        **values))
         return counts, log

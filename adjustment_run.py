@@ -205,7 +205,10 @@ class ContractTermAdjustmentRun(Workflow, ModelSQL, ModelView):
         states={'readonly': ~Eval('state').in_(
                 ['selected', 'calculated'])})
     receipts = fields.One2Many('real_estate.contract.term.adjustment',
-        'run', "Receipts", filter=[('state', '=', 'declared')],
+        'run', "Receipts",
+        # declared adjustments stay visible after the execution (done or
+        # refused) with their receipt and consent data
+        filter=[('state', 'in', ['declared', 'done', 'refused'])],
         states={'readonly': ~Eval('state').in_(['declared', 'ready'])})
     summary = fields.Text("Summary", readonly=True)
     protocol = fields.Text("Protocol", readonly=True)
