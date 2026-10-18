@@ -1214,6 +1214,69 @@ class RealEstateTestCase(ModuleTestCase):
             self.assertIn('sequence', str(cm.exception).lower())
 
     @with_transaction()
+    def test_base_object_hierarchy(self):
+        "Object number and property set on the server, also for subtrees"
+        from trytond.modules.company.tests import create_company, set_company
+
+        pool = Pool()
+        BaseObject = pool.get('real_estate.base_object')
+        UseClass = pool.get('real_estate.use_class')
+        start = datetime.date(2025, 1, 1)
+
+        company = create_company()
+        with set_company(company):
+            use_class, = UseClass.search([], limit=1)
+            values = {'company': company.id, 'start_date': start}
+            p1, p2 = BaseObject.create([
+                    dict(values, name='P1', type='property', sequence=10),
+                    dict(values, name='P2', type='property', sequence=20),
+                    ])
+            building, = BaseObject.create([dict(values, name='B',
+                        type='building', sequence=10, parent=p1.id)])
+            flat, = BaseObject.create([dict(values, name='W',
+                        type='object', sequence=10, parent=building.id,
+                        type_of_use='residential', use_class=use_class.id)])
+            self.assertEqual(
+                [(o.object_number, o.property)
+                    for o in BaseObject.browse([p1, building, flat])],
+                [('10', None), ('10/10', p1), ('10/10/10', p1)])
+
+            # Moving the building moves the whole subtree
+            BaseObject.write([building], {'parent': p2.id, 'sequence': 30})
+            self.assertEqual(
+                [(o.object_number, o.property)
+                    for o in BaseObject.browse([building, flat])],
+                [('20/30', p2), ('20/30/10', p2)])
+            self.assertEqual(
+                {o.property for o in BaseObject(flat.id).occupancy}, {p2})
+            BaseObject.write([p2], {'sequence': 40})
+            self.assertEqual(BaseObject(flat.id).object_number, '40/30/10')
+
+            # Equipment directly below the property (domain of parent)
+            equipment, = BaseObject.create([dict(values, name='E',
+                        type='equipment', e_type='structure', sequence=10,
+                        parent=p1.id)])
+            self.assertEqual(
+                (equipment.object_number, equipment.property), ('10/10', p1))
+
+            # The sequence of a property is unique within the company
+            with self.assertRaises(ValidationError):
+                BaseObject.create([dict(values, name='P3',
+                            type='property', sequence=10)])
+            BaseObject.write([p1], {'active': False})
+            with self.assertRaises(ValidationError):
+                BaseObject.create([dict(values, name='P3',
+                            type='property', sequence=10)])
+            new = BaseObject(company=company, type='property',
+                sequence=None, parent=None)
+            self.assertEqual(new.on_change_with_sequence(), 50)
+
+        other = create_company()
+        with set_company(other):
+            BaseObject.create([dict(values, company=other.id, name='P',
+                        type='property', sequence=10)])
+
+    @with_transaction()
     def test_inspection_default_data(self):
         "Default inspection types 7.1 / 7.2 with checklists and processes"
         pool = Pool()

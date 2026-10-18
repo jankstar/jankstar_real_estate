@@ -1205,128 +1205,128 @@ class SettlementUnit(DeactivableMixin, base_object.re_sequence_ordered(), ModelS
                         f' type {self.m_type.name} on {cost_share.end_date}')
 
             elif self.allocation_rule == 'allocation_by_consumption':
-                # Vacancy (no contract): consumption = 0, no reading required.
-                if not cost_share.contract:
-                    value = 0.0
-                else:
-                    meter_domain = [
-                        ('parent', '=', cost_share.base_object.id),
-                        ('type', '=', 'equipment'),
-                        ('e_type', '=', 'meters'),
-                        ('meter_unit', '=', self.meter_unit.id),
-                        ('state', '=', 'approved'),
-                    ]
-                    meters = BaseObject.search(meter_domain)
-                    if self.reg_ex_meter:
-                        pattern = re.compile(self.reg_ex_meter)
-                        meters = [m for m in meters if pattern.search(m.name or '')]
+                # Vacancy (no contract) as well: the consumption during the
+                # vacancy is measured by the meters and borne by the owner.
+                meter_domain = [
+                    ('parent', '=', cost_share.base_object.id),
+                    ('type', '=', 'equipment'),
+                    ('e_type', '=', 'meters'),
+                    ('meter_unit', '=', self.meter_unit.id),
+                    ('state', '=', 'approved'),
+                ]
+                meters = BaseObject.search(meter_domain)
+                if self.reg_ex_meter:
+                    pattern = re.compile(self.reg_ex_meter)
+                    meters = [m for m in meters if pattern.search(m.name or '')]
 
-                    if self.proportional_calculation == 'linear_interpolation':
-                        consumption = 0.0
-                        found = False
-                        for meter in meters:
-                            factor = float(meter.meter_factor or 1)
-                            try:
-                                end_rdg = MeterReading.set_interpolation_reading(
-                                    meter, cost_share.end_date)
-                                if meter.meter_is_counter:
-                                    start_rdg = MeterReading.set_interpolation_reading(
-                                        meter, cost_share.start_date)
-                                    consumption += (
-                                        float(end_rdg.value or 0)
-                                        - float(start_rdg.value or 0)
-                                    ) * factor
-                                else:
-                                    consumption += float(end_rdg.value or 0) * factor
-                                found = True
-                            except UserError as exc:
-                                error_msg = exc.message
-                                break
-
-                        if found and error_msg is None:
-                            value = consumption
-
-                    else:  # 'none' (default): nearest reading within a tolerance window
-                        pre_days = (self.type.reading_pre_days
-                                    if self.type and self.type.reading_pre_days is not None
-                                    else 7)
-                        post_days = (self.type.reading_post_days
-                                     if self.type and self.type.reading_post_days is not None
-                                     else 7)
-
-                        def _closest_reading(meter_id, target_date):
-                            """Return the reading closest to target_date within the
-                            window, considering all reading types (including
-                            estimates and previously interpolated values)."""
-                            lo = target_date - datetime.timedelta(days=pre_days)
-                            hi = target_date + datetime.timedelta(days=post_days)
-                            rdgs = MeterReading.search([
-                                ('base_object', '=', meter_id),
-                                ('reading_date', '>=', lo),
-                                ('reading_date', '<=', hi),
-                            ])
-                            if not rdgs:
-                                return None
-                            return min(rdgs, key=lambda r: abs((r.reading_date - target_date).days))
-
-                        # Predecessor vacancy: cost share for same object ending
-                        # the day before this one's start_date with no contract.
-                        cs_by_obj = sorted(
-                            [c for c in self.cost_shares
-                             if c.base_object and c.base_object.id == cost_share.base_object.id],
-                            key=lambda c: c.start_date or datetime.date.min)
-                        predecessor = None
-                        for c in cs_by_obj:
-                            if c.end_date and cost_share.start_date:
-                                if c.end_date < cost_share.start_date:
-                                    predecessor = c
-                                else:
-                                    break
-
-                        consumption = 0.0
-                        found = False
-                        for meter in meters:
-                            factor = float(meter.meter_factor or 1)
+                if self.proportional_calculation == 'linear_interpolation':
+                    consumption = 0.0
+                    found = False
+                    for meter in meters:
+                        factor = float(meter.meter_factor or 1)
+                        try:
+                            end_rdg = MeterReading.set_interpolation_reading(
+                                meter, cost_share.end_date)
                             if meter.meter_is_counter:
-                                end_rdg = _closest_reading(meter.id, cost_share.end_date)
-                                start_rdg = _closest_reading(meter.id, cost_share.start_date)
-                                # If no start reading and predecessor is a vacancy,
-                                # try the reading at the start of that vacancy.
-                                if start_rdg is None and predecessor and not predecessor.contract:
-                                    start_rdg = _closest_reading(meter.id, predecessor.start_date)
-                                if not end_rdg:
-                                    error_msg = gettext(
-                                        'real_estate.msg_no_end_reading',
-                                        name=cost_share.base_object.rec_name,
-                                        date=str(cost_share.end_date),
-                                        pre=pre_days, post=post_days)
-                                    break
-                                if not start_rdg:
-                                    error_msg = gettext(
-                                        'real_estate.msg_no_start_reading',
-                                        name=cost_share.base_object.rec_name,
-                                        date=str(cost_share.start_date),
-                                        pre=pre_days, post=post_days)
-                                    break
+                                start_rdg = MeterReading.set_interpolation_reading(
+                                    meter, cost_share.start_date)
                                 consumption += (
                                     float(end_rdg.value or 0)
                                     - float(start_rdg.value or 0)
                                 ) * factor
-                                found = True
                             else:
-                                rdg = _closest_reading(meter.id, cost_share.end_date)
-                                if not rdg:
-                                    error_msg = gettext(
-                                        'real_estate.msg_no_end_reading',
-                                        name=cost_share.base_object.rec_name,
-                                        date=str(cost_share.end_date),
-                                        pre=pre_days, post=post_days)
-                                    break
-                                consumption += float(rdg.value or 0) * factor
-                                found = True
+                                consumption += float(end_rdg.value or 0) * factor
+                            found = True
+                        except UserError as exc:
+                            error_msg = exc.message
+                            break
 
-                        if found:
-                            value = consumption
+                    if found and error_msg is None:
+                        value = consumption
+
+                else:  # 'none' (default): nearest reading within a tolerance window
+                    pre_days = (self.type.reading_pre_days
+                                if self.type and self.type.reading_pre_days is not None
+                                else 7)
+                    post_days = (self.type.reading_post_days
+                                 if self.type and self.type.reading_post_days is not None
+                                 else 7)
+
+                    def _closest_reading(meter_id, target_date):
+                        """Return the reading closest to target_date within the
+                        window, considering all reading types (including
+                        estimates and previously interpolated values)."""
+                        lo = target_date - datetime.timedelta(days=pre_days)
+                        hi = target_date + datetime.timedelta(days=post_days)
+                        rdgs = MeterReading.search([
+                            ('base_object', '=', meter_id),
+                            ('reading_date', '>=', lo),
+                            ('reading_date', '<=', hi),
+                        ])
+                        if not rdgs:
+                            return None
+                        return min(rdgs, key=lambda r: abs((r.reading_date - target_date).days))
+
+                    # Predecessor vacancy: cost share for same object ending
+                    # the day before this one's start_date with no contract.
+                    cs_by_obj = sorted(
+                        [c for c in self.cost_shares
+                         if c.base_object and c.base_object.id == cost_share.base_object.id],
+                        key=lambda c: c.start_date or datetime.date.min)
+                    predecessor = None
+                    for c in cs_by_obj:
+                        if c.end_date and cost_share.start_date:
+                            if c.end_date < cost_share.start_date:
+                                predecessor = c
+                            else:
+                                break
+
+                    consumption = 0.0
+                    found = False
+                    for meter in meters:
+                        factor = float(meter.meter_factor or 1)
+                        if meter.meter_is_counter:
+                            end_rdg = _closest_reading(meter.id, cost_share.end_date)
+                            start_rdg = _closest_reading(meter.id, cost_share.start_date)
+                            # If no start reading and predecessor is a vacancy,
+                            # take the reading at the end of that vacancy -
+                            # its own consumption ends there (not its start:
+                            # the vacancy consumption would be counted twice).
+                            if start_rdg is None and predecessor and not predecessor.contract:
+                                start_rdg = _closest_reading(meter.id, predecessor.end_date)
+                            if not end_rdg:
+                                error_msg = gettext(
+                                    'real_estate.msg_no_end_reading',
+                                    name=cost_share.base_object.rec_name,
+                                    date=str(cost_share.end_date),
+                                    pre=pre_days, post=post_days)
+                                break
+                            if not start_rdg:
+                                error_msg = gettext(
+                                    'real_estate.msg_no_start_reading',
+                                    name=cost_share.base_object.rec_name,
+                                    date=str(cost_share.start_date),
+                                    pre=pre_days, post=post_days)
+                                break
+                            consumption += (
+                                float(end_rdg.value or 0)
+                                - float(start_rdg.value or 0)
+                            ) * factor
+                            found = True
+                        else:
+                            rdg = _closest_reading(meter.id, cost_share.end_date)
+                            if not rdg:
+                                error_msg = gettext(
+                                    'real_estate.msg_no_end_reading',
+                                    name=cost_share.base_object.rec_name,
+                                    date=str(cost_share.end_date),
+                                    pre=pre_days, post=post_days)
+                                break
+                            consumption += float(rdg.value or 0) * factor
+                            found = True
+
+                    if found:
+                        value = consumption
 
             elif self.allocation_rule == 'allocation_per_rental_unit':
                 value = (cost_share.time_share / self.time_total
@@ -1388,33 +1388,34 @@ class SettlementUnit(DeactivableMixin, base_object.re_sequence_ordered(), ModelS
         self._compute_heizkostenv_split()
 
         CostShare = pool.get('real_estate.cost_share')
-        vt = Decimal(str(total)) if total else Decimal(0)
+        _cent = Decimal('0.01')
 
         cost_shares = CostShare.search(
             [('settlement_unit', '=', self.id),
              ('state', '=', 'value_share')])
 
-        def _distribute(su_amount):
-            """Return list of (cost_share, rounded_amount) summing to su_amount."""
-            _cent = Decimal('0.01')
+        def _distribute(su_amount, weights):
+            """Return list of (cost_share, rounded_amount) summing to
+            su_amount, in proportion to weights {cost share id: weight}."""
+            vt = Decimal(str(round(sum(weights.values()), 4)))
             rows = []
             for cs in cost_shares:
-                if not cs.value_share or not vt:
+                weight = weights.get(cs.id) or 0.0
+                if not weight or not vt:
                     raw = Decimal(0)
                 else:
-                    vs = Decimal(str(cs.value_share))
-                    raw = su_amount * vs / vt
+                    raw = su_amount * Decimal(str(weight)) / vt
                 rows.append([cs, raw.quantize(_cent, rounding=ROUND_HALF_UP)])
             diff = (su_amount - sum(r[1] for r in rows)).quantize(_cent)
             if diff and rows:
-                # Prefer cost shares with an actual (non-zero) value_share
+                # Prefer cost shares with an actual (non-zero) weight
                 # to absorb the rounding remainder - a cost share with zero
                 # consumption/measurement (e.g. a vacancy period with no
                 # meter reading change) must never end up with a non-zero
                 # cost purely due to rounding. Only fall back to all rows
-                # if every row has value_share 0 (nothing else to put the
+                # if every row has weight 0 (nothing else to put the
                 # remainder on).
-                adjustable = [r for r in rows if r[0].value_share] or rows
+                adjustable = [r for r in rows if weights.get(r[0].id)] or rows
                 n = int(abs(diff) / _cent)
                 if diff > 0:
                     adjustable.sort(key=lambda r: r[1])
@@ -1430,14 +1431,53 @@ class SettlementUnit(DeactivableMixin, base_object.re_sequence_ordered(), ModelS
             + (self.planned_costs_from_references or Decimal(0)))
         total_actual = ((self.actual_costs or Decimal(0))
             + (self.actual_costs_from_references or Decimal(0)))
-        planned_rows = _distribute(total_planned)
-        actual_rows = _distribute(total_actual)
+
+        if self._heating_split_internal():
+            # HeizkostenV §7/§8: the consumption share percentage of the
+            # costs by the consumption of the meters, the rest by area
+            consumption_weights = {
+                cs.id: cs.consumption_share or 0.0 for cs in cost_shares}
+            area_weights = {cs.id: cs.area_share or 0.0 for cs in cost_shares}
+            missing = []
+            if cost_shares and not any(consumption_weights.values()):
+                missing.append('real_estate.msg_heating_split_no_consumption')
+            if cost_shares and not any(area_weights.values()):
+                missing.append('real_estate.msg_heating_split_no_area')
+            if missing and (total_planned or total_actual):
+                CostShare.write(cost_shares, {
+                        'state': 'error',
+                        'error_message': ' '.join(
+                            gettext(m, name=self.rec_name) for m in missing),
+                        })
+                return
+            percent = self.heating_consumption_share_percent or Decimal(0)
+
+            def _split(amount):
+                consumption_amount = (amount * percent / 100).quantize(
+                    _cent, rounding=ROUND_HALF_UP)
+                area_by_id = {cs.id: value for cs, value in _distribute(
+                        amount - consumption_amount, area_weights)}
+                return [[cs, value + area_by_id[cs.id]]
+                    for cs, value in _distribute(
+                        consumption_amount, consumption_weights)]
+            planned_rows = _split(total_planned)
+            actual_rows = _split(total_actual)
+        else:
+            weights = {cs.id: cs.value_share or 0.0 for cs in cost_shares}
+            planned_rows = _distribute(total_planned, weights)
+            actual_rows = _distribute(total_actual, weights)
 
         actual_by_id = {r[0].id: r[1] for r in actual_rows}
         for cost_share, planned_amount in planned_rows:
             cost_share.planned_costs = planned_amount
             cost_share.actual_costs = actual_by_id.get(cost_share.id, Decimal(0))
             cost_share.save()
+
+    def _heating_split_internal(self):
+        "HeizkostenV split of an internal billing by the meters"
+        return (self.allocation_rule == 'allocation_by_consumption'
+            and self.heating_billing_mode in (
+                'central_heating', 'central_hot_water'))
 
     def _compute_heizkostenv_split(self):
         """HeizkostenV split (heating_billing_mode = central_heating /
@@ -1451,11 +1491,13 @@ class SettlementUnit(DeactivableMixin, base_object.re_sequence_ordered(), ModelS
           time_share / self.time_total (same weighting as
           allocation_by_measurement) - computed for every cost share.
         - cost_share.consumption_share: only when allocation_rule is
-          'allocation_by_consumption' - the raw consumption value the
-          main computation above wrote into value_share is moved here
-          instead (value_share is reset to 0), since for a
-          HeizkostenV-split unit the raw consumption is no longer, on
-          its own, the cost-distribution basis stored in value_share.
+          'allocation_by_consumption' (internal billing) - the
+          consumption of the meters the main computation above wrote
+          into value_share (value_share keeps it). The costs are then
+          split by heating_consumption_share_percent on the consumption
+          shares and the rest on the area shares (compute_value_shares).
+          For internal billing a missing area measurement sets the cost
+          share to error.
 
         self.total_value_consumption / self.total_value_area are the
         sum of these two fields across all of this unit's cost shares.
@@ -1464,25 +1506,40 @@ class SettlementUnit(DeactivableMixin, base_object.re_sequence_ordered(), ModelS
                 'central_heating', 'central_hot_water'):
             return
         Measurement = Pool().get('real_estate.measurement')
+        internal = self._heating_split_internal()
         total_consumption = 0.0
         total_area = 0.0
         for cost_share in self.cost_shares:
             if not cost_share.base_object:
                 continue
-            if self.allocation_rule == 'allocation_by_consumption':
-                cost_share.consumption_share = cost_share.value_share or 0.0
-                cost_share.value_share = 0.0
-                total_consumption += cost_share.consumption_share
+            if internal and cost_share.state != 'value_share':
+                # no consumption (missing meter reading) - already error
+                continue
+            mval = None
             if self.heating_area_measurement_type:
                 mval = Measurement.get_total_value(
                     cost_share.base_object.id,
                     self.heating_area_measurement_type, cost_share.end_date)
-                if mval is not None:
-                    area = round(
-                        mval * cost_share.time_share / self.time_total
-                        if self.time_total else mval, 4)
-                    cost_share.area_share = area
-                    total_area += area
+            if mval is not None:
+                area = round(
+                    mval * cost_share.time_share / self.time_total
+                    if self.time_total else mval, 4)
+                cost_share.area_share = area
+                total_area += area
+            elif internal:
+                cost_share.area_share = None
+                cost_share.state = 'error'
+                cost_share.error_message = gettext(
+                    'real_estate.msg_heating_split_no_area_measurement',
+                    name=cost_share.base_object.rec_name,
+                    m_type=(self.heating_area_measurement_type.name
+                        if self.heating_area_measurement_type else '?'),
+                    date=str(cost_share.end_date))
+                cost_share.save()
+                continue
+            if internal:
+                cost_share.consumption_share = cost_share.value_share or 0.0
+                total_consumption += cost_share.consumption_share
             cost_share.save()
         self.total_value_consumption = round(total_consumption, 4)
         self.total_value_area = round(total_area, 4)

@@ -179,7 +179,7 @@ class BaseObject(Workflow, DeactivableMixin, re_sequence_ordered(), tree(separat
             If(Bool(Equal( Eval('type'), 'building')), ('type', 'in', ('property', 'building') ), ()),
             If(Bool(Equal( Eval('type'), 'land')), ('type', '=', 'property' ), ()),
             If(Bool(Equal( Eval('type'), 'object')), ('type', 'in', ('property', 'building', 'land') ), ()),
-            If(Bool(Equal( Eval('type'), 'equipment')), ('type', 'in', ('building', 'land', 'object', 'equipment') ), ()),],
+            If(Bool(Equal( Eval('type'), 'equipment')), ('type', 'in', ('property', 'building', 'land', 'object', 'equipment') ), ()),],
         states={
             'invisible': ( Eval('type') == 'property' or Eval('type', -1) == -1 ),
             'required': Eval('type') != 'property',
@@ -909,6 +909,23 @@ class BaseObject(Workflow, DeactivableMixin, re_sequence_ordered(), tree(separat
                     raise ValidationError(gettext(
                         'real_estate.msg_base_object_sequence_required',
                         name=self.name))
+            # The SQL constraint sequence_unique does not apply to objects
+            # without parent (NULL parents are distinct): the sequence of a
+            # property must be unique within the company
+            if ({'sequence', 'parent', 'company'} & set(fields)
+                    and self.parent is None and self.sequence is not None):
+                with Transaction().set_context(active_test=False):
+                    others = cls.search([
+                            ('company', '=', self.company.id),
+                            ('parent', '=', None),
+                            ('sequence', '=', self.sequence),
+                            ('id', '!=', self.id),
+                            ], limit=1)
+                if others:
+                    raise ValidationError(gettext(
+                        'real_estate.msg_base_object_sequence_root_unique',
+                        name=self.name, sequence=self.sequence,
+                        other=others[0].name))
             if 'type' in fields: 
                 if self.type == None  \
                     or self.parent == None and not self.type in ['property'] \
@@ -964,13 +981,27 @@ class BaseObject(Workflow, DeactivableMixin, re_sequence_ordered(), tree(separat
 
 
     @classmethod
+    def create(cls, vlist):
+        records = super().create(vlist)
+        cls._update_hierarchy(records)
+        return records
+
+    @classmethod
     def write(cls, *args):
         super().write(*args)
+        if Transaction().context.get('_base_object_hierarchy'):
+            # write of _update_hierarchy - the caller refreshes the occupancy
+            return
         all_ids = set()
+        moved = set()
         actions = iter(args)
-        for records, _ in zip(actions, actions):
+        for records, values in zip(actions, actions):
             for rec in records:
                 all_ids.add(rec.id)
+            if {'parent', 'sequence', 'type'} & set(values):
+                moved.update(r.id for r in records)
+        if moved:
+            all_ids |= cls._update_hierarchy(cls.browse(list(moved)))
         rental_objects = [o for o in cls.browse(list(all_ids)) if o.type == 'object']
         if rental_objects:
             BaseObjectOccupancy = Pool().get('real_estate.base_object.occupancy')
@@ -978,6 +1009,48 @@ class BaseObject(Workflow, DeactivableMixin, re_sequence_ordered(), tree(separat
             property_ids = {o.property.id for o in rental_objects if o.property}
             if property_ids:
                 cls.compute_value_shares(cls.browse(list(property_ids)))
+
+    @classmethod
+    def _update_hierarchy(cls, records):
+        """Store the property and the object number derived from the
+        parents and the sequences for the records and all their
+        descendants - both are readonly, the on_change in the client does
+        not reach objects created on the server or moved subtrees.
+        Returns the ids of the objects changed."""
+        if not records:
+            return set()
+        with Transaction().set_context(active_test=False):
+            objects = cls.search([
+                    ('parent', 'child_of', [r.id for r in records]),
+                    ])
+        computed = {}
+
+        def compute(obj):
+            "(object number, property id) of the object"
+            if obj.id not in computed:
+                if obj.parent:
+                    number, root = compute(obj.parent)
+                    computed[obj.id] = (f'{number}/{obj.sequence}',
+                        root or obj.parent.id)
+                else:
+                    computed[obj.id] = (f'{obj.sequence}', None)
+            return computed[obj.id]
+
+        to_write = []
+        changed = set()
+        for obj in objects:
+            number, root = compute(obj)
+            if (obj.object_number != number
+                    or (obj.property.id if obj.property else None) != root):
+                to_write.extend(([obj], {
+                            'object_number': number,
+                            'property': root,
+                            }))
+                changed.add(obj.id)
+        if to_write:
+            with Transaction().set_context(_base_object_hierarchy=True):
+                cls.write(*to_write)
+        return changed
 
     def get_number_of_objects(self, name=None):
         return len(self.children)
@@ -1070,17 +1143,27 @@ class BaseObject(Workflow, DeactivableMixin, re_sequence_ordered(), tree(separat
             return self.use_class.has_parking_nr
         return False
 
-    @fields.depends('sequence', 'parent', 'type', '_parent_parent.id')
+    @fields.depends('sequence', 'parent', 'type', 'company',
+        '_parent_parent.id')
     def on_change_with_sequence(self, name=None):
         """Propose the next free sequence among the objects of the same
         type below the same parent (step 10) - the sequence must be unique
-        per type and parent (constraint sequence_unique)"""
-        if self.sequence or not self.parent or not self.type:
+        per type and parent (constraint sequence_unique), for a property
+        within the company"""
+        if self.sequence or not self.type:
             return self.sequence
-        if self.parent.id is None or self.parent.id < 0:
-            return 10
-        siblings = self.search([
-                ('parent', '=', self.parent.id),
+        if self.parent:
+            if self.parent.id is None or self.parent.id < 0:
+                return 10
+            domain = [('parent', '=', self.parent.id)]
+        elif self.type == 'property' and self.company:
+            domain = [
+                ('parent', '=', None),
+                ('company', '=', self.company.id),
+                ]
+        else:
+            return self.sequence
+        siblings = self.search(domain + [
                 ('type', '=', self.type),
                 ('id', '!=', self.id if self.id and self.id > 0 else -1),
                 ('active', 'in', [True, False]),

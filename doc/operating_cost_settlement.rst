@@ -216,13 +216,20 @@ Sub-topics on separate pages:
       ``reading_pre_days`` / ``reading_post_days`` on the cost type; the
       closest reading to the target date is chosen.
 
-      **Vacancy handling:** cost shares without a contract receive
-      ``value_share = 0`` automatically — no meter reading is required.
-      For the immediately following contract cost share, if no start reading
-      exists within the normal window, the system falls back to the reading
-      taken at the start of the preceding vacancy. This allows a single
-      read-out at move-out to serve as both the vacancy baseline and the
-      contract's opening reading.
+      **Vacancy handling:** cost shares without a contract (vacancy, only
+      with ``vacancy = by_owner``) are measured by the meters like a
+      contract - the consumption during the vacancy is borne by the
+      owner, so readings at the start and the end of the vacancy are
+      required. For the immediately following contract cost share, if no
+      start reading exists within the normal window, the system falls back
+      to the reading taken at the end of the preceding vacancy (never its
+      start - the vacancy consumption would be counted twice).
+
+      Heat cost allocators (HKV) are maintained as counters
+      (``meter_is_counter``), like any other meter: the consumption of a
+      period is the difference between the readings at its start and end,
+      also when the tenant changes during the year. For a non-counter
+      meter only the reading at the end of the period is taken.
 
       Missing readings set the cost share to state ``error`` with one of:
 
@@ -349,8 +356,8 @@ Sub-topics on separate pages:
    Stores ``value_share`` (time-weighted allocation factor — for
    ``allocation_by_measurement`` and ``allocation_per_rental_unit`` this
    already incorporates the occupancy fraction ``time_share / time_total``;
-   for ``allocation_by_consumption`` it holds the raw consumption value,
-   *unless* the settlement unit is HeizkostenV-split — see
+   for ``allocation_by_consumption`` it holds the raw consumption value
+   of the meters, also when the settlement unit is HeizkostenV-split — see
    ``consumption_share`` below), ``time_share`` (days), ``planned_costs``,
    ``actual_costs``.
    ``error_message`` describes the problem; entries set by
@@ -377,25 +384,36 @@ Sub-topics on separate pages:
       ``central_hot_water``:
 
       - ``consumption_share`` — only for ``allocation_rule =
-        allocation_by_consumption``: the raw consumption value that would
-        otherwise sit in ``value_share`` is moved here instead, and
-        ``value_share`` is reset to ``0`` (so a HeizkostenV-split
-        consumption-based unit currently distributes no
-        ``planned_costs``/``actual_costs`` via
-        ``compute_value_shares()``'s own ``_distribute()`` step — a
-        deliberate, temporary state pending a follow-up that recombines
-        ``consumption_share``/``area_share`` via
-        ``heating_consumption_share_percent``/``heating_area_share_percent``
-        into the actual cost distribution).
+        allocation_by_consumption`` (internal billing): the consumption
+        of the meters, as in ``value_share`` (which keeps it).
       - ``area_share`` — computed for *every* cost share of a
         HeizkostenV-split unit regardless of its ``allocation_rule``:
         the value of the unit's own ``heating_area_measurement_type`` for
         the cost share's ``base_object``, weighted by
         ``time_share / settlement_unit.time_total`` (same weighting as
-        ``allocation_by_measurement`` above).
+        ``allocation_by_measurement`` above). For internal billing a
+        missing measurement sets the cost share to ``error``
+        (``msg_heating_split_no_area_measurement``).
 
       Both values are summed into the parent settlement unit's
       ``total_value_consumption``/``total_value_area``.
+
+      **Cost distribution (internal billing):** for
+      ``allocation_by_consumption`` with ``heating_billing_mode``
+      ``central_heating``/``central_hot_water`` the planned and actual
+      costs are split: ``heating_consumption_share_percent`` of the costs
+      (rounded to cents) is distributed in proportion to
+      ``consumption_share`` (the meters), the rest in proportion to
+      ``area_share`` (the measurement); each cost share gets the sum of
+      both parts, the cent remainders go to cost shares with a non-zero
+      share, so the total stays exact. Vacancy cost shares carry their
+      own measured consumption and their area share (owner). Without any
+      consumption or without any area share the cost shares are set to
+      ``error`` (``msg_heating_split_no_consumption`` /
+      ``msg_heating_split_no_area``) instead of distributing. External
+      billing (``allocation_from_external_billing``) is unaffected - the
+      provider performs the split; only ``area_share`` is computed for
+      information.
 
 ``real_estate.settlement_result``  (``settlement_result.py``)
    Final settlement record per contract (or object) and billing unit.

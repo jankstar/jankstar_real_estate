@@ -13,16 +13,27 @@ Property Management
 
    *Types:* ``property`` · ``building`` · ``object`` · ``land`` · ``equipment``
 
-   *Workflow:* Draft → Active → Closed
+   *Workflow:* Draft → Approved → Locked → Deactivated (back from Approved to Draft and from Locked to Approved)
 
    Key features:
 
    - Parent–child tree (``tree()`` mixin), e.g. Property → Building → Apartment
    - ``sequence`` unique per type and parent (constraint
-     ``sequence_unique``); when parent and type are set and the sequence is
-     empty, the next free one below the parent is proposed (step 10,
+     ``sequence_unique``), for properties (no parent) unique per company,
+     also against deactivated ones (``msg_base_object_sequence_root_unique``);
+     when the sequence is empty, the next free one below the parent (resp.
+     among the properties of the company) is proposed (step 10,
      ``on_change_with_sequence``). The object number is the parent's
      object number plus ``/`` and the sequence.
+   - ``object_number`` and ``property`` (top-most ancestor) are stored
+     readonly and set on the server (``_update_hierarchy()``): on create
+     and whenever ``parent``, ``sequence`` or ``type`` change, for the
+     object and its whole subtree - a moved building gets new object
+     numbers and the new property for all its objects, whose occupancy is
+     then refreshed.
+   - Allowed parents: building below property or building, land below
+     property, rental object below property, building or land, equipment
+     below any type (also directly below the property).
    - One2Many relations to ``Address``, ``ObjectParty``, ``Measurement``,
      and ``BillingUnit``
    - History tracking via ``BaseObjectOccupancy`` (tenant occupancy periods)

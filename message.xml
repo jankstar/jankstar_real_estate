@@ -220,6 +220,15 @@
         <record model="ir.message" id="msg_no_end_reading">
             <field name="text">No end reading for "%(name)s" on %(date)s (window: -%(pre)d/+%(post)d days).</field>
         </record>
+        <record model="ir.message" id="msg_heating_split_no_area_measurement">
+            <field name="text">No measurement "%(m_type)s" for "%(name)s" on %(date)s for the area share of the heating cost split.</field>
+        </record>
+        <record model="ir.message" id="msg_heating_split_no_consumption">
+            <field name="text">"%(name)s": no consumption measured by the meters - the consumption share of the heating costs cannot be distributed.</field>
+        </record>
+        <record model="ir.message" id="msg_heating_split_no_area">
+            <field name="text">"%(name)s": no area share - the area share of the heating costs cannot be distributed.</field>
+        </record>
         <record model="ir.message" id="msg_no_reading_before_interpolation">
             <field name="text">No reading before %(date)s for "%(name)s" — cannot interpolate.</field>
         </record>
@@ -907,6 +916,9 @@ Either run "Ready for Billing" for each billing unit first, or bill individual b
         </record>
         <record model="ir.message" id="msg_base_object_sequence_positive">
             <field name="text">The sequence must be greater than zero.</field>
+        </record>
+        <record model="ir.message" id="msg_base_object_sequence_root_unique">
+            <field name="text">"%(name)s": the sequence %(sequence)s is already used by the property "%(other)s" of the same company.</field>
         </record>
         <record model="ir.message" id="msg_measurement_unique">
             <field name="text">The object already has a measurement of this type from the same date.</field>
