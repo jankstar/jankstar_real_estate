@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<tree>
+    <field name="date"/>
+    <field name="property" expand="1"/>
+    <field name="invoice"/>
+    <field name="amount_gross"/>
+    <field name="summary" expand="2"/>
+</tree>

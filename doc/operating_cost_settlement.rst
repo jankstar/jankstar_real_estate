@@ -9,6 +9,57 @@ Sub-topics on separate pages:
 - `BVED External Billing Interface <bved.rst>`__ - data exchange with
   external metering service providers
 
+``real_estate.oc_document``  (``oc_document.py``)
+   Operating cost document (*Betriebskostenbeleg*), phase 1 of the
+   operating cost assignment: one record per posted move line on an
+   operating cost account - the account of a cost type (``account`` on
+   ``real_estate.cost_type``, one per company: ``fields.MultiValue`` with
+   the value model ``real_estate.cost_type.account``). Created when a move is posted
+   (``account.move.post``; postings in adjustment periods are skipped) or
+   by the wizard *Update Operating Cost Documents* (e.g. after an account
+   was added to a cost type). Stores property (from the move line's
+   ``base_object``; empty = hint "without property"), date, account,
+   supplier, invoice/invoice line, ``amount_booked`` (debit - credit),
+   ``amount_net`` and ``amount_gross`` (from the invoice line, scaled by
+   the posting for credit notes/cancellations; without invoice all three
+   are equal), state *open* / *proposed* (lines sum up to net and gross)
+   / *confirmed*.
+
+   Assignment lines ``real_estate.oc_document.line``: target settlement
+   unit, contract + settlement unit (direct costs of the contract) or
+   property (owner, not allocated), percent, net/gross, service period,
+   § 35a EStG with labor share, BVED fuel type/quantity, proposal source.
+
+   Menu *Operating Costs › Assign Operating Costs* (filter company,
+   property, account, supplier, dates, without property; tabs open /
+   proposed / confirmed / all). Buttons: *Propose* (1. the account belongs
+   to one cost type with one open settlement unit for the date, 2. as the
+   last confirmed document of the same property, supplier and account,
+   3. as for another property - settlement units of another period are
+   found via ``predecessor``), *Split by Service Period* (day by day onto
+   the same settlement unit of the periods, ``split_by_days()`` /
+   ``distribute()``), *Take Over from History* (earlier documents of the
+   same supplier and account, shown on the form), *Confirm*, *Reset*.
+   Lines on a billing unit that is ready for billing or billed cannot be
+   changed.
+
+   Billing (phase 2): ``SettlementUnit.selection_actual_costs()`` sums the
+   confirmed lines with target settlement unit into ``actual_costs_gross`` /
+   ``actual_costs_net`` (planned costs likewise ``planned_costs_gross`` /
+   ``_net``, also forwarded by ``allocation_via_cost_collector``). The
+   value shares are computed once; gross and net are both distributed and
+   each cost share takes the gross amount if the option rate of its rental
+   object is 0 % and the net amount if it is 100 %
+   (``msg_cost_share_option_rate_invalid`` otherwise). Lines with target
+   contract are added to the contract's settlement result of the billing
+   unit (``direct_costs``; the contract needs one result with an advance
+   payment term with settlement - ``msg_oc_direct_no_result`` /
+   ``msg_oc_direct_several_results``). *Ready for Billing* requires the
+   documents with lines on the billing unit to be confirmed
+   (``msg_billing_unit_oc_documents_open``); other unconfirmed documents of
+   the property in the period are logged as a hint.
+   Specification: ``specs/spezifikation-betriebskostenzuordnung.md``.
+
 ``real_estate.cost_category_group``  (``billing_unit.py``)
    Groups cost types for reporting, e.g. *Heating*, *Water*, *Janitorial*.
 
@@ -420,7 +471,8 @@ Sub-topics on separate pages:
 
    *States:* ``approved`` · ``billed``
 
-   Stores ``planned_costs``, ``actual_costs``, ``advanced_payment``
+   Stores ``planned_costs``, ``actual_costs`` (including ``direct_costs``,
+   the part assigned directly to the contract), ``advanced_payment``
    (sum of ``posted``/``paid`` operating-cost advance invoice lines during
    the period), and the derived ``refund_receivable`` (positive = refund
    to tenant, negative = additional receivable).

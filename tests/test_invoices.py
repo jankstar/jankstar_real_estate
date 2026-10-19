@@ -2,46 +2,58 @@
 Kreditoren-Rechnungen (Lieferantenrechnungen) für Demodaten anlegen und buchen.
 
 Voraussetzung: Die Kreditoren aus test_kreditor.py müssen bereits vorhanden sein
-sowie test_immo.py und test_billing_unit.py (für Settlement-Unit-Zuordnung).
+sowie test_immo.py und test_billing_unit.py (Kostensammler). Außerdem muss an
+den Kostenarten (Typ Kostensammler) das Konto gepflegt sein (Grundsteuer 8910,
+übrige 8020 - Einstellung, wird nicht vom Skript gesetzt), sonst entstehen beim
+Buchen keine Betriebskostenbelege.
 
-Das Skript legt folgende Rechnungen an und bucht sie (state=posted). Alle
-Daten liegen im gewählten Kalenderjahr (Parameter --year, Default 2025):
+Ablauf (spezifikation-betriebskostenzuordnung.md): Die Rechnungszeilen tragen
+nur die Wirtschaftseinheit (Objekt = Property, Kontierungsart Betriebskosten),
+keinen Kostensammler. Die Rechnung wird gebucht (state=posted); dabei entsteht
+je Rechnungszeile ein Betriebskostenbeleg. Das Skript ordnet jeden Beleg zu
+100 % dem Kostensammler der genannten Sequenz zu, dessen Abrechnungseinheit
+das Rechnungsdatum abdeckt, und bestätigt ihn - wie ein Benutzer in
+"Betriebskosten zuordnen".
+
+Rechnungen (alle Daten im gewählten Kalenderjahr, Parameter --year,
+Default 2025):
 
   Land Berlin — 1 Rechnung:
     - Datum: 15.03.<year>
     - Position: "Grundsteuer <year>", 1 × 1.890,00 EUR, ohne Steuer
-    - Konto: 8910 (Grundsteuer), Settlement Unit 100
+    - Konto: 8910 (Grundsteuer), Kostensammler 100
 
   Allianz AG — 1 Rechnung:
     - Datum: 15.02.<year>
     - Position: "Gebäudeversicherung <year>", 1 × 7.801,00 EUR + 19 % VSt
-    - Konto: 8020 (Andere Betriebskosten), Settlement Unit 110
+    - Konto: 8020 (Andere Betriebskosten), Kostensammler 110
 
   Berliner Wasserbetriebe — 6 Rechnungen, 2-monatlich zum 15. (Jan–Nov):
     - Position: "Wasserrechnung MM/YYYY", 1 × 2.166,00 EUR + 19 % VSt
-    - Konto: 8020 (Andere Betriebskosten), Settlement Unit 200
+    - Konto: 8020 (Andere Betriebskosten), Kostensammler 200
 
   Gas AG — 6 Rechnungen, 2-monatlich zum 15. (Jan–Nov):
-    - Position: "Gasrechnung MM/YYYY", 1 × 39.650,00 EUR + 19 % VSt
-    - Konto: 8020 (Andere Betriebskosten), Settlement Unit 300
+    - Position: "Gasrechnung MM/YYYY", 1 × 6.630,00 EUR + 19 % VSt
+    - Konto: 8020 (Andere Betriebskosten), Kostensammler 300
 
   BSR — 6 Rechnungen, 2-monatlich zum 15. (Jan–Nov):
-    - Position 1: "Straßenreinigung", 1 × 433,00 EUR + 19 % VSt, Settlement Unit 500
-    - Position 2: "Müll",             1 × 541,00 EUR + 19 % VSt, Settlement Unit 510
+    - Position 1: "Straßenreinigung", 1 × 433,00 EUR + 19 % VSt, Kostensammler 500
+    - Position 2: "Müll",             1 × 541,00 EUR + 19 % VSt, Kostensammler 510
 
   Vattenfall — 6 Rechnungen, 2-monatlich zum 15. (Jan–Nov):
-    - Position: "Hausstrom", 1 × 650,00 EUR + 19 % VSt, Settlement Unit 610
+    - Position: "Hausstrom", 1 × 650,00 EUR + 19 % VSt, Kostensammler 610
 
   Reinigung Müller / B&O — je 12 Rechnungen, monatlich zum 25.:
-    - Hausreinigung 431,00 EUR + 19 % VSt (Settlement Unit 520)
-    - Hausmeister   758,00 EUR + 19 % VSt (Settlement Unit 700)
+    - Hausreinigung 431,00 EUR + 19 % VSt (Kostensammler 520)
+    - Hausmeister   758,00 EUR + 19 % VSt (Kostensammler 700)
 
   Gartenpflege GaLa — 1 Rechnung 15.02.<year>, 3.250,00 EUR + 19 % VSt (SU 600)
   Schornsteinfeger Krüger — 1 Rechnung 15.11.<year>, 1.950,00 EUR + 19 % VSt (SU 620)
   Vailand GmbH — 1 Rechnung 25.11.<year>, 3.860,00 EUR + 19 % VSt (SU 310)
 
 Das Skript ist idempotent: bereits vorhandene Rechnungen (gleiche Party,
-Datum und Referenz) werden übersprungen. Die Referenz enthält jeweils den
+Datum und Referenz) werden übersprungen; unbestätigte Belege bereits
+vorhandener Rechnungen werden (erneut) zugeordnet und bestätigt. Die Referenz enthält jeweils den
 Property-Namen in eckigen Klammern, z.B. "Grundsteuer 2025 [Musterstraße 1-4]".
 Da die Referenz das Jahr enthält, kann das Skript für ein weiteres Jahr
 (z.B. --year 2026) erneut ausgeführt werden, ohne die Rechnungen des
@@ -138,7 +150,7 @@ def get_settlement_unit(sequence: int, prop, invoice_date: datetime.date):
     if not results:
         print(f'  WARNUNG: Settlement Unit Sequence {sequence} für Property {prop.name}'
               f' zum Datum {invoice_date} nicht gefunden (keine Billing Unit mit'
-              f' passendem Zeitraum und Status draft/billed) — Feld wird nicht gesetzt.')
+              f' passendem Zeitraum, Status nicht draft/billed) — Beleg bleibt offen.')
         return None
     if len(results) > 1:
         print(f'  WARNUNG: Settlement Unit Sequence {sequence} für Property {prop.name}'
@@ -174,22 +186,25 @@ def create_and_post_invoice(
     """
     lines_data: Liste von Dicts mit Schlüsseln:
         description (str), unit_price (Decimal), account, taxes (list),
-        property (optional), settlement_unit (optional).
-    Ist settlement_unit gesetzt, wird billing_unit automatisch aus
-    settlement_unit.billing_unit mit übernommen (InvoiceLine.validate()
-    verlangt, dass beide gesetzt sind und zusammengehören).
+        property, settlement_unit (optional).
+    Die Zeile trägt nur die Wirtschaftseinheit (base_object = property,
+    Kontierungsart Betriebskosten); die Rechnung wird gebucht, dann wird
+    der Betriebskostenbeleg jeder Zeile dem settlement_unit zugeordnet und
+    bestätigt (assign_documents).
     """
 
     Invoice = Model.get('account.invoice')
 
-    if Invoice.find([
+    existing = Invoice.find([
         ('type', '=', 'in'),
         ('party', '=', party.id),
         ('invoice_date', '=', invoice_date),
         ('reference', '=', reference),
         ('state', '!=', 'cancelled'),
-    ]):
+    ])
+    if existing:
         print(f'  Übersprungen:  {party.name:30s} | {invoice_date} | {reference}')
+        assign_documents(existing[0], lines_data)
         return
 
     InvoiceLine = Model.get('account.invoice.line')
@@ -209,11 +224,8 @@ def create_and_post_invoice(
         if ld.get('taxes'):
             # Jede Steuer als frische Instanz laden, damit _group None bleibt
             line.taxes.extend(Tax(t.id) for t in ld['taxes'])
-        # if ld.get('property'):
-        #     line.property = ld['property']
-        if ld.get('settlement_unit'):
-            line.settlement_unit = ld['settlement_unit']
-            line.billing_unit = ld['settlement_unit'].billing_unit
+        line.assignment_control = 'operating_costs'
+        line.base_object = ld['property']
         lines.append(line)
 
     if not lines:
@@ -230,14 +242,52 @@ def create_and_post_invoice(
     invoice.description = reference
     invoice.lines.extend(lines)
     invoice.save()
-
-
+    invoice.click('post')
 
     netto = sum(ld['unit_price'] for ld in lines_data)
     print(
-        f'  Gespeichert: {party.name:30s} | {invoice_date} | {reference:35s}'
+        f'  Gebucht:     {party.name:30s} | {invoice_date} | {reference:35s}'
         f' | Netto {netto:8.2f} EUR'
     )
+    assign_documents(invoice, lines_data)
+
+
+def assign_documents(invoice, lines_data) -> None:
+    """Assign the operating cost document of every line of the posted
+    invoice 100 % to the settlement unit of its lines_data entry (matched
+    by description) and confirm it - documents already confirmed are
+    kept."""
+    Document = Model.get('real_estate.oc_document')
+    DocumentLine = Model.get('real_estate.oc_document.line')
+    by_description = {ld['description']: ld for ld in lines_data}
+    for inv_line in invoice.lines:
+        ld = by_description.get(inv_line.description)
+        documents = Document.find([('invoice_line', '=', inv_line.id)])
+        if not documents:
+            print(f'    WARNUNG: Kein Betriebskostenbeleg zu "{inv_line.description}"'
+                  f' - Konto {inv_line.account.code} an keiner Kostenart?')
+            continue
+        document = documents[0]
+        if document.state == 'confirmed':
+            continue
+        su = ld.get('settlement_unit') if ld else None
+        if su is None:
+            print(f'    WARNUNG: Kein Kostensammler für Beleg "{document.rec_name}"'
+                  f' - bleibt offen.')
+            continue
+        if document.lines:
+            DocumentLine.delete(list(document.lines))
+        line = DocumentLine()
+        line.document = document
+        line.target = 'settlement_unit'
+        line.settlement_unit = su
+        line.percent = Decimal(100)
+        line.amount_net = document.amount_net
+        line.amount_gross = document.amount_gross
+        line.save()
+        document.reload()
+        document.click('confirm')
+        print(f'    Zugeordnet:  {document.rec_name} → {su.rec_name}')
 
 
 # ---------------------------------------------------------------------------

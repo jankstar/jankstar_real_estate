@@ -3,6 +3,5 @@
     <label name="name"/><field name="name"/>
     <label name="municipality"/><field name="municipality"/>
     <label name="current_version"/><field name="current_version"/>
-    <label name="company"/><field name="company"/>
     <field name="versions" colspan="4"/>
 </form>

@@ -60,9 +60,12 @@ and ``real_estate.billing_unit`` (identical on all three):
       Defaults to ``fix_0``. On a rental object (``base_object`` with
       ``type = 'object'``), changing ``type_of_use`` auto-sets it to
       ``fix_100`` for ``commercial`` and ``fix_0`` otherwise
-      (``on_change_type_of_use``); ``dynamic_measurement`` is rejected by
-      ``validate_fields`` for rental objects — only property/building/land/
-      settlement unit/billing unit may use it.
+      (``on_change_type_of_use``). A rental object only allows ``fix_0``
+      and ``fix_100`` (``validate_fields``,
+      ``msg_option_rate_method_object_fixed``): the operating cost billing
+      distributes its costs gross (0 %) or net (100 %); ``fix_value`` and
+      ``dynamic_measurement`` are left to property/building/land/settlement
+      unit/billing unit.
 
    ``option_measurement_type``
       Many2One to ``real_estate.measurement.type``, required only for

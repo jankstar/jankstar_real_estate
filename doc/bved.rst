@@ -546,9 +546,9 @@ data, typically entered only on the heating-cost settlement unit):
    billing unit that uses ``allocation_via_cost_collector`` with it as
    ``reference_settlement_unit`` (e.g. several fuel suppliers, each
    invoiced separately, feeding one heating settlement unit) — each such
-   invoice line keeps its own settlement unit's ``type.bved_cost_key``
-   rather than the referenced unit's, since the underlying invoices may
-   carry a different cost-type classification. B-Satz (fuel/stock data
+   invoice line keeps its own settlement unit's ``bved_cost_key`` (BVED
+   Tabelle 'K', on the settlement unit - costs with different keys need
+   their own settlement unit) rather than the referenced unit's. B-Satz (fuel/stock data
    above) is unaffected — it stays tied to the externally-billed
    settlement unit itself.
 

@@ -39,6 +39,7 @@ from . import rent_survey
 from . import adjustment_run
 from . import contract_comparative_rent
 from . import inspection
+from . import oc_document
 from . import modernisation
 from . import contract_modernisation
 
@@ -118,6 +119,16 @@ def register():
         cron_task.CronTask,
         billing_unit.CostCategoryGroup,
         billing_unit.CostType,
+        oc_document.CostTypeAccount,
+        oc_document.CostType,
+        oc_document.Move,
+        oc_document.OcDocument,
+        oc_document.OcDocumentLine,
+        oc_document.OcDocumentContext,
+        oc_document.OcDocumentSplitStart,
+        oc_document.OcDocumentHistoryStart,
+        oc_document.OcDocumentUpdateStart,
+        oc_document.OcDocumentUpdateResult,
         billing_unit.BillingUnitContext,
         billing_unit.BillingUnitLogContext,
         billing_unit.BillingUnit,
@@ -297,6 +308,9 @@ def register():
         modernisation.ModernisationPlanVacancy,
         modernisation.ModernisationReceipt,
         adjustment_run.AdjustmentRunReceipt,
+        oc_document.OcDocumentSplit,
+        oc_document.OcDocumentHistory,
+        oc_document.OcDocumentUpdate,
         module='real_estate', type_='wizard')
     Pool.register(
         base_object.BaseObjectReport,

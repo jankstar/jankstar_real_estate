@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<form>
+    <label id="split_help" colspan="4"
+        string="The lines with a settlement unit are split day by day onto the same settlement unit of the periods of the service period."/>
+    <label name="service_period_from"/>
+    <field name="service_period_from"/>
+    <label name="service_period_to"/>
+    <field name="service_period_to"/>
+</form>

@@ -303,9 +303,6 @@ msgctxt "field:real_estate.base_object,basement_nr:"
 msgid "Basement Number"
 msgstr "Keller-Nr."
 
-msgctxt "field:real_estate.base_object,billing_as:"
-msgid "Billing as"
-msgstr "Abrechnung als"
 
 msgctxt "field:real_estate.base_object,billing_units:"
 msgid "Billing Units"
@@ -3135,9 +3132,6 @@ msgctxt "field:real_estate.cost_share.context,to_date:"
 msgid "To Date"
 msgstr "Enddatum"
 
-msgctxt "field:real_estate.cost_type,bved_cost_key:"
-msgid "BVED Cost Type Key"
-msgstr "Schlüssel Kostenart"
 
 msgctxt "field:real_estate.cost_type,category_group:"
 msgid "Category Group"
@@ -3749,13 +3743,7 @@ msgctxt "field:real_estate.settlement_result.context,to_date:"
 msgid "To Date"
 msgstr "Enddatum"
 
-msgctxt "field:real_estate.settlement_unit,actual_costs:"
-msgid "Actual Costs"
-msgstr "Ist-Kosten"
 
-msgctxt "field:real_estate.settlement_unit,actual_costs_from_references:"
-msgid "Actual Costs From References"
-msgstr "Ist-Kosten aus Referenzen"
 
 msgctxt "field:real_estate.settlement_unit,allocation_rule:"
 msgid "Allocation Rule"
@@ -3993,13 +3981,7 @@ msgctxt "field:real_estate.settlement_unit,option_rates:"
 msgid "Option Rates"
 msgstr "Optionssatz"
 
-msgctxt "field:real_estate.settlement_unit,planned_costs:"
-msgid "Planned Costs"
-msgstr "Plankosten"
 
-msgctxt "field:real_estate.settlement_unit,planned_costs_from_references:"
-msgid "Planned Costs From References"
-msgstr "Planwert aus Referenzen"
 
 msgctxt "field:real_estate.settlement_unit,predecessor:"
 msgid "Predecessor"
@@ -5420,16 +5402,6 @@ msgstr ""
 " HeizkostenV) - wird hier statt in „Anteil (Wert)“ eingetragen, siehe "
 "„Heizkostenabrechnung“ auf dem Kostensammler."
 
-msgctxt "help:real_estate.cost_type,bved_cost_key:"
-msgid ""
-"BVED Tabelle 'K' code used for K-Satz field 6 when this cost type is "
-"exported to a Messdienstleister. Codes 200 and 202 are excluded - those are "
-"handled via allocation_by_consumption settlement units, not this field."
-msgstr ""
-"BVED Tabelle 'K'-Code für K-Satz Feld 6, wenn diese Kostenart an einen "
-"Messdienstleister exportiert wird. Schlüssel 200 und 202 sind ausgeschlossen"
-" - diese werden über Settlement Units mit verbrauchsabhängiger Verteilung "
-"abgebildet, nicht über dieses Feld."
 
 msgctxt "help:real_estate.cost_type,reading_post_days:"
 msgid "Days after the target date within which a meter reading is accepted."
@@ -5643,13 +5615,6 @@ msgstr ""
 "(siehe Vorauszahlungs-Prüfung in apply()) zu übersteuern, ohne auf einen "
 "erneuten Import zu warten."
 
-msgctxt "help:real_estate.settlement_unit,actual_costs_from_references:"
-msgid ""
-"Sum of 'Actual Costs' of all settlement units of this billing unit that "
-"reference this settlement unit via 'Allocation via cost collector'."
-msgstr ""
-"Summe der „Ist-Kosten“ aller Kostensammler dieser Abrechnungseinheit, die "
-"diesen Kostensammler über „Umlage über Kostensammler“ referenzieren."
 
 msgctxt "help:real_estate.settlement_unit,allocation_rule:"
 msgid ""
@@ -5777,13 +5742,6 @@ msgstr ""
 "Wenn eine Messgruppe ausgewählt ist, werden alle zugehörigen Messarten pro "
 "Mietobjekt summiert."
 
-msgctxt "help:real_estate.settlement_unit,planned_costs_from_references:"
-msgid ""
-"Sum of 'Planned Costs' of all settlement units of this billing unit that "
-"reference this settlement unit via 'Allocation via cost collector'."
-msgstr ""
-"Summe der „Plankosten“ aller Kostensammler dieser Abrechnungseinheit, die "
-"diesen Kostensammler über „Umlage über Kostensammler“ referenzieren."
 
 msgctxt "help:real_estate.settlement_unit,reference_settlement_unit:"
 msgid ""
@@ -7184,14 +7142,6 @@ msgstr ""
 "Eine Optionsquote muss genau einem Objekt, Kostensammler oder einer "
 "Abrechnungseinheit zugeordnet sein."
 
-msgctxt ""
-"model:ir.message,text:msg_option_rate_method_dynamic_not_allowed_for_object"
-msgid ""
-"{}: Option rate method \"Dynamic Measurement\" is not allowed for a rental "
-"object (only fixed rates are allowed)."
-msgstr ""
-"{}: Die Optionssatzmethode „Dynamische Ermittlung“ ist für ein Mietobjekt "
-"nicht zulässig (es sind nur feste Sätze zulässig)."
 
 msgctxt "model:ir.message,text:msg_option_rate_valid_from_unique"
 msgid "An option rate for this object and valid-from date already exists."
@@ -8450,9 +8400,6 @@ msgctxt "report:real_estate.base_object.report:"
 msgid "Billing Units"
 msgstr "Abrechnungseinheiten"
 
-msgctxt "report:real_estate.base_object.report:"
-msgid "Billing as"
-msgstr "Abrechnung als"
 
 msgctxt "report:real_estate.base_object.report:"
 msgid "Children"
@@ -9144,13 +9091,7 @@ msgctxt "selection:ir.cron,method:"
 msgid "Real Estate Daily Tasks"
 msgstr "Immobilien: Tägliche Aufgaben"
 
-msgctxt "selection:real_estate.base_object,billing_as:"
-msgid "Commercial (net)"
-msgstr "Gewerbe (netto)"
 
-msgctxt "selection:real_estate.base_object,billing_as:"
-msgid "Residential (gross)"
-msgstr "Wohnung (brutto)"
 
 msgctxt "selection:real_estate.base_object,e_type:"
 msgid "Installation, e.g., furniture"
@@ -19653,9 +19594,6 @@ msgctxt "field:real_estate.base_object.rent_survey_value,version:"
 msgid "Version"
 msgstr "Version"
 
-msgctxt "field:real_estate.rent_survey,company:"
-msgid "Company"
-msgstr "Unternehmen"
 
 msgctxt "field:real_estate.rent_survey,current_version:"
 msgid "Current Version"
@@ -25925,3 +25863,709 @@ msgstr ""
 "Mieterhöhungsverlangen auf die Vergleichsmiete „%(adjustment)s“ für die "
 "Kondition ist noch offen – zuerst abschließen oder stornieren (§ 557b Abs. 2 "
 "BGB)."
+
+
+msgctxt "model:ir.message,text:msg_oc_document_move_line_unique"
+msgid "There is already an operating cost document for the move line."
+msgstr "Zur Buchungszeile gibt es bereits einen Betriebskostenbeleg."
+
+msgctxt "model:ir.message,text:msg_oc_document_sums"
+msgid "\"%(document)s\": the assignment lines must sum up to the net and gross amount of the document."
+msgstr "„%(document)s“: Die Zuordnungszeilen müssen netto und brutto den Betrag des Belegs ergeben."
+
+msgctxt "model:ir.message,text:msg_oc_history_not_transferable"
+msgid "The assignment of \"%(document)s\" cannot be transferred - none of its settlement units exists for the period of this document."
+msgstr "Die Zuordnung von „%(document)s“ lässt sich nicht übernehmen – keiner ihrer Kostensammler existiert für den Zeitraum dieses Belegs."
+
+msgctxt "model:ir.message,text:msg_oc_line_contract_required"
+msgid "\"%(document)s\": a line with target contract needs a contract."
+msgstr "„%(document)s“: Eine Zeile mit Ziel Vertrag braucht einen Vertrag."
+
+msgctxt "model:ir.message,text:msg_oc_line_locked"
+msgid "The billing unit \"%(billing_unit)s\" is ready for billing or billed - its assignment cannot be changed."
+msgstr "Die Abrechnungseinheit „%(billing_unit)s“ ist bereit zur Abrechnung oder abgerechnet – ihre Zuordnung kann nicht geändert werden."
+
+msgctxt "model:ir.message,text:msg_oc_line_settlement_unit_invalid"
+msgid "The settlement unit \"%(settlement_unit)s\" does not belong to the property of \"%(document)s\" or its cost type does not have the account of the document."
+msgstr "Der Kostensammler „%(settlement_unit)s“ gehört nicht zur Wirtschaftseinheit von „%(document)s“, oder seine Kostenart führt das Konto des Belegs nicht."
+
+msgctxt "model:ir.message,text:msg_oc_line_settlement_unit_required"
+msgid "\"%(document)s\": every line except the owner needs a settlement unit."
+msgstr "„%(document)s“: Jede Zeile außer Eigentümer braucht einen Kostensammler."
+
+msgctxt "model:ir.message,text:msg_oc_proposal_account"
+msgid "Account unique"
+msgstr "Konto eindeutig"
+
+msgctxt "model:ir.message,text:msg_oc_proposal_history"
+msgid "as last time, document %(document)s"
+msgstr "wie zuletzt, Beleg %(document)s"
+
+msgctxt "model:ir.message,text:msg_oc_proposal_other_property"
+msgid "as for %(property)s, document %(document)s"
+msgstr "wie bei %(property)s, Beleg %(document)s"
+
+msgctxt "model:ir.message,text:msg_oc_split_period_missing"
+msgid "For the settlement unit \"%(settlement_unit)s\" there is no settlement unit for the whole service period %(start)s - %(end)s (create the billing unit of the next period)."
+msgstr "Zum Kostensammler „%(settlement_unit)s“ gibt es nicht für den ganzen Leistungszeitraum %(start)s – %(end)s einen Kostensammler (Abrechnungseinheit der Folgeperiode anlegen)."
+
+msgctxt "model:ir.message,text:msg_oc_target_owner"
+msgid "Owner"
+msgstr "Eigentümer"
+
+
+
+
+msgctxt "field:real_estate.oc_document,account:"
+msgid "Account"
+msgstr "Konto"
+
+msgctxt "field:real_estate.oc_document,amount_booked:"
+msgid "Booked"
+msgstr "Gebucht"
+
+msgctxt "field:real_estate.oc_document,amount_gross:"
+msgid "Gross"
+msgstr "Brutto"
+
+msgctxt "field:real_estate.oc_document,amount_net:"
+msgid "Net"
+msgstr "Netto"
+
+msgctxt "field:real_estate.oc_document,assigned_gross:"
+msgid "Assigned Gross"
+msgstr "Zugeordnet brutto"
+
+msgctxt "field:real_estate.oc_document,assigned_net:"
+msgid "Assigned Net"
+msgstr "Zugeordnet netto"
+
+msgctxt "field:real_estate.oc_document,company:"
+msgid "Company"
+msgstr "Gesellschaft"
+
+msgctxt "field:real_estate.oc_document,confirmed_by:"
+msgid "Confirmed by"
+msgstr "Bestätigt von"
+
+msgctxt "field:real_estate.oc_document,confirmed_date:"
+msgid "Confirmed on"
+msgstr "Bestätigt am"
+
+msgctxt "field:real_estate.oc_document,currency:"
+msgid "Currency"
+msgstr "Währung"
+
+msgctxt "field:real_estate.oc_document,date:"
+msgid "Date"
+msgstr "Datum"
+
+msgctxt "field:real_estate.oc_document,description:"
+msgid "Description"
+msgstr "Beschreibung"
+
+msgctxt "field:real_estate.oc_document,history:"
+msgid "Earlier Assignments"
+msgstr "Frühere Zuordnungen"
+
+msgctxt "field:real_estate.oc_document,invoice:"
+msgid "Invoice"
+msgstr "Rechnung"
+
+msgctxt "field:real_estate.oc_document,invoice_line:"
+msgid "Invoice Line"
+msgstr "Rechnungszeile"
+
+msgctxt "field:real_estate.oc_document,lines:"
+msgid "Assignment"
+msgstr "Zuordnung"
+
+msgctxt "field:real_estate.oc_document,move:"
+msgid "Move"
+msgstr "Buchungssatz"
+
+msgctxt "field:real_estate.oc_document,move_line:"
+msgid "Move Line"
+msgstr "Buchungszeile"
+
+msgctxt "field:real_estate.oc_document,open_gross:"
+msgid "Open Gross"
+msgstr "Offen brutto"
+
+msgctxt "field:real_estate.oc_document,open_net:"
+msgid "Open Net"
+msgstr "Offen netto"
+
+msgctxt "field:real_estate.oc_document,party:"
+msgid "Supplier"
+msgstr "Lieferant"
+
+msgctxt "field:real_estate.oc_document,property:"
+msgid "Property"
+msgstr "Wirtschaftseinheit"
+
+msgctxt "field:real_estate.oc_document,state:"
+msgid "State"
+msgstr "Status"
+
+msgctxt "field:real_estate.oc_document,summary:"
+msgid "Assignment Summary"
+msgstr "Zuordnung"
+
+msgctxt "field:real_estate.oc_document.context,account:"
+msgid "Account"
+msgstr "Konto"
+
+msgctxt "field:real_estate.oc_document.context,company:"
+msgid "Company"
+msgstr "Gesellschaft"
+
+msgctxt "field:real_estate.oc_document.context,from_date:"
+msgid "From Date"
+msgstr "Von Datum"
+
+msgctxt "field:real_estate.oc_document.context,party:"
+msgid "Supplier"
+msgstr "Lieferant"
+
+msgctxt "field:real_estate.oc_document.context,property:"
+msgid "Property"
+msgstr "Wirtschaftseinheit"
+
+msgctxt "field:real_estate.oc_document.context,to_date:"
+msgid "To Date"
+msgstr "Enddatum"
+
+msgctxt "field:real_estate.oc_document.context,without_property:"
+msgid "Without Property"
+msgstr "Ohne Wirtschaftseinheit"
+
+msgctxt "field:real_estate.oc_document.history.start,candidates:"
+msgid "Candidates"
+msgstr "Kandidaten"
+
+msgctxt "field:real_estate.oc_document.history.start,source:"
+msgid "Earlier Document"
+msgstr "Früherer Beleg"
+
+msgctxt "field:real_estate.oc_document.line,account:"
+msgid "Account"
+msgstr "Konto"
+
+msgctxt "field:real_estate.oc_document.line,amount_gross:"
+msgid "Gross"
+msgstr "Brutto"
+
+msgctxt "field:real_estate.oc_document.line,amount_net:"
+msgid "Net"
+msgstr "Netto"
+
+msgctxt "field:real_estate.oc_document.line,base_object:"
+msgid "Rental Object"
+msgstr "Mietobjekt"
+
+msgctxt "field:real_estate.oc_document.line,billing_unit:"
+msgid "Billing Unit"
+msgstr "Abrechnungseinheit"
+
+msgctxt "field:real_estate.oc_document.line,bved_fuel_quantity:"
+msgid "BVED Quantity"
+msgstr "Menge"
+
+msgctxt "field:real_estate.oc_document.line,bved_fuel_type:"
+msgid "BVED Fuel Type"
+msgstr "BVED-Brennstoffart"
+
+msgctxt "field:real_estate.oc_document.line,comment:"
+msgid "Comment"
+msgstr "Bemerkung"
+
+msgctxt "field:real_estate.oc_document.line,contract:"
+msgid "Contract"
+msgstr "Vertrag"
+
+msgctxt "field:real_estate.oc_document.line,currency:"
+msgid "Currency"
+msgstr "Währung"
+
+msgctxt "field:real_estate.oc_document.line,document:"
+msgid "Document"
+msgstr "Beleg"
+
+msgctxt "field:real_estate.oc_document.line,estg_35a:"
+msgid "§35a EStG"
+msgstr "§35a EStG"
+
+msgctxt "field:real_estate.oc_document.line,estg_35a_labor_share_percent:"
+msgid "Labor Share (%)"
+msgstr "Lohnanteil (%)"
+
+msgctxt "field:real_estate.oc_document.line,percent:"
+msgid "Percent"
+msgstr "Prozent"
+
+msgctxt "field:real_estate.oc_document.line,property:"
+msgid "Property"
+msgstr "Wirtschaftseinheit"
+
+msgctxt "field:real_estate.oc_document.line,proposal_source:"
+msgid "Proposal"
+msgstr "Vorschlag"
+
+msgctxt "field:real_estate.oc_document.line,service_period_from:"
+msgid "Service Period From"
+msgstr "Leistungszeitraum von"
+
+msgctxt "field:real_estate.oc_document.line,service_period_to:"
+msgid "Service Period To"
+msgstr "Leistungszeitraum bis"
+
+msgctxt "field:real_estate.oc_document.line,settlement_unit:"
+msgid "Settlement Unit"
+msgstr "Kostensammler"
+
+msgctxt "field:real_estate.oc_document.line,target:"
+msgid "Target"
+msgstr "Ziel"
+
+msgctxt "field:real_estate.oc_document.split.start,service_period_from:"
+msgid "Service Period From"
+msgstr "Leistungszeitraum von"
+
+msgctxt "field:real_estate.oc_document.split.start,service_period_to:"
+msgid "Service Period To"
+msgstr "Leistungszeitraum bis"
+
+msgctxt "field:real_estate.oc_document.update.result,created:"
+msgid "Documents Created"
+msgstr "Angelegte Belege"
+
+msgctxt "field:real_estate.oc_document.update.start,company:"
+msgid "Company"
+msgstr "Gesellschaft"
+
+
+msgctxt "help:real_estate.oc_document,amount_booked:"
+msgid ""
+"Debit - credit of the posting on the cost account (net plus non-deductible "
+"input tax)."
+msgstr ""
+"Soll − Haben der Buchung auf dem Kostenkonto (netto zzgl. nicht abziehbarer "
+"Vorsteuer)."
+
+msgctxt "help:real_estate.oc_document,amount_gross:"
+msgid ""
+"Net plus the full tax of the invoice line - equal to net without invoice."
+msgstr ""
+"Netto zzgl. der vollen Steuer der Rechnungszeile – ohne Rechnung gleich "
+"netto."
+
+msgctxt "help:real_estate.oc_document,history:"
+msgid ""
+"Confirmed documents of the same supplier and account - first of the own "
+"property, then of other properties."
+msgstr ""
+"Bestätigte Belege desselben Lieferanten und Kontos – zuerst der eigenen, "
+"dann anderer Wirtschaftseinheiten."
+
+msgctxt "help:real_estate.oc_document,property:"
+msgid ""
+"Empty: the posting has no property - it can only be assigned after a "
+"correction posting with property."
+msgstr ""
+"Leer: Die Buchung hat keine Wirtschaftseinheit – sie kann erst nach einer "
+"Korrekturbuchung mit Wirtschaftseinheit zugeordnet werden."
+
+msgctxt "help:real_estate.oc_document.context,without_property:"
+msgid "Only postings on operating cost accounts without property."
+msgstr "Nur Buchungen auf Betriebskostenkonten ohne Wirtschaftseinheit."
+
+msgctxt "help:real_estate.oc_document.history.start,source:"
+msgid ""
+"Its assignment is transferred to the settlement units of the matching period"
+" with the same percentages."
+msgstr ""
+"Seine Zuordnung wird mit denselben Prozentanteilen auf die Kostensammler des"
+" passenden Zeitraums übertragen."
+
+msgctxt "help:real_estate.oc_document.line,base_object:"
+msgid ""
+"Only needed if the contract has several settlement results (rental objects) "
+"in the billing unit."
+msgstr ""
+"Nur nötig, wenn der Vertrag in der Abrechnungseinheit mehrere "
+"Abrechnungsergebnisse (Mietobjekte) hat."
+
+msgctxt "help:real_estate.oc_document.line,bved_fuel_quantity:"
+msgid "Delivered fuel quantity for BVED K-Satz field 10."
+msgstr "Gelieferte Brennstoffmenge für den BVED-K-Satz, Feld 10."
+
+msgctxt "help:real_estate.oc_document.line,bved_fuel_type:"
+msgid "BVED Tabelle 'B'."
+msgstr "BVED-Tabelle „B“."
+
+msgctxt "help:real_estate.oc_document.line,contract:"
+msgid ""
+"The costs are added to the settlement result of this contract in the billing"
+" unit of the settlement unit."
+msgstr ""
+"Die Kosten werden dem Abrechnungsergebnis dieses Vertrags in der "
+"Abrechnungseinheit des Kostensammlers hinzugefügt."
+
+msgctxt "help:real_estate.oc_document.line,estg_35a_labor_share_percent:"
+msgid ""
+"Share of the gross amount that is labor cost (§35a EStG certificate, BVED "
+"K-Satz field 14)."
+msgstr ""
+"Anteil des Bruttobetrags, der Lohnkosten sind (Bescheinigung § 35a EStG, "
+"BVED-K-Satz Feld 14)."
+
+msgctxt "help:real_estate.oc_document.line,percent:"
+msgid "Share of the document - sets net and gross amount."
+msgstr "Anteil am Beleg – setzt Netto- und Bruttobetrag."
+
+msgctxt "help:real_estate.oc_document.line,settlement_unit:"
+msgid ""
+"Only settlement units of this property whose cost type has the account of "
+"the document."
+msgstr ""
+"Nur Kostensammler dieser Wirtschaftseinheit, deren Kostenart das Konto des "
+"Belegs führt."
+
+msgctxt "model:ir.action,name:act_oc_document"
+msgid "Assign Operating Costs"
+msgstr "Betriebskosten zuordnen"
+
+msgctxt "model:ir.action,name:wizard_oc_document_history"
+msgid "Take Over from History"
+msgstr "Aus Historie übernehmen"
+
+msgctxt "model:ir.action,name:wizard_oc_document_split"
+msgid "Split by Service Period"
+msgstr "Nach Leistungszeitraum aufteilen"
+
+msgctxt "model:ir.action,name:wizard_oc_document_update"
+msgid "Update Operating Cost Documents"
+msgstr "Betriebskostenbelege aktualisieren"
+
+msgctxt "model:ir.action.act_window.domain,name:act_oc_document_domain_all"
+msgid "All"
+msgstr "Alle"
+
+msgctxt ""
+"model:ir.action.act_window.domain,name:act_oc_document_domain_confirmed"
+msgid "Confirmed"
+msgstr "Bestätigt"
+
+msgctxt "model:ir.action.act_window.domain,name:act_oc_document_domain_open"
+msgid "Open"
+msgstr "Offen"
+
+msgctxt ""
+"model:ir.action.act_window.domain,name:act_oc_document_domain_proposed"
+msgid "Proposed"
+msgstr "Vorgeschlagen"
+
+msgctxt "model:ir.model.button,help:oc_document_confirm_button"
+msgid ""
+"The assignment is checked - only confirmed documents are used for the "
+"billing."
+msgstr ""
+"Die Zuordnung ist geprüft – nur bestätigte Belege gehen in die Abrechnung."
+
+msgctxt "model:ir.model.button,help:oc_document_propose_button"
+msgid ""
+"Replace the lines by the proposal (account, as last time, as for another "
+"property)."
+msgstr ""
+"Ersetzt die Zeilen durch den Vorschlag (Konto, wie zuletzt, wie bei einer "
+"anderen Wirtschaftseinheit)."
+
+msgctxt "model:ir.model.button,help:oc_document_split_period_button"
+msgid ""
+"Split the lines day by day onto the settlement units of the periods of the "
+"service period."
+msgstr ""
+"Teilt die Zeilen tagesgenau auf die Kostensammler der Zeiträume des "
+"Leistungszeitraums auf."
+
+msgctxt "model:ir.model.button,help:oc_document_take_history_button"
+msgid ""
+"Transfer the assignment of an earlier document of the same supplier and "
+"account."
+msgstr ""
+"Übernimmt die Zuordnung eines früheren Belegs desselben Lieferanten und "
+"Kontos."
+
+msgctxt "model:ir.model.button,string:oc_document_confirm_button"
+msgid "Confirm"
+msgstr "Bestätigen"
+
+msgctxt "model:ir.model.button,string:oc_document_propose_button"
+msgid "Propose"
+msgstr "Vorschlagen"
+
+msgctxt "model:ir.model.button,string:oc_document_reset_button"
+msgid "Reset"
+msgstr "Zurücksetzen"
+
+msgctxt "model:ir.model.button,string:oc_document_split_period_button"
+msgid "Split by Service Period"
+msgstr "Nach Leistungszeitraum aufteilen"
+
+msgctxt "model:ir.model.button,string:oc_document_take_history_button"
+msgid "Take Over from History"
+msgstr "Aus Historie übernehmen"
+
+msgctxt "model:ir.rule.group,name:rule_group_oc_document_companies"
+msgid "User in companies"
+msgstr "Benutzer in Unternehmen"
+
+msgctxt "model:ir.ui.menu,name:menu_oc_document"
+msgid "Assign Operating Costs"
+msgstr "Betriebskosten zuordnen"
+
+msgctxt "model:ir.ui.menu,name:menu_oc_document_update"
+msgid "Update Operating Cost Documents"
+msgstr "Betriebskostenbelege aktualisieren"
+
+
+msgctxt "model:real_estate.oc_document,string:"
+msgid "Real Estate Oc Document"
+msgstr "Betriebskostenbeleg"
+
+msgctxt "model:real_estate.oc_document.context,string:"
+msgid "Real Estate Oc Document Context"
+msgstr "Betriebskostenbeleg Kontext"
+
+msgctxt "model:real_estate.oc_document.history.start,string:"
+msgid "Real Estate Oc Document History Start"
+msgstr "Aus Historie übernehmen Start"
+
+msgctxt "model:real_estate.oc_document.line,string:"
+msgid "Real Estate Oc Document Line"
+msgstr "Zuordnungszeile"
+
+msgctxt "model:real_estate.oc_document.split.start,string:"
+msgid "Real Estate Oc Document Split Start"
+msgstr "Nach Leistungszeitraum aufteilen Start"
+
+msgctxt "model:real_estate.oc_document.update.result,string:"
+msgid "Real Estate Oc Document Update Result"
+msgstr "Betriebskostenbelege aktualisieren Ergebnis"
+
+msgctxt "model:real_estate.oc_document.update.start,string:"
+msgid "Real Estate Oc Document Update Start"
+msgstr "Betriebskostenbelege aktualisieren Start"
+
+msgctxt "selection:real_estate.oc_document,state:"
+msgid "Confirmed"
+msgstr "Bestätigt"
+
+msgctxt "selection:real_estate.oc_document,state:"
+msgid "Open"
+msgstr "Offen"
+
+msgctxt "selection:real_estate.oc_document,state:"
+msgid "Proposed"
+msgstr "Vorgeschlagen"
+
+msgctxt "selection:real_estate.oc_document.line,estg_35a:"
+msgid "Para. 1 - Minor Employment in the Household"
+msgstr "§ 35a Abs. 1 – Geringfügige Beschäftigungsverhältnisse im Haushalt"
+
+msgctxt "selection:real_estate.oc_document.line,estg_35a:"
+msgid "Para. 2 - Household-Related Services (e.g. Garden Maintenance)"
+msgstr "§ 35a Abs. 2 – Haushaltsnahe Dienstleistungen (z.B. Gartenpflege)"
+
+msgctxt "selection:real_estate.oc_document.line,estg_35a:"
+msgid "Para. 3 - Craftsmen Services (e.g. Chimney Sweep)"
+msgstr "§ 35a Abs. 3 – Handwerkerleistungen (z.B. Schornsteinfeger)"
+
+msgctxt "selection:real_estate.oc_document.line,estg_35a:"
+msgid "none"
+msgstr "keine"
+
+msgctxt "selection:real_estate.oc_document.line,target:"
+msgid "Contract + Settlement Unit"
+msgstr "Vertrag + Kostensammler"
+
+msgctxt "selection:real_estate.oc_document.line,target:"
+msgid "Property (Owner)"
+msgstr "Wirtschaftseinheit (Eigentümer)"
+
+msgctxt "selection:real_estate.oc_document.line,target:"
+msgid "Settlement Unit"
+msgstr "Kostensammler"
+
+msgctxt "view:real_estate.oc_document.split.start:"
+msgid ""
+"The lines with a settlement unit are split day by day onto the same "
+"settlement unit of the periods of the service period."
+msgstr ""
+"Die Zeilen mit Kostensammler werden tagesgenau auf denselben Kostensammler "
+"der Zeiträume des Leistungszeitraums aufgeteilt."
+
+msgctxt "view:real_estate.oc_document.update.start:"
+msgid ""
+"Create the missing documents of all posted lines on the accounts of the cost"
+" types (e.g. after an account was added to a cost type)."
+msgstr ""
+"Legt die fehlenden Belege aller gebuchten Zeilen auf den Konten der "
+"Kostenarten an (z. B. nachdem einer Kostenart ein Konto hinzugefügt wurde)."
+
+msgctxt "wizard_button:real_estate.oc_document.history,start,end:"
+msgid "Cancel"
+msgstr "Abbrechen"
+
+msgctxt "wizard_button:real_estate.oc_document.history,start,take:"
+msgid "Take Over"
+msgstr "Übernehmen"
+
+msgctxt "wizard_button:real_estate.oc_document.split,start,end:"
+msgid "Cancel"
+msgstr "Abbrechen"
+
+msgctxt "wizard_button:real_estate.oc_document.split,start,split:"
+msgid "Split"
+msgstr "Aufteilen"
+
+msgctxt "wizard_button:real_estate.oc_document.update,result,end:"
+msgid "Close"
+msgstr "Schließen"
+
+msgctxt "wizard_button:real_estate.oc_document.update,start,end:"
+msgid "Cancel"
+msgstr "Abbrechen"
+
+msgctxt "wizard_button:real_estate.oc_document.update,start,update:"
+msgid "Update"
+msgstr "Aktualisieren"
+
+msgctxt "field:real_estate.cost_type,account:"
+msgid "Account"
+msgstr "Konto"
+
+msgctxt "field:real_estate.cost_type,accounts:"
+msgid "Accounts"
+msgstr "Konten"
+
+msgctxt "field:real_estate.cost_type.account,account:"
+msgid "Account"
+msgstr "Konto"
+
+msgctxt "field:real_estate.cost_type.account,company:"
+msgid "Company"
+msgstr "Gesellschaft"
+
+msgctxt "field:real_estate.cost_type.account,cost_type:"
+msgid "Cost Type"
+msgstr "Kostenart"
+
+msgctxt "help:real_estate.cost_type,account:"
+msgid "Account the costs of this cost type are posted on (per company). Every posted line on this account with a property has to be assigned in 'Assign Operating Costs'."
+msgstr "Konto, auf das die Kosten dieser Kostenart gebucht werden (je Unternehmen). Jede gebuchte Zeile auf diesem Konto mit Wirtschaftseinheit muss in „Betriebskosten zuordnen“ zugeordnet werden."
+
+msgctxt "model:real_estate.cost_type.account,string:"
+msgid "Real Estate Cost Type Account"
+msgstr "Kostenart Konto"
+
+msgctxt "field:real_estate.settlement_unit,bved_cost_key:"
+msgid "BVED Cost Type Key"
+msgstr "BVED-Kostenartenschlüssel"
+
+msgctxt "help:real_estate.settlement_unit,bved_cost_key:"
+msgid "BVED Tabelle 'K' code of the costs of this settlement unit for K-Satz field 6 of the export to a Messdienstleister - costs with different keys need their own settlement unit. Codes 200 and 202 are excluded - those are handled via allocation_by_consumption settlement units."
+msgstr "Schlüssel der BVED-Tabelle „K“ für die Kosten dieses Kostensammlers (K-Satz Feld 6 des Exports an den Messdienstleister) – Kosten mit unterschiedlichen Schlüsseln brauchen einen eigenen Kostensammler. Die Schlüssel 200 und 202 sind ausgenommen – sie laufen über Kostensammler mit Umlage nach Verbrauch."
+
+msgctxt "model:ir.message,text:msg_cost_share_option_rate_invalid"
+msgid "The option rate of \"%(name)s\" on %(date)s is neither 0 %% nor 100 %% - its costs cannot be distributed gross or net."
+msgstr "Der Optionssatz von „%(name)s“ zum %(date)s ist weder 0 %% noch 100 %% – seine Kosten können weder brutto noch netto verteilt werden."
+
+msgctxt "model:ir.message,text:msg_oc_direct_no_result"
+msgid "The operating cost document \"%(document)s\" assigns costs directly to the contract \"%(contract)s\", but the contract has no settlement result with an advance payment term (advance payment with settlement) in \"%(billing_unit)s\"."
+msgstr "Der Betriebskostenbeleg „%(document)s“ ordnet Kosten direkt dem Vertrag „%(contract)s“ zu, der Vertrag hat aber in „%(billing_unit)s“ kein Abrechnungsergebnis mit Vorauszahlungskondition (Vorauszahlung mit Abrechnung)."
+
+msgctxt "model:ir.message,text:msg_oc_direct_several_results"
+msgid "The operating cost document \"%(document)s\" assigns costs directly to the contract \"%(contract)s\", which has several settlement results in \"%(billing_unit)s\" - enter the rental object on the assignment line."
+msgstr "Der Betriebskostenbeleg „%(document)s“ ordnet Kosten direkt dem Vertrag „%(contract)s“ zu, der in „%(billing_unit)s“ mehrere Abrechnungsergebnisse hat – bitte das Mietobjekt an der Zuordnungszeile angeben."
+
+msgctxt "model:ir.message,text:msg_billing_unit_oc_documents_open"
+msgid "\"%(name)s\": the following operating cost documents with lines on its settlement units are not confirmed yet:\n%(details)s"
+msgstr "„%(name)s“: Folgende Betriebskostenbelege mit Zeilen auf ihren Kostensammlern sind noch nicht bestätigt:\n%(details)s"
+
+msgctxt "model:ir.message,text:msg_option_rate_method_object_fixed"
+msgid "\"%(name)s\": a rental object only allows the option rate methods \"Fix: Option Rate 0.0 %%\" and \"Fix: Option Rate 100.0 %%\" (its costs are distributed gross or net)."
+msgstr "„%(name)s“: Ein Mietobjekt erlaubt nur die Optionssatzmethoden „optiert nicht (0,0 %%) fix“ und „optiert (100,0 %%) fix“ (seine Kosten werden brutto oder netto verteilt)."
+
+msgctxt "field:real_estate.settlement_result,direct_costs:"
+msgid "Direct Costs"
+msgstr "Direkte Kosten"
+
+msgctxt "help:real_estate.settlement_result,direct_costs:"
+msgid "Part of the actual costs assigned directly to the contract (operating cost assignment with target contract) - gross or net by the option rate of the rental object."
+msgstr "Anteil der Ist-Kosten, der dem Vertrag direkt zugeordnet ist (Betriebskostenzuordnung mit Ziel Vertrag) – brutto oder netto nach dem Optionssatz des Mietobjekts."
+
+msgctxt "field:real_estate.settlement_unit,actual_costs_gross:"
+msgid "Actual Costs Gross"
+msgstr "Ist-Kosten brutto"
+
+msgctxt "field:real_estate.settlement_unit,actual_costs_gross_from_references:"
+msgid "Actual Costs Gross From References"
+msgstr "Ist-Kosten brutto aus Verweisen"
+
+msgctxt "help:real_estate.settlement_unit,actual_costs_gross_from_references:"
+msgid "Sum of 'Actual Costs Gross' of all settlement units of this billing unit that reference this settlement unit via 'Allocation via cost collector'."
+msgstr "Summe „Ist-Kosten brutto“ aller Kostensammler dieser Abrechnungseinheit, die über „Umlage über Kostensammler“ auf diesen Kostensammler verweisen."
+
+msgctxt "field:real_estate.settlement_unit,actual_costs_net:"
+msgid "Actual Costs Net"
+msgstr "Ist-Kosten netto"
+
+msgctxt "field:real_estate.settlement_unit,actual_costs_net_from_references:"
+msgid "Actual Costs Net From References"
+msgstr "Ist-Kosten netto aus Verweisen"
+
+msgctxt "help:real_estate.settlement_unit,actual_costs_net_from_references:"
+msgid "Sum of 'Actual Costs Net' of all settlement units of this billing unit that reference this settlement unit via 'Allocation via cost collector'."
+msgstr "Summe „Ist-Kosten netto“ aller Kostensammler dieser Abrechnungseinheit, die über „Umlage über Kostensammler“ auf diesen Kostensammler verweisen."
+
+msgctxt "field:real_estate.settlement_unit,planned_costs_gross:"
+msgid "Planned Costs Gross"
+msgstr "Plankosten brutto"
+
+msgctxt "field:real_estate.settlement_unit,planned_costs_gross_from_references:"
+msgid "Planned Costs Gross From References"
+msgstr "Plankosten brutto aus Verweisen"
+
+msgctxt "help:real_estate.settlement_unit,planned_costs_gross_from_references:"
+msgid "Sum of 'Planned Costs Gross' of all settlement units of this billing unit that reference this settlement unit via 'Allocation via cost collector'."
+msgstr "Summe „Plankosten brutto“ aller Kostensammler dieser Abrechnungseinheit, die über „Umlage über Kostensammler“ auf diesen Kostensammler verweisen."
+
+msgctxt "field:real_estate.settlement_unit,planned_costs_net:"
+msgid "Planned Costs Net"
+msgstr "Plankosten netto"
+
+msgctxt "field:real_estate.settlement_unit,planned_costs_net_from_references:"
+msgid "Planned Costs Net From References"
+msgstr "Plankosten netto aus Verweisen"
+
+msgctxt "help:real_estate.settlement_unit,planned_costs_net_from_references:"
+msgid "Sum of 'Planned Costs Net' of all settlement units of this billing unit that reference this settlement unit via 'Allocation via cost collector'."
+msgstr "Summe „Plankosten netto“ aller Kostensammler dieser Abrechnungseinheit, die über „Umlage über Kostensammler“ auf diesen Kostensammler verweisen."
+
+msgctxt "help:real_estate.settlement_unit,actual_costs_gross:"
+msgid "Sum of the gross amounts of the confirmed operating cost assignments on this settlement unit - distributed to the rental objects with option rate 0 %."
+msgstr "Summe der Bruttobeträge der bestätigten Betriebskostenzuordnungen auf diesen Kostensammler – verteilt auf die Mietobjekte mit Optionssatz 0 %."
+
+msgctxt "help:real_estate.settlement_unit,actual_costs_net:"
+msgid "Sum of the net amounts of the confirmed operating cost assignments on this settlement unit - distributed to the rental objects with option rate 100 %."
+msgstr "Summe der Nettobeträge der bestätigten Betriebskostenzuordnungen auf diesen Kostensammler – verteilt auf die Mietobjekte mit Optionssatz 100 %."
+
+msgctxt "help:real_estate.settlement_unit,planned_costs_gross:"
+msgid "Distributed to the rental objects with option rate 0 %."
+msgstr "Verteilt auf die Mietobjekte mit Optionssatz 0 %."
+
+msgctxt "help:real_estate.settlement_unit,planned_costs_net:"
+msgid "Distributed to the rental objects with option rate 100 %."
+msgstr "Verteilt auf die Mietobjekte mit Optionssatz 100 %."

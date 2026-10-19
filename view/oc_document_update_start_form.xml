@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<form>
+    <label id="update_help" colspan="4"
+        string="Create the missing documents of all posted lines on the accounts of the cost types (e.g. after an account was added to a cost type)."/>
+    <label name="company"/>
+    <field name="company"/>
+</form>

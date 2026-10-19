@@ -56,13 +56,27 @@ class SettlementUnit(DeactivableMixin, base_object.re_sequence_ordered(), ModelS
     name = fields.Function(fields.Char("Name"), 'on_change_with_name',
         searcher='name_search')
 
-    planned_costs = Monetary('Planned Costs', currency='currency', digits='currency',
+    planned_costs_gross = Monetary('Planned Costs Gross', currency='currency',
+        digits='currency',
         states={'readonly': Eval('state').in_(['ready_for_billing', 'billed'])},
-        )
+        help="Distributed to the rental objects with option rate 0 %.")
 
-    actual_costs = Monetary('Actual Costs', currency='currency', digits='currency',
+    planned_costs_net = Monetary('Planned Costs Net', currency='currency',
+        digits='currency',
         states={'readonly': Eval('state').in_(['ready_for_billing', 'billed'])},
-        )
+        help="Distributed to the rental objects with option rate 100 %.")
+
+    actual_costs_gross = Monetary('Actual Costs Gross', currency='currency',
+        digits='currency', readonly=True,
+        help="Sum of the gross amounts of the confirmed operating cost "
+             "assignments on this settlement unit - distributed to the "
+             "rental objects with option rate 0 %.")
+
+    actual_costs_net = Monetary('Actual Costs Net', currency='currency',
+        digits='currency', readonly=True,
+        help="Sum of the net amounts of the confirmed operating cost "
+             "assignments on this settlement unit - distributed to the "
+             "rental objects with option rate 100 %.")
 
     currency = fields.Function(fields.Many2One('currency.currency', 'Currency'), 'on_change_with_currency')
 
@@ -112,19 +126,35 @@ class SettlementUnit(DeactivableMixin, base_object.re_sequence_ordered(), ModelS
              "costs. Must not itself use 'Allocation via cost collector' "
              "(chaining is not allowed).")
 
-    planned_costs_from_references = fields.Function(
-        Monetary("Planned Costs From References", currency='currency',
+    planned_costs_gross_from_references = fields.Function(
+        Monetary("Planned Costs Gross From References", currency='currency',
             digits='currency',
-            help="Sum of 'Planned Costs' of all settlement units of this "
-                 "billing unit that reference this settlement unit via "
+            help="Sum of 'Planned Costs Gross' of all settlement units of "
+                 "this billing unit that reference this settlement unit via "
                  "'Allocation via cost collector'."),
         'get_costs_from_references')
 
-    actual_costs_from_references = fields.Function(
-        Monetary("Actual Costs From References", currency='currency',
+    planned_costs_net_from_references = fields.Function(
+        Monetary("Planned Costs Net From References", currency='currency',
             digits='currency',
-            help="Sum of 'Actual Costs' of all settlement units of this "
-                 "billing unit that reference this settlement unit via "
+            help="Sum of 'Planned Costs Net' of all settlement units of "
+                 "this billing unit that reference this settlement unit via "
+                 "'Allocation via cost collector'."),
+        'get_costs_from_references')
+
+    actual_costs_gross_from_references = fields.Function(
+        Monetary("Actual Costs Gross From References", currency='currency',
+            digits='currency',
+            help="Sum of 'Actual Costs Gross' of all settlement units of "
+                 "this billing unit that reference this settlement unit via "
+                 "'Allocation via cost collector'."),
+        'get_costs_from_references')
+
+    actual_costs_net_from_references = fields.Function(
+        Monetary("Actual Costs Net From References", currency='currency',
+            digits='currency',
+            help="Sum of 'Actual Costs Net' of all settlement units of "
+                 "this billing unit that reference this settlement unit via "
                  "'Allocation via cost collector'."),
         'get_costs_from_references')
 
@@ -354,6 +384,15 @@ class SettlementUnit(DeactivableMixin, base_object.re_sequence_ordered(), ModelS
              "settlement unit. Computed by 'Compute Value Shares' on the "
              "billing unit.")
 
+    bved_cost_key = fields.Selection(
+        'get_bved_cost_keys', "BVED Cost Type Key", sort=False,
+        states={'readonly': Eval('state').in_(['ready_for_billing', 'billed'])},
+        help="BVED Tabelle 'K' code of the costs of this settlement unit "
+             "for K-Satz field 6 of the export to a Messdienstleister - "
+             "costs with different keys need their own settlement unit. "
+             "Codes 200 and 202 are excluded - those are handled via "
+             "allocation_by_consumption settlement units.")
+
     bved_fuel_data = fields.Boolean("BVED Fuel Data (B-Satz)",
         states={'readonly': Eval('state').in_(['ready_for_billing', 'billed'])},
         help="Enable to enter B-Satz fuel/stock data on this settlement "
@@ -508,6 +547,10 @@ class SettlementUnit(DeactivableMixin, base_object.re_sequence_ordered(), ModelS
         states={'invisible': _states_invisible_bved_meter},
         help="Required (mandatory in the standard) when the fuel type is "
              "district heating (Fernwärme).")
+
+    @staticmethod
+    def get_bved_cost_keys():
+        return [('', '')] + bved_records.as_selection(bved_records.TABLE_K)
 
     @staticmethod
     def get_bved_fuel_types():
@@ -900,12 +943,11 @@ class SettlementUnit(DeactivableMixin, base_object.re_sequence_ordered(), ModelS
             ])
         for su in referencing:
             ref_id = su.reference_settlement_unit.id
-            if 'planned_costs_from_references' in result:
-                result['planned_costs_from_references'][ref_id] += (
-                    su.planned_costs or Decimal(0))
-            if 'actual_costs_from_references' in result:
-                result['actual_costs_from_references'][ref_id] += (
-                    su.actual_costs or Decimal(0))
+            for name in names:
+                # e.g. 'actual_costs_gross_from_references' -> the own
+                # field 'actual_costs_gross' of the referencing unit
+                own = name[:-len('_from_references')]
+                result[name][ref_id] += getattr(su, own) or Decimal(0)
         return result
 
     @classmethod
@@ -1130,28 +1172,36 @@ class SettlementUnit(DeactivableMixin, base_object.re_sequence_ordered(), ModelS
         self.save()
 
     def selection_actual_costs(self):
-        """Sum amount + tax of all invoice lines assigned to this settlement unit
-        and write the result into actual_costs."""
-        pool = Pool()
-        InvoiceLine = pool.get('account.invoice.line')
-        lines = InvoiceLine.search([
+        """Sum gross and net of the confirmed operating cost assignments
+        with target settlement unit on this settlement unit
+        (spezifikation-betriebskostenzuordnung.md 6.1) into
+        actual_costs_gross / actual_costs_net - assignments with target
+        contract go directly into the settlement result of the contract."""
+        Line = Pool().get('real_estate.oc_document.line')
+        lines = Line.search([
             ('settlement_unit', '=', self.id),
-            ('invoice.state', '!=', 'cancelled'),
+            ('target', '=', 'settlement_unit'),
+            ('document.state', '=', 'confirmed'),
         ])
-        actual = Decimal(0)
-        for line in lines:
-            amount = line.amount or Decimal(0)
-            if self.property and self.property.billing_as == 'commercial':
-                actual += amount
-            else:
-                # line.tax_amount is InvoiceLine's own computed field and
-                # already accounts for taxes_deductible_rate - recomputing
-                # the tax from unit_price here would double-count the
-                # non-deductible share, which is already folded into
-                # line.amount by core.
-                actual += amount + (line.tax_amount or Decimal(0))
-        self.actual_costs = actual.quantize(Decimal('0.01'))
+        self.actual_costs_gross = sum(
+            (l.amount_gross or Decimal(0) for l in lines), Decimal(0))
+        self.actual_costs_net = sum(
+            (l.amount_net or Decimal(0) for l in lines), Decimal(0))
         self.save()
+
+    @staticmethod
+    def _net_object(base_object, date):
+        """True if the costs of the rental object are distributed net (option
+        rate 100 %), False for gross (0 %) - None if the option rate is
+        neither (spezifikation-betriebskostenzuordnung.md E11/E15)"""
+        OptionRate = Pool().get('real_estate.option_rate')
+        fraction = OptionRate.get_current_rate_fraction(
+            'base_object', base_object, date)
+        if not fraction:
+            return False
+        if fraction == 1:
+            return True
+        return None
 
     def compute_value_shares(self):
         """Compute value_share on each CostShare based on allocation_rule,
@@ -1427,10 +1477,34 @@ class SettlementUnit(DeactivableMixin, base_object.re_sequence_ordered(), ModelS
                         adjustable[i % len(adjustable)][1] -= _cent
             return rows
 
-        total_planned = ((self.planned_costs or Decimal(0))
-            + (self.planned_costs_from_references or Decimal(0)))
-        total_actual = ((self.actual_costs or Decimal(0))
-            + (self.actual_costs_from_references or Decimal(0)))
+        # gross for the rental objects with option rate 0 %, net for 100 %
+        totals = {
+            ('planned', 'gross'): ((self.planned_costs_gross or Decimal(0))
+                + (self.planned_costs_gross_from_references or Decimal(0))),
+            ('planned', 'net'): ((self.planned_costs_net or Decimal(0))
+                + (self.planned_costs_net_from_references or Decimal(0))),
+            ('actual', 'gross'): ((self.actual_costs_gross or Decimal(0))
+                + (self.actual_costs_gross_from_references or Decimal(0))),
+            ('actual', 'net'): ((self.actual_costs_net or Decimal(0))
+                + (self.actual_costs_net_from_references or Decimal(0))),
+            }
+        any_costs = any(totals.values())
+
+        net_by_id = {}
+        wrong_rate = []
+        for cs in cost_shares:
+            net = self._net_object(cs.base_object, cs.end_date)
+            if net is None:
+                wrong_rate.append(cs)
+            net_by_id[cs.id] = bool(net)
+        if wrong_rate:
+            for cs in wrong_rate:
+                cs.state = 'error'
+                cs.error_message = gettext(
+                    'real_estate.msg_cost_share_option_rate_invalid',
+                    name=cs.base_object.rec_name, date=str(cs.end_date))
+            CostShare.save(wrong_rate)
+            return
 
         if self._heating_split_internal():
             # HeizkostenV §7/§8: the consumption share percentage of the
@@ -1443,7 +1517,7 @@ class SettlementUnit(DeactivableMixin, base_object.re_sequence_ordered(), ModelS
                 missing.append('real_estate.msg_heating_split_no_consumption')
             if cost_shares and not any(area_weights.values()):
                 missing.append('real_estate.msg_heating_split_no_area')
-            if missing and (total_planned or total_actual):
+            if missing and any_costs:
                 CostShare.write(cost_shares, {
                         'state': 'error',
                         'error_message': ' '.join(
@@ -1460,17 +1534,21 @@ class SettlementUnit(DeactivableMixin, base_object.re_sequence_ordered(), ModelS
                 return [[cs, value + area_by_id[cs.id]]
                     for cs, value in _distribute(
                         consumption_amount, consumption_weights)]
-            planned_rows = _split(total_planned)
-            actual_rows = _split(total_actual)
+            distribute = _split
         else:
             weights = {cs.id: cs.value_share or 0.0 for cs in cost_shares}
-            planned_rows = _distribute(total_planned, weights)
-            actual_rows = _distribute(total_actual, weights)
 
-        actual_by_id = {r[0].id: r[1] for r in actual_rows}
-        for cost_share, planned_amount in planned_rows:
-            cost_share.planned_costs = planned_amount
-            cost_share.actual_costs = actual_by_id.get(cost_share.id, Decimal(0))
+            def distribute(amount):
+                return _distribute(amount, weights)
+
+        amounts = {key: {cs.id: value for cs, value in distribute(total)}
+            for key, total in totals.items()}
+        for cost_share in cost_shares:
+            kind = 'net' if net_by_id[cost_share.id] else 'gross'
+            cost_share.planned_costs = amounts[('planned', kind)].get(
+                cost_share.id, Decimal(0))
+            cost_share.actual_costs = amounts[('actual', kind)].get(
+                cost_share.id, Decimal(0))
             cost_share.save()
 
     def _heating_split_internal(self):
@@ -1551,7 +1629,7 @@ class SettlementUnit(DeactivableMixin, base_object.re_sequence_ordered(), ModelS
         Two modes depending on billing_unit.external_billing:
 
         False (classic): actual_costs and planned_costs must be entered manually
-        on each CostShare. Missing value → error state.
+        on each CostShare (gross = net). Missing value → error state.
 
         True (BU-level external): costs stay zero on CostShares; time-based
         value_share is calculated so proportions are available for reporting.
@@ -1566,8 +1644,9 @@ class SettlementUnit(DeactivableMixin, base_object.re_sequence_ordered(), ModelS
 
         if bu_external:
             # BU-level external: CostShare amounts stay zero (no internal
-            # per-apartment allocation). actual_costs on the SettlementUnit
-            # is already set by selection_actual_costs() from invoices —
+            # per-apartment allocation). actual_costs_gross/_net on the
+            # SettlementUnit are already set by selection_actual_costs()
+            # from the confirmed operating cost assignments —
             # do NOT overwrite it here.
             for cs in cost_shares:
                 cs.value_share = 0.0
@@ -1576,9 +1655,12 @@ class SettlementUnit(DeactivableMixin, base_object.re_sequence_ordered(), ModelS
                 cs.state = 'value_share'
                 cs.error_message = ''
                 cs.save()
-            combined_actual = ((self.actual_costs or Decimal(0))
-                + (self.actual_costs_from_references or Decimal(0)))
-            self.planned_costs = self.planned_costs_from_references or Decimal(0)
+            combined_actual = ((self.actual_costs_gross or Decimal(0))
+                + (self.actual_costs_gross_from_references or Decimal(0)))
+            self.planned_costs_gross = (
+                self.planned_costs_gross_from_references or Decimal(0))
+            self.planned_costs_net = (
+                self.planned_costs_net_from_references or Decimal(0))
             self.value_total = round(float(combined_actual), 4)
             self.save()
             self._compute_heizkostenv_split()
@@ -1600,8 +1682,9 @@ class SettlementUnit(DeactivableMixin, base_object.re_sequence_ordered(), ModelS
                 total_actual += cs.actual_costs or Decimal(0)
                 total_planned += cs.planned_costs or Decimal(0)
             if not has_error:
-                self.actual_costs = total_actual
-                self.planned_costs = total_planned
+                self.actual_costs_gross = self.actual_costs_net = total_actual
+                self.planned_costs_gross = self.planned_costs_net = (
+                    total_planned)
                 self.value_total = round(float(total_actual), 4)
                 self.save()
                 self._compute_heizkostenv_split()

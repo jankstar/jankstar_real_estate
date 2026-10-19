@@ -1,0 +1,41 @@
+<?xml version="1.0"?>
+<form>
+    <label name="document"/>
+    <field name="document"/>
+    <label name="target"/>
+    <field name="target"/>
+    <label name="settlement_unit"/>
+    <field name="settlement_unit"/>
+    <label name="billing_unit"/>
+    <field name="billing_unit"/>
+    <label name="contract"/>
+    <field name="contract"/>
+    <label name="base_object"/>
+    <field name="base_object"/>
+    <label name="percent"/>
+    <field name="percent"/>
+    <newline/>
+    <label name="amount_net"/>
+    <field name="amount_net"/>
+    <label name="amount_gross"/>
+    <field name="amount_gross"/>
+    <label name="service_period_from"/>
+    <field name="service_period_from"/>
+    <label name="service_period_to"/>
+    <field name="service_period_to"/>
+    <label name="estg_35a"/>
+    <field name="estg_35a"/>
+    <label name="estg_35a_labor_share_percent"/>
+    <field name="estg_35a_labor_share_percent"/>
+    <label name="bved_fuel_type"/>
+    <field name="bved_fuel_type"/>
+    <label name="bved_fuel_quantity"/>
+    <field name="bved_fuel_quantity"/>
+    <label name="proposal_source"/>
+    <field name="proposal_source" colspan="3"/>
+    <label name="comment"/>
+    <field name="comment" colspan="3"/>
+    <field name="sequence" invisible="1"/>
+    <field name="property" invisible="1"/>
+    <field name="account" invisible="1"/>
+</form>

@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<form col="6">
+    <label name="company"/>
+    <field name="company" colspan="2"/>
+    <label name="property"/>
+    <field name="property" colspan="2"/>
+    <newline/>
+    <label name="account"/>
+    <field name="account" colspan="2"/>
+    <label name="party"/>
+    <field name="party" colspan="2"/>
+    <newline/>
+    <label name="from_date"/>
+    <field name="from_date"/>
+    <label name="to_date"/>
+    <field name="to_date"/>
+    <label name="without_property"/>
+    <field name="without_property"/>
+</form>

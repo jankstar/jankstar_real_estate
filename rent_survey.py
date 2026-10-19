@@ -223,7 +223,6 @@ class RentSurvey(ModelSQL, ModelView):
     __name__ = 'real_estate.rent_survey'
 
     name = fields.Char("Name", required=True)
-    company = fields.Many2One('company.company', "Company", required=True)
     municipality = fields.Char("Municipality",
         help="Area of application of the rent survey.")
     versions = fields.One2Many('real_estate.rent_survey.version', 'survey',
@@ -231,10 +230,6 @@ class RentSurvey(ModelSQL, ModelView):
     current_version = fields.Function(fields.Many2One(
             'real_estate.rent_survey.version', "Current Version"),
         'get_current_version')
-
-    @staticmethod
-    def default_company():
-        return Transaction().context.get('company')
 
     def version_on(self, date):
         "Version valid on the date (latest valid_from <= date)"
@@ -1383,7 +1378,6 @@ class BaseObject(metaclass=PoolMeta):
 
     rent_survey = fields.Many2One('real_estate.rent_survey', "Rent Survey",
         ondelete='RESTRICT',
-        domain=[('company', '=', Eval('company', -1))],
         states={'invisible': Eval('type') != 'property'},
         help="Rent survey for the residential rental units of the "
              "property.")

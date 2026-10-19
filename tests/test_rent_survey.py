@@ -1,86 +1,33 @@
 """
-Berliner Mietspiegel 2026 anlegen (und als Demodaten zuordnen).
+Demodaten zum Berliner Mietspiegel 2026 zuordnen.
 
-Legt den Mietspiegel "Berliner Mietspiegel" mit der Version "Berliner
-Mietspiegel 2026" an (gültig ab 28.05.2026, Erhebungsstichtag 01.09.2025,
-qualifiziert, Tabellenmethode, 20 % je Merkmalgruppe, Gruppen werden
-gegeneinander aufgerechnet):
+Der Mietspiegel "Berliner Mietspiegel" (Version 2026 mit Klassifizierungs-
+merkmalen, 189 Tabellenfeldern und der Orientierungshilfe zur
+Spanneneinordnung) ist Standarddatum des Moduls (rent_survey_berlin.xml,
+erzeugt von tests/generate_rent_survey_xml.py aus
+tests/mietspiegel_berlin_2026_felder.csv und ..._merkmale.csv) und wird beim
+Aufbau der Datenbank angelegt - für alle Unternehmen.
 
-  - Klassifizierungsmerkmale Wohnlage (einfach/mittel/gut, manuell laut
-    Straßenverzeichnis, Ebene Wirtschaftseinheit) und Baualter (aus dem
-    Baujahr des Gebäudes; 1973-1985 West, 1986-1990 West und 1973-1990
-    Ost nur manuell, da abhängig vom Bezirk)
-  - alle 189 Tabellenfelder der drei Mietspiegeltabellen 9.1-9.3 aus
-    tests/mietspiegel_berlin_2026_felder.csv
-  - die Orientierungshilfe für die Spanneneinordnung (Nr. 11) mit den
-    Merkmalgruppen 1-5 sowie dem Abschlag für Minderausstattung (Nr. 9.4)
-    aus tests/mietspiegel_berlin_2026_merkmale.csv
-
-Beide CSV-Dateien wurden aus den amtlichen PDF-Dokumenten (Berliner
-Mietspiegel 2026, Berliner Mietspiegeltabelle 2026) übernommen und sind vor
-produktiver Nutzung am Original zu prüfen.
-
-Ohne --only-survey werden zusätzlich Demodaten zugeordnet (setzt
-test_immo.py voraus): Wirtschaftseinheit "Musterstraße 1-4" mit Wohnlage
-mittel; je Gebäude Baujahr 1958 (falls leer), "Besonders ruhige Lage",
-Fahrradraum, Wärmedämmung und Energieverbrauchskennwert 130 kWh/(m²a);
-"Wohnung 01" mit Merkmalen der Gruppen 1-3 und eine Berechnung der
-Vergleichsmiete zum heutigen Tag.
-
-Das Skript ist idempotent: es bricht ab, wenn der Mietspiegel "Berliner
-Mietspiegel" bereits existiert.
+Das Skript ordnet nur die Demodaten zu (setzt test_immo.py voraus):
+Wirtschaftseinheit "Musterstraße 1-4" mit Wohnlage mittel; je Gebäude
+Baujahr 1958 (falls leer), "Besonders ruhige Lage", Fahrradraum,
+Wärmedämmung und Energieverbrauchskennwert 130 kWh/(m²a); "Wohnung 01" mit
+Merkmalen der Gruppen 1-3 und eine Berechnung der Vergleichsmiete zum
+heutigen Tag. Bereits vorhandene Zuordnungen werden übersprungen.
 
 Verwendung:
-    python tests/test_rent_survey.py --database <Datenbankname> [--config <trytond.conf>] [--only-survey | --demo-only] [--company <Name>]
+    python tests/test_rent_survey.py --database <Datenbankname> [--config <trytond.conf>]
 """
 
 import argparse
 import datetime
-import os
-from decimal import Decimal
 
-from proteus import Model, Wizard, config
+from proteus import Model, config
 
 SURVEY = 'Berliner Mietspiegel'
 PROPERTY = 'Musterstraße 1-4'
 VALID_FROM = datetime.date(2026, 5, 28)
 START_DATE = datetime.date(2025, 1, 1)
-HERE = os.path.dirname(os.path.abspath(__file__))
-CELLS_FILE = os.path.join(HERE, 'mietspiegel_berlin_2026_felder.csv')
-FEATURES_FILE = os.path.join(HERE, 'mietspiegel_berlin_2026_merkmale.csv')
-
-LOCATIONS = [('simple', 'einfach'), ('medium', 'mittel'), ('good', 'gut')]
-# code, name, from year, to year (excl.), manual only
-AGES = [
-    ('to_1918', 'bis 1918', None, 1919, False),
-    ('1919_1949', '1919 bis 1949', 1919, 1950, False),
-    ('1950_1964', '1950 bis 1964', 1950, 1965, False),
-    ('1965_1972', '1965 bis 1972', 1965, 1973, False),
-    ('1973_1985_w', '1973 bis 1985 West', None, None, True),
-    ('1986_1990_w', '1986 bis 1990 West', None, None, True),
-    ('1973_1990_o', '1973 bis 1990 Ost (mit Wendewohnungen)', None, None,
-        True),
-    ('1991_2001', '1991 bis 2001 (ohne Wendewohnungen)', 1991, 2002, False),
-    ('2002_2009', '2002 bis 2009', 2002, 2010, False),
-    ('2010_2015', '2010 bis 2015', 2010, 2016, False),
-    ('2016_2019', '2016 bis 2019', 2016, 2020, False),
-    ('2020_2024', '2020 bis 2024', 2020, 2025, False),
-    ]
-GROUPS = [('1', 'Bad/WC/Gäste-WC'), ('2', 'Küche'), ('3', 'Wohnung'),
-    ('4', 'Gebäude'), ('5', 'Wohnumfeld'),
-    ('S', 'Abschlag Minderausstattung (Nr. 9.4)')]
-RENT_DEFINITION = (
-    'Nettokaltmiete je m² Wohnfläche und Monat: ohne Kosten für '
-    'Sammelheizung und Warmwasserversorgung, ohne kalte Betriebskosten, '
-    'ohne Möblierungs- und Untermietzuschläge, ohne Zuschläge für die '
-    'Nutzung zu anderen als Wohnzwecken. Gilt für nicht preisgebundene '
-    'Wohnungen in Mehrfamilienhäusern (mind. 3 Wohnungen), bezugsfertig bis '
-    '31.12.2024, mit Sammelheizung, Bad und WC in der Wohnung; nicht für '
-    'selbstgenutztes Wohneigentum, Ein-/Zweifamilien- und Reihenhäuser, '
-    'Wohnungen mit WC außerhalb der Wohnung und preisgebundene Wohnungen. '
-    'Wohnlage laut Straßenverzeichnis (Amtsblatt vom 28.05.2026). Die '
-    'Orientierungshilfe (Nr. 11) und der Abschlag für Minderausstattung '
-    '(Nr. 9.4) gehören nicht zum qualifizierten Teil.')
 
 DEMO_UNIT_FEATURES = ['b_wc_wall', 'b_towel', 'k_fitted', 'k_no_dishwasher',
     'w_balcony', 'w_windows']
@@ -101,70 +48,6 @@ def energy_type():
         raise SystemExit('Bemessungsart Energieverbrauchskennwert '
             '(Sequenz 70) fehlt - trytond-admin -u real_estate ausführen.')
     return types[0]
-
-
-def run_import(version, kind, path):
-    with open(path, encoding='utf-8') as file:
-        content = file.read()
-    wizard = Wizard('real_estate.rent_survey.import', [version])
-    wizard.form.kind = kind
-    wizard.form.file_ = content.encode('utf-8')
-    wizard.form.replace = False
-    wizard.execute('preview')
-    if wizard.form.problems:
-        raise SystemExit(f'Import {kind}:\n{wizard.form.problems}')
-    print(f'  Import {os.path.basename(path)}: '
-        f'{wizard.form.preview.splitlines()[0]}')
-    wizard.execute('import_')
-
-
-def create_survey(company):
-    Survey = Model.get('real_estate.rent_survey')
-    Version = Model.get('real_estate.rent_survey.version')
-    Dimension = Model.get('real_estate.rent_survey.dimension')
-    Class = Model.get('real_estate.rent_survey.dimension.class')
-    Group = Model.get('real_estate.rent_survey.group')
-    survey = Survey(name=SURVEY, municipality='Berlin', company=company)
-    survey.save()
-    version = Version(survey=survey, name='Berliner Mietspiegel 2026',
-        valid_from=VALID_FROM, survey_date=datetime.date(2025, 9, 1),
-        kind='qualified', method='table', group_percent=Decimal(20),
-        group_netting=True, round_digits=2,
-        rent_definition=RENT_DEFINITION,
-        source_document='https://www.mietspiegel.berlin.de - Berliner '
-        'Mietspiegel 2026 (Stand 05/2026), Berliner Mietspiegeltabelle 2026')
-    version.save()
-    # parent first, children saved separately (proteus O2M pattern)
-    location = Dimension(version=version, code='location', name='Wohnlage',
-        level='property', source='manual', sequence=10)
-    location.save()
-    for sequence, (code, name) in enumerate(LOCATIONS, 1):
-        Class(dimension=location, code=code, name=name,
-            sequence=sequence).save()
-    age = Dimension(version=version, code='age', name='Bezugsfertigkeit',
-        level='building', source='year_of_construction', sequence=20)
-    age.save()
-    for sequence, (code, name, low, high, manual) in enumerate(AGES, 1):
-        Class(dimension=age, code=code, name=name, sequence=sequence,
-            value_min=Decimal(low) if low else None,
-            value_max=Decimal(high) if high else None,
-            manual_only=manual).save()
-    version.reload()
-    run_import(version, 'cells', CELLS_FILE)
-    run_import(version, 'features', FEATURES_FILE)
-    for sequence, (code, name) in enumerate(GROUPS, 1):
-        group, = Group.find([('version', '=', version.id),
-                ('code', '=', code)])
-        group.name = name
-        group.sequence = sequence
-        group.save()
-    version.click('check')
-    version.reload()
-    print(f'  Version "{version.name}": {len(version.cells)} Tabellenfelder, '
-        f'{sum(len(g.features) for g in version.groups)} Merkmale in '
-        f'{len(version.groups)} Gruppen')
-    print('  Prüfung: ' + ' / '.join(version.check_result.splitlines()))
-    return survey
 
 
 def assign(record, kind, codes, version):
@@ -257,35 +140,16 @@ def main():
         formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument('--database', required=True)
     parser.add_argument('--config', default=None)
-    parser.add_argument('--only-survey', action='store_true',
-        help='Nur den Mietspiegel anlegen, keine Demodaten zuordnen')
-    parser.add_argument('--demo-only', action='store_true',
-        help='Nur die Demodaten dem vorhandenen Mietspiegel zuordnen')
-    parser.add_argument('--company', default=None,
-        help='Name des Unternehmens (Default: das erste)')
     args = parser.parse_args()
     connect(args.database, args.config)
 
     Survey = Model.get('real_estate.rent_survey')
     existing = Survey.find([('name', '=', SURVEY)])
-    if args.demo_only:
-        if not existing:
-            raise SystemExit(f'Mietspiegel "{SURVEY}" nicht gefunden.')
-        demo(existing[0])
-        return
-    if existing:
-        print(f'Mietspiegel "{SURVEY}" existiert bereits. Abbruch '
-            '(Demodaten zuordnen mit --demo-only).')
-        return
-    Company = Model.get('company.company')
-    companies = Company.find([('party.name', '=', args.company)]
-        if args.company else [])
-    if not companies:
-        raise SystemExit('Kein Unternehmen gefunden.')
-    print(f'Mietspiegel "{SURVEY}" ({companies[0].rec_name})')
-    survey = create_survey(companies[0])
-    if not args.only_survey:
-        demo(survey)
+    if not existing:
+        raise SystemExit(f'Mietspiegel "{SURVEY}" nicht gefunden - er ist '
+            'Standarddatum des Moduls (rent_survey_berlin.xml): '
+            'trytond-admin -u real_estate ausführen.')
+    demo(existing[0])
 
 
 if __name__ == '__main__':

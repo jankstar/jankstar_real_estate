@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<tree editable="1">
+    <field name="sequence" tree_invisible="1"/>
+    <field name="target"/>
+    <field name="settlement_unit" expand="1"/>
+    <field name="billing_unit" expand="1" optional="1"/>
+    <field name="contract" expand="1"/>
+    <field name="base_object" optional="1"/>
+    <field name="percent"/>
+    <field name="amount_net" sum="1"/>
+    <field name="amount_gross" sum="1"/>
+    <field name="service_period_from"/>
+    <field name="service_period_to"/>
+    <field name="estg_35a" optional="1"/>
+    <field name="estg_35a_labor_share_percent" optional="1"/>
+    <field name="bved_fuel_type" optional="1"/>
+    <field name="bved_fuel_quantity" optional="1"/>
+    <field name="proposal_source" expand="1" optional="0"/>
+    <field name="comment" optional="1"/>
+    <field name="property" tree_invisible="1"/>
+    <field name="account" tree_invisible="1"/>
+</tree>

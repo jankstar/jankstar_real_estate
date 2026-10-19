@@ -12,7 +12,7 @@
     <label name="reading_pre_days"/><field name="reading_pre_days"/>
     <label name="reading_post_days"/><field name="reading_post_days"/>
     <newline/>
-    <label name="bved_cost_key"/><field name="bved_cost_key"/>
+    <label name="account"/><field name="account"/>
     <newline/>
     <group colspan="2" col="-1" id="checkboxes">
         <label name="active"/>

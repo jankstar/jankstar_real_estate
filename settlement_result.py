@@ -311,6 +311,12 @@ class SettlementResult(ModelSQL, ModelView):
         states={'readonly': ~Eval('billing_unit_external_billing', False)},
         depends=['billing_unit_external_billing'])
 
+    direct_costs = Monetary('Direct Costs', currency='currency',
+        digits='currency', readonly=True,
+        help="Part of the actual costs assigned directly to the contract "
+             "(operating cost assignment with target contract) - gross or "
+             "net by the option rate of the rental object.")
+
     advanced_payment = Monetary('Advanced Payment', currency='currency', digits='currency',
         states={'readonly': True})
 

@@ -625,6 +625,45 @@ def record_year_end_reading(contract, target_date, admin_user):
                   f'(Rate {daily_rate:.3f} m³/Tag seit {last_reading.reading_date})')
 
 
+def record_vacancy_year_end_readings(prop, target_date, admin_user):
+    """Record a year-end water meter reading on target_date for every
+    rental object of the property whose meter has no reading on that date
+    yet - the objects vacant at the year end (never let or terminated and
+    not let again). The operating cost billing measures the consumption of
+    a vacancy by the meters as well (borne by the owner), so it needs a
+    reading at the end of the vacancy. Small vacancy consumption: 1 m³ per
+    30 days since the last reading."""
+    BaseObject = Model.get('real_estate.base_object')
+    MeterReading = Model.get('real_estate.meter_reading')
+    for obj in BaseObject.find([
+            ('property', '=', prop.id),
+            ('type', '=', 'object'),
+            ]):
+        meter = get_water_meter(obj)
+        if meter is None:
+            continue
+        last = MeterReading.find(
+            [('base_object', '=', meter.id)],
+            order=[('reading_date', 'DESC')], limit=1)
+        if not last or last[0].reading_date >= target_date:
+            continue
+        last_reading = last[0]
+        days_elapsed = (target_date - last_reading.reading_date).days
+        consumption = (Decimal(days_elapsed) / Decimal(30)).quantize(
+            Decimal('1'))
+        reading = MeterReading()
+        reading.base_object = meter
+        reading.m_type = 'reading'
+        reading.meter_id = last_reading.meter_id
+        reading.reading_date = target_date
+        reading.reading_user = admin_user
+        reading.value = last_reading.value + consumption
+        reading.save()
+        print(f'    Leerstand-Jahresendablesung: Zähler "{meter.name}" '
+              f'{last_reading.value} → {reading.value} m³ '
+              f'(seit {last_reading.reading_date})')
+
+
 def terminate_contract(contract, termination_date, receipt_date, t_wfl, admin_user):
     contract.state = 'terminated'
     contract.terminated_by_type = 'tenant'
@@ -1142,6 +1181,12 @@ def main():
     print(f'{"=" * 60}')
     for c in year_end_contracts:
         record_year_end_reading(c, YEAR_END_DATE, admin_user)
+
+    print(f'\n{"=" * 60}')
+    print(f'=== Jahresendablesungen ({YEAR_END_DATE}) für Leerstände ===')
+    print(f'{"=" * 60}')
+    for prop in properties:
+        record_vacancy_year_end_readings(prop, YEAR_END_DATE, admin_user)
 
     print('\nFertig.')
 

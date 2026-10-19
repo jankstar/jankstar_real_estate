@@ -48,8 +48,8 @@ Property Management
      (``ContractItem.objects``' own ``context={'occupancy_date':
      Eval('valid_from')}``), not just today.
    - Meter readings (``MeterReading``) linked to equipment objects
-   - ``billing_as`` / ``collective_billing`` flags to control how operating
-     cost billing is aggregated at property level
+   - ``collective_billing`` flag: all billing units of the property with
+     the same start date are billed (and cancelled) together
    - ``next_billing_start_date`` (function field, property only): the
      earliest ``start_date`` among all non-``billed`` billing units of the
      property. Drives the *ready for billing* checks and the green

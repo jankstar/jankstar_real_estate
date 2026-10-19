@@ -243,17 +243,6 @@ class BaseObject(Workflow, DeactivableMixin, re_sequence_ordered(), tree(separat
                 | ~Bool(Eval('bved_provider_assignments'))),
             }
 
-    billing_as = fields.Selection([
-            ('residential', 'Residential (gross)'),
-            ('commercial', 'Commercial (net)'),
-            ],
-        'Billing as',
-        sort=False,
-        states={
-            'invisible': Eval('type') != 'property',
-            'readonly': Eval('state') != 'draft',
-            })
-
     collective_billing = fields.Boolean('Collective Billing',
         states={
             'invisible': Eval('type') != 'property',
@@ -870,10 +859,6 @@ class BaseObject(Workflow, DeactivableMixin, re_sequence_ordered(), tree(separat
         return 'draft'
 
     @staticmethod
-    def default_billing_as():
-        return 'residential'
-
-    @staticmethod
     def default_collective_billing():
         return True
     
@@ -971,12 +956,14 @@ class BaseObject(Workflow, DeactivableMixin, re_sequence_ordered(), tree(separat
                             self.year_of_construction,)
                         )
 
-            if 'option_rate_method' in fields:
-                if self.type == 'object' and self.option_rate_method == 'dynamic_measurement':
-                    raise ValidationError(
-                        gettext("real_estate.msg_option_rate_method_dynamic_not_allowed_for_object",).format(
-                            self.name,)
-                        )
+            # The costs of a rental object are distributed gross (0 %) or
+            # net (100 %) - spezifikation-betriebskostenzuordnung.md E15
+            if 'option_rate_method' in fields or 'type' in fields:
+                if (self.type == 'object' and self.option_rate_method
+                        not in ('fix_0', 'fix_100')):
+                    raise ValidationError(gettext(
+                        'real_estate.msg_option_rate_method_object_fixed',
+                        name=self.name))
 
 
 

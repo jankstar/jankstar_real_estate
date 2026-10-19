@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<tree>
+    <field name="date"/>
+    <field name="property" expand="1"/>
+    <field name="party" expand="1"/>
+    <field name="account"/>
+    <field name="description" expand="1" optional="1"/>
+    <field name="invoice" optional="1"/>
+    <field name="amount_net" sum="1"/>
+    <field name="amount_gross" sum="1"/>
+    <field name="open_gross" sum="1" optional="1"/>
+    <field name="summary" expand="2" optional="0"/>
+    <field name="state"/>
+    <button name="propose" multiple="1"/>
+    <button name="confirm" multiple="1"/>
+</tree>

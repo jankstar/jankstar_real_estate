@@ -16,7 +16,6 @@ from decimal import Decimal, ROUND_HALF_UP
 
 import logging
 
-from . import bved_records
 
 logger = logging.getLogger(__name__)
 
@@ -50,17 +49,6 @@ class CostType(DeactivableMixin, sequence_ordered(), ModelSQL, ModelView):
         help="Days before the target date within which a meter reading is accepted.")
     reading_post_days = fields.Integer("Valid Reading Post-Days",
         help="Days after the target date within which a meter reading is accepted.")
-
-    bved_cost_key = fields.Selection(
-        'get_bved_cost_keys', "BVED Cost Type Key", sort=False,
-        help="BVED Tabelle 'K' code used for K-Satz field 6 when this cost "
-             "type is exported to a Messdienstleister. Codes 200 and 202 "
-             "are excluded - those are handled via allocation_by_"
-             "consumption settlement units, not this field.")
-
-    @staticmethod
-    def get_bved_cost_keys():
-        return [('', '')] + bved_records.as_selection(bved_records.TABLE_K)
 
     @staticmethod
     def default_reading_pre_days():
@@ -860,6 +848,85 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
                 details='\n'.join(lines_info)))
 
     @classmethod
+    def _check_oc_documents(cls, billing_units):
+        """Operating cost documents (spezifikation-betriebskostenzuordnung.md
+        E16): documents with lines - also proposed ones - on settlement
+        units of the billing unit must be confirmed (error); other open or
+        proposed documents of the property dated in the period are only
+        logged as a hint."""
+        pool = Pool()
+        Line = pool.get('real_estate.oc_document.line')
+        Document = pool.get('real_estate.oc_document')
+        for bu in billing_units:
+            documents = {l.document for l in Line.search([
+                        ('settlement_unit.billing_unit', '=', bu.id),
+                        ('document.state', '!=', 'confirmed'),
+                        ])}
+            if documents:
+                details = '\n'.join(
+                    f'  {d.rec_name}' for d in sorted(
+                        documents, key=lambda d: (d.date, d.id)))
+                raise ValidationError(gettext(
+                    'real_estate.msg_billing_unit_oc_documents_open',
+                    name=bu.name, details=details))
+            others = Document.search([
+                    ('property', '=', bu.property.id),
+                    ('state', '!=', 'confirmed'),
+                    ('date', '>=', bu.start_date),
+                    ('date', '<=', bu.end_date),
+                    ])
+            if others:
+                bu.add_log('oc_documents',
+                    f'Hint: {len(others)} operating cost document(s) of the '
+                    f'property in the period are not confirmed yet: '
+                    + ', '.join(d.rec_name for d in others))
+
+    def _direct_costs(self, groups, terms_by_co):
+        """Direct costs of the contracts per group key of
+        compute_settlement_result(): the confirmed operating cost
+        assignments with target contract on settlement units of this
+        billing unit, gross or net by the option rate of the rental object
+        (spezifikation-betriebskostenzuordnung.md 6.3). The contract needs
+        exactly one settlement result (rental object) with advance payment
+        terms 'advance with settlement' (Z03)."""
+        pool = Pool()
+        Line = pool.get('real_estate.oc_document.line')
+        SettlementUnit = pool.get('real_estate.settlement_unit')
+        Term = pool.get('real_estate.contract.term')
+        lines = Line.search([
+                ('target', '=', 'contract'),
+                ('document.state', '=', 'confirmed'),
+                ('settlement_unit.billing_unit', '=', self.id),
+                ])
+        result = {}
+        for line in lines:
+            keys = [k for k in groups
+                if k and k[0] == 'contract' and k[1] == line.contract.id
+                and (not line.base_object or k[2] == line.base_object.id)]
+            if len(keys) > 1:
+                raise ValidationError(gettext(
+                        'real_estate.msg_oc_direct_several_results',
+                        document=line.document.rec_name,
+                        contract=line.contract.rec_name,
+                        billing_unit=self.rec_name))
+            terms = (Term.browse(list(terms_by_co.get(
+                            (keys[0][1], keys[0][2]), set())))
+                if keys else [])
+            if not terms or any(
+                    t.term_type.oc_processing != 'advance_with_settlement'
+                    for t in terms):
+                raise ValidationError(gettext(
+                        'real_estate.msg_oc_direct_no_result',
+                        document=line.document.rec_name,
+                        contract=line.contract.rec_name,
+                        billing_unit=self.rec_name))
+            g = groups[keys[0]]
+            net = SettlementUnit._net_object(g['base_object'], g['end_date'])
+            amount = (line.amount_net if net else line.amount_gross) or Decimal(0)
+            result[keys[0]] = result.get(keys[0], Decimal(0)) + amount
+        return result
+
+    @classmethod
     @ModelView.button
     @Workflow.transition('ready_for_billing')
     def check_ready_for_billing(cls, billing_units):
@@ -872,6 +939,7 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
         SettlementResult = pool.get('real_estate.settlement_result')
 
         cls._check_invoices_posted(billing_units)
+        cls._check_oc_documents(billing_units)
 
         for bu in billing_units:
             # Check all settlement units have sub_state 'value_share' (no_allocation exempt)
@@ -944,7 +1012,8 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
                 sr_sum = sum(r.actual_costs or Decimal(0) for r in results)
                 cs_sum = sum(
                     cs.actual_costs or Decimal(0)
-                    for cs in bu._get_cost_shares())
+                    for cs in bu._get_cost_shares()) + sum(
+                    r.direct_costs or Decimal(0) for r in results)
                 if sr_sum != cs_sum:
                     raise ValidationError(gettext(
                         'real_estate.msg_billing_unit_sum_mismatch',
@@ -1424,7 +1493,8 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
         is derived automatically (on_change_with_end_date always yields a
         full year), so no explicit duration calculation is needed.
         Settlement units are copied along with the billing unit, with
-        planned_costs taken from the template's actual_costs. term_types_of_use
+        planned_costs_gross/_net taken from the template's
+        actual_costs_gross/_net. term_types_of_use
         is copied too, since approval requires at least one term type to be set.
         """
         pool = Pool()
@@ -1477,11 +1547,13 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
                     reference_settlement_unit=new_reference,
                     vacancy=su.vacancy,
                     m_type=su.m_type,
-                    planned_costs=su.actual_costs,
+                    planned_costs_gross=su.actual_costs_gross,
+                    planned_costs_net=su.actual_costs_net,
                     comment=su.comment,
                     meter_unit=su.meter_unit,
                     reg_ex_object=su.reg_ex_object,
                     reg_ex_meter=su.reg_ex_meter,
+                    bved_cost_key=su.bved_cost_key,
                     predecessor=su,
                 )
                 new_su.save()
@@ -1520,7 +1592,9 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
                     k = (r.contract.id if r.contract else None,
                          r.base_object.id if r.base_object else None)
                     preserved_costs[k] = (
-                        r.actual_costs, r.planned_costs)
+                        (r.actual_costs or Decimal(0))
+                        - (r.direct_costs or Decimal(0)),
+                        r.planned_costs)
             if existing:
                 SettlementResult.delete(existing)
             bved_default_state = (
@@ -1623,6 +1697,10 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
                         f'[draft] {len(draft_lines)} draft item(s) found for '
                         f'{len(draft_contract_ids)} contract(s) in {period_str}.')
 
+            # Direct costs of the contracts (operating cost assignment
+            # with target contract)
+            direct_costs = billing_unit._direct_costs(groups, terms_by_co)
+
             # Keys consumed by the cost-share groups
             consumed_co_keys = {
                 (g['contract'].id, g['base_object'].id if g['base_object'] else None)
@@ -1653,6 +1731,11 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
                             g['planned_costs'] = prev_planned
                         refund = (g['actual_costs'] - adv
                             if adv is not None else None)
+                direct = direct_costs.get(key, Decimal(0))
+                if direct:
+                    g['actual_costs'] += direct
+                    refund = (g['actual_costs'] - adv
+                        if adv is not None else None)
                 result = SettlementResult(
                     billing_unit=billing_unit.id,
                     contract=contract_id,
@@ -1662,6 +1745,7 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
                     end_date=g['end_date'],
                     planned_costs=g['planned_costs'],
                     actual_costs=g['actual_costs'],
+                    direct_costs=direct,
                     advanced_payment=adv,
                     refund_receivable=refund,
                     bved_state=bved_default_state,

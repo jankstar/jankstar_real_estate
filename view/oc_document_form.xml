@@ -1,0 +1,50 @@
+<?xml version="1.0"?>
+<form col="6">
+    <label name="property"/>
+    <field name="property" colspan="3"/>
+    <label name="state"/>
+    <field name="state"/>
+    <label name="date"/>
+    <field name="date"/>
+    <label name="account"/>
+    <field name="account"/>
+    <label name="party"/>
+    <field name="party"/>
+    <label name="invoice"/>
+    <field name="invoice"/>
+    <label name="description"/>
+    <field name="description" colspan="3"/>
+    <label name="amount_booked"/>
+    <field name="amount_booked"/>
+    <label name="amount_net"/>
+    <field name="amount_net"/>
+    <label name="amount_gross"/>
+    <field name="amount_gross"/>
+    <field name="lines" colspan="6"
+        view_ids="real_estate.oc_document_line_view_tree"/>
+    <label name="assigned_net"/>
+    <field name="assigned_net"/>
+    <label name="assigned_gross"/>
+    <field name="assigned_gross"/>
+    <newline/>
+    <label name="open_net"/>
+    <field name="open_net"/>
+    <label name="open_gross"/>
+    <field name="open_gross"/>
+    <newline/>
+    <label name="confirmed_by"/>
+    <field name="confirmed_by"/>
+    <label name="confirmed_date"/>
+    <field name="confirmed_date"/>
+    <group id="buttons" colspan="6" col="-1">
+        <button name="propose"/>
+        <button name="split_period"/>
+        <button name="take_history"/>
+        <button name="reset"/>
+        <button name="confirm"/>
+    </group>
+    <separator name="history" colspan="6"/>
+    <field name="history" colspan="6"
+        view_ids="real_estate.oc_document_history_view_tree"/>
+    <field name="company" invisible="1"/>
+</form>

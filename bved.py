@@ -1982,7 +1982,7 @@ class BvedExport(Workflow, ModelSQL, ModelView):
                     # collector' with su as its reference_settlement_unit
                     # (e.g. a second fuel supplier feeding the same
                     # heating settlement unit) can carry its own invoice
-                    # lines too. Each keeps its own cost type's
+                    # lines too. Each keeps its own settlement unit's
                     # bved_cost_key, since the invoices may classify
                     # differently even though they all feed the same
                     # externally-billed unit.
@@ -1997,9 +1997,7 @@ class BvedExport(Workflow, ModelSQL, ModelView):
                             ('invoice.state', '!=', 'cancelled'),
                             ])
                         for line in invoice_lines:
-                            cost_key = (
-                                source_su.type.bved_cost_key
-                                if source_su.type else None)
+                            cost_key = source_su.bved_cost_key or None
                             estg = getattr(line, 'estg_35a', '') or ''
                             labor_pct = getattr(
                                 line, 'estg_35a_labor_share_percent', None)

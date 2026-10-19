@@ -1,0 +1,299 @@
+<?xml version="1.0"?>
+<!-- Operating cost assignment (Betriebskostenzuordnung),
+     specs/spezifikation-betriebskostenzuordnung.md -->
+<tryton>
+    <data>
+        <record model="ir.ui.view" id="oc_document_view_tree">
+            <field name="model">real_estate.oc_document</field>
+            <field name="type">tree</field>
+            <field name="name">oc_document_tree</field>
+        </record>
+        <record model="ir.ui.view" id="oc_document_view_form">
+            <field name="model">real_estate.oc_document</field>
+            <field name="type">form</field>
+            <field name="name">oc_document_form</field>
+        </record>
+        <record model="ir.ui.view" id="oc_document_history_view_tree">
+            <field name="model">real_estate.oc_document</field>
+            <field name="type">tree</field>
+            <field name="priority" eval="20"/>
+            <field name="name">oc_document_history_tree</field>
+        </record>
+        <record model="ir.ui.view" id="oc_document_line_view_tree">
+            <field name="model">real_estate.oc_document.line</field>
+            <field name="type">tree</field>
+            <field name="name">oc_document_line_tree</field>
+        </record>
+        <record model="ir.ui.view" id="oc_document_line_view_form">
+            <field name="model">real_estate.oc_document.line</field>
+            <field name="type">form</field>
+            <field name="name">oc_document_line_form</field>
+        </record>
+        <record model="ir.ui.view" id="oc_document_context_view_form">
+            <field name="model">real_estate.oc_document.context</field>
+            <field name="type">form</field>
+            <field name="name">oc_document_context_form</field>
+        </record>
+        <record model="ir.ui.view" id="oc_document_split_start_view_form">
+            <field name="model">real_estate.oc_document.split.start</field>
+            <field name="type">form</field>
+            <field name="name">oc_document_split_start_form</field>
+        </record>
+        <record model="ir.ui.view" id="oc_document_history_start_view_form">
+            <field name="model">real_estate.oc_document.history.start</field>
+            <field name="type">form</field>
+            <field name="name">oc_document_history_start_form</field>
+        </record>
+        <record model="ir.ui.view" id="oc_document_update_start_view_form">
+            <field name="model">real_estate.oc_document.update.start</field>
+            <field name="type">form</field>
+            <field name="name">oc_document_update_start_form</field>
+        </record>
+        <record model="ir.ui.view" id="oc_document_update_result_view_form">
+            <field name="model">real_estate.oc_document.update.result</field>
+            <field name="type">form</field>
+            <field name="name">oc_document_update_result_form</field>
+        </record>
+
+        <record model="ir.action.act_window" id="act_oc_document">
+            <field name="name">Assign Operating Costs</field>
+            <field name="res_model">real_estate.oc_document</field>
+            <field name="context_model">real_estate.oc_document.context</field>
+            <field name="context_domain" eval="[('company', '=', Eval('company', -1)), If(Eval('property', None), [('property', '=', Eval('property', None))], []), If(Eval('account', None), [('account', '=', Eval('account', None))], []), If(Eval('party', None), [('party', '=', Eval('party', None))], []), If(Eval('from_date', None), [('date', '&gt;=', Eval('from_date', None))], []), If(Eval('to_date', None), [('date', '&lt;=', Eval('to_date', None))], []), If(Eval('without_property', False), [('property', '=', None)], [])]" pyson="1"/>
+        </record>
+        <record model="ir.action.act_window.view" id="act_oc_document_view1">
+            <field name="sequence" eval="10"/>
+            <field name="view" ref="oc_document_view_tree"/>
+            <field name="act_window" ref="act_oc_document"/>
+        </record>
+        <record model="ir.action.act_window.view" id="act_oc_document_view2">
+            <field name="sequence" eval="20"/>
+            <field name="view" ref="oc_document_view_form"/>
+            <field name="act_window" ref="act_oc_document"/>
+        </record>
+        <record model="ir.action.act_window.domain" id="act_oc_document_domain_open">
+            <field name="name">Open</field>
+            <field name="sequence" eval="10"/>
+            <field name="domain" eval="[('state', '=', 'open')]" pyson="1"/>
+            <field name="count" eval="True"/>
+            <field name="act_window" ref="act_oc_document"/>
+        </record>
+        <record model="ir.action.act_window.domain" id="act_oc_document_domain_proposed">
+            <field name="name">Proposed</field>
+            <field name="sequence" eval="20"/>
+            <field name="domain" eval="[('state', '=', 'proposed')]" pyson="1"/>
+            <field name="act_window" ref="act_oc_document"/>
+        </record>
+        <record model="ir.action.act_window.domain" id="act_oc_document_domain_confirmed">
+            <field name="name">Confirmed</field>
+            <field name="sequence" eval="30"/>
+            <field name="domain" eval="[('state', '=', 'confirmed')]" pyson="1"/>
+            <field name="act_window" ref="act_oc_document"/>
+        </record>
+        <record model="ir.action.act_window.domain" id="act_oc_document_domain_all">
+            <field name="name">All</field>
+            <field name="sequence" eval="9999"/>
+            <field name="domain"></field>
+            <field name="act_window" ref="act_oc_document"/>
+        </record>
+        <menuitem
+            parent="menu_real_estate_operation_costs"
+            action="act_oc_document"
+            sequence="5"
+            id="menu_oc_document"/>
+
+        <record model="ir.action.wizard" id="wizard_oc_document_update">
+            <field name="name">Update Operating Cost Documents</field>
+            <field name="wiz_name">real_estate.oc_document.update</field>
+        </record>
+        <menuitem
+            parent="menu_oc_document"
+            action="wizard_oc_document_update"
+            sequence="10"
+            id="menu_oc_document_update"/>
+
+        <record model="ir.action.wizard" id="wizard_oc_document_split">
+            <field name="name">Split by Service Period</field>
+            <field name="wiz_name">real_estate.oc_document.split</field>
+            <field name="model">real_estate.oc_document</field>
+        </record>
+        <record model="ir.action.wizard" id="wizard_oc_document_history">
+            <field name="name">Take Over from History</field>
+            <field name="wiz_name">real_estate.oc_document.history</field>
+            <field name="model">real_estate.oc_document</field>
+        </record>
+        <record model="ir.model.button" id="oc_document_propose_button">
+            <field name="model">real_estate.oc_document</field>
+            <field name="name">propose</field>
+            <field name="string">Propose</field>
+            <field name="help">Replace the lines by the proposal (account, as last time, as for another property).</field>
+        </record>
+        <record model="ir.model.button" id="oc_document_confirm_button">
+            <field name="model">real_estate.oc_document</field>
+            <field name="name">confirm</field>
+            <field name="string">Confirm</field>
+            <field name="help">The assignment is checked - only confirmed documents are used for the billing.</field>
+        </record>
+        <record model="ir.model.button" id="oc_document_reset_button">
+            <field name="model">real_estate.oc_document</field>
+            <field name="name">reset</field>
+            <field name="string">Reset</field>
+        </record>
+        <record model="ir.model.button" id="oc_document_split_period_button">
+            <field name="model">real_estate.oc_document</field>
+            <field name="name">split_period</field>
+            <field name="string">Split by Service Period</field>
+            <field name="help">Split the lines day by day onto the settlement units of the periods of the service period.</field>
+        </record>
+        <record model="ir.model.button" id="oc_document_take_history_button">
+            <field name="model">real_estate.oc_document</field>
+            <field name="name">take_history</field>
+            <field name="string">Take Over from History</field>
+            <field name="help">Transfer the assignment of an earlier document of the same supplier and account.</field>
+        </record>
+
+        <record model="ir.rule.group" id="rule_group_oc_document_companies">
+            <field name="name">User in companies</field>
+            <field name="model">real_estate.oc_document</field>
+            <field name="global_p" eval="True"/>
+        </record>
+        <record model="ir.rule" id="rule_oc_document_companies">
+            <field name="domain" eval="[('company', 'in', Eval('companies', []))]" pyson="1"/>
+            <field name="rule_group" ref="rule_group_oc_document_companies"/>
+        </record>
+        <record model="ir.model.access" id="access_oc_document_billing">
+            <field name="model">real_estate.oc_document</field>
+            <field name="group" ref="group_real_estate_billing"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_oc_document_admin">
+            <field name="model">real_estate.oc_document</field>
+            <field name="group" ref="group_real_estate_admin"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+        <record model="ir.model.access" id="access_oc_document_object">
+            <field name="model">real_estate.oc_document</field>
+            <field name="group" ref="group_real_estate_object"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_oc_document_contract">
+            <field name="model">real_estate.oc_document</field>
+            <field name="group" ref="group_real_estate_contract"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_oc_document_view">
+            <field name="model">real_estate.oc_document</field>
+            <field name="group" ref="group_real_estate_view"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_oc_document_default">
+            <field name="model">real_estate.oc_document</field>
+            <field name="perm_read" eval="False"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_oc_document_line_billing">
+            <field name="model">real_estate.oc_document.line</field>
+            <field name="group" ref="group_real_estate_billing"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+        <record model="ir.model.access" id="access_oc_document_line_admin">
+            <field name="model">real_estate.oc_document.line</field>
+            <field name="group" ref="group_real_estate_admin"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+        <record model="ir.model.access" id="access_oc_document_line_object">
+            <field name="model">real_estate.oc_document.line</field>
+            <field name="group" ref="group_real_estate_object"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_oc_document_line_contract">
+            <field name="model">real_estate.oc_document.line</field>
+            <field name="group" ref="group_real_estate_contract"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_oc_document_line_view">
+            <field name="model">real_estate.oc_document.line</field>
+            <field name="group" ref="group_real_estate_view"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_oc_document_line_default">
+            <field name="model">real_estate.oc_document.line</field>
+            <field name="perm_read" eval="False"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.button-res.group" id="oc_document_propose_button_group_billing">
+            <field name="button" ref="oc_document_propose_button"/>
+            <field name="group" ref="group_real_estate_billing"/>
+        </record>
+        <record model="ir.model.button-res.group" id="oc_document_confirm_button_group_billing">
+            <field name="button" ref="oc_document_confirm_button"/>
+            <field name="group" ref="group_real_estate_billing"/>
+        </record>
+        <record model="ir.model.button-res.group" id="oc_document_reset_button_group_billing">
+            <field name="button" ref="oc_document_reset_button"/>
+            <field name="group" ref="group_real_estate_billing"/>
+        </record>
+        <record model="ir.model.button-res.group" id="oc_document_split_period_button_group_billing">
+            <field name="button" ref="oc_document_split_period_button"/>
+            <field name="group" ref="group_real_estate_billing"/>
+        </record>
+        <record model="ir.model.button-res.group" id="oc_document_take_history_button_group_billing">
+            <field name="button" ref="oc_document_take_history_button"/>
+            <field name="group" ref="group_real_estate_billing"/>
+        </record>
+        <record model="ir.model.button-res.group" id="oc_document_propose_button_group_admin">
+            <field name="button" ref="oc_document_propose_button"/>
+            <field name="group" ref="group_real_estate_admin"/>
+        </record>
+        <record model="ir.model.button-res.group" id="oc_document_confirm_button_group_admin">
+            <field name="button" ref="oc_document_confirm_button"/>
+            <field name="group" ref="group_real_estate_admin"/>
+        </record>
+        <record model="ir.model.button-res.group" id="oc_document_reset_button_group_admin">
+            <field name="button" ref="oc_document_reset_button"/>
+            <field name="group" ref="group_real_estate_admin"/>
+        </record>
+        <record model="ir.model.button-res.group" id="oc_document_split_period_button_group_admin">
+            <field name="button" ref="oc_document_split_period_button"/>
+            <field name="group" ref="group_real_estate_admin"/>
+        </record>
+        <record model="ir.model.button-res.group" id="oc_document_take_history_button_group_admin">
+            <field name="button" ref="oc_document_take_history_button"/>
+            <field name="group" ref="group_real_estate_admin"/>
+        </record>
+    </data>
+</tryton>

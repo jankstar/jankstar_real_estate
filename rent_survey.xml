@@ -334,15 +334,6 @@
             <field name="string">Recalculate</field>
             <field name="help">Calculate again with the current data - in place while not accepted or rejected, else as a new calculation.</field>
         </record>
-        <record model="ir.rule.group" id="rule_group_rent_survey_companies">
-            <field name="name">User in companies</field>
-            <field name="model">real_estate.rent_survey</field>
-            <field name="global_p" eval="True"/>
-        </record>
-        <record model="ir.rule" id="rule_rent_survey_companies">
-            <field name="domain" eval="[('company', 'in', Eval('companies', []))]" pyson="1"/>
-            <field name="rule_group" ref="rule_group_rent_survey_companies"/>
-        </record>
         <record model="ir.rule.group" id="rule_group_rent_survey_calculation_companies">
             <field name="name">User in companies</field>
             <field name="model">real_estate.rent_survey.calculation</field>

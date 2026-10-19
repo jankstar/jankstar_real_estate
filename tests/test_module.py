@@ -1276,6 +1276,263 @@ class RealEstateTestCase(ModuleTestCase):
             BaseObject.create([dict(values, company=other.id, name='P',
                         type='property', sequence=10)])
 
+    def test_oc_distribute_and_split_by_days(self):
+        "Operating cost assignment: exact cent split and day split"
+        from trytond.modules.real_estate.oc_document import (
+            distribute, split_by_days)
+
+        self.assertEqual(distribute(Decimal('100.00'), [1, 1, 1]),
+            [Decimal('33.33'), Decimal('33.33'), Decimal('33.34')])
+        self.assertEqual(distribute(Decimal('10.00'), [0, 0]),
+            [Decimal(0), Decimal(0)])
+        self.assertEqual(distribute(Decimal('-7.00'), [50, 50]),
+            [Decimal('-3.50'), Decimal('-3.50')])
+        d = datetime.date
+        self.assertEqual(split_by_days(d(2025, 7, 1), d(2026, 6, 30), [
+                    ('a', d(2025, 1, 1), d(2025, 12, 31)),
+                    ('b', d(2026, 1, 1), d(2026, 12, 31)),
+                    ('c', d(2027, 1, 1), d(2027, 12, 31)),
+                    ]), [
+                ('a', d(2025, 7, 1), d(2025, 12, 31), 184),
+                ('b', d(2026, 1, 1), d(2026, 6, 30), 181),
+                ])
+
+    @with_transaction()
+    def test_oc_document_assignment(self):
+        "Operating cost document: created on posting, proposed, confirmed, "
+        "split by service period, locked by the billing unit"
+        from trytond.model.exceptions import AccessError
+        from trytond.modules.account.tests import (
+            create_chart, get_fiscalyear)
+        from trytond.modules.company.tests import create_company, set_company
+
+        pool = Pool()
+        Account = pool.get('account.account')
+        Journal = pool.get('account.journal')
+        Move = pool.get('account.move')
+        Period = pool.get('account.period')
+        FiscalYear = pool.get('account.fiscalyear')
+        Party = pool.get('party.party')
+        BaseObject = pool.get('real_estate.base_object')
+        BillingUnit = pool.get('real_estate.billing_unit')
+        SettlementUnit = pool.get('real_estate.settlement_unit')
+        CostType = pool.get('real_estate.cost_type')
+        Document = pool.get('real_estate.oc_document')
+
+        company = create_company()
+        with set_company(company):
+            create_chart(company)
+            for year in (2025, 2026):
+                fiscalyear = get_fiscalyear(company,
+                    today=datetime.date(year, 1, 1))
+                fiscalyear.save()
+                FiscalYear.create_period([fiscalyear])
+            expense, = Account.search([
+                    ('type.expense', '=', True),
+                    ('company', '=', company.id),
+                    ], limit=1)
+            payable, = Account.search([
+                    ('type.payable', '=', True),
+                    ('party_required', '=', True),
+                    ('company', '=', company.id),
+                    ], limit=1)
+            journal, = Journal.search([('code', '=', 'EXP')])
+            supplier = Party(name="Reinigung Müller")
+            supplier.save()
+
+            prop, = BaseObject.create([{'name': 'P', 'type': 'property',
+                        'sequence': 10, 'company': company.id,
+                        'start_date': datetime.date(2025, 1, 1)}])
+            cost_type, = CostType.create([{'name': 'Hausreinigung',
+                        'account': expense.id}])
+            self.assertEqual(CostType(cost_type.id).account, expense)
+            bu_2025, = BillingUnit.create([{'property': prop.id,
+                        'description': 'Kalte BK',
+                        'start_date': datetime.date(2025, 1, 1)}])
+            su_2025, = SettlementUnit.create([{'billing_unit': bu_2025.id,
+                        'type': cost_type.id, 'sequence': 10}])
+
+            def post(date, amount, base_object=prop):
+                period = Period.find(company, date=date)
+                move = Move(journal=journal, period=period, date=date,
+                    company=company)
+                move.lines = [
+                    {'account': expense.id, 'debit': amount,
+                        'credit': Decimal(0), 'base_object':
+                        base_object.id if base_object else None},
+                    {'account': payable.id, 'debit': Decimal(0),
+                        'credit': amount, 'party': supplier.id},
+                    ]
+                move.save()
+                Move.post([move])
+                return move
+
+            # Posting creates the document (only the cost account line)
+            post(datetime.date(2025, 3, 15), Decimal('120.00'))
+            doc, = Document.search([])
+            self.assertEqual((doc.property, doc.account, doc.state,
+                    doc.amount_net, doc.amount_gross),
+                (prop, expense, 'open', Decimal('120.00'),
+                    Decimal('120.00')))
+            # Without property: document without property (hint only)
+            post(datetime.date(2025, 3, 16), Decimal('5.00'),
+                base_object=None)
+            self.assertEqual(
+                len(Document.search([('property', '=', None)])), 1)
+
+            # Stage 1: account unique, one settlement unit
+            Document.propose([doc])
+            doc = Document(doc.id)
+            self.assertEqual(doc.state, 'proposed')
+            line, = doc.lines
+            self.assertEqual((line.settlement_unit, line.amount_gross),
+                (su_2025, Decimal('120.00')))
+            Document.confirm([doc])
+            self.assertEqual(Document(doc.id).state, 'confirmed')
+
+            # Stage 2 (as last time) and split onto the next period
+            BillingUnit.duplicate_next_period([bu_2025])
+            su_2026, = SettlementUnit.search([('predecessor', '=', su_2025)])
+            post(datetime.date(2025, 7, 1), Decimal('365.00'))
+            doc2, = Document.search([('amount_net', '=', Decimal('365.00'))])
+            Document.propose([doc2])
+            doc2 = Document(doc2.id)
+            self.assertEqual(doc2.lines[0].settlement_unit, su_2025)
+            doc2.split_lines(datetime.date(2025, 7, 1),
+                datetime.date(2026, 6, 30))
+            doc2 = Document(doc2.id)
+            self.assertEqual(
+                sorted((l.settlement_unit.id, l.amount_net)
+                    for l in doc2.lines),
+                sorted([(su_2025.id, Decimal('184.00')),
+                        (su_2026.id, Decimal('181.00'))]))
+            self.assertEqual(doc2.state, 'proposed')
+
+            # Locked once the billing unit is ready for billing
+            BillingUnit.write([bu_2025], {'state': 'ready_for_billing'})
+            with self.assertRaises(AccessError):
+                Document.propose([doc2])
+            with self.assertRaises(AccessError):
+                Document.reset([Document(doc.id)])
+
+    @with_transaction()
+    def test_oc_billing_gross_net(self):
+        "Settlement unit: actual costs gross/net from the confirmed "
+        "assignment, distribution gross (0 %) / net (100 %) per object"
+        from trytond.modules.account.tests import (
+            create_chart, get_fiscalyear)
+        from trytond.modules.company.tests import create_company, set_company
+
+        pool = Pool()
+        Account = pool.get('account.account')
+        Journal = pool.get('account.journal')
+        Move = pool.get('account.move')
+        Period = pool.get('account.period')
+        FiscalYear = pool.get('account.fiscalyear')
+        BaseObject = pool.get('real_estate.base_object')
+        UseClass = pool.get('real_estate.use_class')
+        MeasurementType = pool.get('real_estate.measurement.type')
+        Measurement = pool.get('real_estate.measurement')
+        BillingUnit = pool.get('real_estate.billing_unit')
+        SettlementUnit = pool.get('real_estate.settlement_unit')
+        CostShare = pool.get('real_estate.cost_share')
+        CostType = pool.get('real_estate.cost_type')
+        Document = pool.get('real_estate.oc_document')
+        start = datetime.date(2025, 1, 1)
+        end = datetime.date(2025, 12, 31)
+
+        company = create_company()
+        with set_company(company):
+            create_chart(company)
+            fiscalyear = get_fiscalyear(company, today=start)
+            fiscalyear.save()
+            FiscalYear.create_period([fiscalyear])
+            expense, = Account.search([
+                    ('type.expense', '=', True),
+                    ('company', '=', company.id),
+                    ], limit=1)
+            payable, = Account.search([
+                    ('type.payable', '=', True),
+                    ('party_required', '=', True),
+                    ('company', '=', company.id),
+                    ], limit=1)
+            journal, = Journal.search([('code', '=', 'EXP')])
+            use_class, = UseClass.search([], limit=1)
+            area, = MeasurementType.search([('sequence', '=', 10)])
+
+            prop, = BaseObject.create([{'name': 'P', 'type': 'property',
+                        'sequence': 10, 'company': company.id,
+                        'start_date': start}])
+            values = {'type': 'object', 'company': company.id,
+                'parent': prop.id, 'start_date': start,
+                'use_class': use_class.id}
+            flat, shop = BaseObject.create([
+                    dict(values, name='W', sequence=10,
+                        type_of_use='residential', option_rate_method='fix_0'),
+                    dict(values, name='G', sequence=20,
+                        type_of_use='commercial',
+                        option_rate_method='fix_100'),
+                    ])
+            # E15: a rental object only allows 0 % or 100 %
+            with self.assertRaises(ValidationError):
+                BaseObject.create([dict(values, name='X', sequence=30,
+                            type_of_use='commercial',
+                            option_rate_method='fix_value',
+                            option_rate_value=Decimal(50))])
+            Measurement.create([
+                    {'base_object': flat.id, 'm_type': area.id,
+                        'valid_from': start, 'value': 60.0},
+                    {'base_object': shop.id, 'm_type': area.id,
+                        'valid_from': start, 'value': 40.0},
+                    ])
+            cost_type, = CostType.create([{'name': 'Hausreinigung',
+                        'account': expense.id}])
+            bu, = BillingUnit.create([{'property': prop.id,
+                        'description': 'Kalte BK', 'start_date': start}])
+            su, = SettlementUnit.create([{'billing_unit': bu.id,
+                        'type': cost_type.id, 'sequence': 10,
+                        'allocation_rule': 'allocation_by_measurement',
+                        'm_type': area.id}])
+            CostShare.create([
+                    {'settlement_unit': su.id, 'base_object': obj.id,
+                        'start_date': start, 'end_date': end,
+                        'state': 'selection'}
+                    for obj in (flat, shop)])
+
+            # Posting: net 100.00, gross 119.00 (invoice with tax)
+            move = Move(journal=journal, company=company, date=start,
+                period=Period.find(company, date=start))
+            move.lines = [
+                {'account': expense.id, 'debit': Decimal('100.00'),
+                    'credit': Decimal(0), 'base_object': prop.id},
+                {'account': payable.id, 'debit': Decimal(0),
+                    'credit': Decimal('100.00'),
+                    'party': company.party.id},
+                ]
+            move.save()
+            Move.post([move])
+            doc, = Document.search([])
+            Document.write([doc], {'amount_gross': Decimal('119.00')})
+            Document.propose([doc])
+
+            # E16: a proposed document on the billing unit blocks
+            with self.assertRaises(ValidationError):
+                BillingUnit._check_oc_documents([bu])
+            Document.confirm([Document(doc.id)])
+            BillingUnit._check_oc_documents([bu])
+
+            SettlementUnit(su.id).compute_value_shares()
+            su = SettlementUnit(su.id)
+            self.assertEqual((su.actual_costs_gross, su.actual_costs_net),
+                (Decimal('119.00'), Decimal('100.00')))
+            costs = {cs.base_object: cs.actual_costs
+                for cs in CostShare.search([('settlement_unit', '=', su.id)])}
+            # 60 % gross for the flat, 40 % net for the shop
+            self.assertEqual(costs, {
+                    flat: Decimal('71.40'),
+                    shop: Decimal('40.00'),
+                    })
+
     @with_transaction()
     def test_inspection_default_data(self):
         "Default inspection types 7.1 / 7.2 with checklists and processes"
@@ -2101,7 +2358,8 @@ class RealEstateTestCase(ModuleTestCase):
             version = Version(version.id)
             self.assertEqual([g.rule for g in version.groups],
                 ['majority'] * 5 + ['additive'])
-            u_quiet, = Feature.search([('code', '=', 'u_quiet')])
+            u_quiet, = Feature.search([('code', '=', 'u_quiet'),
+                    ('group.version', '=', version.id)])
             self.assertEqual([f.code for f in u_quiet.exclusive_with],
                 ['u_noise'])
             Version.check([version])
@@ -2125,7 +2383,8 @@ class RealEstateTestCase(ModuleTestCase):
             unsaved = BaseObject(type='property', rent_survey=survey)
             self.assertEqual(unsaved.on_change_with_rent_survey_version(),
                 version)
-            g_bike, = Feature.search([('code', '=', 'g_bike')])
+            g_bike, = Feature.search([('code', '=', 'g_bike'),
+                    ('group.version', '=', version.id)])
             with self.assertRaises(ValidationError):
                 Value.create([{'base_object': unit.id, 'kind': 'feature',
                             'survey_feature': g_bike.id}])
@@ -2412,7 +2671,8 @@ class RealEstateTestCase(ModuleTestCase):
                             'valid_from': datetime.date(2028, 5, 1),
                             'survey_date': None}}, 'create_')
             NewVersion.delete(session_id)
-            new_version, = Version.search([('id', '!=', version.id)])
+            new_version, = Version.search([('id', '!=', version.id),
+                    ('survey', '=', survey.id)])
             self.assertFalse(new_version.locked)
             self.assertEqual(len(new_version.cells), 6)
             new_quiet, = Feature.search([('code', '=', 'u_quiet'),
@@ -2473,67 +2733,37 @@ class RealEstateTestCase(ModuleTestCase):
 
     @with_transaction()
     def test_rent_survey_berlin_2026(self):
-        "Berlin rent survey 2026: CSV files and examples of the brochure"
-        import importlib.util
-        import os
-
+        "Berlin rent survey 2026: standard data and examples of the brochure"
         from trytond.modules.company.tests import create_company, set_company
-        from trytond.transaction import Transaction
 
         pool = Pool()
         BaseObject = pool.get('real_estate.base_object')
         Measurement = pool.get('real_estate.measurement')
         Survey = pool.get('real_estate.rent_survey')
         Version = pool.get('real_estate.rent_survey.version')
-        Dimension = pool.get('real_estate.rent_survey.dimension')
         Value = pool.get('real_estate.base_object.rent_survey_value')
         Calculation = pool.get('real_estate.rent_survey.calculation')
-        Import = pool.get('real_estate.rent_survey.import', type='wizard')
         ModelData = pool.get('ir.model.data')
-        here = os.path.dirname(__file__)
-        spec = importlib.util.spec_from_file_location('berlin',
-            os.path.join(here, 'test_rent_survey.py'))
-        berlin = importlib.util.module_from_spec(spec)
-        spec.loader.exec_module(berlin)
         start = datetime.date(2025, 1, 1)
         key_date = datetime.date(2026, 11, 1)
 
         company = create_company()
         with set_company(company):
-            survey, = Survey.create([{'name': 'Berliner Mietspiegel'}])
-            version, = Version.create([{'survey': survey.id,
-                        'name': 'Berliner Mietspiegel 2026',
-                        'valid_from': berlin.VALID_FROM}])
-            Dimension.create([{'version': version.id, 'code': 'location',
-                        'name': 'Wohnlage', 'level': 'property',
-                        'source': 'manual', 'classes': [('create', [
-                                    {'code': c, 'name': n}
-                                    for c, n in berlin.LOCATIONS])]}, {
-                        'version': version.id, 'code': 'age',
-                        'name': 'Bezugsfertigkeit', 'level': 'building',
-                        'source': 'year_of_construction',
-                        'classes': [('create', [{'code': c, 'name': n,
-                                        'value_min': lo, 'value_max': hi,
-                                        'manual_only': m}
-                                    for c, n, lo, hi, m in berlin.AGES])]}])
-            for kind, path in [('cells', berlin.CELLS_FILE),
-                    ('features', berlin.FEATURES_FILE)]:
-                session_id, _, _ = Import.create()
-                with open(path, encoding='utf-8') as file, \
-                        Transaction().set_context(
-                            active_model=Version.__name__,
-                            active_id=version.id, active_ids=[version.id]):
-                    data = {'start': {'kind': kind, 'replace': False,
-                            'file_': file.read().encode('utf-8')}}
-                    preview = Import.execute(session_id, data, 'preview')[
-                        'view']['defaults']
-                    self.assertIsNone(preview['problems'], kind)
-                    Import.execute(session_id, data, 'import_')
-                Import.delete(session_id)
-            version = Version(version.id)
+            # Standard data rent_survey_berlin.xml (for all companies)
+            survey = Survey(ModelData.get_id('real_estate',
+                    'rent_survey_berlin'))
+            version = Version(ModelData.get_id('real_estate',
+                    'rent_survey_berlin_2026'))
+            self.assertEqual(version.survey, survey)
+            self.assertEqual(version.valid_from, datetime.date(2026, 5, 28))
+            self.assertEqual(len(version.dimensions), 2)
+            self.assertEqual(
+                sum(len(d.classes) for d in version.dimensions), 15)
             self.assertEqual(len(version.cells), 189)
             self.assertEqual(sum(len(g.features) for g in version.groups),
                 86)
+            self.assertEqual([m.id for m in version.measurement_types],
+                Version.default_measurement_types())
             self.assertEqual(version.check_data(), [])
 
             counter = iter(range(1, 100))

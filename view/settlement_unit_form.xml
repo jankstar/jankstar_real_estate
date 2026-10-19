@@ -32,12 +32,18 @@
             <label name="m_type"/><field name="m_type"/>
             <label name="meter_unit"/><field name="meter_unit"/>
             <newline/>
-            <label name="planned_costs"/><field name="planned_costs"/>
-            <label name="actual_costs"/><field name="actual_costs"/>
+            <label name="planned_costs_gross"/><field name="planned_costs_gross"/>
+            <label name="planned_costs_net"/><field name="planned_costs_net"/>
             <label name="currency"/><field name="currency"/>
             <newline/>
-            <label name="planned_costs_from_references"/><field name="planned_costs_from_references" readonly="1"/>
-            <label name="actual_costs_from_references"/><field name="actual_costs_from_references" readonly="1"/>
+            <label name="actual_costs_gross"/><field name="actual_costs_gross"/>
+            <label name="actual_costs_net"/><field name="actual_costs_net"/>
+            <newline/>
+            <label name="planned_costs_gross_from_references"/><field name="planned_costs_gross_from_references" readonly="1"/>
+            <label name="planned_costs_net_from_references"/><field name="planned_costs_net_from_references" readonly="1"/>
+            <newline/>
+            <label name="actual_costs_gross_from_references"/><field name="actual_costs_gross_from_references" readonly="1"/>
+            <label name="actual_costs_net_from_references"/><field name="actual_costs_net_from_references" readonly="1"/>
             <newline/>
             <label name="value_total"/><field name="value_total"/>
             <label name="time_total"/><field name="time_total"/>
@@ -54,6 +60,7 @@
             <label name="total_value_consumption"/><field name="total_value_consumption" readonly="1"/>
             <label name="total_value_area"/><field name="total_value_area" readonly="1"/>
             <newline/>
+            <label name="bved_cost_key"/><field name="bved_cost_key"/>
             <label name="bved_fuel_data"/><field name="bved_fuel_data" xexpand="0" width="15"/>
             <newline/>
             <separator name="comment" colspan="6"/>

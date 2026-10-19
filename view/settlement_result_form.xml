@@ -15,6 +15,8 @@
     <label name="planned_costs"/><field name="planned_costs"/>
     <label name="actual_costs"/><field name="actual_costs"/>
     <newline/>
+    <label name="direct_costs"/><field name="direct_costs"/>
+    <newline/>
     <label name="advanced_payment"/><field name="advanced_payment" readonly="1"/>
     <label name="refund_receivable"/><field name="refund_receivable" readonly="1"/>
     <label name="currency"/><field name="currency" readonly="1"/>

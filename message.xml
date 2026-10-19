@@ -387,8 +387,8 @@ Either run "Ready for Billing" for each billing unit first, or bill individual b
         <record model="ir.message" id="msg_option_rate_exactly_one_reference">
             <field name="text">An option rate must be linked to exactly one of: base object, settlement unit, or billing unit.</field>
         </record>
-        <record model="ir.message" id="msg_option_rate_method_dynamic_not_allowed_for_object">
-            <field name="text">{}: Option rate method "Dynamic Measurement" is not allowed for a rental object (only fixed rates are allowed).</field>
+        <record model="ir.message" id="msg_option_rate_method_object_fixed">
+            <field name="text">"%(name)s": a rental object only allows the option rate methods "Fix: Option Rate 0.0 %%" and "Fix: Option Rate 100.0 %%" (its costs are distributed gross or net).</field>
         </record>
         <record model="ir.message" id="msg_settlement_unit_allocation_rule_required_external">
             <field name="text">"%(name)s": for a billing unit with external billing, the allocation rule must be "Allocation from external billing" or "Allocation via cost collector".</field>
@@ -1622,6 +1622,55 @@ Increase %(increase)s: rent %(old)s → %(new)s from %(valid_from)s</field>
         </record>
         <record model="ir.message" id="msg_option_rate_detail_rate">
             <field name="text">%(record)s (%(kind)s): %(status)s → %(rate)s %%</field>
+        </record>
+        <record model="ir.message" id="msg_oc_document_move_line_unique">
+            <field name="text">There is already an operating cost document for the move line.</field>
+        </record>
+        <record model="ir.message" id="msg_oc_document_sums">
+            <field name="text">"%(document)s": the assignment lines must sum up to the net and gross amount of the document.</field>
+        </record>
+        <record model="ir.message" id="msg_oc_history_not_transferable">
+            <field name="text">The assignment of "%(document)s" cannot be transferred - none of its settlement units exists for the period of this document.</field>
+        </record>
+        <record model="ir.message" id="msg_oc_line_contract_required">
+            <field name="text">"%(document)s": a line with target contract needs a contract.</field>
+        </record>
+        <record model="ir.message" id="msg_oc_line_locked">
+            <field name="text">The billing unit "%(billing_unit)s" is ready for billing or billed - its assignment cannot be changed.</field>
+        </record>
+        <record model="ir.message" id="msg_oc_line_settlement_unit_invalid">
+            <field name="text">The settlement unit "%(settlement_unit)s" does not belong to the property of "%(document)s" or its cost type does not have the account of the document.</field>
+        </record>
+        <record model="ir.message" id="msg_oc_line_settlement_unit_required">
+            <field name="text">"%(document)s": every line except the owner needs a settlement unit.</field>
+        </record>
+        <record model="ir.message" id="msg_oc_proposal_account">
+            <field name="text">Account unique</field>
+        </record>
+        <record model="ir.message" id="msg_oc_proposal_history">
+            <field name="text">as last time, document %(document)s</field>
+        </record>
+        <record model="ir.message" id="msg_oc_proposal_other_property">
+            <field name="text">as for %(property)s, document %(document)s</field>
+        </record>
+        <record model="ir.message" id="msg_oc_split_period_missing">
+            <field name="text">For the settlement unit "%(settlement_unit)s" there is no settlement unit for the whole service period %(start)s - %(end)s (create the billing unit of the next period).</field>
+        </record>
+        <record model="ir.message" id="msg_oc_target_owner">
+            <field name="text">Owner</field>
+        </record>
+        <record model="ir.message" id="msg_cost_share_option_rate_invalid">
+            <field name="text">The option rate of "%(name)s" on %(date)s is neither 0 %% nor 100 %% - its costs cannot be distributed gross or net.</field>
+        </record>
+        <record model="ir.message" id="msg_oc_direct_no_result">
+            <field name="text">The operating cost document "%(document)s" assigns costs directly to the contract "%(contract)s", but the contract has no settlement result with an advance payment term (advance payment with settlement) in "%(billing_unit)s".</field>
+        </record>
+        <record model="ir.message" id="msg_oc_direct_several_results">
+            <field name="text">The operating cost document "%(document)s" assigns costs directly to the contract "%(contract)s", which has several settlement results in "%(billing_unit)s" - enter the rental object on the assignment line.</field>
+        </record>
+        <record model="ir.message" id="msg_billing_unit_oc_documents_open">
+            <field name="text">"%(name)s": the following operating cost documents with lines on its settlement units are not confirmed yet:
+%(details)s</field>
         </record>
     </data>
 </tryton>

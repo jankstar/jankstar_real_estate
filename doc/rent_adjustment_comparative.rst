@@ -50,7 +50,8 @@ Menu *Configuration › Rent Surveys* (group *Real Estate Administration*;
 read for object, contract, billing and view group).
 
 ``real_estate.rent_survey``  (``rent_survey.py``)
-   Rent survey (name, municipality, company) with its versions; the
+   Rent survey (name, municipality) with its versions - not bound to a
+   company, one rent survey applies to all companies; the
    ``current_version`` is the version valid today.
 
 ``real_estate.rent_survey.version``
@@ -136,13 +137,17 @@ Mietspiegeltabelle 2026*):
   value* as exclusions - plus the reduction of 0.33 €/m² for minor
   equipment up to 1949 (no. 9.4, group S, not qualified).
 
-``python tests/test_rent_survey.py --database <db> [--config
-trytond.conf] --only-survey`` creates the rent survey with the version
-2026 (classification features *Wohnlage* and *Bezugsfertigkeit* with
-their classes; 1973-1985 West, 1986-1990 West and 1973-1990 East are
-manual only as they depend on the district) and imports both files;
-without ``--only-survey`` it also assigns demo data (see `Demo data
-scripts <demo_data_scripts.rst>`__). The data have to be checked against
+``tests/generate_rent_survey_xml.py`` builds the rent survey from both
+files (version 2026 with the classification features *Wohnlage* and
+*Bezugsfertigkeit* and their classes - 1973-1985 West, 1986-1990 West and
+1973-1990 East are manual only as they depend on the district -, import
+and check) and writes it as standard data ``rent_survey_berlin.xml``
+(``noupdate``: created once on the module installation for all
+companies, changes in the client are kept on module updates). After a
+change of the CSV files run the generator again (``TRYTOND_DATABASE_URI=
+sqlite:// DB_NAME=:memory: python tests/generate_rent_survey_xml.py``);
+the XML file is never edited by hand. ``tests/test_rent_survey.py``
+assigns demo data (see `Demo data scripts <demo_data_scripts.rst>`__). The data have to be checked against
 the original before productive use; the location of an address is taken
 from the street directory.
 

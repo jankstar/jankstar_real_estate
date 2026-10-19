@@ -8,6 +8,7 @@
     <field name="end_date" optional="0" width="100"/>
     <field name="planned_costs" optional="0" sum="1"/>
     <field name="actual_costs" optional="0" sum="1"/>
+    <field name="direct_costs" optional="1" sum="1"/>
     <field name="advanced_payment" optional="0" sum="1"/>
     <field name="refund_receivable" optional="0" sum="1"/>
     <field name="currency" optional="1"/>

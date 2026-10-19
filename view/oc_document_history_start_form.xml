@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<form>
+    <label name="source"/>
+    <field name="source" colspan="3"/>
+    <field name="candidates" colspan="4"
+        view_ids="real_estate.oc_document_history_view_tree"/>
+</form>

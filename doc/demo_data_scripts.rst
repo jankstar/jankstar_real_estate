@@ -90,25 +90,19 @@ builds on the previous one's data):
       python tests/test_invoices.py --database <db> [--config trytond.conf]
 
 ``tests/test_rent_survey.py``
-   Creates the rent survey *Berliner Mietspiegel* with the complete
-   version *Berliner Mietspiegel 2026* (valid from 28.05.2026, qualified,
-   table method, 20 % per group, netted): classification features
-   *Wohnlage* (manual) and *Bezugsfertigkeit* (from the year of
-   construction; the classes 1973-1990 West/East manual only) with their
-   classes, all 189 table cells and the 86 features of the guidance
-   (no. 11) and the reduction for minor equipment (no. 9.4), imported
-   from ``tests/mietspiegel_berlin_2026_felder.csv`` and
-   ``tests/mietspiegel_berlin_2026_merkmale.csv`` via the import wizard.
-   With ``--only-survey`` only the rent survey is created (no
-   prerequisites). Otherwise it also requires ``test_immo.py`` and assigns
-   it to *Musterstraße 1-4*: location medium on the property; year of
+   The rent survey *Berliner Mietspiegel* with the complete version
+   *Berliner Mietspiegel 2026* is standard data of the module
+   (``rent_survey_berlin.xml``, see `Comparative rent
+   <rent_adjustment_comparative.rst>`__) and exists after the module
+   installation. The script requires ``test_immo.py`` and assigns it to
+   *Musterstraße 1-4*: location medium on the property; year of
    construction 1958 (if empty), *Besonders ruhige Lage*, bike room,
    insulation and an energy consumption value of 130 kWh/(m²a) on every
    building; features of the groups 1-3 on *Wohnung 01*; then calculates
    its comparative rent (key date today, at the earliest 28.05.2026).
-   Aborts if the rent survey already exists::
+   Assignments already present are skipped::
 
-      python tests/test_rent_survey.py --database <db> [--config trytond.conf] [--only-survey] [--company <name>]
+      python tests/test_rent_survey.py --database <db> [--config trytond.conf]
 
 ``tests/test_modernisation.py``
    Requires ``test_immo.py`` and ``test_contracts.py``. Allows the
