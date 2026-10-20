@@ -490,6 +490,7 @@ class Handover(Workflow, ModelSQL, ModelView):
         User = pool.get('res.user')
         admin = ModelData.get_id('real_estate', 'group_real_estate_admin')
         if (Transaction().user and any(h.state == 'done' for h in handovers)
+                and not User.is_administrator()
                 and admin not in User.get_groups()):
             raise AccessError(gettext('real_estate.msg_handover_reopen'))
         cls.write(handovers, {'done_by': None, 'done_date': None})

@@ -886,7 +886,9 @@ class RealEstateTestCase(ModuleTestCase):
                                         'create_defect_on_nok': True,
                                         'default_severity': 'major'}])]},
                     ])
-            group = sorted(User.get_groups())[0]
+            # an own approval group (the administrator has no groups since
+            # Tryton 8.2 - he passes the group checks as administrator)
+            group, = pool.get('res.group').create([{'name': 'Prüfer'}])
             Template = pool.get('real_estate.process.template')
             TaskType = pool.get('real_estate.task.type')
             step_type, = TaskType.search([('code', '=', 'process_step')])
@@ -1153,12 +1155,14 @@ class RealEstateTestCase(ModuleTestCase):
                     external=True)
             with self.assertRaises(AccessError):
                 Inspection.check_modification('delete', [inspection])
-            # Defect of an approved inspection: only its state can change
+            # Defect of an approved inspection: only the follow-up fields
+            # can change (the state only by the buttons - readonly)
             with self.assertRaises(AccessError):
                 Defect.check_modification('write', [defect],
                     values={'description': 'x'}, external=True)
             Defect.check_modification('write', [defect],
-                values={'state': 'fixed'}, external=True)
+                values={'deadline': datetime.date(2026, 12, 31)},
+                external=True)
             # Next inspection possible again, shows the open defect
             following, = Inspection.create_from_plans([plan])
             self.assertEqual(list(following.previous_defects), [defect])

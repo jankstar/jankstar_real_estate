@@ -200,10 +200,6 @@
         <record model="ir.sequence.type" id="sequence_type_adjustment_run">
             <field name="name">Adjustment Run</field>
         </record>
-        <record model="ir.sequence.type-res.group" id="sequence_type_adjustment_run_group_admin">
-            <field name="sequence_type" ref="sequence_type_adjustment_run"/>
-            <field name="group" ref="res.group_admin"/>
-        </record>
         <record model="ir.sequence.type-res.group" id="sequence_type_adjustment_run_group_real_estate_admin">
             <field name="sequence_type" ref="sequence_type_adjustment_run"/>
             <field name="group" ref="group_real_estate_admin"/>

@@ -258,8 +258,14 @@ class _VersionChild:
         super().check_modification(
             mode, records, values=values, external=external)
         Version = Pool().get('real_estate.rent_survey.version')
-        versions = cls._versions(records, values)
-        for version in Version.browse([v for v in versions if v]):
+        # create: the list of the values of all records, write: one dict
+        if isinstance(values, (list, tuple)):
+            versions = cls._versions(records)
+            for value in values:
+                versions += cls._versions([], value)
+        else:
+            versions = cls._versions(records, values)
+        for version in Version.browse(list({v for v in versions if v})):
             if version.locked:
                 raise AccessError(gettext(
                         'real_estate.msg_rent_survey_version_locked',

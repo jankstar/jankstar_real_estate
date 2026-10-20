@@ -543,12 +543,21 @@ class Task(Workflow, ModelSQL, ModelView):
     def search_is_mine(cls, name, clause):
         User = Pool().get('res.user')
         _, operator, value = clause[:3]
-        mine = ['OR',
-            ('responsible_user', '=', Transaction().user),
-            ('responsible_group', 'in', list(User.get_groups())),
-            ]
+        user = Transaction().user
+        groups = list(User.get_groups())
         positive = (operator == '=') == bool(value)
-        return mine if positive else ['NOT', mine]
+        if positive:
+            return ['OR',
+                ('responsible_user', '=', user),
+                ('responsible_group', 'in', groups),
+                ]
+        # a domain has no 'NOT' - the negation is spelled out
+        return [
+            ['OR', ('responsible_user', '=', None),
+                ('responsible_user', '!=', user)],
+            ['OR', ('responsible_group', '=', None),
+                ('responsible_group', 'not in', groups)],
+            ]
 
     def get_overdue(self, name):
         Date = Pool().get('ir.date')
@@ -559,9 +568,13 @@ class Task(Workflow, ModelSQL, ModelView):
     def search_overdue(cls, name, clause):
         Date = Pool().get('ir.date')
         _, operator, value = clause[:3]
-        overdue = [('state', '=', 'open'), ('due_date', '<', Date.today())]
+        today = Date.today()
         positive = (operator == '=') == bool(value)
-        return overdue if positive else ['NOT', overdue]
+        if positive:
+            return [('state', '=', 'open'), ('due_date', '<', today)]
+        # a domain has no 'NOT' - the negation is spelled out
+        return ['OR', ('state', '!=', 'open'), ('due_date', '=', None),
+            ('due_date', '>=', today)]
 
     # ------------------------------------------------------------------
     # Derived contract / property (stored, spec 13.1)
@@ -813,9 +826,9 @@ class Task(Workflow, ModelSQL, ModelView):
     def copy(cls, tasks, default=None):
         default = default.copy() if default else {}
         for field in ('done_by', 'done_date', 'result', 'notified_date',
-                'escalated_date', 'origin', 'origin_key', 'previous',
-                'automatic'):
+                'escalated_date', 'origin', 'origin_key', 'previous'):
             default.setdefault(field, None)
+        default.setdefault('automatic', False)
         return super().copy(tasks, default=default)
 
     # ------------------------------------------------------------------
@@ -893,7 +906,8 @@ class Task(Workflow, ModelSQL, ModelView):
         User = pool.get('res.user')
         user = Transaction().user
         admin = ModelData.get_id('real_estate', 'group_real_estate_admin')
-        if user and admin not in User.get_groups():
+        if (user and not User.is_administrator()
+                and admin not in User.get_groups()):
             for task in tasks:
                 if task.create_uid.id != user:
                     raise AccessError(gettext(

@@ -1257,7 +1257,8 @@ class Inspection(Workflow, ModelSQL, ModelView):
         admin = ModelData.get_id('real_estate', 'group_real_estate_admin')
         for inspection in inspections:
             group = inspection.type.approval_group
-            if (Transaction().user and admin not in groups
+            if (Transaction().user and not User.is_administrator()
+                    and admin not in groups
                     and not (group and group.id in groups)):
                 raise AccessError(gettext(
                         'real_estate.msg_inspection_unapprove_group',
@@ -1343,7 +1344,8 @@ class Inspection(Workflow, ModelSQL, ModelView):
         groups = set(User.get_groups())
         for inspection in inspections:
             group = inspection.type.approval_group
-            if group and group.id not in groups:
+            if (group and group.id not in groups
+                    and not User.is_administrator()):
                 raise AccessError(gettext(
                         'real_estate.msg_inspection_approval_group',
                         inspection=inspection.rec_name,
@@ -2360,10 +2362,13 @@ class InspectionDefect(Workflow, ModelSQL, ModelView):
     def search_overdue(cls, name, clause):
         _, operator, value = clause
         today = Pool().get('ir.date').today()
-        domain = [('state', 'in', ['open', 'in_progress']),
-            ('deadline', '<', today)]
         positive = (operator == '=') == bool(value)
-        return domain if positive else ['NOT', domain]
+        if positive:
+            return [('state', 'in', ['open', 'in_progress']),
+                ('deadline', '<', today)]
+        # a domain has no 'NOT' - the negation is spelled out
+        return ['OR', ('state', 'not in', ['open', 'in_progress']),
+            ('deadline', '=', None), ('deadline', '>=', today)]
 
     @classmethod
     def create(cls, vlist):
