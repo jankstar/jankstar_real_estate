@@ -2,7 +2,7 @@ Real Estate Module for Tryton
 ##############################
 
 A Tryton ERP module for real estate management. Packaged as ``jankstar_real_estate``,
-targeting Tryton 8.2 and Python 3.10–3.13.
+targeting Tryton 8.0.0 and Python 3.9–3.13.
 
 Covers property management, lease and sales contracts, tenant/owner party roles,
 operating cost settlement, CO2 cost allocation under the German CO2KostAufG,

@@ -23,6 +23,11 @@
             <field name="name">Party Access</field>
         </record>
 
+        <record model="res.user-res.group" id="user_admin_group_party_access">
+            <field name="user" ref="res.user_admin"/>
+            <field name="group" ref="group_party_access"/>
+        </record>
+
         <record model="ir.model.access" id="access_party_party_default">
             <field name="model">party.party</field>
             <field name="perm_read" eval="True"/>
