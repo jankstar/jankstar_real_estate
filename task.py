@@ -906,8 +906,7 @@ class Task(Workflow, ModelSQL, ModelView):
         User = pool.get('res.user')
         user = Transaction().user
         admin = ModelData.get_id('real_estate', 'group_real_estate_admin')
-        if (user and not User.is_administrator()
-                and admin not in User.get_groups()):
+        if user and admin not in User.get_groups():
             for task in tasks:
                 if task.create_uid.id != user:
                     raise AccessError(gettext(

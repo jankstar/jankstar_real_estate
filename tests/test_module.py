@@ -886,9 +886,7 @@ class RealEstateTestCase(ModuleTestCase):
                                         'create_defect_on_nok': True,
                                         'default_severity': 'major'}])]},
                     ])
-            # an own approval group (the administrator has no groups since
-            # Tryton 8.2 - he passes the group checks as administrator)
-            group, = pool.get('res.group').create([{'name': 'Prüfer'}])
+            group = sorted(User.get_groups())[0]
             Template = pool.get('real_estate.process.template')
             TaskType = pool.get('real_estate.task.type')
             step_type, = TaskType.search([('code', '=', 'process_step')])
