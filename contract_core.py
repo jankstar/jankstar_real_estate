@@ -2570,10 +2570,12 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
     def create_moves(cls, contract_ids, date, action='re_calc', invoice_state='draft', invoice_date=None, property_run_ids=None):
         """Calculate and Create all account move on contract before a date."""
         property_run_ids = property_run_ids or {}
+        # locked: a contract is booked once even if the job runs twice
+        # (several workers) - all contracts at once, as Tryton restarts the
+        # transaction for every lock of records not locked yet (one lock per
+        # contract would recalculate all previous contracts again and again)
+        cls.lock(cls.browse(contract_ids))
         for contract_id in contract_ids:
-            # locked: a contract is booked once even if the job runs twice
-            # (several workers)
-            cls.lock([cls(contract_id)])
             contract = cls(contract_id)
             contract.add_log('process', f'start "create_moves" with date {date} and action {action}')
             if contract.state != 'running' and contract.state != 'terminated':

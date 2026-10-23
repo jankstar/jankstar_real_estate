@@ -25,6 +25,20 @@ Je Wirtschaftseinheit (16 Wohnungen, 4 Stellplätze):
     Die Konditionsarten haben keine Bemessung (m_type) mehr, sondern nur
     eine informative Bemessung (info_m_type) - der Wert je m² wird in der
     Kondition nur zurückgerechnet angezeigt.
+  - Beispiel Kaution: der erste Wohnungsvertrag (Mieter 1) erhält
+    zusätzlich die Kondition Kaution (Rent deposit, sequence=1900,
+    einmalig) zum Vertragsbeginn mit dem 3-fachen Betrag der Miet-
+    Kondition (§ 551 BGB); er wird nicht gekündigt (unbefristet).
+  - Beispiel Untermietzuschlag: der zweite Wohnungsvertrag (Mieter 2)
+    erhält zusätzlich die Kondition Untermietzuschlag (Subletting
+    surcharge, sequence=1020, monatlich 20,00 EUR) ab 01.07.2025, also
+    6 Monate nach Vertragsbeginn; er wird ebenfalls nicht gekündigt.
+  - Beispiel Mietminderung: der dritte Wohnungsvertrag (Mieter 3) erhält
+    zusätzlich die Kondition Mietminderung (Rent reduction, sequence=1010,
+    monatlich -50,00 EUR, negativer Einzelpreis) ab 01.07.2025; er wird
+    ebenfalls nicht gekündigt.
+  - "Unterschrieben am" (date_of_signature) = Vertragsbeginn, bei allen
+    Verträgen (auch Folge-, Stellplatz- und Gewerbeverträgen).
   - Alle Verträge werden aktiviert (→ running).
   - 3 Verträge werden zufällig gekündigt:
       - Kündigung 1: Vertragsende 31.05.2025, Eingang Kündigung 28.02.2025
@@ -38,16 +52,17 @@ Je Wirtschaftseinheit (16 Wohnungen, 4 Stellplätze):
     Monate, 5 Staffeln, Vereinbarung zum Vertragsbeginn, Schriftform; je
     Vertrag eine andere Eingabeart der Erhöhung (+30,00 EUR absolut,
     +0,40 EUR/m² über die informative Fläche, +3 % vom Ausgangsbetrag).
-    Die Staffelkonditionen werden per "Generieren" angelegt. Das Verfahren
-    "Staffelmiete" wird dafür an der Vertragsart (residential) und der
-    Konditionsart 1000 zugelassen, falls noch nicht vorhanden.
+    Die Staffelkonditionen werden per "Generieren" angelegt. Die Verfahren
+    "Staffelmiete" und "Indexmiete" müssen an der Vertragsart (residential)
+    und der Konditionsart 1000 zugelassen sein (Standarddaten) - das Script
+    ändert keine Einstellungen.
   - Indexmieten (§ 557b BGB): bis zu 2 weitere laufende, nicht gekündigte
     Wohnungsverträge je WE (ohne Staffelmiete) erhalten eine Mietanpassung
     mit Verfahren "Indexmiete" auf ihre Miet-Kondition: Preisindex VPI-DE,
     Ausgangsmonat 01/2025, Vereinbarung zum Vertragsbeginn, Schriftform,
     keine Schwelle, gesetzliche Wirksamkeit, Kappung automatisch; die
     Vereinbarung wird aktiviert. Die VPI-Monatswerte werden vorher aus
-    tests/61111-0002_de.csv (Tabellen-Download aus GENESIS-Online)
+    tests/genesis_61111-0002_ffcsv.csv (Flatfile-Download aus GENESIS-Online)
     übernommen, soweit sie im Basisjahr der Reihe noch fehlen. Fehlen die
     Datei oder die Reihe VPI-DE, werden keine Indexmieten angelegt. Der
     Anpassungslauf selbst wird nicht ausgeführt (Menü Verträge ›
@@ -56,7 +71,8 @@ Je Wirtschaftseinheit (16 Wohnungen, 4 Stellplätze):
   Stellplätze (4 je WE, zufällig auf Wohnungsmieter verteilt):
     2x als zusätzliches ContractItem im vorhandenen Wohnungsvertrag:
         - ContractItem sequence=20, Kondition Miete Stellplatz sequence=40: 50,00 EUR
-    2x als eigener Stellplatz-Einzelvertrag (gleicher Mieter, gleiche Adresse):
+    2x als eigener Stellplatz-Einzelvertrag (Vertragsart Stellplatzvertrag,
+    sequence=20; gleicher Mieter, gleiche Adresse):
         - ContractItem sequence=10, Kondition Miete Stellplatz sequence=10: 50,00 EUR
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -113,6 +129,14 @@ from proteus import Model, config
 START_DATE = datetime.date(2025, 1, 1)
 YEAR_END_DATE = datetime.date(2025, 12, 31)
 PARKING_PRICE = Decimal('50.00')
+# Example subletting surcharge: monthly amount, starting 6 months after the
+# contract start
+SUBLETTING_SURCHARGE = Decimal('20.00')
+SUBLETTING_START = datetime.date(2025, 7, 1)
+# Example rent reduction: monthly amount (negative), starting 6 months
+# after the contract start
+RENT_REDUCTION = Decimal('-50.00')
+RENT_REDUCTION_START = datetime.date(2025, 7, 1)
 
 # Role sequence for 'Main Tenant' (see contract_party.xml) - looked up by
 # sequence rather than name, more robust against translations.
@@ -320,16 +344,6 @@ GRADUATED_RHYTHM_MONTHS = 12
 GRADUATED_STEP_COUNT = 5
 
 
-def allow_procedure(record, procedure: str) -> None:
-    """Add a rent adjustment procedure to the allowed procedures of a
-    contract type or term type (if missing)."""
-    procedures = list(record.adjustment_procedures or [])
-    if procedure not in procedures:
-        record.adjustment_procedures = procedures + [procedure]
-        record.save()
-        print(f'  Verfahren "{procedure}" zugelassen für "{record.name}"')
-
-
 def create_graduated_rent(contract, term, increase_mode, increase_value,
                           percent_basis=None):
     """Create a graduated rent (rent adjustment, procedure
@@ -362,13 +376,14 @@ def create_graduated_rent(contract, term, increase_mode, increase_value,
 INDEX_RENTS_PER_PROPERTY = 2
 INDEX_BASE_MONTH = datetime.date(2025, 1, 1)
 VPI_CSV = os.path.join(os.path.dirname(os.path.abspath(__file__)),
-    '61111-0002_de.csv')
+    'genesis_61111-0002_ffcsv.csv')
 
 
 def ensure_vpi_values():
     """Price index VPI-DE with its monthly values: missing values of the
     current base year are taken over from the GENESIS-Online download
-    tests/61111-0002_de.csv (parsed like the CSV import wizard). Returns
+    tests/genesis_61111-0002_ffcsv.csv (parsed like the CSV import
+    wizard). Returns
     the index or None if the series or the base month value is missing."""
     from trytond.modules.real_estate.price_index import parse_index_csv
 
@@ -484,6 +499,7 @@ def create_contract(company, property_obj, c_type, currency,
     contract.c_type = c_type
     contract.currency = currency
     contract.start_date = START_DATE
+    contract.date_of_signature = START_DATE
     contract.sequence = sequence
     main_tenant_role = get_main_tenant_role()
     if main_tenant_role:
@@ -692,6 +708,7 @@ def create_followup_contract(terminated_contract, company, property_obj, c_type,
     contract.c_type = c_type
     contract.currency = currency
     contract.start_date = start_date
+    contract.date_of_signature = start_date
     contract.sequence = sequence
     main_tenant_role = get_main_tenant_role()
     if main_tenant_role:
@@ -782,16 +799,18 @@ def create_contract_term(contract, term_type, reference_item,
                          quantity: Decimal = Decimal(1),
                          taxes=None, price_per_m2: Decimal = None,
                          area: Decimal = None,
-                         object_distribution: str = None) -> None:
+                         object_distribution: str = None,
+                         rhythm_type: str = 'monthly',
+                         valid_from: datetime.date = None) -> None:
     ContractTerm = Model.get('real_estate.contract.term')
     Tax = Model.get('account.tax')
     term = ContractTerm()
     term.contract = contract
     term.term_type = term_type
     term.reference_item = reference_item
-    term.valid_from = START_DATE
+    term.valid_from = valid_from or START_DATE
     term.rhythm = 1
-    term.rhythm_type = 'monthly'
+    term.rhythm_type = rhythm_type
     term.quantity = quantity
     term.unit_price = unit_price
     term.sequence = sequence
@@ -805,8 +824,11 @@ def create_contract_term(contract, term_type, reference_item,
     tax_info = f', Steuer: {[t.name for t in taxes]}' if taxes else ''
     calc_info = (f' ({price_per_m2} EUR/m² × {area} m²)'
                  if price_per_m2 is not None and area is not None else '')
+    rhythm_info = 'einmalig' if rhythm_type == 'one_time' else 'monatlich'
+    from_info = f', ab {valid_from}' if valid_from else ''
     print(f'    Kondition:     {term_type.name}, EP={unit_price} EUR'
-          f'{calc_info}, Menge={quantity}, monatlich{tax_info}')
+          f'{calc_info}, Menge={quantity}, {rhythm_info}{from_info}'
+          f'{tax_info}')
 
 
 def create_commercial_terms(contract, item, area: Decimal,
@@ -843,6 +865,7 @@ def main():
     currency = company.currency
     properties = get_properties()
     c_type = get_contract_type('residential')
+    c_type_parking = get_contract_type('residential', sequence=20)
     c_type_commercial = get_contract_type('commercial', sequence=50)
 
     uc_apartment = get_use_class('Apartment')
@@ -850,13 +873,10 @@ def main():
     uc_retail = get_use_class('Retail')
 
     tt_rent       = get_term_type(1000)  # Apartment rent
+    tt_deposit    = get_term_type(1900)  # Rent deposit (one-time)
+    tt_sublet     = get_term_type(1020)  # Subletting surcharge (monthly)
+    tt_reduction  = get_term_type(1010)  # Rent reduction (monthly)
 
-    # Graduated and index rent need the procedure on contract type and
-    # term type
-    allow_procedure(c_type, 'graduated_rent')
-    allow_procedure(tt_rent, 'graduated_rent')
-    allow_procedure(c_type, 'index_rent')
-    allow_procedure(tt_rent, 'index_rent')
     print('\n--- VPI-Monatswerte für Indexmieten ---')
     vpi = ensure_vpi_values()
     tt_nk         = get_term_type(2000)  # Betriebskosten
@@ -885,6 +905,9 @@ def main():
 
     mieter_nr = 1  # läuft über alle Wirtschaftseinheiten durch
     year_end_contracts = []  # Verträge, die zum 31.12.2025 noch laufen
+    deposit_contract = None  # Beispiel Kaution: erster Wohnungsvertrag
+    sublet_contract = None  # Beispiel Untermietzuschlag: zweiter Vertrag
+    reduction_contract = None  # Beispiel Mietminderung: dritter Vertrag
 
     for prop in properties:
         print(f'\n{"=" * 60}')
@@ -932,14 +955,39 @@ def main():
             item = create_contract_item(contract, apartment, sequence=10)
 
             area = get_area([apartment], t_living)
+            rent_amount = None
             for tt, (low, high), seq in (
                     (tt_rent, (11, 16), 10),
                     (tt_nk, (3, 4), 20),
                     (tt_hz, (3, 4), 30)):
                 price_m2 = random_price_per_m2(low, high)
+                amount = absolute_amount(price_m2, area)
+                if tt is tt_rent:
+                    rent_amount = amount
                 create_contract_term(
-                    contract, tt, item, absolute_amount(price_m2, area),
+                    contract, tt, item, amount,
                     sequence=seq, price_per_m2=price_m2, area=area)
+            if deposit_contract is None:
+                # Example: one-time rent deposit at the contract start of
+                # three times the rent (§ 551 BGB), contract stays open-ended
+                create_contract_term(
+                    contract, tt_deposit, item, rent_amount * 3,
+                    sequence=40, rhythm_type='one_time')
+                deposit_contract = contract
+            elif sublet_contract is None:
+                # Example: subletting surcharge, starting 6 months after the
+                # contract start
+                create_contract_term(
+                    contract, tt_sublet, item, SUBLETTING_SURCHARGE,
+                    sequence=50, valid_from=SUBLETTING_START)
+                sublet_contract = contract
+            elif reduction_contract is None:
+                # Example: rent reduction (negative amount), starting 6
+                # months after the contract start
+                create_contract_term(
+                    contract, tt_reduction, item, RENT_REDUCTION,
+                    sequence=60, valid_from=RENT_REDUCTION_START)
+                reduction_contract = contract
 
             contracts_this_prop.append(contract)
             mieter_nr += 1
@@ -974,7 +1022,7 @@ def main():
             p_contract = create_contract(
                 company=company,
                 property_obj=prop,
-                c_type=c_type,
+                c_type=c_type_parking,
                 currency=currency,
                 partner=partner,
                 invoice_address=address,
@@ -995,8 +1043,13 @@ def main():
             print(f'  Vertrag id={c.id} → running')
         year_end_contracts.extend(all_contracts)
 
-        n_term = min(len(TERMINATIONS), len(all_contracts))
-        to_terminate = random.sample(all_contracts, n_term)
+        # the example contracts (rent deposit, subletting surcharge, rent
+        # reduction) stay open-ended
+        terminable = [c for c in all_contracts
+            if c not in (deposit_contract, sublet_contract,
+                reduction_contract)]
+        n_term = min(len(TERMINATIONS), len(terminable))
+        to_terminate = random.sample(terminable, n_term)
         print(f'\n--- Verträge kündigen ({n_term}x) ---')
         for c, (term_date, receipt_date) in zip(to_terminate, TERMINATIONS):
             terminate_contract(c, term_date, receipt_date, t_wfl, admin_user)

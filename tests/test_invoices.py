@@ -4,8 +4,8 @@ Kreditoren-Rechnungen (Lieferantenrechnungen) für Demodaten anlegen und buchen.
 Voraussetzung: Die Kreditoren aus test_kreditor.py müssen bereits vorhanden sein
 sowie test_immo.py und test_billing_unit.py (Kostensammler). Außerdem muss an
 den Kostenarten (Typ Kostensammler) das Konto gepflegt sein (Grundsteuer 8910,
-übrige 8020 - Einstellung, wird nicht vom Skript gesetzt), sonst entstehen beim
-Buchen keine Betriebskostenbelege.
+Heizung Brennstoff/Wartung 8002, übrige 8000 - Einstellung, wird nicht vom
+Skript gesetzt), sonst entstehen beim Buchen keine Betriebskostenbelege.
 
 Ablauf (spezifikation-betriebskostenzuordnung.md): Die Rechnungszeilen tragen
 nur die Wirtschaftseinheit (Objekt = Property, Kontierungsart Betriebskosten),
@@ -26,15 +26,15 @@ Default 2025):
   Allianz AG — 1 Rechnung:
     - Datum: 15.02.<year>
     - Position: "Gebäudeversicherung <year>", 1 × 7.801,00 EUR + 19 % VSt
-    - Konto: 8020 (Andere Betriebskosten), Kostensammler 110
+    - Konto: 8000 (Betriebskosten (kalt)), Kostensammler 110
 
   Berliner Wasserbetriebe — 6 Rechnungen, 2-monatlich zum 15. (Jan–Nov):
     - Position: "Wasserrechnung MM/YYYY", 1 × 2.166,00 EUR + 19 % VSt
-    - Konto: 8020 (Andere Betriebskosten), Kostensammler 200
+    - Konto: 8000 (Betriebskosten (kalt)), Kostensammler 200
 
   Gas AG — 6 Rechnungen, 2-monatlich zum 15. (Jan–Nov):
     - Position: "Gasrechnung MM/YYYY", 1 × 6.630,00 EUR + 19 % VSt
-    - Konto: 8020 (Andere Betriebskosten), Kostensammler 300
+    - Konto: 8002 (Betriebskosten (warm)), Kostensammler 300
 
   BSR — 6 Rechnungen, 2-monatlich zum 15. (Jan–Nov):
     - Position 1: "Straßenreinigung", 1 × 433,00 EUR + 19 % VSt, Kostensammler 500
@@ -50,6 +50,9 @@ Default 2025):
   Gartenpflege GaLa — 1 Rechnung 15.02.<year>, 3.250,00 EUR + 19 % VSt (SU 600)
   Schornsteinfeger Krüger — 1 Rechnung 15.11.<year>, 1.950,00 EUR + 19 % VSt (SU 620)
   Vailand GmbH — 1 Rechnung 25.11.<year>, 3.860,00 EUR + 19 % VSt (SU 310)
+
+  Konten: Grundsteuer 8910, Gas AG und Vailand GmbH 8002 (Betriebskosten
+  (warm)), alle übrigen 8000 (Betriebskosten (kalt)).
 
 Das Skript ist idempotent: bereits vorhandene Rechnungen (gleiche Party,
 Datum und Referenz) werden übersprungen; unbestätigte Belege bereits
@@ -311,7 +314,8 @@ def main():
 
     tax_19 = get_purchase_tax_19()
     acc_grundsteuer = get_account('8910')  # Grundsteuer
-    acc_kosten = get_account('8020')  # Kosten (Andere Betriebskosten)
+    acc_kalt = get_account('8000')  # Betriebskosten (kalt)
+    acc_warm = get_account('8002')  # Betriebskosten (warm)
 
     print(f'Verwende Steuer: {tax_19.name} (rate={tax_19.rate})')
 
@@ -357,7 +361,7 @@ def main():
             d, allianz,
             f'Gebäudeversicherung {year} {tag}',
             [{'description': f'Gebäudeversicherung {year}', 'unit_price': Decimal('7801.00'),
-              'account': acc_kosten, 'taxes': [tax_19],
+              'account': acc_kalt, 'taxes': [tax_19],
               'property': prop, 'settlement_unit': su(110, d)}],
         ))
 
@@ -368,14 +372,14 @@ def main():
                 d, wasser,
                 f'Wasserrechnung {label} {tag}',
                 [{'description': f'Wasserrechnung {label}', 'unit_price': Decimal('2166.00'),
-                  'account': acc_kosten, 'taxes': [tax_19],
+                  'account': acc_kalt, 'taxes': [tax_19],
                   'property': prop, 'settlement_unit': su(200, d)}],
             ))
             invoices_todo.append((
                 d, gasag,
                 f'Gasrechnung {label} {tag}',
                 [{'description': f'Gasrechnung {label}', 'unit_price': Decimal('6630.00'),
-                  'account': acc_kosten, 'taxes': [tax_19],
+                  'account': acc_warm, 'taxes': [tax_19],
                   'property': prop, 'settlement_unit': su(300, d)}],
             ))
 
@@ -387,10 +391,10 @@ def main():
                 f'BSR {label} {tag}',
                 [
                     {'description': 'Straßenreinigung', 'unit_price': Decimal('433.00'),
-                     'account': acc_kosten, 'taxes': [tax_19],
+                     'account': acc_kalt, 'taxes': [tax_19],
                      'property': prop, 'settlement_unit': su(500, d)},
                     {'description': 'Müll', 'unit_price': Decimal('541.00'),
-                     'account': acc_kosten, 'taxes': [tax_19],
+                     'account': acc_kalt, 'taxes': [tax_19],
                      'property': prop, 'settlement_unit': su(510, d)},
                 ],
             ))
@@ -399,7 +403,7 @@ def main():
                 f'Vattenfall {label} {tag}',
                 [
                     {'description': 'Hausstrom', 'unit_price': Decimal('650.00'),
-                     'account': acc_kosten, 'taxes': [tax_19],
+                     'account': acc_kalt, 'taxes': [tax_19],
                      'property': prop, 'settlement_unit': su(610, d)},
                 ],
             ))
@@ -412,7 +416,7 @@ def main():
                 f'Reinigung {label} {tag}',
                 [
                     {'description': 'Hausreinigung', 'unit_price': Decimal('431.00'),
-                     'account': acc_kosten, 'taxes': [tax_19],
+                     'account': acc_kalt, 'taxes': [tax_19],
                      'property': prop, 'settlement_unit': su(520, d)},
                 ],
             ))
@@ -421,7 +425,7 @@ def main():
                 f'Hausmeister {label} {tag}',
                 [
                     {'description': 'Hausmeister', 'unit_price': Decimal('758.00'),
-                     'account': acc_kosten, 'taxes': [tax_19],
+                     'account': acc_kalt, 'taxes': [tax_19],
                      'property': prop, 'settlement_unit': su(700, d)},
                 ],
             ))
@@ -431,7 +435,7 @@ def main():
             d, gartenpflege,
             f'Gartenpflege {year} {tag}',
             [{'description': f'Gartenpflege {year}', 'unit_price': Decimal('3250.00'),
-              'account': acc_kosten, 'taxes': [tax_19],
+              'account': acc_kalt, 'taxes': [tax_19],
               'property': prop, 'settlement_unit': su(600, d)}],
         ))
 
@@ -440,7 +444,7 @@ def main():
             d, schornsteinfeger,
             f'Schornsteinfeger {year} {tag}',
             [{'description': f'Schornsteinfeger {year}', 'unit_price': Decimal('1950.00'),
-              'account': acc_kosten, 'taxes': [tax_19],
+              'account': acc_kalt, 'taxes': [tax_19],
               'property': prop, 'settlement_unit': su(620, d)}],
         ))
 
@@ -449,7 +453,7 @@ def main():
             d, vailand,
             f'Vailand {year} {tag}',
             [{'description': f'Vailand {year}', 'unit_price': Decimal('3860.00'),
-              'account': acc_kosten, 'taxes': [tax_19],
+              'account': acc_warm, 'taxes': [tax_19],
               'property': prop, 'settlement_unit': su(310, d)}],
         ))
 

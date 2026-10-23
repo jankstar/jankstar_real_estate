@@ -33,6 +33,7 @@
     </group>
     <newline/>
     <label name="oc_processing"/><field name="oc_processing" />
+    <label name="amount_sign"/><field name="amount_sign" />
     <newline/>
     <group string="Periodic Posting" id="separate_move" colspan="6" col="4">
         <label name="separate_move"/><field name="separate_move"/>

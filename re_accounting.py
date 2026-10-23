@@ -16,7 +16,8 @@ class ReAccounting(base_object.re_sequence_ordered(), ModelSQL, ModelView):
         domain=[
             ('closed', '!=', True),
             ],
-        help="Account for vacancy cost postings (debit and credit side).")
+        help="Vacancy account for the operating cost settlement - relief "
+             "of the billing unit / settlement unit.")
 
     re_journal_billing = fields.Many2One(
         'account.journal', 'Operating Cost Settlement Journal',

@@ -1913,6 +1913,12 @@
             <field name="code">6090</field>
             <field name="type" ref="wowi_type_u_609"/>
         </record>
+        <record id="wowi_account_6091" model="account.account.template">
+            <field name="name">Erlösschmälerungen Leerstand (Betriebskosten)</field>
+            <field name="parent" ref="wowi_view_u_609"/>
+            <field name="code">6091</field>
+            <field name="type" ref="wowi_type_u_609"/>
+        </record>
         <record id="wowi_view_g_61" model="account.account.template">
             <field name="name">Umsatzerlöse aus dem Verkauf von Grundstücken</field>
             <field name="parent" ref="wowi_view_k6"/>
@@ -2594,7 +2600,7 @@
             <field name="parent" ref="wowi_view_g_80"/>
         </record>
         <record id="wowi_account_8000" model="account.account.template">
-            <field name="name">Kosten der Wasserversorgung</field>
+            <field name="name">Betriebskosten (kalt)</field>
             <field name="parent" ref="wowi_view_u_800"/>
             <field name="code">8000</field>
             <field name="type" ref="wowi_type_u_800"/>
@@ -2606,7 +2612,7 @@
             <field name="type" ref="wowi_type_u_800"/>
         </record>
         <record id="wowi_account_8002" model="account.account.template">
-            <field name="name">Kosten der Beheizung</field>
+            <field name="name">Betriebskosten (warm)</field>
             <field name="parent" ref="wowi_view_u_800"/>
             <field name="code">8002</field>
             <field name="type" ref="wowi_type_u_800"/>

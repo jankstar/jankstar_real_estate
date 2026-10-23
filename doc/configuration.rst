@@ -21,6 +21,11 @@ The following master data must be set up before the module can be used:
    (``termination_process_template``) or its partner is changed
    (``partner_change_process_template``) - see `Tasks, Processes and
    Handover Reports <tasks.rst>`__.
+   The standard rental agreement starts *Move-in*, *Move-out* (only on a
+   termination by the *Terminate* wizard) and *Change of Tenant in the
+   Contract*; the other standard contract types start no process. The
+   standard contract types are defined in ``contract_party.xml`` (loaded
+   after ``process.xml``).
 
 ``real_estate.contract.term.type``
    Term type definitions with default rhythm (monthly / quarterly / …),
@@ -60,7 +65,11 @@ The following master data must be set up before the module can be used:
    ``re_accounting`` record gets none of the automation below).
 
    ``re_account_allocation_by_owner``
-      Vacancy cost account (debit and credit side of vacancy postings).
+      Vacancy account for the operating cost settlement - relief of the
+      billing unit / settlement unit (debit and credit side of vacancy
+      postings). In the WoWi chart of accounts: 6091 *Erlösschmälerungen
+      Leerstand (Betriebskosten)*; set by hand per company, since the
+      accounts are only created with the company's chart.
 
    ``re_journal_billing``
       Journal used for direct GL postings in operating cost settlements.
@@ -83,7 +92,7 @@ The following master data must be set up before the module can be used:
       which are not covered by the residential 10-tier distribution model —
       see *CO2 Cost Allocation (CO2KostAufG)* under *Operating Cost
       Settlement* below. Shown right before the *Cron Tasks* table on the
-      form.
+      form. The default record sets 50 %.
 
    ``cron_tasks``
       One2Many to ``real_estate.cron_task`` — the company's scheduled

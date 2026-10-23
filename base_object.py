@@ -780,9 +780,11 @@ class BaseObject(Workflow, DeactivableMixin, re_sequence_ordered(), tree(separat
         BillingUnit = pool.get('real_estate.billing_unit')
         bu_filter = set(billing_unit_ids) if billing_unit_ids else None
 
+        # locked: a property is billed once even if the job runs twice - all
+        # properties at once, as Tryton restarts the transaction for every
+        # lock of records not locked yet
+        cls.lock(cls.browse(property_ids))
         for obj in cls.browse(property_ids):
-            # locked: a property is billed once even if the job runs twice
-            cls.lock([obj])
             obj = cls(obj.id)
             if obj.type != 'property' or obj.state != 'approved':
                 continue

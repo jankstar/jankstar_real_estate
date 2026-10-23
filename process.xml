@@ -299,7 +299,8 @@
     </data>
 
     <data noupdate="1">
-        <!-- Default process templates - not assigned to a contract type -->
+        <!-- Default process templates - move-in, move-out and partner change
+             are assigned to the rental agreement (contract_party.xml) -->
         <record model="real_estate.process.template" id="process_template_move_out">
             <field name="name">Move-out</field>
             <field name="code">move_out</field>

@@ -1280,6 +1280,157 @@ class RealEstateTestCase(ModuleTestCase):
             BaseObject.create([dict(values, company=other.id, name='P',
                         type='property', sequence=10)])
 
+    @with_transaction()
+    def test_batch_jobs_lock_all_records_once(self):
+        "Batch jobs lock all their records at once, before processing"
+        from unittest.mock import patch
+        pool = Pool()
+        Contract = pool.get('real_estate.contract')
+        BaseObject = pool.get('real_estate.base_object')
+
+        class Stop(Exception):
+            pass
+
+        # Tryton restarts the transaction for every lock of records not
+        # locked yet - one lock per record in the loop would process all
+        # previous records again for every further record
+        for Model, call in (
+                (Contract, lambda: Contract.create_moves(
+                        [1, 2, 3], datetime.date(2025, 1, 31))),
+                (BaseObject, lambda: BaseObject.do_billing([1, 2, 3]))):
+            with patch.object(Model, 'lock', side_effect=Stop) as lock:
+                with self.assertRaises(Stop):
+                    call()
+                lock.assert_called_once()
+                self.assertEqual(
+                    sorted(int(r) for r in lock.call_args.args[0]),
+                    [1, 2, 3])
+
+    @with_transaction()
+    def test_execute_in_run_one_transaction_per_adjustment(self):
+        "Adjustment run: each adjustment executed in a transaction of its own"
+        from unittest.mock import patch
+        from trytond.exceptions import UserError
+        pool = Pool()
+        Adjustment = pool.get('real_estate.contract.term.adjustment')
+        Run = pool.get('real_estate.contract.term.adjustment.run')
+
+        transactions = []
+
+        def in_new_transaction(lock_records, func):
+            # stands for a committed resp. rolled back transaction
+            transactions.append(lock_records)
+            return func()
+
+        def execute_declared(adjustment_id, run_id):
+            if adjustment_id == 2:
+                raise UserError('term split failed')
+
+        with patch.object(Adjustment, '_in_new_transaction',
+                    side_effect=in_new_transaction), \
+                patch.object(Adjustment, '_execute_declared',
+                    side_effect=execute_declared) as execute, \
+                patch.object(Adjustment, '_log_execute_error') as log:
+            for adjustment_id in (1, 2, 3):
+                Adjustment._execute_in_run_one(
+                    adjustment_id, 7, f'A{adjustment_id}')
+
+        # the error of the second one does not stop the third one
+        self.assertEqual([c.args for c in execute.call_args_list],
+            [(1, 7), (2, 7), (3, 7)])
+        log.assert_called_once_with(7, 'A2', 'term split failed')
+        # adjustment and run locked from the start, the error logged in a
+        # transaction of its own with the run locked
+        self.assertEqual(transactions, [
+                {Adjustment._table: [1], Run._table: [7]},
+                {Adjustment._table: [2], Run._table: [7]},
+                {Run._table: [7]},
+                {Adjustment._table: [3], Run._table: [7]},
+                ])
+
+    @with_transaction()
+    def test_in_new_transaction_restarts_for_further_locks(self):
+        "New transaction: started again with further records locked"
+        from contextlib import contextmanager
+        from unittest.mock import patch
+        from trytond.transaction import Transaction, TransactionError
+        pool = Pool()
+        Adjustment = pool.get('real_estate.contract.term.adjustment')
+
+        class LockError(TransactionError):
+            def fix(self, extras):
+                extras['_lock_records'].setdefault('t2', []).append(9)
+
+        started = []
+
+        @contextmanager
+        def new_transaction(self, **extras):
+            started.append({k: list(v)
+                    for k, v in extras['_lock_records'].items()})
+            yield self
+
+        calls = []
+
+        def func():
+            calls.append(1)
+            if len(calls) == 1:
+                raise LockError()
+            return 'done'
+
+        with patch.object(Transaction, 'new_transaction', new_transaction):
+            result = Adjustment._in_new_transaction({'t1': [1]}, func)
+        self.assertEqual(result, 'done')
+        self.assertEqual(started, [{'t1': [1]}, {'t1': [1], 't2': [9]}])
+
+    def test_amount_sign_violated(self):
+        "Term amount sign: any / positive only / negative only, 0 allowed"
+        from trytond.modules.real_estate.contract_term import (
+            amount_sign_violated)
+
+        for sign in ('any', 'positive', 'negative', None):
+            self.assertFalse(amount_sign_violated(sign, Decimal(0)))
+        self.assertFalse(amount_sign_violated('any', Decimal('-50')))
+        self.assertFalse(amount_sign_violated('any', Decimal('50')))
+        self.assertFalse(amount_sign_violated('positive', Decimal('50')))
+        self.assertTrue(amount_sign_violated('positive', Decimal('-0.01')))
+        self.assertFalse(amount_sign_violated('negative', Decimal('-50')))
+        self.assertTrue(amount_sign_violated('negative', Decimal('0.01')))
+
+    @with_transaction()
+    def test_term_amount_sign_check(self):
+        "Saving a term checks the amount sign of its term type"
+        from types import SimpleNamespace
+        pool = Pool()
+        ContractTerm = pool.get('real_estate.contract.term')
+        TermType = pool.get('real_estate.contract.term.type')
+
+        reduction, = TermType.search([('sequence', '=', 1010)])
+        rent, = TermType.search([('sequence', '=', 1000)])
+        self.assertEqual(reduction.amount_sign, 'negative')
+        self.assertEqual(rent.amount_sign, 'positive')
+
+        def term(term_type, quantity, unit_price):
+            return SimpleNamespace(term_type=term_type, quantity=quantity,
+                unit_price=unit_price, rec_name='T')
+
+        # allowed: negative reduction, positive rent, 0 for both
+        ContractTerm._check_amount_sign([
+                term(reduction, Decimal(1), Decimal('-50')),
+                term(rent, Decimal(1), Decimal('800')),
+                term(reduction, Decimal(1), Decimal(0)),
+                term(rent, Decimal(0), Decimal('800')),
+                ])
+        with self.assertRaises(ValidationError):
+            ContractTerm._check_amount_sign([
+                    term(reduction, Decimal(1), Decimal('50'))])
+        with self.assertRaises(ValidationError):
+            ContractTerm._check_amount_sign([
+                    term(rent, Decimal(1), Decimal('-800'))])
+        # the sign of the product counts (negative quantity)
+        with self.assertRaises(ValidationError):
+            ContractTerm._check_amount_sign([
+                    term(rent, Decimal(-1), Decimal('800'))])
+
     def test_oc_distribute_and_split_by_days(self):
         "Operating cost assignment: exact cent split and day split"
         from trytond.modules.real_estate.oc_document import (
