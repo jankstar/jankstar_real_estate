@@ -1,6 +1,6 @@
 Metadata-Version: 2.4
 Name: jankstar_real_estate
-Version: 8.2.0
+Version: 8.0.0
 Summary: Real Estate Management
 Home-page: www.jankstar.de
 Author: jankstar
@@ -20,26 +20,27 @@ Classifier: Natural Language :: English
 Classifier: Natural Language :: German
 Classifier: Operating System :: OS Independent
 Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.9
 Classifier: Programming Language :: Python :: 3.10
 Classifier: Programming Language :: Python :: 3.11
 Classifier: Programming Language :: Python :: 3.12
 Classifier: Programming Language :: Python :: 3.13
 Classifier: Programming Language :: Python :: Implementation :: CPython
 Classifier: Topic :: Office/Business
-Requires-Python: >=3.10
+Requires-Python: >=3.9
 License-File: LICENSE
-Requires-Dist: trytond_company<8.3,>=8.2
-Requires-Dist: trytond_party<8.3,>=8.2
-Requires-Dist: trytond_product<8.3,>=8.2
-Requires-Dist: trytond_currency<8.3,>=8.2
-Requires-Dist: trytond_country<8.3,>=8.2
-Requires-Dist: trytond_account<8.3,>=8.2
-Requires-Dist: trytond_account_invoice<8.3,>=8.2
-Requires-Dist: trytond_account_deposit<8.3,>=8.2
-Requires-Dist: trytond_account_payment_clearing<8.3,>=8.2
-Requires-Dist: trytond_account_tax_non_deductible<8.3,>=8.2
-Requires-Dist: trytond_bank<8.3,>=8.2
-Requires-Dist: trytond<8.3,>=8.2
+Requires-Dist: trytond_company<8.1,>=8.0
+Requires-Dist: trytond_party<8.1,>=8.0
+Requires-Dist: trytond_product<8.1,>=8.0
+Requires-Dist: trytond_currency<8.1,>=8.0
+Requires-Dist: trytond_country<8.1,>=8.0
+Requires-Dist: trytond_account<8.1,>=8.0
+Requires-Dist: trytond_account_invoice<8.1,>=8.0
+Requires-Dist: trytond_account_deposit<8.1,>=8.0
+Requires-Dist: trytond_account_payment_clearing<8.1,>=8.0
+Requires-Dist: trytond_account_tax_non_deductible<8.1,>=8.0
+Requires-Dist: trytond_bank<8.1,>=8.0
+Requires-Dist: trytond<8.1,>=8.0
 Provides-Extra: test
 Dynamic: author
 Dynamic: author-email
@@ -59,7 +60,7 @@ Real Estate Module for Tryton
 ##############################
 
 A Tryton ERP module for real estate management. Packaged as ``jankstar_real_estate``,
-targeting Tryton 8.2 and Python 3.10–3.13.
+targeting Tryton 8.0.0 and Python 3.9–3.13.
 
 Covers property management, lease and sales contracts, tenant/owner party roles,
 operating cost settlement, CO2 cost allocation under the German CO2KostAufG,
