@@ -1748,106 +1748,7 @@
             <field name="name">Default</field>
             <field name="re_journal_billing" ref="journal_rental_book"/>
             <field name="re_payment_term_billing" ref="account_invoice.payment_term_30_eom"/>
-        </record>
-
-        <record model="real_estate.contract.type" id="contract_rental_agreement_type">
-            <field name="re_accounting" ref="re_accounting_default"/>
-            <field name="name">Rental agreement</field>
-            <field name="sequence">10</field>
-            <field name="mark" >Debit</field>
-            <field name="occupancy" eval="True"/>
-            <field name="prefix" >1</field>
-            <field name='start_number'>1000</field>
-            <field name="step_term">10</field>
-            <field name="step_item">10</field>
-            <field name="account_journal" ref="journal_rental_book"/> 
-            <field name="invoice_type">out</field>
-            <field name="types_of_use" eval="['residential']"/>
-            <field name="oc_mark" >Operating Cost Settlement</field>
-            <field name="adjustment_procedures" eval="['graduated_rent', 'index_rent', 'comparative_rent', 'modernisation', 'operation_costs_billing', 'operation_costs_plan', 'free_adjustment']"/>
-        </record>
-
-        <record model="real_estate.contract.type" id="contract_parking_space_lease_agreement_type">
-            <field name="re_accounting" ref="re_accounting_default"/>
-            <field name="name">Parking Space Lease Agreement</field>
-            <field name="sequence">20</field>
-            <field name="mark" >Debit</field>
-            <field name="occupancy" eval="True"/>
-            <field name="prefix" >2</field>
-            <field name='start_number'>2000</field>
-            <field name="step_term">10</field>
-            <field name="step_item">10</field>
-            <field name="account_journal" ref="journal_rental_book"/> 
-            <field name="invoice_type">out</field>
-            <field name="types_of_use" eval="['residential']"/>
-            <field name="oc_mark" >Operating Cost Settlement</field>
-            <field name="adjustment_procedures" eval="['graduated_rent', 'index_rent', 'free_adjustment']"/>
-        </record>
-
-        <record model="real_estate.contract.type" id="contract_debit_costs_agreement_type">
-            <field name="re_accounting" ref="re_accounting_default"/>
-            <field name="name">Debit Costs Agreement</field>
-            <field name="sequence">30</field>
-            <field name="mark" >Debit</field>
-            <field name="prefix" >3</field>
-            <field name='start_number'>3000</field>
-            <field name="step_term">10</field>
-            <field name="step_item">10</field>
-            <field name="account_journal" ref="journal_rental_book"/>
-            <field name="invoice_type">out</field>
-            <field name="types_of_use" eval="['residential', 'commercial', 'property', 'internal']"/>
-            <field name="oc_mark" >Operating Cost Settlement</field>
-            <field name="adjustment_procedures" eval="['operation_costs_billing', 'operation_costs_plan', 'free_adjustment']"/>
-        </record>
-
-        <record model="real_estate.contract.type" id="contract_credit_costs_agreement_type">
-            <field name="re_accounting" ref="re_accounting_default"/>
-            <field name="name">Credit Costs Agreement</field>
-            <field name="sequence">40</field> 
-            <field name="mark" >Credit</field>
-            <field name="prefix" >4</field>
-            <field name='start_number'>4000</field>
-            <field name="step_term">10</field>
-            <field name="step_item">10</field>
-            <field name="account_journal" ref="journal_rental_book"/> 
-            <field name="invoice_type">in</field>
-            <field name="types_of_use" eval="['residential', 'commercial', 'property', 'internal']"/>
-            <field name="oc_mark" >Operating Cost Settlement</field>
-            <field name="adjustment_procedures" eval="['free_adjustment']"/>
-        </record>
-
-        <record model="real_estate.contract.type" id="contract_commercial_lease_agreement_type">
-            <field name="re_accounting" ref="re_accounting_default"/>
-            <field name="name">Commercial lease agreement</field>
-            <field name="sequence">50</field>
-            <field name="mark" >Debit</field>
-            <field name="occupancy" eval="True"/>
-            <field name="prefix" >5</field>
-            <field name='start_number'>5000</field>
-            <field name="step_term">10</field>
-            <field name="step_item">10</field>
-            <field name="account_journal" ref="journal_rental_book"/> 
-            <field name="invoice_type">out</field>
-            <field name="types_of_use" eval="['commercial']"/>
-            <field name="oc_mark" >Operating Cost Settlement</field>
-            <field name="adjustment_procedures" eval="['graduated_rent', 'index_rent', 'operation_costs_billing', 'operation_costs_plan', 'free_adjustment']"/>
-        </record>
-
-        <record model="real_estate.contract.type" id="contract_condominium_fee_agreement_type">
-            <field name="re_accounting" ref="re_accounting_default"/>
-            <field name="name">Condominium fee agreement</field>
-            <field name="sequence">80</field>
-            <field name="mark" >Debit</field>
-            <field name="occupancy" eval="True"/>
-            <field name="prefix" >8</field>
-            <field name='start_number'>8000</field>
-            <field name="step_term">10</field>
-            <field name="step_item">10</field>
-            <field name="account_journal" ref="journal_rental_book"/> 
-            <field name="invoice_type">out</field>
-            <field name="types_of_use" eval="['property']"/>
-            <field name="oc_mark" >Operating Cost Settlement</field>
-            <field name="adjustment_procedures" eval="['operation_costs_plan', 'free_adjustment']"/>
+            <field name="co2_landlord_share_commercial" eval="Decimal('50')"/>
         </record>
 
         <!-- Term Types -->
@@ -1863,6 +1764,7 @@
             <field name="rhythm_type">monthly</field>
             <field name="oc_processing" >none</field>
             <field name="adjustment_procedures" eval="['graduated_rent', 'index_rent', 'comparative_rent', 'modernisation', 'free_adjustment']"/>
+            <field name="amount_sign">positive</field>
         </record>
 
         <record model="real_estate.contract.term.type" id="contract_term_type_rent_reduction">
@@ -1875,6 +1777,7 @@
             <field name="rhythm">1</field>
             <field name="rhythm_type">monthly</field>
             <field name="oc_processing" >none</field>
+            <field name="amount_sign">negative</field>
         </record>
 
         <record model="real_estate.contract.term.type" id="contract_term_type_subletting_surcharge">
@@ -1887,6 +1790,7 @@
             <field name="rhythm">1</field>
             <field name="rhythm_type">monthly</field>
             <field name="oc_processing" >none</field>
+            <field name="amount_sign">positive</field>
         </record>
 
         <record model="real_estate.contract.term.type" id="contract_term_type_parking_space_rent">
@@ -1899,6 +1803,7 @@
             <field name="rhythm_type">monthly</field>
             <field name="oc_processing" >none</field>
             <field name="adjustment_procedures" eval="['graduated_rent', 'index_rent', 'free_adjustment']"/>
+            <field name="amount_sign">positive</field>
         </record>
 
         <record model="real_estate.contract.term.type" id="contract_term_type_rent_deposit">
@@ -1912,6 +1817,7 @@
             <field name="oc_processing" >none</field>
             <field name="separate_move" eval="True"/>
             <field name="move_description">Rental deposit</field>
+            <field name="amount_sign">positive</field>
         </record>
 
         <record model="real_estate.contract.term.type" id="contract_term_type_operating_costs">
@@ -1925,6 +1831,7 @@
             <field name="rhythm_type">monthly</field>
             <field name="oc_processing" >advance_with_settlement</field>
             <field name="adjustment_procedures" eval="['operation_costs_billing', 'operation_costs_plan', 'free_adjustment']"/>
+            <field name="amount_sign">positive</field>
         </record>
 
         <record model="real_estate.contract.term.type" id="contract_term_type_heating_costs">
@@ -1938,6 +1845,7 @@
             <field name="rhythm_type">monthly</field>
             <field name="oc_processing" >advance_with_settlement</field>
             <field name="adjustment_procedures" eval="['operation_costs_billing', 'operation_costs_plan', 'free_adjustment']"/>
+            <field name="amount_sign">positive</field>
         </record>
 
         <record model="real_estate.contract.term.type" id="contract_term_type_commercial_rent">
@@ -1951,6 +1859,7 @@
             <field name="rhythm_type">monthly</field>
             <field name="oc_processing" >none</field>
             <field name="adjustment_procedures" eval="['graduated_rent', 'index_rent', 'free_adjustment']"/>
+            <field name="amount_sign">positive</field>
         </record>
 
         <record model="real_estate.contract.term.type" id="contract_term_type_service_charge">
@@ -1964,6 +1873,7 @@
             <field name="rhythm_type">monthly</field>
             <field name="oc_processing" >advance_with_settlement</field>
             <field name="adjustment_procedures" eval="['operation_costs_plan', 'free_adjustment']"/>
+            <field name="amount_sign">positive</field>
         </record>
 
 

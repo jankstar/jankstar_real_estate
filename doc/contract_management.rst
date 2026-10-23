@@ -35,6 +35,14 @@ Contract Management
       with an operating cost processing, rent procedures only without;
       one-time terms have no procedures.
 
+   ``amount_sign``
+      *Amount Sign* of the net amount (quantity × unit price) of the terms
+      of this type: *Any* (default), *Positive Only* or *Negative Only*;
+      an amount of 0 is always allowed. Saving a term with a contradicting
+      amount raises an error (``ContractTerm._check_amount_sign``). The
+      standard data set *Negative Only* for the rent reduction (1010) and
+      *Positive Only* for the other standard term types.
+
    ``separate_move`` / ``move_description``
       *Separate Move*: terms of this type are posted in periodic postings
       as an invoice of their own per contract and posting date instead of
@@ -200,6 +208,16 @@ Contract Management
    Confirmed warnings of both checks are remembered per role (not per
    contract): confirming a missing/overlapping role once also skips the
    warning for other draft contracts with the same gap.
+
+   Standard roles (``contract_party.xml``, before the contract types): *Main
+   Tenant* (``sequence`` 10, mandatory and only once - exactly one main
+   tenant at any time), *Secondary Tenant* (``sequence`` 20, optional, any
+   number) and *Owner*. The rental, parking, debit costs, credit costs
+   and commercial contract types allow *Main Tenant* and *Secondary
+   Tenant* and set them as ``main_tenant_role`` / ``secondary_tenant_role``;
+   the condominium fee agreement allows *Owner* and sets it as
+   ``main_tenant_role``. The contract types and the applicable contract
+   types per role are in the same file.
 
 ``real_estate.contract.party``  (``contract_party.py``)
    One party assignment row (``party``, ``role``, ``valid_from``/

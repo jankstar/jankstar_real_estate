@@ -164,12 +164,21 @@
 
     <data noupdate="1">
 
+        <!-- Contract types: defined here (not in contract.xml) because
+             they refer to the party roles and to the process templates of
+             process.xml, which is loaded after contract.xml -->
+        <!-- Contract party roles: exactly one main tenant at any time
+             (mandatory, only once), any number of secondary tenants; the
+             owner is the main tenant role of the condominium fee
+             agreement;
+             the contract types below refer to them, the applicable
+             contract types per role follow below -->
         <record model="real_estate.contract.party.role" id="contract_party_role_main_tenant">
             <field name="name">Hauptmieter</field>
             <field name="sequence">10</field>
             <field name="default" eval="False"/>
             <field name="mandatory" eval="True"/>
-            <field name="only_once" eval="False"/>
+            <field name="only_once" eval="True"/>
         </record>
 
         <record model="real_estate.contract.party.role" id="contract_party_role_secondary_tenant">
@@ -185,6 +194,120 @@
             <field name="default" eval="False"/>
             <field name="mandatory" eval="True"/>
             <field name="only_once" eval="False"/>
+        </record>
+
+        <record model="real_estate.contract.type" id="contract_rental_agreement_type">
+            <field name="start_process_template" ref="process_template_move_in"/>
+            <field name="termination_process_template" ref="process_template_move_out"/>
+            <field name="partner_change_process_template" ref="process_template_partner_change"/>
+            <field name="main_tenant_role" ref="contract_party_role_main_tenant"/>
+            <field name="secondary_tenant_role" ref="contract_party_role_secondary_tenant"/>
+            <field name="re_accounting" ref="re_accounting_default"/>
+            <field name="name">Rental agreement</field>
+            <field name="sequence">10</field>
+            <field name="mark" >Debit</field>
+            <field name="occupancy" eval="True"/>
+            <field name="prefix" >1</field>
+            <field name='start_number'>1000</field>
+            <field name="step_term">10</field>
+            <field name="step_item">10</field>
+            <field name="account_journal" ref="journal_rental_book"/> 
+            <field name="invoice_type">out</field>
+            <field name="types_of_use" eval="['residential']"/>
+            <field name="oc_mark" >Operating Cost Settlement</field>
+            <field name="adjustment_procedures" eval="['graduated_rent', 'index_rent', 'comparative_rent', 'modernisation', 'operation_costs_billing', 'operation_costs_plan', 'free_adjustment']"/>
+        </record>
+
+        <record model="real_estate.contract.type" id="contract_parking_space_lease_agreement_type">
+            <field name="main_tenant_role" ref="contract_party_role_main_tenant"/>
+            <field name="secondary_tenant_role" ref="contract_party_role_secondary_tenant"/>
+            <field name="re_accounting" ref="re_accounting_default"/>
+            <field name="name">Parking Space Lease Agreement</field>
+            <field name="sequence">20</field>
+            <field name="mark" >Debit</field>
+            <field name="occupancy" eval="True"/>
+            <field name="prefix" >2</field>
+            <field name='start_number'>2000</field>
+            <field name="step_term">10</field>
+            <field name="step_item">10</field>
+            <field name="account_journal" ref="journal_rental_book"/> 
+            <field name="invoice_type">out</field>
+            <field name="types_of_use" eval="['residential']"/>
+            <field name="oc_mark" >Operating Cost Settlement</field>
+            <field name="adjustment_procedures" eval="['graduated_rent', 'index_rent', 'free_adjustment']"/>
+        </record>
+
+        <record model="real_estate.contract.type" id="contract_debit_costs_agreement_type">
+            <field name="main_tenant_role" ref="contract_party_role_main_tenant"/>
+            <field name="secondary_tenant_role" ref="contract_party_role_secondary_tenant"/>
+            <field name="re_accounting" ref="re_accounting_default"/>
+            <field name="name">Debit Costs Agreement</field>
+            <field name="sequence">30</field>
+            <field name="mark" >Debit</field>
+            <field name="prefix" >3</field>
+            <field name='start_number'>3000</field>
+            <field name="step_term">10</field>
+            <field name="step_item">10</field>
+            <field name="account_journal" ref="journal_rental_book"/>
+            <field name="invoice_type">out</field>
+            <field name="types_of_use" eval="['residential', 'commercial', 'property', 'internal']"/>
+            <field name="oc_mark" >Operating Cost Settlement</field>
+            <field name="adjustment_procedures" eval="['operation_costs_billing', 'operation_costs_plan', 'free_adjustment']"/>
+        </record>
+
+        <record model="real_estate.contract.type" id="contract_credit_costs_agreement_type">
+            <field name="main_tenant_role" ref="contract_party_role_main_tenant"/>
+            <field name="secondary_tenant_role" ref="contract_party_role_secondary_tenant"/>
+            <field name="re_accounting" ref="re_accounting_default"/>
+            <field name="name">Credit Costs Agreement</field>
+            <field name="sequence">40</field> 
+            <field name="mark" >Credit</field>
+            <field name="prefix" >4</field>
+            <field name='start_number'>4000</field>
+            <field name="step_term">10</field>
+            <field name="step_item">10</field>
+            <field name="account_journal" ref="journal_rental_book"/> 
+            <field name="invoice_type">in</field>
+            <field name="types_of_use" eval="['residential', 'commercial', 'property', 'internal']"/>
+            <field name="oc_mark" >Operating Cost Settlement</field>
+            <field name="adjustment_procedures" eval="['free_adjustment']"/>
+        </record>
+
+        <record model="real_estate.contract.type" id="contract_commercial_lease_agreement_type">
+            <field name="main_tenant_role" ref="contract_party_role_main_tenant"/>
+            <field name="secondary_tenant_role" ref="contract_party_role_secondary_tenant"/>
+            <field name="re_accounting" ref="re_accounting_default"/>
+            <field name="name">Commercial lease agreement</field>
+            <field name="sequence">50</field>
+            <field name="mark" >Debit</field>
+            <field name="occupancy" eval="True"/>
+            <field name="prefix" >5</field>
+            <field name='start_number'>5000</field>
+            <field name="step_term">10</field>
+            <field name="step_item">10</field>
+            <field name="account_journal" ref="journal_rental_book"/> 
+            <field name="invoice_type">out</field>
+            <field name="types_of_use" eval="['commercial']"/>
+            <field name="oc_mark" >Operating Cost Settlement</field>
+            <field name="adjustment_procedures" eval="['graduated_rent', 'index_rent', 'operation_costs_billing', 'operation_costs_plan', 'free_adjustment']"/>
+        </record>
+
+        <record model="real_estate.contract.type" id="contract_condominium_fee_agreement_type">
+            <field name="main_tenant_role" ref="contract_party_role_owner"/>
+            <field name="re_accounting" ref="re_accounting_default"/>
+            <field name="name">Condominium fee agreement</field>
+            <field name="sequence">80</field>
+            <field name="mark" >Debit</field>
+            <field name="occupancy" eval="True"/>
+            <field name="prefix" >8</field>
+            <field name='start_number'>8000</field>
+            <field name="step_term">10</field>
+            <field name="step_item">10</field>
+            <field name="account_journal" ref="journal_rental_book"/> 
+            <field name="invoice_type">out</field>
+            <field name="types_of_use" eval="['property']"/>
+            <field name="oc_mark" >Operating Cost Settlement</field>
+            <field name="adjustment_procedures" eval="['operation_costs_plan', 'free_adjustment']"/>
         </record>
 
         <!-- Applicable contract types per role, via the M2M relation model -->
@@ -217,6 +340,26 @@
                 id="contract_party_role_secondary_tenant_rental">
             <field name="role" ref="contract_party_role_secondary_tenant"/>
             <field name="c_type" ref="contract_rental_agreement_type"/>
+        </record>
+        <record model="real_estate.contract.party.role-contract.type"
+                id="contract_party_role_secondary_tenant_parking">
+            <field name="role" ref="contract_party_role_secondary_tenant"/>
+            <field name="c_type" ref="contract_parking_space_lease_agreement_type"/>
+        </record>
+        <record model="real_estate.contract.party.role-contract.type"
+                id="contract_party_role_secondary_tenant_debit_costs">
+            <field name="role" ref="contract_party_role_secondary_tenant"/>
+            <field name="c_type" ref="contract_debit_costs_agreement_type"/>
+        </record>
+        <record model="real_estate.contract.party.role-contract.type"
+                id="contract_party_role_secondary_tenant_credit_costs">
+            <field name="role" ref="contract_party_role_secondary_tenant"/>
+            <field name="c_type" ref="contract_credit_costs_agreement_type"/>
+        </record>
+        <record model="real_estate.contract.party.role-contract.type"
+                id="contract_party_role_secondary_tenant_commercial">
+            <field name="role" ref="contract_party_role_secondary_tenant"/>
+            <field name="c_type" ref="contract_commercial_lease_agreement_type"/>
         </record>
         <record model="real_estate.contract.party.role-contract.type"
                 id="contract_party_role_owner_condominium">

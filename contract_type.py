@@ -282,6 +282,20 @@ class ContractTermType(DeactivableMixin, base_object.re_sequence_ordered(), Mode
             "a vacancy allocation, borne by the owner."
         ))
 
+    amount_sign = fields.Selection([
+            ('any', "Any"),
+            ('positive', "Positive Only"),
+            ('negative', "Negative Only"),
+            ], "Amount Sign", sort=False, required=True,
+        help="Sign of the net amount (quantity × unit price) of the terms "
+             "of this type, checked when a term is saved:\n"
+             "Any: positive and negative amounts are allowed.\n"
+             "Positive only: the amount must not be negative (e.g. rent, "
+             "advance payments, deposit).\n"
+             "Negative only: the amount must not be positive (e.g. rent "
+             "reduction).\n"
+             "An amount of 0 is always allowed.")
+
     separate_move = fields.Boolean("Separate Move",
         help="Post terms of this type in periodic postings as a separate "
              "move (own invoice per contract and posting date) instead of "
@@ -337,6 +351,10 @@ class ContractTermType(DeactivableMixin, base_object.re_sequence_ordered(), Mode
     @classmethod
     def default_oc_processing(cls):
         return 'advance_with_settlement'
+
+    @classmethod
+    def default_amount_sign(cls):
+        return 'any'
 
     @classmethod
     def default_adjustment_procedures(cls):

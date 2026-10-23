@@ -36,24 +36,32 @@ builds on the previous one's data):
 ``tests/test_contracts.py``
    Requires ``test_immo.py``. Creates residential lease contracts for 15 of
    16 apartments per property (one left vacant), each with rent, operating
-   cost, and heating terms; three contracts per property are terminated,
-   two of them with a follow-up contract. The four parking spaces per
+   cost, and heating terms; the first apartment contract additionally
+   gets a one-time rent deposit (term type 1900, three times the rent, at
+   the contract start), the second one a subletting surcharge (term
+   type 1020, 20.00 EUR monthly from 2025-07-01) and the third one a rent
+   reduction (term type 1010, -50.00 EUR monthly from 2025-07-01) - all
+   three stay open-ended.
+   Three other contracts per property are terminated, two of them with a
+   follow-up contract. The four parking spaces per
    property are split between existing apartment contracts (as an extra
-   contract item) and new standalone parking contracts. Also creates
+   contract item) and new standalone parking contracts (contract type
+   *Parking Space Lease Agreement*, sequence 20). Also creates
    commercial lease contracts for the retail units — one combined contract
    for all four retail units on *Musterstraße 1-4*, one contract per unit on
    *Musterstraße 5-8*. Terms are absolute amounts (price per m² × area,
    quantity 1). Up to three running apartment contracts per property get a
    graduated rent (rent adjustment with procedure ``graduated_rent`` on the
    rent term: 12-month rhythm, 5 steps, +30 € / +0.40 €/m² / +3 %), whose
-   steps are generated; the procedure is allowed on the residential
-   contract type and the rent term type first if missing. Up to two
+   steps are generated; both procedures must be allowed on the residential
+   contract type and the rent term type (standard data - the script does
+   not change settings). Up to two
    further running apartment contracts per property (without graduated
    rent) get an active index rent (procedure ``index_rent``: price index
    ``VPI-DE``, base month 01/2025, statutory effective date, no
    threshold, cap automatic); missing VPI values of the current base year
-   are first taken over from ``tests/61111-0002_de.csv`` (GENESIS-Online
-   table download, parsed like the CSV import wizard) - without the file
+   are first taken over from ``tests/genesis_61111-0002_ffcsv.csv``
+   (GENESIS-Online flat file download, parsed like the CSV import wizard) - without the file
    or the base month value no index rents are created. The adjustment run
    itself is not executed::
 

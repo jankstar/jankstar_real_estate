@@ -906,6 +906,14 @@
             <field name="name">Smoke and Heat Exhaust System</field>
             <field name="code">smoke_heat_exhaust</field>
         </record>
+        <record model="real_estate.equipment.kind" id="equipment_kind_hot_water_meter">
+            <field name="name">Meter (Hot Water)</field>
+            <field name="code">hot_water_meter</field>
+        </record>
+        <record model="real_estate.equipment.kind" id="equipment_kind_cold_water_meter">
+            <field name="name">Meter (Cold Water)</field>
+            <field name="code">cold_water_meter</field>
+        </record>
         <record model="ir.sequence.type" id="sequence_type_inspection">
             <field name="name">Inspection</field>
         </record>

@@ -13,7 +13,8 @@ from trytond.modules.currency.fields import Monetary
 from trytond.modules.product import price_digits
 from trytond.pool import Pool, PoolMeta
 from trytond.pyson import Bool, Eval, PYSONEncoder
-from trytond.transaction import Transaction, without_check_access
+from trytond.transaction import (
+    Transaction, TransactionError, without_check_access)
 from trytond.wizard import Button, StateTransition, StateView, Wizard
 
 from .contract_type import RUN_AGREEMENT_PROCEDURES
@@ -903,38 +904,73 @@ class ContractTermAdjustment(metaclass=PoolMeta):
 
     @classmethod
     def execute_in_run(cls, adjustments):
-        """Execute announced adjustments of a run in the background: an
-        error is rolled back and written to the protocol of the run, the
-        adjustment stays announced (to be executed again)"""
+        """Execute announced adjustments of a run in the background - each
+        in a transaction of its own: an error rolls back only this
+        adjustment, is written to the protocol of the run and the
+        adjustment stays announced (to be executed again). Also correct
+        with several adjustments per call (no queue worker: all adjustments
+        of the run in one call)."""
         pool = Pool()
-        Run = pool.get('real_estate.contract.term.adjustment.run')
         User = pool.get('res.user')
         transaction = Transaction()
         user = User(transaction.user)
         language = user.language.code if user.language else None
         with transaction.set_context(language=language):
-            for adjustment_id in [a.id for a in adjustments]:
-                # locked and read again: executed once even with several
-                # workers or a job queued twice
-                cls.lock([cls(adjustment_id)])
-                adjustment = cls(adjustment_id)
-                if adjustment.state != 'declared' or not adjustment.run:
+            for adjustment in cls.browse([a.id for a in adjustments]):
+                if not adjustment.run:
                     continue
-                run_id, name = adjustment.run.id, adjustment.rec_name
-                try:
-                    cls.execute([adjustment])
-                except (UserError, TrytonUserWarning) as exception:
-                    transaction.rollback()
-                    run = Run(run_id)
-                    Run.lock([run])
-                    Run.write([run], {'protocol': run._log(
-                                'msg_adjustment_run_execute_error',
-                                adjustment=name,
-                                error=exception.message)})
-                    continue
-                run = Run(run_id)
-                Run.lock([run])
-                Run.update_state([run])
+                cls._execute_in_run_one(
+                    adjustment.id, adjustment.run.id, adjustment.rec_name)
+
+    @classmethod
+    def _execute_in_run_one(cls, adjustment_id, run_id, name):
+        """Execute one adjustment in a new transaction with the adjustment
+        and its run locked from the start (executed once even with several
+        workers or a job queued twice); an error is logged in a separate
+        transaction"""
+        Run = Pool().get('real_estate.contract.term.adjustment.run')
+        try:
+            cls._in_new_transaction({
+                    cls._table: [adjustment_id],
+                    Run._table: [run_id],
+                    }, lambda: cls._execute_declared(adjustment_id, run_id))
+        except (UserError, TrytonUserWarning) as exception:
+            cls._in_new_transaction({Run._table: [run_id]},
+                lambda: cls._log_execute_error(
+                    run_id, name, exception.message))
+
+    @classmethod
+    def _execute_declared(cls, adjustment_id, run_id):
+        "Execute the adjustment if still announced and update the run state"
+        Run = Pool().get('real_estate.contract.term.adjustment.run')
+        adjustment = cls(adjustment_id)
+        if adjustment.state != 'declared':
+            return
+        cls.execute([adjustment])
+        Run.update_state([Run(run_id)])
+
+    @classmethod
+    def _log_execute_error(cls, run_id, name, message):
+        Run = Pool().get('real_estate.contract.term.adjustment.run')
+        run = Run(run_id)
+        Run.write([run], {'protocol': run._log(
+                    'msg_adjustment_run_execute_error',
+                    adjustment=name, error=message)})
+
+    @staticmethod
+    def _in_new_transaction(lock_records, func):
+        """Run func in a new transaction (committed unless func raises) with
+        these records locked from its start - Tryton raises a
+        TransactionError for a lock of further records, the transaction is
+        then started again with them locked as well"""
+        extras = {'_lock_records': {
+                table: list(ids) for table, ids in lock_records.items()}}
+        while True:
+            try:
+                with Transaction().new_transaction(**extras):
+                    return func()
+            except TransactionError as exception:
+                exception.fix(extras)
 
     @classmethod
     def _check_dates(cls, args):

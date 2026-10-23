@@ -154,9 +154,11 @@
             <field name="act_window" ref="act_cost_type"/>
         </record>
 
+        <!-- same sequence as the cost category groups: listed right after
+             them (same sequence -> ordered by id) -->
         <menuitem
             parent="menu_real_estate_configuration"
-            sequence="42"
+            sequence="40"
             action="act_cost_type"
             id="menu_cost_type"/>
 

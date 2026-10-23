@@ -12,7 +12,8 @@ Das Skript legt folgende Objekte an:
   - Je Gebäude 1 Gewerbefläche (Rental Object, Type of Use: commercial, Use: retail):
       - Einzelhandel XX (EG): Erdgeschoss (floor=0), Sequenz 5
       - Bemessung: Gewerbefläche 140 m²
-      - 1 Zähler (Equipment, e_type: meters, Einheit: m³, Faktor: 1, Is Counter: ja):
+      - 1 Zähler (Equipment, e_type: meters, Anlagenart: Zähler (Kaltwasser),
+        Code cold_water_meter, Einheit: m³, Faktor: 1, Is Counter: ja):
           - Initialablesung 0 m³ zum 01.01.2025
           - Ablesung zum 30.04.2025 mit zufälligem Verbrauch zwischen 20 und 40 m³
   - Je Gebäude 4 Wohnungen (Rental Object, Type of Use: residential, Use: apartment):
@@ -22,7 +23,8 @@ Das Skript legt folgende Objekte an:
       - Wohnung XX (2.OG rechts): 3 Räume, 83 m² Wohnfläche, 80 m² Heizfläche
       - Heizfläche = Wohnfläche - 3 m² (die Wohnfläche zählt den 6 m² großen,
         unbeheizten Balkon zur Hälfte, also 3 m², mit)
-      - 1 Zähler (Equipment, e_type: meters, Einheit: m³, Faktor: 1, Is Counter: ja):
+      - 1 Zähler (Equipment, e_type: meters, Anlagenart: Zähler (Kaltwasser),
+        Code cold_water_meter, Einheit: m³, Faktor: 1, Is Counter: ja):
           - Initialablesung 0 m³ zum 01.01.2025
           - Ablesung zum 30.04.2025 mit zufälligem Verbrauch zwischen 20 und 40 m³
   - Die Wohnungsnummern zählen je Wirtschaftseinheit durch (01–16).
@@ -233,7 +235,8 @@ def create_re_address(street_number: int, country) -> object:
     return address
 
 
-def create_meter(parent, name: str, sequence: int, company, uom, admin_user) -> None:
+def create_meter(parent, name: str, sequence: int, company, uom, admin_user,
+                 kind=None) -> None:
     BaseObject = Model.get('real_estate.base_object')
     obj = BaseObject()
     obj.name = name
@@ -247,6 +250,8 @@ def create_meter(parent, name: str, sequence: int, company, uom, admin_user) -> 
     obj.meter_unit = uom
     obj.meter_factor = 1.0
     obj.meter_is_counter = True
+    if kind:
+        obj.equipment_kind = kind
     obj.save()
 
     meter_id = next_meter_id()
@@ -403,7 +408,7 @@ def create_building(house_nr: int, building_seq: int, prop, company,
                     apt_start_nr: int, uc_apartment,
                     retail_start_nr: int, uc_retail,
                     usable_space_type=None, smoke_kind=None,
-                    t_items=None) -> tuple:
+                    t_items=None, cold_water_kind=None) -> tuple:
     """Create one building with 1 retail space (EG) and 4 apartments (1.OG/2.OG).
     Returns (next_apt_nr, next_retail_nr)."""
     address = create_re_address(house_nr, country)
@@ -433,7 +438,8 @@ def create_building(house_nr: int, building_seq: int, prop, company,
     )
     create_measurement(retail, t_gwfl, 140.0)
     create_meter(retail, f'Wasser Zähler EH{retail_start_nr:02d}', sequence=10,
-                 company=company, uom=uom_m3, admin_user=admin_user)
+                 company=company, uom=uom_m3, admin_user=admin_user,
+                 kind=cold_water_kind)
 
     # 4 apartments on floors 1 and 2: (floor, side, rooms, area)
     apt_layout = [
@@ -462,7 +468,8 @@ def create_building(house_nr: int, building_seq: int, prop, company,
         # unheated - Heizfläche is therefore 3 m² smaller than Wohnfläche.
         create_measurement(apt, t_heiz, area - 3.0)
         create_meter(apt, f'Wasser Zähler {nr:02d}', sequence=10,
-                     company=company, uom=uom_m3, admin_user=admin_user)
+                     company=company, uom=uom_m3, admin_user=admin_user,
+                     kind=cold_water_kind)
         if smoke_kind and t_items:
             create_smoke_detector(apt, nr, rooms, company, smoke_kind,
                 t_items)
@@ -519,6 +526,11 @@ def main():
     if not smoke_kind:
         print('WARNUNG: Anlagenart "smoke_detector" nicht gefunden - '
             'keine Rauchwarnmelder.')
+    cold_water_kinds = Kind.find([('code', '=', 'cold_water_meter')])
+    cold_water_kind = cold_water_kinds[0] if cold_water_kinds else None
+    if not cold_water_kind:
+        print('WARNUNG: Anlagenart "cold_water_meter" nicht gefunden - '
+            'Wasserzähler ohne Anlagenart.')
 
     country_de = get_country('DE')
     if not country_de:
@@ -540,6 +552,7 @@ def main():
         uc_apartment=uc_apartment, uc_retail=uc_retail,
         usable_space_type=t_usable_space,
         smoke_kind=smoke_kind, t_items=t_items,
+        cold_water_kind=cold_water_kind,
     )
 
     # Wirtschaftseinheit 1: Musterstraße 1-4

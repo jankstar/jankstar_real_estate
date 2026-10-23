@@ -502,6 +502,18 @@ class ContractTermCashFlowContext(ModelView):
         return Pool().get('ir.date').today()
 
 
+def amount_sign_violated(sign, amount):
+    """True if the net amount of a term contradicts the amount sign of its
+    term type ('any', 'positive', 'negative') - 0 is always allowed."""
+    if not amount:
+        return False
+    if sign == 'positive':
+        return amount < 0
+    if sign == 'negative':
+        return amount > 0
+    return False
+
+
 #**********************************************************************
 class ContractTerm(sequence_ordered(), ModelSQL, ModelView, TaxableMixin):
     "Contract Term"
@@ -1445,12 +1457,30 @@ class ContractTerm(sequence_ordered(), ModelSQL, ModelView, TaxableMixin):
                         term.rec_name,
                         term.valid_from.isoformat(),
                         term.contract.get_effective_end_date().isoformat()))
+        if fields & {'unit_price', 'quantity', 'term_type'}:
+            cls._check_amount_sign(instances)
         # Interactive changes only - not for system recalculations
         # (re_calc() writing the measured quantity, cron, wizards), where a
         # warning would abort the whole run
         if (fields & {'quantity', 'term_type', 'reference_item'}
                 and not Transaction().context.get('_skip_re_calc')):
             cls._check_zero_measurement(instances)
+
+    @classmethod
+    def _check_amount_sign(cls, terms):
+        "Net amount must match the amount sign of the term type"
+        for term in terms:
+            if not term.term_type:
+                continue
+            sign = term.term_type.amount_sign or 'any'
+            amount = (Decimal(str(term.quantity or 0))
+                * (term.unit_price or Decimal(0)))
+            if amount_sign_violated(sign, amount):
+                raise ValidationError(gettext(
+                        'real_estate.msg_term_amount_sign_%s' % sign,
+                        term=term.rec_name,
+                        term_type=term.term_type.rec_name,
+                        amount=amount))
 
     @classmethod
     def _check_zero_measurement(cls, terms):
