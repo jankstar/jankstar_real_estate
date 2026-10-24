@@ -4,6 +4,10 @@
     <field name="property" colspan="3"/>
     <label name="state"/>
     <field name="state"/>
+    <label name="base_object"/>
+    <field name="base_object" colspan="3"/>
+    <label name="contract"/>
+    <field name="contract"/>
     <label name="date"/>
     <field name="date"/>
     <label name="account"/>

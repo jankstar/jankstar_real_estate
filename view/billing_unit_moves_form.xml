@@ -11,7 +11,7 @@
     <newline/>
     <label name="moves_actual_costs"/><field name="moves_actual_costs" colspan="4" readonly="1"/>
     <newline/>
-    <label name="moves_alloc_by_owner"/><field name="moves_alloc_by_owner" colspan="4" readonly="1"/>
+    <label name="moves_reclass"/><field name="moves_reclass" colspan="4" readonly="1"/>
     <newline/>
     <label name="invoice"/><field name="invoice" colspan="4" readonly="1"/>
     <newline/>

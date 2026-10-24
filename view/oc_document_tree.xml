@@ -2,6 +2,8 @@
 <tree>
     <field name="date"/>
     <field name="property" expand="1"/>
+    <field name="base_object" expand="1" optional="1"/>
+    <field name="contract" optional="1"/>
     <field name="party" expand="1"/>
     <field name="account"/>
     <field name="description" expand="1" optional="1"/>

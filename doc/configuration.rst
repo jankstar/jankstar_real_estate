@@ -64,15 +64,9 @@ The following master data must be set up before the module can be used:
    (``company.py``; optional — a company without a linked
    ``re_accounting`` record gets none of the automation below).
 
-   ``re_account_allocation_by_owner``
-      Vacancy account for the operating cost settlement - relief of the
-      billing unit / settlement unit (debit and credit side of vacancy
-      postings). Set by hand per company. To be removed with the new
-      operating cost relief (cost reclassification from the property to the
-      rental objects, owner postings no longer needed).
-
    ``re_journal_billing``
-      Journal used for direct GL postings in operating cost settlements.
+      Journal of the cost reclassification moves of the operating cost
+      settlement (property to rental objects).
 
    ``re_payment_term_billing``
       Default payment term for operating cost settlement invoices, used

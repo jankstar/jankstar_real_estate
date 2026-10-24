@@ -1195,10 +1195,14 @@ class SettlementUnit(DeactivableMixin, base_object.re_sequence_ordered(), ModelS
         actual_costs_gross / actual_costs_net - assignments with target
         contract go directly into the settlement result of the contract."""
         Line = Pool().get('real_estate.oc_document.line')
+        # without the documents booked on a rental object: their costs go
+        # to the results of this rental object only (E32, direct costs)
         lines = Line.search([
             ('settlement_unit', '=', self.id),
             ('target', '=', 'settlement_unit'),
             ('document.state', '=', 'confirmed'),
+            ['OR', ('document.base_object', '=', None),
+                ('document.base_object.type', '!=', 'object')],
         ])
         self.actual_costs_gross = sum(
             (l.amount_gross or Decimal(0) for l in lines), Decimal(0))

@@ -30,6 +30,19 @@ Sub-topics on separate pages:
    property (owner, not allocated), percent, net/gross, service period,
    § 35a EStG with labor share, BVED fuel type/quantity, proposal source.
 
+   Booked object: an operating cost posting is booked on the property
+   (normal case: assigned to a settlement unit, distributed, reclassified
+   to the rental objects by the billing) or directly on a rental object,
+   optionally with its contract (cost of this rental object, its option
+   rate applies from the start, no reclassification). The document keeps
+   ``base_object`` and ``contract``; a document booked on a rental object
+   can only be assigned to this rental object - with contract to this
+   contract, without contract to a settlement unit, then distributed by
+   days over the settlement results of this rental object (tenants and
+   vacancy). A posting on another level (building, land, equipment) gives
+   a confirmable hint and creates no document - it takes no part in the
+   settlement.
+
    The settlement unit (bottom of the form) and the billing unit (tab
    *Operating Cost Assignments*) list the assignment lines of their
    settlement units (``oc_lines``, list ``oc_document_line_list_assignment``:
@@ -225,25 +238,36 @@ Sub-topics on separate pages:
    Timestamped log entries attached to a billing unit.
 
 ``real_estate.billing_unit.moves``  (``billing_unit.py``)
-   One record per invoice line created by ``billing()`` — a separate
-   record for the advance-payment dissolution line and for the
-   actual-costs line of the same settlement result (not combined into one
-   record). Links the billing unit to the contract, settlement result,
-   and the individual posting record:
+   One record per posting created by ``billing()`` — a separate record for
+   the advance-payment dissolution line, for the actual-costs line of the
+   same settlement result and for its cost reclassification move. Links
+   the billing unit to the contract, settlement result, and the individual
+   posting record:
 
    - ``moves_advanced_payment`` — ``account.invoice.line`` that reverses
      the operating-cost advance (credit note line)
    - ``moves_actual_costs`` — ``account.invoice.line`` for the actual costs
-   - ``moves_alloc_by_owner`` — ``account.move.line`` for the owner
-     allocation journal entry
+     (contract and rental object, no billing unit; net + tax for a contract
+     with taxes, else gross; account of the contract type, e.g. 6010)
+   - ``moves_reclass`` — ``account.move`` of the **cost reclassification**
+     from the property to the rental object of the result: one move per
+     settlement result (rented, vacant or flat rate), journal
+     ``re_journal_billing``, date = invoice date of the billing, origin =
+     the billing unit, lines with assignment control *Operating Cost
+     Reclassification* (no new operating cost documents). The confirmed
+     assignments are grouped by account and taxes of the original invoice
+     and split in proportion to the cost shares (``oc_reclass.py``,
+     ``distribute_groups()``); per group the cost account is credited at
+     the property with its option rate and debited at the rental object
+     with its option rate (0 % / 100 %), each with net + tax lines
+     (``reclass_amounts()``). Costs without allocation stay at the property.
 
    Function fields ``amount``, ``currency``, and ``invoice`` are derived
    from whichever of ``moves_advanced_payment`` / ``moves_actual_costs`` is
-   set, for quick display in the tree view without opening the invoice line.
-   For vacancy records (no ``contract``, but ``moves_alloc_by_owner`` set),
-   ``amount`` is instead computed as ``debit - credit`` of that
-   ``account.move.line``, ``currency`` from its own ``currency`` field, and
-   ``invoice`` stays empty (move lines have no invoice reference).
+   set; for a reclassification ``amount`` is the amount charged to the
+   rental object. *Cancel Billing* (per billing run id) credits the invoices
+   and cancels the reclassification moves together. There is no owner
+   posting for vacancy or flat rate any more.
 
    ``billing_run_id`` ties all moves of one billing run together
    (same value as on the parent ``BillingUnit``).

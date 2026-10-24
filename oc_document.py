@@ -6,6 +6,7 @@ from decimal import ROUND_HALF_UP, Decimal
 
 from dateutil.relativedelta import relativedelta
 
+from trytond.exceptions import UserWarning
 from trytond.i18n import gettext
 from trytond.model import (
     ModelSQL, ModelView, Unique, Workflow, dualmethod, fields,
@@ -147,15 +148,49 @@ class CostTypeAccount(ModelSQL, CompanyValueMixin):
         domain=[('company', '=', Eval('company', -1))])
 
 
+def _other_level(line):
+    """True for a move line on another object than a property or a rental
+    object (building, land, equipment ...) - no operating cost document
+    (E33)"""
+    obj = getattr(line, 'base_object', None)
+    return bool(obj and obj.type not in ('property', 'object'))
+
+
+class OcOtherLevelWarning(UserWarning):
+    pass
+
+
 #**********************************************************************
 class Move(metaclass=PoolMeta):
     __name__ = 'account.move'
 
+    @classmethod
+    def _get_origin(cls):
+        # cost reclassification moves of the operating cost settlement
+        return super()._get_origin() + ['real_estate.billing_unit']
+
     @dualmethod
     @ModelView.button
     def post(cls, moves):
+        pool = Pool()
+        CostType = pool.get('real_estate.cost_type')
+        Warning = pool.get('res.user.warning')
+        # operating cost line on another level than property / rental
+        # object: no part of the settlement (E33) - only a hint
+        with without_check_access(), Transaction().set_context(
+                active_test=False):
+            account_ids = CostType.oc_account_ids()
+        other = [l for m in cls.browse(moves) for l in m.lines
+            if l.account.id in account_ids and _other_level(l)]
+        if other:
+            key = Warning.format('oc_other_level', other)
+            if Warning.check(key):
+                raise OcOtherLevelWarning(key, gettext(
+                        'real_estate.msg_oc_other_level_warning',
+                        objects=', '.join(sorted({
+                                    l.base_object.rec_name for l in other}))))
         super().post(moves)
-        Document = Pool().get('real_estate.oc_document')
+        Document = pool.get('real_estate.oc_document')
         # the posting user needs no access to the operating cost documents
         with without_check_access():
             Document.create_for_lines(
@@ -177,6 +212,15 @@ class OcDocument(Workflow, ModelSQL, ModelView):
         readonly=True, domain=[('type', '=', 'property')],
         help="Empty: the posting has no property - it can only be assigned "
              "after a correction posting with property.")
+    base_object = fields.Many2One('real_estate.base_object', "Booked Object",
+        readonly=True,
+        help="Object of the posting: the property (normal case, distributed "
+             "by a settlement unit) or a rental object (cost of this rental "
+             "object, not distributed - E31).")
+    contract = fields.Many2One('real_estate.contract', "Contract",
+        readonly=True,
+        help="Contract of the posting on a rental object - the cost goes "
+             "to this contract (E32).")
     date = fields.Date("Date", readonly=True)
     account = fields.Many2One('account.account', "Account", readonly=True)
     party = fields.Many2One('party.party', "Supplier", readonly=True)
@@ -357,6 +401,10 @@ class OcDocument(Workflow, ModelSQL, ModelView):
         obj = getattr(line, 'base_object', None)
         prop = _property_of(obj) if obj else None
         values['property'] = prop.id if prop else None
+        values['base_object'] = obj.id if obj else None
+        contract = getattr(line, 'contract', None)
+        values['contract'] = (contract.id
+            if contract and obj and obj.type == 'object' else None)
         origin = line.origin
         if isinstance(origin, InvoiceLine) and origin.invoice:
             values['invoice_line'] = origin.id
@@ -386,14 +434,18 @@ class OcDocument(Workflow, ModelSQL, ModelView):
         documents created."""
         pool = Pool()
         CostType = pool.get('real_estate.cost_type')
+        # without the cost reclassification of the settlement (and its
+        # cancellation): it is no new cost
         lines = [l for l in lines
             if l.move.state == 'posted'
-            and l.move.period and l.move.period.type == 'standard']
+            and l.move.period and l.move.period.type == 'standard'
+            and getattr(l, 'assignment_control', None) != 'oc_reclass']
         if not lines:
             return []
         with Transaction().set_context(active_test=False):
             account_ids = CostType.oc_account_ids()
-        lines = [l for l in lines if l.account.id in account_ids]
+        lines = [l for l in lines if l.account.id in account_ids
+            and not _other_level(l)]
         if not lines:
             return []
         existing = {d.move_line.id for d in cls.search([
@@ -572,28 +624,75 @@ class OcDocument(Workflow, ModelSQL, ModelView):
                 [settlement_unit.type.id]) if self._covers(su, date)]
         return candidates[0] if len(candidates) == 1 else None
 
+    def object_booked(self):
+        "The rental object the document is booked on (E31), else None"
+        obj = self.base_object
+        return obj if obj and obj.type == 'object' else None
+
     def _proposal(self):
         "Values of the proposed lines (stages 1-4 of the specification)"
         date = self.date
+        obj = self.object_booked()
         # 1. account unique: one cost type with one settlement unit
         cost_type_ids = self._account_cost_type_ids()
+        su = None
         if len(cost_type_ids) == 1:
             sus = [su for su in self._open_settlement_units(cost_type_ids)
                 if self._covers(su, date)]
             if len(sus) == 1:
-                return self._lines_values([{
-                            'target': 'settlement_unit',
-                            'settlement_unit': sus[0].id,
-                            'percent': Decimal(100),
-                            'proposal_source': gettext(
-                                'real_estate.msg_oc_proposal_account'),
-                            }])
+                su = sus[0]
+        # booked on a rental object with contract: to this contract (E32)
+        if obj and self.contract and su:
+            return self._lines_values([{
+                        'target': 'contract',
+                        'contract': self.contract.id,
+                        'base_object': obj.id,
+                        'settlement_unit': su.id,
+                        'percent': Decimal(100),
+                        'proposal_source': gettext(
+                            'real_estate.msg_oc_proposal_object_contract',
+                            object=obj.rec_name),
+                        }])
+        if su:
+            return self._lines_values([{
+                        'target': 'settlement_unit',
+                        'settlement_unit': su.id,
+                        'percent': Decimal(100),
+                        'proposal_source': gettext(
+                            'real_estate.msg_oc_proposal_object'
+                            if obj else 'real_estate.msg_oc_proposal_account',
+                            object=obj.rec_name if obj else ''),
+                        }])
         # 2. as last time for this property, 3. as for another property
         for doc in self.get_history_documents():
             values = self._values_from(doc)
             if values:
-                return values
+                if obj:
+                    values = self._to_object(values, obj)
+                if values:
+                    return values
         return []
+
+    def _to_object(self, values, obj):
+        """Proposed lines of a document booked on a rental object (E32):
+        the settlement units of the history, target this contract or (without
+        contract) the settlement unit for this rental object only"""
+        result = []
+        for value in values:
+            if not value.get('settlement_unit'):
+                continue
+            value = dict(value)
+            if self.contract:
+                value.update({
+                        'target': 'contract',
+                        'contract': self.contract.id,
+                        'base_object': obj.id,
+                        })
+            else:
+                value.update({'target': 'settlement_unit',
+                        'contract': None, 'base_object': None})
+            result.append(value)
+        return result
 
     def get_history_documents(self):
         return self.browse(self.get_history(None))
@@ -918,6 +1017,25 @@ class OcDocumentLine(sequence_ordered(), ModelSQL, ModelView):
             raise AccessError(gettext('real_estate.msg_oc_line_locked',
                     billing_unit=su.billing_unit.rec_name))
 
+    def check_object_booked(self):
+        """E32: a document booked on a rental object is assigned only to
+        this rental object (settlement unit: distributed over its occupancy
+        periods) or to a contract of it - not to the owner"""
+        doc = self.document
+        obj = doc.object_booked()
+        if not obj:
+            return
+        contract_ok = (self.target != 'contract' or (
+                self.contract
+                and (not doc.contract or self.contract == doc.contract)
+                and obj in [o for item in self.contract.items
+                    for o in item.objects]
+                and (not self.base_object or self.base_object == obj)))
+        if self.target == 'property' or not contract_ok:
+            raise ValidationError(gettext(
+                    'real_estate.msg_oc_line_object_booked',
+                    document=doc.rec_name, object=obj.rec_name))
+
     def check_complete(self):
         "Z02: target complete and settlement unit of the property/account"
         if self.target != 'property' and not self.settlement_unit:
@@ -933,6 +1051,8 @@ class OcDocumentLine(sequence_ordered(), ModelSQL, ModelView):
     def validate(cls, lines):
         super().validate(lines)
         CostType = Pool().get('real_estate.cost_type')
+        for line in lines:
+            line.check_object_booked()
         for line in lines:
             su = line.settlement_unit
             if not su:
