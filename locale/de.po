@@ -12357,7 +12357,7 @@ msgstr "Nur angespannter Wohnungsmarkt"
 
 msgctxt "help:real_estate.index_cap_rule,tight_market_only:"
 msgid "Only for properties in a tight housing market area."
-msgstr "Nur für Liegenschaften in Gebieten mit angespanntem Wohnungsmarkt."
+msgstr "Nur für Wirtschaftseinheiten in Gebieten mit angespanntem Wohnungsmarkt."
 
 msgctxt "field:real_estate.index_cap_rule,comment:"
 msgid "Comment"
@@ -13310,7 +13310,7 @@ msgstr "Priorität"
 
 msgctxt "field:real_estate.task,property:"
 msgid "Property"
-msgstr "Liegenschaft"
+msgstr "Wirtschaftseinheit"
 
 msgctxt "field:real_estate.task,recurrence_months:"
 msgid "Recurrence (Months)"
@@ -13442,7 +13442,7 @@ msgstr "Regel oder Prozess - leer = manuell."
 
 msgctxt "help:real_estate.task,property:"
 msgid "Property of the reference (derived)."
-msgstr "Liegenschaft des Bezugs (abgeleitet)."
+msgstr "Wirtschaftseinheit des Bezugs (abgeleitet)."
 
 msgctxt "help:real_estate.task,recurrence_months:"
 msgid "When done, a new task is created this many months later."
@@ -13888,7 +13888,7 @@ msgstr "Geplante Aufgabe nicht gelaufen"
 
 msgctxt "field:real_estate.base_object,property_tasks:"
 msgid "Tasks of the Property"
-msgstr "Aufgaben der Liegenschaft"
+msgstr "Aufgaben der Wirtschaftseinheit"
 
 msgctxt "field:real_estate.task,automatic:"
 msgid "Automatic"
@@ -14343,7 +14343,7 @@ msgstr "Fortschritt"
 
 msgctxt "field:real_estate.process,property:"
 msgid "Property"
-msgstr "Liegenschaft"
+msgstr "Wirtschaftseinheit"
 
 msgctxt "field:real_estate.process,resource:"
 msgid "Reference"
@@ -14973,7 +14973,7 @@ msgstr "Weitere Teilnehmer"
 
 msgctxt "field:real_estate.contract.handover,property:"
 msgid "Property"
-msgstr "Liegenschaft"
+msgstr "Wirtschaftseinheit"
 
 msgctxt "field:real_estate.contract.handover,signed_document:"
 msgid "Signed Report"
@@ -26631,3 +26631,191 @@ msgstr "Verteilt auf die Mietobjekte mit Optionssatz 0 %."
 msgctxt "help:real_estate.settlement_unit,planned_costs_net:"
 msgid "Distributed to the rental objects with option rate 100 %."
 msgstr "Verteilt auf die Mietobjekte mit Optionssatz 100 %."
+
+msgctxt "model:real_estate.process.template,name:process_template_year_end_closing"
+msgid "Year-End Closing"
+msgstr "Jahresabschluss"
+
+msgctxt "model:real_estate.process.template,description:process_template_year_end_closing"
+msgid "Year-end closing of the fiscal year of a company - started manually on the fiscal year (Accounting › Configuration › Fiscal Years, action Start Process). The due dates are counted from the end of the fiscal year."
+msgstr "Jahresabschluss des Geschäftsjahres einer Gesellschaft - manuell am Geschäftsjahr gestartet (Rechnungswesen › Konfiguration › Geschäftsjahre, Aktion Prozess starten). Die Fälligkeiten zählen ab dem Ende des Geschäftsjahres."
+
+msgctxt "model:real_estate.process.template.step,name:process_template_year_end_closing_next_year"
+msgid "Create the following fiscal year"
+msgstr "Folgegeschäftsjahr anlegen"
+
+msgctxt "model:real_estate.process.template.step,description:process_template_year_end_closing_next_year"
+msgid "Accounting › Configuration › Fiscal Years › Renew Fiscal Year: previous fiscal year = this one, name and dates of the following year, check 'Reset Sequences'. Then rename the copied sequences and their prefixes for the new year (e.g. 2025/1 → 26/1, prefix 251 → 261). The following year is needed for the postings of the new year and for the operating cost settlement of this year. Done as soon as the following fiscal year exists."
+msgstr "Rechnungswesen › Konfiguration › Geschäftsjahre › Jahresübernahme: Vorjahr = dieses Geschäftsjahr, Name und Daten des Folgejahres, Häkchen „Nummernkreise zurücksetzen“. Danach die kopierten Nummernkreise und ihre Präfixe für das neue Jahr umbenennen (z. B. 2025/1 → 26/1, Präfix 251 → 261). Das Folgejahr wird für die Buchungen des neuen Jahres und für die Betriebskostenabrechnung dieses Jahres gebraucht. Erledigt, sobald das Folgegeschäftsjahr vorhanden ist."
+
+msgctxt "model:real_estate.process.template.step,name:process_template_year_end_closing_contract_moves"
+msgid "Post the periodic contract postings up to the year end"
+msgstr "Periodische Buchung bis zum Jahresende"
+
+msgctxt "model:real_estate.process.template.step,description:process_template_year_end_closing_contract_moves"
+msgid "Contracts › Periodic Posting: posting date = last day of the fiscal year, invoice date within the fiscal year (the wizard proposes the current month and today - change both; invoice dates ascending). Check the contract log for errors. Done as soon as no draft cash flow line with a document date up to the end of the fiscal year is left on a running or terminated contract."
+msgstr "Verträge › Periodische Buchung: Buchungsdatum = letzter Tag des Geschäftsjahres, Rechnungsdatum im Geschäftsjahr (der Assistent schlägt den aktuellen Monat und heute vor - beides ändern; Rechnungsdaten aufsteigend). Das Vertragsprotokoll auf Fehler prüfen. Erledigt, sobald an keinem laufenden oder gekündigten Vertrag mehr eine Finanzstromzeile im Entwurf mit Belegdatum bis zum Ende des Geschäftsjahres steht."
+
+msgctxt "model:real_estate.process.template.step,name:process_template_year_end_closing_drafts"
+msgid "Clear draft invoices and moves"
+msgstr "Rechnungen und Buchungen im Entwurf bereinigen"
+
+msgctxt "model:real_estate.process.template.step,description:process_template_year_end_closing_drafts"
+msgid "Post or delete all invoices in state draft or validated and all draft moves of the fiscal year - periods with draft moves cannot be closed. Done as soon as there are none."
+msgstr "Alle Rechnungen im Status Entwurf oder Geprüft und alle Buchungen im Entwurf des Geschäftsjahres festschreiben oder löschen - Perioden mit Buchungen im Entwurf lassen sich nicht abschließen. Erledigt, sobald keine mehr vorhanden sind."
+
+msgctxt "model:real_estate.process.template.step,name:process_template_year_end_closing_oc_documents"
+msgid "Confirm the operating cost documents of the year"
+msgstr "Betriebskostenbelege des Jahres bestätigen"
+
+msgctxt "model:real_estate.process.template.step,description:process_template_year_end_closing_oc_documents"
+msgid "Operating Costs › Assign Operating Costs: assign every open or proposed document of the fiscal year to a settlement unit, contract or the owner and confirm it - the actual costs of the settlement units come from the confirmed documents only. Done as soon as all documents of the year are confirmed."
+msgstr "Betriebskosten › Betriebskosten zuordnen: jeden offenen oder vorgeschlagenen Beleg des Geschäftsjahres einem Kostensammler, Vertrag oder dem Eigentümer zuordnen und bestätigen - die Ist-Kosten der Kostensammler kommen nur aus bestätigten Belegen. Erledigt, sobald alle Belege des Jahres bestätigt sind."
+
+msgctxt "model:real_estate.process.template.step,name:process_template_year_end_closing_reconcile"
+msgid "Reconcile the open items"
+msgstr "Offene Posten abstimmen"
+
+msgctxt "model:real_estate.process.template.step,description:process_template_year_end_closing_reconcile"
+msgid "Accounting › Processing › Reconcile Accounts: reconcile payments and invoices per party. Check the open receivables and payables at the year end with the aged balance (rent arrears, doubtful receivables)."
+msgstr "Rechnungswesen › Abschlussarbeiten › Konten abstimmen: Zahlungen und Rechnungen je Partei ausgleichen. Die offenen Forderungen und Verbindlichkeiten zum Jahresende mit der Fälligkeitsliste prüfen (Mietrückstände, zweifelhafte Forderungen)."
+
+msgctxt "model:real_estate.process.template.step,name:process_template_year_end_closing_depreciation"
+msgid "Post the depreciation"
+msgstr "Abschreibungen buchen"
+
+msgctxt "model:real_estate.process.template.step,description:process_template_year_end_closing_depreciation"
+msgid "Only if fixed assets are managed: Assets › Create Assets Moves with the last day of the fiscal year."
+msgstr "Nur wenn Anlagen geführt werden: Anlagen › Abschreibungsbuchungssätze erstellen mit dem letzten Tag des Geschäftsjahres."
+
+msgctxt "model:real_estate.process.template.step,name:process_template_year_end_closing_closing_entries"
+msgid "Post the closing entries"
+msgstr "Abschlussbuchungen erfassen"
+
+msgctxt "model:real_estate.process.template.step,description:process_template_year_end_closing_closing_entries"
+msgid "Manual moves dated on the last day of the fiscal year: operating costs of the year not settled yet - debit 1500 'Noch nicht abgerechnete Betriebskosten' / credit 6460 'Bestandserhöhungen bei noch nicht abgerechneten Betriebskosten' with the allocable actual costs of the settlement units (the advance payments of the tenants are already on 4310); reconcile the deposit account 4391 with the deposit bank accounts; valuation allowances on doubtful rent receivables; provisions (e.g. closing and audit costs); accruals and deferrals. Enter the amounts posted as result."
+msgstr "Manuelle Buchungen zum letzten Tag des Geschäftsjahres: noch nicht abgerechnete Betriebskosten des Jahres - Soll 1500 „Noch nicht abgerechnete Betriebskosten“ an Haben 6460 „Bestandserhöhungen bei noch nicht abgerechneten Betriebskosten“ mit den umlagefähigen Ist-Kosten der Kostensammler (die Vorauszahlungen der Mieter stehen schon auf 4310); Kautionskonto 4391 mit den Kautionskonten abstimmen; Wertberichtigungen auf zweifelhafte Mietforderungen; Rückstellungen (z. B. Abschluss- und Prüfungskosten); Rechnungsabgrenzungen. Die gebuchten Beträge als Ergebnis eintragen."
+
+msgctxt "model:real_estate.process.template.step,name:process_template_year_end_closing_tax"
+msgid "VAT return December and annual figures"
+msgstr "Umsatzsteuer Dezember und Jahreswerte"
+
+msgctxt "model:real_estate.process.template.step,description:process_template_year_end_closing_tax"
+msgid "Accounting › Reporting › Tax Codes for December and for the whole fiscal year: VAT return December and the figures of the annual VAT return."
+msgstr "Rechnungswesen › Auswertungen › Steuerkennziffern für Dezember und für das ganze Geschäftsjahr: Umsatzsteuer-Voranmeldung Dezember und Werte der Umsatzsteuer-Jahreserklärung."
+
+msgctxt "model:real_estate.process.template.step,name:process_template_year_end_closing_reports"
+msgid "Check the trial balance, income statement and balance sheet"
+msgstr "Saldenliste, GuV und Bilanz prüfen"
+
+msgctxt "model:real_estate.process.template.step,description:process_template_year_end_closing_reports"
+msgid "Accounting › Reporting: General Ledger (trial balance) for the fiscal year, Income Statement for the fiscal year, Balance Sheet on the last day of the fiscal year (the date defaults to today - change it). Assets minus liabilities must equal the result of the income statement. Enter the result as result."
+msgstr "Rechnungswesen › Auswertungen: Kontenblätter (Saldenliste) für das Geschäftsjahr, Gewinn- und Verlustrechnung für das Geschäftsjahr, Bilanz zum letzten Tag des Geschäftsjahres (das Datum steht anfangs auf heute - ändern). Aktiva minus Passiva muss dem Ergebnis der GuV entsprechen. Das Ergebnis als Ergebnis eintragen."
+
+msgctxt "model:real_estate.process.template.step,name:process_template_year_end_closing_prepare"
+msgid "Create the adjustment period and the closing journal"
+msgstr "Berichtigungsperiode und Abschlussjournal anlegen"
+
+msgctxt "model:real_estate.process.template.step,description:process_template_year_end_closing_prepare"
+msgid "Accounting › Configuration › Journals: a journal of type 'Situation' (German 'Saldenvortrag'), e.g. 'Year-End Closing' - once, reused every year. Fiscal year › tab Periods: a period of type 'Adjustment' (German 'Berichtigung') with start and end on the last day of the fiscal year, e.g. 'Closing 2025'. Done as soon as both exist."
+msgstr "Rechnungswesen › Konfiguration › Journale: ein Journal vom Typ „Saldenvortrag“, z. B. „Jahresabschluss“ - einmalig, jedes Jahr wiederverwendbar. Geschäftsjahr › Reiter Perioden: eine Periode vom Typ „Berichtigung“ mit Beginn und Ende am letzten Tag des Geschäftsjahres, z. B. „Abschluss 2025“. Erledigt, sobald beides vorhanden ist."
+
+msgctxt "model:real_estate.process.template.step,name:process_template_year_end_closing_income"
+msgid "Balance the income statement accounts"
+msgstr "Erfolgskonten abschließen"
+
+msgctxt "model:real_estate.process.template.step,description:process_template_year_end_closing_income"
+msgid "Accounting › Processing › Balance Non-Deferral Accounts: this fiscal year, the closing journal, the adjustment period, credit and debit account 3410 'Jahresüberschuss/Jahresfehlbetrag'. Post the created move. Only when all postings of the year are done - later corrections require a new run. Done as soon as all income statement accounts are balanced."
+msgstr "Rechnungswesen › Abschlussarbeiten › Erfolgskonten abschließen: dieses Geschäftsjahr, das Abschlussjournal, die Berichtigungsperiode, Haben- und Sollkonto 3410 „Jahresüberschuss/Jahresfehlbetrag“. Den erzeugten Buchungssatz festschreiben. Erst wenn alle Buchungen des Jahres erfasst sind - spätere Korrekturen erfordern einen neuen Lauf. Erledigt, sobald alle Erfolgskonten ausgeglichen sind."
+
+msgctxt "model:real_estate.process.template.step,name:process_template_year_end_closing_periods"
+msgid "Close the periods"
+msgstr "Buchungszeiträume abschließen"
+
+msgctxt "model:real_estate.process.template.step,description:process_template_year_end_closing_periods"
+msgid "Accounting › Processing › Close Periods: all periods of the fiscal year including the adjustment period. No draft moves may remain. Closing the fiscal year closes them as well. Done as soon as all periods are closed."
+msgstr "Rechnungswesen › Abschlussarbeiten › Buchungszeiträume abschließen: alle Perioden des Geschäftsjahres einschließlich der Berichtigungsperiode. Es dürfen keine Buchungen im Entwurf mehr vorhanden sein. Der Abschluss des Geschäftsjahres schließt sie ebenfalls. Erledigt, sobald alle Perioden geschlossen sind."
+
+msgctxt "model:real_estate.process.template.step,name:process_template_year_end_closing_close"
+msgid "Close the fiscal year"
+msgstr "Geschäftsjahr abschließen"
+
+msgctxt "model:real_estate.process.template.step,description:process_template_year_end_closing_close"
+msgid "Accounting › Processing › Close Fiscal Years: the end balances of the balance sheet accounts become the opening balances of the following year (no opening move needed). Fails if an income statement account still has a balance - balance them first. Earlier fiscal years must be closed. Can be reopened as long as the following year is open. Done as soon as the fiscal year is closed."
+msgstr "Rechnungswesen › Abschlussarbeiten › Geschäftsjahre abschließen: die Endsalden der Bilanzkonten werden die Anfangsbestände des Folgejahres (keine Eröffnungsbuchung nötig). Schlägt fehl, wenn ein Erfolgskonto noch einen Saldo hat - dann zuerst die Erfolgskonten abschließen. Frühere Geschäftsjahre müssen geschlossen sein. Kann wiedereröffnet werden, solange das Folgejahr offen ist. Erledigt, sobald das Geschäftsjahr geschlossen ist."
+
+msgctxt "model:real_estate.process.template.step,name:process_template_year_end_closing_appropriation"
+msgid "Appropriate the result"
+msgstr "Ergebnisverwendung buchen"
+
+msgctxt "model:real_estate.process.template.step,description:process_template_year_end_closing_appropriation"
+msgid "After the resolution: move in the following year from 3410 'Jahresüberschuss/Jahresfehlbetrag' to 3400 'Gewinnvortrag/Verlustvortrag' resp. 3340 'Andere Gewinnrücklagen'. Enter the resolution as result."
+msgstr "Nach dem Beschluss: Buchung im Folgejahr von 3410 „Jahresüberschuss/Jahresfehlbetrag“ auf 3400 „Gewinnvortrag/Verlustvortrag“ bzw. 3340 „Andere Gewinnrücklagen“. Den Beschluss als Ergebnis eintragen."
+
+msgctxt "field:account.fiscalyear,processes_open:"
+msgid "Processes"
+msgstr "Prozesse"
+
+msgctxt "field:account.fiscalyear,processes_history:"
+msgid "Processes"
+msgstr "Prozesse"
+
+msgctxt "view:account.fiscalyear:"
+msgid "Processes"
+msgstr "Prozesse"
+
+msgctxt "view:account.fiscalyear:"
+msgid "Open"
+msgstr "Offen"
+
+msgctxt "view:account.fiscalyear:"
+msgid "History"
+msgstr "Historie"
+
+msgctxt "field:real_estate.settlement_unit,oc_lines:"
+msgid "Operating Cost Assignments"
+msgstr "Betriebskostenzuordnungen"
+
+msgctxt "field:real_estate.billing_unit,oc_lines:"
+msgid "Operating Cost Assignments"
+msgstr "Betriebskostenzuordnungen"
+
+msgctxt "help:real_estate.settlement_unit,oc_lines:"
+msgid "Assignment lines of the operating cost documents to this settlement unit (Assign Operating Costs) - the confirmed ones make up the actual costs."
+msgstr "Zuordnungszeilen der Betriebskostenbelege zu diesem Kostensammler (Betriebskosten zuordnen) - die bestätigten ergeben die Ist-Kosten."
+
+msgctxt "help:real_estate.billing_unit,oc_lines:"
+msgid "Assignment lines of the operating cost documents to the settlement units of this billing unit (target settlement unit or contract)."
+msgstr "Zuordnungszeilen der Betriebskostenbelege zu den Kostensammlern dieser Abrechnungseinheit (Ziel Kostensammler oder Vertrag)."
+
+msgctxt "view:real_estate.billing_unit:"
+msgid "Operating Cost Assignments"
+msgstr "Betriebskostenzuordnungen"
+
+msgctxt "field:real_estate.oc_document.line,document_date:"
+msgid "Document Date"
+msgstr "Belegdatum"
+
+msgctxt "field:real_estate.oc_document.line,document_party:"
+msgid "Supplier"
+msgstr "Lieferant"
+
+msgctxt "field:real_estate.oc_document.line,document_invoice:"
+msgid "Invoice"
+msgstr "Rechnung"
+
+msgctxt "field:real_estate.oc_document.line,document_state:"
+msgid "Document State"
+msgstr "Belegstatus"
+
+msgctxt "selection:real_estate.oc_document.line,document_state:"
+msgid "Open"
+msgstr "Offen"
+
+msgctxt "selection:real_estate.oc_document.line,document_state:"
+msgid "Proposed"
+msgstr "Vorgeschlagen"
+
+msgctxt "selection:real_estate.oc_document.line,document_state:"
+msgid "Confirmed"
+msgstr "Bestätigt"

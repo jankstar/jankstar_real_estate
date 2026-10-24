@@ -306,7 +306,17 @@ Processes
    securing, inspection and repairs - both with role *Caretaker* -, new
    rent, advertisement, viewings and tenant selection, new lease contract;
    started with *Start Process* on the rental object; plus the optional
-   step *Plan a modernisation* (``modernisation.xml``)).
+   step *Plan a modernisation* (``modernisation.xml``)), and *Year-End
+   Closing* on a fiscal year (``fiscalyear_closing.xml``, 14 steps for
+   the group *Accounting*, due dates from the end of the fiscal year:
+   following fiscal year, periodic contract posting, drafts, operating
+   cost documents, reconciliation, depreciation, closing entries, VAT,
+   reports, adjustment period and *Situation* journal, balance
+   non-deferral accounts, close periods, close fiscal year, result
+   appropriation; the checks ``fiscalyear_*`` in
+   ``fiscalyear_closing.py`` complete eight of them; started with *Start
+   Process* on the fiscal year, tab *Processes* there - one closing per
+   company and fiscal year).
    Every default step has a work instruction (translatable, German in
    ``locale/de.po``); it is copied into the task in the language of the
    user creating it, so existing tasks keep their text.

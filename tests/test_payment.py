@@ -22,15 +22,21 @@ der Wizard "CreateContractMoves" muss mindestens einmal gelaufen sein, sodass
 gebuchte (posted) Ausgangsrechnungen für die Testpartner vorhanden sind.
 
 Voraussetzung Verbindlichkeiten: test_kreditor.py und test_invoices.py müssen
-ausgeführt worden sein; die von test_invoices.py angelegten Rechnungen bleiben
-im Status "draft" und müssen vor diesem Skript manuell gebucht (posted)
-werden, sonst existieren keine offenen Verbindlichkeitszeilen.
+ausgeführt worden sein (test_invoices.py bucht die Lieferantenrechnungen).
+
+Mit --year <Jahr> [--month <1-12>] werden nur offene Posten mit Buchungsdatum
+in diesem Jahr bzw. Monat bezahlt und ausgeglichen (Zahlungsdatum = spätestes
+Datum dieser Posten) - für einen monatlichen Ablauf zusammen mit der
+periodischen Buchung der Verträge und test_invoices.py --month. Ohne
+Parameter alle offenen Posten.
 
 Verwendung:
-    python tests/test_payment.py --database <Datenbankname> [--config <trytond.conf>]
+    python tests/test_payment.py --database <Datenbankname> [--config <trytond.conf>] [--year <Jahr> [--month <Monat>]]
 """
 
 import argparse
+import calendar
+import datetime
 import sys
 from decimal import Decimal
 
@@ -112,31 +118,52 @@ def get_test_parties():
     return parties
 
 
-def get_open_receivable_lines(party):
-    """Find all unreconciled posted receivable lines for a party."""
+def date_range(year, month):
+    """(first day, last day) of the month resp. year, (None, None) without
+    year - all dates"""
+    if not year:
+        return None, None
+    if not month:
+        return datetime.date(year, 1, 1), datetime.date(year, 12, 31)
+    last = calendar.monthrange(year, month)[1]
+    return datetime.date(year, month, 1), datetime.date(year, month, last)
+
+
+def date_domain(period):
+    """Domain on the move line date for the (from, to) period"""
+    from_date, to_date = period
+    if not from_date:
+        return []
+    return [('date', '>=', from_date), ('date', '<=', to_date)]
+
+
+def get_open_receivable_lines(party, period=(None, None)):
+    """Find all unreconciled posted receivable lines for a party (dated in
+    the period, if given)."""
     MoveLine = Model.get('account.move.line')
     return MoveLine.find([
         ('party', '=', party.id),
         ('account.type.receivable', '=', True),
         ('reconciliation', '=', None),
         ('move.state', '=', 'posted'),
-    ])
+    ] + date_domain(period))
 
 
-def get_open_payable_lines(party):
-    """Find all unreconciled posted payable lines for a party."""
+def get_open_payable_lines(party, period=(None, None)):
+    """Find all unreconciled posted payable lines for a party (dated in the
+    period, if given)."""
     MoveLine = Model.get('account.move.line')
     return MoveLine.find([
         ('party', '=', party.id),
         ('account.type.payable', '=', True),
         ('reconciliation', '=', None),
         ('move.state', '=', 'posted'),
-    ])
+    ] + date_domain(period))
 
 
-def get_creditor_parties():
+def get_creditor_parties(period=(None, None)):
     """All parties that currently have at least one open (unreconciled,
-    posted) payable move line."""
+    posted) payable move line (dated in the period, if given)."""
     MoveLine = Model.get('account.move.line')
     Party = Model.get('party.party')
     lines = MoveLine.find([
@@ -144,7 +171,7 @@ def get_creditor_parties():
         ('reconciliation', '=', None),
         ('move.state', '=', 'posted'),
         ('party', '!=', None),
-    ])
+    ] + date_domain(period))
     party_ids = sorted({line.party.id for line in lines})
     if not party_ids:
         return []
@@ -301,7 +328,15 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--database', required=True, help='Tryton-Datenbankname')
     parser.add_argument('--config', default=None, help='Pfad zur trytond.conf')
+    parser.add_argument('--year', type=int, default=None,
+        help='nur offene Posten dieses Jahres (Default: alle)')
+    parser.add_argument('--month', type=int, default=None,
+        choices=range(1, 13), metavar='1-12',
+        help='nur offene Posten dieses Monats (setzt --year voraus)')
     args = parser.parse_args()
+    if args.month and not args.year:
+        parser.error('--month setzt --year voraus')
+    period = date_range(args.year, args.month)
 
     cfg = connect(args.database, args.config)
 
@@ -313,13 +348,16 @@ def main():
 
     tenants = get_test_parties()
     print(f'{len(tenants)} Testpartner gefunden (Mieter + Gewerbemieter). '
-          f'Journal: {journal.name} ({journal.type})\n')
+          f'Journal: {journal.name} ({journal.type})')
+    if period[0]:
+        print(f'Zeitraum: {period[0]} bis {period[1]}')
+    print()
 
     booked = 0
     skipped = 0
 
     for party in tenants:
-        open_lines = get_open_receivable_lines(party)
+        open_lines = get_open_receivable_lines(party, period)
         if not open_lines:
             print(f'  {party.name}: keine offenen Forderungen — übersprungen.')
             skipped += 1
@@ -340,14 +378,14 @@ def main():
 
     print(f'\nForderungen fertig. Gebucht: {booked}, übersprungen: {skipped}.\n')
 
-    creditors = get_creditor_parties()
+    creditors = get_creditor_parties(period)
     print(f'{len(creditors)} Kreditoren mit offenen Verbindlichkeiten gefunden.\n')
 
     booked_payable = 0
     skipped_payable = 0
 
     for party in creditors:
-        open_lines = get_open_payable_lines(party)
+        open_lines = get_open_payable_lines(party, period)
         if not open_lines:
             print(f'  {party.name}: keine offenen Verbindlichkeiten — übersprungen.')
             skipped_payable += 1

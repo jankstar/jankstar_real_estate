@@ -5037,23 +5037,23 @@ msgid "User in companies"
 msgstr "Benutzer in Unternehmen"
 
 msgctxt "model:ir.sequence.strict,name:sequence_strict_10"
-msgid "25/1 - Buchungssatz"
+msgid "2025/1 - Buchungssatz"
 msgstr ""
 
 msgctxt "model:ir.sequence.strict,name:sequence_strict_20"
-msgid "25/2 - Lieferantenrechnung"
+msgid "2025/2 - Lieferantenrechnung"
 msgstr ""
 
 msgctxt "model:ir.sequence.strict,name:sequence_strict_29"
-msgid "25/4 - Lieferantenrechnung Storno"
+msgid "2025/4 - Lieferantenrechnung Storno"
 msgstr ""
 
 msgctxt "model:ir.sequence.strict,name:sequence_strict_30"
-msgid "25/3 - Kundenrechnung"
+msgid "2025/3 - Kundenrechnung"
 msgstr ""
 
 msgctxt "model:ir.sequence.strict,name:sequence_strict_39"
-msgid "25/5 - Kundenrechnung Storno"
+msgid "2025/5 - Kundenrechnung Storno"
 msgstr ""
 
 msgctxt "model:ir.ui.menu,name:menu_address_form"

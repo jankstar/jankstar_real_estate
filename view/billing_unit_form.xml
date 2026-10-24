@@ -24,9 +24,9 @@
             <field name="settlement_units"
                 view_ids="real_estate.base_object_view_list_settlement_unit"/>
         </page>
-        <page string="Invoice Lines" id="page_invoice_lines" col="6">
-            <field name="invoice_lines"
-                view_ids="real_estate.invoice_line_view_tree_billing_unit"
+        <page string="Operating Cost Assignments" id="page_oc_lines" col="1">
+            <field name="oc_lines"
+                view_ids="real_estate.oc_document_line_view_list_assignment"
                 readonly="1"/>
         </page>
         <page string="Value Shares" id="page_value_shares" col="1">

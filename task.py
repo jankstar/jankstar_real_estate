@@ -33,6 +33,7 @@ TASK_RESOURCES = [
     'real_estate.meter_reading.sheet',
     'real_estate.contract.term.adjustment.run',
     'real_estate.modernisation',
+    'account.fiscalyear',
     ]
 
 

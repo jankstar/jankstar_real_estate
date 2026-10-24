@@ -24,6 +24,12 @@
             <field name="type">tree</field>
             <field name="name">oc_document_line_tree</field>
         </record>
+        <record model="ir.ui.view" id="oc_document_line_view_list_assignment">
+            <field name="model">real_estate.oc_document.line</field>
+            <field name="type">tree</field>
+            <field name="priority" eval="20"/>
+            <field name="name">oc_document_line_list_assignment</field>
+        </record>
         <record model="ir.ui.view" id="oc_document_line_view_form">
             <field name="model">real_estate.oc_document.line</field>
             <field name="type">form</field>

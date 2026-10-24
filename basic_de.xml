@@ -786,7 +786,7 @@
         </record>
 
         <record id="sequence_strict_10" model="ir.sequence.strict" >
-            <field name="name">25/1 - Buchungssatz</field>
+            <field name="name">2025/1 - Buchungssatz</field>
             <field name="number_increment">1</field>
             <field name="number_next_internal">1</field>
             <field name="padding">5</field>
@@ -796,7 +796,7 @@
         </record>
 
         <record id="sequence_strict_20" model="ir.sequence.strict">
-            <field name="name">25/2 - Lieferantenrechnung</field>
+            <field name="name">2025/2 - Lieferantenrechnung</field>
             <field name="number_increment">1</field>
             <field name="number_next_internal">1</field>
             <field name="padding">5</field>
@@ -806,7 +806,7 @@
         </record>
 
         <record id="sequence_strict_30" model="ir.sequence.strict">
-            <field name="name">25/3 - Kundenrechnung</field>
+            <field name="name">2025/3 - Kundenrechnung</field>
             <field name="number_increment">1</field>
             <field name="number_next_internal">1</field>
             <field name="padding">5</field>
@@ -816,7 +816,7 @@
         </record>
 
         <record id="sequence_strict_29" model="ir.sequence.strict">
-            <field name="name">25/4 - Lieferantenrechnung Storno</field>
+            <field name="name">2025/4 - Lieferantenrechnung Storno</field>
             <field name="number_increment">1</field>
             <field name="number_next_internal">1</field>
             <field name="padding">5</field>
@@ -826,7 +826,7 @@
         </record>
 
         <record id="sequence_strict_39" model="ir.sequence.strict">
-            <field name="name">25/5 - Kundenrechnung Storno</field>
+            <field name="name">2025/5 - Kundenrechnung Storno</field>
             <field name="number_increment">1</field>
             <field name="number_next_internal">1</field>
             <field name="padding">5</field>
