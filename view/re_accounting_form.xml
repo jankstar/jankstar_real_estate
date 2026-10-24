@@ -4,8 +4,6 @@
     <field name="sequence"/>
     <label name="name"/>
     <field name="name"/>
-    <label name="re_account_allocation_by_owner"/>
-    <field name="re_account_allocation_by_owner"/>
     <label name="re_journal_billing"/>
     <field name="re_journal_billing"/>
     <label name="re_payment_term_billing"/>

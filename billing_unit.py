@@ -16,6 +16,7 @@ from decimal import Decimal, ROUND_HALF_UP
 
 import logging
 
+from . import oc_reclass
 
 logger = logging.getLogger(__name__)
 
@@ -931,6 +932,35 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
             net = SettlementUnit._net_object(g['base_object'], g['end_date'])
             amount = (line.amount_net if net else line.amount_gross) or Decimal(0)
             result[keys[0]] = result.get(keys[0], Decimal(0)) + amount
+        # documents booked on a rental object, assigned to a settlement
+        # unit: to the results of this rental object by days of their
+        # periods - tenants and vacancy (E32)
+        for line in Line.search([
+                    ('target', '=', 'settlement_unit'),
+                    ('document.state', '=', 'confirmed'),
+                    ('settlement_unit.billing_unit', '=', self.id),
+                    ('document.base_object.type', '=', 'object'),
+                    ]):
+            obj = line.document.base_object
+            weights = {}
+            for key, g in groups.items():
+                if (key and g['base_object'] and g['base_object'].id == obj.id
+                        and g['start_date'] and g['end_date']):
+                    weights[key] = (g['end_date'] - g['start_date']).days + 1
+            if not weights:
+                raise ValidationError(gettext(
+                        'real_estate.msg_oc_direct_object_no_result',
+                        document=line.document.rec_name,
+                        object=obj.rec_name,
+                        billing_unit=self.rec_name))
+            end = max(groups[k]['end_date'] for k in weights)
+            net = SettlementUnit._net_object(obj, end)
+            amount = (line.amount_net if net else line.amount_gross) or Decimal(0)
+            for key, per_group in oc_reclass.distribute_groups(
+                    {'cost': amount}, weights).items():
+                if 'cost' in per_group:
+                    result[key] = (result.get(key, Decimal(0))
+                        + per_group['cost'])
         return result
 
     @classmethod
@@ -1059,8 +1089,6 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
         pool = Pool()
         Invoice = pool.get('account.invoice')
         InvoiceLine = pool.get('account.invoice.line')
-        AccountMove = pool.get('account.move')
-        AccountMoveLine = pool.get('account.move.line')
         SettlementResult = pool.get('real_estate.settlement_result')
         BillingUnitMoves = pool.get('real_estate.billing_unit.moves')
         AccountConfiguration = pool.get('account.configuration')
@@ -1223,7 +1251,6 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
                         currency=contract.currency.id,
                         contract=contract.id,
                         term=adv_term.id if adv_term else None,
-                        billing_unit=r.billing_unit.id,
                         base_object=r.base_object.id if r.base_object else None,
                         assignment_control='settlement_result_contract',
                     )
@@ -1253,7 +1280,6 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
                         taxes=term_taxes,
                         currency=contract.currency.id,
                         contract=contract.id,
-                        billing_unit=r.billing_unit.id,
                         base_object=r.base_object.id if r.base_object else None,
                         assignment_control='settlement_result_contract',
                     )
@@ -1325,83 +1351,252 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
                     f"Invoice {invoice.id} created for contract "
                     f"{contract.contract_number} ({invoice_type}).")
 
-        # --- Process vacancy and flat-rate settlements (owner bears the ---
-        # --- cost directly, no tenant reconciliation) ---
+        # --- Vacancy and flat rate: no tenant invoice, the costs reach the
+        # rental object by the reclassification below (owner's share) ---
         if owner_borne_results:
-            for r in owner_borne_results:
-                actual = r.actual_costs or Decimal(0)
-                if actual == Decimal(0):
-                    SettlementResult.write([r], {'state': 'billed'})
-                    continue
+            SettlementResult.write(owner_borne_results, {'state': 'billed'})
 
-                re_accounting = r.billing_unit.property.company.re_accounting
-                vacancy_account = (
-                    re_accounting.re_account_allocation_by_owner
-                    if re_accounting else None)
-                vacancy_journal = (
-                    re_accounting.re_journal_billing if re_accounting else None)
-                if not (vacancy_account and vacancy_journal):
-                    # No configuration for this company — just mark as billed
-                    SettlementResult.write([r], {'state': 'billed'})
-                    continue
-
-                is_flat_rate = bool(r.contract)
-                label = 'Flat Rate' if is_flat_rate else 'Vacancy'
-                assignment_control = (
-                    'settlement_result_flat_rate' if is_flat_rate
-                    else 'settlement_result_vacant')
-
-                period = Pool().get('account.period')
-                period_rec = period.find(
-                    r.billing_unit.property.company.id, date=billing_date)
-
-                obj_name = (r.base_object.rec_name
-                    if r.base_object else r.billing_unit.name)
-                move = AccountMove(
-                    journal=vacancy_journal.id,
-                    date=billing_date,
-                    period=period_rec,
-                    company=r.billing_unit.property.company.id,
-                    description=(
-                        f"{label} Cost — {r.billing_unit.name}"),
-                )
-                AccountMove.save([move])
-
-                debit_line = AccountMoveLine(
-                    move=move.id,
-                    account=vacancy_account.id,
-                    debit=actual,
-                    credit=Decimal(0),
-                    description=f"{label} — {obj_name}",
-                    base_object=r.base_object.id if r.base_object else None,
-                    contract=r.contract.id if r.contract else None,
-                    assignment_control=assignment_control,
-                )
-                credit_line = AccountMoveLine(
-                    move=move.id,
-                    account=vacancy_account.id,
-                    debit=Decimal(0),
-                    credit=actual,
-                    description=f"{label} — {r.billing_unit.name}",
-                    billing_unit=r.billing_unit.id,
-                    contract=r.contract.id if r.contract else None,
-                    assignment_control=assignment_control,
-                )
-                AccountMoveLine.save([debit_line, credit_line])
-                AccountMove.post([move])
-
-                BillingUnitMoves.create([{
-                    'billing_unit': r.billing_unit.id,
-                    'settlement_result': r.id,
-                    'property': r.billing_unit.property.id,
-                    'moves_alloc_by_owner': credit_line.id,
-                    'billing_run_id': billing_run_id,
-                }])
-
-                SettlementResult.write([r], {'state': 'billed'})
+        # --- Reclassification of the costs from the property to the rental
+        # objects, in the same billing run (E22/E25) ---
+        cls._reclassify_costs(scope_units, all_results, billing_date,
+            billing_run_id)
 
         for bu in scope_units:
             bu.add_log('billing', 'Billing completed.')
+
+    @staticmethod
+    def _result_key(result):
+        "Key of a settlement result as in compute_settlement_result()"
+        if result.contract:
+            return ('contract', result.contract.id,
+                result.base_object.id if result.base_object else None)
+        if result.base_object:
+            return ('object', result.base_object.id)
+        return None
+
+    @staticmethod
+    def _reclass_group(line):
+        """Group of an assignment line: account and taxes of the original
+        invoice line of its document (E27)"""
+        document = line.document
+        taxes = (tuple(sorted(t.id for t in document.invoice_line.taxes))
+            if document.invoice_line else ())
+        return (document.account.id, taxes)
+
+    def _reclass_shares(self, results):
+        """Net amounts to reclassify per settlement result and group
+        (account, taxes) of this billing unit: the confirmed assignments of
+        each settlement unit split in proportion to the cost shares of the
+        results (E27), direct costs to the result of the contract, external
+        billing in proportion to the actual costs of the results.
+        Returns {result id: {group: net}}."""
+        pool = Pool()
+        Line = pool.get('real_estate.oc_document.line')
+        SettlementUnit = pool.get('real_estate.settlement_unit')
+        by_key = {self._result_key(r): r for r in results}
+        shares = {r.id: {} for r in results}
+
+        def add(result_id, group, amount):
+            shares[result_id][group] = (
+                shares[result_id].get(group, Decimal(0)) + amount)
+
+        def groups_of(lines):
+            groups = {}
+            for line in lines:
+                group = self._reclass_group(line)
+                groups[group] = (groups.get(group, Decimal(0))
+                    + (line.amount_net or Decimal(0)))
+            return groups
+
+        # documents booked on a rental object are already there (E31)
+        on_property = ['OR', ('document.base_object', '=', None),
+            ('document.base_object.type', '!=', 'object')]
+        su_lines = Line.search([
+                ('target', '=', 'settlement_unit'),
+                ('document.state', '=', 'confirmed'),
+                ('settlement_unit.billing_unit', '=', self.id),
+                on_property,
+                ])
+        if self.external_billing:
+            weights = {r.id: (r.actual_costs or Decimal(0))
+                - (r.direct_costs or Decimal(0)) for r in results}
+            for result_id, per_group in oc_reclass.distribute_groups(
+                    groups_of(su_lines), weights).items():
+                for group, amount in per_group.items():
+                    add(result_id, group, amount)
+        else:
+            lines_by_su = {}
+            for line in su_lines:
+                su = line.settlement_unit
+                # costs passed on via a cost collector are distributed by
+                # the referenced settlement unit
+                if (su.allocation_rule == 'allocation_via_cost_collector'
+                        and su.reference_settlement_unit):
+                    su = su.reference_settlement_unit
+                lines_by_su.setdefault(su.id, []).append(line)
+            for su_id, lines in lines_by_su.items():
+                su = SettlementUnit(su_id)
+                totals = {
+                    'gross': ((su.actual_costs_gross or Decimal(0))
+                        + (su.actual_costs_gross_from_references
+                            or Decimal(0))),
+                    'net': ((su.actual_costs_net or Decimal(0))
+                        + (su.actual_costs_net_from_references
+                            or Decimal(0))),
+                    }
+                weights = {}
+                for cs in su.cost_shares:
+                    result = by_key.get(self._result_key(cs))
+                    if not result or not cs.actual_costs:
+                        continue
+                    net = SettlementUnit._net_object(
+                        cs.base_object, cs.end_date)
+                    total = totals['net' if net else 'gross']
+                    if not total:
+                        continue
+                    weights[result.id] = (weights.get(result.id, Decimal(0))
+                        + cs.actual_costs / total)
+                for result_id, per_group in oc_reclass.distribute_groups(
+                        groups_of(lines), weights).items():
+                    for group, amount in per_group.items():
+                        add(result_id, group, amount)
+        # direct costs of a contract: to its result (E5)
+        for line in Line.search([
+                    ('target', '=', 'contract'),
+                    ('document.state', '=', 'confirmed'),
+                    ('settlement_unit.billing_unit', '=', self.id),
+                    on_property,
+                    ]):
+            keys = [k for k in by_key
+                if k and k[0] == 'contract' and k[1] == line.contract.id
+                and (not line.base_object or k[2] == line.base_object.id)]
+            if len(keys) == 1:
+                add(by_key[keys[0]].id, self._reclass_group(line),
+                    line.amount_net or Decimal(0))
+        return shares
+
+    @classmethod
+    def _reclassify_costs(cls, scope_units, results, date, billing_run_id):
+        """One reclassification move per settlement result (rental object
+        and period): credit the cost account at the property with its option
+        rate, debit it at the rental object with its option rate - account
+        and taxes of the original invoices, net + taxes (spec 6.5,
+        E22/E25-E27/E29). Kept in the billing unit moves with the billing
+        run id and cancelled together with the invoices."""
+        pool = Pool()
+        Move = pool.get('account.move')
+        MoveLine = pool.get('account.move.line')
+        TaxLine = pool.get('account.tax.line')
+        Period = pool.get('account.period')
+        Tax = pool.get('account.tax')
+        Account = pool.get('account.account')
+        OptionRate = pool.get('real_estate.option_rate')
+        SettlementUnit = pool.get('real_estate.settlement_unit')
+        BillingUnitMoves = pool.get('real_estate.billing_unit.moves')
+
+        def amount_values(amount):
+            if amount >= 0:
+                return {'debit': amount, 'credit': Decimal(0)}
+            return {'debit': Decimal(0), 'credit': -amount}
+
+        moves, records = [], []
+        for bu in scope_units:
+            bu_results = [r for r in results if r.billing_unit.id == bu.id]
+            if not bu_results:
+                continue
+            shares = bu._reclass_shares(bu_results)
+            if not any(shares.values()):
+                continue
+            prop = bu.property
+            company = prop.company
+            currency = company.currency
+            re_accounting = company.re_accounting
+            journal = re_accounting.re_journal_billing if re_accounting else None
+            if not journal:
+                raise ValidationError(gettext(
+                        'real_estate.msg_reclass_no_journal',
+                        billing_unit=bu.rec_name))
+            rate_from = OptionRate.get_current_rate_fraction(
+                'base_object', prop, date)
+            if rate_from is None:
+                raise ValidationError(gettext(
+                        'real_estate.msg_reclass_no_option_rate',
+                        object=prop.rec_name, date=str(date)))
+            period = Period.find(company, date=date)
+            for result in bu_results:
+                per_group = {g: a for g, a in shares[result.id].items() if a}
+                if not per_group:
+                    continue
+                obj = result.base_object
+                net_obj = SettlementUnit._net_object(obj, date)
+                if net_obj is None:
+                    raise ValidationError(gettext(
+                            'real_estate.msg_reclass_no_option_rate',
+                            object=obj.rec_name, date=str(date)))
+                rate_to = Decimal(1) if net_obj else Decimal(0)
+                description = f"{obj.rec_name} - {bu.rec_name}"
+                lines = []
+                for (account_id, tax_ids), net in sorted(
+                        per_group.items(), key=lambda i: i[0]):
+                    taxes = Tax.browse(list(tax_ids))
+                    computed = Tax.compute(taxes, net, 1, date) if taxes else []
+                    amounts = oc_reclass.reclass_amounts(net,
+                        [(c['tax'], currency.round(c['amount']))
+                            for c in computed],
+                        rate_from, rate_to)
+                    common = {
+                        'description': description,
+                        'assignment_control': 'oc_reclass',
+                        }
+                    for side, cost, base_object, tax_rows, sign in (
+                            ('credit', amounts['credit_cost'], prop,
+                                amounts['credit_taxes'], -1),
+                            ('debit', amounts['debit_cost'], obj,
+                                amounts['debit_taxes'], 1)):
+                        cost_line = MoveLine(account=Account(account_id),
+                            base_object=base_object,
+                            contract=result.contract if sign > 0 else None,
+                            **common, **amount_values(sign * cost))
+                        cost_line.tax_lines = [TaxLine(type='base', tax=tax,
+                                amount=sign * base)
+                            for tax, _, base in tax_rows if base]
+                        lines.append(cost_line)
+                        for tax, deductible, _ in tax_rows:
+                            if not deductible:
+                                continue
+                            tax_line = MoveLine(account=tax.invoice_account,
+                                **common, **amount_values(sign * deductible))
+                            tax_line.tax_lines = [TaxLine(type='tax', tax=tax,
+                                    amount=sign * deductible)]
+                            lines.append(tax_line)
+                lines = [l for l in lines if l.debit or l.credit]
+                if not lines:
+                    continue
+                move = Move(company=company, journal=journal, period=period,
+                    date=date, origin=bu,
+                    description=f"Operating cost reclassification "
+                        f"{description}",
+                    lines=lines)
+                moves.append(move)
+                records.append((bu, result, move))
+        if not moves:
+            return []
+        Move.save(moves)
+        Move.post(moves)
+        BillingUnitMoves.create([{
+                    'billing_unit': bu.id,
+                    'settlement_result': result.id,
+                    'property': bu.property.id,
+                    'contract': result.contract.id if result.contract else None,
+                    'moves_reclass': move.id,
+                    'billing_run_id': billing_run_id,
+                    } for bu, result, move in records])
+        for bu in scope_units:
+            count = len([1 for b, _, _ in records if b.id == bu.id])
+            if count:
+                bu.add_log('billing',
+                    f"{count} cost reclassification move(s) created.")
+        return moves
 
     @classmethod
     @ModelView.button_action('real_estate.wizard_cancel_billing')
@@ -1472,6 +1667,23 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
                             line.debit - line.credit
                             for line in open_lines) == Decimal(0):
                         MoveLine.reconcile(open_lines)
+
+        # Reclassification moves of the run: reversed (E25)
+        reclass_moves = list({m.moves_reclass for m in all_moves
+                if m.moves_reclass})
+        if reclass_moves:
+            Move = pool.get('account.move')
+            Period = pool.get('account.period')
+            Date = pool.get('ir.date')
+            cancel_date = invoice_date or Date.today()
+            cancel_moves = []
+            for move in reclass_moves:
+                period = Period.find(move.company, date=cancel_date)
+                cancel_moves.append(move.cancel(default={
+                            'date': cancel_date,
+                            'period': period.id,
+                            }))
+            Move.post(cancel_moves)
 
         # Delete BillingUnitMoves
         BillingUnitMoves.delete(all_moves)
@@ -2343,8 +2555,10 @@ class BillingUnitMoves(ModelSQL, ModelView):
         'Advance Payment Line', ondelete='SET NULL', states={'readonly': True})
     moves_actual_costs = fields.Many2One('account.invoice.line',
         'Actual Costs Line', ondelete='SET NULL', states={'readonly': True})
-    moves_alloc_by_owner = fields.Many2One('account.move.line',
-        'Owner Allocation Line', ondelete='SET NULL', states={'readonly': True})
+    moves_reclass = fields.Many2One('account.move',
+        'Cost Reclassification', ondelete='SET NULL', states={'readonly': True},
+        help="Reclassification of the costs from the property to the rental "
+             "object of the settlement result (cancelled with the billing).")
 
     billing_run_id = fields.Char('Billing Run ID', readonly=True)
 
@@ -2362,15 +2576,18 @@ class BillingUnitMoves(ModelSQL, ModelView):
     def get_invoice_line_field(cls, records, name):
         result = {}
         for record in records:
-            if not record.contract and record.moves_alloc_by_owner:
-                owner_line = record.moves_alloc_by_owner
+            if record.moves_reclass:
+                # amount charged to the rental object
+                move = record.moves_reclass
+                obj = (record.settlement_result.base_object
+                    if record.settlement_result else None)
                 if name == 'amount':
-                    result[record.id] = (
-                        (owner_line.debit or Decimal(0))
-                        - (owner_line.credit or Decimal(0)))
+                    result[record.id] = sum(
+                        (l.debit or Decimal(0)) - (l.credit or Decimal(0))
+                        for l in move.lines
+                        if obj and l.base_object == obj)
                 elif name == 'currency':
-                    result[record.id] = (
-                        owner_line.currency.id if owner_line.currency else None)
+                    result[record.id] = move.company.currency.id
                 elif name == 'invoice':
                     result[record.id] = None
                 continue

@@ -104,8 +104,10 @@ class InvoiceLine(metaclass=PoolMeta):
         'real_estate.contract', 'Contract',
         states={
             'readonly': Eval('invoice_state') != 'draft',
+            # with operating costs: cost of a rental object and its
+            # contract (spezifikation-betriebskostenzuordnung.md E31)
             'invisible': Eval('assignment_control', '').in_(
-                ['operating_costs', 'settlement_result_vacant']),
+                ['settlement_result_vacant']),
         },
         depends=['assignment_control'],
         domain=[
@@ -650,6 +652,7 @@ class AccountMoveLine(metaclass=PoolMeta):
             ('settlement_result_contract', 'Settlement Result Contract'),
             ('settlement_result_vacant', 'Settlement Result Vacant'),
             ('settlement_result_flat_rate', 'Settlement Result Flat Rate'),
+            ('oc_reclass', 'Operating Cost Reclassification'),
         ], 'Account Assignment Control',
         sort=False,
     )
@@ -658,7 +661,7 @@ class AccountMoveLine(metaclass=PoolMeta):
         ondelete='SET NULL',
         states={
             'invisible': Eval('assignment_control', '').in_(
-                ['operating_costs', 'settlement_result_vacant']),
+                ['settlement_result_vacant']),
         },
         depends=['assignment_control'])
 

@@ -193,6 +193,12 @@
         <record model="ir.message" id="msg_term_zero_measurement">
             <field name="text">Term "{}": the assigned objects have no value (or 0) for the measurement "{}" - quantity and amount of this term are 0. Do you want to proceed anyway?</field>
         </record>
+        <record model="ir.message" id="msg_reclass_no_journal">
+            <field name="text">Billing unit "%(billing_unit)s": the cost reclassification needs the journal of the operating cost settlement in the real estate accounting configuration.</field>
+        </record>
+        <record model="ir.message" id="msg_reclass_no_option_rate">
+            <field name="text">Cost reclassification: object "%(object)s" has no option rate on %(date)s.</field>
+        </record>
         <record model="ir.message" id="msg_term_amount_sign_positive">
             <field name="text">Term "%(term)s": the amount %(amount)s must not be negative - the term type "%(term_type)s" only allows positive amounts.</field>
         </record>
@@ -328,19 +334,19 @@ Either run "Ready for Billing" for each billing unit first, or bill individual b
             <field name="text">no allocation</field>
         </record>
         <record model="ir.message" id="msg_invoice_line_term_requires_contract">
-            <field name="text">Term "{term}" is set but no contract is selected.</field>
+            <field name="text">Term "%(term)s" is set but no contract is selected.</field>
         </record>
         <record model="ir.message" id="msg_invoice_line_settlement_unit_requires_billing_unit">
-            <field name="text">Settlement unit "{settlement_unit}" is set but the billing unit is missing or does not match (expected "{billing_unit}").</field>
+            <field name="text">Settlement unit "%(settlement_unit)s" is set but the billing unit is missing or does not match (expected "%(billing_unit)s").</field>
         </record>
         <record model="ir.message" id="msg_invoice_line_object_not_in_contract">
-            <field name="text">Object "{object}" does not belong to contract "{contract}".</field>
+            <field name="text">Object "%(object)s" does not belong to contract "%(contract)s".</field>
         </record>
         <record model="ir.message" id="msg_invoice_line_billing_unit_billed_warning">
             <field name="text">Billing unit/settlement unit already billed. This invoice will not be considered in the settlement.</field>
         </record>
         <record model="ir.message" id="msg_invoice_line_billing_unit_billed_error">
-            <field name="text">Cannot post: billing unit/settlement unit of line "{line}" is already billed. It will not be considered in the settlement.</field>
+            <field name="text">Cannot post: billing unit/settlement unit of line "%(line)s" is already billed. It will not be considered in the settlement.</field>
         </record>
         <record model="ir.message" id="msg_billing_unit_already_has_successor">
             <field name="text">Cannot duplicate "%(name)s": a billing unit for the next period already exists (predecessor is set).</field>
@@ -1649,6 +1655,21 @@ Increase %(increase)s: rent %(old)s → %(new)s from %(valid_from)s</field>
         </record>
         <record model="ir.message" id="msg_oc_line_settlement_unit_required">
             <field name="text">"%(document)s": every line except the owner needs a settlement unit.</field>
+        </record>
+        <record model="ir.message" id="msg_oc_other_level_warning">
+            <field name="text">Operating cost posting on another level (%(objects)s): these costs do not take part in the operating cost settlement. Correct: book on the property and assign to a settlement unit (or book directly on a rental object).</field>
+        </record>
+        <record model="ir.message" id="msg_oc_line_object_booked">
+            <field name="text">Document "%(document)s" is booked on the rental object "%(object)s": it can only be assigned to a settlement unit (only this rental object, by days of its occupancy) or to a contract of this rental object.</field>
+        </record>
+        <record model="ir.message" id="msg_oc_direct_object_no_result">
+            <field name="text">Document "%(document)s" is booked on the rental object "%(object)s", but the billing unit "%(billing_unit)s" has no settlement result of this rental object.</field>
+        </record>
+        <record model="ir.message" id="msg_oc_proposal_object_contract">
+            <field name="text">Booked on rental object %(object)s with contract</field>
+        </record>
+        <record model="ir.message" id="msg_oc_proposal_object">
+            <field name="text">Account unique - booked on rental object %(object)s: only this rental object, by days</field>
         </record>
         <record model="ir.message" id="msg_oc_proposal_account">
             <field name="text">Account unique</field>

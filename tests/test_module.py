@@ -1487,6 +1487,105 @@ class RealEstateTestCase(ModuleTestCase):
         self.assertEqual(result, 'done')
         self.assertEqual(started, [{'t1': [1]}, {'t1': [1], 't2': [9]}])
 
+    @with_transaction()
+    def test_oc_object_booked(self):
+        "Documents booked on a rental object: assignment only to it (E32)"
+        from types import SimpleNamespace as NS
+        from trytond.modules.real_estate.oc_document import _other_level
+        pool = Pool()
+        Line = pool.get('real_estate.oc_document.line')
+
+        prop = NS(type='property', rec_name='P')
+        flat = NS(type='object', rec_name='Flat')
+        other_flat = NS(type='object', rec_name='Other')
+        building = NS(type='building', rec_name='B')
+        # no document for another level than property / rental object
+        self.assertFalse(_other_level(NS(base_object=prop)))
+        self.assertFalse(_other_level(NS(base_object=flat)))
+        self.assertFalse(_other_level(NS(base_object=None)))
+        self.assertTrue(_other_level(NS(base_object=building)))
+
+        contract = NS(items=[NS(objects=[flat])])
+        foreign = NS(items=[NS(objects=[other_flat])])
+
+        def line(target, obj, doc_contract=None, contract=None,
+                base_object=None):
+            doc = NS(rec_name='D', contract=doc_contract,
+                object_booked=lambda: obj if obj.type == 'object' else None)
+            return NS(document=doc, target=target, contract=contract,
+                base_object=base_object)
+
+        # allowed
+        for l in (line('settlement_unit', flat),
+                line('contract', flat, contract=contract),
+                line('contract', flat, contract, contract, flat),
+                line('property', prop)):
+            Line.check_object_booked(l)
+        # not allowed
+        for l in (line('property', flat),
+                line('contract', flat, contract=foreign),
+                line('contract', flat, contract, foreign),
+                line('contract', flat, contract=contract,
+                    base_object=other_flat)):
+            with self.assertRaises(ValidationError):
+                Line.check_object_booked(l)
+
+    def test_oc_reclass_distribute_groups(self):
+        "Cost reclassification: groups split exactly to the cent"
+        from trytond.modules.real_estate.oc_reclass import distribute_groups
+
+        groups = {('8000', ()): Decimal('100.00'),
+            ('8002', ()): Decimal('-10.00')}
+        result = distribute_groups(groups, {1: 1, 2: 1, 3: 1, 4: 0})
+        for key, amount in groups.items():
+            self.assertEqual(
+                sum(r.get(key, Decimal(0)) for r in result.values()), amount)
+        self.assertEqual(result[1][('8000', ())], Decimal('33.34'))
+        self.assertEqual(result[2][('8000', ())], Decimal('33.33'))
+        self.assertEqual(result[4], {})
+        self.assertEqual(result[1][('8002', ())], Decimal('-3.34'))
+        # proportional to the weights
+        result = distribute_groups({'g': Decimal('1000.00')},
+            {'commercial': Decimal('0.3'), 'apartment': Decimal('0.7')})
+        self.assertEqual(result['commercial']['g'], Decimal('300.00'))
+        self.assertEqual(result['apartment']['g'], Decimal('700.00'))
+        self.assertEqual(distribute_groups({'g': Decimal(1)}, {1: 0}),
+            {1: {}})
+
+    def test_oc_reclass_amounts(self):
+        "Cost reclassification: example of the specification (6.5)"
+        from trytond.modules.real_estate.oc_reclass import reclass_amounts
+
+        rate_property = Decimal('0.3333')
+        # commercial unit 30 %: 300 net, 57 VAT, charged at 100 %
+        commercial = reclass_amounts(Decimal('300.00'),
+            [('vat', Decimal('57.00'))], rate_property, 1)
+        # apartment 70 %: 700 net, 133 VAT, charged at 0 %
+        apartment = reclass_amounts(Decimal('700.00'),
+            [('vat', Decimal('133.00'))], rate_property, 0)
+        for amounts in (commercial, apartment):
+            # every move is balanced
+            self.assertEqual(
+                amounts['credit_cost']
+                + sum(t[1] for t in amounts['credit_taxes']),
+                amounts['debit_cost']
+                + sum(t[1] for t in amounts['debit_taxes']))
+        self.assertEqual(commercial['credit_cost'], Decimal('338.00'))
+        self.assertEqual(commercial['credit_taxes'][0][1], Decimal('19.00'))
+        self.assertEqual(commercial['debit_cost'], Decimal('300.00'))
+        self.assertEqual(commercial['debit_taxes'][0][1], Decimal('57.00'))
+        self.assertEqual(apartment['credit_cost'], Decimal('788.67'))
+        self.assertEqual(apartment['credit_taxes'][0][1], Decimal('44.33'))
+        self.assertEqual(apartment['debit_cost'], Decimal('833.00'))
+        self.assertEqual(apartment['debit_taxes'][0][1], Decimal('0.00'))
+        # input tax of the invoice (63.33 at 33.33 %) after the
+        # reclassification: exactly 19 % of the commercial share
+        deducted = Decimal('63.33')
+        for amounts in (commercial, apartment):
+            deducted += (sum(t[1] for t in amounts['debit_taxes'])
+                - sum(t[1] for t in amounts['credit_taxes']))
+        self.assertEqual(deducted, Decimal('57.00'))
+
     def test_amount_sign_violated(self):
         "Term amount sign: any / positive only / negative only, 0 allowed"
         from trytond.modules.real_estate.contract_term import (

@@ -9,6 +9,6 @@
     <field name="currency" optional="1"/>
     <field name="moves_advanced_payment" optional="1"/>
     <field name="moves_actual_costs" optional="1"/>
-    <field name="moves_alloc_by_owner" optional="1"/>
+    <field name="moves_reclass" optional="1"/>
     <field name="billing_run_id" optional="1"/>
 </tree>

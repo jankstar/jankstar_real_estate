@@ -11,20 +11,13 @@ class ReAccounting(base_object.re_sequence_ordered(), ModelSQL, ModelView):
 
     name = fields.Char('Name', required=True)
 
-    re_account_allocation_by_owner = fields.Many2One(
-        'account.account', 'Vacancy Cost Account',
-        domain=[
-            ('closed', '!=', True),
-            ],
-        help="Vacancy account for the operating cost settlement - relief "
-             "of the billing unit / settlement unit.")
-
     re_journal_billing = fields.Many2One(
         'account.journal', 'Operating Cost Settlement Journal',
         domain=[
             ('type', 'in', ('revenue', 'expense', 'general')),
             ],
-        help="Journal used for direct GL postings in vacancy settlements.")
+        help="Journal of the cost reclassification moves of the operating "
+             "cost settlement (property to rental objects).")
 
     receipt_days = fields.Integer("Receipt Days (Index Rent)",
         domain=[('receipt_days', '>=', 0)],
