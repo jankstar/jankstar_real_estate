@@ -1,0 +1,289 @@
+<?xml version="1.0"?>
+<tryton>
+    <data>
+        <!-- Year-end closing (Jahresabschluss) as process on the fiscal
+             year: processes tab, start action, access of the group
+             'Accounting' to tasks and processes -->
+        <record model="ir.ui.view" id="fiscalyear_view_form_real_estate">
+            <field name="model">account.fiscalyear</field>
+            <field name="inherit" ref="account.fiscalyear_view_form"/>
+            <field name="name">fiscalyear_form</field>
+        </record>
+        <record model="ir.action.keyword" id="wizard_process_start_keyword_fiscalyear">
+            <field name="keyword">form_action</field>
+            <field name="model">account.fiscalyear,-1</field>
+            <field name="action" ref="wizard_process_start"/>
+        </record>
+        <record model="ir.model.access" id="access_task_account">
+            <field name="model">real_estate.task</field>
+            <field name="group" ref="account.group_account"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_task_type_account">
+            <field name="model">real_estate.task.type</field>
+            <field name="group" ref="account.group_account"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_process_account">
+            <field name="model">real_estate.process</field>
+            <field name="group" ref="account.group_account"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_process_template_account">
+            <field name="model">real_estate.process.template</field>
+            <field name="group" ref="account.group_account"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_process_template_step_account">
+            <field name="model">real_estate.process.template.step</field>
+            <field name="group" ref="account.group_account"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.rule.group-res.group" id="rule_group_task_mine_account">
+            <field name="rule_group" ref="rule_group_task_mine"/>
+            <field name="group" ref="account.group_account"/>
+        </record>
+    </data>
+    <data noupdate="1">
+        <record model="real_estate.process.template" id="process_template_year_end_closing">
+            <field name="name">Year-End Closing</field>
+            <field name="code">year_end_closing</field>
+            <field name="model">account.fiscalyear</field>
+            <field name="anchor_field">end_date</field>
+            <field name="description">Year-end closing of the fiscal year of a company - started manually on the fiscal year (Accounting › Configuration › Fiscal Years, action Start Process). The due dates are counted from the end of the fiscal year.</field>
+        </record>
+        <record model="real_estate.process.template.step" id="process_template_year_end_closing_next_year">
+            <field name="template" ref="process_template_year_end_closing"/>
+            <field name="sequence" eval="10"/>
+            <field name="name">Create the following fiscal year</field>
+            <field name="task_type" ref="task_type_process_step"/>
+            <field name="responsible_group" ref="account.group_account"/>
+            <field name="due_base">anchor</field>
+            <field name="offset_months" eval="0"/>
+            <field name="offset_days" eval="-30"/>
+            <field name="completion">condition</field>
+            <field name="done_method">fiscalyear_next_exists</field>
+            <field name="action" ref="account.act_renew_fiscalyear"/>
+            <field name="mandatory" eval="True"/>
+            <field name="result_required" eval="False"/>
+            <field name="description">Accounting › Configuration › Fiscal Years › Renew Fiscal Year: previous fiscal year = this one, name and dates of the following year, check 'Reset Sequences'. Then rename the copied sequences and their prefixes for the new year (e.g. 2025/1 → 26/1, prefix 251 → 261). The following year is needed for the postings of the new year and for the operating cost settlement of this year. Done as soon as the following fiscal year exists.</field>
+        </record>
+        <record model="real_estate.process.template.step" id="process_template_year_end_closing_contract_moves">
+            <field name="template" ref="process_template_year_end_closing"/>
+            <field name="sequence" eval="20"/>
+            <field name="name">Post the periodic contract postings up to the year end</field>
+            <field name="task_type" ref="task_type_process_step"/>
+            <field name="responsible_group" ref="account.group_account"/>
+            <field name="due_base">anchor</field>
+            <field name="offset_months" eval="0"/>
+            <field name="offset_days" eval="0"/>
+            <field name="completion">condition</field>
+            <field name="done_method">fiscalyear_contract_moves_posted</field>
+            <field name="action" ref="real_estate.wizard_create_moves"/>
+            <field name="mandatory" eval="True"/>
+            <field name="result_required" eval="False"/>
+            <field name="description">Contracts › Periodic Posting: posting date = last day of the fiscal year, invoice date within the fiscal year (the wizard proposes the current month and today - change both; invoice dates ascending). Check the contract log for errors. Done as soon as no draft cash flow line with a document date up to the end of the fiscal year is left on a running or terminated contract.</field>
+        </record>
+        <record model="real_estate.process.template.step" id="process_template_year_end_closing_drafts">
+            <field name="template" ref="process_template_year_end_closing"/>
+            <field name="sequence" eval="30"/>
+            <field name="name">Clear draft invoices and moves</field>
+            <field name="task_type" ref="task_type_process_step"/>
+            <field name="responsible_group" ref="account.group_account"/>
+            <field name="due_base">anchor</field>
+            <field name="offset_months" eval="0"/>
+            <field name="offset_days" eval="10"/>
+            <field name="completion">condition</field>
+            <field name="done_method">fiscalyear_no_drafts</field>
+            <field name="action" ref="account_invoice.act_invoice_in_form"/>
+            <field name="mandatory" eval="True"/>
+            <field name="result_required" eval="False"/>
+            <field name="description">Post or delete all invoices in state draft or validated and all draft moves of the fiscal year - periods with draft moves cannot be closed. Done as soon as there are none.</field>
+        </record>
+        <record model="real_estate.process.template.step" id="process_template_year_end_closing_oc_documents">
+            <field name="template" ref="process_template_year_end_closing"/>
+            <field name="sequence" eval="40"/>
+            <field name="name">Confirm the operating cost documents of the year</field>
+            <field name="task_type" ref="task_type_process_step"/>
+            <field name="responsible_group" ref="account.group_account"/>
+            <field name="due_base">anchor</field>
+            <field name="offset_months" eval="0"/>
+            <field name="offset_days" eval="15"/>
+            <field name="completion">condition</field>
+            <field name="done_method">fiscalyear_oc_documents_confirmed</field>
+            <field name="action" ref="real_estate.act_oc_document"/>
+            <field name="mandatory" eval="True"/>
+            <field name="result_required" eval="False"/>
+            <field name="description">Operating Costs › Assign Operating Costs: assign every open or proposed document of the fiscal year to a settlement unit, contract or the owner and confirm it - the actual costs of the settlement units come from the confirmed documents only. Done as soon as all documents of the year are confirmed.</field>
+        </record>
+        <record model="real_estate.process.template.step" id="process_template_year_end_closing_reconcile">
+            <field name="template" ref="process_template_year_end_closing"/>
+            <field name="sequence" eval="50"/>
+            <field name="name">Reconcile the open items</field>
+            <field name="task_type" ref="task_type_process_step"/>
+            <field name="responsible_group" ref="account.group_account"/>
+            <field name="due_base">anchor</field>
+            <field name="offset_months" eval="0"/>
+            <field name="offset_days" eval="20"/>
+            <field name="completion">manual</field>
+            <field name="action" ref="account.act_reconcile"/>
+            <field name="mandatory" eval="True"/>
+            <field name="result_required" eval="False"/>
+            <field name="description">Accounting › Processing › Reconcile Accounts: reconcile payments and invoices per party. Check the open receivables and payables at the year end with the aged balance (rent arrears, doubtful receivables).</field>
+        </record>
+        <record model="real_estate.process.template.step" id="process_template_year_end_closing_depreciation">
+            <field name="template" ref="process_template_year_end_closing"/>
+            <field name="sequence" eval="60"/>
+            <field name="name">Post the depreciation</field>
+            <field name="task_type" ref="task_type_process_step"/>
+            <field name="responsible_group" ref="account.group_account"/>
+            <field name="due_base">anchor</field>
+            <field name="offset_months" eval="0"/>
+            <field name="offset_days" eval="20"/>
+            <field name="completion">manual</field>
+            <field name="action" ref="account_asset.wizard_create_moves"/>
+            <field name="mandatory" eval="False"/>
+            <field name="result_required" eval="False"/>
+            <field name="description">Only if fixed assets are managed: Assets › Create Assets Moves with the last day of the fiscal year.</field>
+        </record>
+        <record model="real_estate.process.template.step" id="process_template_year_end_closing_closing_entries">
+            <field name="template" ref="process_template_year_end_closing"/>
+            <field name="sequence" eval="70"/>
+            <field name="name">Post the closing entries</field>
+            <field name="task_type" ref="task_type_process_step"/>
+            <field name="responsible_group" ref="account.group_account"/>
+            <field name="due_base">anchor</field>
+            <field name="offset_months" eval="0"/>
+            <field name="offset_days" eval="30"/>
+            <field name="completion">manual</field>
+            <field name="action" ref="account.act_move_form"/>
+            <field name="mandatory" eval="True"/>
+            <field name="result_required" eval="True"/>
+            <field name="description">Manual moves dated on the last day of the fiscal year: operating costs of the year not settled yet - debit 1500 'Noch nicht abgerechnete Betriebskosten' / credit 6460 'Bestandserhöhungen bei noch nicht abgerechneten Betriebskosten' with the allocable actual costs of the settlement units (the advance payments of the tenants are already on 4310); reconcile the deposit account 4391 with the deposit bank accounts; valuation allowances on doubtful rent receivables; provisions (e.g. closing and audit costs); accruals and deferrals. Enter the amounts posted as result.</field>
+        </record>
+        <record model="real_estate.process.template.step" id="process_template_year_end_closing_tax">
+            <field name="template" ref="process_template_year_end_closing"/>
+            <field name="sequence" eval="80"/>
+            <field name="name">VAT return December and annual figures</field>
+            <field name="task_type" ref="task_type_process_step"/>
+            <field name="responsible_group" ref="account.group_account"/>
+            <field name="due_base">anchor</field>
+            <field name="offset_months" eval="0"/>
+            <field name="offset_days" eval="30"/>
+            <field name="completion">manual</field>
+            <field name="action" ref="account.act_tax_code_tree_chart"/>
+            <field name="mandatory" eval="True"/>
+            <field name="result_required" eval="False"/>
+            <field name="description">Accounting › Reporting › Tax Codes for December and for the whole fiscal year: VAT return December and the figures of the annual VAT return.</field>
+        </record>
+        <record model="real_estate.process.template.step" id="process_template_year_end_closing_reports">
+            <field name="template" ref="process_template_year_end_closing"/>
+            <field name="sequence" eval="90"/>
+            <field name="name">Check the trial balance, income statement and balance sheet</field>
+            <field name="task_type" ref="task_type_process_step"/>
+            <field name="responsible_group" ref="account.group_account"/>
+            <field name="due_base">anchor</field>
+            <field name="offset_months" eval="0"/>
+            <field name="offset_days" eval="35"/>
+            <field name="completion">manual</field>
+            <field name="action" ref="account.act_account_balance_sheet_tree"/>
+            <field name="mandatory" eval="True"/>
+            <field name="result_required" eval="True"/>
+            <field name="description">Accounting › Reporting: General Ledger (trial balance) for the fiscal year, Income Statement for the fiscal year, Balance Sheet on the last day of the fiscal year (the date defaults to today - change it). Assets minus liabilities must equal the result of the income statement. Enter the result as result.</field>
+        </record>
+        <record model="real_estate.process.template.step" id="process_template_year_end_closing_prepare">
+            <field name="template" ref="process_template_year_end_closing"/>
+            <field name="sequence" eval="100"/>
+            <field name="name">Create the adjustment period and the closing journal</field>
+            <field name="task_type" ref="task_type_process_step"/>
+            <field name="responsible_group" ref="account.group_account"/>
+            <field name="due_base">anchor</field>
+            <field name="offset_months" eval="0"/>
+            <field name="offset_days" eval="35"/>
+            <field name="completion">condition</field>
+            <field name="done_method">fiscalyear_closing_prepared</field>
+            <field name="action" ref="account.act_journal_form"/>
+            <field name="mandatory" eval="True"/>
+            <field name="result_required" eval="False"/>
+            <field name="description">Accounting › Configuration › Journals: a journal of type 'Situation' (German 'Saldenvortrag'), e.g. 'Year-End Closing' - once, reused every year. Fiscal year › tab Periods: a period of type 'Adjustment' (German 'Berichtigung') with start and end on the last day of the fiscal year, e.g. 'Closing 2025'. Done as soon as both exist.</field>
+        </record>
+        <record model="real_estate.process.template.step" id="process_template_year_end_closing_income">
+            <field name="template" ref="process_template_year_end_closing"/>
+            <field name="sequence" eval="110"/>
+            <field name="name">Balance the income statement accounts</field>
+            <field name="task_type" ref="task_type_process_step"/>
+            <field name="responsible_group" ref="account.group_account"/>
+            <field name="due_base">anchor</field>
+            <field name="offset_months" eval="0"/>
+            <field name="offset_days" eval="40"/>
+            <field name="completion">condition</field>
+            <field name="done_method">fiscalyear_income_balanced</field>
+            <field name="action" ref="account.act_balance_non_deferral"/>
+            <field name="mandatory" eval="True"/>
+            <field name="result_required" eval="False"/>
+            <field name="description">Accounting › Processing › Balance Non-Deferral Accounts: this fiscal year, the closing journal, the adjustment period, credit and debit account 3410 'Jahresüberschuss/Jahresfehlbetrag'. Post the created move. Only when all postings of the year are done - later corrections require a new run. Done as soon as all income statement accounts are balanced.</field>
+        </record>
+        <record model="real_estate.process.template.step" id="process_template_year_end_closing_periods">
+            <field name="template" ref="process_template_year_end_closing"/>
+            <field name="sequence" eval="120"/>
+            <field name="name">Close the periods</field>
+            <field name="task_type" ref="task_type_process_step"/>
+            <field name="responsible_group" ref="account.group_account"/>
+            <field name="due_base">anchor</field>
+            <field name="offset_months" eval="0"/>
+            <field name="offset_days" eval="45"/>
+            <field name="completion">condition</field>
+            <field name="done_method">fiscalyear_periods_closed</field>
+            <field name="action" ref="account.act_period_form_close"/>
+            <field name="mandatory" eval="True"/>
+            <field name="result_required" eval="False"/>
+            <field name="description">Accounting › Processing › Close Periods: all periods of the fiscal year including the adjustment period. No draft moves may remain. Closing the fiscal year closes them as well. Done as soon as all periods are closed.</field>
+        </record>
+        <record model="real_estate.process.template.step" id="process_template_year_end_closing_close">
+            <field name="template" ref="process_template_year_end_closing"/>
+            <field name="sequence" eval="130"/>
+            <field name="name">Close the fiscal year</field>
+            <field name="task_type" ref="task_type_process_step"/>
+            <field name="responsible_group" ref="account.group_account"/>
+            <field name="due_base">anchor</field>
+            <field name="offset_months" eval="0"/>
+            <field name="offset_days" eval="45"/>
+            <field name="completion">condition</field>
+            <field name="done_method">fiscalyear_closed</field>
+            <field name="action" ref="account.act_fiscalyear_form_close"/>
+            <field name="mandatory" eval="True"/>
+            <field name="result_required" eval="False"/>
+            <field name="description">Accounting › Processing › Close Fiscal Years: the end balances of the balance sheet accounts become the opening balances of the following year (no opening move needed). Fails if an income statement account still has a balance - balance them first. Earlier fiscal years must be closed. Can be reopened as long as the following year is open. Done as soon as the fiscal year is closed.</field>
+        </record>
+        <record model="real_estate.process.template.step" id="process_template_year_end_closing_appropriation">
+            <field name="template" ref="process_template_year_end_closing"/>
+            <field name="sequence" eval="140"/>
+            <field name="name">Appropriate the result</field>
+            <field name="task_type" ref="task_type_process_step"/>
+            <field name="responsible_group" ref="account.group_account"/>
+            <field name="due_base">anchor</field>
+            <field name="offset_months" eval="6"/>
+            <field name="offset_days" eval="0"/>
+            <field name="completion">manual</field>
+            <field name="action" ref="account.act_move_form"/>
+            <field name="mandatory" eval="True"/>
+            <field name="result_required" eval="True"/>
+            <field name="description">After the resolution: move in the following year from 3410 'Jahresüberschuss/Jahresfehlbetrag' to 3400 'Gewinnvortrag/Verlustvortrag' resp. 3340 'Andere Gewinnrücklagen'. Enter the resolution as result.</field>
+        </record>
+    </data>
+</tryton>

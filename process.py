@@ -28,7 +28,12 @@ STEP_DONE_METHODS = ['deposit_paid', 'meter_readings_complete',
     'modernisation_planned', 'modernisation_units',
     'modernisation_announced', 'modernisation_receipts',
     'modernisation_objections', 'modernisation_started',
-    'modernisation_completed', 'modernisation_settled']
+    'modernisation_completed', 'modernisation_settled',
+    'fiscalyear_next_exists', 'fiscalyear_contract_moves_posted',
+    'fiscalyear_no_drafts',
+    'fiscalyear_oc_documents_confirmed', 'fiscalyear_closing_prepared',
+    'fiscalyear_income_balanced', 'fiscalyear_periods_closed',
+    'fiscalyear_closed']
 # Creation conditions of steps (spec Prüfungen 3.4): name ->
 # Process._step_create_<name>()
 STEP_CREATE_METHODS = ['inspection_no_access', 'inspection_has_defects',

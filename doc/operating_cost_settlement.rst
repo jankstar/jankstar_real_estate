@@ -30,6 +30,12 @@ Sub-topics on separate pages:
    property (owner, not allocated), percent, net/gross, service period,
    § 35a EStG with labor share, BVED fuel type/quantity, proposal source.
 
+   The settlement unit (bottom of the form) and the billing unit (tab
+   *Operating Cost Assignments*) list the assignment lines of their
+   settlement units (``oc_lines``, list ``oc_document_line_list_assignment``:
+   document date, document, supplier, invoice, document state, target,
+   amounts) instead of the former invoice lines.
+
    Menu *Operating Costs › Assign Operating Costs* (filter company,
    property, account, supplier, dates, without property; tabs open /
    proposed / confirmed / all). Buttons: *Propose* (1. the account belongs

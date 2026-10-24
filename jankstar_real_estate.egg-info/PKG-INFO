@@ -35,6 +35,7 @@ Requires-Dist: trytond_currency<8.3,>=8.2
 Requires-Dist: trytond_country<8.3,>=8.2
 Requires-Dist: trytond_account<8.3,>=8.2
 Requires-Dist: trytond_account_invoice<8.3,>=8.2
+Requires-Dist: trytond_account_asset<8.3,>=8.2
 Requires-Dist: trytond_account_deposit<8.3,>=8.2
 Requires-Dist: trytond_account_payment_clearing<8.3,>=8.2
 Requires-Dist: trytond_account_tax_non_deductible<8.3,>=8.2

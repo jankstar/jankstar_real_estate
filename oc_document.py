@@ -743,6 +743,15 @@ class OcDocumentLine(sequence_ordered(), ModelSQL, ModelView):
             "Account"), 'on_change_with_account')
     currency = fields.Function(fields.Many2One('currency.currency',
             "Currency"), 'on_change_with_currency')
+    # Document data for the lists on settlement unit and billing unit
+    document_date = fields.Function(fields.Date("Document Date"),
+        'get_document_field')
+    document_party = fields.Function(fields.Many2One('party.party',
+            "Supplier"), 'get_document_field')
+    document_invoice = fields.Function(fields.Many2One('account.invoice',
+            "Invoice"), 'get_document_field')
+    document_state = fields.Function(fields.Selection(STATES,
+            "Document State"), 'get_document_field')
     target = fields.Selection(TARGETS, "Target", required=True, sort=False)
     settlement_unit = fields.Many2One('real_estate.settlement_unit',
         "Settlement Unit", ondelete='RESTRICT',
@@ -822,6 +831,13 @@ class OcDocumentLine(sequence_ordered(), ModelSQL, ModelView):
     @staticmethod
     def get_bved_fuel_types():
         return [('', '')] + bved_records.as_selection(bved_records.TABLE_B)
+
+    def get_document_field(self, name):
+        document = self.document
+        if not document:
+            return None
+        value = getattr(document, name[len('document_'):])
+        return value.id if hasattr(value, 'id') else value
 
     @fields.depends('document', '_parent_document.property')
     def on_change_with_property(self, name=None):

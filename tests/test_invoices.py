@@ -64,8 +64,13 @@ Vorjahres zu duplizieren oder zu berühren — vorausgesetzt, es existiert
 für dieses Jahr bereits eine passende Billing Unit je Cost Type
 (siehe test_billing_unit.py bzw. "Duplicate for Next Period").
 
+Mit --month <1-12> werden nur die Rechnungen dieses Monats (im Jahr --year)
+angelegt, gebucht und zugeordnet - für einen monatlichen Ablauf zusammen mit
+der periodischen Buchung der Verträge und test_payment.py --month. Ohne
+--month das ganze Jahr.
+
 Verwendung:
-    python tests/test_invoices.py --database <Datenbankname> [--config <trytond.conf>] [--year <Jahr>]
+    python tests/test_invoices.py --database <Datenbankname> [--config <trytond.conf>] [--year <Jahr>] [--month <Monat>]
 """
 
 import argparse
@@ -262,6 +267,11 @@ def assign_documents(invoice, lines_data) -> None:
     kept."""
     Document = Model.get('real_estate.oc_document')
     DocumentLine = Model.get('real_estate.oc_document.line')
+    if invoice.state not in ('posted', 'paid'):
+        # documents are only created when the invoice is posted
+        print(f'    WARNUNG: Rechnung "{invoice.reference}" ist nicht '
+              f'festgeschrieben ({invoice.state}) - keine Belege.')
+        return
     by_description = {ld['description']: ld for ld in lines_data}
     for inv_line in invoice.lines:
         ld = by_description.get(inv_line.description)
@@ -303,8 +313,13 @@ def main():
     parser.add_argument('--config', default=None, help='Pfad zur trytond.conf')
     parser.add_argument('--year', type=int, default=2025,
         help='Kalenderjahr für alle Rechnungsdaten (Default: 2025)')
+    parser.add_argument('--month', type=int, default=None,
+        choices=range(1, 13), metavar='1-12',
+        help='nur die Rechnungen dieses Monats (Default: ganzes Jahr)')
     args = parser.parse_args()
     year = args.year
+    # not 'month' - the loops below use it for the invoice months
+    only_month = args.month
 
     cfg = connect(args.database, args.config)
 
@@ -343,6 +358,9 @@ def main():
         # Type über mehrere Jahre hinweg mehrere Billing Units haben kann
         # (z.B. Grundsteuer Sequence 100 in 2025 und 2026).
         def su(sequence: int, invoice_date: datetime.date):
+            # only looked up for the invoices of the selected month
+            if only_month and invoice_date.month != only_month:
+                return None
             return get_settlement_unit(sequence, prop, invoice_date)
 
         invoices_todo = []
@@ -457,6 +475,11 @@ def main():
               'property': prop, 'settlement_unit': su(310, d)}],
         ))
 
+        if only_month:
+            invoices_todo = [t for t in invoices_todo
+                if t[0].month == only_month]
+            print(f'  Monat {only_month:02d}/{year}: '
+                f'{len(invoices_todo)} Rechnungen')
         invoices_todo.sort(key=lambda x: x[0])
 
         for invoice_date, party, reference, lines_data in invoices_todo:

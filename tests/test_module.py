@@ -1307,6 +1307,113 @@ class RealEstateTestCase(ModuleTestCase):
                     [1, 2, 3])
 
     @with_transaction()
+    def test_year_end_closing_process(self):
+        "Year-end closing: process on the fiscal year and its done checks"
+        from trytond.modules.account.tests import (
+            create_chart, get_fiscalyear)
+        from trytond.modules.company.tests import create_company, set_company
+
+        pool = Pool()
+        Account = pool.get('account.account')
+        FiscalYear = pool.get('account.fiscalyear')
+        Journal = pool.get('account.journal')
+        Move = pool.get('account.move')
+        Period = pool.get('account.period')
+        ModelData = pool.get('ir.model.data')
+        Process = pool.get('real_estate.process')
+        Template = pool.get('real_estate.process.template')
+
+        company = create_company()
+        with set_company(company):
+            create_chart(company)
+            fiscalyear = get_fiscalyear(company,
+                today=datetime.date(2025, 1, 1))
+            fiscalyear.save()
+            FiscalYear.create_period([fiscalyear])
+            template = Template(ModelData.get_id(
+                    'real_estate', 'process_template_year_end_closing'))
+            process = Process.start(template, fiscalyear)
+
+            # the company comes from the fiscal year, the group
+            # 'Accounting' is responsible, due dates from the year end
+            self.assertEqual(process.company, company)
+            self.assertEqual(process.anchor_date, datetime.date(2025, 12, 31))
+            account_group = ModelData.get_id('account', 'group_account')
+            self.assertTrue(process.tasks)
+            self.assertTrue(all(t.responsible_group.id == account_group
+                    for t in process.tasks))
+            self.assertIn(process, fiscalyear.processes_open)
+
+            def done(name):
+                return getattr(Process(process.id), f'_step_done_{name}')()
+
+            self.assertTrue(done('fiscalyear_no_drafts'))
+            self.assertTrue(done('fiscalyear_oc_documents_confirmed'))
+            # no contract of the company - nothing left to post
+            self.assertTrue(done('fiscalyear_contract_moves_posted'))
+            self.assertTrue(done('fiscalyear_income_balanced'))
+
+            # following fiscal year
+            self.assertFalse(done('fiscalyear_next_exists'))
+            following = get_fiscalyear(company,
+                today=datetime.date(2026, 1, 1))
+            following.save()
+            self.assertTrue(done('fiscalyear_next_exists'))
+
+            # a draft move with an income statement account
+            expense, = Account.search([
+                    ('type.expense', '=', True),
+                    ('company', '=', company.id),
+                    ], limit=1)
+            payable, = Account.search([
+                    ('type.statement', '=', 'balance'),
+                    ('type.receivable', '=', False),
+                    ('type.payable', '=', False),
+                    ('party_required', '=', False),
+                    ('closed', '!=', True),
+                    ('company', '=', company.id),
+                    ], limit=1)
+            journal, = Journal.search([('code', '=', 'EXP')])
+            period, = Period.search([
+                    ('fiscalyear', '=', fiscalyear.id),
+                    ('start_date', '=', datetime.date(2025, 3, 1)),
+                    ])
+            move, = Move.create([{
+                        'journal': journal.id,
+                        'period': period.id,
+                        'date': datetime.date(2025, 3, 15),
+                        'lines': [('create', [
+                                    {'account': expense.id,
+                                        'debit': Decimal(100)},
+                                    {'account': payable.id,
+                                        'credit': Decimal(100)},
+                                    ])],
+                        }])
+            self.assertFalse(done('fiscalyear_no_drafts'))
+            self.assertFalse(done('fiscalyear_income_balanced'))
+            Move.delete([move])
+            self.assertTrue(done('fiscalyear_no_drafts'))
+            self.assertTrue(done('fiscalyear_income_balanced'))
+
+            # adjustment period and journal of type situation
+            self.assertFalse(done('fiscalyear_closing_prepared'))
+            Journal.create([{'name': 'Closing', 'code': 'CLO',
+                        'type': 'situation'}])
+            Period.create([{'name': 'Closing 2025',
+                        'fiscalyear': fiscalyear.id,
+                        'start_date': datetime.date(2025, 12, 31),
+                        'end_date': datetime.date(2025, 12, 31),
+                        'type': 'adjustment'}])
+            self.assertTrue(done('fiscalyear_closing_prepared'))
+
+            # periods and fiscal year closed
+            self.assertFalse(done('fiscalyear_periods_closed'))
+            self.assertFalse(done('fiscalyear_closed'))
+            FiscalYear.close([FiscalYear(fiscalyear.id)])
+            self.assertTrue(done('fiscalyear_periods_closed'))
+            self.assertTrue(done('fiscalyear_closed'))
+
+    @with_transaction()
     def test_execute_in_run_one_transaction_per_adjustment(self):
         "Adjustment run: each adjustment executed in a transaction of its own"
         from unittest.mock import patch

@@ -252,6 +252,13 @@ class SettlementUnit(DeactivableMixin, base_object.re_sequence_ordered(), ModelS
 
     invoice_lines = fields.Function(fields.One2Many('account.invoice.line', 'settlement_unit', 'Invoice Lines'),
         'on_change_with_invoice_lines', setter='set_invoice_lines')
+    oc_lines = fields.Function(fields.One2Many(
+            'real_estate.oc_document.line', None,
+            "Operating Cost Assignments",
+            help="Assignment lines of the operating cost documents to this "
+                 "settlement unit (Assign Operating Costs) - the confirmed "
+                 "ones make up the actual costs."),
+        'get_oc_lines', setter='set_oc_lines')
 
     option_rate_method = fields.Selection([
             ('fix_0', 'Fix: Option Rate 0.0 %'),
@@ -828,6 +835,16 @@ class SettlementUnit(DeactivableMixin, base_object.re_sequence_ordered(), ModelS
                     ('m_type', 'in', effective_ids),
                 ], order=[('base_object', 'ASC'), ('valid_from', 'DESC')])
         return measurements
+
+    @classmethod
+    def set_oc_lines(cls, records, name, value):
+        pass
+
+    def get_oc_lines(self, name):
+        Line = Pool().get('real_estate.oc_document.line')
+        return [l.id for l in Line.search([
+                    ('settlement_unit', '=', self.id),
+                    ], order=[('document.date', 'ASC'), ('id', 'ASC')])]
 
     def on_change_with_invoice_lines(self, name=None):
         invoice_lines = Pool().get('account.invoice.line').search([

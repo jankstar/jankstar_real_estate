@@ -117,6 +117,8 @@ tryton.cfg
 ./contract_wizard.py
 ./cron_task.py
 ./cron_task.xml
+./fiscalyear_closing.py
+./fiscalyear_closing.xml
 ./group_account_view.xml
 ./group_party_access.xml
 ./group_real_estate_view.xml
@@ -182,7 +184,6 @@ tryton.cfg
 ./locale/de.po
 ./tests/__init__.py
 ./tests/generate_rent_survey_xml.py
-./tests/migrate_contract_main_tenant.py
 ./tests/migrate_run_rents.py
 ./tests/test_billing_unit.py
 ./tests/test_bved_provider_response.py
@@ -319,6 +320,7 @@ tryton.cfg
 ./view/equipment_kind_tree.xml
 ./view/estimate_consumption_result_form.xml
 ./view/estimate_consumption_start_form.xml
+./view/fiscalyear_form.xml
 ./view/general_ledger_account_contract_list.xml
 ./view/general_ledger_line_list.xml
 ./view/handover_checklist_form.xml
@@ -628,7 +630,6 @@ jankstar_real_estate.egg-info/top_level.txt
 locale/de.po
 tests/__init__.py
 tests/generate_rent_survey_xml.py
-tests/migrate_contract_main_tenant.py
 tests/migrate_run_rents.py
 tests/test_billing_unit.py
 tests/test_bved_provider_response.py

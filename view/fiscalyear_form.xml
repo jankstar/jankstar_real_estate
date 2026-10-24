@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<data>
+    <xpath expr="//notebook/page[@id='sequences']" position="after">
+        <page string="Processes" id="page_processes" col="1">
+            <notebook>
+                <page string="Open" id="page_processes_open" col="1">
+                    <field name="processes_open"/>
+                </page>
+                <page string="History" id="page_processes_history" col="1">
+                    <field name="processes_history"/>
+                </page>
+            </notebook>
+        </page>
+    </xpath>
+</data>

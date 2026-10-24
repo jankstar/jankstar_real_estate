@@ -42,6 +42,7 @@ from . import inspection
 from . import oc_document
 from . import modernisation
 from . import contract_modernisation
+from . import fiscalyear_closing
 
 __all__ = ['register']
 
@@ -274,6 +275,8 @@ def register():
         contract_modernisation.ContractTermAdjustmentRunModernisation,
         contract_modernisation.ContractTermAdjustment,
         contract_modernisation.ModernisationUnit,
+        fiscalyear_closing.FiscalYear,
+        fiscalyear_closing.Process,
         module='real_estate', type_='model')
     Pool.register(
         contract_wizard.CreateContractMovesWizard,

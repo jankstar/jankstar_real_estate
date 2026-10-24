@@ -194,6 +194,13 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
 
     invoice_lines = fields.Function(fields.One2Many('account.invoice.line', None, 'Invoice Lines'),
         'on_change_with_invoice_lines', setter='set_invoice_lines')
+    oc_lines = fields.Function(fields.One2Many(
+            'real_estate.oc_document.line', None,
+            "Operating Cost Assignments",
+            help="Assignment lines of the operating cost documents to the "
+                 "settlement units of this billing unit (target settlement "
+                 "unit or contract)."),
+        'get_oc_lines', setter='set_oc_lines')
 
     cost_shares = fields.Function(fields.One2Many('real_estate.cost_share', None, 'Cost Shares'),
         'on_change_with_cost_shares', setter='set_cost_shares')
@@ -1834,6 +1841,19 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
         for settlement_unit in self.settlement_units:
             invoice_lines.extend(settlement_unit.invoice_lines)
         return invoice_lines
+
+    @classmethod
+    def set_oc_lines(cls, records, name, value):
+        pass
+
+    def get_oc_lines(self, name):
+        Line = Pool().get('real_estate.oc_document.line')
+        su_ids = [su.id for su in self.settlement_units]
+        if not su_ids:
+            return []
+        return [l.id for l in Line.search([
+                    ('settlement_unit', 'in', su_ids),
+                    ], order=[('document.date', 'ASC'), ('id', 'ASC')])]
 
     @fields.depends('settlement_units')
     def on_change_with_cost_shares(self, name=None):

@@ -91,11 +91,17 @@ builds on the previous one's data):
    Requires ``test_kreditor.py``, ``test_immo.py``, and
    ``test_billing_unit.py`` (with billing units advanced past ``draft`` so
    settlement units can be looked up). Creates the corresponding purchase
-   invoices — one-off and recurring — for each property, linking each line
-   to its ``settlement_unit`` where a match is found. Invoices are only
-   saved, not posted (remain in state ``draft``)::
+   invoices — one-off and recurring — for each property. The lines only
+   carry the property (assignment control *Operating Costs*); the invoices
+   are posted, which creates one operating cost document per line, and each
+   document is then assigned 100 % to its settlement unit and confirmed
+   (what a user does in *Assign Operating Costs*). Accounts: property tax
+   8910, heating 8002, all other operating costs 8000. ``--month`` creates
+   only the invoices of that month (of ``--year``, default 2025) - for a
+   monthly run together with the periodic contract posting and
+   ``test_payment.py --month``::
 
-      python tests/test_invoices.py --database <db> [--config trytond.conf]
+      python tests/test_invoices.py --database <db> [--config trytond.conf] [--year 2025] [--month 3]
 
 ``tests/test_rent_survey.py``
    The rent survey *Berliner Mietspiegel* with the complete version
@@ -134,12 +140,15 @@ builds on the previous one's data):
 
 ``tests/test_payment.py``
    Requires ``test_contracts.py`` and at least one run of the
-   ``CreateContractMoves`` wizard so posted tenant invoices exist. Books one
-   payment receipt per tenant/commercial-tenant party (debit account 1800
-   Bank / credit the receivable account taken from that party's open lines)
-   and reconciles the open items::
+   ``CreateContractMoves`` wizard so posted tenant invoices exist (and
+   ``test_invoices.py`` for the creditor side). Books one payment receipt per
+   tenant/commercial-tenant party (debit 2740 Bank / credit the receivable
+   account taken from that party's open lines) and one payment per creditor
+   (debit the payable account / credit 2740 Bank) and reconciles the open
+   items. ``--year`` [``--month``] restricts it to the open items dated in
+   that year resp. month (payment date = latest date of those items)::
 
-      python tests/test_payment.py --database <db> [--config trytond.conf]
+      python tests/test_payment.py --database <db> [--config trytond.conf] [--year 2025 [--month 3]]
 
 ``tests/migrate_run_rents.py``
    Test migration for the comparative rent: sets the rent terms of the

@@ -164,9 +164,9 @@
             readonly="1"/>
     </group>
 
-    <group colspan="6" id="settlement_unit_invoice_lines">
-        <field name="invoice_lines"
-            view_ids="real_estate.invoice_line_view_tree_billing_unit"
+    <group colspan="6" id="settlement_unit_oc_lines">
+        <field name="oc_lines"
+            view_ids="real_estate.oc_document_line_view_list_assignment"
             readonly="1"/>
     </group>
 

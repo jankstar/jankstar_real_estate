@@ -67,9 +67,9 @@ The following master data must be set up before the module can be used:
    ``re_account_allocation_by_owner``
       Vacancy account for the operating cost settlement - relief of the
       billing unit / settlement unit (debit and credit side of vacancy
-      postings). In the WoWi chart of accounts: 6091 *Erlösschmälerungen
-      Leerstand (Betriebskosten)*; set by hand per company, since the
-      accounts are only created with the company's chart.
+      postings). Set by hand per company. To be removed with the new
+      operating cost relief (cost reclassification from the property to the
+      rental objects, owner postings no longer needed).
 
    ``re_journal_billing``
       Journal used for direct GL postings in operating cost settlements.

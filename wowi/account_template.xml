@@ -1913,12 +1913,6 @@
             <field name="code">6090</field>
             <field name="type" ref="wowi_type_u_609"/>
         </record>
-        <record id="wowi_account_6091" model="account.account.template">
-            <field name="name">Erlösschmälerungen Leerstand (Betriebskosten)</field>
-            <field name="parent" ref="wowi_view_u_609"/>
-            <field name="code">6091</field>
-            <field name="type" ref="wowi_type_u_609"/>
-        </record>
         <record id="wowi_view_g_61" model="account.account.template">
             <field name="name">Umsatzerlöse aus dem Verkauf von Grundstücken</field>
             <field name="parent" ref="wowi_view_k6"/>
