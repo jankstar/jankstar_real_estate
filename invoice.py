@@ -408,20 +408,14 @@ class InvoiceLine(metaclass=PoolMeta):
         self._set_taxes_deductible_rate_from_option_rate()
 
     @staticmethod
-    def _option_rate_priority(base_object, settlement_unit, billing_unit,
-            property_):
-        """Pick the real-estate reference to use for the option rate
-        lookup, in order of specificity: base_object, settlement_unit,
-        billing_unit, property (the derived property base_object, as a
-        last-resort fallback). Returns (ref_field, record) matching
-        real_estate.option_rate's own reference field names, or
-        (None, None) if none of the four is set."""
+    def _option_rate_priority(base_object, property_):
+        """Pick the object to use for the option rate lookup: the booked
+        base_object, else the property (the derived property base_object,
+        as a fallback) - option rates are kept on objects only
+        (spezifikation-betriebskostenzuordnung.md E18). Returns
+        (ref_field, record) or (None, None) if neither is set."""
         if base_object:
             return 'base_object', base_object
-        if settlement_unit:
-            return 'settlement_unit', settlement_unit
-        if billing_unit:
-            return 'billing_unit', billing_unit
         if property_:
             return 'base_object', property_
         return None, None
@@ -430,8 +424,6 @@ class InvoiceLine(metaclass=PoolMeta):
         'base_object', 'settlement_unit', 'billing_unit',
         'company', 'taxes_date', 'invoice', 'invoice_type',
         '_parent_base_object.option_rate_method',
-        '_parent_settlement_unit.option_rate_method',
-        '_parent_billing_unit.option_rate_method',
         '_parent_company.purchase_taxes_expense',
         '_parent_invoice.invoice_date', '_parent_invoice.type',
         methods=['on_change_with_property'])
@@ -449,8 +441,7 @@ class InvoiceLine(metaclass=PoolMeta):
         if self.company and self.company.purchase_taxes_expense:
             return
         ref_field, record = self._option_rate_priority(
-            self.base_object, self.settlement_unit, self.billing_unit,
-            self.on_change_with_property())
+            self.base_object, self.on_change_with_property())
         if not record:
             return
         date = (self.taxes_date
@@ -479,8 +470,6 @@ class InvoiceLine(metaclass=PoolMeta):
         Never overrides a value the caller passed explicitly."""
         pool = Pool()
         BaseObject = pool.get('real_estate.base_object')
-        SettlementUnit = pool.get('real_estate.settlement_unit')
-        BillingUnit = pool.get('real_estate.billing_unit')
         ContractTerm = pool.get('real_estate.contract.term')
         OptionRate = pool.get('real_estate.option_rate')
         Company = pool.get('company.company')
@@ -506,17 +495,12 @@ class InvoiceLine(metaclass=PoolMeta):
 
             base_object = (BaseObject(values['base_object'])
                 if values.get('base_object') else None)
-            settlement_unit = (SettlementUnit(values['settlement_unit'])
-                if values.get('settlement_unit') else None)
-            billing_unit = (BillingUnit(values['billing_unit'])
-                if values.get('billing_unit') else None)
             property_ = None
-            if (not (base_object or settlement_unit or billing_unit)
-                    and values.get('term')):
+            if not base_object and values.get('term'):
                 property_ = ContractTerm(values['term']).property or None
 
             ref_field, record = cls._option_rate_priority(
-                base_object, settlement_unit, billing_unit, property_)
+                base_object, property_)
             if not record:
                 continue
 

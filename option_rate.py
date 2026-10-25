@@ -14,9 +14,6 @@ class OptionRateContext(ModelView):
 
     base_object = fields.Many2One('real_estate.base_object', 'Base Object',
         domain=[('type', 'in', ('property', 'building', 'land', 'object'))])
-    billing_unit = fields.Many2One('real_estate.billing_unit', 'Billing Unit')
-    settlement_unit = fields.Many2One('real_estate.settlement_unit',
-        'Settlement Unit')
 
 
 #**********************************************************************
@@ -25,11 +22,7 @@ class OptionRate(ModelSQL, ModelView):
     __name__ = 'real_estate.option_rate'
 
     base_object = fields.Many2One('real_estate.base_object', 'Base Object',
-        ondelete='CASCADE')
-    settlement_unit = fields.Many2One('real_estate.settlement_unit',
-        'Settlement Unit', ondelete='CASCADE')
-    billing_unit = fields.Many2One('real_estate.billing_unit', 'Billing Unit',
-        ondelete='CASCADE')
+        required=True, ondelete='CASCADE')
     valid_from = fields.Date('Valid From', required=True)
     option_rate = fields.Numeric('Option Rate', digits=(5, 2), required=True,
         domain=[
@@ -46,45 +39,20 @@ class OptionRate(ModelSQL, ModelView):
             ('base_object_valid_from_unique',
                 Unique(t, t.base_object, t.valid_from),
                 'real_estate.msg_option_rate_valid_from_unique'),
-            ('settlement_unit_valid_from_unique',
-                Unique(t, t.settlement_unit, t.valid_from),
-                'real_estate.msg_option_rate_valid_from_unique'),
-            ('billing_unit_valid_from_unique',
-                Unique(t, t.billing_unit, t.valid_from),
-                'real_estate.msg_option_rate_valid_from_unique'),
         ]
 
     @classmethod
-    def validate(cls, records):
-        super().validate(records)
-        for record in records:
-            refs = [record.base_object, record.settlement_unit,
-                record.billing_unit]
-            if sum(1 for r in refs if r) != 1:
-                raise ValidationError(gettext(
-                    'real_estate.msg_option_rate_exactly_one_reference'))
-
-    #: billing_unit/settlement_unit states excluded from processing.
-    _excluded_bu_su_states = ('draft', 'billed')
-
-    @classmethod
-    def _expand_selection(cls, base_objects, billing_units, settlement_units):
-        """Expand a raw selection into (kind, record) tuples, kind being
-        one of 'base_object', 'settlement_unit', 'billing_unit' - matching
-        this model's own reference field names 1:1. Base objects of type
+    def _expand_selection(cls, base_objects):
+        """Expand the selected base objects into (kind, record) tuples, kind
+        'base_object' (this model's reference field). Base objects of type
         property/building/land are expanded to include their building/
-        land/object descendants; an approved property is additionally
-        expanded to include its billing units, and each of those to
-        include its settlement units; billing units are expanded to
-        include their settlement units.
-
-        Status filtering: base objects must be in state 'approved' (any
-        other state is fully excluded, both from processing and as a
-        basis for an ancestor's dynamic calculation); billing units and
-        settlement units in state 'draft' or 'billed' are excluded."""
+        land/object descendants. Only base objects in state 'approved' (any
+        other state is fully excluded, both from processing and as a basis
+        for an ancestor's dynamic calculation). Option rates are kept on
+        objects only - not on billing units or settlement units
+        (spezifikation-betriebskostenzuordnung.md E18)."""
         result = []
         seen_base_object_ids = set()
-        seen_settlement_unit_ids = set()
 
         def add_base_object(obj):
             if obj.id in seen_base_object_ids or obj.state != 'approved':
@@ -92,39 +60,12 @@ class OptionRate(ModelSQL, ModelView):
             seen_base_object_ids.add(obj.id)
             result.append(('base_object', obj))
 
-        seen_billing_unit_ids = set()
-
-        def add_settlement_unit(su):
-            if (su.id in seen_settlement_unit_ids
-                    or su.state in cls._excluded_bu_su_states):
-                return
-            seen_settlement_unit_ids.add(su.id)
-            result.append(('settlement_unit', su))
-
-        def add_billing_unit(bu):
-            if bu.id in seen_billing_unit_ids:
-                return
-            seen_billing_unit_ids.add(bu.id)
-            if bu.state not in cls._excluded_bu_su_states:
-                result.append(('billing_unit', bu))
-            for su in bu.settlement_units:
-                add_settlement_unit(su)
-
         for obj in base_objects:
             add_base_object(obj)
-            if obj.type in ('property', 'building', 'land') and obj.state == 'approved':
+            if (obj.type in ('property', 'building', 'land')
+                    and obj.state == 'approved'):
                 for desc in cls._approved_descendants(obj):
                     add_base_object(desc)
-                if obj.type == 'property':
-                    for bu in obj.billing_units:
-                        add_billing_unit(bu)
-
-        for bu in billing_units:
-            add_billing_unit(bu)
-
-        for su in settlement_units:
-            add_settlement_unit(su)
-
         return result
 
     @classmethod
@@ -137,8 +78,8 @@ class OptionRate(ModelSQL, ModelView):
 
     @classmethod
     def get_current_rate_fraction(cls, ref_field, record, date):
-        """Current option rate for record (a base_object, settlement_unit,
-        or billing_unit - whichever ref_field names) as of date, expressed
+        """Current option rate for record (a base_object - ref_field
+        'base_object') as of date, expressed
         as a 0..1 fraction (e.g. for account.invoice.line.taxes_deductible_rate).
         Returns None if unknown (option_rate_method is dynamic_measurement
         and no rate has ever been booked for record via the update wizard)."""
@@ -207,21 +148,6 @@ class OptionRate(ModelSQL, ModelView):
             if record.type == 'object':
                 return [record] if record.state == 'approved' else []
             return cls._approved_rental_object_descendants(record)
-        elif kind == 'settlement_unit':
-            return [o for o in record.objects
-                if o.type == 'object' and o.state == 'approved']
-        elif kind == 'billing_unit':
-            rental_objects = []
-            seen_ids = set()
-            for su in record.settlement_units:
-                if su.state in cls._excluded_bu_su_states:
-                    continue
-                for o in su.objects:
-                    if (o.type == 'object' and o.state == 'approved'
-                            and o.id not in seen_ids):
-                        seen_ids.add(o.id)
-                        rental_objects.append(o)
-            return rental_objects
         return []
 
     @classmethod
@@ -267,15 +193,13 @@ class OptionRate(ModelSQL, ModelView):
         return 'created'
 
     @classmethod
-    def process_update(cls, base_objects, billing_units, settlement_units,
-            cutoff_date):
+    def process_update(cls, base_objects, cutoff_date):
         """Recompute and book option rates for the given selection (and its
         descendants) as of cutoff_date. Returns (counts, log) where counts
         is a dict of status -> number of records, and log is a list of
         per-record detail lines."""
         effective_date = cutoff_date.replace(day=1)
-        expanded = cls._expand_selection(
-            base_objects, billing_units, settlement_units)
+        expanded = cls._expand_selection(base_objects)
         counts = {'created': 0, 'updated': 0, 'unchanged': 0, 'skipped': 0}
         log = []
         lang = Pool().get('ir.lang').get()

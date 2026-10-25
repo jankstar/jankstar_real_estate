@@ -396,9 +396,6 @@ Either run "Ready for Billing" for each billing unit first, or bill individual b
         <record model="ir.message" id="msg_contract_item_object_unique">
             <field name="text">This object is already assigned to this contract item.</field>
         </record>
-        <record model="ir.message" id="msg_option_rate_exactly_one_reference">
-            <field name="text">An option rate must be linked to exactly one of: base object, settlement unit, or billing unit.</field>
-        </record>
         <record model="ir.message" id="msg_option_rate_method_object_fixed">
             <field name="text">"%(name)s": a rental object only allows the option rate methods "Fix: Option Rate 0.0 %%" and "Fix: Option Rate 100.0 %%" (its costs are distributed gross or net).</field>
         </record>
@@ -1610,12 +1607,6 @@ Increase %(increase)s: rent %(old)s → %(new)s from %(valid_from)s</field>
         </record>
         <record model="ir.message" id="msg_option_rate_kind_base_object">
             <field name="text">Object</field>
-        </record>
-        <record model="ir.message" id="msg_option_rate_kind_billing_unit">
-            <field name="text">Billing Unit</field>
-        </record>
-        <record model="ir.message" id="msg_option_rate_kind_settlement_unit">
-            <field name="text">Settlement Unit</field>
         </record>
         <record model="ir.message" id="msg_option_rate_status_created">
             <field name="text">created</field>
