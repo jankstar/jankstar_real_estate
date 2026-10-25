@@ -242,7 +242,9 @@ Processes
    **completion** (manual, by executing the action, or by condition:
    PYSON domain on the reference record or a method ``deposit_paid``,
    ``meter_readings_complete``, ``billing_settled``, ``handover_*_done``,
-   ``inspection_done``, ``inspection_approved``), optionally with a
+   ``inspection_done``, ``inspection_approved``, ``fiscalyear_*``; set
+   done by hand while the condition is not fulfilled only after a
+   warning - confirm or cancel - noted in the result), optionally with a
    required result, and the **creation** (always, or by a method such as
    ``inspection_no_access`` / ``inspection_has_defects``: the task is
    created only once the condition is fulfilled; such a step never

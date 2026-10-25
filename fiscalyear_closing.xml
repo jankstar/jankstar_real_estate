@@ -131,6 +131,22 @@
             <field name="result_required" eval="False"/>
             <field name="description">Operating Costs › Assign Operating Costs: assign every open or proposed document of the fiscal year to a settlement unit, contract or the owner and confirm it - the actual costs of the settlement units come from the confirmed documents only. Done as soon as all documents of the year are confirmed.</field>
         </record>
+        <record model="real_estate.process.template.step" id="process_template_year_end_closing_oc_reconciliation">
+            <field name="template" ref="process_template_year_end_closing"/>
+            <field name="sequence" eval="45"/>
+            <field name="name">Reconcile the operating costs</field>
+            <field name="task_type" ref="task_type_process_step"/>
+            <field name="responsible_group" ref="account.group_account"/>
+            <field name="due_base">anchor</field>
+            <field name="offset_months" eval="0"/>
+            <field name="offset_days" eval="15"/>
+            <field name="completion">condition</field>
+            <field name="done_method">fiscalyear_oc_reconciled</field>
+            <field name="action" ref="real_estate.act_oc_reconciliation"/>
+            <field name="mandatory" eval="True"/>
+            <field name="result_required" eval="False"/>
+            <field name="description">Operating Costs › Operating Cost Reconciliation: compute the reconciliation of every property whose billing units end in the fiscal year and clear the hints. Done as soon as all these reconciliations are computed and in order; it can be set done by hand after a warning (e.g. billing still open).</field>
+        </record>
         <record model="real_estate.process.template.step" id="process_template_year_end_closing_reconcile">
             <field name="template" ref="process_template_year_end_closing"/>
             <field name="sequence" eval="50"/>

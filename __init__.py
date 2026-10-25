@@ -40,6 +40,7 @@ from . import adjustment_run
 from . import contract_comparative_rent
 from . import inspection
 from . import oc_document
+from . import oc_reconciliation
 from . import modernisation
 from . import contract_modernisation
 from . import fiscalyear_closing
@@ -130,6 +131,8 @@ def register():
         oc_document.OcDocumentHistoryStart,
         oc_document.OcDocumentUpdateStart,
         oc_document.OcDocumentUpdateResult,
+        oc_reconciliation.OcReconciliation,
+        oc_reconciliation.OcReconciliationLine,
         billing_unit.BillingUnitContext,
         billing_unit.BillingUnitLogContext,
         billing_unit.BillingUnit,

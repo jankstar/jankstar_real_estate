@@ -4,9 +4,11 @@ from decimal import Decimal
 
 from dateutil.relativedelta import relativedelta
 
+from trytond.exceptions import UserWarning
 from trytond.model.exceptions import ValidationError
 from trytond.pool import Pool
 from trytond.tests.test_tryton import ModuleTestCase, with_transaction
+from trytond.transaction import Transaction
 
 
 class _StubNamed:
@@ -1393,8 +1395,26 @@ class RealEstateTestCase(ModuleTestCase):
             self.assertTrue(done('fiscalyear_no_drafts'))
             self.assertTrue(done('fiscalyear_income_balanced'))
 
+            # no billing unit ending in the year - nothing to reconcile
+            self.assertTrue(done('fiscalyear_oc_reconciled'))
+
             # adjustment period and journal of type situation
             self.assertFalse(done('fiscalyear_closing_prepared'))
+            # a step by condition set done by hand: warning, then noted
+            from trytond.transaction import Transaction
+            Task = pool.get('real_estate.task')
+            task, = [t for t in Process(process.id).tasks
+                if t.template_step and t.template_step.done_method
+                == 'fiscalyear_closing_prepared']
+            if task.state != 'open':
+                Task.activate([task])
+            with self.assertRaises(UserWarning):
+                Task.done([Task(task.id)])
+            with Transaction().set_context(_skip_warnings=True):
+                Task.done([Task(task.id)])
+            task = Task(task.id)
+            self.assertEqual(task.state, 'done')
+            self.assertIn('Set done by hand', task.result)
             Journal.create([{'name': 'Closing', 'code': 'CLO',
                         'type': 'situation'}])
             Period.create([{'name': 'Closing 2025',
@@ -1574,6 +1594,38 @@ class RealEstateTestCase(ModuleTestCase):
         self.assertEqual(result['apartment']['g'], Decimal('700.00'))
         self.assertEqual(distribute_groups({'g': Decimal(1)}, {1: 0}),
             {1: {}})
+
+    def test_oc_reconciliation_functions(self):
+        "Reconciliation: distribution columns and account check (spec 8)"
+        from trytond.modules.real_estate.oc_reconciliation import (
+            account_check, distribution)
+        # 119 gross / 100 net: flat 60 % gross (tenant), shop 40 % net
+        # (vacancy) - completely distributed
+        columns = distribution(Decimal('119.00'), Decimal(0), Decimal(0),
+            [(Decimal('71.40'), False, True), (Decimal('40.00'), True,
+                    False)], Decimal('119.00'), Decimal('100.00'))
+        self.assertEqual(columns, {
+                'tenants': Decimal('71.40'),
+                'vacancy': Decimal('40.00'),
+                'commercial_tax': Decimal('7.60'),
+                'not_distributed': Decimal('0.00'),
+                })
+        # passed on: the source gives away, the target distributes more
+        columns = distribution(Decimal('50.00'), Decimal(0),
+            Decimal('-50.00'), [], Decimal(0), Decimal(0))
+        self.assertEqual(columns['not_distributed'], Decimal('0.00'))
+        # insurance 01.10.2025-30.09.2026, 1,200.00 booked in 2025:
+        # 302.47 to the settlement unit 2025, 897.53 to 2026
+        check = account_check(Decimal('1200.00'), Decimal('302.47'),
+            Decimal(0), Decimal(0), Decimal(0), Decimal('897.53'),
+            Decimal(0), Decimal(0))
+        self.assertEqual(check['difference'], Decimal('0.00'))
+        # 2026: reclassified without a booking in the period
+        check = account_check(Decimal(0), Decimal('897.53'), Decimal(0),
+            Decimal(0), Decimal(0), Decimal(0), Decimal('897.53'),
+            Decimal(0))
+        self.assertEqual((check['rest'], check['difference']),
+            (Decimal('-897.53'), Decimal('0.00')))
 
     def test_oc_reclass_amounts(self):
         "Cost reclassification: example of the specification (6.5)"
@@ -1756,9 +1808,14 @@ class RealEstateTestCase(ModuleTestCase):
                     doc.amount_net, doc.amount_gross),
                 (prop, expense, 'open', Decimal('120.00'),
                     Decimal('120.00')))
-            # Without property: document without property (hint only)
-            post(datetime.date(2025, 3, 16), Decimal('5.00'),
-                base_object=None)
+            # Without property: warning on posting (Z06), document
+            # without property once confirmed
+            with self.assertRaises(UserWarning):
+                post(datetime.date(2025, 3, 16), Decimal('5.00'),
+                    base_object=None)
+            with Transaction().set_context(_skip_warnings=True):
+                post(datetime.date(2025, 3, 16), Decimal('5.00'),
+                    base_object=None)
             self.assertEqual(
                 len(Document.search([('property', '=', None)])), 1)
 
@@ -1914,6 +1971,32 @@ class RealEstateTestCase(ModuleTestCase):
                     flat: Decimal('71.40'),
                     shop: Decimal('40.00'),
                     })
+
+            # Reconciliation (spec 8): distributed completely, not billed
+            # yet - the costs are still on the property (pending)
+            Reconciliation = pool.get('real_estate.oc_reconciliation')
+            reconciliation, = Reconciliation.create([{
+                        'company': company.id, 'property': prop.id,
+                        'start_date': start}])
+            Reconciliation.compute([reconciliation])
+            reconciliation = Reconciliation(reconciliation.id)
+            line, = [l for l in reconciliation.cost_lines
+                if l.section == 'settlement_unit']
+            self.assertEqual((line.assigned, line.vacancy,
+                    line.commercial_tax, line.not_distributed),
+                (Decimal('119.00'), Decimal('111.40'), Decimal('7.60'),
+                    Decimal('0.00')))
+            self.assertEqual(line.documents, (Document(doc.id),))
+            self.assertEqual((reconciliation.booked, reconciliation.rest,
+                    reconciliation.pending_booked,
+                    reconciliation.difference),
+                (Decimal('100.00'), Decimal('100.00'), Decimal('100.00'),
+                    Decimal('0.00')))
+            self.assertEqual(reconciliation.check_state, 'hints')
+            self.assertIn(bu.rec_name, reconciliation.protocol)
+            self.assertEqual(reconciliation.billing_units, (bu,))
+            self.assertEqual(Reconciliation.search([
+                        ('billing_units', '=', bu.id)]), [reconciliation])
 
     @with_transaction()
     def test_inspection_default_data(self):

@@ -94,6 +94,26 @@ class Process(metaclass=PoolMeta):
                 ('date', '<=', fiscalyear.end_date),
                 ], limit=1)
 
+    def _step_done_fiscalyear_oc_reconciled(self):
+        """The operating cost reconciliation of every property with billing
+        units ending in the year is computed and in order"""
+        pool = Pool()
+        BillingUnit = pool.get('real_estate.billing_unit')
+        Reconciliation = pool.get('real_estate.oc_reconciliation')
+        fiscalyear = self._fiscalyear()
+        if not fiscalyear:
+            return False
+        periods = {(u.property.id, u.start_date) for u in BillingUnit.search([
+                    ('property.company', '=', fiscalyear.company.id),
+                    ('end_date', '>=', fiscalyear.start_date),
+                    ('end_date', '<=', fiscalyear.end_date),
+                    ])}
+        done = {(r.property.id, r.start_date) for r in Reconciliation.search([
+                    ('company', '=', fiscalyear.company.id),
+                    ('check_state', '=', 'ok'),
+                    ])}
+        return periods <= done
+
     def _step_done_fiscalyear_closing_prepared(self):
         """An adjustment period in the year and a journal of type
         'situation' exist (balance non-deferral accounts)"""

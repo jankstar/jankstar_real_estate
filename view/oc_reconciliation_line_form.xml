@@ -1,0 +1,66 @@
+<?xml version="1.0"?>
+<form col="4">
+    <label name="name"/>
+    <field name="name" colspan="3"/>
+    <label name="section"/>
+    <field name="section"/>
+    <label name="state"/>
+    <field name="state"/>
+    <label name="settlement_unit"/>
+    <field name="settlement_unit"/>
+    <label name="billing_unit"/>
+    <field name="billing_unit"/>
+    <label name="contract"/>
+    <field name="contract"/>
+    <label name="base_object"/>
+    <field name="base_object"/>
+    <notebook colspan="4">
+        <page string="Amounts" id="amounts" col="4">
+            <label name="assigned"/>
+            <field name="assigned"/>
+            <label name="assigned_net"/>
+            <field name="assigned_net"/>
+            <label name="direct"/>
+            <field name="direct"/>
+            <label name="passed_on"/>
+            <field name="passed_on"/>
+            <label name="tenants"/>
+            <field name="tenants"/>
+            <label name="vacancy"/>
+            <field name="vacancy"/>
+            <label name="commercial_tax"/>
+            <field name="commercial_tax"/>
+            <label name="not_distributed"/>
+            <field name="not_distributed"/>
+            <label name="outside_period"/>
+            <field name="outside_period"/>
+            <newline/>
+            <label name="result_costs"/>
+            <field name="result_costs"/>
+            <label name="billed"/>
+            <field name="billed"/>
+            <label name="reclass_expected"/>
+            <field name="reclass_expected"/>
+            <label name="reclassified"/>
+            <field name="reclassified"/>
+            <label name="difference"/>
+            <field name="difference"/>
+        </page>
+        <page name="documents" col="1">
+            <field name="documents"/>
+        </page>
+        <page name="oc_lines" col="1">
+            <field name="oc_lines"
+                view_ids="real_estate.oc_document_line_view_list_assignment"/>
+        </page>
+        <page name="cost_shares" col="1">
+            <field name="cost_shares"/>
+        </page>
+        <page name="results" col="1">
+            <field name="results"/>
+        </page>
+        <page name="moves" col="1">
+            <field name="moves"/>
+        </page>
+    </notebook>
+</form>
