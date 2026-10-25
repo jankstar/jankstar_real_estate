@@ -540,13 +540,19 @@ data, typically entered only on the heating-cost settlement unit):
       unnumbered since they are module-only controls, not fields of the
       B-Satz record itself.
 
-   K-Satz cost records (``BvedExport._build_b_k_records()``) are built not
-   only from invoice lines booked directly on the externally-billed
-   settlement unit, but also from every settlement unit of the same
+   K-Satz cost records (``BvedExport._build_b_k_records()``, one per
+   record ``BvedExport._k_values()``) are built from the confirmed
+   operating cost assignment lines (``real_estate.oc_document.line``,
+   target settlement unit, document not booked on a rental object - so
+   the K records add up to the actual costs of the settlement unit):
+   invoice date of the supplier invoice (posting date without invoice),
+   gross/net, fuel quantity, § 35a service type and labor share of the
+   assignment line. Not only the assignments of the externally-billed
+   settlement unit count, but also those of every settlement unit of the same
    billing unit that uses ``allocation_via_cost_collector`` with it as
    ``reference_settlement_unit`` (e.g. several fuel suppliers, each
    invoiced separately, feeding one heating settlement unit) — each such
-   invoice line keeps its own settlement unit's ``bved_cost_key`` (BVED
+   assignment line keeps its own settlement unit's ``bved_cost_key`` (BVED
    Tabelle 'K', on the settlement unit - costs with different keys need
    their own settlement unit) rather than the referenced unit's. B-Satz (fuel/stock data
    above) is unaffected — it stays tied to the externally-billed

@@ -26,15 +26,14 @@ Extensions to Core Modules
    - ``contract`` / ``term`` — the originating ``real_estate.contract`` /
      ``ContractTerm``
    - ``base_object`` — the real-estate object the line relates to
-   - ``settlement_unit`` — only read by the BVED export (to be replaced by
-     the operating cost assignment lines); the assignment to settlement
-     units is done on ``real_estate.oc_document``
    - ``property`` (Function) — derived from ``term`` / ``base_object``
-   - ``estg_35a`` (Selection) — German §35a EStG tax-deduction category
-     (household services / craftsmen services)
    - ``invoice_date``, ``tax_amount``, ``total_amount`` (Function fields)
 
-   Indexed on ``contract``, ``term``, ``settlement_unit``.
+   The assignment to settlement units, § 35a EStG and the BVED fuel data
+   are kept on the operating cost assignment lines
+   (``real_estate.oc_document.line``), not on the invoice line.
+
+   Indexed on ``contract``, ``term``.
 
 ``account.move.line``  (``invoice.py``, class ``AccountMoveLine``)
    Mirrors the same real-estate fields as ``account.invoice.line`` above

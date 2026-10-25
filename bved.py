@@ -1907,9 +1907,39 @@ class BvedExport(Workflow, ModelSQL, ModelView):
         if lines:
             files[bved_records.bved_filename('L', datetime.datetime.now())] = lines
 
+    def _k_values(self, bu, assignment, settlement_unit, line):
+        """Values of the K record of the confirmed assignment line 'line'
+        of 'settlement_unit': date of the supplier invoice (else of the
+        posting), gross/net, fuel quantity and § 35a of the line, cost key
+        of the settlement unit (E20)"""
+        document = line.document
+        invoice = document.invoice
+        estg = line.estg_35a or ''
+        gross = line.amount_gross
+        labor_amount = None
+        if line.estg_35a_labor_share_percent is not None and gross is not None:
+            labor_amount = (gross * line.estg_35a_labor_share_percent
+                / Decimal(100)).quantize(Decimal('0.01'))
+        return {
+            'customer_number': assignment.customer_number,
+            'provider_key': self.provider.bved_key,
+            'provider_reference': self._provider_reference(bu),
+            'cost_type_key': settlement_unit.bved_cost_key or None,
+            'uniform_cost_flag': 'E',
+            'invoice_date': (invoice.invoice_date
+                if invoice and invoice.invoice_date else document.date),
+            'quantity': line.bved_fuel_quantity,
+            'amount_gross': gross,
+            'amount_net': line.amount_net,
+            'tax_service_type_key':
+                bved_records.ESTG35A_TO_TABLE_L.get(estg, '00'),
+            'labor_share_amount': labor_amount,
+            'fuel_indicator_flag': 1 if line.bved_fuel_type else 0,
+            }
+
     def _build_b_k_records(self, files, record_types):
         pool = Pool()
-        InvoiceLine = pool.get('account.invoice.line')
+        OcLine = pool.get('real_estate.oc_document.line')
         lines = []
 
         for bu in self.billing_units:
@@ -1977,54 +2007,38 @@ class BvedExport(Workflow, ModelSQL, ModelView):
 
             if 'K' in record_types:
                 for su in settlement_units:
-                    # Cost/invoice lines are not only booked directly on
-                    # su - a settlement unit using 'allocation_via_cost_
-                    # collector' with su as its reference_settlement_unit
-                    # (e.g. a second fuel supplier feeding the same
-                    # heating settlement unit) can carry its own invoice
-                    # lines too. Each keeps its own settlement unit's
-                    # bved_cost_key, since the invoices may classify
-                    # differently even though they all feed the same
-                    # externally-billed unit.
+                    # Costs are not only assigned directly to su - a
+                    # settlement unit using 'allocation_via_cost_collector'
+                    # with su as its reference_settlement_unit (e.g. a
+                    # second fuel supplier feeding the same heating
+                    # settlement unit) can carry its own assignments too.
+                    # Each keeps its own settlement unit's bved_cost_key,
+                    # since the costs may classify differently even though
+                    # they all feed the same externally-billed unit.
                     source_units = [su] + [
                         other for other in bu.settlement_units
                         if other.allocation_rule == 'allocation_via_cost_collector'
                         and other.reference_settlement_unit
                         and other.reference_settlement_unit.id == su.id]
                     for source_su in source_units:
-                        invoice_lines = InvoiceLine.search([
-                            ('settlement_unit', '=', source_su.id),
-                            ('invoice.state', '!=', 'cancelled'),
-                            ])
-                        for line in invoice_lines:
-                            cost_key = source_su.bved_cost_key or None
-                            estg = getattr(line, 'estg_35a', '') or ''
-                            labor_pct = getattr(
-                                line, 'estg_35a_labor_share_percent', None)
-                            gross = line.total_amount
-                            labor_amount = None
-                            if labor_pct is not None and gross is not None:
-                                labor_amount = (
-                                    gross * labor_pct / Decimal(100)
-                                    ).quantize(Decimal('0.01'))
-                            lines.append(bved_records.pack('K', {
-                                'customer_number': assignment.customer_number,
-                                'provider_key': self.provider.bved_key,
-                                'provider_reference': self._provider_reference(bu),
-                                'cost_type_key': cost_key,
-                                'uniform_cost_flag': 'E',
-                                'invoice_date': line.invoice_date,
-                                'quantity': getattr(
-                                    line, 'bved_fuel_quantity', None),
-                                'amount_gross': gross,
-                                'amount_net': line.amount,
-                                'tax_service_type_key':
-                                    bved_records.ESTG35A_TO_TABLE_L.get(estg, '00'),
-                                'labor_share_amount': labor_amount,
-                                'fuel_indicator_flag':
-                                    1 if getattr(line, 'bved_fuel_type', None)
-                                    else 0,
-                                }))
+                        # confirmed assignments as in the actual costs of
+                        # the settlement unit (spezifikation-
+                        # betriebskostenzuordnung.md 6.1/6.6): target
+                        # settlement unit, not booked on a rental object
+                        oc_lines = OcLine.search([
+                                ('settlement_unit', '=', source_su.id),
+                                ('target', '=', 'settlement_unit'),
+                                ('document.state', '=', 'confirmed'),
+                                ['OR',
+                                    ('document.base_object', '=', None),
+                                    ('document.base_object.type', '!=',
+                                        'object')],
+                                ], order=[('document.date', 'ASC'),
+                                ('id', 'ASC')])
+                        for line in oc_lines:
+                            lines.append(bved_records.pack('K',
+                                    self._k_values(bu, assignment,
+                                        source_su, line)))
 
                     for consumption in su._co2_consumption_rows():
                         energy_mix = sorted(

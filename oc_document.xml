@@ -88,6 +88,7 @@
             <field name="name">Proposed</field>
             <field name="sequence" eval="20"/>
             <field name="domain" eval="[('state', '=', 'proposed')]" pyson="1"/>
+            <field name="count" eval="True"/>
             <field name="act_window" ref="act_oc_document"/>
         </record>
         <record model="ir.action.act_window.domain" id="act_oc_document_domain_confirmed">

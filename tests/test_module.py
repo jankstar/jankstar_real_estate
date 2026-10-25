@@ -1595,6 +1595,42 @@ class RealEstateTestCase(ModuleTestCase):
         self.assertEqual(distribute_groups({'g': Decimal(1)}, {1: 0}),
             {1: {}})
 
+    @with_transaction()
+    def test_bved_k_values_from_assignment(self):
+        "BVED K record from a confirmed assignment line (spec 6.6, 3.6)"
+        from types import SimpleNamespace as NS
+        Export = Pool().get('real_estate.bved.export')
+        export = NS(provider=NS(bved_key='P1'),
+            _provider_reference=lambda bu: 'REF')
+        invoice = NS(invoice_date=datetime.date(2025, 11, 25))
+        line = NS(document=NS(invoice=invoice,
+                date=datetime.date(2025, 11, 30)),
+            amount_gross=Decimal('1190.00'), amount_net=Decimal('1000.00'),
+            estg_35a='abs3', estg_35a_labor_share_percent=Decimal('40'),
+            bved_fuel_quantity=Decimal('3500'), bved_fuel_type='01')
+        su = NS(bved_cost_key='0310')
+        values = Export._k_values(export, NS(), NS(customer_number='K1'),
+            su, line)
+        self.assertEqual((values['invoice_date'], values['amount_gross'],
+                values['amount_net'], values['quantity'],
+                values['tax_service_type_key'],
+                values['labor_share_amount'], values['fuel_indicator_flag'],
+                values['cost_type_key']),
+            (datetime.date(2025, 11, 25), Decimal('1190.00'),
+                Decimal('1000.00'), Decimal('3500'), '13',
+                Decimal('476.00'), 1, '0310'))
+        # manual posting without invoice: date of the posting, no § 35a
+        line.document = NS(invoice=None, date=datetime.date(2025, 12, 31))
+        line.estg_35a = ''
+        line.estg_35a_labor_share_percent = None
+        line.bved_fuel_type = ''
+        values = Export._k_values(export, NS(), NS(customer_number='K1'),
+            su, line)
+        self.assertEqual((values['invoice_date'],
+                values['tax_service_type_key'],
+                values['labor_share_amount'], values['fuel_indicator_flag']),
+            (datetime.date(2025, 12, 31), '00', None, 0))
+
     def test_oc_reconciliation_functions(self):
         "Reconciliation: distribution columns and account check (spec 8)"
         from trytond.modules.real_estate.oc_reconciliation import (
