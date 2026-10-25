@@ -76,6 +76,19 @@
             <field name="action" ref="act_oc_reconciliation_billing_unit"/>
         </record>
 
+        <record model="ir.action.report" id="report_oc_reconciliation_de">
+            <field name="name">Operating Cost Reconciliation (de)</field>
+            <field name="report_name">real_estate.oc_reconciliation.report</field>
+            <field name="model">real_estate.oc_reconciliation</field>
+            <field name="report">real_estate/report/oc_reconciliation_de.odt</field>
+            <field name="template_extension">odt</field>
+        </record>
+        <record model="ir.action.keyword" id="report_oc_reconciliation_de_keyword">
+            <field name="keyword">form_print</field>
+            <field name="model">real_estate.oc_reconciliation,-1</field>
+            <field name="action" ref="report_oc_reconciliation_de"/>
+        </record>
+
         <record model="ir.model.button" id="oc_reconciliation_compute_button">
             <field name="model">real_estate.oc_reconciliation</field>
             <field name="name">compute</field>

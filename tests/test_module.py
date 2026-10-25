@@ -1999,6 +1999,12 @@ class RealEstateTestCase(ModuleTestCase):
             self.assertEqual(reconciliation.billing_units, (bu,))
             self.assertEqual(Reconciliation.search([
                         ('billing_units', '=', bu.id)]), [reconciliation])
+            # report (phase 4b)
+            Report = pool.get('real_estate.oc_reconciliation.report',
+                type='report')
+            ext, content, _, _ = Report.execute([reconciliation.id], {})
+            self.assertEqual(ext, 'odt')
+            self.assertTrue(content)
 
     @with_transaction()
     def test_inspection_default_data(self):

@@ -337,4 +337,5 @@ def register():
         meter_reading_sheet.MeterReadingSheetReport,
         invoice.ContractMoveLinePayableReceivableReport,
         contract_core.ContractGeneralLedgerAccountContractReport,
+        oc_reconciliation.OcReconciliationReport,
         module='real_estate', type_='report')

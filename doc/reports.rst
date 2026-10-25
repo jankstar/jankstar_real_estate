@@ -134,6 +134,13 @@ via ``get_context()``.
    meter, meter ID, previous reading, new value (empty until entered),
    unit and remarks, signature line; ENTWURF until the sheet is done.
 
+``real_estate.oc_reconciliation.report``  (``oc_reconciliation.py``)
+   Operating cost reconciliation, template ``oc_reconciliation_de.odt``
+   (landscape): header, settlement unit table with totals, billing and
+   reclassification per settlement result, account check of the property
+   and protocol - one page block per reconciliation (see `Operating Cost
+   Settlement <operating_cost_settlement.rst>`__).
+
 ``real_estate.base_object.report``  (``base_object.py``)
    Fact sheet for a property or object.
    Template: ``fact_sheet.odt``.

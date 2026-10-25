@@ -27060,3 +27060,7 @@ msgstr "Kontenprobe"
 msgctxt "view:real_estate.oc_reconciliation:"
 msgid "Expected"
 msgstr "Erwartet"
+
+msgctxt "model:ir.action,name:report_oc_reconciliation_de"
+msgid "Operating Cost Reconciliation (de)"
+msgstr "Betriebskostenabstimmung (de)"
