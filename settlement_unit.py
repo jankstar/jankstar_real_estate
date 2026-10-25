@@ -250,8 +250,6 @@ class SettlementUnit(DeactivableMixin, base_object.re_sequence_ordered(), ModelS
     time_total = fields.Function(fields.Integer('Time Total (days)'),
         'on_change_with_time_total')
 
-    invoice_lines = fields.Function(fields.One2Many('account.invoice.line', 'settlement_unit', 'Invoice Lines'),
-        'on_change_with_invoice_lines', setter='set_invoice_lines')
     oc_lines = fields.Function(fields.One2Many(
             'real_estate.oc_document.line', None,
             "Operating Cost Assignments",
@@ -790,13 +788,6 @@ class SettlementUnit(DeactivableMixin, base_object.re_sequence_ordered(), ModelS
                     ('settlement_unit', '=', self.id),
                     ], order=[('document.date', 'ASC'), ('id', 'ASC')])]
 
-    def on_change_with_invoice_lines(self, name=None):
-        invoice_lines = Pool().get('account.invoice.line').search([
-            ('settlement_unit', '=', self.id),
-            ('invoice.state', '!=', 'cancelled'),
-        ])
-        return invoice_lines
-
     def _split_co2_consumption(self):
         """Split real co2_kostaufg.consumption rows so their boundaries
         align with this settlement unit's period [start_date, end_date].
@@ -921,10 +912,6 @@ class SettlementUnit(DeactivableMixin, base_object.re_sequence_ordered(), ModelS
 
     @classmethod
     def set_measurements(cls, measurements, name, value):
-        pass
-
-    @classmethod
-    def set_invoice_lines(cls, records, name, value):
         pass
 
     @classmethod
@@ -1622,17 +1609,14 @@ class SettlementUnit(DeactivableMixin, base_object.re_sequence_ordered(), ModelS
                 cs.save()
             combined_actual = ((self.actual_costs_gross or Decimal(0))
                 + (self.actual_costs_gross_from_references or Decimal(0)))
-            self.planned_costs_gross = (
-                self.planned_costs_gross_from_references or Decimal(0))
-            self.planned_costs_net = (
-                self.planned_costs_net_from_references or Decimal(0))
+            # the planned costs of the settlement unit (taken over from the
+            # previous period and adjusted by hand) are never overwritten
             self.value_total = round(float(combined_actual), 4)
             self.save()
             self._compute_heizkostenv_split()
         else:
             # Classic mode: values must be entered per CostShare
             total_actual = Decimal(0)
-            total_planned = Decimal(0)
             has_error = False
             for cs in cost_shares:
                 if cs.actual_costs is None:
@@ -1645,11 +1629,10 @@ class SettlementUnit(DeactivableMixin, base_object.re_sequence_ordered(), ModelS
                 cs.error_message = ''
                 cs.save()
                 total_actual += cs.actual_costs or Decimal(0)
-                total_planned += cs.planned_costs or Decimal(0)
             if not has_error:
                 self.actual_costs_gross = self.actual_costs_net = total_actual
-                self.planned_costs_gross = self.planned_costs_net = (
-                    total_planned)
+                # the planned costs of the settlement unit are never
+                # overwritten (the planned costs per cost share are kept)
                 self.value_total = round(float(total_actual), 4)
                 self.save()
                 self._compute_heizkostenv_split()

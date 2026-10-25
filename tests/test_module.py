@@ -1490,6 +1490,29 @@ class RealEstateTestCase(ModuleTestCase):
         self.assertEqual(started, [{'t1': [1]}, {'t1': [1], 't2': [9]}])
 
     @with_transaction()
+    def test_external_value_shares_keep_planned_costs(self):
+        "External billing: computing the value shares keeps the planned costs"
+        from types import SimpleNamespace as NS
+        from unittest.mock import patch
+        pool = Pool()
+        SettlementUnit = pool.get('real_estate.settlement_unit')
+        CostShare = pool.get('real_estate.cost_share')
+
+        for external in (True, False):
+            su = NS(id=1, billing_unit=NS(external_billing=external),
+                actual_costs_gross=Decimal('100'),
+                actual_costs_gross_from_references=Decimal(0),
+                planned_costs_gross=Decimal('500'),
+                planned_costs_net=Decimal('420'),
+                planned_costs_gross_from_references=Decimal(0),
+                planned_costs_net_from_references=Decimal(0),
+                save=lambda: None, _compute_heizkostenv_split=lambda: None)
+            with patch.object(CostShare, 'search', return_value=[]):
+                SettlementUnit._compute_value_shares_external(su)
+            self.assertEqual(su.planned_costs_gross, Decimal('500'))
+            self.assertEqual(su.planned_costs_net, Decimal('420'))
+
+    @with_transaction()
     def test_oc_object_booked(self):
         "Documents booked on a rental object: assignment only to it (E32)"
         from types import SimpleNamespace as NS

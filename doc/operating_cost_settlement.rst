@@ -353,7 +353,7 @@ Sub-topics on separate pages:
         once under its own cost type and once under the reference's, in
         e.g. the Annex 4 report);
       - still tracks its own ``planned_costs``/``actual_costs`` (the latter
-        from its own ``invoice_lines``, via the normal
+        from its own confirmed operating cost assignments, via the normal
         ``selection_actual_costs()``) — these are summed, across *all*
         settlement units referencing the same target, into the target's
         ``planned_costs_from_references``/``actual_costs_from_references``

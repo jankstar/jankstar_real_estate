@@ -336,17 +336,8 @@ Either run "Ready for Billing" for each billing unit first, or bill individual b
         <record model="ir.message" id="msg_invoice_line_term_requires_contract">
             <field name="text">Term "%(term)s" is set but no contract is selected.</field>
         </record>
-        <record model="ir.message" id="msg_invoice_line_settlement_unit_requires_billing_unit">
-            <field name="text">Settlement unit "%(settlement_unit)s" is set but the billing unit is missing or does not match (expected "%(billing_unit)s").</field>
-        </record>
         <record model="ir.message" id="msg_invoice_line_object_not_in_contract">
             <field name="text">Object "%(object)s" does not belong to contract "%(contract)s".</field>
-        </record>
-        <record model="ir.message" id="msg_invoice_line_billing_unit_billed_warning">
-            <field name="text">Billing unit/settlement unit already billed. This invoice will not be considered in the settlement.</field>
-        </record>
-        <record model="ir.message" id="msg_invoice_line_billing_unit_billed_error">
-            <field name="text">Cannot post: billing unit/settlement unit of line "%(line)s" is already billed. It will not be considered in the settlement.</field>
         </record>
         <record model="ir.message" id="msg_billing_unit_already_has_successor">
             <field name="text">Cannot duplicate "%(name)s": a billing unit for the next period already exists (predecessor is set).</field>
@@ -449,9 +440,6 @@ Either run "Ready for Billing" for each billing unit first, or bill individual b
         </record>
         <record model="ir.message" id="msg_base_object_start_before_parent_start">
             <field name="text">"%(name)s": start date (%(start_date)s) must not be before the parent start date (%(parent_start_date)s).</field>
-        </record>
-        <record model="ir.message" id="msg_invoice_line_service_period_invalid">
-            <field name="text">Service period from (%(service_period_from)s) must be before to (%(service_period_to)s).</field>
         </record>
         <record model="ir.message" id="msg_invoice_line_term_contract_mismatch">
             <field name="text">Term "%(term)s" does not belong to contract "%(contract)s".</field>
