@@ -69,7 +69,9 @@ setup(name=name,
     package_data={
         'trytond.modules.real_estate': (info.get('xml', [])
             + ['tryton.cfg', 'view/*.xml', 'locale/*.po', '*.fodt',
-                'icons/*.svg', 'tests/*.rst', 'tests/*.json']),
+                'report/*.odt', 'report/*.html',
+                'icons/*.svg', 'tests/*.rst', 'tests/*.json',
+                'tests/*.csv']),
         },
     classifiers=[
         'Development Status :: 3 - Alpha', #5 - Production/Stable',
