@@ -118,6 +118,14 @@ Sub-topics on separate pages:
    reconciliations of all properties with billing units ending in the
    fiscal year are computed and in order.
 
+   Report *Operating Cost Reconciliation (de)*
+   (``real_estate.oc_reconciliation.report``,
+   ``report/oc_reconciliation_de.odt``, A4 landscape): per reconciliation
+   the header (property, period, billing units, computed at/by, check
+   state), the settlement unit table with totals (without the company row
+   *postings without property*), billing and reclassification, account
+   check and protocol; several reconciliations start on a new page each.
+
 ``real_estate.cost_category_group``  (``billing_unit.py``)
    Groups cost types for reporting, e.g. *Heating*, *Water*, *Janitorial*.
 

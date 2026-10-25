@@ -12,6 +12,7 @@ from trytond.model.exceptions import ValidationError
 from trytond.modules.currency.fields import Monetary
 from trytond.pool import Pool
 from trytond.pyson import Eval
+from trytond.report import Report
 from trytond.transaction import Transaction
 
 from . import oc_reclass
@@ -696,7 +697,7 @@ def _ids(**records):
 def _fmt(amount, currency):
     "Amount in the format of the language of the context"
     Lang = Pool().get('ir.lang')
-    return Lang.get().currency(amount, currency)
+    return Lang.get().currency(amount, currency, grouping=True)
 
 
 #**********************************************************************
@@ -791,3 +792,55 @@ class OcReconciliationLine(ModelSQL, ModelView):
         except ValueError:
             return []
         return data.get(name, [])
+
+
+#**********************************************************************
+class OcReconciliationReport(Report):
+    "Operating cost reconciliation (report, phase 4b)"
+    __name__ = 'real_estate.oc_reconciliation.report'
+
+    @classmethod
+    def get_context(cls, records, header, data):
+        context = super().get_context(records, header, data)
+        states = dict(CHECK_STATES)
+
+        def amount(value):
+            if value is None:
+                return ''
+            return cls.format_number(value, None, digits=2)
+
+        def total(lines, name):
+            # postings without property concern the whole company
+            return sum((getattr(l, name) or ZERO for l in lines
+                    if l.section != 'without_property'), ZERO)
+
+        def check_state(record):
+            return {'ok': "in Ordnung", 'hints': "Hinweise"}.get(
+                record.check_state, states.get(record.check_state) or '')
+
+        def check_rows(record):
+            return [
+                ("Gebucht an der Wirtschaftseinheit", record.booked, False),
+                ("− umgebucht", record.reclassified, False),
+                ("= Rest an der Wirtschaftseinheit", record.rest, True),
+                ("Eigentümer, nicht umlagefähig", record.owner_booked,
+                    False),
+                ("+ nicht verteilt", record.not_distributed_booked, False),
+                ("+ noch nicht umgebucht", record.pending_booked, False),
+                ("+ in andere Zeiträume", record.other_periods_out, False),
+                ("− aus anderen Zeiträumen", record.other_periods_in,
+                    False),
+                ("+ nicht zugeordnet", record.unassigned_booked, False),
+                ("= erwarteter Rest", record.expected, True),
+                ("Differenz (Rundung Optionssatz, nur Information)",
+                    record.difference, True),
+                ("Vorsteuer an der Wirtschaftseinheit (nur Information)",
+                    record.tax_remaining, False),
+                ]
+
+        context['amount'] = amount
+        context['total'] = total
+        context['check_state'] = check_state
+        context['check_rows'] = check_rows
+        return context
+
