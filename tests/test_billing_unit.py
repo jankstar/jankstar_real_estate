@@ -164,8 +164,6 @@ def create_billing_unit(prop, description: str, term_type_ids: list,
     bu.description = description
     if term_type_ids:
         bu.term_types_of_use = [str(tid) for tid in term_type_ids]
-    bu.option_rate_method = 'dynamic_measurement'
-    bu.option_measurement_type = usable_space_type
     bu.save()
     print(f'  BillingUnit: "{bu.name}" external_billing={external_billing} id={bu.id}')
     return bu
@@ -181,8 +179,6 @@ def create_su_measurement(bu, cost_type, m_type, usable_space_type) -> None:
     su.m_type = m_type
     su.vacancy = 'by_owner'
     su.reg_ex_object = 'Wohnung|Einzelhandel'
-    su.option_rate_method = 'dynamic_measurement'
-    su.option_measurement_type = usable_space_type
     su.save()
     print(f'    SU {su.sequence}: {cost_type.name} '
           f'→ Nutzfläche / Leerstand: Eigentümer '
@@ -201,8 +197,6 @@ def create_su_consumption(bu, cost_type, meter_unit, usable_space_type) -> None:
     su.vacancy = 'by_owner'
     su.reg_ex_object = 'Wohnung|Einzelhandel'
     su.reg_ex_meter = 'Wasser Zähler'
-    su.option_rate_method = 'dynamic_measurement'
-    su.option_measurement_type = usable_space_type
     su.save()
     print(f'    SU {su.sequence}: {cost_type.name} '
           f'→ Verbrauch {meter_unit.symbol} (anteilig: lineare Interpolation) '
@@ -219,8 +213,6 @@ def create_su_external(bu, cost_type, usable_space_type) -> None:
     su.allocation_rule = 'allocation_from_external_billing'
     su.vacancy = 'by_owner'
     su.reg_ex_object = 'Wohnung|Einzelhandel'
-    su.option_rate_method = 'dynamic_measurement'
-    su.option_measurement_type = usable_space_type
     su.save()
     print(f'    SU {su.sequence}: {cost_type.name} '
           f'→ externe Abrechnung / Objekt-Regex: "Wohnung|Einzelhandel" '

@@ -729,22 +729,6 @@ msgctxt "field:real_estate.billing_unit,non_residential_flag:"
 msgid "Non-residential building >50% commercial (§8)"
 msgstr "Nichtwohngebäude >50% gewerblich (§8)"
 
-msgctxt "field:real_estate.billing_unit,option_measurement_type:"
-msgid "Option Measurement Type"
-msgstr "Optionssatzmethode Bemessung"
-
-msgctxt "field:real_estate.billing_unit,option_rate_method:"
-msgid "Option Rate Method"
-msgstr "Optionssatzmethode"
-
-msgctxt "field:real_estate.billing_unit,option_rate_value:"
-msgid "Option Rate Value"
-msgstr "Optionssatzwert"
-
-msgctxt "field:real_estate.billing_unit,option_rates:"
-msgid "Option Rates"
-msgstr "Optionssatz"
-
 msgctxt "field:real_estate.billing_unit,predecessor:"
 msgid "Predecessor"
 msgstr "Vorgänger"
@@ -752,10 +736,6 @@ msgstr "Vorgänger"
 msgctxt "field:real_estate.billing_unit,property:"
 msgid "Property"
 msgstr "Wirtschaftseinheit"
-
-msgctxt "field:real_estate.billing_unit,purchase_taxes_expense:"
-msgid "Purchase Taxes as Expense"
-msgstr "Vorsteuer als Aufwand verbuchen"
 
 msgctxt "field:real_estate.billing_unit,rental_objects:"
 msgid "Rental Objects"
@@ -3477,17 +3457,9 @@ msgctxt "field:real_estate.option_rate,base_object:"
 msgid "Base Object"
 msgstr "Immobilienobjekt"
 
-msgctxt "field:real_estate.option_rate,billing_unit:"
-msgid "Billing Unit"
-msgstr "Abrechnungseinheit"
-
 msgctxt "field:real_estate.option_rate,option_rate:"
 msgid "Option Rate"
 msgstr "Optionssatz"
-
-msgctxt "field:real_estate.option_rate,settlement_unit:"
-msgid "Settlement Unit"
-msgstr "Kostensammler"
 
 msgctxt "field:real_estate.option_rate,valid_from:"
 msgid "Valid From"
@@ -3496,14 +3468,6 @@ msgstr "Gültig ab"
 msgctxt "field:real_estate.option_rate.context,base_object:"
 msgid "Base Object"
 msgstr "Immobilienobjekt"
-
-msgctxt "field:real_estate.option_rate.context,billing_unit:"
-msgid "Billing Unit"
-msgstr "Abrechnungseinheit"
-
-msgctxt "field:real_estate.option_rate.context,settlement_unit:"
-msgid "Settlement Unit"
-msgstr "Kostensammler"
 
 msgctxt "field:real_estate.option_rate_update.confirm,cutoff_date:"
 msgid "Cut-off Date"
@@ -3517,17 +3481,9 @@ msgctxt "field:real_estate.option_rate_update.confirm,n_base_objects:"
 msgid "Base Objects Selected"
 msgstr "Gewählte Objekte"
 
-msgctxt "field:real_estate.option_rate_update.confirm,n_billing_units:"
-msgid "Billing Units Selected"
-msgstr "Gewählte Abrechnungseinheiten"
-
 msgctxt "field:real_estate.option_rate_update.confirm,n_expanded:"
 msgid "Total Objects to Process"
 msgstr "Zu verarbeitende Einträge insgesamt"
-
-msgctxt "field:real_estate.option_rate_update.confirm,n_settlement_units:"
-msgid "Settlement Units Selected"
-msgstr "Gewählte Kostensammler"
 
 msgctxt "field:real_estate.option_rate_update.result,message:"
 msgid "Details"
@@ -3553,10 +3509,6 @@ msgctxt "field:real_estate.option_rate_update.start,base_objects:"
 msgid "Base Objects"
 msgstr "Objekte"
 
-msgctxt "field:real_estate.option_rate_update.start,billing_units:"
-msgid "Billing Units"
-msgstr "Abrechnungseinheiten"
-
 msgctxt "field:real_estate.option_rate_update.start,company:"
 msgid "Company"
 msgstr "Unternehmen"
@@ -3564,10 +3516,6 @@ msgstr "Unternehmen"
 msgctxt "field:real_estate.option_rate_update.start,cutoff_date:"
 msgid "Cut-off Date"
 msgstr "Stichtag"
-
-msgctxt "field:real_estate.option_rate_update.start,settlement_units:"
-msgid "Settlement Units"
-msgstr "Kostensammler"
 
 #, python-format
 msgctxt "field:real_estate.re_accounting,co2_landlord_share_commercial:"
@@ -3961,22 +3909,6 @@ msgctxt "field:real_estate.settlement_unit,objects:"
 msgid "Objects"
 msgstr "Objekte"
 
-msgctxt "field:real_estate.settlement_unit,option_measurement_type:"
-msgid "Option Measurement Type"
-msgstr "Optionssatzmethode Bemessung"
-
-msgctxt "field:real_estate.settlement_unit,option_rate_method:"
-msgid "Option Rate Method"
-msgstr "Optionssatzmehthode"
-
-msgctxt "field:real_estate.settlement_unit,option_rate_value:"
-msgid "Option Rate Value"
-msgstr "Optionssatzwert"
-
-msgctxt "field:real_estate.settlement_unit,option_rates:"
-msgid "Option Rates"
-msgstr "Optionssatz"
-
 
 
 msgctxt "field:real_estate.settlement_unit,predecessor:"
@@ -3990,10 +3922,6 @@ msgstr "Wirtschaftseinheit"
 msgctxt "field:real_estate.settlement_unit,proportional_calculation:"
 msgid "Calculate proportionally"
 msgstr "Anteilig berechnen"
-
-msgctxt "field:real_estate.settlement_unit,purchase_taxes_expense:"
-msgid "Purchase Taxes as Expense"
-msgstr "Steuer als Aufwand"
 
 msgctxt "field:real_estate.settlement_unit,reference_settlement_unit:"
 msgid "Reference Settlement Unit"
@@ -4297,14 +4225,6 @@ msgstr ""
 "Einstellungen konfigurierten Gewerbe-Mieter-/Vermieteranteils statt der "
 "Wohn-Stufentabelle (CO2-Emission je m²) verteilt werden. Dies ist zugleich "
 "das entsprechende BVED L-Satz Feld 19 (Kennzeichen Nichtwohngebäude)."
-
-msgctxt "help:real_estate.billing_unit,option_measurement_type:"
-msgid ""
-"If a measurement group is selected, all its child measurement types are "
-"summed per rental object."
-msgstr ""
-"Wenn eine Messgruppe ausgewählt ist, werden alle zugehörigen Messarten pro "
-"Mietobjekt summiert."
 
 msgctxt "help:real_estate.billing_unit,rental_objects:"
 msgid ""
@@ -5554,17 +5474,12 @@ msgstr "Anteil (0–100 %) der abziehbaren Vorsteuer in diesem Zeitraum."
 msgctxt "help:real_estate.option_rate_update.start,base_objects:"
 msgid ""
 "Selected properties/buildings/land are expanded to include their "
-"building/land/rental object descendants. If left empty together with Billing "
-"Units and Settlement Units, all properties of the company are selected."
+"building/land/rental object descendants. If left empty, all properties of "
+"the company are selected."
 msgstr ""
 "Gewählte Wirtschaftseinheiten/Gebäude/Grundstücke werden um ihre "
 "untergeordneten Gebäude, Grundstücke und Mietobjekte erweitert. Bleibt dies "
-"zusammen mit Abrechnungseinheiten und Kostensammlern leer, werden alle "
-"Wirtschaftseinheiten des Unternehmens gewählt."
-
-msgctxt "help:real_estate.option_rate_update.start,billing_units:"
-msgid "Selected billing units are expanded to include their settlement units."
-msgstr "Gewählte Abrechnungseinheiten werden um ihre Kostensammler erweitert."
+"leer, werden alle Wirtschaftseinheiten des Unternehmens gewählt."
 
 msgctxt "help:real_estate.option_rate_update.start,cutoff_date:"
 msgid "The new option rate is dated on the first day of this month."
@@ -5747,14 +5662,6 @@ msgstr ""
 "vorgegebene Bandbreite). Der verbleibende Prozentsatz („Anteil nach "
 "Flächenumlage“) wird nach Fläche umgelegt und automatisch als 100% abzüglich"
 " dieses Werts berechnet."
-
-msgctxt "help:real_estate.settlement_unit,option_measurement_type:"
-msgid ""
-"If a measurement group is selected, all its child measurement types are "
-"summed per rental object."
-msgstr ""
-"Wenn eine Messgruppe ausgewählt ist, werden alle zugehörigen Messarten pro "
-"Mietobjekt summiert."
 
 
 msgctxt "help:real_estate.settlement_unit,reference_settlement_unit:"
@@ -7147,14 +7054,6 @@ msgid ""
 msgstr ""
 "Objekt „{}“: Für den Zeitraum vom {} bis {} gibt es einen weiteren belegenden"
 " Vertrag. Trotzdem fortfahren?"
-
-msgctxt "model:ir.message,text:msg_option_rate_exactly_one_reference"
-msgid ""
-"An option rate must be linked to exactly one of: base object, settlement "
-"unit, or billing unit."
-msgstr ""
-"Eine Optionsquote muss genau einem Objekt, Kostensammler oder einer "
-"Abrechnungseinheit zugeordnet sein."
 
 
 msgctxt "model:ir.message,text:msg_option_rate_valid_from_unique"
@@ -9279,22 +9178,6 @@ msgctxt "selection:real_estate.billing_unit,calculation_method:"
 msgid "Cash basis"
 msgstr "Abflussprinzip"
 
-msgctxt "selection:real_estate.billing_unit,option_rate_method:"
-msgid "Dynamic Measurement"
-msgstr "dynamisch über Bemessung"
-
-msgctxt "selection:real_estate.billing_unit,option_rate_method:"
-msgid "Fix: Option Rate 0.0 %"
-msgstr "optiert nicht (0,0 %) fix"
-
-msgctxt "selection:real_estate.billing_unit,option_rate_method:"
-msgid "Fix: Option Rate 100.0 %"
-msgstr "optiert (100,0 %) fix"
-
-msgctxt "selection:real_estate.billing_unit,option_rate_method:"
-msgid "Fix: Option Rate by Value"
-msgstr "Optionssatz fix nach Wert"
-
 msgctxt "selection:real_estate.billing_unit,state:"
 msgid "Approved"
 msgstr "freigegeben"
@@ -9908,22 +9791,6 @@ msgstr "Zentrale Warmwasseranlage"
 msgctxt "selection:real_estate.settlement_unit,heating_billing_mode:"
 msgid "Not Applicable"
 msgstr "Keine Anwendung"
-
-msgctxt "selection:real_estate.settlement_unit,option_rate_method:"
-msgid "Dynamic Measurement"
-msgstr "dynamisch über Bemessung"
-
-msgctxt "selection:real_estate.settlement_unit,option_rate_method:"
-msgid "Fix: Option Rate 0.0 %"
-msgstr "optiert nicht (0,0 %) fix"
-
-msgctxt "selection:real_estate.settlement_unit,option_rate_method:"
-msgid "Fix: Option Rate 100.0 %"
-msgstr "optiert (100,0 %) fix"
-
-msgctxt "selection:real_estate.settlement_unit,option_rate_method:"
-msgid "Fix: Option Rate by Value"
-msgstr "Optionssatz fix nach Wert"
 
 msgctxt "selection:real_estate.settlement_unit,proportional_calculation:"
 msgid "Linear interpolation"
@@ -25601,14 +25468,6 @@ msgstr "%(count)s Abrechnungseinheit(en) verarbeitet."
 msgctxt "model:ir.message,text:msg_option_rate_kind_base_object"
 msgid "Object"
 msgstr "Objekt"
-
-msgctxt "model:ir.message,text:msg_option_rate_kind_billing_unit"
-msgid "Billing Unit"
-msgstr "Abrechnungseinheit"
-
-msgctxt "model:ir.message,text:msg_option_rate_kind_settlement_unit"
-msgid "Settlement Unit"
-msgstr "Kostensammler"
 
 msgctxt "model:ir.message,text:msg_option_rate_status_created"
 msgid "created"

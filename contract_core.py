@@ -1956,7 +1956,7 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
         if not base_objects:
             return
         counts, detail_log = OptionRate.process_update(
-            base_objects, [], [], Date.today())
+            base_objects, Date.today())
         logger.info(
             'cron _cron_update_option_rate for re_accounting %s: %s',
             re_accounting.id, counts)

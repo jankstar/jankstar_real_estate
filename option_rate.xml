@@ -104,7 +104,7 @@
             <field name="res_model">real_estate.option_rate</field>
             <field name="context_model">real_estate.option_rate.context</field>
             <field name="context_domain"
-                eval="[If(Eval('base_object', None), [('base_object', '=', Eval('base_object', None))], []), If(Eval('billing_unit', None), [('billing_unit', '=', Eval('billing_unit', None))], []), If(Eval('settlement_unit', None), [('settlement_unit', '=', Eval('settlement_unit', None))], [])]"
+                eval="[If(Eval('base_object', None), [('base_object', '=', Eval('base_object', None))], [])]"
                 pyson="1"/>
         </record>
         <record model="ir.action.act_window.view" id="act_option_rate_view1">

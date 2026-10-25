@@ -260,41 +260,6 @@ class SettlementUnit(DeactivableMixin, base_object.re_sequence_ordered(), ModelS
                  "ones make up the actual costs."),
         'get_oc_lines', setter='set_oc_lines')
 
-    option_rate_method = fields.Selection([
-            ('fix_0', 'Fix: Option Rate 0.0 %'),
-            ('fix_100', 'Fix: Option Rate 100.0 %'),
-            ('fix_value', 'Fix: Option Rate by Value'),
-            ('dynamic_measurement', 'Dynamic Measurement'),
-            ], "Option Rate Method", required=True, sort=False)
-
-    option_measurement_type = fields.Many2One(
-        'real_estate.measurement.type', "Option Measurement Type",
-        ondelete='RESTRICT',
-        help="If a measurement group is selected, all its child "
-             "measurement types are summed per rental object.",
-        states={
-            'invisible': Eval('option_rate_method') != 'dynamic_measurement',
-            'required': Eval('option_rate_method') == 'dynamic_measurement',
-            })
-
-    option_rate_value = fields.Numeric(
-        "Option Rate Value", digits=(5, 2),
-        domain=[
-            ('option_rate_value', '>=', 0),
-            ('option_rate_value', '<=', 100),
-            ],
-        states={
-            'invisible': Eval('option_rate_method') != 'fix_value',
-            'required': Eval('option_rate_method') == 'fix_value',
-            })
-
-    option_rates = fields.One2Many('real_estate.option_rate', 'settlement_unit',
-        "Option Rates")
-
-    purchase_taxes_expense = fields.Function(
-        fields.Boolean("Purchase Taxes as Expense"),
-        'on_change_with_purchase_taxes_expense')
-
     co2_kostaufg = fields.Many2One('real_estate.co2_kostaufg',
         "CO2KostAufG Reference", ondelete='RESTRICT',
         domain=[('property', '=', Eval('property', -1))],
@@ -638,9 +603,6 @@ class SettlementUnit(DeactivableMixin, base_object.re_sequence_ordered(), ModelS
             ('//page[@id="page_meters"]', 'states', {
                 'invisible': Eval('allocation_rule') != 'allocation_by_consumption',
             }),
-            ('//page[@id="page_option_rate"]', 'states', {
-                'invisible': Bool(Eval('purchase_taxes_expense', False)),
-            }),
             ('//page[@id="page_bved_fuel"]', 'states', {
                 'invisible': ~Eval('bved_fuel_data'),
             }),
@@ -658,14 +620,6 @@ class SettlementUnit(DeactivableMixin, base_object.re_sequence_ordered(), ModelS
     @classmethod
     def default_proportional_calculation(cls):
         return 'none'
-
-    @classmethod
-    def default_option_rate_value(cls):
-        return 0.0
-
-    @classmethod
-    def default_option_rate_method(cls):
-        return 'fix_0'
 
     @classmethod
     def default_company(cls):
@@ -688,16 +642,6 @@ class SettlementUnit(DeactivableMixin, base_object.re_sequence_ordered(), ModelS
         if self.heating_consumption_share_percent is None:
             return None
         return Decimal(100) - self.heating_consumption_share_percent
-
-    @staticmethod
-    def default_option_rate_method():
-        return 'fix_0'
-
-    @fields.depends('company', '_parent_company.purchase_taxes_expense')
-    def on_change_with_purchase_taxes_expense(self, name=None):
-        if self.company:
-            return self.company.purchase_taxes_expense
-        return False
 
     @staticmethod
     def get_states():

@@ -145,20 +145,18 @@ Wizards
 
 ``real_estate.option_rate_update.wizard``  (``option_rate_wizard.py``, class ``OptionRateUpdateWizard``)
    Recomputes and books option rates (see `Option Rate <option_rate.rst>`__) for a
-   selection of base objects, billing units, and/or settlement units, as of
-   a cut-off date.
+   selection of base objects as of a cut-off date (billing units and
+   settlement units have no option rate).
 
    *Start* — ``base_objects`` (Many2Many, restricted to
    property/building/land/rental object; an approved property/building/land
-   is expanded to its building/land/rental-object descendants, and an
-   approved property additionally cascades to its billing units and their
-   settlement units), ``billing_units`` (expanded to their settlement
-   units), ``settlement_units``, ``cutoff_date`` (default: today — booked
+   is expanded to its building/land/rental-object descendants; empty = all
+   properties of the company), ``cutoff_date`` (default: today — booked
    option rates are always dated on the first of this month).
 
-   *Confirm* — read-only counts of the directly selected base objects /
-   billing units / settlement units, and the total number of objects that
-   will actually be processed after expansion (``n_expanded``).
+   *Confirm* — read-only count of the directly selected base objects and
+   the total number of objects that will actually be processed after
+   expansion (``n_expanded``).
 
    *Process* (``OptionRate.process_update``) — for every expanded object:
 
@@ -169,19 +167,14 @@ Wizards
      land, its approved rental-object descendants regardless of how many
      buildings/land lie in between (a non-approved intermediate object
      excludes its whole subtree — both from booking and as a calculation
-     basis); for a settlement unit, its existing ``objects`` function field
-     (i.e. whatever it already resolves to via its own allocation
-     rule/regex — read-only here, never modified by this wizard); for a
-     billing unit, the union of ``objects`` across all its settlement units
-     that are not ``draft``/``billed``, deduplicated. Each contributing
+     basis). Each contributing
      rental object is weighted by its measurement value (leaf types under
      ``option_measurement_type`` summed if it is a group) at the cut-off
      date, and contributes its own current option rate (its latest
      ``option_rate`` record at or before the cut-off date, else its own
      ``fix_0``/``fix_100`` default). The new rate is the resulting weighted
      average, rounded to 2 decimals.
-   - Base objects not in state ``approved``, and billing/settlement units
-     in state ``draft`` or ``billed``, are excluded entirely.
+   - Base objects not in state ``approved`` are excluded entirely.
    - A new dated ``option_rate`` record is only written when the computed
      rate differs from the current one; a record already dated on the
      cut-off month's first day is updated in place rather than duplicated.

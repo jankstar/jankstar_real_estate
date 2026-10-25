@@ -159,7 +159,6 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
         ),
         )
 
-
     currency = fields.Function(fields.Many2One('currency.currency', 'Currency'), 'on_change_with_currency')
 
     description = fields.Char('Description', required=True)
@@ -245,42 +244,6 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
     sum_refund_receivable = fields.Function(
         Monetary('Sum Refund/Receivable', currency='currency', digits='currency'),
         'on_change_with_sum_refund_receivable')
-
-    option_rate_method = fields.Selection([
-            ('fix_0', 'Fix: Option Rate 0.0 %'),
-            ('fix_100', 'Fix: Option Rate 100.0 %'),
-            ('fix_value', 'Fix: Option Rate by Value'),
-            ('dynamic_measurement', 'Dynamic Measurement'),
-            ], "Option Rate Method", required=True, sort=False)
-
-    option_measurement_type = fields.Many2One(
-        'real_estate.measurement.type', "Option Measurement Type",
-        ondelete='RESTRICT',
-        help="If a measurement group is selected, all its child "
-             "measurement types are summed per rental object.",
-        states={
-            'invisible': Eval('option_rate_method') != 'dynamic_measurement',
-            'required': Eval('option_rate_method') == 'dynamic_measurement',
-            })
-
-    option_rate_value = fields.Numeric(
-        "Option Rate Value", digits=(5, 2),
-        domain=[
-            ('option_rate_value', '>=', 0),
-            ('option_rate_value', '<=', 100),
-            ],
-        states={
-            'invisible': Eval('option_rate_method') != 'fix_value',
-            'required': Eval('option_rate_method') == 'fix_value',
-            })
-
-    option_rates = fields.One2Many('real_estate.option_rate', 'billing_unit',
-        "Option Rates",
-        readonly=True)
-
-    purchase_taxes_expense = fields.Function(
-        fields.Boolean("Purchase Taxes as Expense"),
-        'on_change_with_purchase_taxes_expense')
 
     # --- CO2KostAufG (CO2 Cost Allocation Act) aggregation. Settlement
     # units only keep the reference to a co2_kostaufg record and the raw
@@ -388,9 +351,6 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
     @classmethod
     def view_attributes(cls):
         return super().view_attributes() + [
-            ('//page[@id="page_option_rate"]', 'states', {
-                'invisible': Bool(Eval('purchase_taxes_expense', False)),
-            }),
             ('//page[@id="page_bved"]', 'states', {
                 'invisible': ~Eval('external_billing', False),
             }),
@@ -401,12 +361,6 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
                 If(Eval('is_next_billing', False), 'success', ''),
                 ['is_next_billing']),
             ]
-
-    @fields.depends('company', '_parent_company.purchase_taxes_expense')
-    def on_change_with_purchase_taxes_expense(self, name=None):
-        if self.company:
-            return self.company.purchase_taxes_expense
-        return False
 
     def _co2_settlement_units(self):
         """Settlement units of this billing unit that reference a
@@ -546,14 +500,6 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
         if value is None:
             return None
         return Decimal(100) - value
-
-    @classmethod
-    def default_option_rate_value(cls):
-        return 0.0
-
-    @staticmethod
-    def default_option_rate_method():
-        return 'fix_0'
 
     @staticmethod
     def default_non_residential_flag():
