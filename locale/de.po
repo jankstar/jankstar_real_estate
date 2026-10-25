@@ -26,30 +26,9 @@ msgctxt "field:account.invoice.line,base_object:"
 msgid "Object"
 msgstr "Objekt"
 
-msgctxt "field:account.invoice.line,bved_fuel_quantity:"
-msgid "BVED Quantity"
-msgstr "Menge"
-
-msgctxt "field:account.invoice.line,bved_fuel_type:"
-msgid "BVED Fuel Type"
-msgstr "Schlüssel Brennstoff"
-
-msgctxt "field:account.invoice.line,bved_fuel_unit:"
-msgid "BVED Unit"
-msgstr "Einheit"
-
 msgctxt "field:account.invoice.line,contract:"
 msgid "Contract"
 msgstr "Vertrag"
-
-msgctxt "field:account.invoice.line,estg_35a:"
-msgid "§35a EStG"
-msgstr "§35a EStG"
-
-#, python-format
-msgctxt "field:account.invoice.line,estg_35a_labor_share_percent:"
-msgid "Labor Share (%)"
-msgstr "Lohnanteil (%)"
 
 msgctxt "field:account.invoice.line,invoice_date:"
 msgid "Invoice Date"
@@ -58,10 +37,6 @@ msgstr "Rechnungsdatum"
 msgctxt "field:account.invoice.line,property:"
 msgid "Property"
 msgstr "Wirtschaftseinheit"
-
-msgctxt "field:account.invoice.line,settlement_unit:"
-msgid "Settlement Unit"
-msgstr "Kostensammler"
 
 msgctxt "field:account.invoice.line,tax_amount:"
 msgid "Tax Amount"
@@ -3971,30 +3946,6 @@ msgstr "Mobiltelefon"
 msgctxt "field:res.user,phone:"
 msgid "Phone"
 msgstr "Telefon"
-
-msgctxt "help:account.invoice.line,bved_fuel_quantity:"
-msgid ""
-"Delivered fuel quantity for BVED K-Satz field 10 (e.g. 3500 for a 3500-liter"
-" heating oil delivery), independent of the invoice's own quantity/unit-price"
-" quantity."
-msgstr ""
-"Gelieferte Brennstoffmenge für BVED K-Satz Feld 10 (Menge), z.B. 3500 für "
-"eine Lieferung von 3500 Litern Heizöl, unabhängig von der eigenen "
-"Mengen-/Preisangabe der Rechnungszeile."
-
-msgctxt "help:account.invoice.line,bved_fuel_type:"
-msgid "BVED Tabelle 'B'."
-msgstr "BVED Tabelle 'B'."
-
-msgctxt "help:account.invoice.line,estg_35a_labor_share_percent:"
-msgid ""
-"Share of this line's gross amount that is labor cost, for the §35a EStG tax "
-"certificate / BVED K-Satz field 14. Stays editable after posting, like "
-"estg_35a itself."
-msgstr ""
-"Anteil des Bruttobetrags dieser Position, der Lohnkosten sind, für die "
-"§35a-EStG-Bescheinigung / BVED K-Satz Feld 14. Bleibt wie estg_35a selbst "
-"auch nach der Buchung änderbar."
 
 msgctxt "help:account.move.line,effective_contract:"
 msgid ""
@@ -8890,22 +8841,6 @@ msgstr "Abrechnungsergebnis Pauschale"
 msgctxt "selection:account.invoice.line,assignment_control:"
 msgid "Settlement Result Vacant"
 msgstr "Abrechnungsergebnis Leerstand"
-
-msgctxt "selection:account.invoice.line,estg_35a:"
-msgid "Para. 1 - Minor Employment in the Household"
-msgstr "§ 35a Abs. 1 – Geringfügige Beschäftigungsverhältnisse im Haushalt"
-
-msgctxt "selection:account.invoice.line,estg_35a:"
-msgid "Para. 2 - Household-Related Services (e.g. Garden Maintenance)"
-msgstr "§ 35a Abs. 2 – Haushaltsnahe Dienstleistungen (z.B. Gartenpflege)"
-
-msgctxt "selection:account.invoice.line,estg_35a:"
-msgid "Para. 3 - Craftsmen Services (e.g. Chimney Sweep)"
-msgstr "§ 35a Abs. 3 – Handwerkerleistungen (z.B. Schornsteinfeger)"
-
-msgctxt "selection:account.invoice.line,estg_35a:"
-msgid "none"
-msgstr "keinen"
 
 msgctxt "selection:account.move.line,assignment_control:"
 msgid "Contract"

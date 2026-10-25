@@ -9,14 +9,6 @@
             <label name="contract"/><field name="contract" colspan="3"/>
             <label name="term"/><field name="term" colspan="3"/>
             <label name="base_object"/><field name="base_object" colspan="3"/>
-            <label name="settlement_unit"/><field name="settlement_unit" colspan="3"/>
-            <newline/>
-            <label name="estg_35a"/><field name="estg_35a" colspan="3"/>
-            <label name="estg_35a_labor_share_percent"/><field name="estg_35a_labor_share_percent"/>
-            <newline/>
-            <label name="bved_fuel_type"/><field name="bved_fuel_type" colspan="3"/>
-            <label name="bved_fuel_quantity"/><field name="bved_fuel_quantity"/>
-            <label name="bved_fuel_unit"/><field name="bved_fuel_unit"/>
         </page>
     </xpath>
 </data>

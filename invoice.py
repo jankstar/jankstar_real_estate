@@ -18,8 +18,6 @@ from trytond.pyson import Bool, Eval, If
 from trytond.report import Report
 from trytond.transaction import Transaction
 
-from . import bved_records
-
 
 class Invoice(metaclass=PoolMeta):
     """Invoice extension for real estate"""
@@ -145,106 +143,8 @@ class InvoiceLine(metaclass=PoolMeta):
         'on_change_with_total_amount'
     )
 
-    settlement_unit = fields.Many2One(
-        'real_estate.settlement_unit', 'Settlement Unit',
-        states={
-            'invisible': Eval('assignment_control', '').in_(
-                ['contract', 'settlement_result_contract',
-                    'settlement_result_vacant']),
-        },
-        depends=['assignment_control'],
-        domain=[
-            If(Bool(Eval('property')),
-                ('billing_unit.property', '=', Eval('property', -1)),
-                ()),
-            ['OR',
-                ('id', '=', Eval('settlement_unit', -1)),
-                ('billing_unit.state', '!=', 'draft')],
-        ]
-    )
-
-    estg_35a = fields.Selection([
-        ('', 'none'),
-        ('abs1', 'Para. 1 - Minor Employment in the Household'),
-        ('abs2', 'Para. 2 - Household-Related Services (e.g. Garden Maintenance)'),
-        ('abs3', 'Para. 3 - Craftsmen Services (e.g. Chimney Sweep)'),
-    ], '§35a EStG',
-        sort=False,
-        states={
-            'invisible': Eval('assignment_control', '').in_(
-                ['contract', 'settlement_result_contract',
-                    'settlement_result_vacant']),
-        },
-        depends=['assignment_control'],
-        # Deliberately no 'readonly: invoice_state != draft' - the §35a
-        # classification (and its labor share below) must stay correctable
-        # after posting, like base_object/billing_unit/settlement_unit.
-    )
-
-    estg_35a_labor_share_percent = fields.Numeric(
-        "Labor Share (%)", digits=(5, 2),
-        domain=[
-            # Guarded with If/Bool: the field is optional, and an
-            # unguarded '>=0'/'<=100' domain fails validation for an
-            # empty (NULL) value too, since NULL never satisfies a SQL
-            # comparison - only enforce the range once a value is set.
-            If(Bool(Eval('estg_35a_labor_share_percent')),
-                [('estg_35a_labor_share_percent', '>=', 0),
-                    ('estg_35a_labor_share_percent', '<=', 100)],
-                []),
-            ],
-        states={
-            'invisible': ~Eval('estg_35a', ''),
-        },
-        depends=['estg_35a'],
-        help="Share of this line's gross amount that is labor cost, for "
-             "the §35a EStG tax certificate / BVED K-Satz field 14. "
-             "Stays editable after posting, like estg_35a itself.")
-
-    bved_fuel_type = fields.Selection(
-        'get_bved_fuel_types', "BVED Fuel Type", sort=False,
-        states={
-            'invisible': Eval('assignment_control', '').in_(
-                ['contract', 'settlement_result_contract',
-                    'settlement_result_vacant']),
-        },
-        depends=['assignment_control'],
-        help="BVED Tabelle 'B'.",
-        # No readonly-after-draft clause - follows base_object/billing_unit/
-        # settlement_unit, not contract/term (see invoice.py notes).
-        )
-
-    bved_fuel_quantity = fields.Numeric(
-        "BVED Quantity", digits=(8, 3),
-        states={
-            'invisible': Eval('assignment_control', '').in_(
-                ['contract', 'settlement_result_contract',
-                    'settlement_result_vacant']),
-        },
-        depends=['assignment_control'],
-        help="Delivered fuel quantity for BVED K-Satz field 10 (e.g. "
-             "3500 for a 3500-liter heating oil delivery), independent of "
-             "the invoice's own quantity/unit-price quantity.")
-
-    bved_fuel_unit = fields.Function(
-        fields.Char("BVED Unit"), 'on_change_with_bved_fuel_unit')
-
-    @staticmethod
-    def get_bved_fuel_types():
-        return [('', '')] + bved_records.as_selection(bved_records.TABLE_B)
-
-    @fields.depends('bved_fuel_type')
-    def on_change_with_bved_fuel_unit(self, name=None):
-        if self.bved_fuel_type:
-            return bved_records.get_fuel_unit(self.bved_fuel_type)
-        return None
-
     @classmethod
     def default_assignment_control(cls):
-        return ''
-
-    @classmethod
-    def default_estg_35a(cls):
         return ''
 
     @classmethod
@@ -259,21 +159,6 @@ class InvoiceLine(metaclass=PoolMeta):
             Index(table,
                 (Column(table, 'term'), Index.Range(order='ASC NULLS FIRST')),
                 (table.id, Index.Range(order='ASC NULLS FIRST'))))
-        cls._sql_indexes.add(
-            Index(table,
-                (Column(table, 'settlement_unit'), Index.Range(order='ASC NULLS FIRST')),
-                (table.id, Index.Range(order='ASC NULLS FIRST'))))
-        # Core's check_modification() (account_invoice) blocks writes to
-        # any field not in _check_modify_exclude once the invoice is
-        # posted/paid/cancelled. estg_35a and the BVED fuel fields must
-        # stay correctable after posting (see invoice.py notes above), so
-        # they need to be added here too - the view's lack of a
-        # 'readonly: invoice_state != draft' state alone does not bypass
-        # this deeper ORM-level guard.
-        cls._check_modify_exclude |= {
-            'estg_35a', 'estg_35a_labor_share_percent',
-            'bved_fuel_type', 'bved_fuel_quantity',
-            }
 
     @fields.depends(
         'term', 'base_object',
@@ -436,17 +321,14 @@ class InvoiceLine(metaclass=PoolMeta):
 
     def _credit(self):
         # Copy the real-estate assignment onto the credit line, so the
-        # reversal is booked on the same contract/term/object resp.
-        # billing/settlement unit as the original line (core only copies
-        # its own fields). origin (set by core) links it to this line -
-        # used by ContractTerm.re_calc() to recognise credited lines.
+        # reversal is booked on the same contract/term/object as the
+        # original line (core only copies its own fields). origin (set by
+        # core) links it to this line - used by ContractTerm.re_calc() to
+        # recognise credited lines.
         line = super()._credit()
         for field in [
-                'assignment_control', 'contract', 'term', 'base_object',
-                'settlement_unit', 'estg_35a', 'bved_fuel_type']:
+                'assignment_control', 'contract', 'term', 'base_object']:
             setattr(line, field, getattr(self, field))
-        if self.bved_fuel_quantity:
-            line.bved_fuel_quantity = -self.bved_fuel_quantity
         return line
 
     def get_move_lines(self):
