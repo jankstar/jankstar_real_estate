@@ -12,6 +12,6 @@
     <field name="service_period_from" optional="1"/>
     <field name="service_period_to" optional="1"/>
     <field name="percent" optional="1"/>
-    <field name="amount_net" sum="1"/>
-    <field name="amount_gross" sum="1"/>
+    <field name="amount_net" sum="1" optional="1"/>
+    <field name="amount_gross" sum="1" optional="0"/>
 </tree>
