@@ -192,8 +192,6 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
             states={'readonly': Eval('state') != 'draft'},
             )
 
-    invoice_lines = fields.Function(fields.One2Many('account.invoice.line', None, 'Invoice Lines'),
-        'on_change_with_invoice_lines', setter='set_invoice_lines')
     oc_lines = fields.Function(fields.One2Many(
             'real_estate.oc_document.line', None,
             "Operating Cost Assignments",
@@ -739,8 +737,9 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
     def _check_invoices_posted(cls, billing_units):
         """Verify all invoices in the settlement period are posted.
 
-        cash_flow_lines: advance payment invoices from contracts.
-        invoice_lines:   operating cost invoices from settlement units.
+        cash_flow_lines: advance payment invoices from contracts - the
+        operating cost invoices only reach the billing unit as documents of
+        posted moves (see _check_oc_documents).
         Raises ValidationError listing each unposted invoice.
         """
         CashFlowLine = Pool().get('real_estate.contract.term.cash_flow')
@@ -775,23 +774,6 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
                     lines_info.append(
                         f'  {contract_num} / {date_str}'
                         f' / {inv_num} [{inv_state}]')
-
-            # Operating cost invoice lines: use bu.invoice_lines directly
-            for line in (bu.invoice_lines or []):
-                inv = line.invoice if line.invoice else None
-                if not inv or inv.state in ('posted', 'paid', 'cancelled'):
-                    continue
-                if inv.id in seen_invoices:
-                    continue
-                seen_invoices.add(inv.id)
-                su_name = (line.settlement_unit.name
-                    if line.settlement_unit else '?')
-                inv_num = inv.number or inv.reference or f'ID {inv.id}'
-                date_str = (f'{inv.invoice_date:%Y-%m-%d}'
-                    if inv.invoice_date else '?')
-                lines_info.append(
-                    f'  {su_name} / {date_str}'
-                    f' / {inv_num} [{inv.state}]')
 
             if not lines_info:
                 continue
@@ -1993,13 +1975,6 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
                 return 'value_share'
         return None
 
-    @fields.depends('settlement_units')
-    def on_change_with_invoice_lines(self, name=None):
-        invoice_lines = []
-        for settlement_unit in self.settlement_units:
-            invoice_lines.extend(settlement_unit.invoice_lines)
-        return invoice_lines
-
     @classmethod
     def set_oc_lines(cls, records, name, value):
         pass
@@ -2063,10 +2038,6 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
         else:
             domain.append(('invoice_state', 'in', ['posted', 'paid']))
         return CashFlowLine.search(domain)
-
-    @classmethod
-    def set_invoice_lines(cls, records, name, value):
-        pass
 
     @classmethod
     def set_cost_shares(cls, records, name, value):

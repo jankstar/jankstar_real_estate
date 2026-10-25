@@ -26,19 +26,20 @@ Extensions to Core Modules
    - ``contract`` / ``term`` — the originating ``real_estate.contract`` /
      ``ContractTerm``
    - ``base_object`` — the real-estate object the line relates to
-   - ``billing_unit`` / ``settlement_unit`` — for operating-cost billing lines
-   - ``property`` (Function) — derived from ``billing_unit``/``settlement_unit``
-   - ``service_period_from`` / ``service_period_to`` — billed service period
+   - ``settlement_unit`` — only read by the BVED export (to be replaced by
+     the operating cost assignment lines); the assignment to settlement
+     units is done on ``real_estate.oc_document``
+   - ``property`` (Function) — derived from ``term`` / ``base_object``
    - ``estg_35a`` (Selection) — German §35a EStG tax-deduction category
      (household services / craftsmen services)
    - ``invoice_date``, ``tax_amount``, ``total_amount`` (Function fields)
 
-   Indexed on ``contract``, ``term``, ``settlement_unit``, ``billing_unit``.
+   Indexed on ``contract``, ``term``, ``settlement_unit``.
 
 ``account.move.line``  (``invoice.py``, class ``AccountMoveLine``)
    Mirrors the same real-estate fields as ``account.invoice.line`` above
    (``assignment_control``, ``contract``, ``term``, ``base_object``,
-   ``billing_unit``, ``settlement_unit``, ``property``) directly on the
+   ``property``) directly on the
    journal entry line, so postings can be traced/filtered without going
    through the invoice line. Extended list view shows this context for
    journal entries.
@@ -169,12 +170,11 @@ Extensions to Core Modules
       Bewegungen"), forwarded via the action's ``context`` field.
 
 ``account.general_ledger.line``  (``invoice.py``, class ``GeneralLedgerLine``)
-   Adds ``contract``, ``term``, ``base_object``, ``billing_unit``, and
-   ``settlement_unit`` (all readonly Many2One) to Tryton's standard General
-   Ledger — Lines report (German: *Kontenblätter – Positionen*), so the
-   individual postings for an account can be filtered/traced back to the
-   originating real-estate contract, term, object, billing unit, or
-   settlement unit. No override of ``table_query`` is needed: it pulls any
+   Adds ``contract``, ``term`` and ``base_object`` (all readonly Many2One)
+   to Tryton's standard General Ledger — Lines report (German:
+   *Kontenblätter – Positionen*), so the individual postings for an
+   account can be filtered/traced back to the originating real-estate
+   contract, term or object. No override of ``table_query`` is needed: it pulls any
    non-Function field straight from the ``account.move.line`` table by
    matching field name, and ``account.move.line`` already carries these same
    fields (see above). Shown as optional columns in the tree view

@@ -11,7 +11,6 @@ from trytond.tools import sqlite_apply_types
 
 from trytond.model import Index, ModelSQL, ModelView, fields
 from trytond.model.exceptions import ValidationError
-from trytond.exceptions import UserWarning
 from trytond.i18n import gettext
 from trytond.modules.currency.fields import Monetary
 from trytond.pool import Pool, PoolMeta
@@ -20,10 +19,6 @@ from trytond.report import Report
 from trytond.transaction import Transaction
 
 from . import bved_records
-
-
-class InvoiceLineBillingUnitBilledWarning(UserWarning):
-    pass
 
 
 class Invoice(metaclass=PoolMeta):
@@ -47,18 +42,6 @@ class Invoice(metaclass=PoolMeta):
             Index(table,
                 (Column(table, 'contract'), Index.Range(order='ASC NULLS FIRST')),
                 (table.id, Index.Range(order='ASC NULLS FIRST'))))
-
-    @classmethod
-    def post(cls, invoices):
-        for invoice in invoices:
-            for line in invoice.lines:
-                if (getattr(line, 'assignment_control', None) == 'operating_costs'
-                        and getattr(line, 'billing_unit', None)
-                        and line.billing_unit.state == 'billed'):
-                    raise ValidationError(gettext(
-                        'real_estate.msg_invoice_line_billing_unit_billed_error',
-                        line=line.rec_name))
-        super().post(invoices)
 
     def _get_move_line(self, date, amount):
         # Core builds the receivable/payable move line directly from the
@@ -162,19 +145,6 @@ class InvoiceLine(metaclass=PoolMeta):
         'on_change_with_total_amount'
     )
 
-    billing_unit = fields.Many2One(
-        'real_estate.billing_unit', 'Billing Unit',
-        states={
-            'invisible': Eval('assignment_control', '') == 'contract',
-        },
-        depends=['assignment_control'],
-        domain=[
-            If(Bool(Eval('property')),
-                ('property', '=', Eval('property', -1)),
-                ()),
-        ]
-    )
-
     settlement_unit = fields.Many2One(
         'real_estate.settlement_unit', 'Settlement Unit',
         states={
@@ -184,44 +154,12 @@ class InvoiceLine(metaclass=PoolMeta):
         },
         depends=['assignment_control'],
         domain=[
-            If(Bool(Eval('billing_unit')),
-                ('billing_unit', '=', Eval('billing_unit', -1)),
-                If(Bool(Eval('property')),
-                    ('billing_unit.property', '=', Eval('property', -1)),
-                    ())),
+            If(Bool(Eval('property')),
+                ('billing_unit.property', '=', Eval('property', -1)),
+                ()),
             ['OR',
                 ('id', '=', Eval('settlement_unit', -1)),
                 ('billing_unit.state', '!=', 'draft')],
-        ]
-    )
-
-    service_period_from = fields.Date(
-        'Service Period From',
-        states={
-            'invisible': Eval('assignment_control', '').in_(
-                ['contract', 'settlement_result_contract',
-                    'settlement_result_vacant']),
-        },
-        depends=['assignment_control'],
-        domain=[
-            If(Bool(Eval('service_period_from')) & Bool(Eval('service_period_to')),
-                ('service_period_from', '<=', Eval('service_period_to')),
-                ()),
-        ]
-    )
-
-    service_period_to = fields.Date(
-        'Service Period To',
-        states={
-            'invisible': Eval('assignment_control', '').in_(
-                ['contract', 'settlement_result_contract',
-                    'settlement_result_vacant']),
-        },
-        depends=['assignment_control'],
-        domain=[
-            If(Bool(Eval('service_period_from')) & Bool(Eval('service_period_to')),
-                ('service_period_to', '>=', Eval('service_period_from')),
-                ()),
         ]
     )
 
@@ -325,10 +263,6 @@ class InvoiceLine(metaclass=PoolMeta):
             Index(table,
                 (Column(table, 'settlement_unit'), Index.Range(order='ASC NULLS FIRST')),
                 (table.id, Index.Range(order='ASC NULLS FIRST'))))
-        cls._sql_indexes.add(
-            Index(table,
-                (Column(table, 'billing_unit'), Index.Range(order='ASC NULLS FIRST')),
-                (table.id, Index.Range(order='ASC NULLS FIRST'))))
         # Core's check_modification() (account_invoice) blocks writes to
         # any field not in _check_modify_exclude once the invoice is
         # posted/paid/cancelled. estg_35a and the BVED fuel fields must
@@ -342,15 +276,10 @@ class InvoiceLine(metaclass=PoolMeta):
             }
 
     @fields.depends(
-        'billing_unit', 'settlement_unit', 'term', 'base_object',
-        '_parent_billing_unit.property', '_parent_settlement_unit.billing_unit',
+        'term', 'base_object',
         '_parent_term.property', '_parent_base_object.type',
         '_parent_base_object.property')
     def on_change_with_property(self, name=None):
-        if self.billing_unit and self.billing_unit.property:
-            return self.billing_unit.property
-        if self.settlement_unit and self.settlement_unit.billing_unit:
-            return self.settlement_unit.billing_unit.property
         if self.term and self.term.property:
             return self.term.property
         if self.base_object:
@@ -399,14 +328,6 @@ class InvoiceLine(metaclass=PoolMeta):
         if self.term and self.term.contract:
             self.contract = self.term.contract
 
-    @fields.depends(
-        'settlement_unit', '_parent_settlement_unit.billing_unit',
-        methods=['_set_taxes_deductible_rate_from_option_rate'])
-    def on_change_settlement_unit(self):
-        if self.settlement_unit and self.settlement_unit.billing_unit:
-            self.billing_unit = self.settlement_unit.billing_unit
-        self._set_taxes_deductible_rate_from_option_rate()
-
     @staticmethod
     def _option_rate_priority(base_object, property_):
         """Pick the object to use for the option rate lookup: the booked
@@ -421,7 +342,7 @@ class InvoiceLine(metaclass=PoolMeta):
         return None, None
 
     @fields.depends(
-        'base_object', 'settlement_unit', 'billing_unit',
+        'base_object',
         'company', 'taxes_date', 'invoice', 'invoice_type',
         '_parent_base_object.option_rate_method',
         '_parent_company.purchase_taxes_expense',
@@ -454,10 +375,6 @@ class InvoiceLine(metaclass=PoolMeta):
 
     @fields.depends(methods=['_set_taxes_deductible_rate_from_option_rate'])
     def on_change_base_object(self):
-        self._set_taxes_deductible_rate_from_option_rate()
-
-    @fields.depends(methods=['_set_taxes_deductible_rate_from_option_rate'])
-    def on_change_billing_unit(self):
         self._set_taxes_deductible_rate_from_option_rate()
 
     @classmethod
@@ -526,8 +443,7 @@ class InvoiceLine(metaclass=PoolMeta):
         line = super()._credit()
         for field in [
                 'assignment_control', 'contract', 'term', 'base_object',
-                'billing_unit', 'settlement_unit', 'service_period_from',
-                'service_period_to', 'estg_35a', 'bved_fuel_type']:
+                'settlement_unit', 'estg_35a', 'bved_fuel_type']:
             setattr(line, field, getattr(self, field))
         if self.bved_fuel_quantity:
             line.bved_fuel_quantity = -self.bved_fuel_quantity
@@ -539,11 +455,7 @@ class InvoiceLine(metaclass=PoolMeta):
             line.contract = self.contract
             line.term = self.term
             line.base_object = self.base_object
-            line.billing_unit = self.billing_unit
-            line.settlement_unit = self.settlement_unit
             line.assignment_control = self.assignment_control or ''
-            line.bved_fuel_type = self.bved_fuel_type
-            line.bved_fuel_quantity = self.bved_fuel_quantity
         return lines
 
     def _compute_taxes(self):
@@ -575,15 +487,7 @@ class InvoiceLine(metaclass=PoolMeta):
     @classmethod
     def validate(cls, lines):
         super().validate(lines)
-        pool = Pool()
-        Warning = pool.get('res.user.warning')
         for line in lines:
-            if (line.service_period_from and line.service_period_to
-                    and line.service_period_from > line.service_period_to):
-                raise ValidationError(gettext(
-                    'real_estate.msg_invoice_line_service_period_invalid',
-                    service_period_from=line.service_period_from,
-                    service_period_to=line.service_period_to))
             if (line.term and line.contract
                     and line.term.contract != line.contract):
                 raise ValidationError(gettext(
@@ -594,14 +498,6 @@ class InvoiceLine(metaclass=PoolMeta):
                 raise ValidationError(gettext(
                     'real_estate.msg_invoice_line_term_requires_contract',
                     term=line.term.rec_name))
-            if line.settlement_unit and (
-                    not line.billing_unit
-                    or line.billing_unit != line.settlement_unit.billing_unit):
-                raise ValidationError(gettext(
-                    'real_estate.msg_invoice_line_settlement_unit_requires_billing_unit',
-                    settlement_unit=line.settlement_unit.rec_name,
-                    billing_unit=(line.settlement_unit.billing_unit.rec_name
-                        if line.settlement_unit.billing_unit else '')))
             if line.base_object and line.contract:
                 contract_object_ids = {
                     obj.id
@@ -612,16 +508,6 @@ class InvoiceLine(metaclass=PoolMeta):
                         'real_estate.msg_invoice_line_object_not_in_contract',
                         object=line.base_object.rec_name,
                         contract=line.contract.rec_name))
-            if (line.assignment_control == 'operating_costs'
-                    and line.invoice
-                    and line.invoice.state not in ('posted', 'paid')
-                    and line.billing_unit
-                    and line.billing_unit.state == 'billed'):
-                key = Warning.format(
-                    'invoice_line_billing_unit_billed', [line])
-                if Warning.check(key):
-                    raise InvoiceLineBillingUnitBilledWarning(key, gettext(
-                        'real_estate.msg_invoice_line_billing_unit_billed_warning'))
 
 
 #**********************************************************************
@@ -672,45 +558,9 @@ class AccountMoveLine(metaclass=PoolMeta):
         ondelete='SET NULL',
         depends=['assignment_control'])
 
-    billing_unit = fields.Many2One('real_estate.billing_unit', 'Billing Unit',
-        ondelete='SET NULL',
-        states={
-            'invisible': Eval('assignment_control', '') == 'contract',
-        },
-        depends=['assignment_control'])
-
-    settlement_unit = fields.Many2One('real_estate.settlement_unit',
-        'Settlement Unit', ondelete='SET NULL',
-        states={
-            'invisible': Eval('assignment_control', '').in_(
-                ['contract', 'settlement_result_contract',
-                    'settlement_result_vacant']),
-        },
-        depends=['assignment_control'])
-
     property = fields.Function(
         fields.Many2One('real_estate.base_object', 'Property'),
         'on_change_with_property')
-
-    bved_fuel_type = fields.Selection(
-        'get_bved_fuel_types', "BVED Fuel Type", sort=False, readonly=True,
-        help="BVED Tabelle 'B'.")
-
-    bved_fuel_quantity = fields.Numeric(
-        "BVED Quantity", digits=(8, 3), readonly=True)
-
-    bved_fuel_unit = fields.Function(
-        fields.Char("BVED Unit"), 'on_change_with_bved_fuel_unit')
-
-    @staticmethod
-    def get_bved_fuel_types():
-        return [('', '')] + bved_records.as_selection(bved_records.TABLE_B)
-
-    @fields.depends('bved_fuel_type')
-    def on_change_with_bved_fuel_unit(self, name=None):
-        if self.bved_fuel_type:
-            return bved_records.get_fuel_unit(self.bved_fuel_type)
-        return None
 
     @classmethod
     def __setup__(cls):
@@ -720,25 +570,12 @@ class AccountMoveLine(metaclass=PoolMeta):
             Index(table,
                 (Column(table, 'contract'), Index.Range(order='ASC NULLS FIRST')),
                 (table.id, Index.Range(order='ASC NULLS FIRST'))))
-        cls._sql_indexes.add(
-            Index(table,
-                (Column(table, 'billing_unit'), Index.Range(order='ASC NULLS FIRST')),
-                (table.id, Index.Range(order='ASC NULLS FIRST'))))
-        # Same reasoning as InvoiceLine._check_modify_exclude above - core
-        # (account.move.line) blocks writes to any field not listed here
-        # once the move is posted.
-        cls._check_modify_exclude |= {'bved_fuel_type', 'bved_fuel_quantity'}
 
     @fields.depends(
-        'billing_unit', 'settlement_unit', 'term', 'base_object',
-        '_parent_billing_unit.property', '_parent_settlement_unit.billing_unit',
+        'term', 'base_object',
         '_parent_term.property', '_parent_base_object.type',
         '_parent_base_object.property')
     def on_change_with_property(self, name=None):
-        if self.billing_unit and self.billing_unit.property:
-            return self.billing_unit.property
-        if self.settlement_unit and self.settlement_unit.billing_unit:
-            return self.settlement_unit.billing_unit.property
         if self.term and self.term.property:
             return self.term.property
         if self.base_object:
@@ -963,23 +800,6 @@ class GeneralLedgerLine(metaclass=PoolMeta):
 
     base_object = fields.Many2One('real_estate.base_object', 'Object',
         readonly=True)
-
-    billing_unit = fields.Many2One('real_estate.billing_unit', 'Billing Unit',
-        readonly=True)
-
-    settlement_unit = fields.Many2One('real_estate.settlement_unit',
-        'Settlement Unit', readonly=True)
-
-    bved_fuel_type = fields.Selection(
-        'get_bved_fuel_types', "BVED Fuel Type", sort=False, readonly=True,
-        help="BVED Tabelle 'B'.")
-
-    bved_fuel_quantity = fields.Numeric(
-        "BVED Quantity", digits=(8, 3), readonly=True)
-
-    @staticmethod
-    def get_bved_fuel_types():
-        return [('', '')] + bved_records.as_selection(bved_records.TABLE_B)
 
 
 #**********************************************************************
