@@ -1,0 +1,198 @@
+<?xml version="1.0"?>
+<tryton>
+    <data>
+
+        <record model="ir.ui.view" id="oc_reconciliation_view_tree">
+            <field name="model">real_estate.oc_reconciliation</field>
+            <field name="type">tree</field>
+            <field name="name">oc_reconciliation_tree</field>
+        </record>
+        <record model="ir.ui.view" id="oc_reconciliation_view_form">
+            <field name="model">real_estate.oc_reconciliation</field>
+            <field name="type">form</field>
+            <field name="name">oc_reconciliation_form</field>
+        </record>
+        <record model="ir.ui.view" id="oc_reconciliation_line_view_list_costs">
+            <field name="model">real_estate.oc_reconciliation.line</field>
+            <field name="type">tree</field>
+            <field name="priority" eval="10"/>
+            <field name="name">oc_reconciliation_line_list_costs</field>
+        </record>
+        <record model="ir.ui.view" id="oc_reconciliation_line_view_list_billing">
+            <field name="model">real_estate.oc_reconciliation.line</field>
+            <field name="type">tree</field>
+            <field name="priority" eval="20"/>
+            <field name="name">oc_reconciliation_line_list_billing</field>
+        </record>
+        <record model="ir.ui.view" id="oc_reconciliation_line_view_form">
+            <field name="model">real_estate.oc_reconciliation.line</field>
+            <field name="type">form</field>
+            <field name="name">oc_reconciliation_line_form</field>
+        </record>
+
+        <record model="ir.action.act_window" id="act_oc_reconciliation">
+            <field name="name">Operating Cost Reconciliation</field>
+            <field name="res_model">real_estate.oc_reconciliation</field>
+            <field name="domain" eval="[('company', '=', Eval('company', -1))]" pyson="1"/>
+        </record>
+        <record model="ir.action.act_window.view" id="act_oc_reconciliation_view1">
+            <field name="sequence" eval="10"/>
+            <field name="view" ref="oc_reconciliation_view_tree"/>
+            <field name="act_window" ref="act_oc_reconciliation"/>
+        </record>
+        <record model="ir.action.act_window.view" id="act_oc_reconciliation_view2">
+            <field name="sequence" eval="20"/>
+            <field name="view" ref="oc_reconciliation_view_form"/>
+            <field name="act_window" ref="act_oc_reconciliation"/>
+        </record>
+        <menuitem
+            parent="menu_real_estate_operation_costs"
+            action="act_oc_reconciliation"
+            sequence="6"
+            id="menu_oc_reconciliation"/>
+
+        <record model="ir.action.act_window" id="act_oc_reconciliation_property">
+            <field name="name">Operating Cost Reconciliation</field>
+            <field name="res_model">real_estate.oc_reconciliation</field>
+            <field name="domain"
+                eval="[If(Eval('active_ids', []) == [Eval('active_id')], ('property', '=', Eval('active_id')), ('property', 'in', Eval('active_ids')))]"
+                pyson="1"/>
+        </record>
+        <record model="ir.action.keyword" id="act_oc_reconciliation_property_keyword">
+            <field name="keyword">form_relate</field>
+            <field name="model">real_estate.base_object,-1</field>
+            <field name="action" ref="act_oc_reconciliation_property"/>
+        </record>
+        <record model="ir.action.act_window" id="act_oc_reconciliation_billing_unit">
+            <field name="name">Operating Cost Reconciliation</field>
+            <field name="res_model">real_estate.oc_reconciliation</field>
+            <field name="domain"
+                eval="[If(Eval('active_ids', []) == [Eval('active_id')], ('billing_units', '=', Eval('active_id')), ('billing_units', 'in', Eval('active_ids')))]"
+                pyson="1"/>
+        </record>
+        <record model="ir.action.keyword" id="act_oc_reconciliation_billing_unit_keyword">
+            <field name="keyword">form_relate</field>
+            <field name="model">real_estate.billing_unit,-1</field>
+            <field name="action" ref="act_oc_reconciliation_billing_unit"/>
+        </record>
+
+        <record model="ir.model.button" id="oc_reconciliation_compute_button">
+            <field name="model">real_estate.oc_reconciliation</field>
+            <field name="name">compute</field>
+            <field name="string">Compute</field>
+        </record>
+        <record model="ir.model.button-res.group" id="oc_reconciliation_compute_button_group_billing">
+            <field name="button" ref="oc_reconciliation_compute_button"/>
+            <field name="group" ref="group_real_estate_billing"/>
+        </record>
+        <record model="ir.model.button-res.group" id="oc_reconciliation_compute_button_group_admin">
+            <field name="button" ref="oc_reconciliation_compute_button"/>
+            <field name="group" ref="group_real_estate_admin"/>
+        </record>
+
+        <record model="ir.rule.group" id="rule_group_oc_reconciliation_companies">
+            <field name="name">User in companies</field>
+            <field name="model">real_estate.oc_reconciliation</field>
+            <field name="global_p" eval="True"/>
+        </record>
+        <record model="ir.rule" id="rule_oc_reconciliation_companies">
+            <field name="domain" eval="[('company', 'in', Eval('companies', []))]" pyson="1"/>
+            <field name="rule_group" ref="rule_group_oc_reconciliation_companies"/>
+        </record>
+        <record model="ir.model.access" id="access_oc_reconciliation_billing">
+            <field name="model">real_estate.oc_reconciliation</field>
+            <field name="group" ref="group_real_estate_billing"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+        <record model="ir.model.access" id="access_oc_reconciliation_admin">
+            <field name="model">real_estate.oc_reconciliation</field>
+            <field name="group" ref="group_real_estate_admin"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+        <record model="ir.model.access" id="access_oc_reconciliation_object">
+            <field name="model">real_estate.oc_reconciliation</field>
+            <field name="group" ref="group_real_estate_object"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_oc_reconciliation_contract">
+            <field name="model">real_estate.oc_reconciliation</field>
+            <field name="group" ref="group_real_estate_contract"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_oc_reconciliation_view">
+            <field name="model">real_estate.oc_reconciliation</field>
+            <field name="group" ref="group_real_estate_view"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_oc_reconciliation_default">
+            <field name="model">real_estate.oc_reconciliation</field>
+            <field name="perm_read" eval="False"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_oc_reconciliation_line_billing">
+            <field name="model">real_estate.oc_reconciliation.line</field>
+            <field name="group" ref="group_real_estate_billing"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+        <record model="ir.model.access" id="access_oc_reconciliation_line_admin">
+            <field name="model">real_estate.oc_reconciliation.line</field>
+            <field name="group" ref="group_real_estate_admin"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+        <record model="ir.model.access" id="access_oc_reconciliation_line_object">
+            <field name="model">real_estate.oc_reconciliation.line</field>
+            <field name="group" ref="group_real_estate_object"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_oc_reconciliation_line_contract">
+            <field name="model">real_estate.oc_reconciliation.line</field>
+            <field name="group" ref="group_real_estate_contract"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_oc_reconciliation_line_view">
+            <field name="model">real_estate.oc_reconciliation.line</field>
+            <field name="group" ref="group_real_estate_view"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_oc_reconciliation_line_default">
+            <field name="model">real_estate.oc_reconciliation.line</field>
+            <field name="perm_read" eval="False"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+
+    </data>
+</tryton>

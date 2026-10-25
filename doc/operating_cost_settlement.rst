@@ -18,7 +18,8 @@ Sub-topics on separate pages:
    (``account.move.post``; postings in adjustment periods are skipped) or
    by the wizard *Update Operating Cost Documents* (e.g. after an account
    was added to a cost type). Stores property (from the move line's
-   ``base_object``; empty = hint "without property"), date, account,
+   ``base_object``; empty = confirmable hint "without property" on
+   posting, outside adjustment periods), date, account,
    supplier, invoice/invoice line, ``amount_booked`` (debit - credit),
    ``amount_net`` and ``amount_gross`` (from the invoice line, scaled by
    the posting for credit notes/cancellations; without invoice all three
@@ -78,6 +79,44 @@ Sub-topics on separate pages:
    (``msg_billing_unit_oc_documents_open``); other unconfirmed documents of
    the property in the period are logged as a hint.
    Specification: ``specs/spezifikation-betriebskostenzuordnung.md``.
+
+``real_estate.oc_reconciliation``  (``oc_reconciliation.py``)
+   Operating cost reconciliation (*Betriebskostenabstimmung*), menu
+   *Operating Costs › Operating Cost Reconciliation*, relate from property
+   and billing unit: one stored record per property and billing period
+   (all billing units of the property with the same start); the button
+   *Compute* replaces its lines (computed at/by, check state *OK* /
+   *Hints*, protocol). Based on the confirmed assignment lines, so a
+   document split by service period counts in each period with its part.
+
+   - Tab *Settlement Units* (gross): per settlement unit assigned, thereof
+     direct (contract / booked on a rental object), passed on (allocation
+     via cost collector), distributed to tenants, vacancy / flat rate,
+     thereof input tax commercial (net cost shares × (gross / net − 1)),
+     not distributed, from other periods (documents dated outside); with
+     external billing the settlement results are the distribution, shared
+     by the costs of the settlement units. Rows owner (not allocable), to
+     other periods, not or not confirmed assigned, postings without
+     property (company).
+   - Tab *Billing*: per billing unit and settlement result the result
+     costs, billed (actual cost lines of posted billing invoices), expected
+     and booked reclassification (debit at the rental object) and the
+     difference.
+   - Tab *Account Check* (booked amounts): booked on the property −
+     reclassified = rest; expected = owner + not distributed + not
+     reclassified yet (billing units not billed) + to other periods − from
+     other periods + not assigned; the difference is the rounding of the
+     option rate (information); input tax remaining on the property.
+
+   Hints (no lock): not or not confirmed assigned documents, not
+   distributed amounts (except *no allocation*; tolerance one cent per
+   cost share), billing units not billed, billing differences, postings
+   without property. Each line opens its documents, assignments, cost
+   shares, results and moves. Pure functions ``distribution()`` and
+   ``account_check()``. The year-end closing step 45 *Reconcile the
+   operating costs* (``fiscalyear_oc_reconciled``) is done once the
+   reconciliations of all properties with billing units ending in the
+   fiscal year are computed and in order.
 
 ``real_estate.cost_category_group``  (``billing_unit.py``)
    Groups cost types for reporting, e.g. *Heating*, *Water*, *Janitorial*.

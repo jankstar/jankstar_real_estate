@@ -1,0 +1,69 @@
+<?xml version="1.0"?>
+<form col="6">
+    <label name="property"/>
+    <field name="property" colspan="3"/>
+    <label name="company"/>
+    <field name="company"/>
+    <label name="start_date"/>
+    <field name="start_date"/>
+    <label name="end_date"/>
+    <field name="end_date"/>
+    <label name="check_state"/>
+    <field name="check_state"/>
+    <label name="computed_at"/>
+    <field name="computed_at"/>
+    <label name="computed_by"/>
+    <field name="computed_by"/>
+    <button name="compute" icon="tryton-refresh" colspan="2"/>
+    <notebook colspan="6">
+        <page name="cost_lines" col="1">
+            <field name="cost_lines"
+                view_ids="real_estate.oc_reconciliation_line_view_list_costs,real_estate.oc_reconciliation_line_view_form"/>
+        </page>
+        <page name="billing_lines" col="1">
+            <field name="billing_lines"
+                view_ids="real_estate.oc_reconciliation_line_view_list_billing,real_estate.oc_reconciliation_line_view_form"/>
+        </page>
+        <page string="Account Check" id="account_check" col="4">
+            <label name="booked"/>
+            <field name="booked"/>
+            <newline/>
+            <label name="reclassified"/>
+            <field name="reclassified"/>
+            <newline/>
+            <label name="rest"/>
+            <field name="rest"/>
+            <newline/>
+            <separator string="Expected" id="expected_separator" colspan="4"/>
+            <label name="owner_booked"/>
+            <field name="owner_booked"/>
+            <newline/>
+            <label name="not_distributed_booked"/>
+            <field name="not_distributed_booked"/>
+            <newline/>
+            <label name="pending_booked"/>
+            <field name="pending_booked"/>
+            <newline/>
+            <label name="other_periods_out"/>
+            <field name="other_periods_out"/>
+            <newline/>
+            <label name="other_periods_in"/>
+            <field name="other_periods_in"/>
+            <newline/>
+            <label name="unassigned_booked"/>
+            <field name="unassigned_booked"/>
+            <newline/>
+            <label name="expected"/>
+            <field name="expected"/>
+            <newline/>
+            <label name="difference"/>
+            <field name="difference"/>
+            <newline/>
+            <label name="tax_remaining"/>
+            <field name="tax_remaining"/>
+        </page>
+        <page name="protocol" col="1">
+            <field name="protocol"/>
+        </page>
+    </notebook>
+</form>

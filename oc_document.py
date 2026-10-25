@@ -160,6 +160,10 @@ class OcOtherLevelWarning(UserWarning):
     pass
 
 
+class OcNoPropertyWarning(UserWarning):
+    pass
+
+
 #**********************************************************************
 class Move(metaclass=PoolMeta):
     __name__ = 'account.move'
@@ -180,8 +184,9 @@ class Move(metaclass=PoolMeta):
         with without_check_access(), Transaction().set_context(
                 active_test=False):
             account_ids = CostType.oc_account_ids()
-        other = [l for m in cls.browse(moves) for l in m.lines
-            if l.account.id in account_ids and _other_level(l)]
+        oc_lines = [l for m in cls.browse(moves) for l in m.lines
+            if l.account.id in account_ids]
+        other = [l for l in oc_lines if _other_level(l)]
         if other:
             key = Warning.format('oc_other_level', other)
             if Warning.check(key):
@@ -189,6 +194,18 @@ class Move(metaclass=PoolMeta):
                         'real_estate.msg_oc_other_level_warning',
                         objects=', '.join(sorted({
                                     l.base_object.rec_name for l in other}))))
+        # operating cost line without property: document without property,
+        # only a hint (E10, Z06) - not for opening/closing moves
+        missing = [l for l in oc_lines
+            if not getattr(l, 'base_object', None)
+            and l.move.period and l.move.period.type == 'standard']
+        if missing:
+            key = Warning.format('oc_no_property', missing)
+            if Warning.check(key):
+                raise OcNoPropertyWarning(key, gettext(
+                        'real_estate.msg_oc_no_property_warning',
+                        accounts=', '.join(sorted({
+                                    l.account.rec_name for l in missing}))))
         super().post(moves)
         Document = pool.get('real_estate.oc_document')
         # the posting user needs no access to the operating cost documents

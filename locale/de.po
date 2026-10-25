@@ -26624,3 +26624,439 @@ msgstr "Vertrag"
 msgctxt "help:real_estate.oc_document,contract:"
 msgid "Contract of the posting on a rental object - the cost goes to this contract (E32)."
 msgstr "Vertrag der Buchung auf ein Mietobjekt - die Kosten gehen an diesen Vertrag."
+
+msgctxt "model:ir.message,text:msg_oc_no_property_warning"
+msgid "Operating cost posting without property (accounts %(accounts)s): the document has no property and does not take part in the operating cost settlement until it is corrected. Correct: book on the property and assign to a settlement unit."
+msgstr "Betriebskostenbuchung ohne Wirtschaftseinheit (Konten %(accounts)s): der Beleg hat keine Wirtschaftseinheit und nimmt nicht an der Betriebskostenabrechnung teil, bis er korrigiert ist. Richtig: Kontierung auf die Wirtschaftseinheit und Zuordnung zu einem Kostensammler."
+
+msgctxt "model:ir.message,text:msg_process_step_condition_warning"
+msgid "The done condition of the step is not fulfilled: %(tasks)s. Set the step done anyway?"
+msgstr "Die Erledigt-Bedingung des Schritts ist nicht erfüllt: %(tasks)s. Den Schritt trotzdem erledigen?"
+
+msgctxt "model:ir.message,text:msg_process_step_condition_overridden"
+msgid "Set done by hand although the done condition was not fulfilled."
+msgstr "Von Hand erledigt, obwohl die Erledigt-Bedingung nicht erfüllt war."
+
+msgctxt "model:ir.message,text:msg_oc_reconciliation_unique"
+msgid "There is already an operating cost reconciliation for this property and start date."
+msgstr "Für diese Wirtschaftseinheit und diesen Beginn gibt es bereits eine Betriebskostenabstimmung."
+
+msgctxt "model:ir.message,text:msg_oc_reconciliation_ok"
+msgid "Reconciliation in order (computed on %(date)s)."
+msgstr "Abstimmung in Ordnung (berechnet am %(date)s)."
+
+msgctxt "model:ir.message,text:msg_oc_reconciliation_no_billing_unit"
+msgid "Property \"%(property)s\" has no billing unit starting on %(date)s."
+msgstr "Die Wirtschaftseinheit „%(property)s“ hat keine Abrechnungseinheit mit Beginn %(date)s."
+
+msgctxt "model:ir.message,text:msg_oc_reconciliation_not_distributed"
+msgid "Settlement unit \"%(settlement_unit)s\": %(amount)s not distributed."
+msgstr "Kostensammler „%(settlement_unit)s“: %(amount)s nicht verteilt."
+
+msgctxt "model:ir.message,text:msg_oc_reconciliation_owner"
+msgid "Owner, not allocable"
+msgstr "Eigentümer, nicht umlagefähig"
+
+msgctxt "model:ir.message,text:msg_oc_reconciliation_other_period"
+msgid "To other periods"
+msgstr "In andere Zeiträume"
+
+msgctxt "model:ir.message,text:msg_oc_reconciliation_unassigned"
+msgid "%(count)s document(s) of the period not or not confirmed assigned."
+msgstr "%(count)s Beleg(e) des Zeitraums nicht oder nicht bestätigt zugeordnet."
+
+msgctxt "model:ir.message,text:msg_oc_reconciliation_unassigned_name"
+msgid "Not or not confirmed assigned"
+msgstr "Nicht oder nicht bestätigt zugeordnet"
+
+msgctxt "model:ir.message,text:msg_oc_reconciliation_without_property"
+msgid "%(count)s operating cost posting(s) of the period without property (company)."
+msgstr "%(count)s Betriebskostenbuchung(en) des Zeitraums ohne Wirtschaftseinheit (Unternehmen)."
+
+msgctxt "model:ir.message,text:msg_oc_reconciliation_without_property_name"
+msgid "Operating cost postings without property"
+msgstr "Betriebskostenbuchungen ohne Wirtschaftseinheit"
+
+msgctxt "model:ir.message,text:msg_oc_reconciliation_not_billed"
+msgid "Billing unit \"%(billing_unit)s\" is not billed yet."
+msgstr "Die Abrechnungseinheit „%(billing_unit)s“ ist noch nicht abgerechnet."
+
+msgctxt "model:ir.message,text:msg_oc_reconciliation_billing_difference"
+msgid "Billing unit \"%(billing_unit)s\": difference between the settlement results and the billing invoices or cost reclassifications."
+msgstr "Abrechnungseinheit „%(billing_unit)s“: Differenz zwischen Abrechnungsergebnissen und Abrechnungsrechnungen bzw. Kostenumbuchungen."
+
+msgctxt "field:real_estate.oc_reconciliation,billing_lines:"
+msgid "Billing"
+msgstr "Abrechnung"
+
+msgctxt "field:real_estate.oc_reconciliation,billing_units:"
+msgid "Billing Units"
+msgstr "Abrechnungseinheiten"
+
+msgctxt "field:real_estate.oc_reconciliation,booked:"
+msgid "Booked on the Property"
+msgstr "Gebucht an der Wirtschaftseinheit"
+
+msgctxt "field:real_estate.oc_reconciliation,check_state:"
+msgid "Check State"
+msgstr "Prüfstatus"
+
+msgctxt "field:real_estate.oc_reconciliation,company:"
+msgid "Company"
+msgstr "Unternehmen"
+
+msgctxt "field:real_estate.oc_reconciliation,computed_at:"
+msgid "Computed at"
+msgstr "Berechnet am"
+
+msgctxt "field:real_estate.oc_reconciliation,computed_by:"
+msgid "Computed by"
+msgstr "Berechnet von"
+
+msgctxt "field:real_estate.oc_reconciliation,cost_lines:"
+msgid "Settlement Units"
+msgstr "Kostensammler"
+
+msgctxt "field:real_estate.oc_reconciliation,currency:"
+msgid "Currency"
+msgstr "Währung"
+
+msgctxt "field:real_estate.oc_reconciliation,difference:"
+msgid "Difference"
+msgstr "Differenz"
+
+msgctxt "field:real_estate.oc_reconciliation,end_date:"
+msgid "End Date"
+msgstr "Ende"
+
+msgctxt "field:real_estate.oc_reconciliation,expected:"
+msgid "Expected Rest"
+msgstr "Erwarteter Rest"
+
+msgctxt "field:real_estate.oc_reconciliation,not_distributed_booked:"
+msgid "Not Distributed"
+msgstr "Nicht verteilt"
+
+msgctxt "field:real_estate.oc_reconciliation,other_periods_in:"
+msgid "From Other Periods"
+msgstr "Aus anderen Zeiträumen"
+
+msgctxt "field:real_estate.oc_reconciliation,other_periods_out:"
+msgid "To Other Periods"
+msgstr "In andere Zeiträume"
+
+msgctxt "field:real_estate.oc_reconciliation,owner_booked:"
+msgid "Owner"
+msgstr "Eigentümer"
+
+msgctxt "field:real_estate.oc_reconciliation,pending_booked:"
+msgid "Not Reclassified Yet"
+msgstr "Noch nicht umgebucht"
+
+msgctxt "field:real_estate.oc_reconciliation,property:"
+msgid "Property"
+msgstr "Wirtschaftseinheit"
+
+msgctxt "field:real_estate.oc_reconciliation,protocol:"
+msgid "Protocol"
+msgstr "Protokoll"
+
+msgctxt "field:real_estate.oc_reconciliation,reclassified:"
+msgid "Reclassified"
+msgstr "Umgebucht"
+
+msgctxt "field:real_estate.oc_reconciliation,rest:"
+msgid "Rest on the Property"
+msgstr "Rest an der Wirtschaftseinheit"
+
+msgctxt "field:real_estate.oc_reconciliation,start_date:"
+msgid "Start Date"
+msgstr "Beginn"
+
+msgctxt "field:real_estate.oc_reconciliation,tax_remaining:"
+msgid "Input Tax on the Property"
+msgstr "Vorsteuer an der Wirtschaftseinheit"
+
+msgctxt "field:real_estate.oc_reconciliation,unassigned_booked:"
+msgid "Not Assigned"
+msgstr "Nicht zugeordnet"
+
+msgctxt "field:real_estate.oc_reconciliation.line,assigned:"
+msgid "Assigned"
+msgstr "Zugeordnet"
+
+msgctxt "field:real_estate.oc_reconciliation.line,assigned_net:"
+msgid "Assigned Net"
+msgstr "Zugeordnet netto"
+
+msgctxt "field:real_estate.oc_reconciliation.line,base_object:"
+msgid "Rental Object"
+msgstr "Mietobjekt"
+
+msgctxt "field:real_estate.oc_reconciliation.line,billed:"
+msgid "Billed"
+msgstr "Abgerechnet"
+
+msgctxt "field:real_estate.oc_reconciliation.line,billing_unit:"
+msgid "Billing Unit"
+msgstr "Abrechnungseinheit"
+
+msgctxt "field:real_estate.oc_reconciliation.line,commercial_tax:"
+msgid "Thereof Input Tax Commercial"
+msgstr "Davon Vorsteuer Gewerbe"
+
+msgctxt "field:real_estate.oc_reconciliation.line,contract:"
+msgid "Contract"
+msgstr "Vertrag"
+
+msgctxt "field:real_estate.oc_reconciliation.line,cost_shares:"
+msgid "Cost Shares"
+msgstr "Kostenanteile"
+
+msgctxt "field:real_estate.oc_reconciliation.line,currency:"
+msgid "Currency"
+msgstr "Währung"
+
+msgctxt "field:real_estate.oc_reconciliation.line,difference:"
+msgid "Difference"
+msgstr "Differenz"
+
+msgctxt "field:real_estate.oc_reconciliation.line,direct:"
+msgid "Thereof Direct"
+msgstr "Davon direkt"
+
+msgctxt "field:real_estate.oc_reconciliation.line,documents:"
+msgid "Documents"
+msgstr "Belege"
+
+msgctxt "field:real_estate.oc_reconciliation.line,moves:"
+msgid "Moves"
+msgstr "Buchungen"
+
+msgctxt "field:real_estate.oc_reconciliation.line,name:"
+msgid "Name"
+msgstr "Name"
+
+msgctxt "field:real_estate.oc_reconciliation.line,not_distributed:"
+msgid "Not Distributed"
+msgstr "Nicht verteilt"
+
+msgctxt "field:real_estate.oc_reconciliation.line,oc_lines:"
+msgid "Assignments"
+msgstr "Zuordnungen"
+
+msgctxt "field:real_estate.oc_reconciliation.line,outside_period:"
+msgid "From Other Periods"
+msgstr "Aus anderen Zeiträumen"
+
+msgctxt "field:real_estate.oc_reconciliation.line,passed_on:"
+msgid "Passed On"
+msgstr "Weitergereicht"
+
+msgctxt "field:real_estate.oc_reconciliation.line,reclass_expected:"
+msgid "Reclassification Expected"
+msgstr "Umbuchung erwartet"
+
+msgctxt "field:real_estate.oc_reconciliation.line,reclassified:"
+msgid "Reclassified"
+msgstr "Umgebucht"
+
+msgctxt "field:real_estate.oc_reconciliation.line,reconciliation:"
+msgid "Reconciliation"
+msgstr "Abstimmung"
+
+msgctxt "field:real_estate.oc_reconciliation.line,record_ids:"
+msgid "Records"
+msgstr "Datensätze"
+
+msgctxt "field:real_estate.oc_reconciliation.line,result_costs:"
+msgid "Result Costs"
+msgstr "Kosten Ergebnis"
+
+msgctxt "field:real_estate.oc_reconciliation.line,results:"
+msgid "Settlement Results"
+msgstr "Abrechnungsergebnisse"
+
+msgctxt "field:real_estate.oc_reconciliation.line,section:"
+msgid "Section"
+msgstr "Bereich"
+
+msgctxt "field:real_estate.oc_reconciliation.line,sequence:"
+msgid "Sequence"
+msgstr "Reihenfolge"
+
+msgctxt "field:real_estate.oc_reconciliation.line,settlement_result:"
+msgid "Settlement Result"
+msgstr "Abrechnungsergebnis"
+
+msgctxt "field:real_estate.oc_reconciliation.line,settlement_unit:"
+msgid "Settlement Unit"
+msgstr "Kostensammler"
+
+msgctxt "field:real_estate.oc_reconciliation.line,state:"
+msgid "State"
+msgstr "Status"
+
+msgctxt "field:real_estate.oc_reconciliation.line,tenants:"
+msgid "Distributed to Tenants"
+msgstr "Verteilt an Mieter"
+
+msgctxt "field:real_estate.oc_reconciliation.line,vacancy:"
+msgid "Vacancy / Flat Rate"
+msgstr "Leerstand / Pauschale"
+
+msgctxt "help:real_estate.oc_reconciliation,booked:"
+msgid "Documents booked on the property with a date in the period (booked amount)."
+msgstr "Belege auf die Wirtschaftseinheit mit Datum im Zeitraum (gebuchter Betrag)."
+
+msgctxt "help:real_estate.oc_reconciliation,difference:"
+msgid "Rounding of the option rate (E29): mixed rate of the original invoices against the rate at the billing date - information only."
+msgstr "Rundung des Optionssatzes (E29): Mischsatz der Originalrechnungen gegenüber dem Satz zum Abrechnungsdatum – nur Information."
+
+msgctxt "help:real_estate.oc_reconciliation,other_periods_in:"
+msgid "Assignments to the settlement units of this period of documents dated outside the period."
+msgstr "Zuordnungen zu den Kostensammlern dieses Zeitraums von Belegen mit Datum außerhalb des Zeitraums."
+
+msgctxt "help:real_estate.oc_reconciliation,other_periods_out:"
+msgid "Assignments of documents of this period to settlement units of other periods."
+msgstr "Zuordnungen von Belegen dieses Zeitraums zu Kostensammlern anderer Zeiträume."
+
+msgctxt "help:real_estate.oc_reconciliation,pending_booked:"
+msgid "Distributed costs of the billing units not billed yet - reclassified with the billing."
+msgstr "Verteilte Kosten der noch nicht abgerechneten Abrechnungseinheiten – werden mit der Abrechnung umgebucht."
+
+msgctxt "help:real_estate.oc_reconciliation,reclassified:"
+msgid "Credit cost lines of the cost reclassifications on the property."
+msgstr "Haben-Kostenzeilen der Kostenumbuchungen an der Wirtschaftseinheit."
+
+msgctxt "help:real_estate.oc_reconciliation,start_date:"
+msgid "Start of the billing period - all billing units of the property with this start are reconciled together."
+msgstr "Beginn des Abrechnungszeitraums – alle Abrechnungseinheiten der Wirtschaftseinheit mit diesem Beginn werden gemeinsam abgestimmt."
+
+msgctxt "help:real_estate.oc_reconciliation,tax_remaining:"
+msgid "Deducted input tax of the documents less the input tax relieved by the reclassification - information only."
+msgstr "Gezogene Vorsteuer der Belege abzüglich der mit der Umbuchung entlasteten Vorsteuer – nur Information."
+
+msgctxt "help:real_estate.oc_reconciliation.line,assigned:"
+msgid "Confirmed assignments (gross)."
+msgstr "Bestätigte Zuordnungen (brutto)."
+
+msgctxt "help:real_estate.oc_reconciliation.line,billed:"
+msgid "Actual cost lines of the posted billing invoices."
+msgstr "Ist-Kosten-Zeilen der gebuchten Abrechnungsrechnungen."
+
+msgctxt "help:real_estate.oc_reconciliation.line,commercial_tax:"
+msgid "Difference gross - net of the cost shares distributed net."
+msgstr "Differenz brutto – netto der netto verteilten Kostenanteile."
+
+msgctxt "help:real_estate.oc_reconciliation.line,direct:"
+msgid "Assigned to a contract or booked on a rental object."
+msgstr "Einem Vertrag zugeordnet oder auf ein Mietobjekt gebucht."
+
+msgctxt "help:real_estate.oc_reconciliation.line,outside_period:"
+msgid "Part of the assignments whose document is dated outside the period."
+msgstr "Teil der Zuordnungen, deren Beleg außerhalb des Zeitraums datiert ist."
+
+msgctxt "help:real_estate.oc_reconciliation.line,passed_on:"
+msgid "Passed on to (-) or received from (+) other settlement units (allocation via cost collector)."
+msgstr "An andere Kostensammler weitergereicht (−) bzw. von ihnen erhalten (+) (Umlage über Kostensammler)."
+
+msgctxt "help:real_estate.oc_reconciliation.line,reclassified:"
+msgid "Debit cost lines of the reclassification on the rental object (booked amount)."
+msgstr "Soll-Kostenzeilen der Umbuchung am Mietobjekt (gebuchter Betrag)."
+
+msgctxt "model:ir.action,name:act_oc_reconciliation"
+msgid "Operating Cost Reconciliation"
+msgstr "Betriebskostenabstimmung"
+
+msgctxt "model:ir.action,name:act_oc_reconciliation_billing_unit"
+msgid "Operating Cost Reconciliation"
+msgstr "Betriebskostenabstimmung"
+
+msgctxt "model:ir.action,name:act_oc_reconciliation_property"
+msgid "Operating Cost Reconciliation"
+msgstr "Betriebskostenabstimmung"
+
+msgctxt "model:ir.model.button,string:oc_reconciliation_compute_button"
+msgid "Compute"
+msgstr "Berechnen"
+
+msgctxt "model:ir.rule.group,name:rule_group_oc_reconciliation_companies"
+msgid "User in companies"
+msgstr "Benutzer in Unternehmen"
+
+msgctxt "model:ir.ui.menu,name:menu_oc_reconciliation"
+msgid "Operating Cost Reconciliation"
+msgstr "Betriebskostenabstimmung"
+
+msgctxt "model:real_estate.oc_reconciliation,string:"
+msgid "Real Estate Oc Reconciliation"
+msgstr "Betriebskostenabstimmung"
+
+msgctxt "model:real_estate.oc_reconciliation.line,string:"
+msgid "Real Estate Oc Reconciliation Line"
+msgstr "Zeile der Betriebskostenabstimmung"
+
+msgctxt "model:real_estate.process.template.step,description:process_template_year_end_closing_oc_reconciliation"
+msgid "Operating Costs › Operating Cost Reconciliation: compute the reconciliation of every property whose billing units end in the fiscal year and clear the hints. Done as soon as all these reconciliations are computed and in order; it can be set done by hand after a warning (e.g. billing still open)."
+msgstr "Betriebskosten › Betriebskostenabstimmung: die Abstimmung jeder Wirtschaftseinheit berechnen, deren Abrechnungseinheiten im Geschäftsjahr enden, und die Hinweise klären. Erledigt, sobald alle diese Abstimmungen berechnet und in Ordnung sind; von Hand nach einer Warnung erledigbar (z. B. Abrechnung noch offen)."
+
+msgctxt "model:real_estate.process.template.step,name:process_template_year_end_closing_oc_reconciliation"
+msgid "Reconcile the operating costs"
+msgstr "Betriebskosten abstimmen"
+
+msgctxt "selection:real_estate.oc_reconciliation,check_state:"
+msgid "Hints"
+msgstr "Hinweise"
+
+msgctxt "selection:real_estate.oc_reconciliation,check_state:"
+msgid "OK"
+msgstr "In Ordnung"
+
+msgctxt "selection:real_estate.oc_reconciliation.line,section:"
+msgid "Billing Unit"
+msgstr "Abrechnungseinheit"
+
+msgctxt "selection:real_estate.oc_reconciliation.line,section:"
+msgid "Not or Not Confirmed Assigned"
+msgstr "Nicht oder nicht bestätigt zugeordnet"
+
+msgctxt "selection:real_estate.oc_reconciliation.line,section:"
+msgid "Owner, Not Allocable"
+msgstr "Eigentümer, nicht umlagefähig"
+
+msgctxt "selection:real_estate.oc_reconciliation.line,section:"
+msgid "Settlement Result"
+msgstr "Abrechnungsergebnis"
+
+msgctxt "selection:real_estate.oc_reconciliation.line,section:"
+msgid "Settlement Unit"
+msgstr "Kostensammler"
+
+msgctxt "selection:real_estate.oc_reconciliation.line,section:"
+msgid "To Other Periods"
+msgstr "In andere Zeiträume"
+
+msgctxt "selection:real_estate.oc_reconciliation.line,section:"
+msgid "Without Property"
+msgstr "Ohne Wirtschaftseinheit"
+
+msgctxt "selection:real_estate.oc_reconciliation.line,state:"
+msgid "Hint"
+msgstr "Hinweis"
+
+msgctxt "selection:real_estate.oc_reconciliation.line,state:"
+msgid "OK"
+msgstr "In Ordnung"
+
+msgctxt "view:real_estate.oc_reconciliation.line:"
+msgid "Amounts"
+msgstr "Beträge"
+
+msgctxt "view:real_estate.oc_reconciliation:"
+msgid "Account Check"
+msgstr "Kontenprobe"
+
+msgctxt "view:real_estate.oc_reconciliation:"
+msgid "Expected"
+msgstr "Erwartet"

@@ -833,6 +833,12 @@ Either run "Ready for Billing" for each billing unit first, or bill individual b
         <record model="ir.message" id="msg_process_step_result">
             <field name="text">The step "%(task)s" requires a result: enter a text in the tab "Result" of the task (e.g. how and when the letter was sent), save and then set it done.</field>
         </record>
+        <record model="ir.message" id="msg_process_step_condition_warning">
+            <field name="text">The done condition of the step is not fulfilled: %(tasks)s. Set the step done anyway?</field>
+        </record>
+        <record model="ir.message" id="msg_process_step_condition_overridden">
+            <field name="text">Set done by hand although the done condition was not fulfilled.</field>
+        </record>
         <record model="ir.message" id="msg_process_step_action_done">
             <field name="text">Done by executing the action "%(action)s".</field>
         </record>
@@ -1637,6 +1643,45 @@ Increase %(increase)s: rent %(old)s → %(new)s from %(valid_from)s</field>
         </record>
         <record model="ir.message" id="msg_oc_other_level_warning">
             <field name="text">Operating cost posting on another level (%(objects)s): these costs do not take part in the operating cost settlement. Correct: book on the property and assign to a settlement unit (or book directly on a rental object).</field>
+        </record>
+        <record model="ir.message" id="msg_oc_no_property_warning">
+            <field name="text">Operating cost posting without property (accounts %(accounts)s): the document has no property and does not take part in the operating cost settlement until it is corrected. Correct: book on the property and assign to a settlement unit.</field>
+        </record>
+        <record model="ir.message" id="msg_oc_reconciliation_unique">
+            <field name="text">There is already an operating cost reconciliation for this property and start date.</field>
+        </record>
+        <record model="ir.message" id="msg_oc_reconciliation_ok">
+            <field name="text">Reconciliation in order (computed on %(date)s).</field>
+        </record>
+        <record model="ir.message" id="msg_oc_reconciliation_no_billing_unit">
+            <field name="text">Property "%(property)s" has no billing unit starting on %(date)s.</field>
+        </record>
+        <record model="ir.message" id="msg_oc_reconciliation_not_distributed">
+            <field name="text">Settlement unit "%(settlement_unit)s": %(amount)s not distributed.</field>
+        </record>
+        <record model="ir.message" id="msg_oc_reconciliation_owner">
+            <field name="text">Owner, not allocable</field>
+        </record>
+        <record model="ir.message" id="msg_oc_reconciliation_other_period">
+            <field name="text">To other periods</field>
+        </record>
+        <record model="ir.message" id="msg_oc_reconciliation_unassigned">
+            <field name="text">%(count)s document(s) of the period not or not confirmed assigned.</field>
+        </record>
+        <record model="ir.message" id="msg_oc_reconciliation_unassigned_name">
+            <field name="text">Not or not confirmed assigned</field>
+        </record>
+        <record model="ir.message" id="msg_oc_reconciliation_without_property">
+            <field name="text">%(count)s operating cost posting(s) of the period without property (company).</field>
+        </record>
+        <record model="ir.message" id="msg_oc_reconciliation_without_property_name">
+            <field name="text">Operating cost postings without property</field>
+        </record>
+        <record model="ir.message" id="msg_oc_reconciliation_not_billed">
+            <field name="text">Billing unit "%(billing_unit)s" is not billed yet.</field>
+        </record>
+        <record model="ir.message" id="msg_oc_reconciliation_billing_difference">
+            <field name="text">Billing unit "%(billing_unit)s": difference between the settlement results and the billing invoices or cost reclassifications.</field>
         </record>
         <record model="ir.message" id="msg_oc_line_object_booked">
             <field name="text">Document "%(document)s" is booked on the rental object "%(object)s": it can only be assigned to a settlement unit (only this rental object, by days of its occupancy) or to a contract of this rental object.</field>

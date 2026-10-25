@@ -4,6 +4,7 @@ import datetime
 from dateutil.relativedelta import relativedelta
 
 from trytond import backend
+from trytond.exceptions import UserWarning
 from trytond.i18n import gettext
 from trytond.model import (
     DeactivableMixin, ModelSQL, ModelView, Unique, Workflow, fields,
@@ -31,7 +32,8 @@ STEP_DONE_METHODS = ['deposit_paid', 'meter_readings_complete',
     'modernisation_completed', 'modernisation_settled',
     'fiscalyear_next_exists', 'fiscalyear_contract_moves_posted',
     'fiscalyear_no_drafts',
-    'fiscalyear_oc_documents_confirmed', 'fiscalyear_closing_prepared',
+    'fiscalyear_oc_documents_confirmed', 'fiscalyear_oc_reconciled',
+    'fiscalyear_closing_prepared',
     'fiscalyear_income_balanced', 'fiscalyear_periods_closed',
     'fiscalyear_closed']
 # Creation conditions of steps (spec Prüfungen 3.4): name ->
@@ -793,8 +795,31 @@ class Task(metaclass=PoolMeta):
                 raise ValidationError(gettext(
                         'real_estate.msg_process_step_result',
                         task=task.rec_name))
+        cls._check_step_conditions(tasks)
         super().done(tasks)
         cls._update_processes(tasks)
+
+    @classmethod
+    def _check_step_conditions(cls, tasks):
+        """Steps completed by condition may be set done by hand while the
+        condition is not fulfilled - only after a warning (confirm or
+        cancel); the override is noted in the result."""
+        Warning = Pool().get('res.user.warning')
+        unmet = [t for t in tasks
+            if t.state == 'open' and t.process and t.template_step
+            and t.template_step.completion == 'condition'
+            and not t.process._step_condition_met(t.template_step)]
+        if not unmet:
+            return
+        key = Warning.format('process_step_condition', unmet)
+        if Warning.check(key):
+            raise ProcessStepConditionWarning(key, gettext(
+                    'real_estate.msg_process_step_condition_warning',
+                    tasks=', '.join(t.rec_name for t in unmet)))
+        note = gettext('real_estate.msg_process_step_condition_overridden')
+        for task in unmet:
+            cls.write([task], {'result': '\n'.join(
+                        r for r in (task.result, note) if r)})
 
     @classmethod
     def cancel(cls, tasks):
@@ -822,6 +847,10 @@ class Task(metaclass=PoolMeta):
             if t.process and t.process.state == 'running'}
         if processes:
             Process.update_progress(Process.browse(list(processes)))
+
+
+class ProcessStepConditionWarning(UserWarning):
+    pass
 
 
 #**********************************************************************

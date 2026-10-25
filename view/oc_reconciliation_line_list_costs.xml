@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<tree>
+    <field name="section" optional="1"/>
+    <field name="name" expand="1"/>
+    <field name="state"/>
+    <field name="assigned" sum="1"/>
+    <field name="assigned_net" sum="1" optional="1"/>
+    <field name="direct" sum="1"/>
+    <field name="passed_on" sum="1" optional="1"/>
+    <field name="tenants" sum="1"/>
+    <field name="vacancy" sum="1"/>
+    <field name="commercial_tax" sum="1"/>
+    <field name="not_distributed" sum="1"/>
+    <field name="outside_period" sum="1"/>
+</tree>
