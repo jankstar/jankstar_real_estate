@@ -82,6 +82,62 @@ msgctxt "field:party.party,salutation:"
 msgid "Salutation"
 msgstr "Anrede"
 
+msgctxt "field:party.party,role_number:"
+msgid "Party Role"
+msgstr "Partei-Rolle"
+
+msgctxt "help:party.party,role_number:"
+msgid "The sequence is computed from the number of the role and the code of the party."
+msgstr "Die Reihenfolge wird aus der Nummer der Rolle und dem Code der Partei berechnet."
+
+msgctxt "field:real_estate.party.role_number,name:"
+msgid "Name"
+msgstr "Bezeichnung"
+
+msgctxt "field:real_estate.party.role_number,number:"
+msgid "Number"
+msgstr "Nummer"
+
+msgctxt "help:real_estate.party.role_number,number:"
+msgid "Added to the code of the party to get its sequence."
+msgstr "Wird zum Code der Partei addiert und ergibt deren Reihenfolge."
+
+msgctxt "model:real_estate.party.role_number,string:"
+msgid "Real Estate Party Role Number"
+msgstr "Partei-Rolle-Nummer"
+
+msgctxt "model:ir.action,name:act_party_role_number"
+msgid "Party Role Numbers"
+msgstr "Partei-Rolle-Nummer"
+
+msgctxt "model:ir.ui.menu,name:menu_party_role_number"
+msgid "Party Role Numbers"
+msgstr "Partei-Rolle-Nummer"
+
+msgctxt "model:real_estate.party.role_number,name:party_role_number_company"
+msgid "Companies"
+msgstr "Unternehmen"
+
+msgctxt "model:real_estate.party.role_number,name:party_role_number_employee"
+msgid "Employees"
+msgstr "Mitarbeiter"
+
+msgctxt "model:real_estate.party.role_number,name:party_role_number_owner"
+msgid "Owners"
+msgstr "Eigentümer"
+
+msgctxt "model:real_estate.party.role_number,name:party_role_number_supplier"
+msgid "Suppliers"
+msgstr "Lieferanten"
+
+msgctxt "model:real_estate.party.role_number,name:party_role_number_bank"
+msgid "Banks"
+msgstr "Banken"
+
+msgctxt "model:real_estate.party.role_number,name:party_role_number_affiliated"
+msgid "Affiliated Companies"
+msgstr "verbundene Unternehmen"
+
 msgctxt "field:real_estate.account_contract,account:"
 msgid "Account"
 msgstr "Konto"

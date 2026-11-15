@@ -79,6 +79,11 @@ class InvoiceLine(metaclass=PoolMeta):
             ('settlement_result_flat_rate', 'Settlement Result Flat Rate'),
         ], 'Account Assignment Control',
         sort=False,
+        # the assignment of a posted line is not changed any more - the
+        # operating cost assignment (oc_document) is done separately
+        states={
+            'readonly': Eval('invoice_state') != 'draft',
+        },
     )
 
     contract = fields.Many2One(
@@ -115,6 +120,9 @@ class InvoiceLine(metaclass=PoolMeta):
 
     base_object = fields.Many2One(
         'real_estate.base_object', 'Object',
+        states={
+            'readonly': Eval('invoice_state') != 'draft',
+        },
         depends=['assignment_control'],
         domain=[
             If(Bool(Eval('company')),
@@ -407,11 +415,16 @@ class AccountMoveLine(metaclass=PoolMeta):
             ('oc_reclass', 'Operating Cost Reclassification'),
         ], 'Account Assignment Control',
         sort=False,
+        # like the core fields: not changeable on a posted move
+        states={
+            'readonly': Eval('move_state') == 'posted',
+        },
     )
 
     contract = fields.Many2One('real_estate.contract', 'Contract',
         ondelete='SET NULL',
         states={
+            'readonly': Eval('move_state') == 'posted',
             'invisible': Eval('assignment_control', '').in_(
                 ['settlement_result_vacant']),
         },
@@ -431,6 +444,7 @@ class AccountMoveLine(metaclass=PoolMeta):
     term = fields.Many2One('real_estate.contract.term', 'Term',
         ondelete='SET NULL',
         states={
+            'readonly': Eval('move_state') == 'posted',
             'invisible': Eval('assignment_control', '').in_(
                 ['operating_costs', 'settlement_result_vacant']),
         },
@@ -438,6 +452,9 @@ class AccountMoveLine(metaclass=PoolMeta):
 
     base_object = fields.Many2One('real_estate.base_object', 'Object',
         ondelete='SET NULL',
+        states={
+            'readonly': Eval('move_state') == 'posted',
+        },
         depends=['assignment_control'])
 
     property = fields.Function(

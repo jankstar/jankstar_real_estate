@@ -6,5 +6,87 @@
             <field name="inherit" ref="party.party_view_form"/>
             <field name="name">party_form</field>
         </record>
+        <record model="ir.ui.view" id="re_party_view_list">
+            <field name="model">party.party</field>
+            <field name="inherit" ref="party.party_view_tree"/>
+            <field name="name">party_list</field>
+        </record>
+
+        <!-- Party role number: catalog for the sequence of the party -->
+        <record model="ir.ui.view" id="party_role_number_view_list">
+            <field name="model">real_estate.party.role_number</field>
+            <field name="type">tree</field>
+            <field name="name">party_role_number_list</field>
+        </record>
+        <record model="ir.ui.view" id="party_role_number_view_form">
+            <field name="model">real_estate.party.role_number</field>
+            <field name="type">form</field>
+            <field name="name">party_role_number_form</field>
+        </record>
+        <record model="ir.action.act_window" id="act_party_role_number">
+            <field name="name">Party Role Numbers</field>
+            <field name="res_model">real_estate.party.role_number</field>
+        </record>
+        <record model="ir.action.act_window.view" id="act_party_role_number_view1">
+            <field name="sequence" eval="10"/>
+            <field name="view" ref="party_role_number_view_list"/>
+            <field name="act_window" ref="act_party_role_number"/>
+        </record>
+        <record model="ir.action.act_window.view" id="act_party_role_number_view2">
+            <field name="sequence" eval="20"/>
+            <field name="view" ref="party_role_number_view_form"/>
+            <field name="act_window" ref="act_party_role_number"/>
+        </record>
+
+        <!-- Read for everybody (the field is on the party form),
+             changes by the real estate administration only -->
+        <record model="ir.model.access" id="access_party_role_number_default">
+            <field name="model">real_estate.party.role_number</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_party_role_number_admin">
+            <field name="model">real_estate.party.role_number</field>
+            <field name="group" ref="group_real_estate_admin"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+
+        <menuitem
+            parent="menu_real_estate_configuration"
+            sequence="21"
+            action="act_party_role_number"
+            id="menu_party_role_number"/>
+    </data>
+
+    <data noupdate="1">
+        <record model="real_estate.party.role_number" id="party_role_number_company">
+            <field name="name">Companies</field>
+            <field name="number" eval="10000"/>
+        </record>
+        <record model="real_estate.party.role_number" id="party_role_number_employee">
+            <field name="name">Employees</field>
+            <field name="number" eval="20000"/>
+        </record>
+        <record model="real_estate.party.role_number" id="party_role_number_owner">
+            <field name="name">Owners</field>
+            <field name="number" eval="30000"/>
+        </record>
+        <record model="real_estate.party.role_number" id="party_role_number_supplier">
+            <field name="name">Suppliers</field>
+            <field name="number" eval="40000"/>
+        </record>
+        <record model="real_estate.party.role_number" id="party_role_number_bank">
+            <field name="name">Banks</field>
+            <field name="number" eval="50000"/>
+        </record>
+        <record model="real_estate.party.role_number" id="party_role_number_affiliated">
+            <field name="name">Affiliated Companies</field>
+            <field name="number" eval="90000"/>
+        </record>
     </data>
 </tryton>

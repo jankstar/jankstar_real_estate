@@ -3,7 +3,22 @@ Extensions to Core Modules
 **************************
 
 ``party.party``  (``party.py``)
-   Adds ``sequence`` (integer sort key) and ``salutation`` fields.
+   Adds ``sequence`` (integer sort key), ``salutation`` and ``role_number``
+   (Many2One ``real_estate.party.role_number``, optional). With a role
+   number the sequence is computed and read-only: number of the role plus
+   the digits of the party code (code 42, role 40000 -> 40042;
+   ``party_sequence()``, ``compute_fields()`` on create and when code,
+   role or sequence are written, ``on_change_role_number``). Removing the
+   role empties the sequence; a changed number of the role does not
+   recompute existing parties. The party list shows the sequence after
+   the code (``view/party_list.xml``).
+
+``real_estate.party.role_number``  (``party.py``, ``party.xml``)
+   Catalog *Party Role Numbers* (``name``, ``number``) under
+   *Real Estate > Configuration*; standard data (``noupdate``): Companies
+   10000, Employees 20000, Owners 30000, Suppliers 40000, Banks 50000,
+   Affiliated Companies 90000. Readable by everybody, changed by the
+   real estate administration only; no uniqueness checks.
 
 ``account.invoice``  (``invoice.py``)
    Adds a ``contract`` Many2One field so invoices can be traced back to the
@@ -33,6 +48,10 @@ Extensions to Core Modules
    are kept on the operating cost assignment lines
    (``real_estate.oc_document.line``), not on the invoice line.
 
+   ``assignment_control``, ``contract``, ``term`` and ``base_object`` are
+   read-only once the invoice is no longer a draft (core locks posted
+   lines anyway); a posted line is corrected by a credit note.
+
    Indexed on ``contract``, ``term``.
 
 ``account.move.line``  (``invoice.py``, class ``AccountMoveLine``)
@@ -41,7 +60,8 @@ Extensions to Core Modules
    ``property``) directly on the
    journal entry line, so postings can be traced/filtered without going
    through the invoice line. Extended list view shows this context for
-   journal entries.
+   journal entries. The four fields are read-only on a posted move, like
+   the core fields.
 
    ``effective_contract`` (Function field)
       Getter ``on_change_with_effective_contract``, searcher

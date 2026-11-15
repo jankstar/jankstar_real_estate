@@ -109,6 +109,7 @@ def register():
         #sequence.Sequence,
         res.User,
         ir.Cron,
+        party.PartyRoleNumber,
         party.Party,
         invoice.Invoice,
         invoice.InvoiceLine,

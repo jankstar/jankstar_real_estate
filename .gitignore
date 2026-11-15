@@ -50,6 +50,7 @@ translation.txt
 # Tests/Coverage
 htmlcov/
 .tox/
+.venv/
 .coverage
 .coverage.*
 .hypothesis/

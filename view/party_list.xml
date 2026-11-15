@@ -1,0 +1,6 @@
+<data>
+  <xpath expr="/tree/field[@name='code']" position="after">
+      <field name="sequence"/>
+      <field name="role_number" optional="1"/>
+  </xpath>
+</data>

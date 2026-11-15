@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<form>
+    <label name="name"/><field name="name"/>
+    <label name="number"/><field name="number"/>
+    <label name="active"/><field name="active" xexpand="0" width="25"/>
+</form>
