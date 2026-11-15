@@ -80,12 +80,12 @@
         <record model="ir.ui.view" id="use_class_list">
             <field name="model">real_estate.use_class</field>
             <field name="type">tree</field>
-            <field name="name">use_class_list</field>
+            <field name="name">base/use_class_list</field>
         </record>
         <record model="ir.ui.view" id="use_class_form">
             <field name="model">real_estate.use_class</field>
             <field name="type">form</field>
-            <field name="name">use_class_form</field>
+            <field name="name">base/use_class_form</field>
         </record>
         <record model="ir.action.act_window" id="act_use_class">
             <field name="name">Use Classes</field>
@@ -171,7 +171,7 @@
         <record model="ir.ui.view" id="base_object_view_list_children">
             <field name="model">real_estate.base_object</field>
             <field name="type">tree</field>
-            <field name="name">base_object_list_children</field>
+            <field name="name">base/base_object_list_children</field>
         </record>
 
         <record model="ir.ui.view" id="base_object_view_tree">
@@ -179,14 +179,14 @@
             <field name="type">tree</field>
             <field name="priority" eval="20"/>
             <field name="field_childs">children</field>
-            <field name="name">base_object_tree</field>
+            <field name="name">base/base_object_tree</field>
         </record>
         <record model="ir.ui.view" id="base_object_view_tree_simple">
             <field name="model">real_estate.base_object</field>
             <field name="type">tree</field>
             <field name="priority" eval="20"/>
             <field name="field_childs">children</field>
-            <field name="name">base_object_tree_simple</field>
+            <field name="name">base/base_object_tree_simple</field>
         </record>
 
 
@@ -210,19 +210,19 @@
             <field name="model">real_estate.base_object</field>
             <field name="type">tree</field>
             <field name="priority" eval="20"/>
-            <field name="name">base_object_list</field>
+            <field name="name">base/base_object_list</field>
         </record>
         <record model="ir.ui.view" id="base_object_view_list_simple">
             <field name="model">real_estate.base_object</field>
             <field name="type">tree</field>
             <field name="priority" eval="10"/>
-            <field name="name">base_object_list_simple</field>
+            <field name="name">base/base_object_list_simple</field>
         </record>
 
         <record model="ir.ui.view" id="base_object_view_form">
             <field name="model">real_estate.base_object</field>
             <field name="type">form</field>
-            <field name="name">base_object_form</field>
+            <field name="name">base/base_object_form</field>
         </record>
 
         <!--record model="ir.action.act_window" id="act_base_object_tree">
@@ -297,7 +297,7 @@
         <record model="ir.ui.view" id="base_object_company_context_form_view">
             <field name="model">real_estate.base_object.company.context</field>
             <field name="type">form</field>
-            <field name="name">base_object_company_context_form</field>
+            <field name="name">base/base_object_company_context_form</field>
         </record>
 
         <record model="ir.action.act_window" id="act_property_form">
@@ -483,7 +483,7 @@
         <record model="ir.ui.view" id="base_object_context_form_view">
             <field name="model">real_estate.base_object.context</field>
             <field name="type">form</field>
-            <field name="name">base_object_context_form</field>
+            <field name="name">base/base_object_context_form</field>
         </record>
 
         <record model="ir.action.act_window" id="act_object_form">
@@ -555,7 +555,7 @@
         <record model="ir.ui.view" id="base_object_equipment_context_form_view">
             <field name="model">real_estate.base_object.equipment.context</field>
             <field name="type">form</field>
-            <field name="name">base_object_equipment_context_form</field>
+            <field name="name">base/base_object_equipment_context_form</field>
         </record>
 
         <record model="ir.action.act_window" id="act_equipment_form">
@@ -617,17 +617,17 @@
         <record model="ir.ui.view" id="meter_reading_context_form_view">
             <field name="model">real_estate.meter_reading.context</field>
             <field name="type">form</field>
-            <field name="name">meter_reading_context_form</field>
+            <field name="name">base/meter_reading_context_form</field>
         </record>
         <record model="ir.ui.view" id="meter_reading_view_list">
             <field name="model">real_estate.meter_reading</field>
             <field name="type">tree</field>
-            <field name="name">meter_reading_list</field>
+            <field name="name">base/meter_reading_list</field>
         </record>
         <record model="ir.ui.view" id="meter_reading_view_form">
             <field name="model">real_estate.meter_reading</field>
             <field name="type">form</field>
-            <field name="name">meter_reading_form</field>
+            <field name="name">base/meter_reading_form</field>
         </record>
 
         <record model="ir.action.act_window" id="act_meter_reading_form">
@@ -658,17 +658,17 @@
         <record model="ir.ui.view" id="billing_unit_start_view_form">
             <field name="model">real_estate.billing_unit.start</field>
             <field name="type">form</field>
-            <field name="name">billing_unit_start_form</field>
+            <field name="name">base/billing_unit_start_form</field>
         </record>
         <record model="ir.ui.view" id="billing_unit_confirm_view_form">
             <field name="model">real_estate.billing_unit.confirm</field>
             <field name="type">form</field>
-            <field name="name">billing_unit_confirm_form</field>
+            <field name="name">base/billing_unit_confirm_form</field>
         </record>
         <record model="ir.ui.view" id="billing_unit_result_view_form">
             <field name="model">real_estate.billing_unit.result</field>
             <field name="type">form</field>
-            <field name="name">billing_unit_result_form</field>
+            <field name="name">base/billing_unit_result_form</field>
         </record>
         <record model="ir.action.wizard" id="wizard_billing_unit">
             <field name="name">Operation Costs Billing</field>
@@ -679,7 +679,7 @@
         <record model="ir.ui.view" id="cancel_billing_start_view_form">
             <field name="model">real_estate.cancel_billing.start</field>
             <field name="type">form</field>
-            <field name="name">cancel_billing_start_form</field>
+            <field name="name">base/cancel_billing_start_form</field>
         </record>
         <record model="ir.action.wizard" id="wizard_cancel_billing">
             <field name="name">Cancel Billing</field>
@@ -690,12 +690,12 @@
         <record model="ir.ui.view" id="reconcile_advance_payments_start_view_form">
             <field name="model">real_estate.reconcile_advance_payments.start</field>
             <field name="type">form</field>
-            <field name="name">reconcile_advance_payments_start_form</field>
+            <field name="name">base/reconcile_advance_payments_start_form</field>
         </record>
         <record model="ir.ui.view" id="reconcile_advance_payments_result_view_form">
             <field name="model">real_estate.reconcile_advance_payments.result</field>
             <field name="type">form</field>
-            <field name="name">reconcile_advance_payments_result_form</field>
+            <field name="name">base/reconcile_advance_payments_result_form</field>
         </record>
         <record model="ir.action.wizard" id="wizard_reconcile_advance_payments">
             <field name="name">Reconcile Advance Payments</field>
@@ -706,12 +706,12 @@
         <record model="ir.ui.view" id="estimate_consumption_start_view_form">
             <field name="model">real_estate.estimate_consumption.start</field>
             <field name="type">form</field>
-            <field name="name">estimate_consumption_start_form</field>
+            <field name="name">base/estimate_consumption_start_form</field>
         </record>
         <record model="ir.ui.view" id="estimate_consumption_result_view_form">
             <field name="model">real_estate.estimate_consumption.result</field>
             <field name="type">form</field>
-            <field name="name">estimate_consumption_result_form</field>
+            <field name="name">base/estimate_consumption_result_form</field>
         </record>
         <record model="ir.action.wizard" id="wizard_estimate_consumption">
             <field name="name">Estimate Consumption</field>
@@ -903,13 +903,13 @@
         <record model="ir.ui.view" id="base_object_occupancy_view_tree">
             <field name="model">real_estate.base_object.occupancy</field>
             <field name="type">tree</field>
-            <field name="name">base_object_occupancy_tree</field>
+            <field name="name">base/base_object_occupancy_tree</field>
         </record>
 
         <record model="ir.ui.view" id="base_object_occupancy_context_view_form">
             <field name="model">real_estate.base_object.occupancy.context</field>
             <field name="type">form</field>
-            <field name="name">base_object_occupancy_context_form</field>
+            <field name="name">base/base_object_occupancy_context_form</field>
         </record>
 
         <record model="ir.action.act_window" id="act_base_object_occupancy">

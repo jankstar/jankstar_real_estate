@@ -12,26 +12,26 @@
             <field name="model">real_estate.address</field>
             <field name="type">tree</field>
             <field name="priority" eval="10"/>
-            <field name="name">address_tree</field>
+            <field name="name">base/address_tree</field>
         </record>
 
         <record model="ir.ui.view" id="address_view_tree_sequence">
             <field name="model">real_estate.address</field>
             <field name="type">tree</field>
             <field name="priority" eval="20"/>
-            <field name="name">address_tree_sequence</field>
+            <field name="name">base/address_tree_sequence</field>
         </record>
 
         <record model="ir.ui.view" id="address_view_form">
             <field name="model">real_estate.address</field>
             <field name="type">form</field>
-            <field name="name">address_form</field>
+            <field name="name">base/address_form</field>
         </record>
 
         <record model="ir.ui.view" id="address_view_form_simple">
             <field name="model">real_estate.address</field>
             <field name="type">form</field>
-            <field name="name">address_form_simple</field>
+            <field name="name">base/address_form_simple</field>
         </record>
 
         <record model="ir.action.act_window" id="act_address_form">

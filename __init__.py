@@ -1,9 +1,9 @@
 from trytond.pool import Pool
 
-from . import base_object
-from . import measurement
-from . import address
-from . import object_party
+from .base import base_object
+from .base import measurement
+from .base import address
+from .base import object_party
 from . import contract_core
 from . import contract_type
 from . import contract_item
@@ -24,8 +24,8 @@ from . import billing_unit
 from . import billing_unit_wizard
 from . import settlement_unit
 from . import settlement_result
-from . import option_rate
-from . import option_rate_wizard
+from .base import option_rate
+from .base import option_rate_wizard
 from . import co2_kostaufg
 from . import bved
 from . import price_index
@@ -34,7 +34,7 @@ from . import task
 from . import task_rule
 from . import process
 from . import handover
-from . import meter_reading_sheet
+from .base import meter_reading_sheet
 from . import rent_survey
 from . import adjustment_run
 from . import contract_comparative_rent

@@ -6,20 +6,20 @@
         <record model="ir.ui.view" id="base_object_view_list_measurement">
             <field name="model">real_estate.measurement</field>
             <field name="type">tree</field>
-            <field name="name">base_object_list_measurement</field>
+            <field name="name">base/base_object_list_measurement</field>
         </record>
 
         <record model="ir.ui.view" id="measurement_view_form">
             <field name="model">real_estate.measurement</field>
             <field name="type">form</field>
-            <field name="name">measurement_form</field>
+            <field name="name">base/measurement_form</field>
         </record>
 
         <record model="ir.ui.view" id="measurement_view_tree">
             <field name="model">real_estate.measurement</field>
             <field name="type">tree</field>
             <field name="priority" eval="20"/>
-            <field name="name">measurement_tree</field>
+            <field name="name">base/measurement_tree</field>
         </record>
         <!--record model="ir.ui.view" id="measurement_view_tree_simple">
             <field name="model">real_estate.measurement</field>
@@ -32,7 +32,7 @@
         <record model="ir.ui.view" id="measurement_context_form_view">
             <field name="model">real_estate.measurement.context</field>
             <field name="type">form</field>
-            <field name="name">measurement_context_form</field>
+            <field name="name">base/measurement_context_form</field>
         </record>
 
         <record model="ir.action.act_window" id="act_measurement_tree">
@@ -59,17 +59,17 @@
         <record model="ir.ui.view" id="measurement_type_view_list">
             <field name="model">real_estate.measurement.type</field>
             <field name="type">tree</field>
-            <field name="name">measurement_type_list</field>
+            <field name="name">base/measurement_type_list</field>
         </record>
         <record model="ir.ui.view" id="measurement_type_view_form">
             <field name="model">real_estate.measurement.type</field>
             <field name="type">form</field>
-            <field name="name">measurement_type_form</field>
+            <field name="name">base/measurement_type_form</field>
         </record>
         <record model="ir.ui.view" id="measurement_type_children_list">
             <field name="model">real_estate.measurement.type</field>
             <field name="type">tree</field>
-            <field name="name">measurement_type_children_list</field>
+            <field name="name">base/measurement_type_children_list</field>
         </record>
 
          <record model="res.group" id="group_real_estate_admin">

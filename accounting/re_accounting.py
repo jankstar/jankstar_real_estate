@@ -1,7 +1,7 @@
 'Real Estate Accounting Configuration'
 from trytond.model import ModelSQL, ModelView, fields
 
-from .. import base_object
+from ..base import base_object
 
 
 #**********************************************************************

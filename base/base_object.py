@@ -21,7 +21,7 @@ from decimal import Decimal
 import datetime
 
 from dateutil.relativedelta import relativedelta
-from .core.queue_tools import queued_ids
+from ..core.queue_tools import queued_ids
 import logging
 
 

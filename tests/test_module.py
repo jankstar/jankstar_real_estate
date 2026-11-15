@@ -362,7 +362,7 @@ class RealEstateTestCase(ModuleTestCase):
 
     def test_tight_market_validity(self):
         "Tight housing market only within the regulation's validity"
-        from trytond.modules.real_estate.base_object import BaseObject
+        from trytond.modules.real_estate.base.base_object import BaseObject
 
         prop = _StubRecord(tight_market=True,
             tight_market_valid_from=datetime.date(2025, 1, 1),

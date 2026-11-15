@@ -4,13 +4,13 @@
         <record model="ir.ui.view" id="option_rate_view_tree">
             <field name="model">real_estate.option_rate</field>
             <field name="type">tree</field>
-            <field name="name">option_rate_tree</field>
+            <field name="name">base/option_rate_tree</field>
         </record>
 
         <record model="ir.ui.view" id="option_rate_view_form">
             <field name="model">real_estate.option_rate</field>
             <field name="type">form</field>
-            <field name="name">option_rate_form</field>
+            <field name="name">base/option_rate_form</field>
         </record>
 
         <record model="ir.model.access" id="access_option_rate_object_group">
@@ -57,17 +57,17 @@
         <record model="ir.ui.view" id="option_rate_update_start_view_form">
             <field name="model">real_estate.option_rate_update.start</field>
             <field name="type">form</field>
-            <field name="name">option_rate_update_start_form</field>
+            <field name="name">base/option_rate_update_start_form</field>
         </record>
         <record model="ir.ui.view" id="option_rate_update_confirm_view_form">
             <field name="model">real_estate.option_rate_update.confirm</field>
             <field name="type">form</field>
-            <field name="name">option_rate_update_confirm_form</field>
+            <field name="name">base/option_rate_update_confirm_form</field>
         </record>
         <record model="ir.ui.view" id="option_rate_update_result_view_form">
             <field name="model">real_estate.option_rate_update.result</field>
             <field name="type">form</field>
-            <field name="name">option_rate_update_result_form</field>
+            <field name="name">base/option_rate_update_result_form</field>
         </record>
 
         <record model="ir.action.wizard" id="wizard_option_rate_update">
@@ -85,18 +85,18 @@
         <record model="ir.ui.view" id="option_rate_view_list_tree">
             <field name="model">real_estate.option_rate</field>
             <field name="type">tree</field>
-            <field name="name">option_rate_list_tree</field>
+            <field name="name">base/option_rate_list_tree</field>
         </record>
         <record model="ir.ui.view" id="option_rate_view_list_form">
             <field name="model">real_estate.option_rate</field>
             <field name="type">form</field>
-            <field name="name">option_rate_list_form</field>
+            <field name="name">base/option_rate_list_form</field>
         </record>
 
         <record model="ir.ui.view" id="option_rate_context_view_form">
             <field name="model">real_estate.option_rate.context</field>
             <field name="type">form</field>
-            <field name="name">option_rate_context_form</field>
+            <field name="name">base/option_rate_context_form</field>
         </record>
 
         <record model="ir.action.act_window" id="act_option_rate">

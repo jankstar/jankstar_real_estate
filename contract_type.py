@@ -8,7 +8,7 @@ from trytond.pyson import Eval, If
 from trytond import backend
 from trytond.modules.product import price_digits
 
-from . import base_object
+from .base import base_object
 import logging
 
 logger = logging.getLogger(__name__)

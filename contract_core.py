@@ -22,7 +22,7 @@ from collections import defaultdict
 from itertools import groupby
 
 from .core.queue_tools import queued_ids
-from . import base_object
+from .base import base_object
 import logging
 import re
 from decimal import Decimal

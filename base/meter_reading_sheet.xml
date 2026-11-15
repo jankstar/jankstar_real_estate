@@ -5,17 +5,17 @@
         <record model="ir.ui.view" id="meter_reading_sheet_view_tree">
             <field name="model">real_estate.meter_reading.sheet</field>
             <field name="type">tree</field>
-            <field name="name">meter_reading_sheet_tree</field>
+            <field name="name">base/meter_reading_sheet_tree</field>
         </record>
         <record model="ir.ui.view" id="meter_reading_sheet_view_form">
             <field name="model">real_estate.meter_reading.sheet</field>
             <field name="type">form</field>
-            <field name="name">meter_reading_sheet_form</field>
+            <field name="name">base/meter_reading_sheet_form</field>
         </record>
         <record model="ir.ui.view" id="meter_reading_sheet_line_view_tree">
             <field name="model">real_estate.meter_reading.sheet.line</field>
             <field name="type">tree</field>
-            <field name="name">meter_reading_sheet_line_tree</field>
+            <field name="name">base/meter_reading_sheet_line_tree</field>
         </record>
 
         <record model="ir.action.act_window" id="act_meter_reading_sheet">
