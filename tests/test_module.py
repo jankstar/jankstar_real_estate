@@ -4093,7 +4093,7 @@ class RealEstateTestCase(ModuleTestCase):
 
     def test_party_sequence_function(self):
         "Sequence of a party: role number plus the digits of the code"
-        from trytond.modules.real_estate.party import party_sequence
+        from trytond.modules.real_estate.core.party import party_sequence
 
         self.assertEqual(party_sequence(700000, '42'), 700042)
         self.assertEqual(party_sequence(40000, 'K-42'), 40042)

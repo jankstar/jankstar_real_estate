@@ -4,24 +4,24 @@
         <record model="ir.ui.view" id="re_party_view_form">
             <field name="model">party.party</field>
             <field name="inherit" ref="party.party_view_form"/>
-            <field name="name">party_form</field>
+            <field name="name">core/party_form</field>
         </record>
         <record model="ir.ui.view" id="re_party_view_list">
             <field name="model">party.party</field>
             <field name="inherit" ref="party.party_view_tree"/>
-            <field name="name">party_list</field>
+            <field name="name">core/party_list</field>
         </record>
 
         <!-- Party role number: catalog for the sequence of the party -->
         <record model="ir.ui.view" id="party_role_number_view_list">
             <field name="model">real_estate.party.role_number</field>
             <field name="type">tree</field>
-            <field name="name">party_role_number_list</field>
+            <field name="name">core/party_role_number_list</field>
         </record>
         <record model="ir.ui.view" id="party_role_number_view_form">
             <field name="model">real_estate.party.role_number</field>
             <field name="type">form</field>
-            <field name="name">party_role_number_form</field>
+            <field name="name">core/party_role_number_form</field>
         </record>
         <record model="ir.action.act_window" id="act_party_role_number">
             <field name="name">Party Role Numbers</field>

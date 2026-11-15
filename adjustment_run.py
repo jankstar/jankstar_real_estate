@@ -18,7 +18,7 @@ from trytond.transaction import (
 from trytond.wizard import Button, StateTransition, StateView, Wizard
 
 from .contract_type import RUN_AGREEMENT_PROCEDURES
-from .queue_tools import queued_ids
+from .core.queue_tools import queued_ids
 
 STATES = [
     ('draft', "Draft"),

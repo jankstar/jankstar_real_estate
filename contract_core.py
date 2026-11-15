@@ -21,7 +21,7 @@ from sql.conditionals import Coalesce
 from collections import defaultdict
 from itertools import groupby
 
-from .queue_tools import queued_ids
+from .core.queue_tools import queued_ids
 from . import base_object
 import logging
 import re

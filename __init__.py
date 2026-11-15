@@ -12,13 +12,13 @@ from . import contract_party
 from . import contract_rent_adjustment
 from . import contract_wizard
 from . import contract_report
-from . import sequence
-from . import res
-from . import ir
-from . import party
-from . import invoice
-from . import company
-from . import re_accounting
+from .core import sequence
+from .core import res
+from .core import ir
+from .core import party
+from .accounting import invoice
+from .core import company
+from .accounting import re_accounting
 from . import cron_task
 from . import billing_unit
 from . import billing_unit_wizard
@@ -43,7 +43,7 @@ from . import oc_document
 from . import oc_reconciliation
 from . import modernisation
 from . import contract_modernisation
-from . import fiscalyear_closing
+from .accounting import fiscalyear_closing
 
 __all__ = ['register']
 

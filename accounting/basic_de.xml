@@ -838,25 +838,25 @@
         <record model="ir.ui.view" id="invoice_view_form_real_estate">
             <field name="model">account.invoice</field>
             <field name="inherit" ref="account_invoice.invoice_view_form"/>
-            <field name="name">invoice_form</field>
+            <field name="name">accounting/invoice_form</field>
         </record>
 
         <record model="ir.ui.view" id="invoice_line_view_form_real_estate">
             <field name="model">account.invoice.line</field>
             <field name="inherit" ref="account_invoice.invoice_line_view_form"/>
-            <field name="name">invoice_line_form</field>
+            <field name="name">accounting/invoice_line_form</field>
         </record>
 
         <record model="ir.ui.view" id="account_move_line_view_form_real_estate">
             <field name="model">account.move.line</field>
             <field name="inherit" ref="account.move_line_view_form"/>
-            <field name="name">account_move_line_form</field>
+            <field name="name">accounting/account_move_line_form</field>
         </record>
 
         <record model="ir.ui.view" id="general_ledger_line_view_list_real_estate">
             <field name="model">account.general_ledger.line</field>
             <field name="inherit" ref="account.general_ledger_line_view_list"/>
-            <field name="name">general_ledger_line_list</field>
+            <field name="name">accounting/general_ledger_line_list</field>
         </record>
 
     </data>
