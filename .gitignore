@@ -58,6 +58,7 @@ coverage.xml
 alt/
 tests/DT*.DAT
 tests/*.pdf
+deploy/
 
 # Claude Code
 .claude/

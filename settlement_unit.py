@@ -557,6 +557,12 @@ class SettlementUnit(DeactivableMixin, base_object.re_sequence_ordered(), ModelS
 
         super().__register__(module)
 
+        # the option rates are kept on the objects only - drop the old
+        # columns (option_rate_method is NOT NULL and blocks every create)
+        for column in ('option_rate_method', 'option_rate_value',
+                'option_measurement_type'):
+            table_h.drop_column(column)
+
         cursor = Transaction().connection.cursor()
         table = cls.__table__()
 

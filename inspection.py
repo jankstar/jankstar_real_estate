@@ -135,6 +135,31 @@ class BaseObject(metaclass=PoolMeta):
                     }, ['type']),
             ]
 
+    @classmethod
+    def copy(cls, objects, default=None):
+        """Copy the inspection plans after the hierarchy of the copies is
+        set - the stored property of a copied building is the old one while
+        the One2Many fields are copied"""
+        Plan = Pool().get('real_estate.inspection.plan')
+        default = default.copy() if default is not None else {}
+        default.setdefault('property_inspection_plans', None)
+        default.setdefault('building_inspection_plans', None)
+        new_objects = super().copy(objects, default=default)
+        for old, new in zip(objects, cls.browse(new_objects)):
+            if old.type == 'property':
+                # the plans of the buildings come with the copied buildings
+                plans = [p for p in old.property_inspection_plans
+                    if not p.building]
+                if plans:
+                    Plan.copy(plans, default={'property': new.id})
+            elif old.type == 'building' and old.building_inspection_plans:
+                Plan.copy(old.building_inspection_plans, default={
+                        'building': new.id,
+                        'property': (
+                            new.property.id if new.property else None),
+                        })
+        return new_objects
+
 
 #**********************************************************************
 class InspectionChecklist(DeactivableMixin, ModelSQL, ModelView):
@@ -431,13 +456,13 @@ class InspectionPlan(DeactivableMixin, ModelSQL, ModelView):
 
     @staticmethod
     def _building_property(building):
-        "Property of a building (stored field, else the parent chain)"
-        if building.property:
-            return building.property
+        "Property of a building (parent chain, else the stored field)"
+        # the parent chain first: the stored property of a copied building
+        # is still the old one until the hierarchy is updated
         node = building
         while node and node.type != 'property':
             node = node.parent
-        return node
+        return node or building.property
 
     @fields.depends('building', 'property', '_parent_property.id',
         '_parent_building.id')
