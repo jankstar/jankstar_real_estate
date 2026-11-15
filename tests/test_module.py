@@ -829,6 +829,67 @@ class RealEstateTestCase(ModuleTestCase):
                             'next_due_date': datetime.date(2027, 4, 1)}])
 
     @with_transaction()
+    def test_inspection_plan_copy_property(self):
+        """Copy of a property: plans follow the copied property and
+        buildings, no billing units, next free sequence"""
+        from trytond.modules.company.tests import create_company, set_company
+
+        pool = Pool()
+        BaseObject = pool.get('real_estate.base_object')
+        Type = pool.get('real_estate.inspection.type')
+        Plan = pool.get('real_estate.inspection.plan')
+        BillingUnit = pool.get('real_estate.billing_unit')
+
+        company = create_company()
+        with set_company(company):
+            prop, = BaseObject.create([{'name': 'P', 'type': 'property',
+                        'sequence': 1, 'company': company.id,
+                        'start_date': datetime.date(2025, 1, 1)}])
+            building, = BaseObject.create([{'name': 'B', 'type': 'building',
+                        'sequence': 1, 'company': company.id,
+                        'parent': prop.id,
+                        'start_date': datetime.date(2025, 1, 1)}])
+            BillingUnit.create([{'property': prop.id,
+                        'description': 'Kalte BK',
+                        'start_date': datetime.date(2025, 1, 1)}])
+            type_building, type_property = Type.create([
+                    {'name': 'Walk', 'code': 'walk', 'scope': 'building'},
+                    {'name': 'Roof', 'code': 'roof', 'scope': 'property'},
+                    ])
+            values = {'company': company.id, 'interval': 1,
+                'interval_unit': 'year', 'interval_basis': 'fixed',
+                'next_due_date': datetime.date(2027, 4, 1)}
+            Plan.create([
+                    dict(values, type=type_building.id,
+                        building=building.id),
+                    dict(values, type=type_property.id,
+                        property=prop.id),
+                    ])
+
+            new_prop, = BaseObject.copy([prop])
+            self.assertEqual(new_prop.sequence, 10)
+            self.assertEqual(new_prop.billing_units, ())
+            self.assertEqual(len(prop.billing_units), 1)
+            new_building, = new_prop.children
+            self.assertEqual(new_building.sequence, 1)
+            self.assertEqual(
+                [(p.type, p.building) for p in Plan.search(
+                        [('property', '=', prop.id)],
+                        order=[('id', 'ASC')])],
+                [(type_building, building), (type_property, None)])
+            self.assertEqual(
+                [(p.type, p.building) for p in Plan.search(
+                        [('property', '=', new_prop.id)],
+                        order=[('id', 'ASC')])],
+                [(type_building, new_building), (type_property, None)])
+
+            # Copy of a building alone: plan on the copy, same property
+            building2, = BaseObject.copy([building],
+                default={'sequence': 2})
+            plan, = building2.building_inspection_plans
+            self.assertEqual(plan.property, prop)
+
+    @with_transaction()
     def test_inspection_flow(self):
         "Inspection: lines, results, validation, done, plan, approval"
         from trytond.modules.company.tests import create_company, set_company

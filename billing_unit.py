@@ -555,6 +555,16 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
                 })
 
     @classmethod
+    def __register__(cls, module):
+        super().__register__(module)
+        table_h = cls.__table_handler__(module)
+        # the option rates are kept on the objects only - drop the old
+        # columns (option_rate_method is NOT NULL and blocks every create)
+        for column in ('option_rate_method', 'option_rate_value',
+                'option_measurement_type'):
+            table_h.drop_column(column)
+
+    @classmethod
     def delete(cls, billing_units):
         for billing_unit in billing_units:
             if billing_unit.state != 'draft':

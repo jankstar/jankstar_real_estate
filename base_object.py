@@ -970,6 +970,28 @@ class BaseObject(Workflow, DeactivableMixin, re_sequence_ordered(), tree(separat
 
 
     @classmethod
+    def copy(cls, objects, default=None):
+        """Copy the master data only - no billing units, meter readings or
+        tasks; a copied property gets the next free sequence of its
+        company"""
+        default = default.copy() if default is not None else {}
+        for name in ('billing_units', 'billing_units_open', 'meter_readings',
+                'tasks', 'tasks_open', 'property_tasks_open'):
+            default.setdefault(name, None)
+        if 'sequence' in default or 'parent' in default:
+            # e.g. the children copied with their parent
+            return super().copy(objects, default=default)
+        new_objects = []
+        for obj in objects:
+            obj_default = default.copy()
+            if not obj.parent:
+                obj_default['sequence'] = cls(type=obj.type,
+                    company=obj.company, parent=None,
+                    sequence=None).on_change_with_sequence()
+            new_objects.extend(super().copy([obj], default=obj_default))
+        return new_objects
+
+    @classmethod
     def create(cls, vlist):
         records = super().create(vlist)
         cls._update_hierarchy(records)
