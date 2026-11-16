@@ -3,7 +3,7 @@ Source Layout
 *************
 
 The module is one Tryton module ``real_estate``. Its Python files and data
-XML are grouped in seven area folders; each folder has an empty
+XML are grouped in six area folders; each folder has an empty
 ``__init__.py`` and imports nothing itself. All models, wizards and reports
 are registered centrally in ``__init__.py`` of the module
 (``from .contract import contract_core`` …, ``Pool.register(...)``);
@@ -14,6 +14,16 @@ whose data XML creates it.
 
 New files go into the folder of their area, new views into
 ``view/<area>/``; nothing new directly in the module folder or in ``view/``.
+Where a file belongs:
+
+- **G1** - files that essentially extend Tryton standard models go to
+  ``core/`` (e.g. ``invoice.py``); a single extension class that is part of
+  an area program stays with that program.
+- **G2** - programs that belong together lie together; the technical
+  connection decides, not the business area (the year-end closing is a
+  process template and lies in ``tasks/``).
+- **G3** - a program and its data XML (views, actions, wizards, reports)
+  lie together (``core/invoice.py`` with ``core/invoice.xml``).
 
 .. code-block:: text
 
@@ -23,30 +33,26 @@ New files go into the folder of their area, new views into
    ├── setup.py                     # packaging (jankstar_real_estate, trytond.modules entry point)
    ├── core/                        # extensions of standard models, helpers, groups and access, messages
    │   ├── __init__.py              # empty
+   │   ├── basic_de.xml
    │   ├── company.py               # extension to company.company (re_accounting link)
    │   ├── group_account_view.xml
    │   ├── group_party_access.xml
    │   ├── group_real_estate_view.xml
+   │   ├── invoice.py               # extensions to account.invoice / invoice.line /
+   │   │                            #   move.line / general_ledger.line, receivable/payable
+   │   │                            #   list context + report
+   │   ├── invoice.xml
    │   ├── ir.py                    # extension to ir.cron (registers the cron_daily method)
    │   ├── message.xml
    │   ├── party.py                 # extension to party.party
    │   ├── party.xml
    │   ├── queue_tools.py           # queued_ids(): records waiting in ir.queue (no double
    │   │                            #   start of background jobs)
+   │   ├── re_accounting.py         # real_estate.re_accounting (company-scoped RE config)
+   │   ├── re_accounting.xml
    │   ├── res.py                   # extension to res.user
    │   ├── res.xml
    │   └── sequence.py              # extension to ir.sequence ("string timestamp" type)
-   ├── accounting/                  # accounting
-   │   ├── __init__.py              # empty
-   │   ├── basic_de.xml
-   │   ├── fiscalyear_closing.py    # process template year_end_closing on the fiscal year,
-   │   │                            #   done methods of its steps
-   │   ├── fiscalyear_closing.xml
-   │   ├── invoice.py               # extensions to account.invoice / invoice.line /
-   │   │                            #   move.line / general_ledger.line, receivable/payable
-   │   │                            #   list context + report
-   │   ├── re_accounting.py         # real_estate.re_accounting (company-scoped RE config)
-   │   └── re_accounting.xml
    ├── base/                        # master data
    │   ├── __init__.py              # empty
    │   ├── address.py               # real_estate.address
@@ -131,6 +137,9 @@ New files go into the folder of their area, new views into
    │   ├── __init__.py              # empty
    │   ├── cron_task.py             # real_estate.cron_task (per-company scheduled task config)
    │   ├── cron_task.xml
+   │   ├── fiscalyear_closing.py    # process template year_end_closing on the fiscal year,
+   │   │                            #   done methods of its steps
+   │   ├── fiscalyear_closing.xml
    │   ├── handover.py              # real_estate.contract.handover(.line, .key, .meter),
    │   │                            #   handover.checklist(.line); process step conditions
    │   ├── handover.xml

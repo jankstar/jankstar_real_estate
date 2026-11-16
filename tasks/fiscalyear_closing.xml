@@ -7,7 +7,7 @@
         <record model="ir.ui.view" id="fiscalyear_view_form_real_estate">
             <field name="model">account.fiscalyear</field>
             <field name="inherit" ref="account.fiscalyear_view_form"/>
-            <field name="name">accounting/fiscalyear_form</field>
+            <field name="name">tasks/fiscalyear_form</field>
         </record>
         <record model="ir.action.keyword" id="wizard_process_start_keyword_fiscalyear">
             <field name="keyword">form_action</field>

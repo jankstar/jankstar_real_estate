@@ -23,7 +23,7 @@ Extensions to Core Modules
 ``account.invoice``  (``invoice.py``)
    Adds a ``contract`` Many2One field so invoices can be traced back to the
    originating contract. Shown on the invoice form's *Other Info* tab
-   (view extension ``view/accounting/invoice_form.xml``, inherits
+   (view extension ``view/core/invoice_form.xml``, inherits
    ``account_invoice.invoice_view_form``).
 
    ``_get_move_line(date, amount)``
@@ -197,7 +197,7 @@ Extensions to Core Modules
    non-Function field straight from the ``account.move.line`` table by
    matching field name, and ``account.move.line`` already carries these same
    fields (see above). Shown as optional columns in the tree view
-   (``view/accounting/general_ledger_line_list.xml``, inherits
+   (``view/core/general_ledger_line_list.xml``, inherits
    ``account.general_ledger_line_view_list``).
 
 ``res.user``  (``res.py``, ``task.py``)

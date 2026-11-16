@@ -16,9 +16,9 @@ from .core import sequence
 from .core import res
 from .core import ir
 from .core import party
-from .accounting import invoice
+from .core import invoice
 from .core import company
-from .accounting import re_accounting
+from .core import re_accounting
 from .tasks import cron_task
 from .operating_costs import billing_unit
 from .operating_costs import billing_unit_wizard
@@ -43,7 +43,7 @@ from .operating_costs import oc_document
 from .operating_costs import oc_reconciliation
 from .rent_adjustment import modernisation
 from .rent_adjustment import contract_modernisation
-from .accounting import fiscalyear_closing
+from .tasks import fiscalyear_closing
 
 __all__ = ['register']
 

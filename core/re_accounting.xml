@@ -5,12 +5,12 @@
         <record model="ir.ui.view" id="re_accounting_view_list">
             <field name="model">real_estate.re_accounting</field>
             <field name="type">tree</field>
-            <field name="name">accounting/re_accounting_list</field>
+            <field name="name">core/re_accounting_list</field>
         </record>
         <record model="ir.ui.view" id="re_accounting_view_form">
             <field name="model">real_estate.re_accounting</field>
             <field name="type">form</field>
-            <field name="name">accounting/re_accounting_form</field>
+            <field name="name">core/re_accounting_form</field>
         </record>
 
         <record model="ir.action.act_window" id="act_re_accounting">
@@ -38,7 +38,7 @@
         <record model="ir.ui.view" id="company_re_accounting_view_form">
             <field name="model">company.company</field>
             <field name="inherit" ref="company.company_view_form"/>
-            <field name="name">accounting/account_configuration_form</field>
+            <field name="name">core/account_configuration_form</field>
         </record>
 
         <!-- ReAccounting: admin full CRUD, everyone else read-only -->
