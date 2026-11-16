@@ -11,7 +11,7 @@ Extensions to Core Modules
    role or sequence are written, ``on_change_role_number``). Removing the
    role empties the sequence; a changed number of the role does not
    recompute existing parties. The party list shows the sequence after
-   the code (``view/party_list.xml``).
+   the code (``view/core/party_list.xml``).
 
 ``real_estate.party.role_number``  (``party.py``, ``party.xml``)
    Catalog *Party Role Numbers* (``name``, ``number``) under
@@ -23,7 +23,7 @@ Extensions to Core Modules
 ``account.invoice``  (``invoice.py``)
    Adds a ``contract`` Many2One field so invoices can be traced back to the
    originating contract. Shown on the invoice form's *Other Info* tab
-   (view extension ``view/invoice_form.xml``, inherits
+   (view extension ``view/accounting/invoice_form.xml``, inherits
    ``account_invoice.invoice_view_form``).
 
    ``_get_move_line(date, amount)``
@@ -83,7 +83,7 @@ Extensions to Core Modules
    ('move', 'ASC')]`` — by due date, then by move.
 
    Tree view: ``contract_move_line_view_list_payable_receivable``
-   (``view/contract_move_line_payable_receivable_list.xml``, inherits
+   (``view/contract/contract_move_line_payable_receivable_list.xml``, inherits
    ``account.move_line_view_list_payable_receivable``):
 
    - ``party`` — optional column.
@@ -168,7 +168,7 @@ Extensions to Core Modules
    View: ``contract_general_ledger_account_contract_context_form.xml``.
 
    Tree view: ``contract_general_ledger_account_contract_view_list``
-   (``view/contract_general_ledger_account_contract_list.xml``) inherits
+   (``view/contract/contract_general_ledger_account_contract_list.xml``) inherits
    ``general_ledger_account_contract_list`` and adds the ``contract``
    column (``optional="1"``) right after ``party``.
 
@@ -197,7 +197,7 @@ Extensions to Core Modules
    non-Function field straight from the ``account.move.line`` table by
    matching field name, and ``account.move.line`` already carries these same
    fields (see above). Shown as optional columns in the tree view
-   (``view/general_ledger_line_list.xml``, inherits
+   (``view/accounting/general_ledger_line_list.xml``, inherits
    ``account.general_ledger_line_view_list``).
 
 ``res.user``  (``res.py``, ``task.py``)
