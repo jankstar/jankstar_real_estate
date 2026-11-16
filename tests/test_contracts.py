@@ -385,7 +385,7 @@ def ensure_vpi_values():
     tests/genesis_61111-0002_ffcsv.csv (parsed like the CSV import
     wizard). Returns
     the index or None if the series or the base month value is missing."""
-    from trytond.modules.real_estate.price_index import parse_index_csv
+    from trytond.modules.real_estate.rent_adjustment.price_index import parse_index_csv
 
     PriceIndex = Model.get('real_estate.price_index')
     Value = Model.get('real_estate.price_index.value')

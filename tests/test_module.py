@@ -275,7 +275,7 @@ class RealEstateTestCase(ModuleTestCase):
 
     def test_price_index_csv_parsing(self):
         "CSV import: month formats, decimal comma, GENESIS rows, conflicts"
-        from trytond.modules.real_estate.price_index import parse_index_csv
+        from trytond.modules.real_estate.rent_adjustment.price_index import parse_index_csv
 
         content = (
             'Monat;Wert\n'
@@ -543,7 +543,7 @@ class RealEstateTestCase(ModuleTestCase):
         "GENESIS ffcsv of 61111-0002: only index rows, base year 2020"
         import os
 
-        from trytond.modules.real_estate.price_index import (
+        from trytond.modules.real_estate.rent_adjustment.price_index import (
             parse_genesis_ffcsv, parse_index_csv)
 
         path = os.path.join(os.path.dirname(__file__),
@@ -570,7 +570,7 @@ class RealEstateTestCase(ModuleTestCase):
         import os
         import zipfile
 
-        from trytond.modules.real_estate.price_index import GenesisError
+        from trytond.modules.real_estate.rent_adjustment.price_index import GenesisError
 
         pool = Pool()
         Index = pool.get('real_estate.price_index')
@@ -2813,7 +2813,7 @@ class RealEstateTestCase(ModuleTestCase):
 
     def test_rent_survey_compute(self):
         "Rent survey: table and regression method (M01-M03, M10, M11)"
-        from trytond.modules.real_estate.rent_survey import compute_rent
+        from trytond.modules.real_estate.rent_adjustment.rent_survey import compute_rent
         D = Decimal
 
         def table(votes, extra=()):
@@ -3122,7 +3122,7 @@ class RealEstateTestCase(ModuleTestCase):
             # Matrix: export the apartments, change externally, import
             import csv
             import io
-            from trytond.modules.real_estate.rent_survey import (
+            from trytond.modules.real_estate.rent_adjustment.rent_survey import (
                 matrix_changes, matrix_export)
             today = datetime.date.today()
             content = matrix_export(prop, 'object', today)
@@ -3553,7 +3553,7 @@ class RealEstateTestCase(ModuleTestCase):
     @with_transaction()
     def test_comparative_rent_rules(self):
         "Comparative rent: cap, chain history, dates (V-T01 to V-T04, V-T06)"
-        from trytond.modules.real_estate.contract_comparative_rent import (
+        from trytond.modules.real_estate.rent_adjustment.contract_comparative_rent import (
             chain_history, comparative_cap, earliest_first, effective_date)
 
         # V-T01: 8.82 €/m² × 64.20 m² = 566.24, rent 480 unchanged, cap 15 %
@@ -3644,7 +3644,7 @@ class RealEstateTestCase(ModuleTestCase):
 
     def test_modernisation_examples(self):
         "Calculation examples A-D of the modernisation (spec 6.7)"
-        from trytond.modules.real_estate.modernisation import (
+        from trytond.modules.real_estate.rent_adjustment.modernisation import (
             compute_allocation)
         rule = self._modernisation_rule()
         units = self._modernisation_units()
@@ -3701,7 +3701,7 @@ class RealEstateTestCase(ModuleTestCase):
 
     def test_modernisation_allocation(self):
         "Single assignment, exclusion and net/gross basis (X13, X24, X25)"
-        from trytond.modules.real_estate.modernisation import (
+        from trytond.modules.real_estate.rent_adjustment.modernisation import (
             allocation_shares, compute_allocation)
         rule = self._modernisation_rule()
         units = self._modernisation_units()
@@ -3756,7 +3756,7 @@ class RealEstateTestCase(ModuleTestCase):
 
     def test_modernisation_deadlines(self):
         "Hardship objection / special termination: end of next month"
-        from trytond.modules.real_estate.modernisation import (
+        from trytond.modules.real_estate.rent_adjustment.modernisation import (
             _end_of_next_month)
         self.assertEqual(_end_of_next_month(datetime.date(2026, 10, 15)),
             datetime.date(2026, 11, 30))
@@ -3818,7 +3818,7 @@ class RealEstateTestCase(ModuleTestCase):
 
     def test_modernisation_effective_date(self):
         "Effective date, extension and deadlines of the increase (6.5, 6.6)"
-        from trytond.modules.real_estate.contract_modernisation import (
+        from trytond.modules.real_estate.rent_adjustment.contract_modernisation import (
             extension_reason, modernisation_valid_from, previous_increases,
             termination_deadline)
         # receipt 15.03. -> start of the third month 01.06.
@@ -3929,7 +3929,7 @@ class RealEstateTestCase(ModuleTestCase):
         "What-if: planned classes and features replace the assignments"
         from types import SimpleNamespace
 
-        from trytond.modules.real_estate.rent_survey import apply_planned
+        from trytond.modules.real_estate.rent_adjustment.rent_survey import apply_planned
 
         def value(kind, dimension=None, class_=None, feature=None):
             return SimpleNamespace(kind=kind, dimension_code=dimension,

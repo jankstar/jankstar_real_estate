@@ -15,7 +15,7 @@ from trytond.transaction import Transaction
 from trytond.wizard import Button, StateTransition, StateView, Wizard
 
 from .adjustment_run import PROCEDURES, AdjustmentProcedure
-from .contract.contract_type import CAP_EXCLUDED_PROCEDURES
+from ..contract.contract_type import CAP_EXCLUDED_PROCEDURES
 from .rent_survey import _apartment
 
 # Rent unchanged for 15 months at the effective date, request at the

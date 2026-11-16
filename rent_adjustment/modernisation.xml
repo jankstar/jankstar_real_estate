@@ -5,58 +5,58 @@
         <record model="ir.ui.view" id="modernisation_view_list">
             <field name="model">real_estate.modernisation</field>
             <field name="type">tree</field>
-            <field name="name">modernisation_list</field>
+            <field name="name">rent_adjustment/modernisation_list</field>
         </record>
         <record model="ir.ui.view" id="modernisation_view_list_run">
             <field name="model">real_estate.modernisation</field>
             <field name="type">tree</field>
             <field name="priority" eval="30"/>
-            <field name="name">modernisation_run_list</field>
+            <field name="name">rent_adjustment/modernisation_run_list</field>
         </record>
         <record model="ir.ui.view" id="modernisation_view_form">
             <field name="model">real_estate.modernisation</field>
             <field name="type">form</field>
-            <field name="name">modernisation_form</field>
+            <field name="name">rent_adjustment/modernisation_form</field>
         </record>
         <record model="ir.ui.view" id="modernisation_cost_view_list">
             <field name="model">real_estate.modernisation.cost</field>
             <field name="type">tree</field>
-            <field name="name">modernisation_cost_list</field>
+            <field name="name">rent_adjustment/modernisation_cost_list</field>
         </record>
         <record model="ir.ui.view" id="modernisation_cost_view_form">
             <field name="model">real_estate.modernisation.cost</field>
             <field name="type">form</field>
-            <field name="name">modernisation_cost_form</field>
+            <field name="name">rent_adjustment/modernisation_cost_form</field>
         </record>
         <record model="ir.ui.view" id="modernisation_fund_view_list">
             <field name="model">real_estate.modernisation.fund</field>
             <field name="type">tree</field>
-            <field name="name">modernisation_fund_list</field>
+            <field name="name">rent_adjustment/modernisation_fund_list</field>
         </record>
         <record model="ir.ui.view" id="modernisation_fund_view_form">
             <field name="model">real_estate.modernisation.fund</field>
             <field name="type">form</field>
-            <field name="name">modernisation_fund_form</field>
+            <field name="name">rent_adjustment/modernisation_fund_form</field>
         </record>
         <record model="ir.ui.view" id="modernisation_unit_view_list">
             <field name="model">real_estate.modernisation.unit</field>
             <field name="type">tree</field>
-            <field name="name">modernisation_unit_list</field>
+            <field name="name">rent_adjustment/modernisation_unit_list</field>
         </record>
         <record model="ir.ui.view" id="modernisation_unit_view_form">
             <field name="model">real_estate.modernisation.unit</field>
             <field name="type">form</field>
-            <field name="name">modernisation_unit_form</field>
+            <field name="name">rent_adjustment/modernisation_unit_form</field>
         </record>
         <record model="ir.ui.view" id="modernisation_rule_view_list">
             <field name="model">real_estate.modernisation.rule</field>
             <field name="type">tree</field>
-            <field name="name">modernisation_rule_list</field>
+            <field name="name">rent_adjustment/modernisation_rule_list</field>
         </record>
         <record model="ir.ui.view" id="modernisation_rule_view_form">
             <field name="model">real_estate.modernisation.rule</field>
             <field name="type">form</field>
-            <field name="name">modernisation_rule_form</field>
+            <field name="name">rent_adjustment/modernisation_rule_form</field>
         </record>
         <record model="ir.action.act_window" id="act_modernisation">
             <field name="name">Modernisations</field>
@@ -138,22 +138,22 @@
         <record model="ir.ui.view" id="modernisation_planned_value_view_list">
             <field name="model">real_estate.modernisation.planned_value</field>
             <field name="type">tree</field>
-            <field name="name">modernisation_planned_value_list</field>
+            <field name="name">rent_adjustment/modernisation_planned_value_list</field>
         </record>
         <record model="ir.ui.view" id="modernisation_planned_value_view_form">
             <field name="model">real_estate.modernisation.planned_value</field>
             <field name="type">form</field>
-            <field name="name">modernisation_planned_value_form</field>
+            <field name="name">rent_adjustment/modernisation_planned_value_form</field>
         </record>
         <record model="ir.ui.view" id="modernisation_calculation_view_list">
             <field name="model">real_estate.modernisation.calculation</field>
             <field name="type">tree</field>
-            <field name="name">modernisation_calculation_list</field>
+            <field name="name">rent_adjustment/modernisation_calculation_list</field>
         </record>
         <record model="ir.ui.view" id="modernisation_calculation_view_form">
             <field name="model">real_estate.modernisation.calculation</field>
             <field name="type">form</field>
-            <field name="name">modernisation_calculation_form</field>
+            <field name="name">rent_adjustment/modernisation_calculation_form</field>
         </record>
         <record model="ir.model.button" id="modernisation_calculate_button">
             <field name="model">real_estate.modernisation</field>
@@ -171,7 +171,7 @@
         <record model="ir.ui.view" id="modernisation_receipt_start_view_form">
             <field name="model">real_estate.modernisation.receipt.start</field>
             <field name="type">form</field>
-            <field name="name">modernisation_receipt_start_form</field>
+            <field name="name">rent_adjustment/modernisation_receipt_start_form</field>
         </record>
         <record model="ir.action.wizard" id="wizard_modernisation_receipt">
             <field name="name">Capture Receipts</field>

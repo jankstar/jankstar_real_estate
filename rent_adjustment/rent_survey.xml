@@ -5,133 +5,133 @@
         <record model="ir.ui.view" id="rent_survey_view_tree">
             <field name="model">real_estate.rent_survey</field>
             <field name="type">tree</field>
-            <field name="name">rent_survey_tree</field>
+            <field name="name">rent_adjustment/rent_survey_tree</field>
         </record>
         <record model="ir.ui.view" id="rent_survey_view_form">
             <field name="model">real_estate.rent_survey</field>
             <field name="type">form</field>
-            <field name="name">rent_survey_form</field>
+            <field name="name">rent_adjustment/rent_survey_form</field>
         </record>
         <record model="ir.ui.view" id="rent_survey_version_view_tree">
             <field name="model">real_estate.rent_survey.version</field>
             <field name="type">tree</field>
-            <field name="name">rent_survey_version_tree</field>
+            <field name="name">rent_adjustment/rent_survey_version_tree</field>
         </record>
         <record model="ir.ui.view" id="rent_survey_version_view_form">
             <field name="model">real_estate.rent_survey.version</field>
             <field name="type">form</field>
-            <field name="name">rent_survey_version_form</field>
+            <field name="name">rent_adjustment/rent_survey_version_form</field>
         </record>
         <record model="ir.ui.view" id="rent_survey_dimension_view_tree">
             <field name="model">real_estate.rent_survey.dimension</field>
             <field name="type">tree</field>
-            <field name="name">rent_survey_dimension_tree</field>
+            <field name="name">rent_adjustment/rent_survey_dimension_tree</field>
         </record>
         <record model="ir.ui.view" id="rent_survey_dimension_view_form">
             <field name="model">real_estate.rent_survey.dimension</field>
             <field name="type">form</field>
-            <field name="name">rent_survey_dimension_form</field>
+            <field name="name">rent_adjustment/rent_survey_dimension_form</field>
         </record>
         <record model="ir.ui.view" id="rent_survey_class_view_tree">
             <field name="model">real_estate.rent_survey.dimension.class</field>
             <field name="type">tree</field>
-            <field name="name">rent_survey_class_tree</field>
+            <field name="name">rent_adjustment/rent_survey_class_tree</field>
         </record>
         <record model="ir.ui.view" id="rent_survey_class_view_list">
             <field name="model">real_estate.rent_survey.dimension.class</field>
             <field name="type">tree</field>
             <field name="priority" eval="20"/>
-            <field name="name">rent_survey_class_list</field>
+            <field name="name">rent_adjustment/rent_survey_class_list</field>
         </record>
         <record model="ir.ui.view" id="rent_survey_cell_view_tree">
             <field name="model">real_estate.rent_survey.cell</field>
             <field name="type">tree</field>
-            <field name="name">rent_survey_cell_tree</field>
+            <field name="name">rent_adjustment/rent_survey_cell_tree</field>
         </record>
         <record model="ir.ui.view" id="rent_survey_cell_view_form">
             <field name="model">real_estate.rent_survey.cell</field>
             <field name="type">form</field>
-            <field name="name">rent_survey_cell_form</field>
+            <field name="name">rent_adjustment/rent_survey_cell_form</field>
         </record>
         <record model="ir.ui.view" id="rent_survey_group_view_tree">
             <field name="model">real_estate.rent_survey.group</field>
             <field name="type">tree</field>
-            <field name="name">rent_survey_group_tree</field>
+            <field name="name">rent_adjustment/rent_survey_group_tree</field>
         </record>
         <record model="ir.ui.view" id="rent_survey_group_view_form">
             <field name="model">real_estate.rent_survey.group</field>
             <field name="type">form</field>
-            <field name="name">rent_survey_group_form</field>
+            <field name="name">rent_adjustment/rent_survey_group_form</field>
         </record>
         <record model="ir.ui.view" id="rent_survey_feature_view_tree">
             <field name="model">real_estate.rent_survey.feature</field>
             <field name="type">tree</field>
-            <field name="name">rent_survey_feature_tree</field>
+            <field name="name">rent_adjustment/rent_survey_feature_tree</field>
         </record>
         <record model="ir.ui.view" id="rent_survey_feature_view_form">
             <field name="model">real_estate.rent_survey.feature</field>
             <field name="type">form</field>
-            <field name="name">rent_survey_feature_form</field>
+            <field name="name">rent_adjustment/rent_survey_feature_form</field>
         </record>
         <record model="ir.ui.view" id="base_object_rent_survey_value_view_tree">
             <field name="model">real_estate.base_object.rent_survey_value</field>
             <field name="type">tree</field>
-            <field name="name">base_object_rent_survey_value_tree</field>
+            <field name="name">rent_adjustment/base_object_rent_survey_value_tree</field>
         </record>
         <record model="ir.ui.view" id="rent_survey_calculation_view_tree">
             <field name="model">real_estate.rent_survey.calculation</field>
             <field name="type">tree</field>
-            <field name="name">rent_survey_calculation_tree</field>
+            <field name="name">rent_adjustment/rent_survey_calculation_tree</field>
         </record>
         <record model="ir.ui.view" id="rent_survey_calculation_view_form">
             <field name="model">real_estate.rent_survey.calculation</field>
             <field name="type">form</field>
-            <field name="name">rent_survey_calculation_form</field>
+            <field name="name">rent_adjustment/rent_survey_calculation_form</field>
         </record>
         <record model="ir.ui.view" id="rent_survey_import_start_view_form">
             <field name="model">real_estate.rent_survey.import.start</field>
             <field name="type">form</field>
-            <field name="name">rent_survey_import_start_form</field>
+            <field name="name">rent_adjustment/rent_survey_import_start_form</field>
         </record>
         <record model="ir.ui.view" id="rent_survey_import_preview_view_form">
             <field name="model">real_estate.rent_survey.import.preview</field>
             <field name="type">form</field>
-            <field name="name">rent_survey_import_preview_form</field>
+            <field name="name">rent_adjustment/rent_survey_import_preview_form</field>
         </record>
         <record model="ir.ui.view" id="rent_survey_new_version_start_view_form">
             <field name="model">real_estate.rent_survey.new_version.start</field>
             <field name="type">form</field>
-            <field name="name">rent_survey_new_version_start_form</field>
+            <field name="name">rent_adjustment/rent_survey_new_version_start_form</field>
         </record>
         <record model="ir.ui.view" id="rent_survey_copy_start_view_form">
             <field name="model">real_estate.rent_survey.copy.start</field>
             <field name="type">form</field>
-            <field name="name">rent_survey_copy_start_form</field>
+            <field name="name">rent_adjustment/rent_survey_copy_start_form</field>
         </record>
         <record model="ir.ui.view" id="rent_survey_matrix_export_start_view_form">
             <field name="model">real_estate.rent_survey.matrix.export.start</field>
             <field name="type">form</field>
-            <field name="name">rent_survey_matrix_export_start_form</field>
+            <field name="name">rent_adjustment/rent_survey_matrix_export_start_form</field>
         </record>
         <record model="ir.ui.view" id="rent_survey_matrix_export_result_view_form">
             <field name="model">real_estate.rent_survey.matrix.export.result</field>
             <field name="type">form</field>
-            <field name="name">rent_survey_matrix_export_result_form</field>
+            <field name="name">rent_adjustment/rent_survey_matrix_export_result_form</field>
         </record>
         <record model="ir.ui.view" id="rent_survey_matrix_import_start_view_form">
             <field name="model">real_estate.rent_survey.matrix.import.start</field>
             <field name="type">form</field>
-            <field name="name">rent_survey_matrix_import_start_form</field>
+            <field name="name">rent_adjustment/rent_survey_matrix_import_start_form</field>
         </record>
         <record model="ir.ui.view" id="rent_survey_matrix_import_preview_view_form">
             <field name="model">real_estate.rent_survey.matrix.import.preview</field>
             <field name="type">form</field>
-            <field name="name">rent_survey_matrix_import_preview_form</field>
+            <field name="name">rent_adjustment/rent_survey_matrix_import_preview_form</field>
         </record>
         <record model="ir.ui.view" id="rent_survey_features_start_view_form">
             <field name="model">real_estate.rent_survey.features.start</field>
             <field name="type">form</field>
-            <field name="name">rent_survey_features_start_form</field>
+            <field name="name">rent_adjustment/rent_survey_features_start_form</field>
         </record>
         <record model="ir.action.act_window" id="act_rent_survey">
             <field name="name">Rent Surveys</field>

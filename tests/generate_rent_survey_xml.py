@@ -7,7 +7,7 @@ Baut den Mietspiegel in einer temporären SQLite-Testdatenbank auf (Version
 189 Tabellenfelder aus tests/mietspiegel_berlin_2026_felder.csv und der 86
 Merkmale der Orientierungshilfe aus tests/mietspiegel_berlin_2026_merkmale.csv,
 Prüfung) und schreibt alle Datensätze als XML-Records mit noupdate="1" in
-rent_survey_berlin.xml im Modulverzeichnis. Beim Aufbau einer neuen
+rent_adjustment/rent_survey_berlin.xml des Moduls. Beim Aufbau einer neuen
 Datenbank legt trytond-admin den Mietspiegel damit gleich an (für alle
 Unternehmen); spätere Änderungen in der Oberfläche bleiben bei einem
 Modul-Update erhalten.
@@ -36,7 +36,8 @@ from trytond.pool import Pool  # noqa: E402
 from trytond.transaction import Transaction  # noqa: E402
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-OUTPUT = os.path.join(os.path.dirname(HERE), 'rent_survey_berlin.xml')
+OUTPUT = os.path.join(
+    os.path.dirname(HERE), 'rent_adjustment', 'rent_survey_berlin.xml')
 CELLS_FILE = os.path.join(HERE, 'mietspiegel_berlin_2026_felder.csv')
 FEATURES_FILE = os.path.join(HERE, 'mietspiegel_berlin_2026_merkmale.csv')
 PREFIX = 'rent_survey_berlin'

@@ -9,7 +9,7 @@ from .contract import contract_type
 from .contract import contract_item
 from .contract import contract_term
 from .contract import contract_party
-from . import contract_rent_adjustment
+from .rent_adjustment import contract_rent_adjustment
 from .contract import contract_wizard
 from .contract import contract_report
 from .core import sequence
@@ -28,21 +28,21 @@ from .base import option_rate
 from .base import option_rate_wizard
 from . import co2_kostaufg
 from . import bved
-from . import price_index
-from . import contract_index_rent
+from .rent_adjustment import price_index
+from .rent_adjustment import contract_index_rent
 from . import task
 from . import task_rule
 from . import process
 from . import handover
 from .base import meter_reading_sheet
-from . import rent_survey
-from . import adjustment_run
-from . import contract_comparative_rent
+from .rent_adjustment import rent_survey
+from .rent_adjustment import adjustment_run
+from .rent_adjustment import contract_comparative_rent
 from . import inspection
 from . import oc_document
 from . import oc_reconciliation
-from . import modernisation
-from . import contract_modernisation
+from .rent_adjustment import modernisation
+from .rent_adjustment import contract_modernisation
 from .accounting import fiscalyear_closing
 
 __all__ = ['register']

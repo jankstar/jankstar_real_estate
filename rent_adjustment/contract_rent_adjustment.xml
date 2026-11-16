@@ -5,18 +5,18 @@
         <record model="ir.ui.view" id="contract_rent_adjustment_view_form">
             <field name="model">real_estate.contract.rent_adjustment</field>
             <field name="type">form</field>
-            <field name="name">contract_rent_adjustment_form</field>
+            <field name="name">rent_adjustment/contract_rent_adjustment_form</field>
         </record>
         <record model="ir.ui.view" id="contract_rent_adjustment_view_tree">
             <field name="model">real_estate.contract.rent_adjustment</field>
             <field name="type">tree</field>
-            <field name="name">contract_rent_adjustment_tree</field>
+            <field name="name">rent_adjustment/contract_rent_adjustment_tree</field>
         </record>
         <record model="ir.ui.view" id="contract_rent_adjustment_term_view_list">
             <field name="model">real_estate.contract.term</field>
             <field name="type">tree</field>
             <field name="priority" eval="30"/>
-            <field name="name">contract_rent_adjustment_term_list</field>
+            <field name="name">rent_adjustment/contract_rent_adjustment_term_list</field>
         </record>
 
         <record model="ir.model.button" id="contract_rent_adjustment_generate_button">

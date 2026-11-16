@@ -5,32 +5,32 @@
         <record model="ir.ui.view" id="price_index_view_list">
             <field name="model">real_estate.price_index</field>
             <field name="type">tree</field>
-            <field name="name">price_index_list</field>
+            <field name="name">rent_adjustment/price_index_list</field>
         </record>
         <record model="ir.ui.view" id="price_index_view_form">
             <field name="model">real_estate.price_index</field>
             <field name="type">form</field>
-            <field name="name">price_index_form</field>
+            <field name="name">rent_adjustment/price_index_form</field>
         </record>
         <record model="ir.ui.view" id="price_index_value_view_list">
             <field name="model">real_estate.price_index.value</field>
             <field name="type">tree</field>
-            <field name="name">price_index_value_list</field>
+            <field name="name">rent_adjustment/price_index_value_list</field>
         </record>
         <record model="ir.ui.view" id="price_index_value_view_list_inline">
             <field name="model">real_estate.price_index.value</field>
             <field name="type">tree</field>
-            <field name="name">price_index_value_list_inline</field>
+            <field name="name">rent_adjustment/price_index_value_list_inline</field>
         </record>
         <record model="ir.ui.view" id="price_index_value_view_form">
             <field name="model">real_estate.price_index.value</field>
             <field name="type">form</field>
-            <field name="name">price_index_value_form</field>
+            <field name="name">rent_adjustment/price_index_value_form</field>
         </record>
         <record model="ir.ui.view" id="price_index_value_context_view_form">
             <field name="model">real_estate.price_index.value.context</field>
             <field name="type">form</field>
-            <field name="name">price_index_value_context_form</field>
+            <field name="name">rent_adjustment/price_index_value_context_form</field>
         </record>
 
         <record model="ir.action.act_window" id="act_price_index">
@@ -100,17 +100,17 @@
         <record model="ir.ui.view" id="price_index_import_start_view_form">
             <field name="model">real_estate.price_index.import.start</field>
             <field name="type">form</field>
-            <field name="name">price_index_import_start_form</field>
+            <field name="name">rent_adjustment/price_index_import_start_form</field>
         </record>
         <record model="ir.ui.view" id="price_index_import_preview_view_form">
             <field name="model">real_estate.price_index.import.preview</field>
             <field name="type">form</field>
-            <field name="name">price_index_import_preview_form</field>
+            <field name="name">rent_adjustment/price_index_import_preview_form</field>
         </record>
         <record model="ir.ui.view" id="price_index_import_result_view_form">
             <field name="model">real_estate.price_index.import.result</field>
             <field name="type">form</field>
-            <field name="name">price_index_import_result_form</field>
+            <field name="name">rent_adjustment/price_index_import_result_form</field>
         </record>
         <record model="ir.action.wizard" id="wizard_price_index_import">
             <field name="name">Import Index Values</field>
@@ -216,12 +216,12 @@
         <record model="ir.ui.view" id="index_cap_rule_view_list">
             <field name="model">real_estate.index_cap_rule</field>
             <field name="type">tree</field>
-            <field name="name">index_cap_rule_list</field>
+            <field name="name">rent_adjustment/index_cap_rule_list</field>
         </record>
         <record model="ir.ui.view" id="index_cap_rule_view_form">
             <field name="model">real_estate.index_cap_rule</field>
             <field name="type">form</field>
-            <field name="name">index_cap_rule_form</field>
+            <field name="name">rent_adjustment/index_cap_rule_form</field>
         </record>
         <record model="ir.action.act_window" id="act_index_cap_rule">
             <field name="name">Index Rent Cap Rules</field>
