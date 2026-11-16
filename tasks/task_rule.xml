@@ -5,12 +5,12 @@
         <record model="ir.ui.view" id="task_rule_view_tree">
             <field name="model">real_estate.task.rule</field>
             <field name="type">tree</field>
-            <field name="name">task_rule_tree</field>
+            <field name="name">tasks/task_rule_tree</field>
         </record>
         <record model="ir.ui.view" id="task_rule_view_form">
             <field name="model">real_estate.task.rule</field>
             <field name="type">form</field>
-            <field name="name">task_rule_form</field>
+            <field name="name">tasks/task_rule_form</field>
         </record>
         <record model="ir.action.act_window" id="act_task_rule">
             <field name="name">Task Rules</field>

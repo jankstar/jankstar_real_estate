@@ -749,7 +749,7 @@ class RealEstateTestCase(ModuleTestCase):
 
     def test_inspection_next_due_date(self):
         "Inspection due dates: fixed rhythm, from execution, month (spec 5)"
-        from trytond.modules.real_estate.inspection import next_due_date
+        from trytond.modules.real_estate.tasks.inspection import next_due_date
         d = datetime.date
         # Example of the spec: due 15.04.2026, done 28.04.2026, yearly
         self.assertEqual(next_due_date(d(2026, 4, 15), d(2026, 4, 28), 1,

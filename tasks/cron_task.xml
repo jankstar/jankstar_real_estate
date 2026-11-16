@@ -6,12 +6,12 @@
         <record model="ir.ui.view" id="cron_task_view_list">
             <field name="model">real_estate.cron_task</field>
             <field name="type">tree</field>
-            <field name="name">cron_task_list</field>
+            <field name="name">tasks/cron_task_list</field>
         </record>
         <record model="ir.ui.view" id="cron_task_view_form">
             <field name="model">real_estate.cron_task</field>
             <field name="type">form</field>
-            <field name="name">cron_task_form</field>
+            <field name="name">tasks/cron_task_form</field>
         </record>
 
         <!-- CronTask: admin full CRUD, everyone else read-only -->

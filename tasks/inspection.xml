@@ -5,47 +5,47 @@
         <record model="ir.ui.view" id="equipment_kind_view_tree">
             <field name="model">real_estate.equipment.kind</field>
             <field name="type">tree</field>
-            <field name="name">equipment_kind_tree</field>
+            <field name="name">tasks/equipment_kind_tree</field>
         </record>
         <record model="ir.ui.view" id="inspection_checklist_view_tree">
             <field name="model">real_estate.inspection.checklist</field>
             <field name="type">tree</field>
-            <field name="name">inspection_checklist_tree</field>
+            <field name="name">tasks/inspection_checklist_tree</field>
         </record>
         <record model="ir.ui.view" id="inspection_checklist_view_form">
             <field name="model">real_estate.inspection.checklist</field>
             <field name="type">form</field>
-            <field name="name">inspection_checklist_form</field>
+            <field name="name">tasks/inspection_checklist_form</field>
         </record>
         <record model="ir.ui.view" id="inspection_checklist_item_view_tree">
             <field name="model">real_estate.inspection.checklist.item</field>
             <field name="type">tree</field>
-            <field name="name">inspection_checklist_item_tree</field>
+            <field name="name">tasks/inspection_checklist_item_tree</field>
         </record>
         <record model="ir.ui.view" id="inspection_checklist_item_view_form">
             <field name="model">real_estate.inspection.checklist.item</field>
             <field name="type">form</field>
-            <field name="name">inspection_checklist_item_form</field>
+            <field name="name">tasks/inspection_checklist_item_form</field>
         </record>
         <record model="ir.ui.view" id="inspection_type_view_tree">
             <field name="model">real_estate.inspection.type</field>
             <field name="type">tree</field>
-            <field name="name">inspection_type_tree</field>
+            <field name="name">tasks/inspection_type_tree</field>
         </record>
         <record model="ir.ui.view" id="inspection_type_view_form">
             <field name="model">real_estate.inspection.type</field>
             <field name="type">form</field>
-            <field name="name">inspection_type_form</field>
+            <field name="name">tasks/inspection_type_form</field>
         </record>
         <record model="ir.ui.view" id="inspection_plan_view_tree">
             <field name="model">real_estate.inspection.plan</field>
             <field name="type">tree</field>
-            <field name="name">inspection_plan_tree</field>
+            <field name="name">tasks/inspection_plan_tree</field>
         </record>
         <record model="ir.ui.view" id="inspection_plan_view_form">
             <field name="model">real_estate.inspection.plan</field>
             <field name="type">form</field>
-            <field name="name">inspection_plan_form</field>
+            <field name="name">tasks/inspection_plan_form</field>
         </record>
         <record model="ir.action.act_window" id="act_equipment_kind">
             <field name="name">Equipment Kinds</field>
@@ -357,38 +357,38 @@
         <record model="ir.ui.view" id="inspection_view_tree">
             <field name="model">real_estate.inspection</field>
             <field name="type">tree</field>
-            <field name="name">inspection_tree</field>
+            <field name="name">tasks/inspection_tree</field>
         </record>
         <record model="ir.ui.view" id="inspection_view_form">
             <field name="model">real_estate.inspection</field>
             <field name="type">form</field>
-            <field name="name">inspection_form</field>
+            <field name="name">tasks/inspection_form</field>
         </record>
         <record model="ir.ui.view" id="inspection_line_view_tree">
             <field name="model">real_estate.inspection.line</field>
             <field name="type">tree</field>
-            <field name="name">inspection_line_tree</field>
+            <field name="name">tasks/inspection_line_tree</field>
         </record>
         <record model="ir.ui.view" id="inspection_line_view_form">
             <field name="model">real_estate.inspection.line</field>
             <field name="type">form</field>
-            <field name="name">inspection_line_form</field>
+            <field name="name">tasks/inspection_line_form</field>
         </record>
         <record model="ir.ui.view" id="inspection_line_view_list_object">
             <field name="model">real_estate.inspection.line</field>
             <field name="type">tree</field>
-            <field name="name">inspection_line_list_object</field>
+            <field name="name">tasks/inspection_line_list_object</field>
             <field name="priority" eval="20"/>
         </record>
         <record model="ir.ui.view" id="inspection_result_view_tree">
             <field name="model">real_estate.inspection.result</field>
             <field name="type">tree</field>
-            <field name="name">inspection_result_tree</field>
+            <field name="name">tasks/inspection_result_tree</field>
         </record>
         <record model="ir.ui.view" id="inspection_result_view_form">
             <field name="model">real_estate.inspection.result</field>
             <field name="type">form</field>
-            <field name="name">inspection_result_form</field>
+            <field name="name">tasks/inspection_result_form</field>
         </record>
         <record model="ir.action.act_window" id="act_inspection_form">
             <field name="name">Inspections</field>
@@ -743,12 +743,12 @@
         <record model="ir.ui.view" id="inspection_defect_view_tree">
             <field name="model">real_estate.inspection.defect</field>
             <field name="type">tree</field>
-            <field name="name">inspection_defect_tree</field>
+            <field name="name">tasks/inspection_defect_tree</field>
         </record>
         <record model="ir.ui.view" id="inspection_defect_view_form">
             <field name="model">real_estate.inspection.defect</field>
             <field name="type">form</field>
-            <field name="name">inspection_defect_form</field>
+            <field name="name">tasks/inspection_defect_form</field>
         </record>
         <record model="ir.action.act_window" id="act_inspection_defect">
             <field name="name">Defects</field>

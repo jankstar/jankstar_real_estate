@@ -5,43 +5,43 @@
         <record model="ir.ui.view" id="task_view_tree">
             <field name="model">real_estate.task</field>
             <field name="type">tree</field>
-            <field name="name">task_tree</field>
+            <field name="name">tasks/task_tree</field>
         </record>
         <record model="ir.ui.view" id="task_view_form">
             <field name="model">real_estate.task</field>
             <field name="type">form</field>
-            <field name="name">task_form</field>
+            <field name="name">tasks/task_form</field>
         </record>
         <record model="ir.ui.view" id="task_view_calendar">
             <field name="model">real_estate.task</field>
             <field name="type">calendar</field>
-            <field name="name">task_calendar</field>
+            <field name="name">tasks/task_calendar</field>
         </record>
         <record model="ir.ui.view" id="task_view_list_resource">
             <field name="model">real_estate.task</field>
             <field name="type">tree</field>
             <field name="priority" eval="20"/>
-            <field name="name">task_list_resource</field>
+            <field name="name">tasks/task_list_resource</field>
         </record>
         <record model="ir.ui.view" id="task_type_view_tree">
             <field name="model">real_estate.task.type</field>
             <field name="type">tree</field>
-            <field name="name">task_type_tree</field>
+            <field name="name">tasks/task_type_tree</field>
         </record>
         <record model="ir.ui.view" id="task_type_view_form">
             <field name="model">real_estate.task.type</field>
             <field name="type">form</field>
-            <field name="name">task_type_form</field>
+            <field name="name">tasks/task_type_form</field>
         </record>
         <record model="ir.ui.view" id="task_postpone_start_view_form">
             <field name="model">real_estate.task.postpone.start</field>
             <field name="type">form</field>
-            <field name="name">task_postpone_start_form</field>
+            <field name="name">tasks/task_postpone_start_form</field>
         </record>
         <record model="ir.ui.view" id="task_create_start_view_form">
             <field name="model">real_estate.task.create.start</field>
             <field name="type">form</field>
-            <field name="name">task_create_start_form</field>
+            <field name="name">tasks/task_create_start_form</field>
         </record>
         <record model="ir.action.act_window" id="act_task_mine">
             <field name="name">My Tasks</field>

@@ -5,7 +5,7 @@ from trytond.model import fields
 from trytond.pool import Pool, PoolMeta
 from trytond.transaction import Transaction
 
-from ..process import _PROCESS_HISTORY, _PROCESS_OPEN
+from ..tasks.process import _PROCESS_HISTORY, _PROCESS_OPEN
 
 
 #**********************************************************************

@@ -6,42 +6,42 @@
             <field name="model">real_estate.task</field>
             <field name="type">tree</field>
             <field name="priority" eval="30"/>
-            <field name="name">task_list_process</field>
+            <field name="name">tasks/task_list_process</field>
         </record>
         <record model="ir.ui.view" id="process_template_view_tree">
             <field name="model">real_estate.process.template</field>
             <field name="type">tree</field>
-            <field name="name">process_template_tree</field>
+            <field name="name">tasks/process_template_tree</field>
         </record>
         <record model="ir.ui.view" id="process_template_view_form">
             <field name="model">real_estate.process.template</field>
             <field name="type">form</field>
-            <field name="name">process_template_form</field>
+            <field name="name">tasks/process_template_form</field>
         </record>
         <record model="ir.ui.view" id="process_template_step_view_tree">
             <field name="model">real_estate.process.template.step</field>
             <field name="type">tree</field>
-            <field name="name">process_template_step_tree</field>
+            <field name="name">tasks/process_template_step_tree</field>
         </record>
         <record model="ir.ui.view" id="process_template_step_view_form">
             <field name="model">real_estate.process.template.step</field>
             <field name="type">form</field>
-            <field name="name">process_template_step_form</field>
+            <field name="name">tasks/process_template_step_form</field>
         </record>
         <record model="ir.ui.view" id="process_view_tree">
             <field name="model">real_estate.process</field>
             <field name="type">tree</field>
-            <field name="name">process_tree</field>
+            <field name="name">tasks/process_tree</field>
         </record>
         <record model="ir.ui.view" id="process_view_form">
             <field name="model">real_estate.process</field>
             <field name="type">form</field>
-            <field name="name">process_form</field>
+            <field name="name">tasks/process_form</field>
         </record>
         <record model="ir.ui.view" id="process_start_start_view_form">
             <field name="model">real_estate.process.start.start</field>
             <field name="type">form</field>
-            <field name="name">process_start_start_form</field>
+            <field name="name">tasks/process_start_start_form</field>
         </record>
         <record model="ir.action.act_window" id="act_process_template">
             <field name="name">Process Templates</field>

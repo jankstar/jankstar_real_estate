@@ -68,7 +68,7 @@ setup(name=name,
         ),
     package_data={
         'trytond.modules.real_estate': (info.get('xml', [])
-            + ['tryton.cfg', 'view/*.xml', 'view/*/*.xml', 'locale/*.po', '*.fodt',
+            + ['tryton.cfg', 'view/*/*.xml', 'locale/*.po', '*.fodt',
                 'report/*.odt', 'report/*.html',
                 'icons/*.svg', 'tests/*.rst', 'tests/*.json',
                 'tests/*.csv']),

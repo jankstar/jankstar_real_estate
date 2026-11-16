@@ -5,47 +5,47 @@
         <record model="ir.ui.view" id="handover_view_tree">
             <field name="model">real_estate.contract.handover</field>
             <field name="type">tree</field>
-            <field name="name">handover_tree</field>
+            <field name="name">tasks/handover_tree</field>
         </record>
         <record model="ir.ui.view" id="handover_view_form">
             <field name="model">real_estate.contract.handover</field>
             <field name="type">form</field>
-            <field name="name">handover_form</field>
+            <field name="name">tasks/handover_form</field>
         </record>
         <record model="ir.ui.view" id="handover_line_view_tree">
             <field name="model">real_estate.contract.handover.line</field>
             <field name="type">tree</field>
-            <field name="name">handover_line_tree</field>
+            <field name="name">tasks/handover_line_tree</field>
         </record>
         <record model="ir.ui.view" id="handover_line_view_form">
             <field name="model">real_estate.contract.handover.line</field>
             <field name="type">form</field>
-            <field name="name">handover_line_form</field>
+            <field name="name">tasks/handover_line_form</field>
         </record>
         <record model="ir.ui.view" id="handover_key_view_tree">
             <field name="model">real_estate.contract.handover.key</field>
             <field name="type">tree</field>
-            <field name="name">handover_key_tree</field>
+            <field name="name">tasks/handover_key_tree</field>
         </record>
         <record model="ir.ui.view" id="handover_meter_view_tree">
             <field name="model">real_estate.contract.handover.meter</field>
             <field name="type">tree</field>
-            <field name="name">handover_meter_tree</field>
+            <field name="name">tasks/handover_meter_tree</field>
         </record>
         <record model="ir.ui.view" id="handover_checklist_view_tree">
             <field name="model">real_estate.handover.checklist</field>
             <field name="type">tree</field>
-            <field name="name">handover_checklist_tree</field>
+            <field name="name">tasks/handover_checklist_tree</field>
         </record>
         <record model="ir.ui.view" id="handover_checklist_view_form">
             <field name="model">real_estate.handover.checklist</field>
             <field name="type">form</field>
-            <field name="name">handover_checklist_form</field>
+            <field name="name">tasks/handover_checklist_form</field>
         </record>
         <record model="ir.ui.view" id="handover_checklist_line_view_tree">
             <field name="model">real_estate.handover.checklist.line</field>
             <field name="type">tree</field>
-            <field name="name">handover_checklist_line_tree</field>
+            <field name="name">tasks/handover_checklist_line_tree</field>
         </record>
         <record model="ir.action.act_window" id="act_handover">
             <field name="name">Handover Reports</field>
