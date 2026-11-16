@@ -6,9 +6,9 @@ files that `real_estate.bved.export` produced - so the import side
 without a real service provider.
 
 Pure Python, no trytond/database/proteus dependency: it only needs
-bved_records.py (loaded directly from disk by path, not via the
-`trytond.modules.real_estate` package, so this script also runs in a plain
-Python environment without trytond installed).
+operating_costs/bved_records.py (loaded directly from disk by path, not
+via the `trytond.modules.real_estate` package, so this script also runs in
+a plain Python environment without trytond installed).
 
 Usage:
     python tests/test_bved_provider_response.py \\
@@ -59,7 +59,8 @@ from pathlib import Path
 
 
 def _load_bved_records():
-    path = Path(__file__).resolve().parent.parent / 'bved_records.py'
+    path = (Path(__file__).resolve().parent.parent
+        / 'operating_costs' / 'bved_records.py')
     spec = importlib.util.spec_from_file_location('bved_records', path)
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)

@@ -14,7 +14,7 @@ import re
 import datetime
 from decimal import Decimal, ROUND_HALF_UP
 
-from .base import base_object
+from ..base import base_object
 from . import bved_records
 
 

@@ -1595,7 +1595,7 @@ class RealEstateTestCase(ModuleTestCase):
     def test_oc_object_booked(self):
         "Documents booked on a rental object: assignment only to it (E32)"
         from types import SimpleNamespace as NS
-        from trytond.modules.real_estate.oc_document import _other_level
+        from trytond.modules.real_estate.operating_costs.oc_document import _other_level
         pool = Pool()
         Line = pool.get('real_estate.oc_document.line')
 
@@ -1636,7 +1636,7 @@ class RealEstateTestCase(ModuleTestCase):
 
     def test_oc_reclass_distribute_groups(self):
         "Cost reclassification: groups split exactly to the cent"
-        from trytond.modules.real_estate.oc_reclass import distribute_groups
+        from trytond.modules.real_estate.operating_costs.oc_reclass import distribute_groups
 
         groups = {('8000', ()): Decimal('100.00'),
             ('8002', ()): Decimal('-10.00')}
@@ -1694,7 +1694,7 @@ class RealEstateTestCase(ModuleTestCase):
 
     def test_oc_reconciliation_functions(self):
         "Reconciliation: distribution columns and account check (spec 8)"
-        from trytond.modules.real_estate.oc_reconciliation import (
+        from trytond.modules.real_estate.operating_costs.oc_reconciliation import (
             account_check, distribution)
         # 119 gross / 100 net: flat 60 % gross (tenant), shop 40 % net
         # (vacancy) - completely distributed
@@ -1726,7 +1726,7 @@ class RealEstateTestCase(ModuleTestCase):
 
     def test_oc_reclass_amounts(self):
         "Cost reclassification: example of the specification (6.5)"
-        from trytond.modules.real_estate.oc_reclass import reclass_amounts
+        from trytond.modules.real_estate.operating_costs.oc_reclass import reclass_amounts
 
         rate_property = Decimal('0.3333')
         # commercial unit 30 %: 300 net, 57 VAT, charged at 100 %
@@ -1809,7 +1809,7 @@ class RealEstateTestCase(ModuleTestCase):
 
     def test_oc_distribute_and_split_by_days(self):
         "Operating cost assignment: exact cent split and day split"
-        from trytond.modules.real_estate.oc_document import (
+        from trytond.modules.real_estate.operating_costs.oc_document import (
             distribute, split_by_days)
 
         self.assertEqual(distribute(Decimal('100.00'), [1, 1, 1]),

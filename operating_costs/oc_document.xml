@@ -6,59 +6,59 @@
         <record model="ir.ui.view" id="oc_document_view_tree">
             <field name="model">real_estate.oc_document</field>
             <field name="type">tree</field>
-            <field name="name">oc_document_tree</field>
+            <field name="name">operating_costs/oc_document_tree</field>
         </record>
         <record model="ir.ui.view" id="oc_document_view_form">
             <field name="model">real_estate.oc_document</field>
             <field name="type">form</field>
-            <field name="name">oc_document_form</field>
+            <field name="name">operating_costs/oc_document_form</field>
         </record>
         <record model="ir.ui.view" id="oc_document_history_view_tree">
             <field name="model">real_estate.oc_document</field>
             <field name="type">tree</field>
             <field name="priority" eval="20"/>
-            <field name="name">oc_document_history_tree</field>
+            <field name="name">operating_costs/oc_document_history_tree</field>
         </record>
         <record model="ir.ui.view" id="oc_document_line_view_tree">
             <field name="model">real_estate.oc_document.line</field>
             <field name="type">tree</field>
-            <field name="name">oc_document_line_tree</field>
+            <field name="name">operating_costs/oc_document_line_tree</field>
         </record>
         <record model="ir.ui.view" id="oc_document_line_view_list_assignment">
             <field name="model">real_estate.oc_document.line</field>
             <field name="type">tree</field>
             <field name="priority" eval="20"/>
-            <field name="name">oc_document_line_list_assignment</field>
+            <field name="name">operating_costs/oc_document_line_list_assignment</field>
         </record>
         <record model="ir.ui.view" id="oc_document_line_view_form">
             <field name="model">real_estate.oc_document.line</field>
             <field name="type">form</field>
-            <field name="name">oc_document_line_form</field>
+            <field name="name">operating_costs/oc_document_line_form</field>
         </record>
         <record model="ir.ui.view" id="oc_document_context_view_form">
             <field name="model">real_estate.oc_document.context</field>
             <field name="type">form</field>
-            <field name="name">oc_document_context_form</field>
+            <field name="name">operating_costs/oc_document_context_form</field>
         </record>
         <record model="ir.ui.view" id="oc_document_split_start_view_form">
             <field name="model">real_estate.oc_document.split.start</field>
             <field name="type">form</field>
-            <field name="name">oc_document_split_start_form</field>
+            <field name="name">operating_costs/oc_document_split_start_form</field>
         </record>
         <record model="ir.ui.view" id="oc_document_history_start_view_form">
             <field name="model">real_estate.oc_document.history.start</field>
             <field name="type">form</field>
-            <field name="name">oc_document_history_start_form</field>
+            <field name="name">operating_costs/oc_document_history_start_form</field>
         </record>
         <record model="ir.ui.view" id="oc_document_update_start_view_form">
             <field name="model">real_estate.oc_document.update.start</field>
             <field name="type">form</field>
-            <field name="name">oc_document_update_start_form</field>
+            <field name="name">operating_costs/oc_document_update_start_form</field>
         </record>
         <record model="ir.ui.view" id="oc_document_update_result_view_form">
             <field name="model">real_estate.oc_document.update.result</field>
             <field name="type">form</field>
-            <field name="name">oc_document_update_result_form</field>
+            <field name="name">operating_costs/oc_document_update_result_form</field>
         </record>
 
         <record model="ir.action.act_window" id="act_oc_document">

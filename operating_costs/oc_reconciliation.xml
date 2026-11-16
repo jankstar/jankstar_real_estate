@@ -5,29 +5,29 @@
         <record model="ir.ui.view" id="oc_reconciliation_view_tree">
             <field name="model">real_estate.oc_reconciliation</field>
             <field name="type">tree</field>
-            <field name="name">oc_reconciliation_tree</field>
+            <field name="name">operating_costs/oc_reconciliation_tree</field>
         </record>
         <record model="ir.ui.view" id="oc_reconciliation_view_form">
             <field name="model">real_estate.oc_reconciliation</field>
             <field name="type">form</field>
-            <field name="name">oc_reconciliation_form</field>
+            <field name="name">operating_costs/oc_reconciliation_form</field>
         </record>
         <record model="ir.ui.view" id="oc_reconciliation_line_view_list_costs">
             <field name="model">real_estate.oc_reconciliation.line</field>
             <field name="type">tree</field>
             <field name="priority" eval="10"/>
-            <field name="name">oc_reconciliation_line_list_costs</field>
+            <field name="name">operating_costs/oc_reconciliation_line_list_costs</field>
         </record>
         <record model="ir.ui.view" id="oc_reconciliation_line_view_list_billing">
             <field name="model">real_estate.oc_reconciliation.line</field>
             <field name="type">tree</field>
             <field name="priority" eval="20"/>
-            <field name="name">oc_reconciliation_line_list_billing</field>
+            <field name="name">operating_costs/oc_reconciliation_line_list_billing</field>
         </record>
         <record model="ir.ui.view" id="oc_reconciliation_line_view_form">
             <field name="model">real_estate.oc_reconciliation.line</field>
             <field name="type">form</field>
-            <field name="name">oc_reconciliation_line_form</field>
+            <field name="name">operating_costs/oc_reconciliation_line_form</field>
         </record>
 
         <record model="ir.action.act_window" id="act_oc_reconciliation">

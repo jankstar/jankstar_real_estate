@@ -7,7 +7,7 @@ from trytond.model.exceptions import ValidationError
 from trytond.i18n import gettext
 from trytond.pool import Pool
 
-from .base import base_object
+from ..base import base_object
 from . import bved_records
 
 

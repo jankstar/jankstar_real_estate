@@ -14,12 +14,12 @@
         <record model="ir.ui.view" id="bved_unit_view_list">
             <field name="model">real_estate.bved.unit</field>
             <field name="type">tree</field>
-            <field name="name">bved_unit_list</field>
+            <field name="name">operating_costs/bved_unit_list</field>
         </record>
         <record model="ir.ui.view" id="bved_unit_view_form">
             <field name="model">real_estate.bved.unit</field>
             <field name="type">form</field>
-            <field name="name">bved_unit_form</field>
+            <field name="name">operating_costs/bved_unit_form</field>
         </record>
 
         <record model="ir.action.act_window" id="act_bved_unit">
@@ -47,12 +47,12 @@
         <record model="ir.ui.view" id="bved_service_provider_view_list">
             <field name="model">real_estate.bved.service_provider</field>
             <field name="type">tree</field>
-            <field name="name">bved_service_provider_list</field>
+            <field name="name">operating_costs/bved_service_provider_list</field>
         </record>
         <record model="ir.ui.view" id="bved_service_provider_view_form">
             <field name="model">real_estate.bved.service_provider</field>
             <field name="type">form</field>
-            <field name="name">bved_service_provider_form</field>
+            <field name="name">operating_costs/bved_service_provider_form</field>
         </record>
 
         <record model="ir.action.act_window" id="act_bved_service_provider">
@@ -81,17 +81,17 @@
         <record model="ir.ui.view" id="bved_provider_assignment_view_list">
             <field name="model">real_estate.bved.provider_assignment</field>
             <field name="type">tree</field>
-            <field name="name">bved_provider_assignment_list</field>
+            <field name="name">operating_costs/bved_provider_assignment_list</field>
         </record>
         <record model="ir.ui.view" id="bved_provider_assignment_view_form">
             <field name="model">real_estate.bved.provider_assignment</field>
             <field name="type">form</field>
-            <field name="name">bved_provider_assignment_form</field>
+            <field name="name">operating_costs/bved_provider_assignment_form</field>
         </record>
         <record model="ir.ui.view" id="base_object_view_list_bved_provider_assignment">
             <field name="model">real_estate.bved.provider_assignment</field>
             <field name="type">tree</field>
-            <field name="name">base_object_list_bved_provider_assignment</field>
+            <field name="name">operating_costs/base_object_list_bved_provider_assignment</field>
         </record>
 
         <record model="ir.action.act_window" id="act_bved_provider_assignment">
@@ -119,12 +119,12 @@
         <record model="ir.ui.view" id="bved_object_number_view_list">
             <field name="model">real_estate.bved.object_number</field>
             <field name="type">tree</field>
-            <field name="name">bved_object_number_list</field>
+            <field name="name">operating_costs/bved_object_number_list</field>
         </record>
         <record model="ir.ui.view" id="bved_object_number_view_form">
             <field name="model">real_estate.bved.object_number</field>
             <field name="type">form</field>
-            <field name="name">bved_object_number_form</field>
+            <field name="name">operating_costs/bved_object_number_form</field>
         </record>
 
         <record model="ir.action.act_window" id="act_bved_object_number">
@@ -153,24 +153,24 @@
         <record model="ir.ui.view" id="bved_object_number_m_satz_line_view_list">
             <field name="model">real_estate.bved.object_number.m_satz_line</field>
             <field name="type">tree</field>
-            <field name="name">bved_object_number_m_satz_line_list</field>
+            <field name="name">operating_costs/bved_object_number_m_satz_line_list</field>
         </record>
         <record model="ir.ui.view" id="bved_object_number_m_satz_line_view_form">
             <field name="model">real_estate.bved.object_number.m_satz_line</field>
             <field name="type">form</field>
-            <field name="name">bved_object_number_m_satz_line_form</field>
+            <field name="name">operating_costs/bved_object_number_m_satz_line_form</field>
         </record>
 
         <!-- real_estate.bved.export: own list/form views + menu (Operation Costs) -->
         <record model="ir.ui.view" id="bved_export_view_list">
             <field name="model">real_estate.bved.export</field>
             <field name="type">tree</field>
-            <field name="name">bved_export_list</field>
+            <field name="name">operating_costs/bved_export_list</field>
         </record>
         <record model="ir.ui.view" id="bved_export_view_form">
             <field name="model">real_estate.bved.export</field>
             <field name="type">form</field>
-            <field name="name">bved_export_form</field>
+            <field name="name">operating_costs/bved_export_form</field>
         </record>
 
         <record model="ir.action.act_window" id="act_bved_export">
@@ -198,12 +198,12 @@
         <record model="ir.ui.view" id="bved_import_view_list">
             <field name="model">real_estate.bved.import</field>
             <field name="type">tree</field>
-            <field name="name">bved_import_list</field>
+            <field name="name">operating_costs/bved_import_list</field>
         </record>
         <record model="ir.ui.view" id="bved_import_view_form">
             <field name="model">real_estate.bved.import</field>
             <field name="type">form</field>
-            <field name="name">bved_import_form</field>
+            <field name="name">operating_costs/bved_import_form</field>
         </record>
 
         <record model="ir.action.act_window" id="act_bved_import">
@@ -231,12 +231,12 @@
         <record model="ir.ui.view" id="bved_import_line_view_list">
             <field name="model">real_estate.bved.import.line</field>
             <field name="type">tree</field>
-            <field name="name">bved_import_line_list</field>
+            <field name="name">operating_costs/bved_import_line_list</field>
         </record>
         <record model="ir.ui.view" id="bved_import_line_view_form">
             <field name="model">real_estate.bved.import.line</field>
             <field name="type">form</field>
-            <field name="name">bved_import_line_form</field>
+            <field name="name">operating_costs/bved_import_line_form</field>
         </record>
 
         <!-- Company separation rules (Muster base_object.xml rule_group_base_object_companies) -->

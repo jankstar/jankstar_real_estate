@@ -2,7 +2,7 @@ import datetime
 import unittest
 from decimal import Decimal
 
-from trytond.modules.real_estate import bved_records as bv
+from trytond.modules.real_estate.operating_costs import bved_records as bv
 
 
 class BvedRecordsTestCase(unittest.TestCase):

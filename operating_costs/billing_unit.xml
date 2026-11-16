@@ -23,24 +23,24 @@
         <record model="ir.ui.view" id="base_object_view_list_billing_unit">
             <field name="model">real_estate.billing_unit</field>
             <field name="type">tree</field>
-            <field name="name">base_object_list_billing_unit</field>
+            <field name="name">operating_costs/base_object_list_billing_unit</field>
         </record>
         <record model="ir.ui.view" id="billing_unit_list">
             <field name="model">real_estate.billing_unit</field>
             <field name="type">tree</field>
             <field name="priority" eval="20"/>
-            <field name="name">billing_unit_list</field>
+            <field name="name">operating_costs/billing_unit_list</field>
         </record>
         <record model="ir.ui.view" id="billing_unit_form">
             <field name="model">real_estate.billing_unit</field>
             <field name="type">form</field>
-            <field name="name">billing_unit_form</field>
+            <field name="name">operating_costs/billing_unit_form</field>
         </record>
 
         <record model="ir.ui.view" id="billing_unit_context_form_view">
             <field name="model">real_estate.billing_unit.context</field>
             <field name="type">form</field>
-            <field name="name">billing_unit_context_form</field>
+            <field name="name">operating_costs/billing_unit_context_form</field>
         </record>
 
         <record model="ir.action.act_window" id="act_billing_unit_tree">
@@ -98,12 +98,12 @@
         <record model="ir.ui.view" id="cost_category_group_list">
             <field name="model">real_estate.cost_category_group</field>
             <field name="type">tree</field>
-            <field name="name">cost_category_group_list</field>
+            <field name="name">operating_costs/cost_category_group_list</field>
         </record>
         <record model="ir.ui.view" id="cost_category_group_form">
             <field name="model">real_estate.cost_category_group</field>
             <field name="type">form</field>
-            <field name="name">cost_category_group_form</field>
+            <field name="name">operating_costs/cost_category_group_form</field>
         </record>
 
         <record model="ir.action.act_window" id="act_cost_category_group">
@@ -131,12 +131,12 @@
         <record model="ir.ui.view" id="cost_type_list">
             <field name="model">real_estate.cost_type</field>
             <field name="type">tree</field>
-            <field name="name">cost_type_list</field>
+            <field name="name">operating_costs/cost_type_list</field>
         </record>
         <record model="ir.ui.view" id="cost_type_form">
             <field name="model">real_estate.cost_type</field>
             <field name="type">form</field>
-            <field name="name">cost_type_form</field>
+            <field name="name">operating_costs/cost_type_form</field>
         </record>
 
         <record model="ir.action.act_window" id="act_cost_type">
@@ -166,19 +166,19 @@
         <record model="ir.ui.view" id="billing_unit_log_view_tree">
             <field name="model">real_estate.billing_unit.log</field>
             <field name="type">tree</field>
-            <field name="name">billing_unit_log_tree</field>
+            <field name="name">operating_costs/billing_unit_log_tree</field>
         </record>
 
         <record model="ir.ui.view" id="billing_unit_log_view_form">
             <field name="model">real_estate.billing_unit.log</field>
             <field name="type">form</field>
-            <field name="name">billing_unit_log_form</field>
+            <field name="name">operating_costs/billing_unit_log_form</field>
         </record>
 
         <record model="ir.ui.view" id="billing_unit_log_context_view_form">
             <field name="model">real_estate.billing_unit.log.context</field>
             <field name="type">form</field>
-            <field name="name">billing_unit_log_context_form</field>
+            <field name="name">operating_costs/billing_unit_log_context_form</field>
         </record>
 
         <record model="ir.action.act_window" id="act_billing_unit_log">
@@ -230,19 +230,19 @@
         <record model="ir.ui.view" id="billing_unit_moves_tree_view">
             <field name="model">real_estate.billing_unit.moves</field>
             <field name="type">tree</field>
-            <field name="name">billing_unit_moves_tree</field>
+            <field name="name">operating_costs/billing_unit_moves_tree</field>
         </record>
 
         <record model="ir.ui.view" id="billing_unit_moves_form_view">
             <field name="model">real_estate.billing_unit.moves</field>
             <field name="type">form</field>
-            <field name="name">billing_unit_moves_form</field>
+            <field name="name">operating_costs/billing_unit_moves_form</field>
         </record>
 
         <record model="ir.ui.view" id="billing_unit_moves_context_form_view">
             <field name="model">real_estate.billing_unit.moves.context</field>
             <field name="type">form</field>
-            <field name="name">billing_unit_moves_context_form</field>
+            <field name="name">operating_costs/billing_unit_moves_context_form</field>
         </record>
 
         <record model="ir.action.act_window" id="act_billing_unit_moves">

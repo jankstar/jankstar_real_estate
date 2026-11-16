@@ -5,12 +5,12 @@
         <record model="ir.ui.view" id="co2_kostaufg_view_list">
             <field name="model">real_estate.co2_kostaufg</field>
             <field name="type">tree</field>
-            <field name="name">co2_kostaufg_list</field>
+            <field name="name">operating_costs/co2_kostaufg_list</field>
         </record>
         <record model="ir.ui.view" id="co2_kostaufg_view_form">
             <field name="model">real_estate.co2_kostaufg</field>
             <field name="type">form</field>
-            <field name="name">co2_kostaufg_form</field>
+            <field name="name">operating_costs/co2_kostaufg_form</field>
         </record>
 
         <record model="ir.action.act_window" id="act_co2_kostaufg">
@@ -38,31 +38,31 @@
         <record model="ir.ui.view" id="co2_kostaufg_consumption_view_list">
             <field name="model">real_estate.co2_kostaufg.consumption</field>
             <field name="type">tree</field>
-            <field name="name">co2_kostaufg_consumption_list</field>
+            <field name="name">operating_costs/co2_kostaufg_consumption_list</field>
         </record>
         <record model="ir.ui.view" id="co2_kostaufg_consumption_view_form">
             <field name="model">real_estate.co2_kostaufg.consumption</field>
             <field name="type">form</field>
-            <field name="name">co2_kostaufg_consumption_form</field>
+            <field name="name">operating_costs/co2_kostaufg_consumption_form</field>
         </record>
 
         <!-- real_estate.co2_kostaufg.consumption.energy_mix: embedded tree view -->
         <record model="ir.ui.view" id="co2_kostaufg_consumption_energy_mix_view_list">
             <field name="model">real_estate.co2_kostaufg.consumption.energy_mix</field>
             <field name="type">tree</field>
-            <field name="name">co2_kostaufg_consumption_energy_mix_list</field>
+            <field name="name">operating_costs/co2_kostaufg_consumption_energy_mix_list</field>
         </record>
 
         <!-- real_estate.co2_emission_share: own list/form views + menu -->
         <record model="ir.ui.view" id="co2_emission_share_view_list">
             <field name="model">real_estate.co2_emission_share</field>
             <field name="type">tree</field>
-            <field name="name">co2_emission_share_list</field>
+            <field name="name">operating_costs/co2_emission_share_list</field>
         </record>
         <record model="ir.ui.view" id="co2_emission_share_view_form">
             <field name="model">real_estate.co2_emission_share</field>
             <field name="type">form</field>
-            <field name="name">co2_emission_share_form</field>
+            <field name="name">operating_costs/co2_emission_share_form</field>
         </record>
 
         <record model="ir.action.act_window" id="act_co2_emission_share">
