@@ -5,13 +5,13 @@
         <record model="ir.ui.view" id="contract_party_view_list">
             <field name="model">real_estate.contract.party</field>
             <field name="type">tree</field>
-            <field name="name">contract_party_list</field>
+            <field name="name">contract/contract_party_list</field>
         </record>
 
         <record model="ir.ui.view" id="contract_party_view_form">
             <field name="model">real_estate.contract.party</field>
             <field name="type">form</field>
-            <field name="name">contract_party_form</field>
+            <field name="name">contract/contract_party_form</field>
         </record>
 
         <record model="ir.action.act_window" id="act_contract_party_tree">
@@ -33,12 +33,12 @@
         <record model="ir.ui.view" id="contract_party_role_view_list">
             <field name="model">real_estate.contract.party.role</field>
             <field name="type">tree</field>
-            <field name="name">contract_party_role_list</field>
+            <field name="name">contract/contract_party_role_list</field>
         </record>
         <record model="ir.ui.view" id="contract_party_role_view_form">
             <field name="model">real_estate.contract.party.role</field>
             <field name="type">form</field>
-            <field name="name">contract_party_role_form</field>
+            <field name="name">contract/contract_party_role_form</field>
         </record>
         <record model="ir.action.act_window" id="act_contract_party_role">
             <field name="name">Contract Party Roles</field>
@@ -59,7 +59,7 @@
         <record model="ir.ui.view" id="change_contract_partner_start_view_form">
             <field name="model">real_estate.change_contract_partner.start</field>
             <field name="type">form</field>
-            <field name="name">change_contract_partner_start_form</field>
+            <field name="name">contract/change_contract_partner_start_form</field>
         </record>
         <record model="ir.action.wizard" id="wizard_change_contract_partner">
             <field name="name">Change Partner</field>

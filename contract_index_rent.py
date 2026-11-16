@@ -14,7 +14,7 @@ from trytond.pool import Pool, PoolMeta
 from trytond.pyson import Eval, If
 from trytond.transaction import Transaction
 
-from .contract_type import ADJUSTMENT_PROCEDURES, RUN_AGREEMENT_PROCEDURES
+from .contract.contract_type import ADJUSTMENT_PROCEDURES, RUN_AGREEMENT_PROCEDURES
 
 # Severity of the check protocol, ordered
 CHECK_LEVELS = ['ok', 'warning', 'error']

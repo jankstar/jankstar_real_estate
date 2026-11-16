@@ -28,7 +28,7 @@
         <record model="ir.ui.view" id="contract_context_form_view">
             <field name="model">real_estate.contract.context</field>
             <field name="type">form</field>
-            <field name="name">contract_context_form</field>
+            <field name="name">contract/contract_context_form</field>
         </record>
 
         <record model="ir.action.act_window" id="act_contract_form">
@@ -46,19 +46,19 @@
             <field name="model">real_estate.contract</field>
             <field name="type">tree</field>
             <field name="priority" eval="20"/>
-            <field name="name">contract_view_list</field>
+            <field name="name">contract/contract_view_list</field>
         </record>
         <record model="ir.ui.view" id="contract_view_list_simple">
             <field name="model">real_estate.contract</field>
             <field name="type">tree</field>
             <field name="priority" eval="10"/>
-            <field name="name">contract_view_list_simple</field>
+            <field name="name">contract/contract_view_list_simple</field>
         </record>
 
         <record model="ir.ui.view" id="contract_view_form">
             <field name="model">real_estate.contract</field>
             <field name="type">form</field>
-            <field name="name">contract_view_form</field>
+            <field name="name">contract/contract_view_form</field>
         </record>
 
         <!--record model="ir.ui.view.button" id="contract_view_form_button">
@@ -125,7 +125,7 @@
             <field name="model">
                 real_estate.contract.move_line_payable_receivable.context</field>
             <field name="type">form</field>
-            <field name="name">contract_move_line_payable_receivable_context_form</field>
+            <field name="name">contract/contract_move_line_payable_receivable_context_form</field>
         </record>
 
         <record model="ir.ui.view"
@@ -133,7 +133,7 @@
             <field name="model">account.move.line</field>
             <field name="inherit"
                 ref="account.move_line_view_list_payable_receivable"/>
-            <field name="name">contract_move_line_payable_receivable_list</field>
+            <field name="name">contract/contract_move_line_payable_receivable_list</field>
         </record>
 
         <record model="ir.action.act_window"
@@ -219,7 +219,7 @@
                 real_estate.contract.move_line_payable_receivable.relate_context</field>
             <field name="type">form</field>
             <field name="name">
-                contract_move_line_payable_receivable_relate_context_form</field>
+                contract/contract_move_line_payable_receivable_relate_context_form</field>
         </record>
         <record model="ir.action.act_window.view"
             id="act_contract_move_line_payable_receivable_relate_view1">
@@ -237,12 +237,12 @@
         <record model="ir.ui.view" id="contract_type_view_list">
             <field name="model">real_estate.contract.type</field>
             <field name="type">tree</field>
-            <field name="name">contract_type_list</field>
+            <field name="name">contract/contract_type_list</field>
         </record>
         <record model="ir.ui.view" id="contract_type_view_form">
             <field name="model">real_estate.contract.type</field>
             <field name="type">form</field>
-            <field name="name">contract_type_form</field>
+            <field name="name">contract/contract_type_form</field>
         </record>
 
         <record model="ir.action.act_window" id="act_contract_type">
@@ -281,12 +281,12 @@
         <record model="ir.ui.view" id="contract_term_type_view_list">
             <field name="model">real_estate.contract.term.type</field>
             <field name="type">tree</field>
-            <field name="name">contract_term_type_list</field>
+            <field name="name">contract/contract_term_type_list</field>
         </record>
         <record model="ir.ui.view" id="contract_term_type_view_form">
             <field name="model">real_estate.contract.term.type</field>
             <field name="type">form</field>
-            <field name="name">contract_term_type_form</field>
+            <field name="name">contract/contract_term_type_form</field>
         </record>
 
         <record model="ir.action.act_window" id="act_contract_term_type">
@@ -323,32 +323,32 @@
         <record model="ir.ui.view" id="contract_view_list_object_item">
             <field name="model">real_estate.contract.item</field>
             <field name="type">tree</field>
-            <field name="name">contract_view_list_object_item</field>
+            <field name="name">contract/contract_view_list_object_item</field>
         </record>
 
         <record model="ir.ui.view" id="contract_item_measurement_tree">
             <field name="model">real_estate.measurement</field>
             <field name="type">tree</field>
-            <field name="name">contract_item_measurement_tree</field>
+            <field name="name">contract/contract_item_measurement_tree</field>
         </record>
 
         <record model="ir.ui.view" id="contract_term_measurement_tree">
             <field name="model">real_estate.measurement</field>
             <field name="type">tree</field>
-            <field name="name">contract_term_measurement_tree</field>
+            <field name="name">contract/contract_term_measurement_tree</field>
         </record>
 
         <record model="ir.ui.view" id="contract_view_list_object_item_form">
             <field name="model">real_estate.contract.item</field>
             <field name="type">form</field>
-            <field name="name">base_object_item</field>
+            <field name="name">contract/base_object_item</field>
         </record>
 
         <record model="ir.ui.view" id="contract_view_object_item_tree">
             <field name="model">real_estate.contract.item</field>
             <field name="type">tree</field>
             <field name="priority" eval="20"/>
-            <field name="name">base_object_item_tree</field>
+            <field name="name">contract/base_object_item_tree</field>
         </record>
 
         <record model="ir.action.act_window" id="act_object_item_tree">
@@ -371,34 +371,34 @@
         <record model="ir.ui.view" id="contract_view_list_measurement">
             <field name="model">real_estate.measurement</field>
             <field name="type">tree</field>
-            <field name="name">contract_view_list_measurement</field>
+            <field name="name">contract/contract_view_list_measurement</field>
         </record>
 
         <!--  -->
         <record model="ir.ui.view" id="contract_view_list_cash_flow">
             <field name="model">real_estate.contract.term.cash_flow</field>
             <field name="type">tree</field>
-            <field name="name">contract_view_list_cash_flow</field>
+            <field name="name">contract/contract_view_list_cash_flow</field>
         </record>
 
         <!--  -->
         <record model="ir.ui.view" id="contract_view_list_object_term">
             <field name="model">real_estate.contract.term</field>
             <field name="type">tree</field>
-            <field name="name">contract_view_list_object_term</field>
+            <field name="name">contract/contract_view_list_object_term</field>
         </record>
 
         <record model="ir.ui.view" id="contract_view_list_term_form">
             <field name="model">real_estate.contract.term</field>
             <field name="type">form</field>
-            <field name="name">contract_term_form</field>
+            <field name="name">contract/contract_term_form</field>
         </record>
 
         <record model="ir.ui.view" id="contract_view_term_tree">
             <field name="model">real_estate.contract.term</field>
             <field name="type">tree</field>
             <field name="priority" eval="20"/>
-            <field name="name">contract_term_list</field>
+            <field name="name">contract/contract_term_list</field>
         </record>
 
         <record model="ir.action.act_window" id="act_contract_term_tree">
@@ -992,7 +992,7 @@
     <record model="ir.ui.view" id="terminate_contract_view_form">
         <field name="model">real_estate.terminate_contract.start</field>
         <field name="type">form</field>
-        <field name="name">terminate_contract_form</field>
+        <field name="name">contract/terminate_contract_form</field>
     </record>
 
     <record model="ir.action.wizard" id="wizard_contract_running">
@@ -1013,17 +1013,17 @@
     <record model="ir.ui.view" id="contract_create_moves_start_view_form">
         <field name="model">real_estate.contract.create_moves.start</field>
         <field name="type">form</field>
-        <field name="name">contract_create_moves_start_form</field>
+        <field name="name">contract/contract_create_moves_start_form</field>
     </record>
     <record model="ir.ui.view" id="contract_create_moves_confirm_view_form">
         <field name="model">real_estate.contract.create_moves.confirm</field>
         <field name="type">form</field>
-        <field name="name">contract_create_moves_confirm_form</field>
+        <field name="name">contract/contract_create_moves_confirm_form</field>
     </record>
     <record model="ir.ui.view" id="contract_create_moves_result_view_form">
         <field name="model">real_estate.contract.create_moves.result</field>
         <field name="type">form</field>
-        <field name="name">contract_create_moves_result_form</field>
+        <field name="name">contract/contract_create_moves_result_form</field>
     </record>
 
     <record model="ir.action.wizard" id="wizard_create_moves">
@@ -1041,7 +1041,7 @@
     <record model="ir.ui.view" id="cancel_period_booking_start_view_form">
         <field name="model">real_estate.cancel_period_booking.start</field>
         <field name="type">form</field>
-        <field name="name">cancel_period_booking_start_form</field>
+        <field name="name">contract/cancel_period_booking_start_form</field>
     </record>
     <record model="ir.action.wizard" id="wizard_cancel_period_booking">
         <field name="name">Cancel Period Booking</field>
@@ -1058,17 +1058,17 @@
     <record model="ir.ui.view" id="copy_terms_start_view_form">
         <field name="model">real_estate.contract.copy_terms.start</field>
         <field name="type">form</field>
-        <field name="name">copy_terms_start_form</field>
+        <field name="name">contract/copy_terms_start_form</field>
     </record>
     <record model="ir.ui.view" id="copy_terms_lines_view_form">
         <field name="model">real_estate.contract.copy_terms.lines</field>
         <field name="type">form</field>
-        <field name="name">copy_terms_lines_form</field>
+        <field name="name">contract/copy_terms_lines_form</field>
     </record>
     <record model="ir.ui.view" id="copy_terms_line_view_list">
         <field name="model">real_estate.contract.copy_terms.line</field>
         <field name="type">tree</field>
-        <field name="name">copy_terms_line_list</field>
+        <field name="name">contract/copy_terms_line_list</field>
     </record>
     <record model="ir.action.wizard" id="wizard_copy_terms">
         <field name="name">Copy Terms</field>
@@ -1086,12 +1086,12 @@
     <record model="ir.ui.view" id="contract_term_adjustment_view_tree">
         <field name="model">real_estate.contract.term.adjustment</field>
         <field name="type">tree</field>
-        <field name="name">contract_term_adjustment_tree</field>
+        <field name="name">contract/contract_term_adjustment_tree</field>
     </record>
     <record model="ir.ui.view" id="contract_term_adjustment_view_form">
         <field name="model">real_estate.contract.term.adjustment</field>
         <field name="type">form</field>
-        <field name="name">contract_term_adjustment_form</field>
+        <field name="name">contract/contract_term_adjustment_form</field>
     </record>
 
     <record model="ir.action.act_window" id="act_contract_term_adjustment">
@@ -1202,19 +1202,19 @@
         <field name="model">real_estate.contract.term.adjustment</field>
         <field name="type">tree</field>
         <field name="priority" eval="20"/>
-        <field name="name">contract_term_adjustment_receipt_tree</field>
+        <field name="name">contract/contract_term_adjustment_receipt_tree</field>
     </record>
 
     <!-- Adjustment runs with their protocol -->
     <record model="ir.ui.view" id="contract_term_adjustment_run_view_tree">
         <field name="model">real_estate.contract.term.adjustment.run</field>
         <field name="type">tree</field>
-        <field name="name">contract_term_adjustment_run_tree</field>
+        <field name="name">contract/contract_term_adjustment_run_tree</field>
     </record>
     <record model="ir.ui.view" id="contract_term_adjustment_run_view_form">
         <field name="model">real_estate.contract.term.adjustment.run</field>
         <field name="type">form</field>
-        <field name="name">contract_term_adjustment_run_form</field>
+        <field name="name">contract/contract_term_adjustment_run_form</field>
     </record>
     <record model="ir.action.act_window" id="act_contract_term_adjustment_run">
         <field name="name">Adjustment Runs</field>
@@ -1323,7 +1323,7 @@
     <record model="ir.ui.view" id="general_ledger_account_contract_view_list">
         <field name="model">real_estate.account_contract</field>
         <field name="type">tree</field>
-        <field name="name">general_ledger_account_contract_list</field>
+        <field name="name">contract/general_ledger_account_contract_list</field>
     </record>
         <record model="ir.model.access" id="access_account_contract_default">
             <field name="model">real_estate.account_contract</field>
@@ -1358,14 +1358,14 @@
     <record model="ir.ui.view" id="contract_general_ledger_account_contract_view_list">
         <field name="model">real_estate.account_contract</field>
         <field name="inherit" ref="general_ledger_account_contract_view_list"/>
-        <field name="name">contract_general_ledger_account_contract_list</field>
+        <field name="name">contract/contract_general_ledger_account_contract_list</field>
     </record>
     <record model="ir.ui.view"
         id="contract_general_ledger_account_contract_context_view_form">
         <field name="model">
             real_estate.contract.general_ledger_account_contract.context</field>
         <field name="type">form</field>
-        <field name="name">contract_general_ledger_account_contract_context_form</field>
+        <field name="name">contract/contract_general_ledger_account_contract_context_form</field>
     </record>
     <record model="ir.action.act_window" id="act_contract_general_ledger_account_contract">
         <field name="name">Kontenblatt</field>
@@ -1414,13 +1414,13 @@
         <record model="ir.ui.view" id="contract_term_cash_flow_view_tree">
             <field name="model">real_estate.contract.term.cash_flow</field>
             <field name="type">tree</field>
-            <field name="name">contract_term_cash_flow_tree</field>
+            <field name="name">contract/contract_term_cash_flow_tree</field>
         </record>
 
         <record model="ir.ui.view" id="contract_term_cash_flow_view_form">
             <field name="model">real_estate.contract.term.cash_flow</field>
             <field name="type">form</field>
-            <field name="name">contract_term_cash_flow_form</field>
+            <field name="name">contract/contract_term_cash_flow_form</field>
         </record>
         <record model="ir.model.access" id="access_contract_term_cash_flow_default">
             <field name="model">real_estate.contract.term.cash_flow</field>
@@ -1433,7 +1433,7 @@
         <record model="ir.ui.view" id="cash_flow_context_view_form">
             <field name="model">real_estate.contract.term.cash_flow.context</field>
             <field name="type">form</field>
-            <field name="name">cash_flow_context_form</field>
+            <field name="name">contract/cash_flow_context_form</field>
         </record>
 
         <record model="ir.action.act_window" id="act_contract_term_cash_flow">
@@ -1490,13 +1490,13 @@
         <record model="ir.ui.view" id="contract_log_view_tree">
             <field name="model">real_estate.contract.log</field>
             <field name="type">tree</field>
-            <field name="name">contract_log_tree</field>
+            <field name="name">contract/contract_log_tree</field>
         </record>
 
         <record model="ir.ui.view" id="contract_log_view_form">
             <field name="model">real_estate.contract.log</field>
             <field name="type">form</field>
-            <field name="name">contract_log_form</field>
+            <field name="name">contract/contract_log_form</field>
         </record>
         <record model="ir.model.access" id="access_contract_log_default">
             <field name="model">real_estate.contract.log</field>
@@ -1509,7 +1509,7 @@
         <record model="ir.ui.view" id="contract_log_context_view_form">
             <field name="model">real_estate.contract.log.context</field>
             <field name="type">form</field>
-            <field name="name">contract_log_context_form</field>
+            <field name="name">contract/contract_log_context_form</field>
         </record>
 
         <record model="ir.action.act_window" id="act_contract_log">
@@ -1544,7 +1544,7 @@
     <record model="ir.ui.view" id="contract_settlement_unit_view_list">
         <field name="model">real_estate.settlement_unit</field>
         <field name="type">tree</field>
-        <field name="name">contract_settlement_unit_list</field>
+        <field name="name">contract/contract_settlement_unit_list</field>
     </record>
 
     <record model="ir.action.act_window" id="act_contract_settlement_unit_relate">

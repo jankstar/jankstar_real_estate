@@ -1760,7 +1760,7 @@ class RealEstateTestCase(ModuleTestCase):
 
     def test_amount_sign_violated(self):
         "Term amount sign: any / positive only / negative only, 0 allowed"
-        from trytond.modules.real_estate.contract_term import (
+        from trytond.modules.real_estate.contract.contract_term import (
             amount_sign_violated)
 
         for sign in ('any', 'positive', 'negative', None):

@@ -17,7 +17,7 @@ from trytond.transaction import (
     Transaction, TransactionError, without_check_access)
 from trytond.wizard import Button, StateTransition, StateView, Wizard
 
-from .contract_type import RUN_AGREEMENT_PROCEDURES
+from .contract.contract_type import RUN_AGREEMENT_PROCEDURES
 from .core.queue_tools import queued_ids
 
 STATES = [

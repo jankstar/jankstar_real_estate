@@ -8,7 +8,7 @@ from trytond.model.exceptions import ValidationError
 from trytond.pool import Pool
 from trytond.report import Report
 
-from .contract_index_rent import LETTERS
+from ..contract_index_rent import LETTERS
 
 
 #**********************************************************************

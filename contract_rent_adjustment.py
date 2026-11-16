@@ -17,8 +17,8 @@ from trytond.transaction import Transaction
 from trytond.pool import Pool, PoolMeta
 from trytond.pyson import Eval, If
 
-from .contract_term import ContractGraduatedRentChangeWarning
-from .contract_type import ADJUSTMENT_PROCEDURES, RUN_AGREEMENT_PROCEDURES
+from .contract.contract_term import ContractGraduatedRentChangeWarning
+from .contract.contract_type import ADJUSTMENT_PROCEDURES, RUN_AGREEMENT_PROCEDURES
 
 # Procedures agreed in the contract (with agreement date / written form)
 AGREED_PROCEDURES = {'graduated_rent', 'index_rent'}

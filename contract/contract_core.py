@@ -21,8 +21,8 @@ from sql.conditionals import Coalesce
 from collections import defaultdict
 from itertools import groupby
 
-from .core.queue_tools import queued_ids
-from .base import base_object
+from ..core.queue_tools import queued_ids
+from ..base import base_object
 import logging
 import re
 from decimal import Decimal
