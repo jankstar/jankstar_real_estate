@@ -19,6 +19,38 @@
             <field name="name">operating_costs/settlement_unit_form</field>
         </record>
 
+        <!-- Contract: settlement units of the contract (tab, relate) -->
+        <record model="ir.ui.view" id="contract_settlement_unit_view_list">
+            <field name="model">real_estate.settlement_unit</field>
+            <field name="type">tree</field>
+            <field name="name">operating_costs/contract_settlement_unit_list</field>
+        </record>
+
+        <record model="ir.action.act_window" id="act_contract_settlement_unit_relate">
+            <field name="name">Operating Costs Settlement Units</field>
+            <field name="res_model">real_estate.settlement_unit</field>
+        </record>
+        <record model="ir.action.act_window.view" id="act_contract_settlement_unit_relate_view1">
+            <field name="sequence" eval="10"/>
+            <field name="view" ref="settlement_unit_list"/>
+            <field name="act_window" ref="act_contract_settlement_unit_relate"/>
+        </record>
+        <record model="ir.action.act_window.view" id="act_contract_settlement_unit_relate_view2">
+            <field name="sequence" eval="20"/>
+            <field name="view" ref="settlement_unit_form"/>
+            <field name="act_window" ref="act_contract_settlement_unit_relate"/>
+        </record>
+        <record model="ir.action.wizard" id="wizard_contract_open_settlement_units">
+            <field name="name">Operating Costs Settlement Units</field>
+            <field name="wiz_name">real_estate.contract.open_settlement_units</field>
+            <field name="model">real_estate.contract</field>
+        </record>
+        <record model="ir.action.keyword" id="wizard_contract_open_settlement_units_keyword">
+            <field name="keyword">form_relate</field>
+            <field name="model">real_estate.contract,-1</field>
+            <field name="action" ref="wizard_contract_open_settlement_units"/>
+        </record>
+
         <record model="ir.ui.view" id="settlement_unit_meter_tree">
             <field name="model">real_estate.base_object</field>
             <field name="type">tree</field>

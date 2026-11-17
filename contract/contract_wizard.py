@@ -4,9 +4,9 @@ from trytond.model.exceptions import ValidationError
 from trytond.i18n import gettext
 from trytond.pool import Pool
 from trytond.transaction import Transaction
-from trytond.pyson import Bool, Eval, If, PYSONEncoder
+from trytond.pyson import Bool, Eval, If
 from trytond.wizard import (
-    Button, StateAction, StateTransition, StateView, Wizard)
+    Button, StateTransition, StateView, Wizard)
 from trytond.transaction import check_access, without_check_access
 
 from dateutil.relativedelta import relativedelta
@@ -569,25 +569,6 @@ class ChangeContractPartnerWizard(Wizard):
             [self.start.contract], self.start.new_party,
             change_date=self.start.change_date)
         return 'end'
-
-
-#**********************************************************************
-class OpenContractSettlementUnits(Wizard):
-    "Open the Operating Cost Settlement Units of a Contract"
-    __name__ = 'real_estate.contract.open_settlement_units'
-
-    start_state = 'open_'
-    open_ = StateAction('real_estate.act_contract_settlement_unit_relate')
-
-    def do_open_(self, action):
-        Contract = Pool().get('real_estate.contract')
-        ids = []
-        for contract in self.records:
-            ids.extend(su.id for su in
-                Contract.get_settlement_units_all_periods(contract)
-                if su.id not in ids)
-        action['pyson_domain'] = PYSONEncoder().encode([('id', 'in', ids)])
-        return action, {}
 
 
 #**********************************************************************

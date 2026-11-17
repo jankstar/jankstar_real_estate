@@ -4,9 +4,9 @@ from trytond.model.exceptions import ValidationError
 from trytond.i18n import gettext
 from trytond.pool import Pool
 from trytond.transaction import Transaction
-from trytond.pyson import Eval
+from trytond.pyson import Eval, PYSONEncoder
 from trytond.wizard import (
-    Button, StateTransition, StateView, Wizard)
+    Button, StateAction, StateTransition, StateView, Wizard)
 from trytond.transaction import check_access, without_check_access
 
 import datetime
@@ -566,3 +566,22 @@ class ReconcileAdvancePaymentsWizard(Wizard):
             'skipped_count': self.result.skipped_count,
             'message': self.result.message,
         }
+
+
+#**********************************************************************
+class OpenContractSettlementUnits(Wizard):
+    "Open the Operating Cost Settlement Units of a Contract"
+    __name__ = 'real_estate.contract.open_settlement_units'
+
+    start_state = 'open_'
+    open_ = StateAction('real_estate.act_contract_settlement_unit_relate')
+
+    def do_open_(self, action):
+        Contract = Pool().get('real_estate.contract')
+        ids = []
+        for contract in self.records:
+            ids.extend(su.id for su in
+                Contract.get_settlement_units_all_periods(contract)
+                if su.id not in ids)
+        action['pyson_domain'] = PYSONEncoder().encode([('id', 'in', ids)])
+        return action, {}

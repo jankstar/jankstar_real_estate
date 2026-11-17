@@ -293,7 +293,7 @@ def register():
         billing_unit_wizard.BillingUnitWizard,
         billing_unit_wizard.CancelBillingWizard,
         billing_unit_wizard.ReconcileAdvancePaymentsWizard,
-        contract_wizard.OpenContractSettlementUnits,
+        billing_unit_wizard.OpenContractSettlementUnits,
         option_rate_wizard.OptionRateUpdateWizard,
         price_index.PriceIndexImport,
         task.TaskPostpone,
