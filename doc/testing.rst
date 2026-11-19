@@ -37,6 +37,18 @@ tests; if it tests several areas, into ``test_module.py``.
 
 There is no CI pipeline in this repo; the tests are run manually.
 
+The module tests run on sqlite. The ``sitecustomize.py`` of the venv
+(``../.venv/lib/python3.13/site-packages/``) sets ``TRYTOND_CONFIG`` to
+``../trytond.conf``, whose ``[database] uri`` (PostgreSQL) takes
+precedence over ``TRYTOND_DATABASE_URI``; ``TRYTOND_CONFIG=/dev/null``
+therefore belongs to every direct run. The tests create and drop their
+database themselves (``:memory:``) and need no demo data. ``tox`` passes
+the variable on too (``passenv = *``); ``tox.ini`` sets
+``TRYTOND_CONFIG=/dev/null`` for all environments except postgresql
+(``!postgresql:``, so also for ``tox -e py313`` without a database factor,
+which then runs on trytond's default ``sqlite://``); the postgresql
+environments still read ``../trytond.conf``.
+
 .. code-block:: bash
 
    # Full test matrix (sqlite + postgresql, py39–py313)
@@ -45,14 +57,18 @@ There is no CI pipeline in this repo; the tests are run manually.
    # Single environment
    tox -e py313-sqlite
 
-   # Direct run
+   # Direct run (sqlite, independent of ../trytond.conf)
+   export TRYTOND_CONFIG=/dev/null
    export TRYTOND_DATABASE_URI=sqlite://
    export DB_NAME=:memory:
+   python -m unittest discover -s tests
+   # or with coverage
    coverage run --omit=*/tests/* -m xmlrunner discover -s tests
    coverage report
 
    # Single test or selection by name (a building-block file cannot run
-   # on its own)
-   python -m unittest discover -s tests -k test_base_object_hierarchy
+   # on its own; same variables as above)
+   TRYTOND_CONFIG=/dev/null TRYTOND_DATABASE_URI=sqlite:// DB_NAME=:memory: \
+     python -m unittest discover -s tests -k test_base_object_hierarchy
 
 See `Demo data scripts <demo_data_scripts.rst>`_ for the one-shot proteus import scripts under ``tests/``.

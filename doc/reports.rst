@@ -7,8 +7,7 @@ Genshi/relatorio; ``template_extension`` on the ``ir.action.report`` record is
 ``odt``. Values are inserted with ``text:span py:content="..."`` rather than
 literal ``${...}`` interpolation (which relatorio escapes in ODT text), and
 control flow (``py:if``/``py:for``/``py:choose``) is written as attributes on
-the surrounding ODF elements. Older ``.html`` versions of these templates
-remain in ``report/`` for reference only and are not registered.
+the surrounding ODF elements.
 
 Several records in one document (letters, protocols, meter reading
 sheets): every record starts on a new page and the page numbering
