@@ -16,7 +16,7 @@ from trytond.transaction import Transaction
 from .adjustment_run import PROCEDURES, AdjustmentProcedure
 from .contract_comparative_rent import _amount, _term_chain
 from .contract_index_rent import LETTERS
-from ..contract.contract_report import IndexAdjustmentLetterReport
+from .adjustment_report import IndexAdjustmentLetterReport
 
 OPEN = ('draft', 'approved', 'declared')
 # measures of the run

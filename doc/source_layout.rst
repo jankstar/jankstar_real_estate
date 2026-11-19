@@ -78,16 +78,17 @@ Where a file belongs:
    │   │                            #   (+ role-contract.type relation)
    │   ├── contract_party.xml
    │   ├── contract_report.py       # ContractReport, ContractAnnex4Report,
-   │   │                            #   ContractTerminationConfirmationReport,
-   │   │                            #   index declaration, comparative rent request
+   │   │                            #   ContractTerminationConfirmationReport
    │   ├── contract_term.py         # real_estate.contract.term, term.tax, cash_flow,
-   │   │                            #   term.adjustment, Quantitative
+   │   │                            #   Quantitative
    │   ├── contract_type.py         # real_estate.contract.type, term.type
    │   └── contract_wizard.py       # wizards: TerminateContract, CreateContractMoves,
    │                                #   CancelPeriodBooking, ContractRunning,
    │                                #   ChangeContractPartner
    ├── rent_adjustment/             # rent adjustments
    │   ├── __init__.py              # empty
+   │   ├── adjustment_report.py     # letters: index declaration, comparative rent
+   │   │                            #   request, sample letter and letters of the run
    │   ├── adjustment_run.py        # real_estate.contract.term.adjustment.run (adjustment
    │   │                            #   run, procedure registry, manual amount, consent)
    │   ├── adjustment_run.xml
@@ -109,7 +110,9 @@ Where a file belongs:
    │   │                            #   .cell, .group, .feature, .calculation),
    │   │                            #   base_object.rent_survey_value, import/features wizards
    │   ├── rent_survey.xml
-   │   └── rent_survey_berlin.xml
+   │   ├── rent_survey_berlin.xml
+   │   └── term_adjustment.py       # real_estate.contract.term.adjustment (base class,
+   │                                #   extended by the procedures)
    ├── operating_costs/             # operating costs
    │   ├── __init__.py              # empty
    │   ├── billing_unit.py          # real_estate.billing_unit, billing_unit.moves,
@@ -141,7 +144,8 @@ Where a file belongs:
    │   │                            #   done methods of its steps
    │   ├── fiscalyear_closing.xml
    │   ├── handover.py              # real_estate.contract.handover(.line, .key, .meter),
-   │   │                            #   handover.checklist(.line); process step conditions
+   │   │                            #   handover.checklist(.line); process step conditions,
+   │   │                            #   handover report
    │   ├── handover.xml
    │   ├── inspection.py            # real_estate.inspection(.line, .result, .defect),
    │   │                            #   inspection.type, .plan, .checklist(.item),

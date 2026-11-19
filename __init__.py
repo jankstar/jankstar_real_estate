@@ -12,6 +12,8 @@ from .contract import contract_party
 from .rent_adjustment import contract_rent_adjustment
 from .contract import contract_wizard
 from .contract import contract_report
+from .rent_adjustment import term_adjustment
+from .rent_adjustment import adjustment_report
 from .core import sequence
 from .core import res
 from .core import ir
@@ -85,7 +87,7 @@ def register():
         contract_term.ContractTermCashFlow,
         contract_term.ContractTermCashFlowContext,
         contract_term.ContractTerm,
-        contract_term.ContractTermAdjustment,
+        term_adjustment.ContractTermAdjustment,
         contract_rent_adjustment.ContractRentAdjustment,
         contract_rent_adjustment.Contract,
         contract_party.ContractPartyRoleCType,
@@ -327,11 +329,11 @@ def register():
         inspection.InspectionAccessLetterReport,
         contract_report.ContractAnnex4Report,
         contract_report.ContractTerminationConfirmationReport,
-        contract_report.IndexAdjustmentLetterReport,
-        contract_report.ComparativeRentLetterReport,
-        contract_report.AdjustmentRunLettersReport,
-        contract_report.AdjustmentRunSampleLetterReport,
-        contract_report.HandoverReport,
+        adjustment_report.IndexAdjustmentLetterReport,
+        adjustment_report.ComparativeRentLetterReport,
+        adjustment_report.AdjustmentRunLettersReport,
+        adjustment_report.AdjustmentRunSampleLetterReport,
+        handover.HandoverReport,
         modernisation.ModernisationAnnouncementLetter,
         modernisation.ModernisationSampleLetter,
         contract_modernisation.ModernisationIncreaseLetter,

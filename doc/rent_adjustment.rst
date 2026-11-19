@@ -181,7 +181,7 @@ Adjustment run
 Term adjustments
 ================
 
-``real_estate.contract.term.adjustment``  (``contract_term.py``)
+``real_estate.contract.term.adjustment``  (``rent_adjustment/term_adjustment.py``)
    History record documenting a single old-term → new-term adjustment
    (e.g. a rent/advance-payment change following an operating cost billing
    run, an operating cost plan, or a free percentage/absolute change).

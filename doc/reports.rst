@@ -55,7 +55,7 @@ via ``get_context()``.
    fields) via ``Contract.fields_get()`` rather than exposing the raw
    storage keys to the template.
 
-``real_estate.contract.index_adjustment.letter``  (``contract_report.py``)
+``real_estate.contract.index_adjustment.letter``  (``rent_adjustment/adjustment_report.py``)
    Declaration of an index rent adjustment (§ 557b para. 3 BGB) on
    ``real_estate.contract.term.adjustment``. Template:
    ``index_adjustment_letter_de.odt`` - one letter per selected
@@ -66,7 +66,7 @@ via ``get_context()``.
    sharing the stored file). Mark: *ENTWURF* before the announcement, none while announced and the receipt is not captured (dispatch), *Zweitschrift* afterwards.
    Index values are formatted with one decimal (``format_index``).
 
-``real_estate.contract.comparative_rent.letter``  (``contract_report.py``)
+``real_estate.contract.comparative_rent.letter``  (``rent_adjustment/adjustment_report.py``)
    Request for consent to a rent increase up to the local comparative
    rent (§§ 558, 558a BGB) on ``real_estate.contract.term.adjustment``.
    Template: ``comparative_rent_letter_de.odt`` - one letter per
@@ -99,13 +99,13 @@ via ``get_context()``.
    effective date and the special termination right (§ 561 BGB).
    *Announce* of the adjustment run archives the original.
 
-``real_estate.contract.term.adjustment.run.letters``  (``contract_report.py``)
+``real_estate.contract.term.adjustment.run.letters``  (``rent_adjustment/adjustment_report.py``)
    *Letters to Send* on the adjustment run (button *Print Letters*,
    state announced/ready): all announced adjustments without captured
    receipt in one document, rendered by the letter report of the
    procedure without mark; error if none is left.
 
-``real_estate.contract.term.adjustment.run.sample_letter``  (``contract_report.py``)
+``real_estate.contract.term.adjustment.run.sample_letter``  (``rent_adjustment/adjustment_report.py``)
    *Sample Letter* on the adjustment run (button *Sample Letter*, state
    selected/calculated/approved - before the announcement): the letter of
    the first adjustment without error (else the first one not cancelled)
@@ -120,7 +120,7 @@ via ``get_context()``.
    with the mark *ENTWURF*; nothing is archived. Error if no such unit
    exists (determine the rental units first).
 
-``real_estate.contract.handover.report``  (``contract_report.py``)
+``real_estate.contract.handover.report``  (``tasks/handover.py``)
    Handover report on ``real_estate.contract.handover``, template
    ``contract_handover_de.odt``: header with landlord, tenants, rented
    object, kind and date, tables of check items, keys (move-out: expected

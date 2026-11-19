@@ -11,7 +11,10 @@ from trytond.modules.company.model import employee_field
 from trytond.modules.currency.fields import Monetary
 from trytond.pool import Pool, PoolMeta
 from trytond.pyson import Bool, Eval, If
+from trytond.report import Report
 from trytond.transaction import Transaction
+
+from ..contract.contract_report import ContractReport
 
 KINDS = [
     ('move_in', "Move-in"),
@@ -657,3 +660,38 @@ class Process(metaclass=PoolMeta):
 
     def _step_done_handover_move_out_done(self):
         return self._handover_done('move_out')
+
+
+#**********************************************************************
+class HandoverReport(Report):
+    """Handover report (Übergabeprotokoll) of move-in, pre-inspection or
+    move-out with check items, keys, meter readings and signature fields
+    - marked ENTWURF before it is done (spezifikation-uebergabeprotokoll.md
+    7)."""
+    __name__ = 'real_estate.contract.handover.report'
+
+    @classmethod
+    def format_value(cls, value):
+        return ContractReport.format_value(value)
+
+    @classmethod
+    def get_context(cls, records, header, data):
+        pool = Pool()
+        Handover = pool.get('real_estate.contract.handover')
+        Line = pool.get('real_estate.contract.handover.line')
+        Key = pool.get('real_estate.contract.handover.key')
+        context = super().get_context(records, header, data)
+        context['format_value'] = cls.format_value
+
+        def labels(Model, field):
+            return dict(Model.fields_get([field])[field]['selection'])
+        context['kinds'] = labels(Handover, 'kind')
+        context['general_conditions'] = labels(Handover, 'general_condition')
+        context['conditions'] = labels(Line, 'condition')
+        context['remedies'] = labels(Line, 'remedy_by')
+        context['key_types'] = labels(Key, 'key_type')
+        context['marks'] = {r.id: 'ENTWURF' if r.state == 'draft' else ''
+            for r in records}
+        context['tenants'] = {r.id: [(p, p.address_get(type='invoice'))
+                for p in r.tenants] for r in records}
+        return context
