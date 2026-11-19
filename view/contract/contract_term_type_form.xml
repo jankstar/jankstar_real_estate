@@ -1,51 +1,46 @@
 <?xml version="1.0"?>
-<form col="6">
+<form col="4">
+    <label name="sequence"/><field name="sequence"/>
+    <label name="name"/><field name="name"/>
+    <label name="compute_name"/><field name="compute_name"/>
+    <label name="active"/><field name="active"/>
     <label name="re_accounting"/><field name="re_accounting"/>
-    <newline/>
-    <label name="compute_name"/><field name="compute_name" />
-    <group colspan="2" col="-1" id="checkboxes">
-        <label name="active"/>
-        <field name="active" xexpand="0" width="25"/>
+    <label name="account"/><field name="account"/>
+    <label name="oc_processing"/><field name="oc_processing"/>
+    <label name="amount_sign"/><field name="amount_sign"/>
+
+    <group string="Usage" id="usage" colspan="4" col="2" homogeneous="1"
+        yexpand="1" yfill="1">
+        <group id="types_of_use" col="1" yexpand="1" yfill="1">
+            <label name="types_of_use" xalign="0"/>
+            <field name="types_of_use" yexpand="1" yfill="1"/>
+        </group>
+        <group id="c_type" col="1" yexpand="1" yfill="1">
+            <label name="c_type" xalign="0"/>
+            <field name="c_type" yexpand="1" yfill="1"/>
+        </group>
     </group>
-    <newline/>
-    <group colspan="2" col="-1" id="name_sequence">
-        <label name="sequence"/><field name="sequence"/>
-        <label name="name"/><field name="name"/>
+
+    <group string="Quantity and Measurement" id="m_type" colspan="4" col="4">
+        <label name="m_type"/><field name="m_type"/>
+        <label name="info_m_type"/><field name="info_m_type"/>
+        <label name="default_quantity"/><field name="default_quantity"/>
     </group>
-    <newline/>
-    <label name="types_of_use"/><field name="types_of_use" yexpand="0"/>
-    <newline/>
-    <label name="c_type"/><field name="c_type" yexpand="0"/>
-    <newline/>
-    <group colspan="2" col="-1" id="m_type">
-        <label name="default_quantity"/><field name="default_quantity" />
-        <newline/>
-        <label name="m_type"/><field name="m_type" />
-        <newline/>
-        <label name="info_m_type"/><field name="info_m_type" />
+
+    <group string="Rhythm" id="rhythm" colspan="4" col="6">
+        <label name="rhythm"/><field name="rhythm"/>
+        <label name="rhythm_type"/><field name="rhythm_type"/>
+        <label name="rhythm_start"/><field name="rhythm_start"/>
     </group>
-    <newline/>
-    <group colspan="2" col="-1" id="rhythm">
-        <label name="rhythm"/><field name="rhythm" />
-        <label name="rhythm_type"/><field name="rhythm_type" />
-        <newline/>
-        <label name="rhythm_start"/><field name="rhythm_start" />
-    </group>
-    <newline/>
-    <label name="oc_processing"/><field name="oc_processing" />
-    <label name="amount_sign"/><field name="amount_sign" />
-    <newline/>
-    <group string="Periodic Posting" id="separate_move" colspan="6" col="4">
+
+    <group string="Periodic Posting" id="separate_move" colspan="4" col="4">
         <label name="separate_move"/><field name="separate_move"/>
-        <newline/>
         <label name="move_description"/><field name="move_description"/>
     </group>
-    <newline/>
-    <group string="Rent Adjustment" id="adjustment" colspan="6" col="4">
-        <label name="adjustment_procedures"/>
-        <field name="adjustment_procedures" widget="multiselection" yexpand="0"/>
-    </group>
-    <newline/>
-    <label name="account"/><field name="account" />
 
+    <group string="Rent Adjustment" id="adjustment" colspan="4" col="2">
+        <label name="adjustment_procedures"/>
+        <field name="adjustment_procedures" widget="multiselection"
+            yexpand="0"/>
+    </group>
 </form>

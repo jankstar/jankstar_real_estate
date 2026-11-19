@@ -84,6 +84,10 @@
             <field name="name">Banks</field>
             <field name="number" eval="50000"/>
         </record>
+        <record model="real_estate.party.role_number" id="party_role_number_tenant">
+            <field name="name">Tenants</field>
+            <field name="number" eval="60000"/>
+        </record>
         <record model="real_estate.party.role_number" id="party_role_number_affiliated">
             <field name="name">Affiliated Companies</field>
             <field name="number" eval="90000"/>

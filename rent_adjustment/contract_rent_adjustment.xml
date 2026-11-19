@@ -1,6 +1,12 @@
 <?xml version="1.0"?>
 <tryton>
     <data>
+        <menuitem
+            parent="menu_real_estate_contracts"
+            sequence="94"
+            name="Rent Adjustments"
+            id="menu_real_estate_contracts_adjustment"/>
+
         <!-- Rent adjustments (Mietanpassungen): graduated rent, index rent, ... -->
         <record model="ir.ui.view" id="contract_rent_adjustment_view_form">
             <field name="model">real_estate.contract.rent_adjustment</field>

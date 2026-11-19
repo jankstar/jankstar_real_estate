@@ -110,7 +110,7 @@ class CoreTests:
         self.assertEqual(supplier.number, 40000)
         self.assertEqual(
             sorted(r.number for r in RoleNumber.search([])),
-            [10000, 20000, 30000, 40000, 50000, 90000])
+            [10000, 20000, 30000, 40000, 50000, 60000, 90000])
 
         role, = RoleNumber.create([{'name': 'Lieferant', 'number': 700000}])
         other, = RoleNumber.create([{'name': 'Kunde', 'number': 100000}])

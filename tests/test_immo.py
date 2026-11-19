@@ -45,7 +45,9 @@ Das Skript legt folgende Objekte an:
   Vorab (vor den Wirtschaftseinheiten):
   - 2 Partner mit je einem Mitarbeiter der Company (ab 01.01.2025):
     "Verwalter 1" und "Hausmeister 1" (vorhandene gleichnamige Partner bzw.
-    Mitarbeiter werden wiederverwendet).
+    Mitarbeiter werden wiederverwendet), mit der Partei-Rolle
+    'Mitarbeiter' (real_estate.party.role_number, Nummer 20000,
+    Standarddaten core/party.xml; fehlt sie, nur eine Warnung).
   - Beide werden jeder Wirtschaftseinheit als Partner zum Objekt zugeordnet
     (Rolle Verwalter bzw. Hausmeister, gültig ab 01.01.2025) - Grundlage der
     Zuständigkeit von Aufgaben über die Partnerrolle.
@@ -82,6 +84,8 @@ from decimal import Decimal
 from proteus import Model, config
 
 START_DATE = datetime.date(2025, 1, 1)
+# Party role 'Employees' (core/party.xml) - looked up by number
+EMPLOYEE_ROLE_NUMBER = 20000
 
 # Globaler Zähler für eindeutige Meter-IDs innerhalb dieses Script-Laufs
 _meter_id_counter = 0
@@ -344,17 +348,35 @@ def get_role_by_sequence(sequence: int):
     return roles[0]
 
 
-def get_or_create_staff(name: str, company):
+def get_role_number(number: int, label: str):
+    """Party role (real_estate.party.role_number) by its number -
+    language independent; None with a warning when it is missing."""
+    RoleNumber = Model.get('real_estate.party.role_number')
+    results = RoleNumber.find([('number', '=', number)])
+    if not results:
+        print(f'  Warnung: Partei-Rolle {label} (Nummer {number}) nicht '
+              'gefunden - Parteien bleiben ohne Partei-Rolle.')
+        return None
+    return results[0]
+
+
+def get_or_create_staff(name: str, company, role_number=None):
     """Partner mit Mitarbeiter der Company anlegen - vorhandene gleichnamige
-    Partner bzw. Mitarbeiter werden wiederverwendet."""
+    Partner bzw. Mitarbeiter werden wiederverwendet. Die Partei-Rolle wird
+    nur gesetzt, wenn der Partner noch keine hat."""
     Party = Model.get('party.party')
     Employee = Model.get('company.employee')
     parties = Party.find([('name', '=', name)])
     if parties:
         party = parties[0]
         print(f'  Partner:   {name} vorhanden (id={party.id})')
+        if role_number and not party.role_number:
+            party.role_number = role_number
+            party.save()
     else:
         party = Party(name=name)
+        if role_number:
+            party.role_number = role_number
         party.save()
         print(f'  Partner:   {name} angelegt (id={party.id})')
     employees = Employee.find([
@@ -542,8 +564,10 @@ def main():
     print('\n=== Verwalter und Hausmeister ===')
     role_caretaker = get_role_by_sequence(10)
     role_administrator = get_role_by_sequence(20)
-    administrator = get_or_create_staff('Verwalter 1', company)
-    caretaker = get_or_create_staff('Hausmeister 1', company)
+    employee_role = get_role_number(EMPLOYEE_ROLE_NUMBER, 'Mitarbeiter')
+    administrator = get_or_create_staff(
+        'Verwalter 1', company, employee_role)
+    caretaker = get_or_create_staff('Hausmeister 1', company, employee_role)
 
     building_args = dict(
         company=company, country=country_de,

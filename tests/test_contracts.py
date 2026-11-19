@@ -106,6 +106,9 @@ GEWERBEMIETVERTRÄGE (type_of_use='commercial')
 HINWEISE
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   - Idempotenz: Abbruch wenn Party "Mieter 1" bereits existiert.
+  - Alle Mieter und Gewerbemieter erhalten die Partei-Rolle 'Mieter'
+    (real_estate.party.role_number, Nummer 60000, Standarddaten
+    core/party.xml); fehlt sie, nur eine Warnung.
   - UseClass wird per Sequenznummer gesucht (sprachunabhängig):
       Apartment=10, Parking=50, Retail=30
   - Konditionen werden immer absolut angelegt (Menge 1, Einzelpreis =
@@ -141,6 +144,10 @@ RENT_REDUCTION_START = datetime.date(2025, 7, 1)
 # Role sequence for 'Main Tenant' (see contract_party.xml) - looked up by
 # sequence rather than name, more robust against translations.
 MAIN_TENANT_ROLE_SEQUENCE = 10
+
+# Party role 'Tenants' (real_estate.party.role_number, core/party.xml) -
+# looked up by number, set on all tenant parties
+TENANT_ROLE_NUMBER = 60000
 
 # (termination_date, receipt_of_notice) — notice 3 months before termination
 TERMINATIONS = [
@@ -450,7 +457,19 @@ def create_index_rent(contract, term, price_index):
     return rent_adjustment
 
 
-def create_party(name: str, country, lang):
+def get_role_number(number: int, label: str):
+    """Party role (real_estate.party.role_number) by its number -
+    language independent; None with a warning when it is missing."""
+    RoleNumber = Model.get('real_estate.party.role_number')
+    results = RoleNumber.find([('number', '=', number)])
+    if not results:
+        print(f'  Warnung: Partei-Rolle {label} (Nummer {number}) nicht '
+              'gefunden - Parteien bleiben ohne Partei-Rolle.')
+        return None
+    return results[0]
+
+
+def create_party(name: str, country, lang, role_number=None):
     Party = Model.get('party.party')
     Address = Model.get('party.address')
 
@@ -458,6 +477,8 @@ def create_party(name: str, country, lang):
     party.name = name
     if lang:
         party.lang = lang
+    if role_number:
+        party.role_number = role_number
     party.save()
 
     if party.addresses:
@@ -898,6 +919,7 @@ def main():
     Lang = Model.get('ir.lang')
     langs = Lang.find([('code', '=', 'de')])
     de_lang = langs[0] if langs else None
+    tenant_role = get_role_number(TENANT_ROLE_NUMBER, 'Mieter')
     if not de_lang:
         print('WARNUNG: Sprache "de" nicht gefunden – Sprache wird nicht gesetzt.')
 
@@ -942,6 +964,7 @@ def main():
                 name=f'Mieter {mieter_nr}',
                 country=country,
                 lang=de_lang,
+                role_number=tenant_role,
             )
             contract = create_contract(
                 company=company,
@@ -1064,6 +1087,7 @@ def main():
                 name=f'Mieter {mieter_nr}',
                 country=country,
                 lang=de_lang,
+                role_number=tenant_role,
             )
             mieter_nr += 1
             followup = create_followup_contract(
@@ -1093,6 +1117,7 @@ def main():
                 name=f'Mieter {mieter_nr}',
                 country=country,
                 lang=de_lang,
+                role_number=tenant_role,
             )
             mieter_nr += 1
             followup = create_followup_contract(
@@ -1163,6 +1188,7 @@ def main():
         name=f'Gewerbemieter {gewerbe_mieter_nr}',
         country=country,
         lang=de_lang,
+        role_number=tenant_role,
     )
     gewerbe_mieter_nr += 1
 
@@ -1204,6 +1230,7 @@ def main():
             name=f'Gewerbemieter {gewerbe_mieter_nr}',
             country=country,
             lang=de_lang,
+            role_number=tenant_role,
         )
         gewerbe_mieter_nr += 1
 

@@ -17,7 +17,7 @@ Extensions to Core Modules
    Catalog *Party Role Numbers* (``name``, ``number``) under
    *Real Estate > Configuration*; standard data (``noupdate``): Companies
    10000, Employees 20000, Owners 30000, Suppliers 40000, Banks 50000,
-   Affiliated Companies 90000. Readable by everybody, changed by the
+   Tenants 60000, Affiliated Companies 90000. Readable by everybody, changed by the
    real estate administration only; no uniqueness checks.
 
 ``account.invoice``  (``invoice.py``)

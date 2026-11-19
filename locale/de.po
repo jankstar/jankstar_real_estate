@@ -134,6 +134,10 @@ msgctxt "model:real_estate.party.role_number,name:party_role_number_bank"
 msgid "Banks"
 msgstr "Banken"
 
+msgctxt "model:real_estate.party.role_number,name:party_role_number_tenant"
+msgid "Tenants"
+msgstr "Mieter"
+
 msgctxt "model:real_estate.party.role_number,name:party_role_number_affiliated"
 msgid "Affiliated Companies"
 msgstr "verbundene Unternehmen"
@@ -11442,6 +11446,18 @@ msgid ""
 "contract type."
 msgstr ""
 "Buchungstext der eigenen Buchung - leer = Standardtext der Vertragsart."
+
+msgctxt "view:real_estate.contract.term.type:"
+msgid "Usage"
+msgstr "Verwendung"
+
+msgctxt "view:real_estate.contract.term.type:"
+msgid "Quantity and Measurement"
+msgstr "Menge und Bemessung"
+
+msgctxt "view:real_estate.contract.term.type:"
+msgid "Rhythm"
+msgstr "Rhythmus"
 
 msgctxt "view:real_estate.contract.term.type:"
 msgid "Periodic Posting"

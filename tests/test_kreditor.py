@@ -28,6 +28,8 @@ Das Skript legt folgende party.party-Datensätze als Kreditoren an:
 
 Jede Party erhält:
   - Kategorie 'Lieferant' (falls in der DB vorhanden)
+  - Partei-Rolle 'Lieferanten' (real_estate.party.role_number, Nummer
+    40000, Standarddaten core/party.xml); fehlt sie, nur eine Warnung
   - Eine Rechnungsadresse (invoice=True) und Lieferadresse (delivery=True)
 
 Das Skript ist idempotent: es bricht ab, wenn "Land Berlin" als Party
@@ -41,6 +43,9 @@ import argparse
 import sys
 
 from proteus import Model, config
+
+# Party role 'Suppliers' (core/party.xml) - looked up by number
+SUPPLIER_ROLE_NUMBER = 40000
 
 KREDITOREN = [
     {
@@ -159,7 +164,20 @@ def get_supplier_category():
     return results[0] if results else None
 
 
-def create_kreditor(data: dict, country, lang, category) -> None:
+def get_role_number(number: int, label: str):
+    """Party role (real_estate.party.role_number) by its number -
+    language independent; None with a warning when it is missing."""
+    RoleNumber = Model.get('real_estate.party.role_number')
+    results = RoleNumber.find([('number', '=', number)])
+    if not results:
+        print(f'  Warnung: Partei-Rolle {label} (Nummer {number}) nicht '
+              'gefunden - Parteien bleiben ohne Partei-Rolle.')
+        return None
+    return results[0]
+
+
+def create_kreditor(data: dict, country, lang, category,
+                    role_number=None) -> None:
     Party = Model.get('party.party')
     Address = Model.get('party.address')
 
@@ -169,6 +187,8 @@ def create_kreditor(data: dict, country, lang, category) -> None:
         party.lang = lang
     if hasattr(party, 'supplier') :
         party.supplier = True
+    if role_number:
+        party.role_number = role_number
     party.save()
 
     if party.addresses:
@@ -213,10 +233,11 @@ def main():
     country = get_country_de()
     lang = get_lang_de()
     category = get_supplier_category()
+    supplier_role = get_role_number(SUPPLIER_ROLE_NUMBER, 'Lieferanten')
 
     print('Lege Kreditoren an ...')
     for data in KREDITOREN:
-        create_kreditor(data, country, lang, category)
+        create_kreditor(data, country, lang, category, supplier_role)
 
     print('Fertig.')
 
