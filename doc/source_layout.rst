@@ -39,8 +39,7 @@ Where a file belongs:
    │   ├── group_party_access.xml
    │   ├── group_real_estate_view.xml
    │   ├── invoice.py               # extensions to account.invoice / invoice.line /
-   │   │                            #   move.line / general_ledger.line, receivable/payable
-   │   │                            #   list context + report
+   │   │                            #   move.line / general_ledger.line
    │   ├── invoice.xml
    │   ├── ir.py                    # extension to ir.cron (registers the cron_daily method)
    │   ├── message.xml
@@ -72,6 +71,7 @@ Where a file belongs:
    │   ├── __init__.py              # empty
    │   ├── contract.xml
    │   ├── contract_core.py         # real_estate.contract, contract.log, account views,
+   │   │                            #   receivable/payable list context + report,
    │   │                            #   cron_daily dispatcher + cron task handlers
    │   ├── contract_item.py         # real_estate.contract.item, contract.item.object
    │   ├── contract_party.py        # real_estate.contract.party, contract.party.role

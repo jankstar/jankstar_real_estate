@@ -94,7 +94,8 @@ Extensions to Core Modules
    - ``payable_receivable_balance`` ("Saldo") — optional.
 
    Filter panel (``real_estate.contract.move_line_payable_receivable.context``,
-   own context model):
+   own context model, class ``ContractMoveLinePayableReceivableContext`` in
+   ``contract/contract_core.py``):
 
    - ``company`` (required)
    - ``party``, ``contract``, ``account`` — optional, exact match;
@@ -110,12 +111,14 @@ Extensions to Core Modules
    (``act_contract_move_line_payable_receivable_relate``) reuses the same
    tree view with its own, minimal context model
    ``real_estate.contract.move_line_payable_receivable.relate_context``
-   (``date_from``/``date_to`` and the three toggles only). The list is
+   (class ``ContractMoveLinePayableReceivableRelateContext`` in
+   ``contract/contract_core.py``; ``date_from``/``date_to`` and the three
+   toggles only). The list is
    restricted to the open contract via the action's static ``domain``
    ``('effective_contract', 'in', Eval('active_ids'))``.
 
    Print (``real_estate.contract.move_line_payable_receivable.report``)
-      Class ``ContractMoveLinePayableReceivableReport`` in ``invoice.py``,
+      Class ``ContractMoveLinePayableReceivableReport`` in ``contract/contract_core.py``,
       template ``report/contract_move_line_payable_receivable_de.odt``.
       Registered as ``ir.action.report`` with an ``ir.action.keyword``
       (``keyword='form_print'``) on ``account.move.line,-1`` — select the
