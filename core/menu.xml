@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<tryton>
+    <data>
+        <record model="ir.ui.icon" id="real_estate_icon">
+            <field name="name">real_estate_icon</field>
+            <field name="path">icons/real_estate.svg</field>
+        </record>
+
+        <menuitem
+            name="Real Estate"
+            sequence="50"
+            id="menu_real_estate"
+            icon="real_estate_icon"/>
+
+        <menuitem
+            parent="menu_real_estate"
+            name="Configuration"
+            sequence="10"
+            id="menu_real_estate_configuration"
+            icon="tryton-settings"/>
+    </data>
+</tryton>

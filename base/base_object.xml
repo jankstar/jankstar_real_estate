@@ -26,11 +26,6 @@
             <field name="path">icons/equipment.svg</field>
         </record>
 
-        <record model="ir.ui.icon" id="real_estate_icon">
-            <field name="name">real_estate_icon</field>
-            <field name="path">icons/real_estate.svg</field>
-        </record>
-
         <record model="ir.ui.icon" id="real_estate_electric_meter_icon">
             <field name="name">real_estate-electric-meter</field>
             <field name="path">icons/real_estate-electric-meter.svg</field>
@@ -57,23 +52,10 @@
         </record>
 
       <menuitem
-        name="Real Estate"
-        sequence="50"
-        id="menu_real_estate"
-        icon="real_estate_icon"/>
-      
-      <menuitem
         parent="menu_real_estate"
         name="Master Data"
         sequence="12"
         id="menu_real_estate_masta_data"/>
-
-      <menuitem
-        parent="menu_real_estate"
-        name="Configuration"
-        sequence="10"
-        id="menu_real_estate_configuration"
-        icon="tryton-settings"/>
 
 
     <!-- Use Class -->

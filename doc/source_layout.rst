@@ -42,6 +42,8 @@ Where a file belongs:
    │   │                            #   move.line / general_ledger.line
    │   ├── invoice.xml
    │   ├── ir.py                    # extension to ir.cron (registers the cron_daily method)
+   │   ├── menu.xml                 # top menus Real Estate and Configuration with
+   │   │                            #   their icon (loaded before base/measurement.xml)
    │   ├── message.xml
    │   ├── party.py                 # extension to party.party
    │   ├── party.xml

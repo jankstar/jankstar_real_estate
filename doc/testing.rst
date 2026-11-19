@@ -44,10 +44,12 @@ precedence over ``TRYTOND_DATABASE_URI``; ``TRYTOND_CONFIG=/dev/null``
 therefore belongs to every direct run. The tests create and drop their
 database themselves (``:memory:``) and need no demo data. ``tox`` passes
 the variable on too (``passenv = *``); ``tox.ini`` sets
-``TRYTOND_CONFIG=/dev/null`` for all environments except postgresql
-(``!postgresql:``, so also for ``tox -e py313`` without a database factor,
-which then runs on trytond's default ``sqlite://``); the postgresql
-environments still read ``../trytond.conf``.
+``TRYTOND_CONFIG=/dev/null`` for all environments: the sqlite environments
+(and ``tox -e py313`` without a database factor, on trytond's default
+``sqlite://``) run on sqlite, the postgresql environments take
+``POSTGRESQL_URI`` (default ``postgresql://``, local access without
+password); for other credentials set ``POSTGRESQL_URI`` on the call, e.g.
+``POSTGRESQL_URI=postgresql://user:password@localhost:5432/ tox -e py313-postgresql``.
 
 .. code-block:: bash
 

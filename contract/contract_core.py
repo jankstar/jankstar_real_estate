@@ -554,18 +554,6 @@ class ContractMoveLinePayableReceivableRelateContext(ModelView):
     def default_reconciled(cls):
         return Transaction().context.get('reconciled', False)
 
-    @classmethod
-    def default_receivable(cls):
-        return Transaction().context.get('receivable', True)
-
-    @classmethod
-    def default_payable(cls):
-        return Transaction().context.get('payable', True)
-
-    @classmethod
-    def default_reconciled(cls):
-        return Transaction().context.get('reconciled', False)
-
 
 class ContractGeneralLedgerAccountContractReport(Report):
     """Prints the real_estate.account_contract rows selected in the

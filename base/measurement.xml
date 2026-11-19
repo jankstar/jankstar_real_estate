@@ -169,18 +169,6 @@
             <field name="perm_delete" eval="False"/>
         </record>
 
-      <menuitem
-         name="Real Estate"
-         sequence="50"
-         id="menu_real_estate"/>
-
-      <menuitem
-         parent="menu_real_estate"
-         name="Configuration"
-         sequence="90"
-         id="menu_real_estate_configuration"
-         icon="tryton-settings"/>
-
         <record model="ir.action.act_window" id="act_measurement_type">
             <field name="name">Measurement Types</field>
             <field name="res_model">real_estate.measurement.type</field>
