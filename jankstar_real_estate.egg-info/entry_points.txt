@@ -1,2 +1,0 @@
-[trytond.modules]
-real_estate = trytond.modules.real_estate
