@@ -1,6 +1,9 @@
 """
 Demodaten für das Tryton-Modul real_estate erzeugen.
 
+Startjahr: Parameter --year (Vorgabe: aktuelles Jahr - 1). Alle Daten
+werden relativ zum Startjahr gebildet ("01.01." = 01.01. des Startjahres).
+
 Das Skript legt folgende Objekte an:
 
   Wirtschaftseinheit 1: "Musterstraße 1-4"
@@ -8,14 +11,14 @@ Das Skript legt folgende Objekte an:
 
   Je Wirtschaftseinheit:
   - 4 Gebäude (Building), je mit einer Bemessung:
-      Bruttogeschossfläche 3.500 m² ab 01.01.2025
+      Bruttogeschossfläche 3.500 m² ab 01.01. des Startjahres
   - Je Gebäude 1 Gewerbefläche (Rental Object, Type of Use: commercial, Use: retail):
       - Einzelhandel XX (EG): Erdgeschoss (floor=0), Sequenz 5
       - Bemessung: Gewerbefläche 140 m²
       - 1 Zähler (Equipment, e_type: meters, Anlagenart: Zähler (Kaltwasser),
         Code cold_water_meter, Einheit: m³, Faktor: 1, Is Counter: ja):
-          - Initialablesung 0 m³ zum 01.01.2025
-          - Ablesung zum 30.04.2025 mit zufälligem Verbrauch zwischen 20 und 40 m³
+          - Initialablesung 0 m³ zum 01.01. des Startjahres
+          - Ablesung zum 30.04. des Startjahres mit zufälligem Verbrauch zwischen 20 und 40 m³
   - Je Gebäude 4 Wohnungen (Rental Object, Type of Use: residential, Use: apartment):
       - Wohnung XX (1.OG links):  2 Räume, 57 m² Wohnfläche, 54 m² Heizfläche
       - Wohnung XX (1.OG rechts): 3 Räume, 83 m² Wohnfläche, 80 m² Heizfläche
@@ -25,38 +28,39 @@ Das Skript legt folgende Objekte an:
         unbeheizten Balkon zur Hälfte, also 3 m², mit)
       - 1 Zähler (Equipment, e_type: meters, Anlagenart: Zähler (Kaltwasser),
         Code cold_water_meter, Einheit: m³, Faktor: 1, Is Counter: ja):
-          - Initialablesung 0 m³ zum 01.01.2025
-          - Ablesung zum 30.04.2025 mit zufälligem Verbrauch zwischen 20 und 40 m³
+          - Initialablesung 0 m³ zum 01.01. des Startjahres
+          - Ablesung zum 30.04. des Startjahres mit zufälligem Verbrauch zwischen 20 und 40 m³
   - Die Wohnungsnummern zählen je Wirtschaftseinheit durch (01–16).
   - Die Einzelhandelsnummern zählen je Wirtschaftseinheit durch (01–04).
-  - Die Zähler-ID wird automatisch generiert (Format: Z-<Jahr>-<Nr>, z.B. Z-2025-0001).
+  - Die Zähler-ID wird automatisch generiert (Format: Z-<Startjahr>-<Nr>, Beispiel für das Startjahr 2025: Z-2025-0001).
   - 1 Grundstück (Land) direkt unter der Wirtschaftseinheit mit 4 Stellplätzen
       (Type of Use: residential, Use: parking), Stellplatznummern 01–04.
 
   Prüfungen (Rauchwarnmelder, Prüfpläne):
   - Je Wohnung 1 Anlage "Rauchwarnmelder WE XX" (Equipment, Anlagenart
     Rauchwarnmelder) mit Bemessung "Anzahl" = Anzahl der Räume (2 bzw. 3)
-    ab 01.01.2025.
-  - Je Gebäude 2 Prüfpläne: "Jährliche Objektbegehung" (fällig 01.04.2026)
-    und "Rauchwarnmelderprüfung" (fällig 15.05.2026, Wartung durch
+    ab 01.01. des Startjahres.
+  - Je Gebäude 2 Prüfpläne: "Jährliche Objektbegehung" (fällig 01.04. des
+    Folgejahres) und "Rauchwarnmelderprüfung" (fällig 15.05. des
+    Folgejahres, Wartung durch
     Eigentümer) - sofern die Standard-Prüfarten (Codes "walkthrough",
     "smoke_detector") vorhanden sind.
 
   Optionssätze (am Ende, nach beiden Wirtschaftseinheiten):
   - Einmal die Optionssatzermittlung (Assistent "Optionssätze aktualisieren",
     real_estate.option_rate_update.wizard) für beide Wirtschaftseinheiten mit
-    Stichtag 01.01.2025 (Beginn), gültig ab 01.01.2025: Wirtschaftseinheit
+    Stichtag 01.01. des Startjahres (Beginn), gültig ab diesem Tag: Wirtschaftseinheit
     und Gebäude dynamisch nach Nutzfläche, Grundstück fest 0 %, Mietobjekte
     fest (Wohnung/Stellplatz 0 %, Gewerbe 100 %).
 
   Vorab (vor den Wirtschaftseinheiten):
-  - 2 Partner mit je einem Mitarbeiter der Company (ab 01.01.2025):
+  - 2 Partner mit je einem Mitarbeiter der Company (ab 01.01. des Startjahres):
     "Verwalter 1" und "Hausmeister 1" (vorhandene gleichnamige Partner bzw.
     Mitarbeiter werden wiederverwendet), mit der Partei-Rolle
     'Mitarbeiter' (real_estate.party.role_number, Nummer 20000,
     Standarddaten core/party.xml; fehlt sie, nur eine Warnung).
   - Beide werden jeder Wirtschaftseinheit als Partner zum Objekt zugeordnet
-    (Rolle Verwalter bzw. Hausmeister, gültig ab 01.01.2025) - Grundlage der
+    (Rolle Verwalter bzw. Hausmeister, gültig ab 01.01. des Startjahres) - Grundlage der
     Zuständigkeit von Aufgaben über die Partnerrolle.
   - Die Zuordnung Benutzer <-> Mitarbeiter erfolgt nicht im Skript; am Ende
     wird ein Hinweis ausgegeben.
@@ -79,7 +83,7 @@ gesucht (sprachunabhängig): Usable Space=5, Wohnfläche=10, Gewerbefläche=15,
 Anzahl Räume=20, Heizfläche=25, Bruttogeschossfläche [BHF]=30.
 
 Verwendung:
-    python tests/demo_immo.py --database <Datenbankname> [--config <trytond.conf>]
+    python tests/demo_immo.py --database <Datenbankname> [--config <trytond.conf>] [--year <Startjahr>]
 """
 
 import argparse
@@ -90,7 +94,18 @@ from decimal import Decimal
 
 from proteus import Model, Wizard, config
 
-START_DATE = datetime.date(2025, 1, 1)
+# Start year of the demo data (--year, default: current year - 1); set from
+# the parameter in main() via set_start_year()
+START_YEAR = datetime.date.today().year - 1
+START_DATE = datetime.date(START_YEAR, 1, 1)
+
+
+def set_start_year(year: int) -> None:
+    """Dates of the demo data relative to the start year."""
+    global START_YEAR, START_DATE
+    START_YEAR = year
+    START_DATE = datetime.date(year, 1, 1)
+
 # Party role 'Employees' (core/party.xml) - looked up by number
 EMPLOYEE_ROLE_NUMBER = 20000
 
@@ -303,13 +318,13 @@ def create_meter(parent, name: str, sequence: int, company, uom, admin_user,
     reading.value = Decimal(0)
     reading.save()
 
-    # Ablesung 30.04.2025 mit zufälligem Verbrauch zwischen 20 und 40 m³
+    # Ablesung 30.04. des Startjahres mit zufälligem Verbrauch zwischen 20 und 40 m³
     verbrauch = Decimal(random.randint(20, 40))
     reading2 = MeterReading()
     reading2.base_object = obj
     reading2.m_type = 'reading'
     reading2.meter_id = meter_id
-    reading2.reading_date = datetime.date(2025, 4, 30)
+    reading2.reading_date = datetime.date(START_YEAR, 4, 30)
     reading2.reading_user = admin_user
     reading2.value = verbrauch
     reading2.save()
@@ -343,8 +358,9 @@ def create_inspection_plans(prop, company) -> None:
     Plan = Model.get('real_estate.inspection.plan')
     BaseObject = Model.get('real_estate.base_object')
     plans = [
-        ('walkthrough', datetime.date(2026, 4, 1), False),
-        ('smoke_detector', datetime.date(2026, 5, 15), True),
+        # due in the year after the start year
+        ('walkthrough', datetime.date(START_YEAR + 1, 4, 1), False),
+        ('smoke_detector', datetime.date(START_YEAR + 1, 5, 15), True),
         ]
     buildings = BaseObject.find([
             ('parent', '=', prop.id), ('type', '=', 'building')])
@@ -534,10 +550,15 @@ def create_building(house_nr: int, building_seq: int, prop, company,
 
 
 def main():
+    default_year = datetime.date.today().year - 1
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--database', required=True, help='Tryton-Datenbankname')
     parser.add_argument('--config', default=None, help='Pfad zur trytond.conf')
+    parser.add_argument('--year', type=int, default=default_year,
+        help=f'Startjahr der Demodaten (Default: aktuelles Jahr - 1 = '
+             f'{default_year})')
     args = parser.parse_args()
+    set_start_year(args.year)
 
     connect(args.database, args.config)
 

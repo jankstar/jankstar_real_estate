@@ -14,7 +14,7 @@ Je Wirtschaftseinheit (16 Wohnungen, 4 Stellplätze):
   - Vertragspartner "Mieter N" (N zählt über beide WE durch):
       Sprache Deutsch, Adresse Musterstraße 1, 14163 Berlin, DE
   - Vertragsart: erste ContractType für type_of_use 'residential'
-  - Startdatum: 01.01.2025
+  - Startdatum: 01.01. des Startjahres
   - Je Vertrag 1 ContractItem (sequence=10) mit der zugeordneten Wohnung
   - 3 Konditionen je Wohnungsvertrag, monatlich, absoluter Betrag (Menge 1).
     Der Betrag wird aus einem zufälligen Preis je m² × Wohnfläche der
@@ -31,21 +31,22 @@ Je Wirtschaftseinheit (16 Wohnungen, 4 Stellplätze):
     Kondition (§ 551 BGB); er wird nicht gekündigt (unbefristet).
   - Beispiel Untermietzuschlag: der zweite Wohnungsvertrag (Mieter 2)
     erhält zusätzlich die Kondition Untermietzuschlag (Subletting
-    surcharge, sequence=1020, monatlich 20,00 EUR) ab 01.07.2025, also
+    surcharge, sequence=1020, monatlich 20,00 EUR) ab 01.07. des Startjahres, also
     6 Monate nach Vertragsbeginn; er wird ebenfalls nicht gekündigt.
   - Beispiel Mietminderung: der dritte Wohnungsvertrag (Mieter 3) erhält
     zusätzlich die Kondition Mietminderung (Rent reduction, sequence=1010,
-    monatlich -50,00 EUR, negativer Einzelpreis) ab 01.07.2025; er wird
+    monatlich -50,00 EUR, negativer Einzelpreis) ab 01.07. des Startjahres; er wird
     ebenfalls nicht gekündigt.
   - "Unterschrieben am" (date_of_signature) = Vertragsbeginn, bei allen
     Verträgen (auch Folge-, Stellplatz- und Gewerbeverträgen).
   - Alle Verträge werden aktiviert (→ running).
   - 3 Verträge werden zufällig gekündigt:
-      - Kündigung 1: Vertragsende 31.05.2025, Eingang Kündigung 28.02.2025
-      - Kündigung 2: Vertragsende 31.07.2025, Eingang Kündigung 30.04.2025
-      - Kündigung 3: Vertragsende 30.11.2025, Eingang Kündigung 31.08.2025
-  - Für Kündigung 1: Folgevertrag ab 01.06.2025 (neuer Mieter, gleiche Wohnung)
-  - Für Kündigung 2: Folgevertrag ab 16.09.2025 (neuer Mieter, gleiche Wohnung)
+      - Kündigung 1: Vertragsende 31.05., Eingang Kündigung 28.02.
+      - Kündigung 2: Vertragsende 31.07., Eingang Kündigung 30.04.
+      - Kündigung 3: Vertragsende 30.11., Eingang Kündigung 31.08.
+      (jeweils im Startjahr)
+  - Für Kündigung 1: Folgevertrag ab 01.06. (neuer Mieter, gleiche Wohnung)
+  - Für Kündigung 2: Folgevertrag ab 16.09. (neuer Mieter, gleiche Wohnung)
   - Staffelmieten (§ 557a BGB): bis zu 3 laufende, nicht gekündigte
     Wohnungsverträge je WE erhalten eine Mietanpassung mit Verfahren
     "Staffelmiete" auf ihre Miet-Kondition (sequence=1000): Rhythmus 12
@@ -59,12 +60,16 @@ Je Wirtschaftseinheit (16 Wohnungen, 4 Stellplätze):
   - Indexmieten (§ 557b BGB): bis zu 2 weitere laufende, nicht gekündigte
     Wohnungsverträge je WE (ohne Staffelmiete) erhalten eine Mietanpassung
     mit Verfahren "Indexmiete" auf ihre Miet-Kondition: Preisindex VPI-DE,
-    Ausgangsmonat 01/2025, Vereinbarung zum Vertragsbeginn, Schriftform,
+    Ausgangsmonat Januar des Startjahres, Vereinbarung zum Vertragsbeginn,
+    Schriftform,
     keine Schwelle, gesetzliche Wirksamkeit, Kappung automatisch; die
     Vereinbarung wird aktiviert. Die VPI-Monatswerte werden vorher aus
     tests/genesis_61111-0002_ffcsv.csv (Flatfile-Download aus GENESIS-Online)
     übernommen, soweit sie im Basisjahr der Reihe noch fehlen. Fehlen die
-    Datei oder die Reihe VPI-DE, werden keine Indexmieten angelegt. Der
+    Datei oder die Reihe VPI-DE oder der VPI-Wert für Januar des
+    Startjahres (die CSV enthält echte Werte, z. B. kein Wert für ein
+    Startjahr nach dem letzten veröffentlichten Monat), werden ein Hinweis
+    ausgegeben und keine Indexmieten angelegt. Der
     Anpassungslauf selbst wird nicht ausgeführt (Menü Verträge ›
     Anpassung › Anpassung, Verfahren Indexmiete).
 
@@ -79,7 +84,7 @@ Je Wirtschaftseinheit (16 Wohnungen, 4 Stellplätze):
 GEWERBEMIETVERTRÄGE (type_of_use='commercial')
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   Vertragsart: ContractType sequence=50 für type_of_use 'commercial' (Gewerbemietevertrag)
-  Startdatum: 01.01.2025, alle Verträge werden aktiviert (→ running).
+  Startdatum: 01.01. des Startjahres, alle Verträge werden aktiviert (→ running).
   Steuer auf alle Konditionen: USt. 19% Umsatzsteuer voller Satz Waren Inland
 
   Musterstraße 1-4 — 1 Sammelvertrag für alle 4 Gewerbeflächen:
@@ -117,7 +122,12 @@ HINWEISE
     Gewerbefläche sequence=15, sprachunabhängig per sequence gesucht).
 
 Verwendung:
-    python tests/demo_contracts.py --database <Datenbankname> [--config <trytond.conf>]
+    python tests/demo_contracts.py --database <Datenbankname> [--config <trytond.conf>] [--year <Startjahr>]
+
+Startjahr: Parameter --year (Vorgabe: aktuelles Jahr - 1). Alle Daten
+(Vertragsbeginn, Kündigungen, Folgeverträge, Beginn der Beispiel-
+Konditionen, Ablesungen, Jahresendablesung 31.12., Indexbasis) werden
+relativ zum Startjahr gebildet.
 """
 
 import argparse
@@ -129,17 +139,20 @@ from decimal import Decimal
 
 from proteus import Model, config
 
-START_DATE = datetime.date(2025, 1, 1)
-YEAR_END_DATE = datetime.date(2025, 12, 31)
+# Start year of the demo data (--year, default: current year - 1); all dates
+# below are set from it in set_start_year() (called in main())
+START_YEAR = datetime.date.today().year - 1
+START_DATE = datetime.date(START_YEAR, 1, 1)
+YEAR_END_DATE = datetime.date(START_YEAR, 12, 31)
 PARKING_PRICE = Decimal('50.00')
 # Example subletting surcharge: monthly amount, starting 6 months after the
 # contract start
 SUBLETTING_SURCHARGE = Decimal('20.00')
-SUBLETTING_START = datetime.date(2025, 7, 1)
+SUBLETTING_START = datetime.date(START_YEAR, 7, 1)
 # Example rent reduction: monthly amount (negative), starting 6 months
 # after the contract start
 RENT_REDUCTION = Decimal('-50.00')
-RENT_REDUCTION_START = datetime.date(2025, 7, 1)
+RENT_REDUCTION_START = datetime.date(START_YEAR, 7, 1)
 
 # Role sequence for 'Main Tenant' (see contract_party.xml) - looked up by
 # sequence rather than name, more robust against translations.
@@ -150,11 +163,17 @@ MAIN_TENANT_ROLE_SEQUENCE = 10
 TENANT_ROLE_NUMBER = 60000
 
 # (termination_date, receipt_of_notice) — notice 3 months before termination
-TERMINATIONS = [
-    (datetime.date(2025, 5, 31), datetime.date(2025, 2, 28)),
-    (datetime.date(2025, 7, 31), datetime.date(2025, 4, 30)),
-    (datetime.date(2025, 11, 30), datetime.date(2025, 8, 31)),
-]
+def terminations(year: int) -> list:
+    return [
+        (datetime.date(year, 5, 31), datetime.date(year, 2, 28)),
+        (datetime.date(year, 7, 31), datetime.date(year, 4, 30)),
+        (datetime.date(year, 11, 30), datetime.date(year, 8, 31)),
+        ]
+
+
+TERMINATIONS = terminations(START_YEAR)
+# Start of the follow-up contract for the second termination
+FOLLOWUP_2_START = datetime.date(START_YEAR, 9, 16)
 
 
 def connect(database: str, cfg_file: str | None) -> None:
@@ -381,9 +400,26 @@ def create_graduated_rent(contract, term, increase_mode, increase_value,
 # Index rents (Indexmiete, § 557b BGB) of the demo data: per property up to
 # two further running apartment contracts (without graduated rent)
 INDEX_RENTS_PER_PROPERTY = 2
-INDEX_BASE_MONTH = datetime.date(2025, 1, 1)
+# January of the start year (set in set_start_year())
+INDEX_BASE_MONTH = datetime.date(START_YEAR, 1, 1)
 VPI_CSV = os.path.join(os.path.dirname(os.path.abspath(__file__)),
     'genesis_61111-0002_ffcsv.csv')
+
+
+def set_start_year(year: int) -> None:
+    """Dates of the demo data relative to the start year (same day and
+    month as before, year = start year)."""
+    global START_YEAR, START_DATE, YEAR_END_DATE, SUBLETTING_START
+    global RENT_REDUCTION_START, TERMINATIONS, FOLLOWUP_2_START
+    global INDEX_BASE_MONTH
+    START_YEAR = year
+    START_DATE = datetime.date(year, 1, 1)
+    YEAR_END_DATE = datetime.date(year, 12, 31)
+    SUBLETTING_START = datetime.date(year, 7, 1)
+    RENT_REDUCTION_START = datetime.date(year, 7, 1)
+    TERMINATIONS = terminations(year)
+    FOLLOWUP_2_START = datetime.date(year, 9, 16)
+    INDEX_BASE_MONTH = datetime.date(year, 1, 1)
 
 
 def ensure_vpi_values():
@@ -869,10 +905,15 @@ def create_commercial_terms(contract, item, area: Decimal,
 
 
 def main():
+    default_year = datetime.date.today().year - 1
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--database', required=True, help='Tryton-Datenbankname')
     parser.add_argument('--config', default=None, help='Pfad zur trytond.conf')
+    parser.add_argument('--year', type=int, default=default_year,
+        help=f'Startjahr der Demodaten (Default: aktuelles Jahr - 1 = '
+             f'{default_year})')
     args = parser.parse_args()
+    set_start_year(args.year)
 
     connect(args.database, args.config)
 
@@ -926,7 +967,7 @@ def main():
     print(f'Erzeuge Verträge für Company "{company.rec_name}" ...')
 
     mieter_nr = 1  # läuft über alle Wirtschaftseinheiten durch
-    year_end_contracts = []  # Verträge, die zum 31.12.2025 noch laufen
+    year_end_contracts = []  # Verträge, die zum 31.12. des Startjahres noch laufen
     deposit_contract = None  # Beispiel Kaution: erster Wohnungsvertrag
     sublet_contract = None  # Beispiel Untermietzuschlag: zweiter Vertrag
     reduction_contract = None  # Beispiel Mietminderung: dritter Vertrag
@@ -1078,7 +1119,7 @@ def main():
             terminate_contract(c, term_date, receipt_date, t_wfl, admin_user)
             year_end_contracts.remove(c)
 
-        # Follow-up contract for the 31.05.2025 termination
+        # Follow-up contract for the 31.05. termination
         if n_term > 0:
             pred = to_terminate[0]
             followup_start = TERMINATIONS[0][0] + datetime.timedelta(days=1)
@@ -1108,10 +1149,10 @@ def main():
             print(f'  Folgevertrag id={followup.id} → running')
             year_end_contracts.append(followup)
 
-        # Follow-up contract for the 31.07.2025 termination, starting 16.09.2025
+        # Follow-up contract for the 31.07. termination, starting 16.09.
         if n_term > 1:
             pred = to_terminate[1]
-            followup_start = datetime.date(2025, 9, 16)
+            followup_start = FOLLOWUP_2_START
             print(f'\n--- Folgevertrag für Kündigung {TERMINATIONS[1][0]} ---')
             party, address = create_party(
                 name=f'Mieter {mieter_nr}',

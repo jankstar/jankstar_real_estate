@@ -46,7 +46,10 @@ Das Skript ist idempotent: es bricht ab, wenn für "Musterstraße 1-4"
 bereits Billing Units vorhanden sind.
 
 Verwendung:
-    python tests/demo_billing_unit.py --database <Datenbankname> [--config <trytond.conf>]
+    python tests/demo_billing_unit.py --database <Datenbankname> [--config <trytond.conf>] [--year <Startjahr>]
+
+Startjahr: Parameter --year (Vorgabe: aktuelles Jahr - 1); die Billing Units
+beginnen am 01.01. des Startjahres.
 """
 
 import argparse
@@ -55,7 +58,18 @@ import sys
 
 from proteus import Model, config
 
-START_DATE = datetime.date(2025, 1, 1)
+# Start year of the demo data (--year, default: current year - 1); set from
+# the parameter in main() via set_start_year()
+START_YEAR = datetime.date.today().year - 1
+START_DATE = datetime.date(START_YEAR, 1, 1)
+
+
+def set_start_year(year: int) -> None:
+    """Dates of the demo data relative to the start year."""
+    global START_YEAR, START_DATE
+    START_YEAR = year
+    START_DATE = datetime.date(year, 1, 1)
+
 
 # Sequences of cost types allocated by measurement (Nutzfläche, by_owner vacancy)
 MEASUREMENT_SEQUENCES = [100, 110, 500, 510, 520, 600, 610, 620, 700]
@@ -224,10 +238,15 @@ def create_su_external(bu, cost_type, usable_space_type) -> None:
 # ---------------------------------------------------------------------------
 
 def main():
+    default_year = datetime.date.today().year - 1
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--database', required=True, help='Tryton-Datenbankname')
     parser.add_argument('--config', default=None, help='Pfad zur trytond.conf')
+    parser.add_argument('--year', type=int, default=default_year,
+        help=f'Startjahr der Demodaten (Default: aktuelles Jahr - 1 = '
+             f'{default_year})')
     args = parser.parse_args()
+    set_start_year(args.year)
 
     connect(args.database, args.config)
 

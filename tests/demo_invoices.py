@@ -16,7 +16,7 @@ das Rechnungsdatum abdeckt, und bestätigt ihn - wie ein Benutzer in
 "Betriebskosten zuordnen".
 
 Rechnungen (alle Daten im gewählten Kalenderjahr, Parameter --year,
-Default 2025):
+Vorgabe: aktuelles Jahr - 1):
 
   Land Berlin — 1 Rechnung:
     - Datum: 15.03.<year>
@@ -57,7 +57,7 @@ Default 2025):
 Das Skript ist idempotent: bereits vorhandene Rechnungen (gleiche Party,
 Datum und Referenz) werden übersprungen; unbestätigte Belege bereits
 vorhandener Rechnungen werden (erneut) zugeordnet und bestätigt. Die Referenz enthält jeweils den
-Property-Namen in eckigen Klammern, z.B. "Grundsteuer 2025 [Musterstraße 1-4]".
+Property-Namen in eckigen Klammern, Beispiel für --year 2025: "Grundsteuer 2025 [Musterstraße 1-4]".
 Da die Referenz das Jahr enthält, kann das Skript für ein weiteres Jahr
 (z.B. --year 2026) erneut ausgeführt werden, ohne die Rechnungen des
 Vorjahres zu duplizieren oder zu berühren — vorausgesetzt, es existiert
@@ -312,8 +312,10 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--database', required=True, help='Tryton-Datenbankname')
     parser.add_argument('--config', default=None, help='Pfad zur trytond.conf')
-    parser.add_argument('--year', type=int, default=2025,
-        help='Kalenderjahr für alle Rechnungsdaten (Default: 2025)')
+    default_year = datetime.date.today().year - 1
+    parser.add_argument('--year', type=int, default=default_year,
+        help=f'Kalenderjahr für alle Rechnungsdaten (Default: aktuelles '
+             f'Jahr - 1 = {default_year})')
     parser.add_argument('--month', type=int, default=None,
         choices=range(1, 13), metavar='1-12',
         help='nur die Rechnungen dieses Monats (Default: ganzes Jahr)')

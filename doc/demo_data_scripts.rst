@@ -9,6 +9,16 @@ manually — ``python tests/<script>.py --database <db> [--config
 trytond.conf]`` — not via tox/xmlrunner, in the following order (each step
 builds on the previous one's data):
 
+Start year: the scripts that set dates (``demo_immo.py``,
+``demo_contracts.py``, ``demo_billing_unit.py``,
+``demo_contract_moves.py``, ``demo_invoices.py``, ``demo_rent_survey.py``)
+take ``--year`` with the default *current year − 1*; all dates are formed
+relative to it (same day and month, year = start year or the following
+year). ``demo_kreditor.py`` has no ``--year`` (it sets no dates),
+``demo_payment.py`` keeps ``--year`` without a default (without it all open
+items), ``demo_modernisation.py`` works relative to today. The dates below
+are given as day and month of the start year.
+
 ``tests/demo_immo.py``
    No prerequisites. Creates two properties (*Musterstraße 1-4* and
    *Musterstraße 5-8*), each with four buildings. Every building has one
@@ -21,24 +31,25 @@ builds on the previous one's data):
    *Verwalter 1* and *Hausmeister 1*, each with an employee of the company
    (existing ones are reused), and assigns them to both properties as
    object parties with the roles *Administrator* and *Caretaker* (valid
-   from 01.01.2025) - the basis of the task responsibility by party role
+   from 01.01. of the start year) - the basis of the task responsibility by party role
    (see `Tasks, Processes and Handover Reports <tasks.rst>`__). Linking the
    employees to users is left to the administrator; the script prints a
    hint at the end. Each apartment gets a smoke detector equipment
    (equipment kind *Smoke Detector*, measurement *Number of items* = number
    of rooms) and each building the inspection plans *Annual Walkthrough*
-   (due 01.04.2026) and *Smoke Detector Check* (due 15.05.2026) if the
+   (due 01.04. of the following year) and *Smoke Detector Check* (due 15.05.
+   of the following year) if the
    default inspection types exist. At the end it runs the option rate
    determination once - wizard *Update Option Rates*
    (``real_estate.option_rate_update.wizard``) for both properties with
-   the cut-off date 01.01.2025, valid from 01.01.2025 (properties and
+   the cut-off date 01.01. of the start year, valid from that day (properties and
    buildings dynamic by usable space, land fixed 0 % as its parking spaces
    have no usable space, rental objects fixed: 0 % for apartments and
    parking, 100 % for retail). Looks up ``real_estate.use_class``,
    measurement types and object party roles by ``sequence``, equipment
    kind and inspection types by ``code`` (language-independent)::
 
-      python tests/demo_immo.py --database <db> [--config trytond.conf]
+      python tests/demo_immo.py --database <db> [--config trytond.conf] [--year 2025]
 
 ``tests/demo_contracts.py``
    Requires ``demo_immo.py``. Creates residential lease contracts for 15 of
@@ -46,8 +57,8 @@ builds on the previous one's data):
    cost, and heating terms; the first apartment contract additionally
    gets a one-time rent deposit (term type 1900, three times the rent, at
    the contract start), the second one a subletting surcharge (term
-   type 1020, 20.00 EUR monthly from 2025-07-01) and the third one a rent
-   reduction (term type 1010, -50.00 EUR monthly from 2025-07-01) - all
+   type 1020, 20.00 EUR monthly from 01.07.) and the third one a rent
+   reduction (term type 1010, -50.00 EUR monthly from 01.07.) - all
    three stay open-ended.
    Three other contracts per property are terminated, two of them with a
    follow-up contract. The four parking spaces per
@@ -65,14 +76,16 @@ builds on the previous one's data):
    not change settings). Up to two
    further running apartment contracts per property (without graduated
    rent) get an active index rent (procedure ``index_rent``: price index
-   ``VPI-DE``, base month 01/2025, statutory effective date, no
+   ``VPI-DE``, base month January of the start year, statutory effective date, no
    threshold, cap automatic); missing VPI values of the current base year
    are first taken over from ``tests/genesis_61111-0002_ffcsv.csv``
    (GENESIS-Online flat file download, parsed like the CSV import wizard) - without the file
-   or the base month value no index rents are created. The adjustment run
+   or the base month value (the CSV holds real values, e.g. none for a
+   start year after the last published month) a hint is printed and no
+   index rents are created. The adjustment run
    itself is not executed::
 
-      python tests/demo_contracts.py --database <db> [--config trytond.conf]
+      python tests/demo_contracts.py --database <db> [--config trytond.conf] [--year 2025]
 
 ``tests/demo_billing_unit.py``
    Requires ``demo_immo.py``. Creates two billing units per property:
@@ -84,7 +97,7 @@ builds on the previous one's data):
    ``demo_invoices.py``'s settlement-unit lookup) needs the workflow
    advanced manually first::
 
-      python tests/demo_billing_unit.py --database <db> [--config trytond.conf]
+      python tests/demo_billing_unit.py --database <db> [--config trytond.conf] [--year 2025]
 
 ``tests/demo_contract_moves.py``
    Requires ``demo_contracts.py`` and a fiscal year with periods and
@@ -122,7 +135,7 @@ builds on the previous one's data):
    document is then assigned 100 % to its settlement unit and confirmed
    (what a user does in *Assign Operating Costs*). Accounts: property tax
    8910, heating 8002, all other operating costs 8000. ``--month`` creates
-   only the invoices of that month (of ``--year``, default 2025) - for a
+   only the invoices of that month (of ``--year``, default current year − 1) - for a
    monthly run together with the periodic contract posting
    (``demo_contract_moves.py``) and ``demo_payment.py --month``::
 
@@ -141,7 +154,7 @@ builds on the previous one's data):
    its comparative rent (key date today, at the earliest 28.05.2026).
    Assignments already present are skipped::
 
-      python tests/demo_rent_survey.py --database <db> [--config trytond.conf]
+      python tests/demo_rent_survey.py --database <db> [--config trytond.conf] [--year 2025]
 
 ``tests/demo_modernisation.py``
    Requires ``demo_immo.py`` and ``demo_contracts.py``. Allows the

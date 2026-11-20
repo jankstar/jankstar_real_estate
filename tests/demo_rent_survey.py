@@ -13,10 +13,13 @@ Wirtschaftseinheit "Musterstraße 1-4" mit Wohnlage mittel; je Gebäude
 Baujahr 1958 (falls leer), "Besonders ruhige Lage", Fahrradraum,
 Wärmedämmung und Energieverbrauchskennwert 130 kWh/(m²a); "Wohnung 01" mit
 Merkmalen der Gruppen 1-3 und eine Berechnung der Vergleichsmiete zum
-heutigen Tag. Bereits vorhandene Zuordnungen werden übersprungen.
+heutigen Tag (frühestens zum 28.05.2026, dem Gültig ab des Mietspiegels -
+fest, keine Demodaten). Bereits vorhandene Zuordnungen werden übersprungen.
+Der Energieverbrauchskennwert gilt ab 01.01. des Startjahres (Parameter
+--year, Vorgabe: aktuelles Jahr - 1).
 
 Verwendung:
-    python tests/demo_rent_survey.py --database <Datenbankname> [--config <trytond.conf>]
+    python tests/demo_rent_survey.py --database <Datenbankname> [--config <trytond.conf>] [--year <Startjahr>]
 """
 
 import argparse
@@ -26,8 +29,20 @@ from proteus import Model, config
 
 SURVEY = 'Berliner Mietspiegel'
 PROPERTY = 'Musterstraße 1-4'
+# Valid from of the real rent survey 2026 (standard data
+# rent_survey_berlin.xml) - fixed, no demo data
 VALID_FROM = datetime.date(2026, 5, 28)
-START_DATE = datetime.date(2025, 1, 1)
+# Start year of the demo data (--year, default: current year - 1); set from
+# the parameter in main() via set_start_year()
+START_YEAR = datetime.date.today().year - 1
+START_DATE = datetime.date(START_YEAR, 1, 1)
+
+
+def set_start_year(year: int) -> None:
+    """Dates of the demo data relative to the start year."""
+    global START_YEAR, START_DATE
+    START_YEAR = year
+    START_DATE = datetime.date(year, 1, 1)
 
 DEMO_UNIT_FEATURES = ['b_wc_wall', 'b_towel', 'k_fitted', 'k_no_dishwasher',
     'w_balcony', 'w_windows']
@@ -138,9 +153,14 @@ def demo(survey):
 def main():
     parser = argparse.ArgumentParser(description=__doc__,
         formatter_class=argparse.RawDescriptionHelpFormatter)
+    default_year = datetime.date.today().year - 1
     parser.add_argument('--database', required=True)
     parser.add_argument('--config', default=None)
+    parser.add_argument('--year', type=int, default=default_year,
+        help=f'Startjahr der Demodaten (Default: aktuelles Jahr - 1 = '
+             f'{default_year})')
     args = parser.parse_args()
+    set_start_year(args.year)
     connect(args.database, args.config)
 
     Survey = Model.get('real_estate.rent_survey')
