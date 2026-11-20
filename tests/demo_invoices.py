@@ -66,7 +66,8 @@ für dieses Jahr bereits eine passende Billing Unit je Cost Type
 
 Mit --month <1-12> werden nur die Rechnungen dieses Monats (im Jahr --year)
 angelegt, gebucht und zugeordnet - für einen monatlichen Ablauf zusammen mit
-der periodischen Buchung der Verträge und demo_payment.py --month. Ohne
+der periodischen Buchung der Verträge (demo_contract_moves.py) und
+demo_payment.py --month. Ohne
 --month das ganze Jahr.
 
 Verwendung:

@@ -18,8 +18,10 @@ Das Skript ist idempotent: Parteien ohne offene Forderungs-/
 Verbindlichkeitszeilen werden übersprungen.
 
 Voraussetzung Forderungen: demo_contracts.py muss ausgeführt worden sein und
-der Wizard "CreateContractMoves" muss mindestens einmal gelaufen sein, sodass
-gebuchte (posted) Ausgangsrechnungen für die Testpartner vorhanden sind.
+die Verträge müssen mit demo_contract_moves.py (Assistent "Buchungen
+erzeugen", Rechnungsstatus gebucht) für die betreffenden Monate gebucht sein,
+sodass gebuchte (posted) Ausgangsrechnungen für die Testpartner vorhanden
+sind.
 
 Voraussetzung Verbindlichkeiten: demo_kreditor.py und demo_invoices.py müssen
 ausgeführt worden sein (demo_invoices.py bucht die Lieferantenrechnungen).
@@ -27,7 +29,8 @@ ausgeführt worden sein (demo_invoices.py bucht die Lieferantenrechnungen).
 Mit --year <Jahr> [--month <1-12>] werden nur offene Posten mit Buchungsdatum
 in diesem Jahr bzw. Monat bezahlt und ausgeglichen (Zahlungsdatum = spätestes
 Datum dieser Posten) - für einen monatlichen Ablauf zusammen mit der
-periodischen Buchung der Verträge und demo_invoices.py --month. Ohne
+periodischen Buchung der Verträge (demo_contract_moves.py) und
+demo_invoices.py --month. Ohne
 Parameter alle offenen Posten.
 
 Verwendung:

@@ -86,6 +86,24 @@ builds on the previous one's data):
 
       python tests/demo_billing_unit.py --database <db> [--config trytond.conf]
 
+``tests/demo_contract_moves.py``
+   Requires ``demo_contracts.py`` and a fiscal year with periods and
+   sequences for the month. Posts the contracts of one month periodically
+   via the wizard *Create Moves* (``real_estate.contract.create_moves.wizard``,
+   as a user would in the client): date *to* = last day of the month,
+   invoice date = first day of the month, action *Re-Calculate and Create
+   moves*, without queue (``Contract.create_moves`` runs directly), no
+   filters. ``--month`` is required, ``--year`` defaults to the current year
+   − 1, ``--state`` (invoice state) to ``posted``. A second run for the
+   same month creates no duplicate postings (only draft cash flow lines up
+   to the date are booked; the re-calculation rebuilds the booked ones from
+   their invoice lines); a contract ending before the date is skipped, so
+   post the months in order. Monthly run:
+   ``demo_contract_moves.py`` → ``demo_invoices.py --month`` →
+   ``demo_payment.py --year --month``::
+
+      python tests/demo_contract_moves.py --database <db> [--config trytond.conf] --month 3 [--year 2025] [--state posted]
+
 ``tests/demo_kreditor.py``
    No prerequisites. Creates 11 supplier/creditor parties (property tax
    office, building insurer, utilities, cleaning, caretaker, gardening,
@@ -105,8 +123,8 @@ builds on the previous one's data):
    (what a user does in *Assign Operating Costs*). Accounts: property tax
    8910, heating 8002, all other operating costs 8000. ``--month`` creates
    only the invoices of that month (of ``--year``, default 2025) - for a
-   monthly run together with the periodic contract posting and
-   ``demo_payment.py --month``::
+   monthly run together with the periodic contract posting
+   (``demo_contract_moves.py``) and ``demo_payment.py --month``::
 
       python tests/demo_invoices.py --database <db> [--config trytond.conf] [--year 2025] [--month 3]
 
@@ -146,8 +164,8 @@ builds on the previous one's data):
       python tests/demo_modernisation.py --database <db> [--config trytond.conf] [--execute]
 
 ``tests/demo_payment.py``
-   Requires ``demo_contracts.py`` and at least one run of the
-   ``CreateContractMoves`` wizard so posted tenant invoices exist (and
+   Requires ``demo_contracts.py`` and the periodic contract posting with
+   ``demo_contract_moves.py`` so posted tenant invoices exist (and
    ``demo_invoices.py`` for the creditor side). Books one payment receipt per
    tenant/commercial-tenant party (debit 2740 Bank / credit the receivable
    account taken from that party's open lines) and one payment per creditor
