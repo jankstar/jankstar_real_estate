@@ -8,7 +8,7 @@ erzeugt von tests/generate_rent_survey_xml.py aus
 tests/mietspiegel_berlin_2026_felder.csv und ..._merkmale.csv) und wird beim
 Aufbau der Datenbank angelegt - für alle Unternehmen.
 
-Das Skript ordnet nur die Demodaten zu (setzt test_immo.py voraus):
+Das Skript ordnet nur die Demodaten zu (setzt demo_immo.py voraus):
 Wirtschaftseinheit "Musterstraße 1-4" mit Wohnlage mittel; je Gebäude
 Baujahr 1958 (falls leer), "Besonders ruhige Lage", Fahrradraum,
 Wärmedämmung und Energieverbrauchskennwert 130 kWh/(m²a); "Wohnung 01" mit
@@ -16,7 +16,7 @@ Merkmalen der Gruppen 1-3 und eine Berechnung der Vergleichsmiete zum
 heutigen Tag. Bereits vorhandene Zuordnungen werden übersprungen.
 
 Verwendung:
-    python tests/test_rent_survey.py --database <Datenbankname> [--config <trytond.conf>]
+    python tests/demo_rent_survey.py --database <Datenbankname> [--config <trytond.conf>]
 """
 
 import argparse
@@ -91,7 +91,7 @@ def demo(survey):
             ('name', '=', PROPERTY)])
     if not props:
         print(f'  Property "{PROPERTY}" nicht gefunden - keine Demodaten '
-            '(zuerst test_immo.py ausführen).')
+            '(zuerst demo_immo.py ausführen).')
         return
     prop, = props
     prop.rent_survey = survey

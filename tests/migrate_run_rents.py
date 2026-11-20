@@ -41,7 +41,7 @@ from decimal import ROUND_HALF_UP, Decimal
 from proteus import Model, config
 from trytond.exceptions import UserWarning as TrytonUserWarning
 
-LIVING_SPACE_SEQUENCE = 10   # measurement type 'Wohnfläche' (see test_immo.py)
+LIVING_SPACE_SEQUENCE = 10   # measurement type 'Wohnfläche' (see demo_immo.py)
 CENT = Decimal('0.01')
 PRICE = Decimal('0.0001')
 

@@ -1,7 +1,7 @@
 """
 Demodaten für Mietverträge im Tryton-Modul real_estate erzeugen.
 
-Voraussetzung: Die Immobiliendaten aus test_immo.py müssen bereits in der
+Voraussetzung: Die Immobiliendaten aus demo_immo.py müssen bereits in der
 Datenbank vorhanden sein (Properties "Musterstraße 1-4" und "Musterstraße 5-8").
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -18,7 +18,7 @@ Je Wirtschaftseinheit (16 Wohnungen, 4 Stellplätze):
   - Je Vertrag 1 ContractItem (sequence=10) mit der zugeordneten Wohnung
   - 3 Konditionen je Wohnungsvertrag, monatlich, absoluter Betrag (Menge 1).
     Der Betrag wird aus einem zufälligen Preis je m² × Wohnfläche der
-    Wohnung berechnet (57 m² bzw. 83 m² aus test_immo.py):
+    Wohnung berechnet (57 m² bzw. 83 m² aus demo_immo.py):
       - Apartment rent (sequence=1000): 11,00–16,00 EUR/m²
       - Betriebskosten (sequence=2000):  3,00– 4,00 EUR/m²
       - Heizkosten     (sequence=3000):  3,00– 4,00 EUR/m²
@@ -117,7 +117,7 @@ HINWEISE
     Gewerbefläche sequence=15, sprachunabhängig per sequence gesucht).
 
 Verwendung:
-    python tests/test_contracts.py --database <Datenbankname> [--config <trytond.conf>]
+    python tests/demo_contracts.py --database <Datenbankname> [--config <trytond.conf>]
 """
 
 import argparse
@@ -208,7 +208,7 @@ def get_properties():
             ('type', '=', 'property'),
         ])
         if not results:
-            print(f'ERROR: Property "{name}" nicht gefunden. Bitte zuerst test_immo.py ausführen.',
+            print(f'ERROR: Property "{name}" nicht gefunden. Bitte zuerst demo_immo.py ausführen.',
                   file=sys.stderr)
             sys.exit(1)
         props.append(results[0])
@@ -779,7 +779,7 @@ def create_followup_contract(terminated_contract, company, property_obj, c_type,
 
     # Übergabe-Ablesung bei Mietbeginn – nicht für Verträge, die (wie alle
     # Erstverträge) am START_DATE beginnen, dafür existiert bereits die
-    # initiale Ablesung aus test_immo.py.
+    # initiale Ablesung aus demo_immo.py.
     if start_date != START_DATE:
         record_meter_reading(contract, start_date, t_wfl, admin_user)
 

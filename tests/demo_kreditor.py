@@ -36,7 +36,7 @@ Das Skript ist idempotent: es bricht ab, wenn "Land Berlin" als Party
 bereits in der Datenbank existiert.
 
 Verwendung:
-    python tests/test_kreditor.py --database <Datenbankname> [--config <trytond.conf>]
+    python tests/demo_kreditor.py --database <Datenbankname> [--config <trytond.conf>]
 """
 
 import argparse

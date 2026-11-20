@@ -17,21 +17,21 @@ werden jeweils alle offenen Posten auf dem Partnerkonto ausgeglichen
 Das Skript ist idempotent: Parteien ohne offene Forderungs-/
 Verbindlichkeitszeilen werden übersprungen.
 
-Voraussetzung Forderungen: test_contracts.py muss ausgeführt worden sein und
+Voraussetzung Forderungen: demo_contracts.py muss ausgeführt worden sein und
 der Wizard "CreateContractMoves" muss mindestens einmal gelaufen sein, sodass
 gebuchte (posted) Ausgangsrechnungen für die Testpartner vorhanden sind.
 
-Voraussetzung Verbindlichkeiten: test_kreditor.py und test_invoices.py müssen
-ausgeführt worden sein (test_invoices.py bucht die Lieferantenrechnungen).
+Voraussetzung Verbindlichkeiten: demo_kreditor.py und demo_invoices.py müssen
+ausgeführt worden sein (demo_invoices.py bucht die Lieferantenrechnungen).
 
 Mit --year <Jahr> [--month <1-12>] werden nur offene Posten mit Buchungsdatum
 in diesem Jahr bzw. Monat bezahlt und ausgeglichen (Zahlungsdatum = spätestes
 Datum dieser Posten) - für einen monatlichen Ablauf zusammen mit der
-periodischen Buchung der Verträge und test_invoices.py --month. Ohne
+periodischen Buchung der Verträge und demo_invoices.py --month. Ohne
 Parameter alle offenen Posten.
 
 Verwendung:
-    python tests/test_payment.py --database <Datenbankname> [--config <trytond.conf>] [--year <Jahr> [--month <Monat>]]
+    python tests/demo_payment.py --database <Datenbankname> [--config <trytond.conf>] [--year <Jahr> [--month <Monat>]]
 """
 
 import argparse
@@ -113,7 +113,7 @@ def get_test_parties():
         order=[('name', 'ASC')])
     if not parties:
         print('ERROR: Keine Testpartner ("Mieter N" / "Gewerbemieter N") gefunden. '
-              'Bitte zuerst test_contracts.py ausführen.', file=sys.stderr)
+              'Bitte zuerst demo_contracts.py ausführen.', file=sys.stderr)
         sys.exit(1)
     return parties
 

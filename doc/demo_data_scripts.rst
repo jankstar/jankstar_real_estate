@@ -2,13 +2,14 @@
 Demo data scripts
 *****************
 
-Everything in ``tests/`` is instead a one-shot **proteus import script** that
-generates demo data against a running trytond server. These are run
+The scripts ``tests/demo_*.py`` are one-shot **proteus import scripts**
+that generate demo data against a running trytond server (module tests are
+``test_*.py`` and ``module_*.py``, see `Running Tests <testing.rst>`__). These are run
 manually — ``python tests/<script>.py --database <db> [--config
 trytond.conf]`` — not via tox/xmlrunner, in the following order (each step
 builds on the previous one's data):
 
-``tests/test_immo.py``
+``tests/demo_immo.py``
    No prerequisites. Creates two properties (*Musterstraße 1-4* and
    *Musterstraße 5-8*), each with four buildings. Every building has one
    ground-floor retail unit (``type_of_use='commercial'``, 140 m²) and four
@@ -27,14 +28,20 @@ builds on the previous one's data):
    (equipment kind *Smoke Detector*, measurement *Number of items* = number
    of rooms) and each building the inspection plans *Annual Walkthrough*
    (due 01.04.2026) and *Smoke Detector Check* (due 15.05.2026) if the
-   default inspection types exist. Looks up ``real_estate.use_class``,
+   default inspection types exist. At the end it runs the option rate
+   determination once - wizard *Update Option Rates*
+   (``real_estate.option_rate_update.wizard``) for both properties with
+   the cut-off date 01.01.2025, valid from 01.01.2025 (properties and
+   buildings dynamic by usable space, land fixed 0 % as its parking spaces
+   have no usable space, rental objects fixed: 0 % for apartments and
+   parking, 100 % for retail). Looks up ``real_estate.use_class``,
    measurement types and object party roles by ``sequence``, equipment
    kind and inspection types by ``code`` (language-independent)::
 
-      python tests/test_immo.py --database <db> [--config trytond.conf]
+      python tests/demo_immo.py --database <db> [--config trytond.conf]
 
-``tests/test_contracts.py``
-   Requires ``test_immo.py``. Creates residential lease contracts for 15 of
+``tests/demo_contracts.py``
+   Requires ``demo_immo.py``. Creates residential lease contracts for 15 of
    16 apartments per property (one left vacant), each with rent, operating
    cost, and heating terms; the first apartment contract additionally
    gets a one-time rent deposit (term type 1900, three times the rent, at
@@ -65,31 +72,31 @@ builds on the previous one's data):
    or the base month value no index rents are created. The adjustment run
    itself is not executed::
 
-      python tests/test_contracts.py --database <db> [--config trytond.conf]
+      python tests/demo_contracts.py --database <db> [--config trytond.conf]
 
-``tests/test_billing_unit.py``
-   Requires ``test_immo.py``. Creates two billing units per property:
+``tests/demo_billing_unit.py``
+   Requires ``demo_immo.py``. Creates two billing units per property:
    *Kalte Betriebskosten* (measurement- and consumption-based settlement
    units, vacancy allocated to the owner) and *Heizkosten*
    (``external_billing=True``, settlement units use
    ``allocation_from_external_billing``). Billing units are left in state
    ``draft`` — anything that requires a later state (e.g.
-   ``test_invoices.py``'s settlement-unit lookup) needs the workflow
+   ``demo_invoices.py``'s settlement-unit lookup) needs the workflow
    advanced manually first::
 
-      python tests/test_billing_unit.py --database <db> [--config trytond.conf]
+      python tests/demo_billing_unit.py --database <db> [--config trytond.conf]
 
-``tests/test_kreditor.py``
+``tests/demo_kreditor.py``
    No prerequisites. Creates 11 supplier/creditor parties (property tax
    office, building insurer, utilities, cleaning, caretaker, gardening,
    chimney sweep, heating maintenance), each with an invoice/delivery
    address::
 
-      python tests/test_kreditor.py --database <db> [--config trytond.conf]
+      python tests/demo_kreditor.py --database <db> [--config trytond.conf]
 
-``tests/test_invoices.py``
-   Requires ``test_kreditor.py``, ``test_immo.py``, and
-   ``test_billing_unit.py`` (with billing units advanced past ``draft`` so
+``tests/demo_invoices.py``
+   Requires ``demo_kreditor.py``, ``demo_immo.py``, and
+   ``demo_billing_unit.py`` (with billing units advanced past ``draft`` so
    settlement units can be looked up). Creates the corresponding purchase
    invoices — one-off and recurring — for each property. The lines only
    carry the property (assignment control *Operating Costs*); the invoices
@@ -99,16 +106,16 @@ builds on the previous one's data):
    8910, heating 8002, all other operating costs 8000. ``--month`` creates
    only the invoices of that month (of ``--year``, default 2025) - for a
    monthly run together with the periodic contract posting and
-   ``test_payment.py --month``::
+   ``demo_payment.py --month``::
 
-      python tests/test_invoices.py --database <db> [--config trytond.conf] [--year 2025] [--month 3]
+      python tests/demo_invoices.py --database <db> [--config trytond.conf] [--year 2025] [--month 3]
 
-``tests/test_rent_survey.py``
+``tests/demo_rent_survey.py``
    The rent survey *Berliner Mietspiegel* with the complete version
    *Berliner Mietspiegel 2026* is standard data of the module
    (``rent_survey_berlin.xml``, see `Comparative rent
    <rent_adjustment_comparative.rst>`__) and exists after the module
-   installation. The script requires ``test_immo.py`` and assigns it to
+   installation. The script requires ``demo_immo.py`` and assigns it to
    *Musterstraße 1-4*: location medium on the property; year of
    construction 1958 (if empty), *Besonders ruhige Lage*, bike room,
    insulation and an energy consumption value of 130 kWh/(m²a) on every
@@ -116,10 +123,10 @@ builds on the previous one's data):
    its comparative rent (key date today, at the earliest 28.05.2026).
    Assignments already present are skipped::
 
-      python tests/test_rent_survey.py --database <db> [--config trytond.conf]
+      python tests/demo_rent_survey.py --database <db> [--config trytond.conf]
 
-``tests/test_modernisation.py``
-   Requires ``test_immo.py`` and ``test_contracts.py``. Allows the
+``tests/demo_modernisation.py``
+   Requires ``demo_immo.py`` and ``demo_contracts.py``. Allows the
    procedure *Modernisation* for the term type 1000 and the contract types
    of the selected tenancies and sets the cap measurement of the
    modernisation rule to *Wohnfläche* if empty. On *Musterstraße 1-4* it
@@ -136,19 +143,19 @@ builds on the previous one's data):
    letting check). Dates relative to today, warnings confirmed
    automatically. Aborts if the measure exists::
 
-      python tests/test_modernisation.py --database <db> [--config trytond.conf] [--execute]
+      python tests/demo_modernisation.py --database <db> [--config trytond.conf] [--execute]
 
-``tests/test_payment.py``
-   Requires ``test_contracts.py`` and at least one run of the
+``tests/demo_payment.py``
+   Requires ``demo_contracts.py`` and at least one run of the
    ``CreateContractMoves`` wizard so posted tenant invoices exist (and
-   ``test_invoices.py`` for the creditor side). Books one payment receipt per
+   ``demo_invoices.py`` for the creditor side). Books one payment receipt per
    tenant/commercial-tenant party (debit 2740 Bank / credit the receivable
    account taken from that party's open lines) and one payment per creditor
    (debit the payable account / credit 2740 Bank) and reconciles the open
    items. ``--year`` [``--month``] restricts it to the open items dated in
    that year resp. month (payment date = latest date of those items)::
 
-      python tests/test_payment.py --database <db> [--config trytond.conf] [--year 2025 [--month 3]]
+      python tests/demo_payment.py --database <db> [--config trytond.conf] [--year 2025 [--month 3]]
 
 ``tests/migrate_run_rents.py``
    Test migration for the comparative rent: sets the rent terms of the

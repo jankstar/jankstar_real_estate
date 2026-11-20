@@ -377,7 +377,7 @@ immediately before *Betriebskostenabrechnung*), bundling all models below.
         fields would double it. Sharing a billing unit is the normal
         setup where one annual "Heizkosten" cost group contains both a
         central-heating and a central-hot-water settlement unit side by
-        side (see ``tests/test_billing_unit.py``'s two-Settlement-Unit
+        side (see ``tests/demo_billing_unit.py``'s two-Settlement-Unit
         "Heizkosten" billing unit).
       - Otherwise, sums ``total_amount`` (gross) and ``amount`` (net)
         over every entry of the billing unit's own ``cash_flow_lines``
@@ -680,7 +680,7 @@ Fields added to ``real_estate.settlement_result``:
       (Function.) Informational subsets of ``bved_matched_lines`` by
       record type, and their summed amounts.
 
-**Demo / test tooling.** ``tests/test_bved_provider_response.py`` has no
+**Demo / test tooling.** ``tests/bved_provider_response.py`` has no
 trytond/database dependency (it loads ``bved_records.py`` directly from
 disk by path) and simulates a provider's response from a set of exported
 A-/L-/M-/K-Satz files: pools K-Satz costs per property, distributes them
@@ -694,5 +694,5 @@ referencing a generated single-page PDF "Heizkostenabrechnung" (period,
 per-cost-type total vs. share, overall total/advance payment/balance)
 built with a dependency-free, hand-rolled minimal PDF writer::
 
-   python tests/test_bved_provider_response.py DTA310_....DAT DTM310_....DAT \
+   python tests/bved_provider_response.py DTA310_....DAT DTM310_....DAT \
        DTK310_....DAT [--out-dir DIR] [--seed N]

@@ -42,6 +42,13 @@ Das Skript legt folgende Objekte an:
     Eigentümer) - sofern die Standard-Prüfarten (Codes "walkthrough",
     "smoke_detector") vorhanden sind.
 
+  Optionssätze (am Ende, nach beiden Wirtschaftseinheiten):
+  - Einmal die Optionssatzermittlung (Assistent "Optionssätze aktualisieren",
+    real_estate.option_rate_update.wizard) für beide Wirtschaftseinheiten mit
+    Stichtag 01.01.2025 (Beginn), gültig ab 01.01.2025: Wirtschaftseinheit
+    und Gebäude dynamisch nach Nutzfläche, Grundstück fest 0 %, Mietobjekte
+    fest (Wohnung/Stellplatz 0 %, Gewerbe 100 %).
+
   Vorab (vor den Wirtschaftseinheiten):
   - 2 Partner mit je einem Mitarbeiter der Company (ab 01.01.2025):
     "Verwalter 1" und "Hausmeister 1" (vorhandene gleichnamige Partner bzw.
@@ -72,7 +79,7 @@ gesucht (sprachunabhängig): Usable Space=5, Wohnfläche=10, Gewerbefläche=15,
 Anzahl Räume=20, Heizfläche=25, Bruttogeschossfläche [BHF]=30.
 
 Verwendung:
-    python tests/test_immo.py --database <Datenbankname> [--config <trytond.conf>]
+    python tests/demo_immo.py --database <Datenbankname> [--config <trytond.conf>]
 """
 
 import argparse
@@ -81,7 +88,7 @@ import random
 import sys
 from decimal import Decimal
 
-from proteus import Model, config
+from proteus import Model, Wizard, config
 
 START_DATE = datetime.date(2025, 1, 1)
 # Party role 'Employees' (core/party.xml) - looked up by number
@@ -161,10 +168,13 @@ def create_base_object(
         obj.number_of_floors = 2
 
     # Option Rate (Optionssatz Vorsteuerabzug)
-    if obj_type in ('property', 'building', 'land'):
+    if obj_type in ('property', 'building'):
         obj.option_rate_method = 'dynamic_measurement'
         if usable_space_type is not None:
             obj.option_measurement_type = usable_space_type
+    elif obj_type == 'land':
+        # land with parking spaces: no usable space, fixed 0 %
+        obj.option_rate_method = 'fix_0'
     elif obj_type == 'object':
         obj.option_rate_method = (
             'fix_100' if type_of_use == 'commercial' else 'fix_0')
@@ -172,6 +182,30 @@ def create_base_object(
     obj.save()
     print(f'  Erstellt: [{obj_type:10}] {name} (id={obj.id})')
     return obj
+
+
+def update_option_rates(company, properties, cutoff_date) -> None:
+    """Run the wizard 'Update Option Rates' once for the given properties
+    (with their buildings, land and rental objects) as of cutoff_date - as a
+    user would in the client; the new rates are valid from the first day of
+    the month of cutoff_date."""
+    BaseObject = Model.get('real_estate.base_object')
+    wizard = Wizard('real_estate.option_rate_update.wizard')
+    wizard.form.company = company
+    wizard.form.cutoff_date = cutoff_date
+    for prop in properties:
+        # fresh instance per Many2Many entry (proteus _group issue)
+        wizard.form.base_objects.append(BaseObject(prop.id))
+    wizard.execute('confirm')
+    print(f'  Stichtag {cutoff_date:%d.%m.%Y}, gültig ab '
+          f'{wizard.form.effective_date:%d.%m.%Y}: '
+          f'{wizard.form.n_expanded} Objekte')
+    wizard.execute('do_update')
+    result = wizard.form
+    print(f'  Angelegt: {result.n_created}, geändert: {result.n_updated}, '
+          f'unverändert: {result.n_unchanged}, übersprungen: '
+          f'{result.n_skipped}')
+    wizard.execute('end')
 
 
 def create_measurement(base_object, m_type, value: float) -> None:
@@ -624,6 +658,11 @@ def main():
     create_land_with_parking('Musterstraße 5-8', prop2, company, sequence=50,
                              uc_parking=uc_parking, usable_space_type=t_usable_space)
     create_inspection_plans(prop2, company)
+
+    # Optionssätze einmal zum Beginn ermitteln (Assistent "Optionssätze
+    # aktualisieren")
+    print('\n=== Optionssätze ===')
+    update_option_rates(company, [prop1, prop2], START_DATE)
 
     print('\nFertig.')
     print(

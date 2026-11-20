@@ -146,7 +146,7 @@ and check) and writes it as standard data ``rent_survey_berlin.xml``
 companies, changes in the client are kept on module updates). After a
 change of the CSV files run the generator again (``TRYTOND_DATABASE_URI=
 sqlite:// DB_NAME=:memory: python tests/generate_rent_survey_xml.py``);
-the XML file is never edited by hand. ``tests/test_rent_survey.py``
+the XML file is never edited by hand. ``tests/demo_rent_survey.py``
 assigns demo data (see `Demo data scripts <demo_data_scripts.rst>`__). The data have to be checked against
 the original before productive use; the location of an address is taken
 from the street directory.

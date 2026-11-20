@@ -73,4 +73,7 @@ password); for other credentials set ``POSTGRESQL_URI`` on the call, e.g.
    TRYTOND_CONFIG=/dev/null TRYTOND_DATABASE_URI=sqlite:// DB_NAME=:memory: \
      python -m unittest discover -s tests -k test_base_object_hierarchy
 
-See `Demo data scripts <demo_data_scripts.rst>`_ for the one-shot proteus import scripts under ``tests/``.
+Naming in ``tests/``: module tests are ``test_*.py`` (found by
+``unittest discover``) and ``module_*.py`` (building blocks); scripts for
+demo data are ``demo_*.py``. See `Demo data scripts <demo_data_scripts.rst>`_
+for these one-shot proteus import scripts under ``tests/``.

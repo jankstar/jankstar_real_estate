@@ -1,7 +1,7 @@
 """
 Demo data for the modernisation (spezifikation-modernisierung.md).
 
-Requires test_immo.py and test_contracts.py (properties "Musterstraße 1-4"
+Requires demo_immo.py and demo_contracts.py (properties "Musterstraße 1-4"
 and "Musterstraße 5-8" with running residential contracts).
 
 Creates on "Musterstraße 1-4":
@@ -13,7 +13,7 @@ Creates on "Musterstraße 1-4":
     input tax), grant "BEG EM" 10,000 EUR. The measure is announced today
     (letters per rental unit), the receipt of the announcement is captured
     today, the work starts after the announcement period and is completed
-    two months later. With a rent survey of the property (test_rent_survey
+    two months later. With a rent survey of the property (demo_rent_survey
     .py) the measure gets the planned features "remove old heating / add
     insulation" for the building, is calculated (what if) before the
     announcement and the planned features are applied after the
@@ -38,7 +38,7 @@ The script is idempotent: it stops if the measure "Fassadendämmung Haus 2"
 exists.
 
 Usage:
-    python tests/test_modernisation.py --database <database_name>
+    python tests/demo_modernisation.py --database <database_name>
         [--config <trytond.conf>] [--execute]
 """
 
@@ -189,7 +189,7 @@ def create_measure(prop, building, living_space, tax, today):
 
 def plan_features(measure, prop, building):
     """Planned features of the rent survey (what if) and calculation - only
-    with a rent survey of the property (test_rent_survey.py)"""
+    with a rent survey of the property (demo_rent_survey.py)"""
     PlannedValue = Model.get('real_estate.modernisation.planned_value')
     Feature = Model.get('real_estate.rent_survey.feature')
     BaseObject = Model.get('real_estate.base_object')
@@ -331,7 +331,7 @@ def main():
     props = BaseObject.find([('name', '=', PROPERTY),
             ('type', '=', 'property')])
     if not props:
-        print(f'Property "{PROPERTY}" not found - run test_immo.py first.')
+        print(f'Property "{PROPERTY}" not found - run demo_immo.py first.')
         return
     prop, = props
     cfg._context['company'] = prop.company.id
@@ -348,7 +348,7 @@ def main():
     buildings = BaseObject.find([('parent', '=', prop.id),
             ('type', '=', 'building')], order=[('name', 'ASC')])
     if len(buildings) < 2:
-        print('The property needs two buildings (test_immo.py). Aborting.')
+        print('The property needs two buildings (demo_immo.py). Aborting.')
         return
     today = Date.today({})
 

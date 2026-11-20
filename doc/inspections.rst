@@ -266,7 +266,7 @@ electrical installation, drinking water, fire extinguishers, smoke and
 heat exhaust, playground, trees, backflow preventer, roof gutters,
 heating, winter service, vacancy check) are created as own types.
 
-Demo data: ``tests/test_immo.py`` creates a smoke detector equipment per
+Demo data: ``tests/demo_immo.py`` creates a smoke detector equipment per
 apartment (measurement *Number of items* = number of rooms) and per
 building the plans *Annual Walkthrough* (due 01.04.2026) and *Smoke
 Detector Check* (due 15.05.2026) - see `Demo data scripts

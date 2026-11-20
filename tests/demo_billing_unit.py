@@ -36,7 +36,7 @@ Je Wirtschaftseinheit werden zwei Billing Units angelegt:
        300 Heizung (Brennstoff)     — externe Abrechnung
        310 Heizung (Wartung)        — externe Abrechnung
 
-Voraussetzung: test_immo.py muss ausgeführt worden sein
+Voraussetzung: demo_immo.py muss ausgeführt worden sein
 (Properties "Musterstraße 1-4" und "Musterstraße 5-8").
 
 Beide Billing Units werden nach dem Anlegen ihrer Settlement Units per
@@ -46,7 +46,7 @@ Das Skript ist idempotent: es bricht ab, wenn für "Musterstraße 1-4"
 bereits Billing Units vorhanden sind.
 
 Verwendung:
-    python tests/test_billing_unit.py --database <Datenbankname> [--config <trytond.conf>]
+    python tests/demo_billing_unit.py --database <Datenbankname> [--config <trytond.conf>]
 """
 
 import argparse
@@ -101,7 +101,7 @@ def get_properties():
         ])
         if not results:
             print(f'ERROR: Property "{name}" nicht gefunden. '
-                  'Bitte zuerst test_immo.py ausführen.', file=sys.stderr)
+                  'Bitte zuerst demo_immo.py ausführen.', file=sys.stderr)
             sys.exit(1)
         props.append(results[0])
     return props

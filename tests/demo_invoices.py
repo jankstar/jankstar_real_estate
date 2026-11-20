@@ -1,8 +1,8 @@
 """
 Kreditoren-Rechnungen (Lieferantenrechnungen) für Demodaten anlegen und buchen.
 
-Voraussetzung: Die Kreditoren aus test_kreditor.py müssen bereits vorhanden sein
-sowie test_immo.py und test_billing_unit.py (Kostensammler). Außerdem muss an
+Voraussetzung: Die Kreditoren aus demo_kreditor.py müssen bereits vorhanden sein
+sowie demo_immo.py und demo_billing_unit.py (Kostensammler). Außerdem muss an
 den Kostenarten (Typ Kostensammler) das Konto gepflegt sein (Grundsteuer 8910,
 Heizung Brennstoff/Wartung 8002, übrige 8000 - Einstellung, wird nicht vom
 Skript gesetzt), sonst entstehen beim Buchen keine Betriebskostenbelege.
@@ -62,15 +62,15 @@ Da die Referenz das Jahr enthält, kann das Skript für ein weiteres Jahr
 (z.B. --year 2026) erneut ausgeführt werden, ohne die Rechnungen des
 Vorjahres zu duplizieren oder zu berühren — vorausgesetzt, es existiert
 für dieses Jahr bereits eine passende Billing Unit je Cost Type
-(siehe test_billing_unit.py bzw. "Duplicate for Next Period").
+(siehe demo_billing_unit.py bzw. "Duplicate for Next Period").
 
 Mit --month <1-12> werden nur die Rechnungen dieses Monats (im Jahr --year)
 angelegt, gebucht und zugeordnet - für einen monatlichen Ablauf zusammen mit
-der periodischen Buchung der Verträge und test_payment.py --month. Ohne
+der periodischen Buchung der Verträge und demo_payment.py --month. Ohne
 --month das ganze Jahr.
 
 Verwendung:
-    python tests/test_invoices.py --database <Datenbankname> [--config <trytond.conf>] [--year <Jahr>] [--month <Monat>]
+    python tests/demo_invoices.py --database <Datenbankname> [--config <trytond.conf>] [--year <Jahr>] [--month <Monat>]
 """
 
 import argparse
@@ -111,7 +111,7 @@ def get_party(name: str):
     Party = Model.get('party.party')
     results = Party.find([('name', '=', name)])
     if not results:
-        print(f'ERROR: Party "{name}" nicht gefunden. Bitte zuerst test_kreditor.py ausführen.',
+        print(f'ERROR: Party "{name}" nicht gefunden. Bitte zuerst demo_kreditor.py ausführen.',
               file=sys.stderr)
         sys.exit(1)
     return results[0]
@@ -132,7 +132,7 @@ def get_properties():
         [('type', '=', 'property')],
         order=[('sequence', 'ASC')])
     if not results:
-        print('ERROR: Keine Properties gefunden. Bitte zuerst test_immo.py ausführen.',
+        print('ERROR: Keine Properties gefunden. Bitte zuerst demo_immo.py ausführen.',
               file=sys.stderr)
         sys.exit(1)
     return results

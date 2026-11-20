@@ -11,7 +11,7 @@ via the `trytond.modules.real_estate` package, so this script also runs in
 a plain Python environment without trytond installed).
 
 Usage:
-    python tests/test_bved_provider_response.py \\
+    python tests/bved_provider_response.py \\
         DTA310_....DAT DTM310_....DAT DTK310_....DAT \\
         [--out-dir DIR] [--seed N]
 
