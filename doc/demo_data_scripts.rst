@@ -6,8 +6,32 @@ The scripts ``tests/demo_*.py`` are one-shot **proteus import scripts**
 that generate demo data against a running trytond server (module tests are
 ``test_*.py`` and ``module_*.py``, see `Running Tests <testing.rst>`__). These are run
 manually — ``python tests/<script>.py --database <db> [--config
-trytond.conf]`` — not via tox/xmlrunner, in the following order (each step
-builds on the previous one's data):
+trytond.conf]`` — not via tox/xmlrunner.
+
+``tests/demo_run.py`` (recommended)
+   Run script: starts the scripts below in this order, each as a process
+   of its own with the same Python, the script output passes through.
+   Steps (names for ``--only``/``--skip``): master data ``kreditor``,
+   ``immo``, ``contracts``, ``billing_unit``; per month from ``--from`` to
+   ``--to`` (format ``YYYY-MM``, default January to December of the start
+   year), month by month: ``contract_moves``, ``invoices``, ``payment``
+   with ``--year``/``--month`` of the month; then ``rent_survey`` and,
+   with ``--modernisation`` (or in ``--only``), ``modernisation``
+   (``--execute`` is passed on). ``--year`` is the start year (default
+   current year − 1), ``--continue-on-error`` continues after a failed
+   step (default: stop), ``--dry-run`` only prints the commands. Each step
+   prints a header with name and command, then exit code and duration; an
+   overview of all steps follows at the end, exit code 1 if a step failed.
+   The master data scripts stop if their data exist - with exit code 0, so
+   such a step shows as *ok*; to run further months use
+   ``--skip kreditor,immo,contracts,billing_unit``. Months after the start
+   year are allowed; purchase invoices then only find settlement units if
+   billing units exist for that year (a hint is printed)::
+
+      python tests/demo_run.py --database <db> [--config trytond.conf] [--year 2025] [--from 2025-01] [--to 2025-12] [--only <steps> | --skip <steps>] [--modernisation [--execute]] [--continue-on-error] [--dry-run]
+
+The single scripts, in the order of the run (each step builds on the
+previous one's data):
 
 Start year: the scripts that set dates (``demo_immo.py``,
 ``demo_contracts.py``, ``demo_billing_unit.py``,
