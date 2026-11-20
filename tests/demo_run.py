@@ -3,17 +3,20 @@ Ablaufskript für die Demodaten: startet die Skripte demo_*.py nacheinander.
 
 Zweck:
     Baut die Demodaten auf einer neuen Datenbank in einem festen Ablauf auf -
-    erst die Stammdaten, dann Monat für Monat periodische Buchung,
-    Eingangsrechnungen und Zahlungen, danach die Mietspiegel-Zuordnung und
-    optional die Modernisierung. Jeder Schritt läuft als eigener Prozess mit
+    erst die Einstellungen (setup), dann die Stammdaten, dann Monat für
+    Monat periodische Buchung, Eingangsrechnungen und Zahlungen, danach die
+    Mietspiegel-Zuordnung und optional die Modernisierung. Jeder Schritt läuft als eigener Prozess mit
     demselben Python (sys.executable), die Ausgabe des Skripts läuft durch.
 
-Voraussetzungen (von Hand, bis demo_setup.py existiert):
-    Datenbank mit aktiviertem Modul real_estate, Gesellschaft, Kontenrahmen,
-    Geschäftsjahr mit Perioden und Nummernkreisen für die gebuchten Monate,
-    Konten an den Kostenarten (Grundsteuer 8910, Heizung 8002, übrige 8000).
+Voraussetzungen (von Hand):
+    Datenbank mit aktiviertem Modul real_estate, Gesellschaft (ID 1, Partei
+    ID 1), Kontenrahmen aus der Vorlage WoWi (real_estate.wowi_root). Alle
+    übrigen Einstellungen (Konten, Nummernkreise, Geschäftsjahre Startjahr
+    bis Startjahr + 2, Konten an den Kostenarten ...) setzt der erste
+    Schritt setup (demo_setup.py).
 
 Ablauf (Schrittnamen für --only/--skip):
+    Einstellungen: setup (demo_setup.py)
     Stammdaten:    kreditor, immo, contracts, billing_unit
     je Monat von --from bis --to, Monat für Monat:
                    contract_moves, invoices, payment
@@ -21,7 +24,7 @@ Ablauf (Schrittnamen für --only/--skip):
     danach:        rent_survey, modernisation (nur mit --modernisation oder
                    in --only)
 
-    Die Stammdaten-Skripte und rent_survey erhalten --year = Startjahr
+    setup, die Stammdaten-Skripte und rent_survey erhalten --year = Startjahr
     (demo_kreditor.py und demo_modernisation.py haben kein --year). Die
     Monate laufen der Reihe nach, weil die periodische Buchung einen Vertrag
     mit Ende vor dem gebuchten Monat überspringt.
@@ -47,16 +50,18 @@ Monate nach dem Startjahr:
 
 Exit-Codes der Skripte:
     0 = ausgeführt, 1 = Fehler, 2 = falscher Aufruf (argparse),
-    3 = Daten vorhanden, nichts angelegt (Stammdaten-Skripte, EXIT_EXISTS).
+    3 = Daten vorhanden, nichts angelegt (setup und Stammdaten-Skripte,
+    EXIT_EXISTS).
     demo_run.py zeigt 3 als "übersprungen (Daten vorhanden)", wertet es
     nicht als Fehler und läuft weiter.
 
 Wiederholbarkeit:
+    setup setzt nur Fehlendes und endet mit 3, wenn alles vorhanden ist.
     Die Stammdaten-Skripte brechen ab, wenn ihre Daten schon vorhanden sind
     ("... existiert bereits. Abbruch (Exit-Code 3).") - demo_run.py zeigt
     den Schritt als übersprungen und läuft weiter. Ein erneuter Lauf, z. B.
     für weitere Monate, geht daher ohne --skip; die Stammdaten mit
-    --skip kreditor,immo,contracts,billing_unit auszulassen, bleibt möglich
+    --skip setup,kreditor,immo,contracts,billing_unit auszulassen, bleibt möglich
     (spart die Verbindungen). Die Monatsschritte sind wiederholbar: contract_moves bucht nichts
     doppelt, invoices überspringt vorhandene Rechnungen, payment zahlt nur
     offene Posten. rent_survey überspringt vorhandene Zuordnungen,
@@ -71,7 +76,7 @@ Beispiele (Startjahr 2025):
     python tests/demo_run.py --database demo
     python tests/demo_run.py --database demo --to 2025-03
     python tests/demo_run.py --database demo --from 2025-04 --to 2025-06 \\
-        --skip kreditor,immo,contracts,billing_unit,rent_survey
+        --skip setup,kreditor,immo,contracts,billing_unit,rent_survey
     python tests/demo_run.py --database demo --dry-run
 """
 
@@ -91,13 +96,14 @@ TESTS_DIR = os.path.dirname(os.path.abspath(__file__))
 EXIT_EXISTS = 3
 STATUS = {0: 'ok', EXIT_EXISTS: 'übersprungen (Daten vorhanden)'}
 
-MASTER_STEPS = ['kreditor', 'immo', 'contracts', 'billing_unit']
+MASTER_STEPS = ['setup', 'kreditor', 'immo', 'contracts', 'billing_unit']
 MONTH_STEPS = ['contract_moves', 'invoices', 'payment']
 FINAL_STEPS = ['rent_survey', 'modernisation']
 ALL_STEPS = MASTER_STEPS + MONTH_STEPS + FINAL_STEPS
 
 # Script per step and whether it takes the start year (--year)
 SCRIPTS = {
+    'setup': ('demo_setup.py', True),
     'kreditor': ('demo_kreditor.py', False),
     'immo': ('demo_immo.py', True),
     'contracts': ('demo_contracts.py', True),

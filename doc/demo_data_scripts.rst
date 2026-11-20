@@ -11,7 +11,7 @@ trytond.conf]`` — not via tox/xmlrunner.
 ``tests/demo_run.py`` (recommended)
    Run script: starts the scripts below in this order, each as a process
    of its own with the same Python, the script output passes through.
-   Steps (names for ``--only``/``--skip``): master data ``kreditor``,
+   Steps (names for ``--only``/``--skip``): settings ``setup``, master data ``kreditor``,
    ``immo``, ``contracts``, ``billing_unit``; per month from ``--from`` to
    ``--to`` (format ``YYYY-MM``, default January to December of the start
    year), month by month: ``contract_moves``, ``invoices``, ``payment``
@@ -24,11 +24,11 @@ trytond.conf]`` — not via tox/xmlrunner.
    duration; an overview of all steps follows at the end, exit code 1 if a
    step failed, else 0. Exit codes of the scripts: 0 = done, 1 = error,
    2 = wrong call (argparse), 3 = data exist, nothing created
-   (``EXIT_EXISTS`` in ``demo_kreditor.py``, ``demo_immo.py``,
+   (``EXIT_EXISTS`` in ``demo_setup.py``, ``demo_kreditor.py``, ``demo_immo.py``,
    ``demo_contracts.py``, ``demo_billing_unit.py``, which stop if their
    data exist) - ``demo_run.py`` shows 3 as *skipped (data exist)*, no
    error, and continues; so a further run (e.g. more months) works without
-   ``--skip``, ``--skip kreditor,immo,contracts,billing_unit`` remains
+   ``--skip``, ``--skip setup,kreditor,immo,contracts,billing_unit`` remains
    possible. Months after the start
    year are allowed; purchase invoices then only find settlement units if
    billing units exist for that year (a hint is printed)::
@@ -38,7 +38,7 @@ trytond.conf]`` — not via tox/xmlrunner.
 The single scripts, in the order of the run (each step builds on the
 previous one's data):
 
-Start year: the scripts that set dates (``demo_immo.py``,
+Start year: the scripts that set dates (``demo_setup.py``, ``demo_immo.py``,
 ``demo_contracts.py``, ``demo_billing_unit.py``,
 ``demo_contract_moves.py``, ``demo_invoices.py``, ``demo_rent_survey.py``)
 take ``--year`` with the default *current year − 1*; all dates are formed
@@ -47,6 +47,24 @@ year). ``demo_kreditor.py`` has no ``--year`` (it sets no dates),
 ``demo_payment.py`` keeps ``--year`` without a default (without it all open
 items), ``demo_modernisation.py`` works relative to today. The dates below
 are given as day and month of the start year.
+
+``tests/demo_setup.py``
+   First step ``setup``. Prerequisites by hand: database with the module,
+   company (ID 1, party ID 1) and the chart of accounts from the template
+   *Kontenrahmen der Wohnungswirtschaft (WoWi)* (checked, exit code 1
+   otherwise). Sets the company-dependent settings with the values of the
+   test system: accounts, tax rules, payment terms and language of the
+   company party, *Real Estate Accounting* of the company, default
+   accounts of the accounting configuration, accounts of contract types,
+   term types and cost types, process templates of the commercial lease
+   agreement, task rules (active, company), cron tasks, company of the
+   daily cron, term type ↔ contract type, strict sequences and fiscal
+   years from the start year to start year + 2 with monthly periods. Sets
+   only empty fields, creates only what is missing; a different existing
+   value is kept and shown as a hint. Exit code 0 = something created or
+   set, 3 = everything exists::
+
+      python tests/demo_setup.py --database <db> [--config trytond.conf] [--year 2025]
 
 ``tests/demo_immo.py``
    No prerequisites. Creates two properties (*Musterstraße 1-4* and
@@ -108,7 +126,11 @@ are given as day and month of the start year.
    ``VPI-DE``, base month January of the start year, statutory effective date, no
    threshold, cap automatic); missing VPI values of the current base year
    are first taken over from ``tests/genesis_61111-0002_ffcsv.csv``
-   (GENESIS-Online flat file download, parsed like the CSV import wizard) - without the file
+   (GENESIS-Online flat file download, parsed like the CSV import wizard),
+   then *Fetch Values* runs once (button ``fetch``, GENESIS web service with
+   ``genesis_token`` of ``trytond.conf``; creates only missing months and
+   updates changed ones; a failure, e.g. without network, is only a
+   warning and leaves the exit code unchanged) - without the file
    or the base month value (the CSV holds real values, e.g. none for a
    start year after the last published month) a hint is printed and no
    index rents are created. The adjustment run

@@ -65,7 +65,13 @@ Je Wirtschaftseinheit (16 Wohnungen, 4 Stellplätze):
     keine Schwelle, gesetzliche Wirksamkeit, Kappung automatisch; die
     Vereinbarung wird aktiviert. Die VPI-Monatswerte werden vorher aus
     tests/genesis_61111-0002_ffcsv.csv (Flatfile-Download aus GENESIS-Online)
-    übernommen, soweit sie im Basisjahr der Reihe noch fehlen. Fehlen die
+    übernommen, soweit sie im Basisjahr der Reihe noch fehlen; danach ruft
+    das Skript einmal "Werte abrufen" für VPI-DE auf (Button fetch,
+    GENESIS-Webdienst, genesis_token aus trytond.conf). Der Abruf legt nur
+    fehlende Monate an und aktualisiert geänderte (Revisionen; Monate, die
+    erklärte oder ausgeführte Anpassungen nutzen, bleiben) - keine doppelten
+    Werte. Schlägt er fehl (z. B. ohne Netz oder Token), erscheint nur eine
+    Warnung; das Skript läuft weiter, der Exit-Code bleibt unberührt. Fehlen die
     Datei oder die Reihe VPI-DE oder der VPI-Wert für Januar des
     Startjahres (die CSV enthält echte Werte, z. B. kein Wert für ein
     Startjahr nach dem letzten veröffentlichten Monat), werden ein Hinweis
@@ -137,6 +143,7 @@ import argparse
 import datetime
 import os
 import random
+import re
 import sys
 from decimal import Decimal
 
@@ -429,11 +436,37 @@ def set_start_year(year: int) -> None:
     INDEX_BASE_MONTH = datetime.date(year, 1, 1)
 
 
+# Import summary of PriceIndex.import_values ("Base year 2020: 2 created,
+# 0 updated, 20 unchanged." / translated) - error messages have no counts
+IMPORT_SUMMARY = re.compile(r'\d+:\s*\d+ [^,]+, \d+ [^,]+, \d+ [^.]+\.')
+
+
+def fetch_vpi_values(vpi):
+    """Run "Fetch Values" (button fetch, GENESIS web service) once for the
+    price index. Errors are stored by the module in the import message, never
+    raised - they only give a warning here. Returns True if the import ran."""
+    PriceIndex = Model.get('real_estate.price_index')
+    try:
+        vpi.click('fetch')
+    except Exception as exc:
+        print(f'  WARNUNG: VPI-DE Werte abrufen fehlgeschlagen: {exc}')
+        return False
+    vpi = PriceIndex(vpi.id)
+    message = (vpi.last_import_message or '').replace('\n', ' ')
+    if IMPORT_SUMMARY.search(message):
+        print(f'  VPI-DE: Werte abgerufen - {message} (letzter Import '
+              f'{vpi.last_import_date:%d.%m.%Y %H:%M})')
+        return True
+    print(f'  WARNUNG: VPI-DE Werte abrufen fehlgeschlagen: '
+          f'{message or "keine Meldung"}')
+    return False
+
+
 def ensure_vpi_values():
     """Price index VPI-DE with its monthly values: missing values of the
     current base year are taken over from the GENESIS-Online download
     tests/genesis_61111-0002_ffcsv.csv (parsed like the CSV import
-    wizard). Returns
+    wizard), then "Fetch Values" runs once (fetch_vpi_values). Returns
     the index or None if the series or the base month value is missing."""
     from trytond.modules.real_estate.rent_adjustment.price_index import parse_index_csv
 
@@ -467,6 +500,10 @@ def ensure_vpi_values():
                 created += 1
         print(f'  VPI-DE: {created} Monatswerte aus {os.path.basename(VPI_CSV)}'
               f' übernommen ({len(existing)} vorhanden)')
+    if fetch_vpi_values(vpi):
+        existing = {v.month for v in Value.find([
+                    ('index', '=', vpi.id),
+                    ('base_year', '=', vpi.base_year)])}
     if INDEX_BASE_MONTH not in existing:
         print(f'  VPI-DE: kein Wert für {INDEX_BASE_MONTH:%m/%Y} - keine '
               f'Indexmieten.')
