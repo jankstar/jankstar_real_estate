@@ -35,6 +35,10 @@ Jede Party erhält:
 Das Skript ist idempotent: es bricht ab, wenn "Land Berlin" als Party
 bereits in der Datenbank existiert.
 
+Exit-Codes: 0 = ausgeführt, 1 = Fehler, 2 = falscher Aufruf (argparse),
+3 = Daten vorhanden, nichts angelegt (EXIT_EXISTS; demo_run.py zeigt den
+Schritt als "übersprungen").
+
 Verwendung:
     python tests/demo_kreditor.py --database <Datenbankname> [--config <trytond.conf>]
 """
@@ -43,6 +47,10 @@ import argparse
 import sys
 
 from proteus import Model, config
+
+# Exit code "data exist, nothing created" (demo_run.py shows the step as
+# skipped); 0 = done, 1 = error, 2 = wrong call (argparse)
+EXIT_EXISTS = 3
 
 # Party role 'Suppliers' (core/party.xml) - looked up by number
 SUPPLIER_ROLE_NUMBER = 40000
@@ -227,8 +235,8 @@ def main():
     # Idempotenz: abbrechen, wenn "Land Berlin" bereits existiert
     Party = Model.get('party.party')
     if Party.find([('name', '=', 'Land Berlin')]):
-        print('Party "Land Berlin" existiert bereits. Abbruch.')
-        return
+        print('Party "Land Berlin" existiert bereits. Abbruch (Exit-Code 3).')
+        sys.exit(EXIT_EXISTS)
 
     country = get_country_de()
     lang = get_lang_de()

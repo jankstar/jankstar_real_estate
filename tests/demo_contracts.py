@@ -111,6 +111,9 @@ GEWERBEMIETVERTRÄGE (type_of_use='commercial')
 HINWEISE
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   - Idempotenz: Abbruch wenn Party "Mieter 1" bereits existiert.
+  - Exit-Codes: 0 = ausgeführt, 1 = Fehler, 2 = falscher Aufruf (argparse),
+    3 = Daten vorhanden, nichts angelegt (EXIT_EXISTS; demo_run.py zeigt
+    den Schritt als "übersprungen").
   - Alle Mieter und Gewerbemieter erhalten die Partei-Rolle 'Mieter'
     (real_estate.party.role_number, Nummer 60000, Standarddaten
     core/party.xml); fehlt sie, nur eine Warnung.
@@ -138,6 +141,10 @@ import sys
 from decimal import Decimal
 
 from proteus import Model, config
+
+# Exit code "data exist, nothing created" (demo_run.py shows the step as
+# skipped); 0 = done, 1 = error, 2 = wrong call (argparse)
+EXIT_EXISTS = 3
 
 # Start year of the demo data (--year, default: current year - 1); all dates
 # below are set from it in set_start_year() (called in main())
@@ -920,8 +927,8 @@ def main():
     # Idempotenz
     Party = Model.get('party.party')
     if Party.find([('name', '=', 'Mieter 1')]):
-        print('Party "Mieter 1" existiert bereits. Abbruch.')
-        return
+        print('Party "Mieter 1" existiert bereits. Abbruch (Exit-Code 3).')
+        sys.exit(EXIT_EXISTS)
 
     company = get_company()
     currency = company.currency

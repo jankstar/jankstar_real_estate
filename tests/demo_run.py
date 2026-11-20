@@ -45,13 +45,19 @@ Monate nach dem Startjahr:
     Startjahr an, sonst "Duplicate for Next Period"); demo_invoices.py warnt
     dann und lässt die Belege offen.
 
+Exit-Codes der Skripte:
+    0 = ausgeführt, 1 = Fehler, 2 = falscher Aufruf (argparse),
+    3 = Daten vorhanden, nichts angelegt (Stammdaten-Skripte, EXIT_EXISTS).
+    demo_run.py zeigt 3 als "übersprungen (Daten vorhanden)", wertet es
+    nicht als Fehler und läuft weiter.
+
 Wiederholbarkeit:
     Die Stammdaten-Skripte brechen ab, wenn ihre Daten schon vorhanden sind
-    ("... existiert bereits. Abbruch.") - mit Exit-Code 0, demo_run.py zeigt
-    den Schritt daher als "ok". Für einen erneuten Lauf der Monate die
-    Stammdaten überspringen:
-        --skip kreditor,immo,contracts,billing_unit
-    Die Monatsschritte sind wiederholbar: contract_moves bucht nichts
+    ("... existiert bereits. Abbruch (Exit-Code 3).") - demo_run.py zeigt
+    den Schritt als übersprungen und läuft weiter. Ein erneuter Lauf, z. B.
+    für weitere Monate, geht daher ohne --skip; die Stammdaten mit
+    --skip kreditor,immo,contracts,billing_unit auszulassen, bleibt möglich
+    (spart die Verbindungen). Die Monatsschritte sind wiederholbar: contract_moves bucht nichts
     doppelt, invoices überspringt vorhandene Rechnungen, payment zahlt nur
     offene Posten. rent_survey überspringt vorhandene Zuordnungen,
     modernisation bricht ab, wenn die Maßnahme existiert.
@@ -79,6 +85,11 @@ import sys
 import time
 
 TESTS_DIR = os.path.dirname(os.path.abspath(__file__))
+
+# Exit code of a script: data exist, nothing created (see EXIT_EXISTS in the
+# master data scripts) - shown as skipped, no error
+EXIT_EXISTS = 3
+STATUS = {0: 'ok', EXIT_EXISTS: 'übersprungen (Daten vorhanden)'}
 
 MASTER_STEPS = ['kreditor', 'immo', 'contracts', 'billing_unit']
 MONTH_STEPS = ['contract_moves', 'invoices', 'payment']
@@ -259,21 +270,22 @@ def main():
         start = time.monotonic()
         code = subprocess.run(cmd).returncode
         duration = time.monotonic() - start
-        status = 'ok' if code == 0 else 'Fehler'
-        print(f'--- {label}: Exit-Code {code}, {duration:.1f} s', flush=True)
+        status = STATUS.get(code, 'Fehler')
+        print(f'--- {label}: {status}, Exit-Code {code}, {duration:.1f} s',
+            flush=True)
         results.append((label, status, code, duration))
-        if code != 0:
+        if code not in STATUS:
             failed = True
 
     print(f'\n{"=" * 78}\nÜbersicht\n{"=" * 78}')
     for label, status, code, duration in results:
         detail = (f'Exit-Code {code}, {duration:.1f} s'
             if code is not None else '')
-        print(f'  {label:22} {status:16} {detail}')
+        print(f'  {label:22} {status:31} {detail}')
     if failed:
         print('\nMindestens ein Schritt ist fehlgeschlagen.')
         sys.exit(1)
-    print('\nAlle Schritte ok.')
+    print('\nAlle Schritte ok bzw. übersprungen.')
 
 
 if __name__ == '__main__':

@@ -45,6 +45,10 @@ Workflow-Button freigegeben (state='approved').
 Das Skript ist idempotent: es bricht ab, wenn für "Musterstraße 1-4"
 bereits Billing Units vorhanden sind.
 
+Exit-Codes: 0 = ausgeführt, 1 = Fehler, 2 = falscher Aufruf (argparse),
+3 = Daten vorhanden, nichts angelegt (EXIT_EXISTS; demo_run.py zeigt den
+Schritt als "übersprungen").
+
 Verwendung:
     python tests/demo_billing_unit.py --database <Datenbankname> [--config <trytond.conf>] [--year <Startjahr>]
 
@@ -57,6 +61,10 @@ import datetime
 import sys
 
 from proteus import Model, config
+
+# Exit code "data exist, nothing created" (demo_run.py shows the step as
+# skipped); 0 = done, 1 = error, 2 = wrong call (argparse)
+EXIT_EXISTS = 3
 
 # Start year of the demo data (--year, default: current year - 1); set from
 # the parameter in main() via set_start_year()
@@ -255,8 +263,8 @@ def main():
     properties = get_properties()
     if BillingUnit.find([('property', '=', properties[0].id)]):
         print(f'Für Property "{properties[0].name}" sind bereits Billing Units '
-              'vorhanden. Abbruch.')
-        return
+              'vorhanden. Abbruch (Exit-Code 3).')
+        sys.exit(EXIT_EXISTS)
 
     # Stammdaten laden
     m_type_wfl = get_measurement_type_usable_space()

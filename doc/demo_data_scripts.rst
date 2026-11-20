@@ -20,11 +20,16 @@ trytond.conf]`` — not via tox/xmlrunner.
    (``--execute`` is passed on). ``--year`` is the start year (default
    current year − 1), ``--continue-on-error`` continues after a failed
    step (default: stop), ``--dry-run`` only prints the commands. Each step
-   prints a header with name and command, then exit code and duration; an
-   overview of all steps follows at the end, exit code 1 if a step failed.
-   The master data scripts stop if their data exist - with exit code 0, so
-   such a step shows as *ok*; to run further months use
-   ``--skip kreditor,immo,contracts,billing_unit``. Months after the start
+   prints a header with name and command, then result, exit code and
+   duration; an overview of all steps follows at the end, exit code 1 if a
+   step failed, else 0. Exit codes of the scripts: 0 = done, 1 = error,
+   2 = wrong call (argparse), 3 = data exist, nothing created
+   (``EXIT_EXISTS`` in ``demo_kreditor.py``, ``demo_immo.py``,
+   ``demo_contracts.py``, ``demo_billing_unit.py``, which stop if their
+   data exist) - ``demo_run.py`` shows 3 as *skipped (data exist)*, no
+   error, and continues; so a further run (e.g. more months) works without
+   ``--skip``, ``--skip kreditor,immo,contracts,billing_unit`` remains
+   possible. Months after the start
    year are allowed; purchase invoices then only find settlement units if
    billing units exist for that year (a hint is printed)::
 

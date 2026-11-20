@@ -68,6 +68,10 @@ Das Skript legt folgende Objekte an:
 Das Skript ist idempotent: es bricht ab, wenn eine Property mit dem Namen
 "Musterstraße 1-4" oder "Musterstraße 5-8" in der Zieldatenbank bereits vorhanden ist.
 
+Exit-Codes: 0 = ausgeführt, 1 = Fehler, 2 = falscher Aufruf (argparse),
+3 = Daten vorhanden, nichts angelegt (EXIT_EXISTS; demo_run.py zeigt den
+Schritt als "übersprungen").
+
 Nutzungsklassen (real_estate.use_class) werden per Sequenznummer gesucht
 (sprachunabhängig): Apartment=10, Retail=30, Parking=50.
 
@@ -93,6 +97,10 @@ import sys
 from decimal import Decimal
 
 from proteus import Model, Wizard, config
+
+# Exit code "data exist, nothing created" (demo_run.py shows the step as
+# skipped); 0 = done, 1 = error, 2 = wrong call (argparse)
+EXIT_EXISTS = 3
 
 # Start year of the demo data (--year, default: current year - 1); set from
 # the parameter in main() via set_start_year()
@@ -581,8 +589,8 @@ def main():
             ('company', '=', company.id),
         ])
         if existing:
-            print(f'Property "{prop_name}" existiert bereits (id={existing[0].id}). Abbruch.')
-            return
+            print(f'Property "{prop_name}" existiert bereits (id={existing[0].id}). Abbruch (Exit-Code 3).')
+            sys.exit(EXIT_EXISTS)
 
     uom_m3 = get_uom('m³')
 
