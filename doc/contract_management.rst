@@ -7,11 +7,15 @@ Contract Management
    default taxes, accounting journal, number prefix, step sizes for item
    and term sequence numbers, and whether occupancy exclusivity is enforced.
 
-   ``oc_mark``
-      Free-text label used in operating cost settlement invoice descriptions
-      and invoice headers, e.g. ``"Betriebskostenabrechnung 2025"``. Falls
-      back to ``"Operating Cost Settlement"`` / ``"Operating Costs"`` when
-      empty.
+   ``mark``, ``oc_mark``
+      Translatable labels: ``mark`` is the default description of the
+      periodic posting invoices (else the name), ``oc_mark`` the label of
+      the operating cost settlement invoice descriptions and headers, e.g.
+      ``"Betriebskostenabrechnung 2025"``; ``oc_mark`` falls back to
+      ``"Operating Cost Settlement"`` / ``"Operating Costs"`` when empty.
+      Standard data: *Rent Invoice* / *Invoice* / *Condominium Fee* and
+      *Operating Cost Settlement* / *Operating Costs* / *Condominium Fee
+      Settlement* (German in ``locale/de.po``).
 
    ``adjustment_procedures``
       Rent adjustment procedures allowed for contracts of this type
@@ -50,7 +54,10 @@ Contract Management
       ``move_description`` (translatable, only visible with
       ``separate_move``) is the description of that invoice; empty = the
       default description (contract type mark or name). The contract
-      reference is kept on every invoice.
+      reference is kept on every invoice. The invoice texts (``mark``,
+      ``name``, ``move_description``, ``oc_mark`` of the operating cost
+      settlement) are read in the language of the contract partner, also
+      when the cron books without a language.
 
 ``real_estate.contract``  (``contract_core.py``)
    Main contract record.

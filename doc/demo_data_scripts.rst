@@ -53,8 +53,8 @@ are given as day and month of the start year.
    company (ID 1, party ID 1) and the chart of accounts from the template
    *Kontenrahmen der Wohnungswirtschaft (WoWi)* (checked, exit code 1
    otherwise). Sets the company-dependent settings with the values of the
-   test system: accounts, tax rules, payment terms and language of the
-   company party, *Real Estate Accounting* of the company, default
+   test system: accounts, tax rules, payment terms, language, salutation and
+   party role *Companies* of the company party, *Real Estate Accounting* of the company, default
    accounts of the accounting configuration, accounts of contract types,
    term types and cost types, process templates of the commercial lease
    agreement, task rules (active, company), cron tasks, company of the

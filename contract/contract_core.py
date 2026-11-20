@@ -764,6 +764,23 @@ class ContractPartnerChangeDraftInvoicesWarning(UserWarning):
     pass
 
 
+def partner_text(contract, record, name):
+    """Value of the translatable field 'name' of 'record' (e.g. the contract
+    type's mark) in the language of the contract partner - invoice texts
+    get the partner's language also from the cron, which runs without a
+    language. Without a partner language the language of the context."""
+    if record is None:
+        return None
+    partner = getattr(contract, 'contractual_partner', None)
+    lang = getattr(partner, 'lang', None) if partner else None
+    record_id = getattr(record, 'id', None)
+    if (lang and record_id is not None and hasattr(record, '__name__')
+            and lang.code != Transaction().language):
+        with Transaction().set_context(language=lang.code):
+            return getattr(record.__class__(record_id), name)
+    return getattr(record, name)
+
+
 #**********************************************************************
 class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), ModelSQL, ModelView):
     "Contract - base class for contracts"
@@ -2378,9 +2395,10 @@ class Contract(Workflow, DeactivableMixin, base_object.re_sequence_ordered(), Mo
         separate move (if set), else the contract type's default."""
         description = None
         if term_type:
-            description = term_type.move_description
+            description = partner_text(self, term_type, 'move_description')
         if not description:
-            description = self.c_type.mark or self.c_type.name
+            description = (partner_text(self, self.c_type, 'mark')
+                or partner_text(self, self.c_type, 'name'))
         return f'{description} - {posting_date.strftime("%Y-%m-%d")}'
 
     def get_move_payment_term(self, term=None):

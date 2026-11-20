@@ -17,6 +17,7 @@ from decimal import Decimal, ROUND_HALF_UP
 import logging
 
 from . import oc_reclass
+from ..contract.contract_core import partner_text
 
 logger = logging.getLogger(__name__)
 
@@ -1113,6 +1114,8 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
         for contract_id, results in by_contract.items():
             contract = results[0].contract
             c_type = contract.c_type
+            # invoice texts in the language of the contract partner
+            oc_mark = partner_text(contract, c_type, 'oc_mark')
             re_accounting = contract.company.re_accounting
 
             total_actual = sum(r.actual_costs or Decimal(0) for r in results)
@@ -1211,7 +1214,7 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
                         company=contract.company.id,
                         party=contract.contractual_partner.id,
                         invoice_type=invoice_type,
-                        description=f"{obj_name} — {c_type.oc_mark or 'Operating Costs'} {period_r}",
+                        description=f"{obj_name} — {oc_mark or 'Operating Costs'} {period_r}",
                         quantity=Decimal(1),
                         unit_price=cost_amount,
                         account=c_type.account_billing_unit.id,
@@ -1250,7 +1253,7 @@ class BillingUnit(Workflow, DeactivableMixin, sequence_ordered(), ModelSQL, Mode
                               else re_accounting.re_payment_term_billing.id
                               if re_accounting and re_accounting.re_payment_term_billing
                               else None),
-                description=f"{c_type.oc_mark or 'Operating Cost Settlement'} {period_str}",
+                description=f"{oc_mark or 'Operating Cost Settlement'} {period_str}",
                 reference=contract.contract_number,
                 lines=invoice_lines,
                 contract=contract,

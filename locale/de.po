@@ -7884,6 +7884,54 @@ msgctxt ""
 msgid "Parking Space Lease Agreement"
 msgstr "Stellplatz Vertrag"
 
+msgctxt "model:real_estate.contract.type,mark:contract_rental_agreement_type"
+msgid "Rent Invoice"
+msgstr "Mietrechnung"
+
+msgctxt "model:real_estate.contract.type,mark:contract_parking_space_lease_agreement_type"
+msgid "Rent Invoice"
+msgstr "Mietrechnung"
+
+msgctxt "model:real_estate.contract.type,mark:contract_debit_costs_agreement_type"
+msgid "Invoice"
+msgstr "Rechnung"
+
+msgctxt "model:real_estate.contract.type,mark:contract_credit_costs_agreement_type"
+msgid "Invoice"
+msgstr "Rechnung"
+
+msgctxt "model:real_estate.contract.type,mark:contract_commercial_lease_agreement_type"
+msgid "Rent Invoice"
+msgstr "Mietrechnung"
+
+msgctxt "model:real_estate.contract.type,mark:contract_condominium_fee_agreement_type"
+msgid "Condominium Fee"
+msgstr "Hausgeld"
+
+msgctxt "model:real_estate.contract.type,oc_mark:contract_rental_agreement_type"
+msgid "Operating Cost Settlement"
+msgstr "Betriebskostenabrechnung"
+
+msgctxt "model:real_estate.contract.type,oc_mark:contract_parking_space_lease_agreement_type"
+msgid "Operating Cost Settlement"
+msgstr "Betriebskostenabrechnung"
+
+msgctxt "model:real_estate.contract.type,oc_mark:contract_debit_costs_agreement_type"
+msgid "Operating Cost Settlement"
+msgstr "Betriebskostenabrechnung"
+
+msgctxt "model:real_estate.contract.type,oc_mark:contract_credit_costs_agreement_type"
+msgid "Operating Costs"
+msgstr "Betriebskosten"
+
+msgctxt "model:real_estate.contract.type,oc_mark:contract_commercial_lease_agreement_type"
+msgid "Operating Cost Settlement"
+msgstr "Betriebskostenabrechnung"
+
+msgctxt "model:real_estate.contract.type,oc_mark:contract_condominium_fee_agreement_type"
+msgid "Condominium Fee Settlement"
+msgstr "Hausgeldabrechnung"
+
 msgctxt "model:real_estate.contract.type,name:contract_rental_agreement_type"
 msgid "Rental agreement"
 msgstr "Mietvertrag"

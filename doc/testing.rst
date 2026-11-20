@@ -9,7 +9,7 @@ The unit tests are in ``tests/``:
   adds the generic module-consistency checks (``test_view``,
   ``test_xml_files``, ``test_model_access``, ``test_depends``,
   ``test_wizards`` …), and from six building-block classes, one per area
-  folder of the module, which hold the 73 explicit tests:
+  folder of the module, which hold the 74 explicit tests:
 
   ==================================  =========================
   File                                Class

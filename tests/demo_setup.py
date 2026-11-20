@@ -24,7 +24,9 @@ Ablauf:
         4420, Steuerregeln Kunde/Lieferant "... Unternehmen in der EU (mit
         USt-ID)", Zahlungsbedingungen Kunde "03 Tage netto" / Lieferant
         "Net 15 days", Kunden- und Lieferantenwährung EUR, Sprache Deutsch,
-        Anrede "Sehr geehrte Damen und Herren".
+        Anrede "Sehr geehrte Damen und Herren", Partei-Rolle "Companies"
+        (party_role_number_company, Nummer 10000; die Folgenummer, z. B.
+        10001, bildet das Modul aus Rolle und Code der Partei).
     E2  Gesellschaft: RE-Rechnungswesen = re_accounting_default.
     E3  Rechnungswesen / Einstellungen: Standardkonten Forderungen 2000,
         Verbindlichkeiten 4420, Ertrag 6000, Aufwand 8050.
@@ -102,6 +104,9 @@ PARTY_CURRENCY = 'EUR'
 PARTY_LANG = 'de'
 PARTY_SALUTATION = 'Sehr geehrte Damen und Herren'
 PARTY_SALUTATION_DEFAULT_EN = 'Dear Sir or Madam'
+# party role 'Companies' (core/party.xml, number 10000); the sequence of the
+# party follows from role and code in the module (core/party.py)
+PARTY_ROLE_NUMBER = 'party_role_number_company'
 
 # E3: default accounts of the accounting configuration
 CONFIG_ACCOUNTS = [
@@ -402,6 +407,8 @@ def setup_party(company):
             ('customer_currency', currency, 'Kundenwährung'),
             ('supplier_currency', currency, 'Lieferantenwährung'),
             ('lang', lang, 'Sprache'),
+            ('role_number', xml_record('real_estate.party.role_number',
+                    PARTY_ROLE_NUMBER), 'Partei-Rolle'),
             ]:
         if field not in party._fields:
             # customer/supplier currency come with the modules sale/purchase
@@ -421,6 +428,9 @@ def setup_party(company):
             f'{PARTY_SALUTATION}, unverändert)')
     if changed:
         party.save()
+        party = Party(party.id)
+    if party.role_number:
+        print(f'  {"":<10} Folgenummer der Partei: {party.sequence}')
 
 
 def setup_company(company):

@@ -158,6 +158,68 @@ class ContractTests:
             'Wohnungsmiete - 2025-03-01')
 
     @with_transaction()
+    def test_contract_type_mark_translated(self):
+        "mark/oc_mark of the contract types in English and German (O4)"
+        import os
+        from trytond.modules.real_estate.contract.contract_core import (
+            partner_text)
+        from trytond.transaction import Transaction
+        pool = Pool()
+        ModelData = pool.get('ir.model.data')
+        Lang = pool.get('ir.lang')
+        Translation = pool.get('ir.translation')
+        ContractType = pool.get('real_estate.contract.type')
+        german, = Lang.search([('code', '=', 'de')])
+        Lang.write([german], {'translatable': True})
+        Translation.translation_import('de', 'real_estate', os.path.join(
+                os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                'locale', 'de.po'))
+        texts = {
+            'contract_rental_agreement_type': (
+                'Rent Invoice', 'Mietrechnung',
+                'Operating Cost Settlement', 'Betriebskostenabrechnung'),
+            'contract_parking_space_lease_agreement_type': (
+                'Rent Invoice', 'Mietrechnung',
+                'Operating Cost Settlement', 'Betriebskostenabrechnung'),
+            'contract_debit_costs_agreement_type': (
+                'Invoice', 'Rechnung',
+                'Operating Cost Settlement', 'Betriebskostenabrechnung'),
+            'contract_credit_costs_agreement_type': (
+                'Invoice', 'Rechnung', 'Operating Costs', 'Betriebskosten'),
+            'contract_commercial_lease_agreement_type': (
+                'Rent Invoice', 'Mietrechnung',
+                'Operating Cost Settlement', 'Betriebskostenabrechnung'),
+            'contract_condominium_fee_agreement_type': (
+                'Condominium Fee', 'Hausgeld',
+                'Condominium Fee Settlement', 'Hausgeldabrechnung'),
+            }
+        for fs_id, (mark_en, mark_de, oc_en, oc_de) in texts.items():
+            db_id = ModelData.get_id('real_estate', fs_id)
+            with Transaction().set_context(language='en'):
+                c_type = ContractType(db_id)
+                self.assertEqual((c_type.mark, c_type.oc_mark),
+                    (mark_en, oc_en), fs_id)
+            with Transaction().set_context(language='de'):
+                c_type = ContractType(db_id)
+                self.assertEqual((c_type.mark, c_type.oc_mark),
+                    (mark_de, oc_de), fs_id)
+
+        # invoice texts in the language of the contract partner, also
+        # when the context has another language (cron)
+        db_id = ModelData.get_id('real_estate', 'contract_rental_agreement_type')
+        with Transaction().set_context(language='en'):
+            c_type = ContractType(db_id)
+            contract = _StubRecord(contractual_partner=_StubRecord(
+                    lang=german))
+            self.assertEqual(partner_text(contract, c_type, 'mark'),
+                'Mietrechnung')
+            self.assertEqual(partner_text(contract, c_type, 'oc_mark'),
+                'Betriebskostenabrechnung')
+            contract = _StubRecord(contractual_partner=_StubRecord(lang=None))
+            self.assertEqual(partner_text(contract, c_type, 'mark'),
+                'Rent Invoice')
+
+    @with_transaction()
     def test_move_payment_term_hierarchy(self):
         "Payment term: separate term, else contract, else party"
         Contract = Pool().get('real_estate.contract')

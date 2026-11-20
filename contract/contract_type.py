@@ -176,7 +176,7 @@ class ContractType(DeactivableMixin, base_object.re_sequence_ordered(), ModelSQL
         help="Account for income (surcharge) or cost reduction (refund) "
              "resulting from the operating cost settlement.")
 
-    oc_mark = fields.Char("OC Mark",
+    oc_mark = fields.Char("OC Mark", translate=True,
         help="Label used in operating cost settlement invoice descriptions, "
              "e.g. 'Betriebskostenabrechnung 2025'.")
 
@@ -187,7 +187,8 @@ class ContractType(DeactivableMixin, base_object.re_sequence_ordered(), ModelSQL
     step_item = fields.Integer("Step Item", help='step for item sequence', required=True)
     step_term = fields.Integer("Step Term", help='step for term sequence', required=True)
 
-    mark = fields.Char("Mark", help='Periodic posting Mark')
+    mark = fields.Char("Mark", translate=True,
+        help='Periodic posting Mark')
 
     occupancy = fields.Boolean("Occupancy",
         help='If set, only one active contract per object is allowed at a time.')
