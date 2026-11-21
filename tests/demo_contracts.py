@@ -37,6 +37,14 @@ Je Wirtschaftseinheit (16 Wohnungen, 4 Stellplätze):
     zusätzlich die Kondition Mietminderung (Rent reduction, sequence=1010,
     monatlich -50,00 EUR, negativer Einzelpreis) ab 01.07. des Startjahres; er wird
     ebenfalls nicht gekündigt.
+  - Alle Verträge: Zahlungsbedingung "03 Tage netto"
+    (real_estate.payment_term_net3), Angebotsdatum (offer_date) 4 Wochen
+    vor Vertragsbeginn; gekündigte Verträge mit Kündigungsgrund
+    "Kündigung durch den Mieter (Umzug)".
+  - Jeder Mieter (auch Gewerbemieter) erhält Telefon und E-Mail:
+    <name>@example.org (z. B. mieter_1@example.org, gewerbemieter_1@...),
+    Telefon 030 23125 001, 002, ... fortlaufend (Bereich für Film und
+    Fernsehen; die Lieferanten haben 501 ff.).
   - "Unterschrieben am" (date_of_signature) = Vertragsbeginn, bei allen
     Verträgen (auch Folge-, Stellplatz- und Gewerbeverträgen).
   - Alle Verträge werden aktiviert (→ running).
@@ -549,6 +557,41 @@ def get_role_number(number: int, label: str):
     return results[0]
 
 
+# Payment term of all contracts (V4) and the offer date before the start (W2)
+PAYMENT_TERM_XML_ID = 'real_estate.payment_term_net3'
+OFFER_DAYS_BEFORE_START = 28
+# Reason of the terminations (all by the tenant, W3)
+TERMINATION_REASON = 'Kündigung durch den Mieter (Umzug)'
+# Contact of the tenants (V5): e-mail of the reserved example domain,
+# phone numbers of the range for film and TV (030 23125 xxx); suppliers
+# (demo_kreditor.py) use 501 and above
+TENANT_PHONE_PREFIX = '030 23125'
+_tenant_phone_counter = 0
+_payment_term = None
+
+
+def get_payment_term():
+    global _payment_term
+    if _payment_term is None:
+        ModelData = Model.get('ir.model.data')
+        _payment_term = Model.get('account.invoice.payment_term')(
+            ModelData.get_id(PAYMENT_TERM_XML_ID, config.get_config().context))
+    return _payment_term
+
+
+def add_contact_mechanisms(party) -> None:
+    """Phone and e-mail of a tenant: <name in lower case with _>@example.org
+    (e.g. mieter_1@example.org), phone 030 23125 <nnn> consecutively."""
+    global _tenant_phone_counter
+    _tenant_phone_counter += 1
+    ContactMechanism = Model.get('party.contact_mechanism')
+    email = party.name.lower().replace(' ', '_') + '@example.org'
+    phone = f'{TENANT_PHONE_PREFIX} {_tenant_phone_counter:03d}'
+    for type_, value in (('phone', phone), ('email', email)):
+        ContactMechanism(party=party, type=type_, value=value).save()
+    print(f'  Kontakt:         {phone}, {email}')
+
+
 def create_party(name: str, country, lang, role_number=None):
     Party = Model.get('party.party')
     Address = Model.get('party.address')
@@ -577,6 +620,7 @@ def create_party(name: str, country, lang, role_number=None):
     address.save()
 
     print(f'  Vertragspartner: {name} (id={party.id})')
+    add_contact_mechanisms(party)
     return party, address
 
 
@@ -601,6 +645,8 @@ def create_contract(company, property_obj, c_type, currency,
     contract.currency = currency
     contract.start_date = START_DATE
     contract.date_of_signature = START_DATE
+    contract.offer_date = START_DATE - datetime.timedelta(
+        days=OFFER_DAYS_BEFORE_START)
     contract.sequence = sequence
     main_tenant_role = get_main_tenant_role()
     if main_tenant_role:
@@ -613,6 +659,9 @@ def create_contract(company, property_obj, c_type, currency,
         print('  Warning: "Main Tenant" role not found (sequence='
               f'{MAIN_TENANT_ROLE_SEQUENCE}) - contractual_partner will '
               'stay empty until it is assigned manually.')
+    # after the parties: on_change_contractual_partner sets the partner's
+    # payment term (empty for the demo tenants)
+    contract.payment_term = get_payment_term()
     contract.save()
     print(f'  Vertrag:         id={contract.id}, Sequenz={sequence}')
     return contract
@@ -787,6 +836,7 @@ def terminate_contract(contract, termination_date, receipt_date, t_wfl, admin_us
     contract.receipt_of_termination_notice = receipt_date
     contract.termination_date = termination_date
     contract.termination_notice = ''
+    contract.termination_reason = TERMINATION_REASON
     contract.save()
     print(f'  Vertrag id={contract.id} → terminated per {termination_date} '
           f'(Eingang Kündigung: {receipt_date})')
@@ -810,6 +860,8 @@ def create_followup_contract(terminated_contract, company, property_obj, c_type,
     contract.currency = currency
     contract.start_date = start_date
     contract.date_of_signature = start_date
+    contract.offer_date = start_date - datetime.timedelta(
+        days=OFFER_DAYS_BEFORE_START)
     contract.sequence = sequence
     main_tenant_role = get_main_tenant_role()
     if main_tenant_role:
@@ -818,6 +870,8 @@ def create_followup_contract(terminated_contract, company, property_obj, c_type,
         assignment.role = main_tenant_role
         assignment.valid_from = start_date
         assignment.invoice_address = invoice_address
+    # after the parties (see create_contract)
+    contract.payment_term = get_payment_term()
     contract.save()
     print(f'  Folgevertrag: id={contract.id}, Start={start_date}')
 

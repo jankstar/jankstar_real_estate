@@ -54,6 +54,21 @@ Vorgabe: aktuelles Jahr - 1):
   Konten: Grundsteuer 8910, Gas AG und Vailand GmbH 8002 (Betriebskosten
   (warm)), alle übrigen 8000 (Betriebskosten (kalt)).
 
+Anlage (V7): Jede gebuchte Eingangsrechnung erhält ein einfaches PDF
+"Rechnung <Referenz>.pdf" als Anlage (ir.attachment): Lieferant mit
+Adresse, Gesellschaft, Referenz, Rechnungsdatum, Positionen mit Netto und
+Steuer, Netto, Steuer, Brutto. Das PDF erzeugt das Skript selbst (reines
+Python, PDF 1.4, Schrift Helvetica mit WinAnsiEncoding für Umlaute, ß
+und €); vorhandene Rechnungen ohne diese Anlage erhalten sie beim
+erneuten Lauf.
+
+Belegzeilen (W4): Leistungszeitraum je Zuordnungszeile - Jahresrechnungen
+(Grundsteuer, Versicherung, Gartenpflege, Schornsteinfeger, Vailand)
+01.01.-31.12., zweimonatliche (Wasser, Gas, BSR, Hausstrom) Rechnungsmonat
+und Folgemonat, monatliche (Hausreinigung, Hausmeister) der
+Rechnungsmonat; Hausreinigung, Gartenpflege und Hausmeister als
+haushaltsnahe Dienstleistung (§ 35a Abs. 2 EStG) mit Lohnanteil 80 %.
+
 Das Skript ist idempotent: bereits vorhandene Rechnungen (gleiche Party,
 Datum und Referenz) werden übersprungen; unbestätigte Belege bereits
 vorhandener Rechnungen werden (erneut) zugeordnet und bestätigt. Die Referenz enthält jeweils den
@@ -75,6 +90,7 @@ Verwendung:
 """
 
 import argparse
+import calendar
 import datetime
 import sys
 from decimal import Decimal
@@ -185,6 +201,147 @@ def get_purchase_tax_19():
 # Rechnung anlegen und buchen
 # ---------------------------------------------------------------------------
 
+# Household-related services (§ 35a para. 2 EStG) with labour share (W4)
+ESTG_35A = 'abs2'
+ESTG_35A_LABOR_SHARE = Decimal('80')
+
+
+def month_period(date: datetime.date, months: int = 1):
+    """Service period from the first day of the month of 'date' over
+    'months' months (the last within the year)."""
+    last_month = min(date.month + months - 1, 12)
+    return (datetime.date(date.year, date.month, 1),
+        datetime.date(date.year, last_month,
+            calendar.monthrange(date.year, last_month)[1]))
+
+
+def year_period(date: datetime.date):
+    return datetime.date(date.year, 1, 1), datetime.date(date.year, 12, 31)
+
+
+# ---------------------------------------------------------------------------
+# PDF der Eingangsrechnung (V7) - reines Python, ohne Bibliothek
+# ---------------------------------------------------------------------------
+
+def _pdf_text(value: str) -> bytes:
+    """PDF string literal in WinAnsiEncoding (cp1252: umlauts, ß, €)."""
+    raw = value.encode('cp1252', errors='replace')
+    return (b'(' + raw.replace(b'\\', b'\\\\').replace(b'(', b'\\(')
+        .replace(b')', b'\\)') + b')')
+
+
+def _money(value) -> str:
+    """German format 1.234,56 EUR."""
+    text = f'{value:,.2f}'.replace(',', 'X').replace('.', ',').replace(
+        'X', '.')
+    return f'{text} EUR'
+
+
+def invoice_pdf(company_name: str, supplier: str, address: str,
+        reference: str, date: datetime.date, lines, untaxed, tax,
+        total) -> bytes:
+    """Simple one page PDF (A4, Helvetica) of a supplier invoice: supplier,
+    recipient, reference, date, lines (description, net, tax), net, tax,
+    gross. lines: [(description, net, tax)]."""
+    rows = []
+
+    def text(x, y, value, size=10, bold=False):
+        font = b'/F2' if bold else b'/F1'
+        rows.append(b'BT ' + font + b' %d Tf %d %d Td ' % (size, x, y)
+            + _pdf_text(value) + b' Tj ET')
+
+    y = 790
+    text(50, y, supplier, 14, True)
+    y -= 16
+    text(50, y, address, 9)
+    y -= 40
+    text(50, y, 'Rechnung an:', 9)
+    y -= 14
+    text(50, y, company_name, 10)
+    y -= 40
+    text(50, y, 'Rechnung', 16, True)
+    y -= 22
+    text(50, y, f'Rechnungsnummer / Referenz: {reference}')
+    y -= 14
+    text(50, y, f'Rechnungsdatum: {date:%d.%m.%Y}')
+    y -= 30
+    text(50, y, 'Position', 10, True)
+    text(330, y, 'Netto', 10, True)
+    text(430, y, 'Steuer', 10, True)
+    y -= 6
+    rows.append(b'50 %d m 545 %d l S' % (y, y))
+    for description, net, line_tax in lines:
+        y -= 16
+        text(50, y, description)
+        text(330, y, _money(net))
+        text(430, y, _money(line_tax))
+    y -= 8
+    rows.append(b'50 %d m 545 %d l S' % (y, y))
+    for label, value, bold in (('Netto', untaxed, False),
+            ('Steuer', tax, False), ('Brutto', total, True)):
+        y -= 16
+        text(330, y, label, 10, bold)
+        text(430, y, _money(value), 10, bold)
+    y -= 40
+    text(50, y, 'Demodaten - erzeugt von tests/demo_invoices.py', 8)
+    content = b'\n'.join(rows)
+
+    objects = [
+        b'<< /Type /Catalog /Pages 2 0 R >>',
+        b'<< /Type /Pages /Kids [3 0 R] /Count 1 >>',
+        b'<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] '
+        b'/Resources << /Font << /F1 4 0 R /F2 5 0 R >> >> '
+        b'/Contents 6 0 R >>',
+        b'<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica '
+        b'/Encoding /WinAnsiEncoding >>',
+        b'<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold '
+        b'/Encoding /WinAnsiEncoding >>',
+        b'<< /Length %d >>\nstream\n' % len(content) + content
+        + b'\nendstream',
+        ]
+    pdf = b'%PDF-1.4\n%\xe2\xe3\xcf\xd3\n'
+    offsets = []
+    for number, body in enumerate(objects, 1):
+        offsets.append(len(pdf))
+        pdf += b'%d 0 obj\n' % number + body + b'\nendobj\n'
+    xref = len(pdf)
+    pdf += b'xref\n0 %d\n0000000000 65535 f \n' % (len(objects) + 1)
+    for offset in offsets:
+        pdf += b'%010d 00000 n \n' % offset
+    pdf += (b'trailer\n<< /Size %d /Root 1 0 R >>\nstartxref\n%d\n%%%%EOF\n'
+        % (len(objects) + 1, xref))
+    return pdf
+
+
+def attach_pdf(invoice) -> None:
+    """Attach the PDF "Rechnung <reference>.pdf" to the posted supplier
+    invoice - only if no attachment of this name exists."""
+    Attachment = Model.get('ir.attachment')
+    name = f'Rechnung {invoice.reference}.pdf'
+    resource = f'account.invoice,{invoice.id}'
+    if Attachment.find([('resource', '=', resource), ('name', '=', name)]):
+        return
+    party = invoice.party
+    address = invoice.party.addresses[0] if party.addresses else None
+    address_text = ', '.join(x for x in [
+            address.street if address else '',
+            ' '.join(filter(None, [address.postal_code, address.city]))
+            if address else ''] if x)
+    # tax per line from the rates of its taxes - display only
+    lines = []
+    for line in invoice.lines:
+        rate = sum((t.rate or Decimal(0) for t in line.taxes), Decimal(0))
+        lines.append((line.description, line.amount,
+            (line.amount * rate).quantize(Decimal('0.01'))))
+    data = invoice_pdf(invoice.company.rec_name, party.name,
+        address_text.replace('\n', ', '), invoice.reference,
+        invoice.invoice_date, lines, invoice.untaxed_amount,
+        invoice.tax_amount, invoice.total_amount)
+    attachment = Attachment(name=name, resource=invoice, data=data)
+    attachment.save()
+    print(f'    Anlage:      {name} ({len(data)} Bytes)')
+
+
 def create_and_post_invoice(
     company,
     party,
@@ -213,6 +370,8 @@ def create_and_post_invoice(
     ])
     if existing:
         print(f'  Übersprungen:  {party.name:30s} | {invoice_date} | {reference}')
+        if existing[0].state in ('posted', 'paid'):
+            attach_pdf(existing[0])
         assign_documents(existing[0], lines_data)
         return
 
@@ -258,6 +417,8 @@ def create_and_post_invoice(
         f'  Gebucht:     {party.name:30s} | {invoice_date} | {reference:35s}'
         f' | Netto {netto:8.2f} EUR'
     )
+    invoice.reload()
+    attach_pdf(invoice)
     assign_documents(invoice, lines_data)
 
 
@@ -298,6 +459,12 @@ def assign_documents(invoice, lines_data) -> None:
         line.percent = Decimal(100)
         line.amount_net = document.amount_net
         line.amount_gross = document.amount_gross
+        if ld.get('service_period'):
+            line.service_period_from, line.service_period_to = \
+                ld['service_period']
+        if ld.get('estg_35a'):
+            line.estg_35a = ld['estg_35a']
+            line.estg_35a_labor_share_percent = ESTG_35A_LABOR_SHARE
         line.save()
         document.reload()
         document.click('confirm')
@@ -374,7 +541,7 @@ def main():
             f'Grundsteuer {year} {tag}',
             [{'description': f'Grundsteuer {year}', 'unit_price': Decimal('1890.00'),
               'account': acc_grundsteuer, 'taxes': [],
-              'property': prop, 'settlement_unit': su(100, d)}],
+              'property': prop, 'settlement_unit': su(100, d), 'service_period': year_period(d)}],
         ))
 
         d = datetime.date(year, 2, 15)
@@ -383,7 +550,7 @@ def main():
             f'Gebäudeversicherung {year} {tag}',
             [{'description': f'Gebäudeversicherung {year}', 'unit_price': Decimal('7801.00'),
               'account': acc_kalt, 'taxes': [tax_19],
-              'property': prop, 'settlement_unit': su(110, d)}],
+              'property': prop, 'settlement_unit': su(110, d), 'service_period': year_period(d)}],
         ))
 
         for month in [1, 3, 5, 7, 9, 11]:
@@ -394,14 +561,14 @@ def main():
                 f'Wasserrechnung {label} {tag}',
                 [{'description': f'Wasserrechnung {label}', 'unit_price': Decimal('2166.00'),
                   'account': acc_kalt, 'taxes': [tax_19],
-                  'property': prop, 'settlement_unit': su(200, d)}],
+                  'property': prop, 'settlement_unit': su(200, d), 'service_period': month_period(d, 2)}],
             ))
             invoices_todo.append((
                 d, gasag,
                 f'Gasrechnung {label} {tag}',
                 [{'description': f'Gasrechnung {label}', 'unit_price': Decimal('6630.00'),
                   'account': acc_warm, 'taxes': [tax_19],
-                  'property': prop, 'settlement_unit': su(300, d)}],
+                  'property': prop, 'settlement_unit': su(300, d), 'service_period': month_period(d, 2)}],
             ))
 
         for month in [1, 3, 5, 7, 9, 11]:
@@ -413,10 +580,10 @@ def main():
                 [
                     {'description': 'Straßenreinigung', 'unit_price': Decimal('433.00'),
                      'account': acc_kalt, 'taxes': [tax_19],
-                     'property': prop, 'settlement_unit': su(500, d)},
+                     'property': prop, 'settlement_unit': su(500, d), 'service_period': month_period(d, 2)},
                     {'description': 'Müll', 'unit_price': Decimal('541.00'),
                      'account': acc_kalt, 'taxes': [tax_19],
-                     'property': prop, 'settlement_unit': su(510, d)},
+                     'property': prop, 'settlement_unit': su(510, d), 'service_period': month_period(d, 2)},
                 ],
             ))
             invoices_todo.append((
@@ -425,7 +592,7 @@ def main():
                 [
                     {'description': 'Hausstrom', 'unit_price': Decimal('650.00'),
                      'account': acc_kalt, 'taxes': [tax_19],
-                     'property': prop, 'settlement_unit': su(610, d)},
+                     'property': prop, 'settlement_unit': su(610, d), 'service_period': month_period(d, 2)},
                 ],
             ))
 
@@ -438,7 +605,7 @@ def main():
                 [
                     {'description': 'Hausreinigung', 'unit_price': Decimal('431.00'),
                      'account': acc_kalt, 'taxes': [tax_19],
-                     'property': prop, 'settlement_unit': su(520, d)},
+                     'property': prop, 'settlement_unit': su(520, d), 'service_period': month_period(d), 'estg_35a': ESTG_35A},
                 ],
             ))
             invoices_todo.append((
@@ -447,7 +614,7 @@ def main():
                 [
                     {'description': 'Hausmeister', 'unit_price': Decimal('758.00'),
                      'account': acc_kalt, 'taxes': [tax_19],
-                     'property': prop, 'settlement_unit': su(700, d)},
+                     'property': prop, 'settlement_unit': su(700, d), 'service_period': month_period(d), 'estg_35a': ESTG_35A},
                 ],
             ))
 
@@ -457,7 +624,7 @@ def main():
             f'Gartenpflege {year} {tag}',
             [{'description': f'Gartenpflege {year}', 'unit_price': Decimal('3250.00'),
               'account': acc_kalt, 'taxes': [tax_19],
-              'property': prop, 'settlement_unit': su(600, d)}],
+              'property': prop, 'settlement_unit': su(600, d), 'service_period': year_period(d), 'estg_35a': ESTG_35A}],
         ))
 
         d = datetime.date(year, 11, 15)
@@ -466,7 +633,7 @@ def main():
             f'Schornsteinfeger {year} {tag}',
             [{'description': f'Schornsteinfeger {year}', 'unit_price': Decimal('1950.00'),
               'account': acc_kalt, 'taxes': [tax_19],
-              'property': prop, 'settlement_unit': su(620, d)}],
+              'property': prop, 'settlement_unit': su(620, d), 'service_period': year_period(d)}],
         ))
 
         d = datetime.date(year, 11, 25)
@@ -475,7 +642,7 @@ def main():
             f'Vailand {year} {tag}',
             [{'description': f'Vailand {year}', 'unit_price': Decimal('3860.00'),
               'account': acc_warm, 'taxes': [tax_19],
-              'property': prop, 'settlement_unit': su(310, d)}],
+              'property': prop, 'settlement_unit': su(310, d), 'service_period': year_period(d)}],
         ))
 
         if only_month:

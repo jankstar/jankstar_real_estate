@@ -11,8 +11,9 @@ Creates on "Musterstraße 1-4":
     trade (facade insulation with 20 % maintenance share, windows with a
     maintenance amount, scaffolding without maintenance share, all + 19 %
     input tax), grant "BEG EM" 10,000 EUR. The measure is announced today
-    (letters per rental unit), the receipt of the announcement is captured
-    today, the work starts after the announcement period and is completed
+    (announcement date = 3 months before the planned start, letters per
+    rental unit), the receipt of the announcement is captured today, the
+    work starts after the announcement period of 3 months and is completed
     two months later. With a rent survey of the property (demo_rent_survey
     .py) the measure gets the planned features "remove old heating / add
     insulation" for the building, is calculated (what if) before the
@@ -111,6 +112,10 @@ def fill_quantities(measure):
             unit.save()
 
 
+# Announcement date of the measure: 3 months before the planned start
+ANNOUNCEMENT_MONTHS = 3
+
+
 def create_measure(prop, building, living_space, tax, today):
     Modernisation = Model.get('real_estate.modernisation')
     BaseObject = Model.get('real_estate.base_object')
@@ -119,7 +124,8 @@ def create_measure(prop, building, living_space, tax, today):
     Fund = Model.get('real_estate.modernisation.fund')
     Tax = Model.get('account.tax')
     Unit = Model.get('real_estate.modernisation.unit')
-    start = today + relativedelta(months=3, days=7)
+    # announced today, the work starts 3 months after the announcement (W7)
+    start = today + relativedelta(months=ANNOUNCEMENT_MONTHS)
     measure = Modernisation(name=MEASURE, property=prop,
         measure_types=['1'], variant='standard_559',
         description='Wärmedämmverbundsystem 16 cm an allen Fassaden, '
@@ -127,6 +133,7 @@ def create_measure(prop, building, living_space, tax, today):
         energy_saving_note='Einsparung nach Pauschalwerten der '
             'Bekanntmachung zu § 555c Abs. 3 BGB',
         planned_start=start, planned_duration='ca. 2 Monate',
+        announcement_date=start - relativedelta(months=ANNOUNCEMENT_MONTHS),
         expected_operating_costs='keine Änderung der Betriebskosten '
             'zu erwarten')
     measure.allocation_key = 'measurement'

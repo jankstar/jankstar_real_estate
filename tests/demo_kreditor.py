@@ -27,6 +27,9 @@ Das Skript legt folgende party.party-Datensätze als Kreditoren an:
       Wärmestraße 2, 14109 Berlin
 
 Jede Party erhält:
+  - Telefon und E-Mail: lieferant_<n>@example.org (n = Reihenfolge oben,
+    1-11) und 030 23125 501 ... 511 (Bereich für Film und Fernsehen,
+    getrennt von den Mietern aus demo_contracts.py mit 001 ff.)
   - Kategorie 'Lieferant' (falls in der DB vorhanden)
   - Partei-Rolle 'Lieferanten' (real_estate.party.role_number, Nummer
     40000, Standarddaten core/party.xml); fehlt sie, nur eine Warnung
@@ -184,8 +187,26 @@ def get_role_number(number: int, label: str):
     return results[0]
 
 
+# Contact of the suppliers (V6): e-mail lieferant_<n>@example.org (reserved
+# example domain), phone 030 23125 <nnn> from 501 on (range for film and
+# TV; the tenants of demo_contracts.py use 001 and above)
+SUPPLIER_PHONE_PREFIX = '030 23125'
+SUPPLIER_PHONE_START = 501
+
+
+def add_contact_mechanisms(party, number: int) -> str:
+    """Phone and e-mail of the n-th supplier; returns the text for the
+    output."""
+    ContactMechanism = Model.get('party.contact_mechanism')
+    email = f'lieferant_{number}@example.org'
+    phone = f'{SUPPLIER_PHONE_PREFIX} {SUPPLIER_PHONE_START + number - 1:03d}'
+    for type_, value in (('phone', phone), ('email', email)):
+        ContactMechanism(party=party, type=type_, value=value).save()
+    return f'{phone}, {email}'
+
+
 def create_kreditor(data: dict, country, lang, category,
-                    role_number=None) -> None:
+                    role_number=None, number: int = 1) -> None:
     Party = Model.get('party.party')
     Address = Model.get('party.address')
 
@@ -215,12 +236,13 @@ def create_kreditor(data: dict, country, lang, category,
     address.invoice = True
     address.delivery = True
     address.save()
+    contact = add_contact_mechanisms(party, number)
 
     print(
         f'  Kreditor: {party.name} (id={party.id})'
         f' — {data["street_name"]} {data.get("building_number", "")},'
         f' {data["postal_code"]} {data["city"]}'
-        f'  [{data["comment"]}]'
+        f'  [{data["comment"]}]  {contact}'
     )
 
 
@@ -244,8 +266,9 @@ def main():
     supplier_role = get_role_number(SUPPLIER_ROLE_NUMBER, 'Lieferanten')
 
     print('Lege Kreditoren an ...')
-    for data in KREDITOREN:
-        create_kreditor(data, country, lang, category, supplier_role)
+    for number, data in enumerate(KREDITOREN, 1):
+        create_kreditor(data, country, lang, category, supplier_role,
+            number)
 
     print('Fertig.')
 

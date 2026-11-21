@@ -92,14 +92,25 @@ are given as day and month of the start year.
    the cut-off date 01.01. of the start year, valid from that day (properties and
    buildings dynamic by usable space, land fixed 0 % as its parking spaces
    have no usable space, rental objects fixed: 0 % for apartments and
-   parking, 100 % for retail). Looks up ``real_estate.use_class``,
+   parking, 100 % for retail). Further fields: basement number
+   ``K<nn>`` of the apartments; per building a house electricity meter
+   (kWh, no equipment kind) with MeLo-ID (33 characters) and MaLo-ID
+   (11 digits, BDEW check digit); calibration on all meters (validity 5
+   years, *valid to* proposed by the module, two meters due within the
+   next 3 months for rule O03); tight housing market and reduced cap 15 %
+   on both properties from the start year; inspection plans with
+   responsible user, contractor *B&O GmbH* (from ``demo_kreditor.py``)
+   and last done date. Looks up ``real_estate.use_class``,
    measurement types and object party roles by ``sequence``, equipment
    kind and inspection types by ``code`` (language-independent)::
 
       python tests/demo_immo.py --database <db> [--config trytond.conf] [--year 2025]
 
 ``tests/demo_contracts.py``
-   Requires ``demo_immo.py``. Creates residential lease contracts for 15 of
+   Requires ``demo_immo.py``. All contracts get the payment term *03 Tage
+   netto* and an offer date four weeks before the start, terminated ones
+   a termination reason; every tenant gets phone (030 23125 001 ff.) and
+   e-mail ``<name>@example.org``. Creates residential lease contracts for 15 of
    16 apartments per property (one left vacant), each with rent, operating
    cost, and heating terms; the first apartment contract additionally
    gets a one-time rent deposit (term type 1900, three times the rent, at
@@ -172,7 +183,8 @@ are given as day and month of the start year.
    No prerequisites. Creates 11 supplier/creditor parties (property tax
    office, building insurer, utilities, cleaning, caretaker, gardening,
    chimney sweep, heating maintenance), each with an invoice/delivery
-   address::
+   address, phone (030 23125 501 ff.) and e-mail
+   ``lieferant_<n>@example.org``::
 
       python tests/demo_kreditor.py --database <db> [--config trytond.conf]
 
@@ -188,7 +200,11 @@ are given as day and month of the start year.
    8910, heating 8002, all other operating costs 8000. ``--month`` creates
    only the invoices of that month (of ``--year``, default current year − 1) - for a
    monthly run together with the periodic contract posting
-   (``demo_contract_moves.py``) and ``demo_payment.py --month``::
+   (``demo_contract_moves.py``) and ``demo_payment.py --month``. Every
+   posted invoice gets a simple PDF *Rechnung <reference>.pdf* as
+   attachment (generated in pure Python); the assignment lines carry the
+   service period and, for cleaning, gardening and caretaker, § 35a
+   para. 2 EStG with a labour share of 80 %::
 
       python tests/demo_invoices.py --database <db> [--config trytond.conf] [--year 2025] [--month 3]
 
@@ -215,8 +231,9 @@ are given as day and month of the start year.
    creates the measure *Fassadendämmung Haus 2* (second building,
    standard § 559, allocation by living space, cost lines facade / windows
    / scaffolding with maintenance shares and 19 % input tax, grant
-   10,000 EUR), announces it today, captures the receipts, starts the work
-   after the announcement period and completes it two months later (the
+   10,000 EUR), announces it today (announcement date three months before
+   the planned start), captures the receipts, starts the work after the
+   announcement period and completes it two months later (the
    costs become actual costs); then an adjustment run *Modernisation*
    selected and calculated (``--execute``: also approved and announced -
    receipts and execution stay manual). If an apartment of the property is

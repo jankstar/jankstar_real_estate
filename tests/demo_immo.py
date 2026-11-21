@@ -30,6 +30,26 @@ Das Skript legt folgende Objekte an:
         Code cold_water_meter, Einheit: m³, Faktor: 1, Is Counter: ja):
           - Initialablesung 0 m³ zum 01.01. des Startjahres
           - Ablesung zum 30.04. des Startjahres mit zufälligem Verbrauch zwischen 20 und 40 m³
+  - Kellernummer der Wohnungen: "K" + Wohnungsnummer (K01–K16).
+  - Je Gebäude 1 Hausstrom-Zähler "Hausstrom Zähler <Hausnr.>" am Gebäude
+    (Equipment, e_type: meters, Einheit kWh, ohne Anlagenart - die
+    Standarddaten haben keine für Strom), Initialablesung 0 kWh zum 01.01.
+    und Ablesung zum 30.04. des Startjahres (1.500-3.000 kWh), mit
+      - MeLo-ID (33 Zeichen): "DE" + 6 Ziffern Netzbetreiber (fiktiv 000123)
+        + 5 Ziffern Postleitzahl (14163) + 20 Ziffern Zählpunktnummer
+        (fortlaufend),
+      - MaLo-ID (11 Ziffern): "5" + 9 Ziffern fortlaufend + Prüfziffer nach
+        BDEW (Ziffern an ungeraden Stellen + 2 x Ziffern an geraden Stellen
+        der Stellen 1-10, Prüfziffer = Abstand zum nächsten Vielfachen von
+        10); Selbsttest mit Beispielen der BDEW beim Start.
+    Die Wasserzähler bleiben ohne MeLo-/MaLo-ID.
+  - Eichung an allen Zählern: Gültigkeit 5 Jahre, "Eichfrist bis" nach dem
+    Vorschlag des Moduls (31.12. von Eichjahr + 5); Datum der letzten
+    Eichung gestaffelt 1-3 Jahre vor heute; die ersten beiden Zähler
+    (Hausstrom Zähler 1, Wasser Zähler EH01) mit Eichung vor 5 Jahren, so
+    dass die Eichfrist in den nächsten 3 Monaten endet (Aufgabenregel O03;
+    liegt kein 31.12. in diesem Zeitraum, Eichfrist = heute + 2 Monate).
+    Die Rauchwarnmelder sind keine Zähler und haben keine Eichung.
   - Die Wohnungsnummern zählen je Wirtschaftseinheit durch (01–16).
   - Die Einzelhandelsnummern zählen je Wirtschaftseinheit durch (01–04).
   - Die Zähler-ID wird automatisch generiert (Format: Z-<Startjahr>-<Nr>, Beispiel für das Startjahr 2025: Z-2025-0001).
@@ -44,7 +64,14 @@ Das Skript legt folgende Objekte an:
     Folgejahres) und "Rauchwarnmelderprüfung" (fällig 15.05. des
     Folgejahres, Wartung durch
     Eigentümer) - sofern die Standard-Prüfarten (Codes "walkthrough",
-    "smoke_detector") vorhanden sind.
+    "smoke_detector") vorhanden sind. Verantwortlicher: der Benutzer des
+    Mitarbeiters "Verwalter 1", sonst admin; Auftragnehmer: Lieferant
+    "B&O GmbH" aus demo_kreditor.py (fehlt er, nur ein Hinweis);
+    zuletzt erledigt: ein Intervall vor der ersten Fälligkeit (Feld im
+    Client schreibgeschützt, direkt geschrieben).
+
+  Wirtschaftseinheiten: angespannter Wohnungsmarkt und Kappung 15 %
+  (Landesverordnung Berlin) ab 01.01. des Startjahres, ohne Ende.
 
   Optionssätze (am Ende, nach beiden Wirtschaftseinheiten):
   - Einmal die Optionssatzermittlung (Assistent "Optionssätze aktualisieren",
@@ -96,6 +123,7 @@ import random
 import sys
 from decimal import Decimal
 
+from dateutil.relativedelta import relativedelta
 from proteus import Model, Wizard, config
 
 # Exit code "data exist, nothing created" (demo_run.py shows the step as
@@ -125,6 +153,77 @@ def next_meter_id() -> str:
     global _meter_id_counter
     _meter_id_counter += 1
     return f'Z-{START_DATE.year}-{_meter_id_counter:04d}'
+
+
+# Calibration (Eichung): validity 5 years; the module proposes "valid to"
+# = 31.12. of the calibration year + validity (on_change)
+CALIBRATION_YEARS = 5
+_meter_counter = 0
+# Electricity meters (Hausstrom): fictitious grid operator and postal code
+# of the MeLo-ID
+MELO_OPERATOR = '000123'
+MELO_POSTAL_CODE = '14163'
+_electricity_counter = 0
+# Contractor of the inspection plans (demo_kreditor.py)
+INSPECTION_CONTRACTOR = 'B&O GmbH'
+
+
+def malo_check_digit(digits10: str) -> str:
+    """Check digit of the MaLo-ID (BDEW): sum of the digits at odd
+    positions + 2 x sum of the digits at even positions (positions 1-10);
+    check digit = difference to the next multiple of 10 (0 if already a
+    multiple)."""
+    odd = sum(int(c) for c in digits10[0::2])
+    even = sum(int(c) for c in digits10[1::2])
+    return str((10 - (odd + 2 * even) % 10) % 10)
+
+
+def malo_id(number: int) -> str:
+    """MaLo-ID: 11 digits, first digit 1-9, 11th digit check digit."""
+    base = f'5{number:09d}'
+    return base + malo_check_digit(base)
+
+
+def melo_id(number: int) -> str:
+    """MeLo-ID (Zählpunktbezeichnung): 33 characters - 'DE', 6 digits grid
+    operator, 5 digits postal code, 20 characters metering point number."""
+    return f'DE{MELO_OPERATOR}{MELO_POSTAL_CODE}{number:020d}'
+
+
+def _self_test_ids() -> None:
+    # known valid MaLo-IDs of the BDEW examples
+    assert malo_check_digit('4137355924') == '1'
+    assert malo_check_digit('5123869678') == '1'
+    for n in (1, 2, 99):
+        value = malo_id(n)
+        assert len(value) == 11 and value.isdigit() and value[0] != '0'
+        assert value[-1] == malo_check_digit(value[:10])
+        assert len(melo_id(n)) == 33 and melo_id(n).startswith('DE')
+
+
+# the first meters created get a calibration that is due (rule O03)
+DUE_METERS = 2
+
+
+def calibration_values():
+    """(date of the last calibration, valid to or None for the module's
+    proposal). Staggered over the last 1-3 years, relative to today
+    (rule O03 looks 3 months ahead of today); a due meter gets a
+    calibration 5 years ago so that the validity ends within the next 3
+    months - if no 31.12. lies in this window, 'valid to' is set to today
+    + 2 months (may be overwritten, spezifikation-wiedervorlage.md 3.7)."""
+    global _meter_counter
+    _meter_counter += 1
+    today = datetime.date.today()
+    if _meter_counter <= DUE_METERS:
+        year_end = datetime.date(today.year, 12, 31)
+        date = datetime.date(today.year - CALIBRATION_YEARS, 6, 15)
+        if today < year_end <= today + relativedelta(months=3):
+            return date, None
+        return date, today + relativedelta(months=2)
+    years_back = 1 + _meter_counter % 3
+    month = 1 + _meter_counter % 12
+    return datetime.date(today.year - years_back, month, 15), None
 
 
 def connect(database: str, cfg_file: str | None) -> None:
@@ -201,6 +300,14 @@ def create_base_object(
     elif obj_type == 'object':
         obj.option_rate_method = (
             'fix_100' if type_of_use == 'commercial' else 'fix_0')
+
+    if obj_type == 'property':
+        # Berlin: tight housing market and reduced cap 15 % from the start
+        # year on, without end (state regulations)
+        obj.tight_market = True
+        obj.tight_market_valid_from = START_DATE
+        obj.reduced_cap = True
+        obj.reduced_cap_valid_from = START_DATE
 
     obj.save()
     print(f'  Erstellt: [{obj_type:10}] {name} (id={obj.id})')
@@ -297,7 +404,7 @@ def create_re_address(street_number: int, country) -> object:
 
 
 def create_meter(parent, name: str, sequence: int, company, uom, admin_user,
-                 kind=None) -> None:
+                 kind=None, electricity=False) -> None:
     BaseObject = Model.get('real_estate.base_object')
     obj = BaseObject()
     obj.name = name
@@ -313,6 +420,19 @@ def create_meter(parent, name: str, sequence: int, company, uom, admin_user,
     obj.meter_is_counter = True
     if kind:
         obj.equipment_kind = kind
+    # calibration: validity 5 years, "valid to" proposed by the module
+    calibration_date, valid_to = calibration_values()
+    obj.meter_calibration_years = CALIBRATION_YEARS
+    obj.meter_calibration_date = calibration_date
+    if valid_to:
+        obj.meter_calibration_valid_to = valid_to
+    ids = ''
+    if electricity:
+        global _electricity_counter
+        _electricity_counter += 1
+        obj.melo_id = melo_id(_electricity_counter)
+        obj.malo_id = malo_id(_electricity_counter)
+        ids = f', MeLo {obj.melo_id}, MaLo {obj.malo_id}'
     obj.save()
 
     meter_id = next_meter_id()
@@ -326,8 +446,10 @@ def create_meter(parent, name: str, sequence: int, company, uom, admin_user,
     reading.value = Decimal(0)
     reading.save()
 
-    # Ablesung 30.04. des Startjahres mit zufälligem Verbrauch zwischen 20 und 40 m³
-    verbrauch = Decimal(random.randint(20, 40))
+    # Ablesung 30.04. des Startjahres mit zufälligem Verbrauch zwischen 20
+    # und 40 m³ (Hausstrom: 1.500 bis 3.000 kWh)
+    verbrauch = Decimal(random.randint(1500, 3000) if electricity
+        else random.randint(20, 40))
     reading2 = MeterReading()
     reading2.base_object = obj
     reading2.m_type = 'reading'
@@ -337,7 +459,10 @@ def create_meter(parent, name: str, sequence: int, company, uom, admin_user,
     reading2.value = verbrauch
     reading2.save()
 
-    print(f'    Zähler:    {name} (id={obj.id}, meter_id={meter_id}, Verbrauch={verbrauch} m³)')
+    unit = 'kWh' if electricity else 'm³'
+    print(f'    Zähler:    {name} (id={obj.id}, meter_id={meter_id}, '
+          f'Verbrauch={verbrauch} {unit}, Eichung {calibration_date:%d.%m.%Y} '
+          f'bis {obj.meter_calibration_valid_to:%d.%m.%Y}{ids})')
 
 
 def create_smoke_detector(apt, nr: int, count: int, company, kind, t_items):
@@ -359,9 +484,11 @@ def create_smoke_detector(apt, nr: int, count: int, company, kind, t_items):
     print(f'    Anlage:    {obj.name} ({count} Melder)')
 
 
-def create_inspection_plans(prop, company) -> None:
+def create_inspection_plans(prop, company, responsible=None,
+        contractor=None) -> None:
     """Prüfpläne je Gebäude für die Standard-Prüfarten (Begehung,
-    Rauchwarnmelder)"""
+    Rauchwarnmelder) mit Verantwortlichem, Auftragnehmer und zuletzt
+    erledigt (ein Intervall vor der nächsten Fälligkeit)"""
     Type = Model.get('real_estate.inspection.type')
     Plan = Model.get('real_estate.inspection.plan')
     BaseObject = Model.get('real_estate.base_object')
@@ -390,8 +517,56 @@ def create_inspection_plans(prop, company) -> None:
             plan.lead_time_days = types[0].lead_time_days
             plan.owner_maintains = owner_maintains
             plan.next_due_date = due
+            if responsible:
+                plan.responsible_user = responsible
+            if contractor:
+                plan.contractor = contractor
             plan.save()
-        print(f'  Prüfpläne: {types[0].name} für {len(buildings)} Gebäude')
+            # "Last Done" is read-only in the client (set when an inspection
+            # is completed) - written directly, as the date before the
+            # first due date of the plan
+            last_done = previous_due(due, types[0])
+            Plan.write([plan], {'last_done_date': last_done},
+                config.get_config().context)
+        print(f'  Prüfpläne: {types[0].name} für {len(buildings)} Gebäude '
+              f'(zuletzt erledigt {last_done:%d.%m.%Y})')
+
+
+def previous_due(due, inspection_type):
+    """Due date one interval before 'due' (interval of the inspection
+    type in months or years)."""
+    interval = inspection_type.interval or 1
+    unit = {'day': 'days', 'week': 'weeks', 'month': 'months',
+        'year': 'years'}.get(inspection_type.interval_unit, 'years')
+    return due - relativedelta(**{unit: interval})
+
+
+def get_responsible_user(administrator, admin_user):
+    """User of the employee "Verwalter 1" - admin if no user has this
+    employee (the script assigns none)."""
+    User = Model.get('res.user')
+    Employee = Model.get('company.employee')
+    employees = Employee.find([('party', '=', administrator.id)])
+    if employees:
+        users = User.find([('employees', 'in', [e.id for e in employees])])
+        if users:
+            return users[0]
+    print(f'  Hinweis: kein Benutzer zum Mitarbeiter {administrator.name} - '
+          f'Verantwortlicher der Prüfpläne: {admin_user.login}')
+    return admin_user
+
+
+def get_contractor():
+    """Contractor of the inspection plans: supplier of demo_kreditor.py
+    (runs before this script in demo_run.py) - None with a hint."""
+    Party = Model.get('party.party')
+    parties = Party.find([('name', '=', INSPECTION_CONTRACTOR)])
+    if not parties:
+        print(f'  Hinweis: Lieferant "{INSPECTION_CONTRACTOR}" fehlt '
+              '(demo_kreditor.py vorher ausführen) - Prüfpläne ohne '
+              'Auftragnehmer.')
+        return None
+    return parties[0]
 
 
 def get_role_by_sequence(sequence: int):
@@ -488,7 +663,7 @@ def create_building(house_nr: int, building_seq: int, prop, company,
                     apt_start_nr: int, uc_apartment,
                     retail_start_nr: int, uc_retail,
                     usable_space_type=None, smoke_kind=None,
-                    t_items=None, cold_water_kind=None) -> tuple:
+                    t_items=None, cold_water_kind=None, uom_kwh=None) -> tuple:
     """Create one building with 1 retail space (EG) and 4 apartments (1.OG/2.OG).
     Returns (next_apt_nr, next_retail_nr)."""
     address = create_re_address(house_nr, country)
@@ -504,6 +679,11 @@ def create_building(house_nr: int, building_seq: int, prop, company,
     building.address = address
     building.save()
     create_measurement(building, t_bgf, 3500.0)
+    # house electricity meter of the building with MeLo-ID and MaLo-ID (no
+    # equipment kind for electricity meters in the standard data)
+    create_meter(building, f'Hausstrom Zähler {house_nr}', sequence=90,
+                 company=company, uom=uom_kwh, admin_user=admin_user,
+                 electricity=True)
 
     # Retail space on floor 0 (EG)
     retail = create_base_object(
@@ -542,6 +722,8 @@ def create_building(house_nr: int, building_seq: int, prop, company,
             use_class=uc_apartment,
             floor=floor,
         )
+        apt.basement_nr = f'K{nr:02d}'
+        apt.save()
         create_measurement(apt, t_raume, float(rooms))
         create_measurement(apt, t_wfl, area)
         # Wohnfläche includes half of the 6 m² balcony (3 m²), which is
@@ -593,6 +775,10 @@ def main():
             sys.exit(EXIT_EXISTS)
 
     uom_m3 = get_uom('m³')
+    ModelData = Model.get('ir.model.data')
+    uom_kwh = Model.get('product.uom')(ModelData.get_id(
+            'product.uom_energy_kwh', config.get_config().context))
+    _self_test_ids()
 
     uc_apartment = get_use_class('Apartment')
     uc_parking = get_use_class('Parking')
@@ -631,11 +817,13 @@ def main():
     administrator = get_or_create_staff(
         'Verwalter 1', company, employee_role)
     caretaker = get_or_create_staff('Hausmeister 1', company, employee_role)
+    responsible = get_responsible_user(administrator, admin_user)
+    contractor = get_contractor()
 
     building_args = dict(
         company=company, country=country_de,
         t_bgf=t_bgf, t_raume=t_raume, t_wfl=t_wfl, t_gwfl=t_gwfl, t_heiz=t_heiz,
-        uom_m3=uom_m3, admin_user=admin_user,
+        uom_m3=uom_m3, uom_kwh=uom_kwh, admin_user=admin_user,
         uc_apartment=uc_apartment, uc_retail=uc_retail,
         usable_space_type=t_usable_space,
         smoke_kind=smoke_kind, t_items=t_items,
@@ -663,7 +851,7 @@ def main():
     print('\n--- Grundstück Musterstraße 1-4 ---')
     create_land_with_parking('Musterstraße 1-4', prop1, company, sequence=50,
                              uc_parking=uc_parking, usable_space_type=t_usable_space)
-    create_inspection_plans(prop1, company)
+    create_inspection_plans(prop1, company, responsible, contractor)
 
     # Wirtschaftseinheit 2: Musterstraße 5-8
     print('\n=== Wirtschaftseinheit: Musterstraße 5-8 ===')
@@ -686,7 +874,7 @@ def main():
     print('\n--- Grundstück Musterstraße 5-8 ---')
     create_land_with_parking('Musterstraße 5-8', prop2, company, sequence=50,
                              uc_parking=uc_parking, usable_space_type=t_usable_space)
-    create_inspection_plans(prop2, company)
+    create_inspection_plans(prop2, company, responsible, contractor)
 
     # Optionssätze einmal zum Beginn ermitteln (Assistent "Optionssätze
     # aktualisieren")
