@@ -32,8 +32,8 @@ Das Skript legt folgende Objekte an:
           - Ablesung zum 30.04. des Startjahres mit zufälligem Verbrauch zwischen 20 und 40 m³
   - Kellernummer der Wohnungen: "K" + Wohnungsnummer (K01–K16).
   - Je Gebäude 1 Hausstrom-Zähler "Hausstrom Zähler <Hausnr.>" am Gebäude
-    (Equipment, e_type: meters, Einheit kWh, ohne Anlagenart - die
-    Standarddaten haben keine für Strom), Initialablesung 0 kWh zum 01.01.
+    (Equipment, e_type: meters, Einheit kWh, Anlagenart Zähler (Strom),
+    Code electricity_meter, über die XML-ID), Initialablesung 0 kWh zum 01.01.
     und Ablesung zum 30.04. des Startjahres (1.500-3.000 kWh), mit
       - MeLo-ID (33 Zeichen): "DE" + 6 Ziffern Netzbetreiber (fiktiv 000123)
         + 5 Ziffern Postleitzahl (14163) + 20 Ziffern Zählpunktnummer
@@ -65,7 +65,7 @@ Das Skript legt folgende Objekte an:
     Folgejahres, Wartung durch
     Eigentümer) - sofern die Standard-Prüfarten (Codes "walkthrough",
     "smoke_detector") vorhanden sind. Verantwortlicher: der Benutzer des
-    Mitarbeiters "Verwalter 1", sonst admin; Auftragnehmer: Lieferant
+    Mitarbeiters "Verwalter 1" (verwalter_1), admin nur als Rückfall; Auftragnehmer: Lieferant
     "B&O GmbH" aus demo_kreditor.py (fehlt er, nur ein Hinweis);
     zuletzt erledigt: ein Intervall vor der ersten Fälligkeit (Feld im
     Client schreibgeschützt, direkt geschrieben).
@@ -89,8 +89,16 @@ Das Skript legt folgende Objekte an:
   - Beide werden jeder Wirtschaftseinheit als Partner zum Objekt zugeordnet
     (Rolle Verwalter bzw. Hausmeister, gültig ab 01.01. des Startjahres) - Grundlage der
     Zuständigkeit von Aufgaben über die Partnerrolle.
-  - Die Zuordnung Benutzer <-> Mitarbeiter erfolgt nicht im Skript; am Ende
-    wird ein Hinweis ausgegeben.
+  - Direkt danach die Benutzer (ohne Passwort, Gesellschaft und erlaubte
+    Gesellschaften = Company, Sprache Deutsch, Gruppen über die XML-ID):
+      - verwalter_1 "Verwalter 1", Mitarbeiter Verwalter 1, Gruppen Real
+        Estate Administration, Real Estate Object, Accounting, Party
+        Administration;
+      - hausmeister_1 "Hausmeister 1", Mitarbeiter Hausmeister 1, Gruppen
+        Real Estate View, Real Estate Object.
+    Ein vorhandener Benutzer mit gleichem Login wird nicht geändert (fehlt
+    ihm der Mitarbeiter, nur ein Hinweis). Am Ende ein Hinweis: Passwort von
+    Hand setzen.
 
 Das Skript ist idempotent: es bricht ab, wenn eine Property mit dem Namen
 "Musterstraße 1-4" oder "Musterstraße 5-8" in der Zieldatenbank bereits vorhanden ist.
@@ -129,6 +137,21 @@ from proteus import Model, Wizard, config
 # Exit code "data exist, nothing created" (demo_run.py shows the step as
 # skipped); 0 = done, 1 = error, 2 = wrong call (argparse)
 EXIT_EXISTS = 3
+
+# Users of the demo employees (Q9 A3): login, name of the employee party and
+# groups by XML-ID; created without password (set by hand)
+STAFF_USERS = [
+    ('verwalter_1', 'Verwalter 1', [
+        'real_estate.group_real_estate_admin',
+        'real_estate.group_real_estate_object',
+        'account.group_account',
+        'party.group_party_admin',
+        ]),
+    ('hausmeister_1', 'Hausmeister 1', [
+        'real_estate.group_real_estate_view',
+        'real_estate.group_real_estate_object',
+        ]),
+    ]
 
 # Start year of the demo data (--year, default: current year - 1); set from
 # the parameter in main() via set_start_year()
@@ -542,8 +565,8 @@ def previous_due(due, inspection_type):
 
 
 def get_responsible_user(administrator, admin_user):
-    """User of the employee "Verwalter 1" - admin if no user has this
-    employee (the script assigns none)."""
+    """User of the employee "Verwalter 1" (verwalter_1, see
+    create_staff_users) - admin only as a fallback."""
     User = Model.get('res.user')
     Employee = Model.get('company.employee')
     employees = Employee.find([('party', '=', administrator.id)])
@@ -554,6 +577,74 @@ def get_responsible_user(administrator, admin_user):
     print(f'  Hinweis: kein Benutzer zum Mitarbeiter {administrator.name} - '
           f'Verantwortlicher der Prüfpläne: {admin_user.login}')
     return admin_user
+
+
+def get_by_xml_id(model: str, xml_id: str):
+    """Record of the data XML by its XML-ID - None if it is missing."""
+    ModelData = Model.get('ir.model.data')
+    try:
+        record_id = ModelData.get_id(xml_id, config.get_config().context)
+    except Exception:
+        return None
+    return Model.get(model)(record_id)
+
+
+def create_staff_users(company, lang) -> list:
+    """Users of the demo employees (STAFF_USERS) without password. An
+    existing user with the same login is not changed; a hint is printed if
+    it lacks the employee. Returns the logins of the created users."""
+    created = []
+    User = Model.get('res.user')
+    Group = Model.get('res.group')
+    Party = Model.get('party.party')
+    Employee = Model.get('company.employee')
+    Company = Model.get('company.company')
+    for login, name, group_xml_ids in STAFF_USERS:
+        parties = Party.find([('name', '=', name)])
+        employees = Employee.find([
+            ('party', 'in', [p.id for p in parties]),
+            ('company', '=', company.id)]) if parties else []
+        employee = employees[0] if employees else None
+        with config.get_config().set_context(active_test=False):
+            users = User.find([('login', '=', login)])
+        if users:
+            user = users[0]
+            print(f'  Benutzer:  {login} vorhanden (id={user.id}), '
+                  'nicht geändert')
+            if employee and employee.id not in [
+                    e.id for e in user.employees]:
+                print(f'  Hinweis: Benutzer {login} ohne Mitarbeiter '
+                      f'{name} - bitte von Hand zuordnen.')
+            continue
+        if not employee:
+            print(f'  Hinweis: Mitarbeiter {name} fehlt - Benutzer {login} '
+                  'nicht angelegt.')
+            continue
+        user = User(login=login, name=name)
+        user.companies.append(Company(company.id))
+        user.company = Company(company.id)
+        user.employees.append(Employee(employee.id))
+        user.employee = Employee(employee.id)
+        # res.user.language only allows translatable languages
+        if lang and lang.translatable:
+            user.language = lang
+        elif lang:
+            print(f'  Hinweis: Sprache {lang.name} nicht übersetzbar '
+                  f'geladen - Benutzer {login} ohne Sprache.')
+        missing = []
+        for xml_id in group_xml_ids:
+            group = get_by_xml_id('res.group', xml_id)
+            if group:
+                user.groups.append(Group(group.id))
+            else:
+                missing.append(xml_id)
+        user.save()
+        created.append(login)
+        print(f'  Benutzer:  {login} angelegt (id={user.id}, ohne Passwort, '
+              f'Gruppen: {", ".join(g.name for g in user.groups)})')
+        if missing:
+            print(f'  Hinweis: Gruppen nicht gefunden: {", ".join(missing)}')
+    return created
 
 
 def get_contractor():
@@ -663,7 +754,8 @@ def create_building(house_nr: int, building_seq: int, prop, company,
                     apt_start_nr: int, uc_apartment,
                     retail_start_nr: int, uc_retail,
                     usable_space_type=None, smoke_kind=None,
-                    t_items=None, cold_water_kind=None, uom_kwh=None) -> tuple:
+                    t_items=None, cold_water_kind=None, uom_kwh=None,
+                    electricity_kind=None) -> tuple:
     """Create one building with 1 retail space (EG) and 4 apartments (1.OG/2.OG).
     Returns (next_apt_nr, next_retail_nr)."""
     address = create_re_address(house_nr, country)
@@ -679,11 +771,10 @@ def create_building(house_nr: int, building_seq: int, prop, company,
     building.address = address
     building.save()
     create_measurement(building, t_bgf, 3500.0)
-    # house electricity meter of the building with MeLo-ID and MaLo-ID (no
-    # equipment kind for electricity meters in the standard data)
+    # house electricity meter of the building with MeLo-ID and MaLo-ID
     create_meter(building, f'Hausstrom Zähler {house_nr}', sequence=90,
                  company=company, uom=uom_kwh, admin_user=admin_user,
-                 electricity=True)
+                 kind=electricity_kind, electricity=True)
 
     # Retail space on floor 0 (EG)
     retail = create_base_object(
@@ -802,6 +893,14 @@ def main():
     if not cold_water_kind:
         print('WARNUNG: Anlagenart "cold_water_meter" nicht gefunden - '
             'Wasserzähler ohne Anlagenart.')
+    electricity_kind = get_by_xml_id(
+        'real_estate.equipment.kind',
+        'real_estate.equipment_kind_electricity_meter')
+    if not electricity_kind:
+        print('WARNUNG: Anlagenart "electricity_meter" nicht gefunden - '
+            'Hausstrom-Zähler ohne Anlagenart.')
+    langs = Model.get('ir.lang').find([('code', '=', 'de')])
+    lang_de = langs[0] if langs else None
 
     country_de = get_country('DE')
     if not country_de:
@@ -817,6 +916,7 @@ def main():
     administrator = get_or_create_staff(
         'Verwalter 1', company, employee_role)
     caretaker = get_or_create_staff('Hausmeister 1', company, employee_role)
+    created_users = create_staff_users(company, lang_de)
     responsible = get_responsible_user(administrator, admin_user)
     contractor = get_contractor()
 
@@ -827,7 +927,7 @@ def main():
         uc_apartment=uc_apartment, uc_retail=uc_retail,
         usable_space_type=t_usable_space,
         smoke_kind=smoke_kind, t_items=t_items,
-        cold_water_kind=cold_water_kind,
+        cold_water_kind=cold_water_kind, electricity_kind=electricity_kind,
     )
 
     # Wirtschaftseinheit 1: Musterstraße 1-4
@@ -882,15 +982,12 @@ def main():
     update_option_rates(company, [prop1, prop2], START_DATE)
 
     print('\nFertig.')
-    print(
-        '\nHINWEIS: Die Mitarbeiter "Verwalter 1" und "Hausmeister 1" sind '
-        'noch keinem\nBenutzer zugeordnet. Damit Aufgaben mit Partnerrolle '
-        'einem Benutzer zugewiesen\nwerden, bitte in Tryton unter '
-        '"Verwaltung > Benutzer > Benutzer" beim jeweiligen\nBenutzer im Feld '
-        '"Mitarbeiter" den Mitarbeiter eintragen (und als "Aktueller\n'
-        'Mitarbeiter" wählen). Der Benutzer braucht zusätzlich eine Gruppe mit '
-        'Schreibrecht\nauf Aufgaben, z. B. "Immobilienvertrag" bzw. '
-        '"Immobilienobjekt".')
+    if created_users:
+        print(
+            '\nHINWEIS: Die Benutzer ' + ' und '.join(created_users)
+            + ' haben kein Passwort und können sich\nerst anmelden, wenn es '
+            'von Hand gesetzt ist ("Verwaltung > Benutzer >\nBenutzer", Feld '
+            '"Passwort").')
 
 
 if __name__ == '__main__':

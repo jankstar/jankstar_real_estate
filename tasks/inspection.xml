@@ -914,6 +914,10 @@
             <field name="name">Meter (Cold Water)</field>
             <field name="code">cold_water_meter</field>
         </record>
+        <record model="real_estate.equipment.kind" id="equipment_kind_electricity_meter">
+            <field name="name">Meter (Electricity)</field>
+            <field name="code">electricity_meter</field>
+        </record>
         <record model="ir.sequence.type" id="sequence_type_inspection">
             <field name="name">Inspection</field>
         </record>

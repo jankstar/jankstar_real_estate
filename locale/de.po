@@ -17059,6 +17059,10 @@ msgctxt "model:real_estate.equipment.kind,name:equipment_kind_cold_water_meter"
 msgid "Meter (Cold Water)"
 msgstr "Zähler (Kaltwasser)"
 
+msgctxt "model:real_estate.equipment.kind,name:equipment_kind_electricity_meter"
+msgid "Meter (Electricity)"
+msgstr "Zähler (Strom)"
+
 msgctxt "model:real_estate.equipment.kind,name:equipment_kind_hot_water_meter"
 msgid "Meter (Hot Water)"
 msgstr "Zähler (Warmwasser)"

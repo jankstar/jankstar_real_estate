@@ -79,9 +79,15 @@ are given as day and month of the start year.
    (existing ones are reused), and assigns them to both properties as
    object parties with the roles *Administrator* and *Caretaker* (valid
    from 01.01. of the start year) - the basis of the task responsibility by party role
-   (see `Tasks, Processes and Handover Reports <tasks.rst>`__). Linking the
-   employees to users is left to the administrator; the script prints a
-   hint at the end. Each apartment gets a smoke detector equipment
+   (see `Tasks, Processes and Handover Reports <tasks.rst>`__). Right after
+   the employees it creates the users ``verwalter_1`` (groups *Real Estate
+   Administration*, *Real Estate Object*, *Accounting*, *Party
+   Administration*) and ``hausmeister_1`` (*Real Estate View*, *Real
+   Estate Object*) with their employee, the company and the language
+   German (only if loaded as translatable), groups by XML-ID, **without
+   password** - set it by hand before logging in (hint at the end). An
+   existing user with the same login is not changed (hint if it lacks the
+   employee). Each apartment gets a smoke detector equipment
    (equipment kind *Smoke Detector*, measurement *Number of items* = number
    of rooms) and each building the inspection plans *Annual Walkthrough*
    (due 01.04. of the following year) and *Smoke Detector Check* (due 15.05.
@@ -94,12 +100,12 @@ are given as day and month of the start year.
    have no usable space, rental objects fixed: 0 % for apartments and
    parking, 100 % for retail). Further fields: basement number
    ``K<nn>`` of the apartments; per building a house electricity meter
-   (kWh, no equipment kind) with MeLo-ID (33 characters) and MaLo-ID
+   (kWh, equipment kind *Meter (Electricity)*) with MeLo-ID (33 characters) and MaLo-ID
    (11 digits, BDEW check digit); calibration on all meters (validity 5
    years, *valid to* proposed by the module, two meters due within the
    next 3 months for rule O03); tight housing market and reduced cap 15 %
    on both properties from the start year; inspection plans with
-   responsible user, contractor *B&O GmbH* (from ``demo_kreditor.py``)
+   responsible user ``verwalter_1`` (admin only as a fallback), contractor *B&O GmbH* (from ``demo_kreditor.py``)
    and last done date. Looks up ``real_estate.use_class``,
    measurement types and object party roles by ``sequence``, equipment
    kind and inspection types by ``code`` (language-independent)::
